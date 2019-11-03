@@ -83,7 +83,8 @@ private:
 	struct thread_info {
 	public:
 		thread_info() = default;
-		thread_info(int s) : status(s) {
+		thread_info(int s)
+			: status(s) {
 		}
 
 		int status = 0;
@@ -92,7 +93,7 @@ private:
 	using threadmap_t = QHash<edb::tid_t, thread_info>;
 
 	edb::address_t page_size_;
-	threadmap_t    threads_;
+	threadmap_t threads_;
 };
 
 }

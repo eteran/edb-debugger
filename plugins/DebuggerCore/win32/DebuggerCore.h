@@ -31,27 +31,28 @@ class PlatformThread;
 
 class DebuggerCore : public DebuggerCoreBase {
 	Q_OBJECT
-    Q_PLUGIN_METADATA(IID "edb.IDebugger/1.0")
+	Q_PLUGIN_METADATA(IID "edb.IDebugger/1.0")
 	Q_INTERFACES(IDebugger)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 	friend class PlatformProcess;
 	friend class PlatformThread;
+
 public:
 	DebuggerCore();
 	~DebuggerCore() override;
 
 public:
-	bool has_extension(quint64 ext) const override ;
-	size_t page_size() const override ;
+	bool has_extension(quint64 ext) const override;
+	size_t page_size() const override;
 	std::size_t pointer_size() const override {
-		return sizeof(void*);
+		return sizeof(void *);
 	}
 	std::shared_ptr<IDebugEvent> wait_debug_event(int msecs) override;
 	Status attach(edb::pid_t pid) override;
 	Status detach() override;
-	void kill()override ;
+	void kill() override;
 
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
 
@@ -60,28 +61,33 @@ public:
 		return MeansOfCapture::NeverCaptured;
 	}
 
-	int sys_pointer_size() const ;
+	int sys_pointer_size() const;
 	QMap<qlonglong, QString> exceptions() const override;
 	QString exceptionName(qlonglong value) override {
-		qDebug("TODO: Implement DebuggerCore::exceptionName"); return "";
+		qDebug("TODO: Implement DebuggerCore::exceptionName");
+		return "";
 	}
-	
+
 	qlonglong exceptionValue(const QString &name) override {
-		qDebug("TODO: Implement DebuggerCore::exceptionValue"); return 0;
+		qDebug("TODO: Implement DebuggerCore::exceptionValue");
+		return 0;
 	}
 
 public:
 	// thread support stuff (optional)
-	QList<edb::tid_t> thread_ids() const    { return threads_.keys(); }
-	edb::tid_t active_thread() const        { return active_thread_; }
-	void set_active_thread(edb::tid_t tid)  { Q_ASSERT(threads_.contains(tid)); active_thread_ = tid; }
+	QList<edb::tid_t> thread_ids() const { return threads_.keys(); }
+	edb::tid_t active_thread() const { return active_thread_; }
+	void set_active_thread(edb::tid_t tid) {
+		Q_ASSERT(threads_.contains(tid));
+		active_thread_ = tid;
+	}
 
 public:
 	// process properties
 	edb::pid_t parent_pid(edb::pid_t pid) const override;
-	quint64 cpu_type() const override ;
+	quint64 cpu_type() const override;
 
-	CpuMode cpu_mode() const  override{
+	CpuMode cpu_mode() const override {
 		qDebug("TODO: Implement DebuggerCore::cpu_mode");
 		return CpuMode::Unknown;
 	}
@@ -96,7 +102,7 @@ public:
 	QString stack_pointer() const override;
 	QString frame_pointer() const override;
 	QString instruction_pointer() const override;
-	QString flag_register() const  override{
+	QString flag_register() const override {
 		qDebug("TODO: Implement DebuggerCore::flag_register");
 		return "";
 	}
@@ -113,11 +119,10 @@ private:
 	using threadmap_t = QHash<edb::tid_t, std::shared_ptr<PlatformThread>>;
 
 private:
-	size_t                    page_size_ = 0;
+	size_t page_size_ = 0;
 	std::shared_ptr<IProcess> process_;
-	threadmap_t               threads_;
-	edb::tid_t                active_thread_;
-
+	threadmap_t threads_;
+	edb::tid_t active_thread_;
 };
 
 }

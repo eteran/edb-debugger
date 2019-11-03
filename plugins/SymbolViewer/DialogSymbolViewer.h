@@ -55,9 +55,9 @@ private:
 
 private:
 	Ui::DialogSymbolViewer ui;
-	QStringListModel *model_;
-	QSortFilterProxyModel *filterModel_;
-	QPushButton *btnRefresh_;
+	QStringListModel *model_            = nullptr;
+	QSortFilterProxyModel *filterModel_ = nullptr;
+	QPushButton *buttonRefresh_         = nullptr;
 };
 
 }

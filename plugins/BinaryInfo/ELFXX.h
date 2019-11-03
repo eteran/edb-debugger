@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BinaryInfoPlugin {
 
-template <class elfxx_header>
+template <class ElfHeader>
 class ELFXX : public IBinary {
 public:
 	explicit ELFXX(const std::shared_ptr<IRegion> &region);
@@ -42,7 +42,7 @@ private:
 
 private:
 	std::shared_ptr<IRegion> region_;
-	elfxx_header header_;
+	ElfHeader header_;
 	edb::address_t baseAddress_{0};
 	std::vector<Header> headers_;
 };

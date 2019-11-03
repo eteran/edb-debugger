@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PLATFORM_EVENT_20121005_H_
 #define PLATFORM_EVENT_20121005_H_
 
-#include <QCoreApplication>
 #include "IDebugEvent.h"
+#include <QCoreApplication>
 
 namespace DebuggerCore {
 
@@ -50,7 +50,7 @@ public:
 	int code() const override;
 
 private:
-	int        status;
+	int status;
 	edb::pid_t pid;
 	edb::tid_t tid;
 };

@@ -31,26 +31,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace SymbolViewerPlugin {
 
-//------------------------------------------------------------------------------
-// Name: DialogSymbolViewer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogSymbolViewer::DialogSymbolViewer
+ * @param parent
+ * @param f
+ */
 DialogSymbolViewer::DialogSymbolViewer(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 
-	btnRefresh_ = new QPushButton(QIcon::fromTheme("view-refresh"), tr("Refresh"));
-	connect(btnRefresh_, &QPushButton::clicked, this, [this]() {
-		btnRefresh_->setEnabled(false);
+	buttonRefresh_ = new QPushButton(QIcon::fromTheme("view-refresh"), tr("Refresh"));
+	connect(buttonRefresh_, &QPushButton::clicked, this, [this]() {
+		buttonRefresh_->setEnabled(false);
 		doFind();
-		btnRefresh_->setEnabled(true);
+		buttonRefresh_->setEnabled(true);
 	});
 
-	ui.buttonBox->addButton(btnRefresh_, QDialogButtonBox::ActionRole);
+	ui.buttonBox->addButton(buttonRefresh_, QDialogButtonBox::ActionRole);
 
 	ui.listView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-	model_ = new QStringListModel(this);
+	model_       = new QStringListModel(this);
 	filterModel_ = new QSortFilterProxyModel(this);
 
 	filterModel_->setFilterKeyColumn(0);
@@ -61,10 +63,13 @@ DialogSymbolViewer::DialogSymbolViewer(QWidget *parent, Qt::WindowFlags f)
 	connect(ui.txtSearch, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_listView_doubleClicked
-// Desc: follows the found item in the data view
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogSymbolViewer::on_listView_doubleClicked
+ *
+ * follows the found item in the data view
+ *
+ * @param index
+ */
 void DialogSymbolViewer::on_listView_doubleClicked(const QModelIndex &index) {
 
 	const QString s = index.data().toString();
@@ -80,10 +85,10 @@ void DialogSymbolViewer::on_listView_doubleClicked(const QModelIndex &index) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: on_listView_customContextMenuRequested
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogSymbolViewer::on_listView_customContextMenuRequested
+ * @param pos
+ */
 void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &pos) {
 
 	const QModelIndex index = ui.listView->indexAt(pos);
@@ -109,10 +114,9 @@ void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &po
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuFollowInDump
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogSymbolViewer::mnuFollowInDump
+ */
 void DialogSymbolViewer::mnuFollowInDump() {
 	if (auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
@@ -120,10 +124,9 @@ void DialogSymbolViewer::mnuFollowInDump() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuFollowInDumpNewTab
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogSymbolViewer::mnuFollowInDumpNewTab
+ */
 void DialogSymbolViewer::mnuFollowInDumpNewTab() {
 	if (auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
@@ -131,10 +134,9 @@ void DialogSymbolViewer::mnuFollowInDumpNewTab() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuFollowInStack
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogSymbolViewer::mnuFollowInStack
+ */
 void DialogSymbolViewer::mnuFollowInStack() {
 	if (auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
@@ -142,10 +144,9 @@ void DialogSymbolViewer::mnuFollowInStack() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuFollowInCPU
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogSymbolViewer::mnuFollowInCPU
+ */
 void DialogSymbolViewer::mnuFollowInCPU() {
 	if (auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
@@ -153,10 +154,9 @@ void DialogSymbolViewer::mnuFollowInCPU() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: doFind
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogSymbolViewer::doFind
+ */
 void DialogSymbolViewer::doFind() {
 	QStringList results;
 
@@ -168,14 +168,13 @@ void DialogSymbolViewer::doFind() {
 	model_->setStringList(results);
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogSymbolViewer::showEvent
+ */
 void DialogSymbolViewer::showEvent(QShowEvent *) {
-	btnRefresh_->setEnabled(false);
+	buttonRefresh_->setEnabled(false);
 	doFind();
-	btnRefresh_->setEnabled(true);
+	buttonRefresh_->setEnabled(true);
 }
 
 }

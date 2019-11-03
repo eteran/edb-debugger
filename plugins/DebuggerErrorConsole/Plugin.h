@@ -52,7 +52,7 @@ private:
 
 private:
 	QPlainTextEdit *textWidget_ = nullptr;
-	QMenu *menu_ = nullptr;
+	QMenu *menu_                = nullptr;
 };
 
 }

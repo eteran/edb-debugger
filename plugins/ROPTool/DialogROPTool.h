@@ -60,9 +60,9 @@ private:
 
 private:
 	Ui::DialogROPTool ui;
-	QSortFilterProxyModel *filterModel_;
+	QSortFilterProxyModel *filterModel_ = nullptr;
 	QSet<QString> uniqueResults_;
-	QPushButton *buttonFind_;
+	QPushButton *buttonFind_ = nullptr;
 };
 
 }

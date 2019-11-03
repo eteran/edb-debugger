@@ -11,6 +11,7 @@ namespace BinarySearcherPlugin {
  */
 DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 }
 

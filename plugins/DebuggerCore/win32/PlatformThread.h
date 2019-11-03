@@ -19,11 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PLATFORM_THREAD_H
 #define PLATFORM_THREAD_H
 
-#include "IThread.h"
-#include "IProcess.h"
 #include "DebuggerCore.h"
-#include <memory>
+#include "IProcess.h"
+#include "IThread.h"
 #include <QCoreApplication>
+#include <memory>
 
 namespace DebuggerCorePlugin {
 
@@ -54,10 +54,10 @@ public:
 	bool isPaused() const override;
 
 private:
-	DebuggerCore *            core_;
+	DebuggerCore *core_;
 	std::shared_ptr<IProcess> process_;
-	HANDLE                    hThread_;
-	bool                      is_wow64_;
+	HANDLE hThread_;
+	bool is_wow64_;
 };
 
 }

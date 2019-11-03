@@ -23,26 +23,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace OpcodeSearcherPlugin {
 
-//------------------------------------------------------------------------------
-// Name: OpcodeSearcher
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief OpcodeSearcher::OpcodeSearcher
+ * @param parent
+ */
 OpcodeSearcher::OpcodeSearcher(QObject *parent)
 	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: ~OpcodeSearcher
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief OpcodeSearcher::~OpcodeSearcher
+ */
 OpcodeSearcher::~OpcodeSearcher() {
 	delete dialog_;
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief OpcodeSearcher::menu
+ * @param parent
+ * @return
+ */
 QMenu *OpcodeSearcher::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
@@ -55,10 +55,9 @@ QMenu *OpcodeSearcher::menu(QWidget *parent) {
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: showMenu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief OpcodeSearcher::showMenu
+ */
 void OpcodeSearcher::showMenu() {
 
 	if (!dialog_) {

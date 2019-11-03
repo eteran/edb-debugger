@@ -23,26 +23,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace SymbolViewerPlugin {
 
-//------------------------------------------------------------------------------
-// Name: SymbolViewer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief SymbolViewer::SymbolViewer
+ * @param parent
+ */
 SymbolViewer::SymbolViewer(QObject *parent)
 	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: ~SymbolViewer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief SymbolViewer::~SymbolViewer
+ */
 SymbolViewer::~SymbolViewer() {
 	delete dialog_;
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief SymbolViewer::menu
+ * @param parent
+ * @return
+ */
 QMenu *SymbolViewer::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
@@ -55,10 +55,9 @@ QMenu *SymbolViewer::menu(QWidget *parent) {
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: showMenu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief SymbolViewer::showMenu
+ */
 void SymbolViewer::showMenu() {
 
 	if (!dialog_) {

@@ -50,7 +50,7 @@ public:
 	void addResult(const Result &r);
 
 public:
-	QVector<Result> &results() { return results_; }
+	const QVector<Result> &results() const { return results_; }
 
 private:
 	QVector<Result> results_;

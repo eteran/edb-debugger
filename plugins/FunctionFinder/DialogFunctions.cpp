@@ -31,12 +31,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace FunctionFinderPlugin {
 
-//------------------------------------------------------------------------------
-// Name: DialogFunctions
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogFunctions::DialogFunctions
+ * @param parent
+ * @param f
+ */
 DialogFunctions::DialogFunctions(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
@@ -55,10 +57,9 @@ DialogFunctions::DialogFunctions(QWidget *parent, Qt::WindowFlags f)
 	ui.buttonBox->addButton(buttonFind_, QDialogButtonBox::ActionRole);
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogFunctions::showEvent
+ */
 void DialogFunctions::showEvent(QShowEvent *) {
 	filterModel_->setFilterKeyColumn(3);
 	filterModel_->setSourceModel(&edb::v1::memory_regions());
@@ -67,15 +68,14 @@ void DialogFunctions::showEvent(QShowEvent *) {
 	ui.progressBar->setValue(0);
 }
 
-//------------------------------------------------------------------------------
-// Name: doFind
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogFunctions::doFind
+ */
 void DialogFunctions::doFind() {
 
 	if (IAnalyzer *const analyzer = edb::v1::analyzer()) {
 		const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
-		const QModelIndexList sel = selModel->selectedRows();
+		const QModelIndexList sel                 = selModel->selectedRows();
 
 		if (sel.size() == 0) {
 			QMessageBox::critical(this, tr("No Region Selected"), tr("You must select a region which is to be scanned for functions."));

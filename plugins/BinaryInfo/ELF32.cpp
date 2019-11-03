@@ -23,10 +23,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BinaryInfoPlugin {
 
-//------------------------------------------------------------------------------
-// Name: native
-// Desc: returns true if this binary is native to the arch edb was built for
-//------------------------------------------------------------------------------
+/**
+ * @brief ELF32::native
+ * @return true if this binary is native to the arch edb was built for
+ */
 template <>
 bool ELF32::native() const {
 	return edb::v1::debugger_core->cpuType() == edb::string_hash("x86");

@@ -12,10 +12,11 @@ namespace OpcodeSearcherPlugin {
  */
 DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	model_ = new ResultsModel(this);
+	model_       = new ResultsModel(this);
 	filterModel_ = new QSortFilterProxyModel(this);
 
 	filterModel_->setFilterKeyColumn(1);

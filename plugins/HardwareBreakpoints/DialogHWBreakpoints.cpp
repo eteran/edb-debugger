@@ -26,12 +26,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace HardwareBreakpointsPlugin {
 
-//------------------------------------------------------------------------------
-// Name: DialogHWBreakpoints
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogHWBreakpoints::DialogHWBreakpoints
+ * @param parent
+ * @param f
+ */
 DialogHWBreakpoints::DialogHWBreakpoints(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 
 	connect(ui.cmbType1, SIGNAL(currentIndexChanged(int)), this, SLOT(type1IndexChanged(int)));
@@ -40,42 +42,42 @@ DialogHWBreakpoints::DialogHWBreakpoints(QWidget *parent, Qt::WindowFlags f)
 	connect(ui.cmbType4, SIGNAL(currentIndexChanged(int)), this, SLOT(type4IndexChanged(int)));
 }
 
-//------------------------------------------------------------------------------
-// Name: type1IndexChanged
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogHWBreakpoints::type1IndexChanged
+ * @param index
+ */
 void DialogHWBreakpoints::type1IndexChanged(int index) {
 	ui.cmbSize1->setEnabled(index != 0);
 }
 
-//------------------------------------------------------------------------------
-// Name: type2IndexChanged
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogHWBreakpoints::type2IndexChanged
+ * @param index
+ */
 void DialogHWBreakpoints::type2IndexChanged(int index) {
 	ui.cmbSize2->setEnabled(index != 0);
 }
 
-//------------------------------------------------------------------------------
-// Name: type3IndexChanged
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogHWBreakpoints::type3IndexChanged
+ * @param index
+ */
 void DialogHWBreakpoints::type3IndexChanged(int index) {
 	ui.cmbSize3->setEnabled(index != 0);
 }
 
-//------------------------------------------------------------------------------
-// Name: type4IndexChanged
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogHWBreakpoints::type4IndexChanged
+ * @param index
+ */
 void DialogHWBreakpoints::type4IndexChanged(int index) {
 	ui.cmbSize4->setEnabled(index != 0);
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogHWBreakpoints::showEvent
+ * @param event
+ */
 void DialogHWBreakpoints::showEvent(QShowEvent *event) {
 	Q_UNUSED(event)
 
@@ -84,10 +86,10 @@ void DialogHWBreakpoints::showEvent(QShowEvent *event) {
 		State state;
 		process->currentThread()->getState(&state);
 
-		const BreakpointState bp_state1 = breakpointState(&state, Register1);
-		const BreakpointState bp_state2 = breakpointState(&state, Register2);
-		const BreakpointState bp_state3 = breakpointState(&state, Register3);
-		const BreakpointState bp_state4 = breakpointState(&state, Register4);
+		const BreakpointState bp_state1 = breakpoint_state(&state, Register1);
+		const BreakpointState bp_state2 = breakpoint_state(&state, Register2);
+		const BreakpointState bp_state3 = breakpoint_state(&state, Register3);
+		const BreakpointState bp_state4 = breakpoint_state(&state, Register4);
 
 		ui.chkBP1->setChecked(bp_state1.enabled);
 		ui.chkBP2->setChecked(bp_state2.enabled);

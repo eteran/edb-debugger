@@ -58,10 +58,10 @@ private:
 
 private:
 	Ui::DialogHeap ui;
-	ResultViewModel *model_;
-	QSortFilterProxyModel *filterModel_;
-	QPushButton *buttonAnalyze_;
-	QPushButton *buttonGraph_;
+	ResultViewModel *model_             = nullptr;
+	QSortFilterProxyModel *filterModel_ = nullptr;
+	QPushButton *buttonAnalyze_         = nullptr;
+	QPushButton *buttonGraph_           = nullptr;
 };
 
 }

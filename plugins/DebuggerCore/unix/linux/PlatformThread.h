@@ -19,10 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PLATFORM_THREAD_20151013_H_
 #define PLATFORM_THREAD_20151013_H_
 
-#include "IThread.h"
 #include "IBreakpoint.h"
-#include <memory>
+#include "IThread.h"
 #include <QCoreApplication>
+#include <memory>
 
 class IProcess;
 
@@ -37,9 +37,9 @@ class PlatformThread final : public IThread {
 
 public:
 	PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, edb::tid_t tid);
-	~PlatformThread() override                        = default;
-	PlatformThread(const PlatformThread &)            = delete;
-	PlatformThread& operator=(const PlatformThread &) = delete;
+	~PlatformThread() override             = default;
+	PlatformThread(const PlatformThread &) = delete;
+	PlatformThread &operator=(const PlatformThread &) = delete;
 
 public:
 	edb::tid_t tid() const override;
@@ -62,22 +62,22 @@ public:
 	bool isPaused() const override;
 
 private:
-	void fillSegmentBases(PlatformState* state);
-	bool fillStateFromPrStatus(PlatformState* state);
-	bool fillStateFromSimpleRegs(PlatformState* state);
+	void fillSegmentBases(PlatformState *state);
+	bool fillStateFromPrStatus(PlatformState *state);
+	bool fillStateFromSimpleRegs(PlatformState *state);
 #ifdef EDB_ARM32
-	bool fillStateFromVFPRegs(PlatformState* state);
+	bool fillStateFromVFPRegs(PlatformState *state);
 #endif
 
 private:
-	unsigned long get_debug_register(std::size_t n);
-	long set_debug_register(std::size_t n, long value);
+	unsigned long getDebugRegister(std::size_t n);
+	long setDebugRegister(std::size_t n, long value);
 
 private:
-	DebuggerCore *            core_ = nullptr;
+	DebuggerCore *core_ = nullptr;
 	std::shared_ptr<IProcess> process_;
-	edb::tid_t                tid_;
-	int                       status_        = 0;
+	edb::tid_t tid_;
+	int status_ = 0;
 
 #if defined EDB_ARM32 || defined EDB_ARM64
 private:

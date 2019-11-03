@@ -34,8 +34,8 @@ public:
 	PlatformEvent() = default;
 
 private:
-	PlatformEvent(const PlatformEvent &)            = default;
-	PlatformEvent& operator=(const PlatformEvent &) = default;
+	PlatformEvent(const PlatformEvent &) = default;
+	PlatformEvent &operator=(const PlatformEvent &) = default;
 
 public:
 	IDebugEvent *clone() const override;
@@ -59,10 +59,10 @@ private:
 	static IDebugEvent::Message createUnexpectedSignalMessage(const QString &name, int number);
 
 private:
-	siginfo_t  siginfo_ = {};
-	edb::pid_t pid_     = 0;
-	edb::tid_t tid_     = 0;
-	int        status_  = 0;
+	siginfo_t siginfo_ = {};
+	edb::pid_t pid_    = 0;
+	edb::tid_t tid_    = 0;
+	int status_        = 0;
 };
 
 }

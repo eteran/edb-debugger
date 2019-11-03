@@ -22,18 +22,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace HeapAnalyzerPlugin {
 
-//------------------------------------------------------------------------------
-// Name: ResultViewModel
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultViewModel::ResultViewModel
+ * @param parent
+ */
 ResultViewModel::ResultViewModel(QObject *parent)
 	: QAbstractItemModel(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: headerData
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultViewModel::headerData
+ * @param section
+ * @param orientation
+ * @param role
+ * @return
+ */
 QVariant ResultViewModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
 	if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
@@ -52,10 +55,12 @@ QVariant ResultViewModel::headerData(int section, Qt::Orientation orientation, i
 	return QVariant();
 }
 
-//------------------------------------------------------------------------------
-// Name: data
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultViewModel::data
+ * @param index
+ * @param role
+ * @return
+ */
 QVariant ResultViewModel::data(const QModelIndex &index, int role) const {
 
 	if (!index.isValid()) {
@@ -84,7 +89,7 @@ QVariant ResultViewModel::data(const QModelIndex &index, int role) const {
 		}
 		return QVariant();
 	case 3: {
-		switch (result.data_type) {
+		switch (result.dataType) {
 		case Result::Pointer: {
 			QStringList pointers;
 			if (edb::v1::debuggeeIs32Bit()) {
@@ -122,30 +127,32 @@ QVariant ResultViewModel::data(const QModelIndex &index, int role) const {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: addResult
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultViewModel::addResult
+ * @param r
+ */
 void ResultViewModel::addResult(const Result &r) {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
 	results_.push_back(r);
 	endInsertRows();
 }
 
-//------------------------------------------------------------------------------
-// Name: clearResults
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultViewModel::clearResults
+ */
 void ResultViewModel::clearResults() {
 	beginResetModel();
 	results_.clear();
 	endResetModel();
 }
 
-//------------------------------------------------------------------------------
-// Name: index
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultViewModel::index
+ * @param row
+ * @param column
+ * @param parent
+ * @return
+ */
 QModelIndex ResultViewModel::index(int row, int column, const QModelIndex &parent) const {
 
 	Q_UNUSED(parent)
@@ -165,28 +172,31 @@ QModelIndex ResultViewModel::index(int row, int column, const QModelIndex &paren
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: parent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultViewModel::parent
+ * @param index
+ * @return
+ */
 QModelIndex ResultViewModel::parent(const QModelIndex &index) const {
 	Q_UNUSED(index)
 	return QModelIndex();
 }
 
-//------------------------------------------------------------------------------
-// Name: rowCount
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultViewModel::rowCount
+ * @param parent
+ * @return
+ */
 int ResultViewModel::rowCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 	return results_.size();
 }
 
-//------------------------------------------------------------------------------
-// Name: columnCount
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultViewModel::columnCount
+ * @param parent
+ * @return
+ */
 int ResultViewModel::columnCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 	return 4;
@@ -205,7 +215,7 @@ void ResultViewModel::setPointerData(const QModelIndex &index, const std::vector
 	Result &result = results_[index.row()];
 
 	result.pointers = pointers;
-	result.data_type = Result::Pointer;
+	result.dataType = Result::Pointer;
 	Q_EMIT dataChanged(index, index);
 }
 

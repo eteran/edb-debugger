@@ -23,26 +23,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ROPToolPlugin {
 
-//------------------------------------------------------------------------------
-// Name: ROPTool
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ROPTool::ROPTool
+ * @param parent
+ */
 ROPTool::ROPTool(QObject *parent)
 	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: ~ROPTool
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ROPTool::~ROPTool
+ */
 ROPTool::~ROPTool() {
 	delete dialog_;
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ROPTool::menu
+ * @param parent
+ * @return
+ */
 QMenu *ROPTool::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
@@ -55,10 +55,9 @@ QMenu *ROPTool::menu(QWidget *parent) {
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: showMenu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ROPTool::showMenu
+ */
 void ROPTool::showMenu() {
 
 	if (!dialog_) {

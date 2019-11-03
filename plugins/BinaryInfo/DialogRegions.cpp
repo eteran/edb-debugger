@@ -33,6 +33,7 @@ namespace BinaryInfoPlugin {
  */
 DialogRegions::DialogRegions(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 	ui.tableView->verticalHeader()->hide();
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -40,10 +41,10 @@ DialogRegions::DialogRegions(QWidget *parent, Qt::WindowFlags f)
 	filterModel_ = new QSortFilterProxyModel(this);
 	connect(ui.txtSearch, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 
-	btnExplore_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Explore Header"));
-	connect(btnExplore_, &QPushButton::clicked, this, [this]() {
+	buttonExplore_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Explore Header"));
+	connect(buttonExplore_, &QPushButton::clicked, this, [this]() {
 		const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
-		const QModelIndexList sel = selModel->selectedRows();
+		const QModelIndexList sel                 = selModel->selectedRows();
 
 		if (sel.size() == 0) {
 			QMessageBox::critical(
@@ -63,7 +64,7 @@ DialogRegions::DialogRegions(QWidget *parent, Qt::WindowFlags f)
 		}
 	});
 
-	ui.buttonBox->addButton(btnExplore_, QDialogButtonBox::ActionRole);
+	ui.buttonBox->addButton(buttonExplore_, QDialogButtonBox::ActionRole);
 }
 
 /**

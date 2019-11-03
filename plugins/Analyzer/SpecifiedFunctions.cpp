@@ -38,7 +38,7 @@ SpecifiedFunctions::SpecifiedFunctions(QWidget *parent, Qt::WindowFlags f)
 
 	ui.setupUi(this);
 
-	model_ = new QStringListModel(this);
+	model_       = new QStringListModel(this);
 	filterModel_ = new QSortFilterProxyModel(this);
 
 	filterModel_->setFilterKeyColumn(0);
@@ -77,7 +77,7 @@ void SpecifiedFunctions::on_function_list_doubleClicked(const QModelIndex &index
  */
 void SpecifiedFunctions::doFind() {
 
-	IAnalyzer *const analyzer = edb::v1::analyzer();
+	IAnalyzer *const analyzer      = edb::v1::analyzer();
 	QSet<edb::address_t> functions = analyzer->specifiedFunctions();
 
 	QStringList results;

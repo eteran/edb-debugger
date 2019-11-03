@@ -49,7 +49,7 @@ private:
 
 private:
 	Ui::DialogReferences ui;
-	QPushButton *buttonFind_;
+	QPushButton *buttonFind_ = nullptr;
 };
 
 }

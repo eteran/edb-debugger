@@ -49,28 +49,11 @@ namespace ProcessPropertiesPlugin {
 Q_DECLARE_NAMESPACE_TR(ProcessPropertiesPlugin)
 
 namespace {
-
-#if defined(Q_OS_LINUX)
-//------------------------------------------------------------------------------
-// Name: file_type
-// Desc:
-//------------------------------------------------------------------------------
-QString file_type(const QString &filename) {
-	const QFileInfo info(filename);
-	const QString basename(info.completeBaseName());
-
-	if (basename.startsWith("socket:")) {
-		return tr("Socket");
-	}
-
-	if (basename.startsWith("pipe:")) {
-		return tr("Pipe");
-	}
-
-	return tr("File");
-}
-#endif
-
+/**
+ * @brief arguments_to_string
+ * @param args
+ * @return
+ */
 QString arguments_to_string(const QList<QByteArray> &args) {
 	QString ret;
 
@@ -83,6 +66,11 @@ QString arguments_to_string(const QList<QByteArray> &args) {
 	return ret;
 }
 
+/**
+ * @brief size_to_string
+ * @param n
+ * @return
+ */
 QString size_to_string(size_t n) {
 
 	static constexpr size_t KiB = 1024;
@@ -101,10 +89,33 @@ QString size_to_string(size_t n) {
 }
 
 #if defined(Q_OS_LINUX)
-//------------------------------------------------------------------------------
-// Name: tcp_socket_prcoessor
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief file_type
+ * @param filename
+ * @return
+ */
+QString file_type(const QString &filename) {
+	const QFileInfo info(filename);
+	const QString basename(info.completeBaseName());
+
+	if (basename.startsWith("socket:")) {
+		return tr("Socket");
+	}
+
+	if (basename.startsWith("pipe:")) {
+		return tr("Pipe");
+	}
+
+	return tr("File");
+}
+
+/**
+ * @brief tcp_socket_prcoessor
+ * @param symlink
+ * @param sock
+ * @param lst
+ * @return
+ */
 bool tcp_socket_prcoessor(QString *symlink, int sock, const QStringList &lst) {
 
 	Q_ASSERT(symlink);
@@ -143,10 +154,13 @@ bool tcp_socket_prcoessor(QString *symlink, int sock, const QStringList &lst) {
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name: udp_socket_processor
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief udp_socket_processor
+ * @param symlink
+ * @param sock
+ * @param lst
+ * @return
+ */
 bool udp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 
 	Q_ASSERT(symlink);
@@ -185,16 +199,20 @@ bool udp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name: unix_socket_processor
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief unix_socket_processor
+ * @param symlink
+ * @param sock
+ * @param lst
+ * @return
+ */
 bool unix_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 
 	Q_ASSERT(symlink);
 
 	if (lst.size() >= 6) {
 		bool ok;
+		// TODO(eteran): should this be toInt(...)?
 		const int inode = lst[6].toUInt(&ok, 10);
 		if (ok) {
 			if (inode == sock) {
@@ -206,12 +224,16 @@ bool unix_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name: process_socket_file
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief process_socket_file
+ * @param filename
+ * @param symlink
+ * @param sock
+ * @param func
+ * @return
+ */
 template <class F>
-QString process_socket_file(const QString &filename, QString *symlink, int sock, F fp) {
+QString process_socket_file(const QString &filename, QString *symlink, int sock, F func) {
 
 	Q_ASSERT(symlink);
 
@@ -233,7 +255,7 @@ QString process_socket_file(const QString &filename, QString *symlink, int sock,
 			QString lline(line);
 			const QStringList lst = lline.replace(":", " ").split(" ", QString::SkipEmptyParts);
 
-			if (fp(symlink, sock, lst)) {
+			if (func(symlink, sock, lst)) {
 				break;
 			}
 
@@ -243,10 +265,11 @@ QString process_socket_file(const QString &filename, QString *symlink, int sock,
 	return *symlink;
 }
 
-//------------------------------------------------------------------------------
-// Name: process_socket_tcp
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief process_socket_tcp
+ * @param symlink
+ * @return
+ */
 QString process_socket_tcp(QString *symlink) {
 
 	Q_ASSERT(symlink);
@@ -257,10 +280,11 @@ QString process_socket_tcp(QString *symlink) {
 	return process_socket_file("/proc/net/tcp", symlink, socket_number, tcp_socket_prcoessor);
 }
 
-//------------------------------------------------------------------------------
-// Name: process_socket_unix
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief process_socket_unix
+ * @param symlink
+ * @return
+ */
 QString process_socket_unix(QString *symlink) {
 
 	Q_ASSERT(symlink);
@@ -271,10 +295,11 @@ QString process_socket_unix(QString *symlink) {
 	return process_socket_file("/proc/net/unix", symlink, socket_number, unix_socket_processor);
 }
 
-//------------------------------------------------------------------------------
-// Name: process_socket_udp
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief process_socket_udp
+ * @param symlink
+ * @return
+ */
 QString process_socket_udp(QString *symlink) {
 
 	Q_ASSERT(symlink);
@@ -288,18 +313,20 @@ QString process_socket_udp(QString *symlink) {
 
 }
 
-//------------------------------------------------------------------------------
-// Name: DialogProcessProperties
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogProcessProperties::DialogProcessProperties
+ * @param parent
+ * @param f
+ */
 DialogProcessProperties::DialogProcessProperties(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 	ui.tableModules->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	ui.tableMemory->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	ui.threadTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	threadsModel_ = new ThreadsModel(this);
+	threadsModel_  = new ThreadsModel(this);
 	threadsFilter_ = new QSortFilterProxyModel(this);
 
 	threadsFilter_->setSourceModel(threadsModel_);
@@ -308,10 +335,9 @@ DialogProcessProperties::DialogProcessProperties(QWidget *parent, Qt::WindowFlag
 	ui.threadTable->setModel(threadsFilter_);
 }
 
-//------------------------------------------------------------------------------
-// Name: updateGeneralPage
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogProcessProperties::updateGeneralPage
+ */
 void DialogProcessProperties::updateGeneralPage() {
 	if (edb::v1::debugger_core) {
 		if (IProcess *process = edb::v1::debugger_core->process()) {
@@ -319,8 +345,8 @@ void DialogProcessProperties::updateGeneralPage() {
 			const QString cwd = process->currentWorkingDirectory();
 
 			std::shared_ptr<IProcess> parent = process->parent();
-			const edb::pid_t parent_pid = parent ? parent->pid() : 0;
-			const QString parent_exe = parent ? parent->executable() : QString();
+			const edb::pid_t parent_pid      = parent ? parent->pid() : 0;
+			const QString parent_exe         = parent ? parent->executable() : QString();
 
 			const QList<QByteArray> args = process->arguments();
 
@@ -345,10 +371,9 @@ void DialogProcessProperties::updateGeneralPage() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: updateModulePage
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogProcessProperties::updateModulePage
+ */
 void DialogProcessProperties::updateModulePage() {
 
 	ui.tableModules->clearContents();
@@ -368,10 +393,9 @@ void DialogProcessProperties::updateModulePage() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: updateMemoryPage
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogProcessProperties::updateMemoryPage
+ */
 void DialogProcessProperties::updateMemoryPage() {
 
 	ui.tableMemory->clearContents();
@@ -397,18 +421,18 @@ void DialogProcessProperties::updateMemoryPage() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: on_txtSearchEnvironment_textChanged
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogProcessProperties::on_txtSearchEnvironment_textChanged
+ * @param text
+ */
 void DialogProcessProperties::on_txtSearchEnvironment_textChanged(const QString &text) {
 	updateEnvironmentPage(text);
 }
 
-//------------------------------------------------------------------------------
-// Name: updateEnvironmentPage
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogProcessProperties::updateEnvironmentPage
+ * @param filter
+ */
 void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 	// tableEnvironment
 
@@ -423,11 +447,11 @@ void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 		QFile proc_environ(QString("/proc/%1/environ").arg(process->pid()));
 		if (proc_environ.open(QIODevice::ReadOnly)) {
 			QByteArray env = proc_environ.readAll();
-			char *p = env.data();
-			char *ptr = p;
+			char *p        = env.data();
+			char *ptr      = p;
 			while (ptr != p + env.size()) {
-				const QString env = QString::fromUtf8(ptr);
-				const QString env_name = env.mid(0, env.indexOf("="));
+				const QString env       = QString::fromUtf8(ptr);
+				const QString env_name  = env.mid(0, env.indexOf("="));
 				const QString env_value = env.mid(env.indexOf("=") + 1);
 
 				if (lower_filter.isEmpty() || env_name.contains(lower_filter, Qt::CaseInsensitive)) {
@@ -446,10 +470,9 @@ void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 	ui.tableEnvironment->setSortingEnabled(true);
 }
 
-//------------------------------------------------------------------------------
-// Name: updateHandles
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogProcessProperties::updateHandles
+ */
 void DialogProcessProperties::updateHandles() {
 
 	ui.tableHandles->setSortingEnabled(false);
@@ -491,10 +514,9 @@ void DialogProcessProperties::updateHandles() {
 	ui.tableHandles->setSortingEnabled(true);
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogProcessProperties::showEvent
+ */
 void DialogProcessProperties::showEvent(QShowEvent *) {
 	updateGeneralPage();
 	updateMemoryPage();
@@ -504,17 +526,16 @@ void DialogProcessProperties::showEvent(QShowEvent *) {
 	updateEnvironmentPage(ui.txtSearchEnvironment->text());
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnParent_clicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogProcessProperties::on_btnParent_clicked
+ */
 void DialogProcessProperties::on_btnParent_clicked() {
 
 	if (edb::v1::debugger_core) {
 		if (IProcess *process = edb::v1::debugger_core->process()) {
 
 			std::shared_ptr<IProcess> parent = process->parent();
-			const QString parent_exe = parent ? parent->executable() : QString();
+			const QString parent_exe         = parent ? parent->executable() : QString();
 
 			QFileInfo info(parent_exe);
 			QDir dir = info.absoluteDir();
@@ -523,10 +544,9 @@ void DialogProcessProperties::on_btnParent_clicked() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnImage_clicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogProcessProperties::on_btnImage_clicked
+ */
 void DialogProcessProperties::on_btnImage_clicked() {
 	if (edb::v1::debugger_core) {
 		QFileInfo info(ui.editImage->text());
@@ -535,52 +555,46 @@ void DialogProcessProperties::on_btnImage_clicked() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnRefreshEnvironment_clicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogProcessProperties::on_btnRefreshEnvironment_clicked
+ */
 void DialogProcessProperties::on_btnRefreshEnvironment_clicked() {
 	updateEnvironmentPage(ui.txtSearchEnvironment->text());
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnRefreshHandles_clicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogProcessProperties::on_btnRefreshHandles_clicked
+ */
 void DialogProcessProperties::on_btnRefreshHandles_clicked() {
 	updateHandles();
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnStrings_clicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogProcessProperties::on_btnStrings_clicked
+ */
 void DialogProcessProperties::on_btnStrings_clicked() {
 
 	static auto dialog = new DialogStrings(edb::v1::debugger_ui);
 	dialog->show();
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnRefreshMemory_clicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogProcessProperties::on_btnRefreshMemory_clicked
+ */
 void DialogProcessProperties::on_btnRefreshMemory_clicked() {
 	updateMemoryPage();
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnRefreshThreads_clicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogProcessProperties::on_btnRefreshThreads_clicked
+ */
 void DialogProcessProperties::on_btnRefreshThreads_clicked() {
 	updateThreads();
 }
 
-//------------------------------------------------------------------------------
-// Name: updateThreads
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogProcessProperties::updateThreads
+ */
 void DialogProcessProperties::updateThreads() {
 	threadsModel_->clear();
 

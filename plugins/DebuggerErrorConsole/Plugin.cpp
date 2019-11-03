@@ -30,13 +30,18 @@ namespace {
 QPointer<Plugin> instance = nullptr;
 }
 
+/**
+ * @brief Plugin::debugMessageIntercept
+ * @param type
+ * @param message
+ */
 void Plugin::debugMessageIntercept(QtMsgType type, const QMessageLogContext &, const QString &message) {
 
 	if (!instance) {
 		return;
 	}
 
-	QString text = [type, &message]() {
+	const QString text = [type, &message]() {
 		switch (type) {
 		case QtDebugMsg:
 			return tr("DEBUG %1").arg(message);
@@ -59,8 +64,13 @@ void Plugin::debugMessageIntercept(QtMsgType type, const QMessageLogContext &, c
 	std::cerr << message.toUtf8().constData() << "\n"; // this may be useful as a crash log
 }
 
+/**
+ * @brief Plugin::Plugin
+ * @param parent
+ */
 Plugin::Plugin(QObject *parent)
 	: QObject(parent) {
+
 	instance = this;
 
 	textWidget_ = new QPlainTextEdit;
@@ -74,6 +84,11 @@ Plugin::Plugin(QObject *parent)
 	qInstallMessageHandler(debugMessageIntercept);
 }
 
+/**
+ * @brief Plugin::menu
+ * @param parent
+ * @return
+ */
 QMenu *Plugin::menu(QWidget *parent) {
 	if (!menu_) {
 		if (auto mainWindow = qobject_cast<QMainWindow *>(edb::v1::debugger_ui)) {
@@ -109,6 +124,11 @@ QMenu *Plugin::menu(QWidget *parent) {
 	return menu_;
 }
 
+/**
+ * @brief DebuggerErrorConsole::DebuggerErrorConsole
+ * @param parent
+ * @param f
+ */
 DebuggerErrorConsole::DebuggerErrorConsole(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
 }

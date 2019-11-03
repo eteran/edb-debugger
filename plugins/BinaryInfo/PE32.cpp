@@ -34,18 +34,18 @@ const char *PEBinaryException::what() const noexcept {
 	return "PEBinaryException";
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PE32::PE32
+ * @param region
+ */
 PE32::PE32(const std::shared_ptr<IRegion> &region)
 	: region_(region) {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-	constexpr WORD dos_magic = 0x5A4D;
-	constexpr LONG pe_magic = 0x00004550;
+	constexpr WORD DosMagic = 0x5A4D;
+	constexpr LONG PeMagic  = 0x00004550;
 #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 	constexpr WORD dos_magic = 0x4D5A;
-	constexpr LONG pe_magic = 0x50450000;
+	constexpr LONG pe_magic  = 0x50450000;
 #endif
 
 	if (!region_) {
@@ -61,7 +61,7 @@ PE32::PE32(const std::shared_ptr<IRegion> &region)
 		throw PEBinaryException(PEBinaryException::Reason::READ_FAILURE);
 	}
 
-	if (dos_.e_magic != dos_magic || dos_.e_lfanew == 0) {
+	if (dos_.e_magic != DosMagic || dos_.e_lfanew == 0) {
 		throw PEBinaryException(PEBinaryException::Reason::INVALID_PE);
 	}
 
@@ -69,51 +69,51 @@ PE32::PE32(const std::shared_ptr<IRegion> &region)
 		throw PEBinaryException(PEBinaryException::Reason::READ_FAILURE);
 	}
 
-	if (pe_.Signature != pe_magic) {
+	if (pe_.Signature != PeMagic) {
 		throw PEBinaryException(PEBinaryException::Reason::INVALID_PE);
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PE32::entryPoint
+ * @return
+ */
 edb::address_t PE32::entryPoint() {
 	// TODO(eteran): relative to pe_.OptionalHeader.ImageBase;?
 	return pe_.OptionalHeader.AddressOfEntryPoint;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PE32::native
+ * @return
+ */
 bool PE32::native() const {
 	return true;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PE32::headerSize
+ * @return
+ */
 size_t PE32::headerSize() const {
 	return sizeof(pe_) + dos_.e_lfanew;
 }
 
-//------------------------------------------------------------------------------
-// Name: headers
-// Desc: returns a list of all headers in this binary
-//------------------------------------------------------------------------------
+/**
+ * @brief PE32::headers
+ * @return a list of all headers in this binary
+ */
 std::vector<IBinary::Header> PE32::headers() const {
 	std::vector<Header> results = {
 		{region_->start(), sizeof(pe_) + dos_.e_lfanew}};
 	return results;
 }
 
-//------------------------------------------------------------------------------
-// Name: header
-// Desc: returns a copy of the file header or nullptr if the region wasn't a
-//       valid, known binary type
-//------------------------------------------------------------------------------
+/**
+ * @brief PE32::header
+ * @return a copy of the file header or nullptr if the region wasn't a valid,
+ * known binary type
+ */
 const void *PE32::header() const {
 	return nullptr;
 }

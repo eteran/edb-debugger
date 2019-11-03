@@ -67,11 +67,11 @@ public:
 	}
 };
 
-template <class elfxx_header>
-ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region)
+template <class ElfHeader>
+ELFXX<ElfHeader>::ELFXX(const std::shared_ptr<IRegion> &region)
 	: region_(region) {
 
-	using phdr_type = typename elfxx_header::elf_phdr;
+	using phdr_type = typename ElfHeader::elf_phdr;
 
 	if (!region_) {
 		throw InvalidArguments();
@@ -82,7 +82,7 @@ ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region)
 		throw ReadFailure();
 	}
 
-	if (!process->readBytes(region_->start(), &header_, sizeof(elfxx_header))) {
+	if (!process->readBytes(region_->start(), &header_, sizeof(ElfHeader))) {
 		throw ReadFailure();
 	}
 
@@ -101,7 +101,7 @@ ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region)
 
 	phdr_type phdr;
 
-	auto phdr_base = region_->start() + header_.e_phoff;
+	auto phdr_base        = region_->start() + header_.e_phoff;
 	edb::address_t lowest = ULLONG_MAX;
 
 	if (header_.e_type == ET_EXEC) {
@@ -138,12 +138,12 @@ ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region)
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: header_size
-// Desc: returns the number of bytes in this executable's header
-//------------------------------------------------------------------------------
-template <class elfxx_header>
-size_t ELFXX<elfxx_header>::headerSize() const {
+template <class ElfHeader>
+/**
+ * @brief ELFXX<ElfHeader>::headerSize
+ * @return the number of bytes in this executable's header
+ */
+size_t ELFXX<ElfHeader>::headerSize() const {
 	size_t size = header_.e_ehsize;
 	// Do the program headers immediately follow the ELF header?
 	if (size == header_.e_phoff) {
@@ -152,45 +152,46 @@ size_t ELFXX<elfxx_header>::headerSize() const {
 	return size;
 }
 
-//------------------------------------------------------------------------------
-// Name: headers
-// Desc: returns a list of all headers in this binary
-//------------------------------------------------------------------------------
-template <class elfxx_header>
-std::vector<IBinary::Header> ELFXX<elfxx_header>::headers() const {
+/**
+ * @brief ELFXX<ElfHeader>::headers
+ * @return a list of all headers in this binary
+ */
+template <class ElfHeader>
+std::vector<IBinary::Header> ELFXX<ElfHeader>::headers() const {
 	return headers_;
 }
 
-//------------------------------------------------------------------------------
-// Name: validate_header
-// Desc: ensures that the header that we read was valid
-//------------------------------------------------------------------------------
-template <class elfxx_header>
-void ELFXX<elfxx_header>::validateHeader() {
+/**
+ * @brief ELFXX<ElfHeader>::validateHeader
+ *
+ * ensures that the header that we read was valid
+ */
+template <class ElfHeader>
+void ELFXX<ElfHeader>::validateHeader() {
 	if (std::memcmp(header_.e_ident, ELFMAG, SELFMAG) != 0) {
 		throw InvalidELF();
 	}
-	if (header_.e_ident[EI_CLASS] != elfxx_header::ELFCLASS) {
+	if (header_.e_ident[EI_CLASS] != ElfHeader::ELFCLASS) {
 		throw InvalidArchitecture();
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: entry_point
-// Desc: returns the entry point if any of the binary
-//------------------------------------------------------------------------------
-template <class elfxx_header>
-edb::address_t ELFXX<elfxx_header>::entryPoint() {
+/**
+ * @brief ELFXX<ElfHeader>::entryPoint
+ * @return the entry point if any of the binary
+ */
+template <class ElfHeader>
+edb::address_t ELFXX<ElfHeader>::entryPoint() {
 	return header_.e_entry + baseAddress_;
 }
 
-//------------------------------------------------------------------------------
-// Name: header
-// Desc: returns a copy of the file header or NULL if the region wasn't a valid,
-//       known binary type
-//------------------------------------------------------------------------------
-template <class elfxx_header>
-const void *ELFXX<elfxx_header>::header() const {
+/**
+ * @brief ELFXX<ElfHeader>::header
+ * @return a copy of the file header or nullptr if the region wasn't a valid,
+ * known binary type
+ */
+template <class ElfHeader>
+const void *ELFXX<ElfHeader>::header() const {
 	return &header_;
 }
 

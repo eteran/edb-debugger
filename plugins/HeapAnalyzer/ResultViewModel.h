@@ -47,9 +47,9 @@ struct Result {
 	};
 
 	edb::address_t address = 0;
-	edb::address_t size = 0;
+	edb::address_t size    = 0;
 	NodeType type;
-	DataType data_type = Unknown;
+	DataType dataType = Unknown;
 	QString data;
 	std::vector<edb::address_t> pointers;
 };
@@ -73,7 +73,7 @@ public:
 	void setPointerData(const QModelIndex &index, const std::vector<edb::address_t> &pointers);
 
 public:
-	QVector<Result> &results() { return results_; }
+	const QVector<Result> &results() const { return results_; }
 
 private:
 	QVector<Result> results_;

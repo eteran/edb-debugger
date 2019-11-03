@@ -27,9 +27,9 @@ namespace BinaryInfoPlugin {
 class PEBinaryException : public std::exception {
 public:
 	enum Reason {
-		INVALID_ARGUMENTS = 1,
-		READ_FAILURE = 2,
-		INVALID_PE = 3,
+		INVALID_ARGUMENTS    = 1,
+		READ_FAILURE         = 2,
+		INVALID_PE           = 3,
 		INVALID_ARCHITECTURE = 4
 	};
 

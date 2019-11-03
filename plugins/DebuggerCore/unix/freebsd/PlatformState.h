@@ -70,7 +70,7 @@ public:
 	Register gp_register(size_t n) const override;
 
 private:
-	reg   regs_;
+	reg regs_;
 	fpreg fpregs_;
 	dbreg dbregs_;
 };

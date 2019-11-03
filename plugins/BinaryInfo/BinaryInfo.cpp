@@ -43,7 +43,7 @@ BinaryInfo::BinaryInfo(QObject *parent)
 }
 
 /**
- * @brief BinaryInfo::private_init
+ * @brief BinaryInfo::privateInit
  */
 void BinaryInfo::privateInit() {
 
@@ -63,7 +63,7 @@ void BinaryInfo::privateInit() {
 }
 
 /**
- * @brief BinaryInfo::options_page
+ * @brief BinaryInfo::optionsPage
  * @return
  */
 QWidget *BinaryInfo::optionsPage() {
@@ -96,7 +96,7 @@ void BinaryInfo::exploreHeader() {
 }
 
 /**
- * @brief BinaryInfo::extra_arguments
+ * @brief BinaryInfo::extraArguments
  * @return
  */
 QString BinaryInfo::extraArguments() const {
@@ -104,7 +104,7 @@ QString BinaryInfo::extraArguments() const {
 }
 
 /**
- * @brief BinaryInfo::parse_arguments
+ * @brief BinaryInfo::parseArguments
  * @param args
  * @return
  */

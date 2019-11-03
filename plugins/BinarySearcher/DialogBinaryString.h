@@ -38,7 +38,7 @@ private:
 
 private:
 	Ui::DialogBinaryString ui;
-	QPushButton *buttonFind_;
+	QPushButton *buttonFind_ = nullptr;
 };
 
 }

@@ -51,7 +51,7 @@ public:
 
 private:
 	Ui::Bookmarks ui;
-	BookmarksModel *model_;
+	BookmarksModel *model_ = nullptr;
 };
 
 }

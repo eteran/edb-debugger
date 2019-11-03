@@ -50,7 +50,7 @@ public Q_SLOTS:
 	void addBookmarkMenu();
 
 private:
-	QMenu *menu_ = nullptr;
+	QMenu *menu_                    = nullptr;
 	BookmarkWidget *bookmarkWidget_ = nullptr;
 };
 

@@ -42,8 +42,8 @@ private:
 
 private:
 	Ui::DialogFunctions ui;
-	QSortFilterProxyModel *filterModel_;
-	QPushButton *buttonFind_;
+	QSortFilterProxyModel *filterModel_ = nullptr;
+	QPushButton *buttonFind_            = nullptr;
 };
 
 }

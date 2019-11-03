@@ -38,27 +38,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DumpStatePlugin {
 namespace {
 
-//------------------------------------------------------------------------------
-// Name: hex_string
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief hex_string
+ * @param value
+ * @return
+ */
 template <class T>
 std::string hex_string(const T &value) {
 	return value.toHexString().toStdString();
 }
 
-const char Reset[] = "\x1B[0m";
-const char Red[] = "\x1B[91m";
-const char Yellow[] = "\x1B[93m";
-const char Cyan[] = "\x1B[96m";
-const char Blue[] = "\x1B[94m";
-const char Green[] = "\x1B[92m";
-const char Purple[] = "\x1B[95m";
+constexpr const char Reset[]  = "\x1B[0m";
+constexpr const char Red[]    = "\x1B[91m";
+constexpr const char Yellow[] = "\x1B[93m";
+constexpr const char Cyan[]   = "\x1B[96m";
+constexpr const char Blue[]   = "\x1B[94m";
+constexpr const char Green[]  = "\x1B[92m";
+constexpr const char Purple[] = "\x1B[95m";
 
-//------------------------------------------------------------------------------
-// Name: format_register
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief format_register
+ * @param value
+ * @return
+ */
 template <class T>
 std::string format_register(const T &value) {
 
@@ -72,10 +74,11 @@ std::string format_register(const T &value) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: format_segment
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief format_segment
+ * @param value
+ * @return
+ */
 template <class T>
 std::string format_segment(const T &value) {
 
@@ -89,10 +92,11 @@ std::string format_segment(const T &value) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: format_address
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief format_address
+ * @param value
+ * @return
+ */
 template <class T>
 std::string format_address(const T &value) {
 
@@ -108,18 +112,19 @@ std::string format_address(const T &value) {
 
 }
 
-//------------------------------------------------------------------------------
-// Name: DumpState
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DumpState::DumpState
+ * @param parent
+ */
 DumpState::DumpState(QObject *parent)
 	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DumpState::menu
+ * @param parent
+ * @return
+ */
 QMenu *DumpState::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
@@ -132,17 +137,17 @@ QMenu *DumpState::menu(QWidget *parent) {
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: dump_code
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DumpState::dumpCode
+ * @param state
+ */
 void DumpState::dumpCode(const State &state) {
 
 	QSettings settings;
 	const int instructions_to_print = settings.value("DumpState/instructions_after_ip", 6).toInt();
 
 	const edb::address_t ip = state.instructionPointer();
-	edb::address_t address = ip;
+	edb::address_t address  = ip;
 
 	for (int i = 0; i < instructions_to_print + 1; ++i) {
 		quint8 buf[edb::Instruction::MAX_SIZE];
@@ -160,10 +165,10 @@ void DumpState::dumpCode(const State &state) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: dump_registers
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DumpState::dumpRegisters
+ * @param state
+ */
 void DumpState::dumpRegisters(const State &state) {
 
 	using std::cout;
@@ -250,10 +255,11 @@ void DumpState::dumpRegisters(const State &state) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: dump_lines
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DumpState::dumpLines
+ * @param address
+ * @param lines
+ */
 void DumpState::dumpLines(edb::address_t address, int lines) {
 
 	if (IProcess *process = edb::v1::debugger_core->process()) {
@@ -291,26 +297,25 @@ void DumpState::dumpLines(edb::address_t address, int lines) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: dump_stack
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DumpState::dumpStack
+ * @param state
+ */
 void DumpState::dumpStack(const State &state) {
 	dumpLines(state.stackPointer(), 4);
 }
 
-//------------------------------------------------------------------------------
-// Name: dump_data
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DumpState::dumpData
+ * @param address
+ */
 void DumpState::dumpData(edb::address_t address) {
 	dumpLines(address, 2);
 }
 
-//------------------------------------------------------------------------------
-// Name: showMenu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DumpState::showMenu
+ */
 void DumpState::showMenu() {
 
 	if (IProcess *process = edb::v1::debugger_core->process()) {
@@ -333,10 +338,10 @@ void DumpState::showMenu() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: options_page
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DumpState::optionsPage
+ * @return
+ */
 QWidget *DumpState::optionsPage() {
 	return new OptionsPage;
 }

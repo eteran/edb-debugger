@@ -54,7 +54,7 @@ using OpcodeData = std::array<uint8_t, sizeof(uint64_t)>;
 void add_result(DialogResults *resultsDialog, const InstructionList &instructions, edb::address_t rva) {
 	if (!instructions.empty()) {
 
-		auto it = instructions.begin();
+		auto it                       = instructions.begin();
 		const edb::Instruction *inst1 = *it++;
 
 		auto instruction_string = QString::fromStdString(edb::v1::formatter().to_string(*inst1));
@@ -76,7 +76,7 @@ void add_result(DialogResults *resultsDialog, const InstructionList &instruction
  */
 template <int Register>
 void test_deref_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
-	const uint8_t *p = data.data();
+	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
@@ -113,7 +113,7 @@ void test_deref_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, 
 template <int Register, int StackRegister>
 void test_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
 
-	const uint8_t *p = data.data();
+	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
@@ -186,7 +186,7 @@ void test_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 template <int StackRegister>
 void test_esp_add_0(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
 
-	const uint8_t *p = data.data();
+	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
@@ -253,7 +253,7 @@ void test_esp_add_0(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 template <int StackRegister>
 void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
 
-	const uint8_t *p = data.data();
+	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
@@ -338,7 +338,7 @@ void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 template <int StackRegister>
 void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
 
-	const uint8_t *p = data.data();
+	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
@@ -438,7 +438,7 @@ void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, ed
 template <int StackRegister>
 void test_esp_sub_regx1(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
 
-	const uint8_t *p = data.data();
+	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
@@ -706,10 +706,11 @@ void run_tests(DialogResults *resultsDialog, int classtype, const OpcodeData &op
 
 }
 
-//------------------------------------------------------------------------------
-// Name: DialogOpcodes
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogOpcodes::DialogOpcodes
+ * @param parent
+ * @param f
+ */
 DialogOpcodes::DialogOpcodes(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
 	ui.setupUi(this);
@@ -731,10 +732,9 @@ DialogOpcodes::DialogOpcodes(QWidget *parent, Qt::WindowFlags f)
 	ui.buttonBox->addButton(buttonFind_, QDialogButtonBox::ActionRole);
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogOpcodes::showEvent
+ */
 void DialogOpcodes::showEvent(QShowEvent *) {
 	filterModel_->setFilterKeyColumn(3);
 	filterModel_->setSourceModel(&edb::v1::memory_regions());
@@ -811,16 +811,15 @@ void DialogOpcodes::showEvent(QShowEvent *) {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: doFind
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogOpcodes::doFind
+ */
 void DialogOpcodes::doFind() {
 
 	const int classtype = ui.comboBox->itemData(ui.comboBox->currentIndex()).toInt();
 
 	const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
-	const QModelIndexList sel = selModel->selectedRows();
+	const QModelIndexList sel                 = selModel->selectedRows();
 
 	if (sel.size() == 0) {
 		QMessageBox::critical(
@@ -839,10 +838,10 @@ void DialogOpcodes::doFind() {
 
 			if (auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
 
-				edb::address_t start_address = region->start();
-				edb::address_t address = region->start();
+				edb::address_t start_address     = region->start();
+				edb::address_t address           = region->start();
 				const edb::address_t end_address = region->end();
-				const edb::address_t orig_start = region->start();
+				const edb::address_t orig_start  = region->start();
 
 				OpcodeData shift_buffer = {};
 

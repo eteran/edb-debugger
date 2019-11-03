@@ -54,8 +54,8 @@ void CallStack::getCallStack() {
 			// Get the frame & stack pointers.
 			State state;
 			thread->getState(&state);
-			edb::address_t rbp = state.framePointer();
-			edb::address_t rsp = state.stackPointer();
+			const edb::address_t rbp = state.framePointer();
+			const edb::address_t rsp = state.stackPointer();
 
 			// Check the alignment.  rbp and rsp should be aligned to the stack.
 			if (rbp % edb::v1::pointer_size() != 0 || rsp % edb::v1::pointer_size() != 0) {
@@ -93,7 +93,7 @@ void CallStack::getCallStack() {
 						// If it's a call, then make a frame
 						if (is_call(inst)) {
 							stack_frame frame;
-							frame.ret = possible_ret;
+							frame.ret    = possible_ret;
 							frame.caller = possible_ret - CALL_MAX_SIZE + i;
 							stackFrames_.push_back(frame);
 							break;

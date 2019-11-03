@@ -24,26 +24,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BreakpointManagerPlugin {
 
-//------------------------------------------------------------------------------
-// Name: BreakpointManager
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BreakpointManager::BreakpointManager
+ * @param parent
+ */
 BreakpointManager::BreakpointManager(QObject *parent)
 	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: ~BreakpointManager
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BreakpointManager::~BreakpointManager
+ */
 BreakpointManager::~BreakpointManager() {
 	delete dialog_;
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BreakpointManager::menu
+ * @param parent
+ * @return
+ */
 QMenu *BreakpointManager::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
@@ -56,10 +56,9 @@ QMenu *BreakpointManager::menu(QWidget *parent) {
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: showMenu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BreakpointManager::showMenu
+ */
 void BreakpointManager::showMenu() {
 
 	if (!dialog_) {

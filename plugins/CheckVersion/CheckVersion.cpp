@@ -33,18 +33,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace CheckVersionPlugin {
 
-//------------------------------------------------------------------------------
-// Name: CheckVersion
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief CheckVersion::CheckVersion
+ * @param parent
+ */
 CheckVersion::CheckVersion(QObject *parent)
 	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: private_init
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief CheckVersion::privateInit
+ */
 void CheckVersion::privateInit() {
 	QSettings settings;
 	if (settings.value("CheckVersion/check_on_start.enabled", true).toBool()) {
@@ -52,18 +51,19 @@ void CheckVersion::privateInit() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: options_page
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief CheckVersion::optionsPage
+ * @return
+ */
 QWidget *CheckVersion::optionsPage() {
 	return new OptionsPage;
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief CheckVersion::menu
+ * @param parent
+ * @return
+ */
 QMenu *CheckVersion::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
@@ -76,10 +76,9 @@ QMenu *CheckVersion::menu(QWidget *parent) {
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: do_check
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief CheckVersion::doCheck
+ */
 void CheckVersion::doCheck() {
 
 	if (!network_) {
@@ -97,10 +96,10 @@ void CheckVersion::doCheck() {
 	network_->get(request);
 }
 
-//------------------------------------------------------------------------------
-// Name: set_proxy
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief CheckVersion::setProxy
+ * @param url
+ */
 void CheckVersion::setProxy(const QUrl &url) {
 
 	QNetworkProxy proxy;
@@ -114,12 +113,12 @@ void CheckVersion::setProxy(const QUrl &url) {
 
 	if (!proxy_str.isEmpty()) {
 		const QUrl proxy_url = QUrl::fromUserInput(proxy_str);
-		proxy = QNetworkProxy(
-			QNetworkProxy::HttpProxy,
-			proxy_url.host(),
-			proxy_url.port(80),
-			proxy_url.userName(),
-			proxy_url.password());
+		proxy                = QNetworkProxy(
+            QNetworkProxy::HttpProxy,
+            proxy_url.host(),
+            proxy_url.port(80),
+            proxy_url.userName(),
+            proxy_url.password());
 	}
 
 #else
@@ -131,19 +130,18 @@ void CheckVersion::setProxy(const QUrl &url) {
 	network_->setProxy(proxy);
 }
 
-//------------------------------------------------------------------------------
-// Name: showMenu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief CheckVersion::showMenu
+ */
 void CheckVersion::showMenu() {
 	initialCheck_ = false;
 	doCheck();
 }
 
-//------------------------------------------------------------------------------
-// Name: requestFinished
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief CheckVersion::requestFinished
+ * @param reply
+ */
 void CheckVersion::requestFinished(QNetworkReply *reply) {
 
 	if (reply->error() != QNetworkReply::NoError) {
@@ -155,7 +153,7 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 		}
 	} else {
 		const QByteArray result = reply->readAll();
-		const QString s = result;
+		const QString s         = result;
 
 		qDebug("comparing versions: [%d] [%d]", edb::v1::int_version(s), edb::v1::edb_version());
 

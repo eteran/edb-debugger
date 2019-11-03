@@ -21,43 +21,43 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #include "PlatformProcess.h"
+#include "ByteShiftArray.h"
 #include "DebuggerCore.h"
 #include "IBreakpoint.h"
-#include "PlatformThread.h"
-#include "PlatformCommon.h"
-#include "PlatformRegion.h"
-#include "ByteShiftArray.h"
 #include "MemoryRegions.h"
 #include "Module.h"
-#include "edb.h"
+#include "PlatformCommon.h"
+#include "PlatformRegion.h"
+#include "PlatformThread.h"
 #include "Util.h"
-#include "linker.h"
+#include "edb.h"
 #include "libELF/elf_binary.h"
 #include "libELF/elf_model.h"
+#include "linker.h"
 
-#include <QDebug>
 #include <QByteArray>
+#include <QDateTime>
+#include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
-#include <QDateTime>
 
 #include <boost/functional/hash.hpp>
 #include <fstream>
 
+#include <elf.h>
+#include <linux/limits.h>
+#include <pwd.h>
 #include <sys/mman.h>
 #include <sys/ptrace.h>
 #include <sys/types.h>
-#include <linux/limits.h>
 #include <unistd.h>
-#include <pwd.h>
-#include <elf.h>
 
 namespace DebuggerCorePlugin {
 namespace {
 
 // Used as size of ptrace word
-constexpr size_t EDB_WORDSIZE = sizeof(long);
+constexpr size_t WordSize = sizeof(long);
 
 void set_ok(bool &ok, long value) {
 	ok = (value != -1) || (errno == 0);
@@ -65,7 +65,7 @@ void set_ok(bool &ok, long value) {
 
 QStringList split_max(const QString &str, int maxparts) {
 	int prev_idx = 0;
-	int idx = 0;
+	int idx      = 0;
 	QStringList items;
 	for (const QChar &c : str) {
 		if (c == ' ') {
@@ -100,23 +100,23 @@ std::shared_ptr<IRegion> process_map_line(const QString &line) {
 	QString name;
 
 	const QStringList items = split_max(line, 6);
-	if(items.size() >= 3) {
+	if (items.size() >= 3) {
 		bool ok;
 		const QStringList bounds = items[0].split("-");
-		if(bounds.size() == 2) {
-			start = edb::address_t::fromHexString(bounds[0],&ok);
-			if(ok) {
-				end = edb::address_t::fromHexString(bounds[1],&ok);
-				if(ok) {
-					base = edb::address_t::fromHexString(items[2],&ok);
-					if(ok) {
+		if (bounds.size() == 2) {
+			start = edb::address_t::fromHexString(bounds[0], &ok);
+			if (ok) {
+				end = edb::address_t::fromHexString(bounds[1], &ok);
+				if (ok) {
+					base = edb::address_t::fromHexString(items[2], &ok);
+					if (ok) {
 						const QString perms = items[1];
-						permissions = 0;
-						if(perms[0] == 'r') permissions |= PROT_READ;
-						if(perms[1] == 'w') permissions |= PROT_WRITE;
-						if(perms[2] == 'x') permissions |= PROT_EXEC;
+						permissions         = 0;
+						if (perms[0] == 'r') permissions |= PROT_READ;
+						if (perms[1] == 'w') permissions |= PROT_WRITE;
+						if (perms[2] == 'x') permissions |= PROT_EXEC;
 
-						if(items.size() >= 6) {
+						if (items.size() >= 6) {
 							name = items[5];
 						}
 
@@ -126,36 +126,36 @@ std::shared_ptr<IRegion> process_map_line(const QString &line) {
 			}
 		}
 	}
-	return nullptr;;
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-template<class Addr>
-QList<Module> get_loaded_modules(const IProcess* process) {
+template <class Addr>
+QList<Module> get_loaded_modules(const IProcess *process) {
 
 	QList<Module> ret;
 
 	edb::linux_struct::r_debug<Addr> dynamic_info;
-	if(process) {
-		if(const edb::address_t debug_pointer = process->debugPointer()) {
-			if(process->readBytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
-				if(dynamic_info.r_map) {
+	if (process) {
+		if (const edb::address_t debug_pointer = process->debugPointer()) {
+			if (process->readBytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
+				if (dynamic_info.r_map) {
 
 					auto link_address = edb::address_t::fromZeroExtended(dynamic_info.r_map);
 
-					while(link_address) {
+					while (link_address) {
 
 						edb::linux_struct::link_map<Addr> map;
-						if(process->readBytes(link_address, &map, sizeof(map))) {
+						if (process->readBytes(link_address, &map, sizeof(map))) {
 							char path[PATH_MAX];
-							if(!process->readBytes(edb::address_t::fromZeroExtended(map.l_name), &path, sizeof(path))) {
+							if (!process->readBytes(edb::address_t::fromZeroExtended(map.l_name), &path, sizeof(path))) {
 								path[0] = '\0';
 							}
 
-							if(map.l_addr) {
+							if (map.l_addr) {
 								Module module;
 								module.name         = path;
 								module.base_address = map.l_addr;
@@ -173,15 +173,15 @@ QList<Module> get_loaded_modules(const IProcess* process) {
 	}
 
 	// fallback
-	if(ret.isEmpty()) {
+	if (ret.isEmpty()) {
 		const QList<std::shared_ptr<IRegion>> r = edb::v1::memory_regions().regions();
 		QSet<QString> found_modules;
 
-		for(const std::shared_ptr<IRegion> &region: r) {
+		for (const std::shared_ptr<IRegion> &region : r) {
 
 			// we assume that modules will be listed by absolute path
-			if(region->name().startsWith("/")) {
-				if(!util::contains(found_modules, region->name())) {
+			if (region->name().startsWith("/")) {
+				if (!util::contains(found_modules, region->name())) {
 					Module module;
 					module.name         = region->name();
 					module.base_address = region->start();
@@ -201,7 +201,8 @@ QList<Module> get_loaded_modules(const IProcess* process) {
 // Name: PlatformProcess
 // Desc:
 //------------------------------------------------------------------------------
-PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(core), pid_(pid) {
+PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid)
+	: core_(core), pid_(pid) {
 	if (!core_->procMemReadBroken_) {
 		auto memory_file = std::make_shared<QFile>(QString("/proc/%1/mem").arg(pid_));
 
@@ -223,19 +224,18 @@ PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(cor
 // Desc: seeks memory file to given address, taking possible negativity of the
 // address into account
 //------------------------------------------------------------------------------
-void seek_addr(QFile& file, edb::address_t address) {
-	if(address <= UINT64_MAX/2) {
+void seek_addr(QFile &file, edb::address_t address) {
+	if (address <= UINT64_MAX / 2) {
 		file.seek(address);
 	} else {
-		const int fd=file.handle();
+		const int fd = file.handle();
 		// Seek in two parts to avoid specifying negative offset: off64_t is a signed type
-		const off64_t halfAddressTruncated=address>>1;
-		lseek64(fd,halfAddressTruncated,SEEK_SET);
-		const off64_t secondHalfAddress=address-halfAddressTruncated;
-		lseek64(fd,secondHalfAddress,SEEK_CUR);
+		const off64_t halfAddressTruncated = address >> 1;
+		lseek64(fd, halfAddressTruncated, SEEK_SET);
+		const off64_t secondHalfAddress = address - halfAddressTruncated;
+		lseek64(fd, secondHalfAddress, SEEK_CUR);
 	}
 }
-
 
 //------------------------------------------------------------------------------
 // Name: read_bytes
@@ -243,7 +243,7 @@ void seek_addr(QFile& file, edb::address_t address) {
 // Note: returns the number of bytes read <N>
 // Note: if the read is short, only the first <N> bytes are defined
 //------------------------------------------------------------------------------
-std::size_t PlatformProcess::readBytes(edb::address_t address, void* buf, std::size_t len) const {
+std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, std::size_t len) const {
 	quint64 read = 0;
 
 	Q_ASSERT(buf);
@@ -251,18 +251,18 @@ std::size_t PlatformProcess::readBytes(edb::address_t address, void* buf, std::s
 
 	auto ptr = reinterpret_cast<char *>(buf);
 
-	if(len != 0) {
+	if (len != 0) {
 
 		// small reads take the fast path
-		if(len == 1) {
+		if (len == 1) {
 
 			auto it = core_->breakpoints_.find(address);
-			if(it != core_->breakpoints_.end()) {
+			if (it != core_->breakpoints_.end()) {
 				*ptr = (*it)->originalBytes()[0];
 				return 1;
 			}
 
-			if(ro_mem_file_) {
+			if (ro_mem_file_) {
 				seek_addr(*ro_mem_file_, address);
 				read = ro_mem_file_->read(ptr, 1);
 				if (read == 1) {
@@ -271,8 +271,8 @@ std::size_t PlatformProcess::readBytes(edb::address_t address, void* buf, std::s
 				return 0;
 			} else {
 				bool ok;
-				quint8 x = read_byte_via_ptrace(address, &ok);
-				if(ok) {
+				quint8 x = ptraceReadByte(address, &ok);
+				if (ok) {
 					*ptr = x;
 					return 1;
 				}
@@ -280,36 +280,36 @@ std::size_t PlatformProcess::readBytes(edb::address_t address, void* buf, std::s
 			}
 		}
 
-		if(ro_mem_file_) {
+		if (ro_mem_file_) {
 			seek_addr(*ro_mem_file_, address);
 			read = ro_mem_file_->read(ptr, len);
-			if(read == 0 || read == quint64(-1)) {
+			if (read == 0 || read == quint64(-1)) {
 				return 0;
 			}
 		} else {
-			for(std::size_t index = 0; index < len; ++index) {
+			for (std::size_t index = 0; index < len; ++index) {
 
 				// read a byte, if we failed, we are done
 				bool ok;
-				const quint8 x = read_byte_via_ptrace(address + index, &ok);
-				if(!ok) {
+				const quint8 x = ptraceReadByte(address + index, &ok);
+				if (!ok) {
 					break;
 				}
 
 				// store it
-				reinterpret_cast<char*>(buf)[index] = x;
+				reinterpret_cast<char *>(buf)[index] = x;
 
 				++read;
 			}
 		}
 
 		// replace any breakpoints
-		Q_FOREACH(const std::shared_ptr<IBreakpoint> &bp, core_->breakpoints_) {
-			auto bpBytes = bp->originalBytes();
+		Q_FOREACH (const std::shared_ptr<IBreakpoint> &bp, core_->breakpoints_) {
+			auto bpBytes                = bp->originalBytes();
 			const edb::address_t bpAddr = bp->address();
 			// show the original bytes in the buffer..
-			for(size_t i=0; i < bp->size(); ++i) {
-				if(bpAddr + i >= address && bpAddr + i < address + read) {
+			for (size_t i = 0; i < bp->size(); ++i) {
+				if (bpAddr + i >= address && bpAddr + i < address + read) {
 					ptr[bpAddr + i - address] = bpBytes[i];
 				}
 			}
@@ -335,11 +335,11 @@ std::size_t PlatformProcess::patchBytes(edb::address_t address, const void *buf,
 
 	Patch patch;
 	patch.address = address;
-	patch.orig_bytes.resize(len);
-	patch.new_bytes = QByteArray(static_cast<const char *>(buf), len);
+	patch.origBytes.resize(len);
+	patch.newBytes = QByteArray(static_cast<const char *>(buf), len);
 
-	size_t read_ret = readBytes(address, patch.orig_bytes.data(), len);
-	if(read_ret != len) {
+	size_t read_ret = readBytes(address, patch.origBytes.data(), len);
+	if (read_ret != len) {
 		return 0;
 	}
 
@@ -358,20 +358,19 @@ std::size_t PlatformProcess::writeBytes(edb::address_t address, const void *buf,
 	Q_ASSERT(buf);
 	Q_ASSERT(core_->process_.get() == this);
 
-	if(len != 0) {
-		if(rw_mem_file_) {
-			seek_addr(*rw_mem_file_,address);
+	if (len != 0) {
+		if (rw_mem_file_) {
+			seek_addr(*rw_mem_file_, address);
 			written = rw_mem_file_->write(reinterpret_cast<const char *>(buf), len);
-			if(written == 0 || written == quint64(-1)) {
+			if (written == 0 || written == quint64(-1)) {
 				return 0;
 			}
-		}
-		else {
+		} else {
 			// TODO write whole words at a time using ptrace_poke.
-			for(std::size_t byteIndex=0;byteIndex<len;++byteIndex) {
-				bool ok=false;
-				write_byte_via_ptrace(address+byteIndex, *(reinterpret_cast<const char*>(buf)+byteIndex), &ok);
-				if(!ok) return written;
+			for (std::size_t byteIndex = 0; byteIndex < len; ++byteIndex) {
+				bool ok = false;
+				ptraceWriteByte(address + byteIndex, *(reinterpret_cast<const char *>(buf) + byteIndex), &ok);
+				if (!ok) return written;
 				++written;
 			}
 		}
@@ -408,20 +407,20 @@ QDateTime PlatformProcess::startTime() const {
 QList<QByteArray> PlatformProcess::arguments() const {
 	QList<QByteArray> ret;
 
-	if(pid_ != 0) {
+	if (pid_ != 0) {
 		const QString command_line_file(QString("/proc/%1/cmdline").arg(pid_));
 		QFile file(command_line_file);
 
-		if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 			QTextStream in(&file);
 
 			QByteArray s;
 			QChar ch;
 
-			while(in.status() == QTextStream::Ok) {
+			while (in.status() == QTextStream::Ok) {
 				in >> ch;
-				if(ch.isNull()) {
-					if(!s.isEmpty()) {
+				if (ch.isNull()) {
+					if (!s.isEmpty()) {
 						ret << s;
 					}
 					s.clear();
@@ -430,7 +429,7 @@ QList<QByteArray> PlatformProcess::arguments() const {
 				}
 			}
 
-			if(!s.isEmpty()) {
+			if (!s.isEmpty()) {
 				ret << s;
 			}
 		}
@@ -470,7 +469,7 @@ std::shared_ptr<IProcess> PlatformProcess::parent() const {
 
 	struct user_stat user_stat;
 	int n = get_user_stat(pid_, &user_stat);
-	if(n >= 4) {
+	if (n >= 4) {
 		return std::make_shared<PlatformProcess>(core_, user_stat.ppid);
 	}
 
@@ -484,7 +483,7 @@ std::shared_ptr<IProcess> PlatformProcess::parent() const {
 edb::address_t PlatformProcess::codeAddress() const {
 	struct user_stat user_stat;
 	int n = get_user_stat(pid_, &user_stat);
-	if(n >= 26) {
+	if (n >= 26) {
 		return user_stat.startcode;
 	}
 	return 0;
@@ -497,7 +496,7 @@ edb::address_t PlatformProcess::codeAddress() const {
 edb::address_t PlatformProcess::dataAddress() const {
 	struct user_stat user_stat;
 	int n = get_user_stat(pid_, &user_stat);
-	if(n >= 27) {
+	if (n >= 27) {
 		return user_stat.endcode + 1; // endcode == startdata ?
 	}
 	return 0;
@@ -520,11 +519,11 @@ QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
 		size_t newHash = 0;
 		std::string line;
 
-		while(std::getline(mf,line)) {
+		while (std::getline(mf, line)) {
 			boost::hash_combine(newHash, line);
 		}
 
-		if(totalHash == newHash) {
+		if (totalHash == newHash) {
 			return regions;
 		}
 
@@ -534,13 +533,13 @@ QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
 
 	// it changed, so let's process it
 	QFile file(map_file);
-    if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+	if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 
 		QTextStream in(&file);
 		QString line = in.readLine();
 
-		while(!line.isNull()) {
-			if(std::shared_ptr<IRegion> region = process_map_line(line)) {
+		while (!line.isNull()) {
+			if (std::shared_ptr<IRegion> region = process_map_line(line)) {
 				regions.push_back(region);
 			}
 			line = in.readLine();
@@ -554,7 +553,7 @@ QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
 // Name: read_byte
 // Desc: the base implementation of reading a byte
 //------------------------------------------------------------------------------
-quint8 PlatformProcess::read_byte_via_ptrace(edb::address_t address, bool *ok) const {
+quint8 PlatformProcess::ptraceReadByte(edb::address_t address, bool *ok) const {
 	// TODO(eteran): assert that we are paused
 
 	Q_ASSERT(ok);
@@ -572,22 +571,21 @@ quint8 PlatformProcess::read_byte_via_ptrace(edb::address_t address, bool *ok) c
 	const size_t nBytesToNextPage = core_->pageSize() - (address & (core_->pageSize() - 1));
 
 	// Avoid crossing page boundary, since next page may be unreadable
-	const size_t addressShift = nBytesToNextPage < EDB_WORDSIZE ? EDB_WORDSIZE - nBytesToNextPage : 0;
+	const size_t addressShift = nBytesToNextPage < WordSize ? WordSize - nBytesToNextPage : 0;
 	address -= addressShift;
 
-	const long value = ptrace_peek(address, ok);
+	const long value = ptracePeek(address, ok);
 
-	if(*ok) {
+	if (*ok) {
 		quint8 result;
 		// We aren't interested in `value` as in number, it's just a buffer, so no endianness magic.
 		// Just have to compensate for `addressShift` when reading it.
-		std::memcpy(&result, reinterpret_cast<const char*>(&value) + addressShift, sizeof(result));
+		std::memcpy(&result, reinterpret_cast<const char *>(&value) + addressShift, sizeof(result));
 		return result;
 	}
 
 	return 0xff;
 }
-
 
 //------------------------------------------------------------------------------
 // Name: write_byte
@@ -595,7 +593,7 @@ quint8 PlatformProcess::read_byte_via_ptrace(edb::address_t address, bool *ok) c
 // Note: assumes the this will not trample any breakpoints, must be handled
 //       in calling code!
 //------------------------------------------------------------------------------
-void PlatformProcess::write_byte_via_ptrace(edb::address_t address, quint8 value, bool *ok) {
+void PlatformProcess::ptraceWriteByte(edb::address_t address, quint8 value, bool *ok) {
 	// TODO(eteran): assert that we are paused
 
 	Q_ASSERT(ok);
@@ -610,19 +608,19 @@ void PlatformProcess::write_byte_via_ptrace(edb::address_t address, quint8 value
 	const size_t nBytesToNextPage = core_->pageSize() - (address & (core_->pageSize() - 1));
 
 	// Avoid crossing page boundary, since next page may be inaccessible
-	const size_t addressShift = nBytesToNextPage < EDB_WORDSIZE ? EDB_WORDSIZE - nBytesToNextPage : 0;
+	const size_t addressShift = nBytesToNextPage < WordSize ? WordSize - nBytesToNextPage : 0;
 	address -= addressShift;
 
-	long word = ptrace_peek(address, ok);
-	if(!*ok) {
+	long word = ptracePeek(address, ok);
+	if (!*ok) {
 		return;
 	}
 
 	// We aren't interested in `value` as in number, it's just a buffer, so no endianness magic.
 	// Just have to compensate for `addressShift` when writing it.
-	std::memcpy(reinterpret_cast<char*>(&word) + addressShift, &value, sizeof(value));
+	std::memcpy(reinterpret_cast<char *>(&word) + addressShift, &value, sizeof(value));
 
-	*ok = ptrace_poke(address, word);
+	*ok = ptracePoke(address, word);
 }
 
 //------------------------------------------------------------------------------
@@ -631,7 +629,7 @@ void PlatformProcess::write_byte_via_ptrace(edb::address_t address, quint8 value
 // Note: this will fail on newer versions of linux if called from a
 //       different thread than the one which attached to process
 //------------------------------------------------------------------------------
-long PlatformProcess::ptrace_peek(edb::address_t address, bool *ok) const {
+long PlatformProcess::ptracePeek(edb::address_t address, bool *ok) const {
 	Q_ASSERT(ok);
 	Q_ASSERT(core_->process_.get() == this);
 
@@ -644,8 +642,8 @@ long PlatformProcess::ptrace_peek(edb::address_t address, bool *ok) const {
 	errno = 0;
 	// NOTE: on some Linux systems ptrace prototype has ellipsis instead of third and fourth arguments
 	// Thus we can't just pass address as is on IA32 systems: it'd put 64 bit integer on stack and cause UB
-	auto nativeAddress = reinterpret_cast<const void*>(address.toUint());
-	const long v = ptrace(PTRACE_PEEKTEXT, pid_, nativeAddress, 0);
+	auto nativeAddress = reinterpret_cast<const void *>(address.toUint());
+	const long v       = ptrace(PTRACE_PEEKTEXT, pid_, nativeAddress, 0);
 	set_ok(*ok, v);
 	return v;
 }
@@ -654,7 +652,7 @@ long PlatformProcess::ptrace_peek(edb::address_t address, bool *ok) const {
 // Name: ptrace_poke
 // Desc:
 //------------------------------------------------------------------------------
-bool PlatformProcess::ptrace_poke(edb::address_t address, long value) {
+bool PlatformProcess::ptracePoke(edb::address_t address, long value) {
 
 	Q_ASSERT(core_->process_.get() == this);
 
@@ -665,7 +663,7 @@ bool PlatformProcess::ptrace_poke(edb::address_t address, long value) {
 
 	// NOTE: on some Linux systems ptrace prototype has ellipsis instead of third and fourth arguments
 	// Thus we can't just pass address as is on IA32 systems: it'd put 64 bit integer on stack and cause UB
-	auto nativeAddress = reinterpret_cast<const void*>(address.toUint());
+	auto nativeAddress = reinterpret_cast<const void *>(address.toUint());
 	return ptrace(PTRACE_POKETEXT, pid_, nativeAddress, value) != -1;
 }
 
@@ -692,7 +690,7 @@ std::shared_ptr<IThread> PlatformProcess::currentThread() const {
 	Q_ASSERT(core_->process_.get() == this);
 
 	auto it = core_->threads_.find(core_->activeThread_);
-	if(it != core_->threads_.end()) {
+	if (it != core_->threads_.end()) {
 		return it.value();
 	}
 	return nullptr;
@@ -702,8 +700,8 @@ std::shared_ptr<IThread> PlatformProcess::currentThread() const {
 // Name: set_current_thread
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformProcess::setCurrentThread(IThread& thread) {
-	core_->activeThread_ = static_cast<PlatformThread*>(&thread)->tid();
+void PlatformProcess::setCurrentThread(IThread &thread) {
+	core_->activeThread_ = static_cast<PlatformThread *>(&thread)->tid();
 	edb::v1::update_ui();
 }
 
@@ -722,7 +720,7 @@ edb::uid_t PlatformProcess::uid() const {
 // Desc:
 //------------------------------------------------------------------------------
 QString PlatformProcess::user() const {
-	if(const struct passwd *const pwd = ::getpwuid(uid())) {
+	if (const struct passwd *const pwd = ::getpwuid(uid())) {
 		return pwd->pw_name;
 	}
 
@@ -736,7 +734,7 @@ QString PlatformProcess::user() const {
 QString PlatformProcess::name() const {
 	struct user_stat user_stat;
 	const int n = get_user_stat(pid_, &user_stat);
-	if(n >= 2) {
+	if (n >= 2) {
 		return user_stat.comm;
 	}
 
@@ -748,9 +746,9 @@ QString PlatformProcess::name() const {
 // Desc:
 //------------------------------------------------------------------------------
 QList<Module> PlatformProcess::loadedModules() const {
-	if(edb::v1::debuggeeIs64Bit()) {
+	if (edb::v1::debuggeeIs64Bit()) {
 		return get_loaded_modules<Elf64_Addr>(this);
-	} else if(edb::v1::debuggeeIs32Bit()) {
+	} else if (edb::v1::debuggeeIs32Bit()) {
 		return get_loaded_modules<Elf32_Addr>(this);
 	} else {
 		return QList<Module>();
@@ -767,7 +765,7 @@ Status PlatformProcess::pause() {
 	// to all threads when any event arrives, so no need to explicitly do
 	// it here. We just need any thread to stop. So we'll just target the
 	// pid_ which will send it to any one of the threads in the process.
-	if(::kill(pid_, SIGSTOP) == -1) {
+	if (::kill(pid_, SIGSTOP) == -1) {
 		const char *const strError = strerror(errno);
 		qWarning() << "Unable to pause process" << pid_ << ": kill(SIGSTOP) failed:" << strError;
 		return Status(strError);
@@ -792,19 +790,19 @@ Status PlatformProcess::resume(edb::EVENT_STATUS status) {
 
 	QString errorMessage;
 
-	if(status != edb::DEBUG_STOP) {
+	if (status != edb::DEBUG_STOP) {
 
-		if(std::shared_ptr<IThread> thread = currentThread()) {
+		if (std::shared_ptr<IThread> thread = currentThread()) {
 			const auto resumeStatus = thread->resume(status);
-			if(!resumeStatus) {
+			if (!resumeStatus) {
 				errorMessage += tr("Failed to resume thread %1: %2\n").arg(thread->tid()).arg(resumeStatus.error());
 			}
 
 			// resume the other threads passing the signal they originally reported had
-			for(auto &other_thread : threads()) {
-				if(util::contains(core_->waitedThreads_, other_thread->tid())) {
+			for (auto &other_thread : threads()) {
+				if (util::contains(core_->waitedThreads_, other_thread->tid())) {
 					const auto resumeStatus = other_thread->resume();
-					if(!resumeStatus) {
+					if (!resumeStatus) {
 						errorMessage += tr("Failed to resume thread %1: %2\n").arg(thread->tid()).arg(resumeStatus.error());
 					}
 				}
@@ -812,7 +810,7 @@ Status PlatformProcess::resume(edb::EVENT_STATUS status) {
 		}
 	}
 
-	if(errorMessage.isEmpty()) {
+	if (errorMessage.isEmpty()) {
 		return Status::Ok;
 	}
 
@@ -828,8 +826,8 @@ Status PlatformProcess::step(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 	Q_ASSERT(core_->process_.get() == this);
 
-	if(status != edb::DEBUG_STOP) {
-		if(std::shared_ptr<IThread> thread = currentThread()) {
+	if (status != edb::DEBUG_STOP) {
+		if (std::shared_ptr<IThread> thread = currentThread()) {
 			return thread->step(status);
 		}
 	}
@@ -841,8 +839,8 @@ Status PlatformProcess::step(edb::EVENT_STATUS status) {
 // Desc: returns true if ALL threads are currently in the debugger's wait list
 //------------------------------------------------------------------------------
 bool PlatformProcess::isPaused() const {
-	for(auto &thread : threads()) {
-		if(!thread->isPaused()) {
+	for (auto &thread : threads()) {
+		if (!thread->isPaused()) {
 			return false;
 		}
 	}
@@ -862,22 +860,22 @@ QMap<edb::address_t, Patch> PlatformProcess::patches() const {
  * @brief PlatformProcess::entry_point
  * @return
  */
-edb::address_t PlatformProcess::entryPoint() const  {
+edb::address_t PlatformProcess::entryPoint() const {
 
 	QFile auxv(QString("/proc/%1/auxv").arg(pid_));
-	if(auxv.open(QIODevice::ReadOnly)) {
+	if (auxv.open(QIODevice::ReadOnly)) {
 
-		if(edb::v1::debuggeeIs64Bit()) {
+		if (edb::v1::debuggeeIs64Bit()) {
 			elf64_auxv_t entry;
-			while(auxv.read(reinterpret_cast<char *>(&entry), sizeof(entry))) {
-				if(entry.a_type == AT_ENTRY) {
+			while (auxv.read(reinterpret_cast<char *>(&entry), sizeof(entry))) {
+				if (entry.a_type == AT_ENTRY) {
 					return entry.a_un.a_val;
 				}
 			}
-		} else if(edb::v1::debuggeeIs32Bit()) {
+		} else if (edb::v1::debuggeeIs32Bit()) {
 			elf32_auxv_t entry;
-			while(auxv.read(reinterpret_cast<char *>(&entry), sizeof(entry))) {
-				if(entry.a_type == AT_ENTRY) {
+			while (auxv.read(reinterpret_cast<char *>(&entry), sizeof(entry))) {
+				if (entry.a_type == AT_ENTRY) {
 					return entry.a_un.a_val;
 				}
 			}
@@ -897,15 +895,15 @@ edb::address_t PlatformProcess::entryPoint() const  {
 bool get_program_headers(const IProcess *process, edb::address_t *phdr_memaddr, int *num_phdr) {
 
 	*phdr_memaddr = edb::address_t{};
-	*num_phdr = 0;
+	*num_phdr     = 0;
 
 	QFile auxv(QString("/proc/%1/auxv").arg(process->pid()));
-	if(auxv.open(QIODevice::ReadOnly)) {
+	if (auxv.open(QIODevice::ReadOnly)) {
 
-		if(edb::v1::debuggeeIs64Bit()) {
+		if (edb::v1::debuggeeIs64Bit()) {
 			elf64_auxv_t entry;
-			while(auxv.read(reinterpret_cast<char *>(&entry), sizeof(entry))) {
-				switch(entry.a_type) {
+			while (auxv.read(reinterpret_cast<char *>(&entry), sizeof(entry))) {
+				switch (entry.a_type) {
 				case AT_PHDR:
 					*phdr_memaddr = entry.a_un.a_val;
 					break;
@@ -914,10 +912,10 @@ bool get_program_headers(const IProcess *process, edb::address_t *phdr_memaddr, 
 					break;
 				}
 			}
-		} else if(edb::v1::debuggeeIs32Bit()) {
+		} else if (edb::v1::debuggeeIs32Bit()) {
 			elf32_auxv_t entry;
-			while(auxv.read(reinterpret_cast<char *>(&entry), sizeof(entry))) {
-				switch(entry.a_type) {
+			while (auxv.read(reinterpret_cast<char *>(&entry), sizeof(entry))) {
+				switch (entry.a_type) {
 				case AT_PHDR:
 					*phdr_memaddr = entry.a_un.a_val;
 					break;
@@ -946,23 +944,23 @@ edb::address_t get_debug_pointer(const IProcess *process, edb::address_t phdr_me
 	using elf_phdr = typename Model::elf_phdr;
 
 	elf_phdr phdr;
-	for(int i = 0; i < count; ++i) {
-		if(process->readBytes(phdr_memaddr + i * sizeof(elf_phdr), &phdr, sizeof(elf_phdr))) {
-			if(phdr.p_type == PT_DYNAMIC) {
+	for (int i = 0; i < count; ++i) {
+		if (process->readBytes(phdr_memaddr + i * sizeof(elf_phdr), &phdr, sizeof(elf_phdr))) {
+			if (phdr.p_type == PT_DYNAMIC) {
 				try {
 
 					auto buf = std::make_unique<uint8_t[]>(phdr.p_memsz);
 
-					if(process->readBytes(phdr.p_vaddr + relocation, &buf[0], phdr.p_memsz)) {
+					if (process->readBytes(phdr.p_vaddr + relocation, &buf[0], phdr.p_memsz)) {
 						auto dynamic = reinterpret_cast<typename Model::elf_dyn *>(&buf[0]);
-						while(dynamic->d_tag != DT_NULL) {
-							if(dynamic->d_tag == DT_DEBUG) {
+						while (dynamic->d_tag != DT_NULL) {
+							if (dynamic->d_tag == DT_DEBUG) {
 								return dynamic->d_un.d_val;
 							}
 							++dynamic;
 						}
 					}
-				} catch(const std::bad_alloc &) {
+				} catch (const std::bad_alloc &) {
 					qDebug() << "[get_debug_pointer] no more memory";
 					return 0;
 				}
@@ -986,7 +984,7 @@ edb::address_t get_relocation(const IProcess *process, edb::address_t phdr_memad
 	using elf_phdr = typename Model::elf_phdr;
 
 	elf_phdr phdr;
-	if(process->readBytes(phdr_memaddr + i * sizeof(elf_phdr), &phdr, sizeof(elf_phdr))) {
+	if (process->readBytes(phdr_memaddr + i * sizeof(elf_phdr), &phdr, sizeof(elf_phdr))) {
 		if (phdr.p_type == PT_PHDR) {
 			return phdr_memaddr - phdr.p_vaddr;
 		}
@@ -1010,16 +1008,16 @@ edb::address_t PlatformProcess::debugPointer() const {
 	edb::address_t phdr_memaddr;
 	int num_phdr;
 
-	if(get_program_headers(this, &phdr_memaddr, &num_phdr)) {
+	if (get_program_headers(this, &phdr_memaddr, &num_phdr)) {
 
 		/* Compute relocation: it is expected to be 0 for "regular" executables,
 		 * non-zero for PIE ones.  */
 		edb::address_t relocation = -1;
 		for (int i = 0; relocation == -1 && i < num_phdr; i++) {
 
-			if(edb::v1::debuggeeIs64Bit()) {
+			if (edb::v1::debuggeeIs64Bit()) {
 				relocation = get_relocation<elf_model<64>>(this, phdr_memaddr, i);
-			} else if(edb::v1::debuggeeIs32Bit()) {
+			} else if (edb::v1::debuggeeIs32Bit()) {
 				relocation = get_relocation<elf_model<32>>(this, phdr_memaddr, i);
 			}
 		}
@@ -1038,9 +1036,9 @@ edb::address_t PlatformProcess::debugPointer() const {
 			return 0;
 		}
 
-		if(edb::v1::debuggeeIs64Bit()) {
+		if (edb::v1::debuggeeIs64Bit()) {
 			return get_debug_pointer<elf_model<64>>(this, phdr_memaddr, num_phdr, relocation);
-		} else if(edb::v1::debuggeeIs32Bit()) {
+		} else if (edb::v1::debuggeeIs32Bit()) {
 			return get_debug_pointer<elf_model<32>>(this, phdr_memaddr, num_phdr, relocation);
 		}
 	}
@@ -1049,21 +1047,21 @@ edb::address_t PlatformProcess::debugPointer() const {
 }
 
 edb::address_t PlatformProcess::calculateMain() const {
-	if(edb::v1::debuggeeIs64Bit()) {
+	if (edb::v1::debuggeeIs64Bit()) {
 		ByteShiftArray ba(14);
 
 		edb::address_t entry_point = this->entryPoint();
 
-		for(int i = 0; i < 50; ++i) {
+		for (int i = 0; i < 50; ++i) {
 			quint8 byte;
-			if(readBytes(entry_point + i, &byte, sizeof(byte))) {
+			if (readBytes(entry_point + i, &byte, sizeof(byte))) {
 				ba << byte;
 
 				edb::address_t address = 0;
 
-				if(ba.size() >= 13) {
+				if (ba.size() >= 13) {
 					// beginning of a call preceeded by a 64-bit mov and followed by a hlt
-					if(ba[0] == 0x48 && ba[1] == 0xc7 && ba[7] == 0xe8 && ba[12] == 0xf4) {
+					if (ba[0] == 0x48 && ba[1] == 0xc7 && ba[7] == 0xe8 && ba[12] == 0xf4) {
 						// Seems that this 64-bit mov still has a 32-bit immediate
 						address = *reinterpret_cast<const edb::address_t *>(ba.data() + 3) & 0xffffffff;
 					}
@@ -1086,20 +1084,19 @@ edb::address_t PlatformProcess::calculateMain() const {
 				break;
 			}
 		}
-	} else if(edb::v1::debuggeeIs32Bit()) {
+	} else if (edb::v1::debuggeeIs32Bit()) {
 		ByteShiftArray ba(11);
-
 
 		edb::address_t entry_point = this->entryPoint();
 
-		for(int i = 0; i < 50; ++i) {
+		for (int i = 0; i < 50; ++i) {
 			quint8 byte;
-			if(readBytes(entry_point + i, &byte, sizeof(byte))) {
+			if (readBytes(entry_point + i, &byte, sizeof(byte))) {
 				ba << byte;
 
-				if(ba.size() >= 11) {
+				if (ba.size() >= 11) {
 					// beginning of a call preceeded by a push and followed by a hlt
-					if(ba[0] == 0x68 && ba[5] == 0xe8 && ba[10] == 0xf4) {
+					if (ba[0] == 0x68 && ba[5] == 0xe8 && ba[10] == 0xf4) {
 						edb::address_t address(0);
 
 						auto to = reinterpret_cast<char *>(&address);

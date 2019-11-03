@@ -160,7 +160,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 		const QDomElement asm_root = getAssemblerDescription().documentElement();
 		if (!asm_root.isNull()) {
 			QDomElement asm_executable = asm_root.firstChildElement("executable");
-			QDomElement asm_template = asm_root.firstChildElement("template");
+			QDomElement asm_template   = asm_root.firstChildElement("template");
 #ifdef EDB_ARM32
 			const auto mode = core->cpu_mode();
 			while (mode == IDebugger::CpuMode::ARM32 && asm_template.attribute("mode") != "arm" ||
@@ -178,8 +178,8 @@ void DialogAssembler::on_buttonBox_accepted() {
 #endif
 
 			const QString asm_name = asm_root.attribute("name");
-			const QString asm_cmd = asm_executable.attribute("command_line");
-			const QString asm_ext = asm_executable.attribute("extension");
+			const QString asm_cmd  = asm_executable.attribute("command_line");
+			const QString asm_ext  = asm_executable.attribute("extension");
 			Q_UNUSED(asm_name)
 
 			QString asm_code = asm_template.text();
@@ -241,7 +241,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 				if (exit_code != 0) {
 					QMessageBox::warning(this, tr("Error In Code"), process.readAllStandardError());
 				} else {
-					QByteArray bytes = output_file.readAll();
+					QByteArray bytes              = output_file.readAll();
 					const size_t replacement_size = bytes.size();
 
 					if (replacement_size != 0 && replacement_size <= instructionSize_) {

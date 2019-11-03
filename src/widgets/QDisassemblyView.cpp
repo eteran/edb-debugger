@@ -1438,7 +1438,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		// if current conditional jump is taken, then draw arrow in red
 		if(show_addresses_[jump_arrow.src_line] == current_address_) { // if eip
 			if (conditional_jmp) {
-				if (edb::v1::arch_processor().is_executed(instructions_[jump_arrow.src_line], state)) {
+				if (edb::v1::arch_processor().isExecuted(instructions_[jump_arrow.src_line], state)) {
 					arrow_color = Qt::red;
 				}
 			}

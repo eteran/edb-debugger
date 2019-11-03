@@ -27,8 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QMessageBox>
 
-#include <sys/mman.h>
 #include <asm/unistd.h>
+#include <sys/mman.h>
 
 namespace DebuggerCorePlugin {
 
@@ -40,9 +40,9 @@ namespace {
 //------------------------------------------------------------------------------
 IRegion::permissions_t permissions_value(bool read, bool write, bool execute) {
 	IRegion::permissions_t perms = 0;
-	if(read)    perms |= PROT_READ;
-	if(write)   perms |= PROT_WRITE;
-	if(execute) perms |= PROT_EXEC;
+	if (read) perms |= PROT_READ;
+	if (write) perms |= PROT_WRITE;
+	if (execute) perms |= PROT_EXEC;
 	return perms;
 }
 
@@ -53,13 +53,12 @@ class BackupInfo : public IDebugEventHandler {
 public:
 	BackupInfo(edb::address_t address, IRegion::permissions_t perms, PlatformRegion *region);
 	~BackupInfo() override;
-	BackupInfo(const BackupInfo &)            = delete;
-	BackupInfo& operator=(const BackupInfo &) = delete;
-
+	BackupInfo(const BackupInfo &) = delete;
+	BackupInfo &operator=(const BackupInfo &) = delete;
 
 public:
 	IRegion::permissions_t perms() const { return premissions_; }
-	bool locked()                        { return !lock_.testAndSetAcquire(0, 1); }
+	bool locked() { return !lock_.testAndSetAcquire(0, 1); }
 
 public:
 	bool backup();
@@ -69,12 +68,12 @@ public:
 	edb::EVENT_STATUS handleEvent(const std::shared_ptr<IDebugEvent> &event) override;
 
 public:
-	QAtomicInt             lock_ = 1;
-	edb::address_t         address_;
+	QAtomicInt lock_ = 1;
+	edb::address_t address_;
 	IRegion::permissions_t premissions_;
-	State                  state_;
-	quint8                 buffer_[N];
-	PlatformRegion *const  region_;
+	State state_;
+	quint8 buffer_[N];
+	PlatformRegion *const region_;
 };
 
 //------------------------------------------------------------------------------
@@ -82,7 +81,8 @@ public:
 // Desc:
 //------------------------------------------------------------------------------
 template <size_t N>
-BackupInfo<N>::BackupInfo(edb::address_t address, IRegion::permissions_t perms, PlatformRegion *region) : address_(address), premissions_(perms), region_(region) {
+BackupInfo<N>::BackupInfo(edb::address_t address, IRegion::permissions_t perms, PlatformRegion *region)
+	: address_(address), premissions_(perms), region_(region) {
 	edb::v1::add_debug_event_handler(this);
 }
 
@@ -102,8 +102,8 @@ BackupInfo<N>::~BackupInfo() {
 template <size_t N>
 bool BackupInfo<N>::backup() {
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(std::shared_ptr<IThread> thread = process->currentThread()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
+		if (std::shared_ptr<IThread> thread = process->currentThread()) {
 			thread->getState(&state_);
 		}
 		return process->readBytes(address_, buffer_, N);
@@ -119,8 +119,8 @@ bool BackupInfo<N>::backup() {
 template <size_t N>
 bool BackupInfo<N>::restore() {
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(std::shared_ptr<IThread> thread = process->currentThread()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
+		if (std::shared_ptr<IThread> thread = process->currentThread()) {
 			thread->setState(state_);
 		}
 
@@ -155,7 +155,8 @@ edb::EVENT_STATUS BackupInfo<N>::handleEvent(const std::shared_ptr<IDebugEvent> 
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions) : start_(start), end_(end), base_(base), name_(name), permissions_(permissions) {
+PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions)
+	: start_(start), end_(end), base_(base), name_(name), permissions_(permissions) {
 }
 
 //------------------------------------------------------------------------------
@@ -211,41 +212,41 @@ size_t PlatformRegion::size() const {
 // Desc:
 //------------------------------------------------------------------------------
 void PlatformRegion::setPermissions(bool read, bool write, bool execute) {
-	edb::address_t temp_address        = 0;
-	int count                          = 0;
-	int ret                            = QMessageBox::Yes;
+	edb::address_t temp_address                    = 0;
+	int count                                      = 0;
+	int ret                                        = QMessageBox::Yes;
 	const QList<std::shared_ptr<IRegion>> &regions = edb::v1::memory_regions().regions();
 
 	// search for an executable region to run our shell code
-	for(const std::shared_ptr<IRegion> &region: regions) {
-		if(region->executable()) {
-			if(temp_address == 0) {
+	for (const std::shared_ptr<IRegion> &region : regions) {
+		if (region->executable()) {
+			if (temp_address == 0) {
 				temp_address = region->start();
 			}
 
-			if(++count > 1) {
+			if (++count > 1) {
 				break;
 			}
 		}
 	}
 
-	if(executable() && count == 1 && !execute) {
+	if (executable() && count == 1 && !execute) {
 		ret = QMessageBox::question(nullptr,
-			tr("Removing Execute Permissions On Last Executable std::shared_ptr<IRegion>"),
-			tr("You are about to remove execute permissions from the last executable region. Because of the need "
-			"to run code in the process to change permissions, there will be no way to undo this. In addition, "
-			"the process will no longer be able to run as it will have no execute permissions in any regions. "
-			"Odds are this is not what you want to do."
-			"Are you sure you want to remove execute permissions from this region?"),
-			QMessageBox::Yes, QMessageBox::No);
+									tr("Removing Execute Permissions On Last Executable std::shared_ptr<IRegion>"),
+									tr("You are about to remove execute permissions from the last executable region. Because of the need "
+									   "to run code in the process to change permissions, there will be no way to undo this. In addition, "
+									   "the process will no longer be able to run as it will have no execute permissions in any regions. "
+									   "Odds are this is not what you want to do."
+									   "Are you sure you want to remove execute permissions from this region?"),
+									QMessageBox::Yes, QMessageBox::No);
 	}
 
-	if(ret == QMessageBox::Yes) {
-		if(temp_address != 0) {
+	if (ret == QMessageBox::Yes) {
+		if (temp_address != 0) {
 			setPermissions(read, write, execute, temp_address);
 		} else {
 			QMessageBox::critical(
-			    nullptr,
+				nullptr,
 				tr("No Suitable Address Found"),
 				tr("This feature relies on running shellcode in the debugged process, no executable memory region was found. Unfortunately, this means that no more region permission changes can be made (it also means that there is nothing the process can continue to do since it cannot execute at all)."));
 		}
@@ -297,9 +298,9 @@ IRegion::permissions_t PlatformRegion::permissions() const {
 // Desc:
 //------------------------------------------------------------------------------
 void PlatformRegion::setPermissions(bool read, bool write, bool execute, edb::address_t temp_address) {
-	const permissions_t perms       = permissions_value(read, write, execute);
-	const edb::address_t len        = size();
-	const edb::address_t addr       = start();
+	const permissions_t perms = permissions_value(read, write, execute);
+	const edb::address_t len  = size();
+	const edb::address_t addr = start();
 
 	// I wish there was a clean way to get the value of this system call for either target
 	// but nothing obvious comes to mind. We may have to do something crazy
@@ -320,7 +321,7 @@ void PlatformRegion::setPermissions(bool read, bool write, bool execute, edb::ad
 
 	quint8 shellcode[3];
 
-	if(edb::v1::debuggeeIs32Bit()) {
+	if (edb::v1::debuggeeIs32Bit()) {
 		memcpy(shellcode, shellcode32, sizeof(shellcode));
 	} else {
 		memcpy(shellcode, shellcode64, sizeof(shellcode));
@@ -328,20 +329,20 @@ void PlatformRegion::setPermissions(bool read, bool write, bool execute, edb::ad
 
 	// end nowhere near portable code
 	using BI = BackupInfo<sizeof(shellcode)>;
-	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(std::shared_ptr<IThread> thread = process->currentThread()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
+		if (std::shared_ptr<IThread> thread = process->currentThread()) {
 			try {
 				BI backup_info(temp_address, perms, this);
 
-				if(backup_info.backup()) {
+				if (backup_info.backup()) {
 					// write out our shellcode
-					if(process->writeBytes(temp_address, shellcode, sizeof(shellcode))) {
+					if (process->writeBytes(temp_address, shellcode, sizeof(shellcode))) {
 
 						State state;
 						thread->getState(&state);
 						state.setInstructionPointer(temp_address);
 
-						if(edb::v1::debuggeeIs32Bit()) {
+						if (edb::v1::debuggeeIs32Bit()) {
 							state.setRegister("ecx", len);
 							state.setRegister("ebx", addr);
 							state.setRegister("edx", perms);
@@ -360,14 +361,14 @@ void PlatformRegion::setPermissions(bool read, bool write, bool execute, edb::ad
 
 						// we use a spinlock here because we want to be able to
 						// process events while waiting
-						while(backup_info.locked()) {
+						while (backup_info.locked()) {
 							QCoreApplication::processEvents(QEventLoop::WaitForMoreEvents);
 						}
 					}
 				}
-			} catch(const std::bad_alloc &) {
+			} catch (const std::bad_alloc &) {
 				QMessageBox::critical(
-				    nullptr,
+					nullptr,
 					tr("Memory Allocation Error"),
 					tr("Unable to satisfy memory allocation request for backup code."));
 			}

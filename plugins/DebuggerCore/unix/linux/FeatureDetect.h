@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCorePlugin {
 namespace feature {
 
-bool detectProcAccess(bool *read_broken, bool *write_broken);
+bool detect_proc_access(bool *read_broken, bool *write_broken);
 
 }
 }

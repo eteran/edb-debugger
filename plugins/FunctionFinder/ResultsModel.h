@@ -28,10 +28,10 @@ namespace FunctionFinderPlugin {
 
 struct Result {
 	edb::address_t start_address = 0;
-	edb::address_t end_address = 0;
-	size_t size = 0;
-	int score = 0;
-	Function::Type type = Function::Type::Standard;
+	edb::address_t end_address   = 0;
+	size_t size                  = 0;
+	int score                    = 0;
+	Function::Type type          = Function::Type::Standard;
 	QString symbol;
 };
 
@@ -53,7 +53,7 @@ public:
 	void addResult(const Result &r);
 
 public:
-	QVector<Result> &results() { return results_; }
+	const QVector<Result> &results() const { return results_; }
 
 private:
 	QVector<Result> results_;

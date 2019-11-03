@@ -19,13 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "FeatureDetect.h"
 #include "version.h"
 
-#include <iostream>
+#include <fcntl.h>
 #include <iomanip>
+#include <iostream>
 #include <string>
-#include <sys/wait.h>
 #include <sys/ptrace.h>
 #include <sys/types.h>
-#include <fcntl.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 namespace DebuggerCorePlugin {
@@ -39,26 +39,26 @@ class File {
 	bool success;
 
 public:
-    explicit File(const std::string &filename) {
-		fd = ::open(filename.c_str(), O_RDWR);
+	explicit File(const std::string &filename) {
+		fd      = ::open(filename.c_str(), O_RDWR);
 		success = fd != -1;
 	}
 
 	ssize_t write(const void *buf, size_t count) {
 		const ssize_t result = ::write(fd, buf, count);
-		success = result != -1;
+		success              = result != -1;
 		return result;
 	}
 
 	ssize_t read(void *buf, size_t count) {
 		const ssize_t result = ::read(fd, buf, count);
-		success = result != -1;
+		success              = result != -1;
 		return result;
 	}
 
 	off_t seekp(size_t offset) {
 		const off_t result = ::lseek(fd, offset, SEEK_SET);
-		success = result != -1;
+		success            = result != -1;
 		return result;
 	}
 
@@ -84,7 +84,7 @@ void kill_child(int pid) {
 // Desc: detects whether or not reads/writes through /proc/<pid>/mem work
 //       correctly
 //------------------------------------------------------------------------------
-bool detectProcAccess(bool *read_broken, bool *write_broken) {
+bool detect_proc_access(bool *read_broken, bool *write_broken) {
 
 	switch (pid_t pid = fork()) {
 	case 0:
@@ -127,7 +127,7 @@ bool detectProcAccess(bool *read_broken, bool *write_broken) {
 		}
 
 		const auto pageAlignMask = ~(sysconf(_SC_PAGESIZE) - 1);
-		const auto addr = reinterpret_cast<uintptr_t>(&edb::version) & pageAlignMask;
+		const auto addr          = reinterpret_cast<uintptr_t>(&edb::version) & pageAlignMask;
 		file.seekp(addr);
 		if (!file) {
 			perror("failed to seek to address to read");

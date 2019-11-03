@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IState.h"
 #include "Types.h"
-#include <sys/user.h>
 #include <mach/mach.h>
+#include <sys/user.h>
 
 namespace DebuggerCore {
 
@@ -56,14 +56,14 @@ public:
 
 private:
 #if defined(EDB_X86)
-	x86_thread_state32_t    thread_state_;
-	x86_float_state32_t     float_state_;
-	x86_debug_state32_t     debug_state_;
+	x86_thread_state32_t thread_state_;
+	x86_float_state32_t float_state_;
+	x86_debug_state32_t debug_state_;
 	x86_exception_state32_t exception_state_;
 #elif defined(EDB_X86_64)
-	x86_thread_state64_t    thread_state_;
-	x86_float_state64_t     float_state_;
-	x86_debug_state64_t     debug_state_;
+	x86_thread_state64_t thread_state_;
+	x86_float_state64_t float_state_;
+	x86_debug_state64_t debug_state_;
 	x86_exception_state64_t exception_state_;
 #endif
 };
@@ -71,4 +71,3 @@ private:
 }
 
 #endif
-

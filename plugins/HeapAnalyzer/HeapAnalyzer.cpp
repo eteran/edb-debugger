@@ -23,26 +23,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace HeapAnalyzerPlugin {
 
-//------------------------------------------------------------------------------
-// Name: HeapAnalyzer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief HeapAnalyzer::HeapAnalyzer
+ * @param parent
+ */
 HeapAnalyzer::HeapAnalyzer(QObject *parent)
 	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: ~HeapAnalyzer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief HeapAnalyzer::~HeapAnalyzer
+ */
 HeapAnalyzer::~HeapAnalyzer() {
 	delete dialog_;
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief HeapAnalyzer::menu
+ * @param parent
+ * @return
+ */
 QMenu *HeapAnalyzer::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
@@ -55,10 +55,9 @@ QMenu *HeapAnalyzer::menu(QWidget *parent) {
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuHeapAnalyzer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief HeapAnalyzer::showMenu
+ */
 void HeapAnalyzer::showMenu() {
 
 	if (!dialog_) {

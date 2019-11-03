@@ -18,12 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PlatformRegion.h"
 
-#include "MemoryRegions.h"
-#include "edb.h"
+#include "IDebugEventHandler.h"
 #include "IDebugger.h"
 #include "IProcess.h"
+#include "MemoryRegions.h"
 #include "State.h"
-#include "IDebugEventHandler.h"
+#include "edb.h"
 #include <QMessageBox>
 
 namespace DebuggerCorePlugin {
@@ -34,7 +34,8 @@ const IRegion::permissions_t KNOWN_PERMISSIONS = (PAGE_NOACCESS | PAGE_READONLY 
 
 }
 
-PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions) : start_(start), end_(end), base_(base), name_(name), permissions_(permissions) {
+PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions)
+	: start_(start), end_(end), base_(base), name_(name), permissions_(permissions) {
 }
 
 PlatformRegion::~PlatformRegion() {
@@ -49,38 +50,38 @@ bool PlatformRegion::accessible() const {
 }
 
 bool PlatformRegion::readable() const {
-	switch(permissions_ & KNOWN_PERMISSIONS) { // ignore modifiers
-		case PAGE_EXECUTE_READ:
-		case PAGE_EXECUTE_READWRITE:
-		case PAGE_READONLY:
-		case PAGE_READWRITE:
-			return true;
-		default:
-			return false;
+	switch (permissions_ & KNOWN_PERMISSIONS) { // ignore modifiers
+	case PAGE_EXECUTE_READ:
+	case PAGE_EXECUTE_READWRITE:
+	case PAGE_READONLY:
+	case PAGE_READWRITE:
+		return true;
+	default:
+		return false;
 	}
 }
 
 bool PlatformRegion::writable() const {
-	switch(permissions_ & KNOWN_PERMISSIONS) { // ignore modifiers
-		case PAGE_EXECUTE_READWRITE:
-		case PAGE_EXECUTE_WRITECOPY:
-		case PAGE_READWRITE:
-		case PAGE_WRITECOPY:
-			return true;
-		default:
-			return false;
+	switch (permissions_ & KNOWN_PERMISSIONS) { // ignore modifiers
+	case PAGE_EXECUTE_READWRITE:
+	case PAGE_EXECUTE_WRITECOPY:
+	case PAGE_READWRITE:
+	case PAGE_WRITECOPY:
+		return true;
+	default:
+		return false;
 	}
 }
 
 bool PlatformRegion::executable() const {
-	switch(permissions_ & KNOWN_PERMISSIONS) { // ignore modifiers
-		case PAGE_EXECUTE:
-		case PAGE_EXECUTE_READ:
-		case PAGE_EXECUTE_READWRITE:
-		case PAGE_EXECUTE_WRITECOPY:
-			return true;
-		default:
-			return false;
+	switch (permissions_ & KNOWN_PERMISSIONS) { // ignore modifiers
+	case PAGE_EXECUTE:
+	case PAGE_EXECUTE_READ:
+	case PAGE_EXECUTE_READWRITE:
+	case PAGE_EXECUTE_WRITECOPY:
+		return true;
+	default:
+		return false;
 	}
 }
 
@@ -89,24 +90,40 @@ size_t PlatformRegion::size() const {
 }
 
 void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
-	if(HANDLE ph = OpenProcess(PROCESS_VM_OPERATION, FALSE, edb::v1::debugger_core->process()->pid())) {
+	if (HANDLE ph = OpenProcess(PROCESS_VM_OPERATION, FALSE, edb::v1::debugger_core->process()->pid())) {
 		DWORD prot = PAGE_NOACCESS;
 
-		switch((static_cast<int>(read) << 2) | (static_cast<int>(write) << 1) | (static_cast<int>(execute) << 0)) {
-		case 0x0: prot = PAGE_NOACCESS;          break;
-		case 0x1: prot = PAGE_EXECUTE;           break;
-		case 0x2: prot = PAGE_WRITECOPY;         break;
-		case 0x3: prot = PAGE_EXECUTE_WRITECOPY; break;
-		case 0x4: prot = PAGE_READONLY;          break;
-		case 0x5: prot = PAGE_EXECUTE_READ;      break;
-		case 0x6: prot = PAGE_READWRITE;         break;
-		case 0x7: prot = PAGE_EXECUTE_READWRITE; break;
+		switch ((static_cast<int>(read) << 2) | (static_cast<int>(write) << 1) | (static_cast<int>(execute) << 0)) {
+		case 0x0:
+			prot = PAGE_NOACCESS;
+			break;
+		case 0x1:
+			prot = PAGE_EXECUTE;
+			break;
+		case 0x2:
+			prot = PAGE_WRITECOPY;
+			break;
+		case 0x3:
+			prot = PAGE_EXECUTE_WRITECOPY;
+			break;
+		case 0x4:
+			prot = PAGE_READONLY;
+			break;
+		case 0x5:
+			prot = PAGE_EXECUTE_READ;
+			break;
+		case 0x6:
+			prot = PAGE_READWRITE;
+			break;
+		case 0x7:
+			prot = PAGE_EXECUTE_READWRITE;
+			break;
 		}
 
 		prot |= permissions_ & ~KNOWN_PERMISSIONS; // keep modifiers
 
 		DWORD prev_prot;
-		if(VirtualProtectEx(ph, reinterpret_cast<LPVOID>(start().toUint()), size(), prot, &prev_prot)) {
+		if (VirtualProtectEx(ph, reinterpret_cast<LPVOID>(start().toUint()), size(), prot, &prev_prot)) {
 			permissions_ = prot;
 		}
 

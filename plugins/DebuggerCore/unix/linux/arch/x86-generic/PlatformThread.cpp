@@ -218,7 +218,7 @@ void PlatformThread::getState(State *state) {
 
 		// debug registers
 		for(std::size_t i = 0; i < 8; ++i) {
-			state_impl->x86.dbgRegs[i] = get_debug_register(i);
+			state_impl->x86.dbgRegs[i] = getDebugRegister(i);
 		}
 	}
 }
@@ -256,7 +256,7 @@ void PlatformThread::setState(const State &state) {
 
 		// debug registers
 		for(std::size_t i = 0;i < 8; ++i) {
-			set_debug_register(i, state_impl->x86.dbgRegs[i]);
+			setDebugRegister(i, state_impl->x86.dbgRegs[i]);
 		}
 
 		// hope for the best, adjust for reality
@@ -299,7 +299,7 @@ void PlatformThread::setState(const State &state) {
 // Name: get_debug_register
 // Desc:
 //------------------------------------------------------------------------------
-unsigned long PlatformThread::get_debug_register(std::size_t n) {
+unsigned long PlatformThread::getDebugRegister(std::size_t n) {
 	return ptrace(PTRACE_PEEKUSER, tid_, offsetof(struct user, u_debugreg[n]), 0);
 }
 
@@ -307,7 +307,7 @@ unsigned long PlatformThread::get_debug_register(std::size_t n) {
 // Name: set_debug_register
 // Desc:
 //------------------------------------------------------------------------------
-long PlatformThread::set_debug_register(std::size_t n, long value) {
+long PlatformThread::setDebugRegister(std::size_t n, long value) {
 	return ptrace(PTRACE_POKEUSER, tid_, offsetof(struct user, u_debugreg[n]), value);
 }
 
@@ -317,7 +317,7 @@ long PlatformThread::set_debug_register(std::size_t n, long value) {
 //       (unless the signal was SIGSTOP)
 //------------------------------------------------------------------------------
 Status PlatformThread::step() {
-	return core_->ptrace_step(tid_, resume_code(status_));
+	return core_->ptraceStep(tid_, resume_code(status_));
 }
 
 //------------------------------------------------------------------------------
@@ -327,7 +327,7 @@ Status PlatformThread::step() {
 //------------------------------------------------------------------------------
 Status PlatformThread::step(edb::EVENT_STATUS status) {
 	const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(status_) : 0;
-	return core_->ptrace_step(tid_, code);
+	return core_->ptraceStep(tid_, code);
 }
 
 }

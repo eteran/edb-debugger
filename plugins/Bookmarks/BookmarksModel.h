@@ -86,7 +86,7 @@ public Q_SLOTS:
 	void setType(const QModelIndex &index, const QString &type);
 
 public:
-	QVector<Bookmark> &bookmarks() { return bookmarks_; }
+	const QVector<Bookmark> &bookmarks() const { return bookmarks_; }
 
 private:
 	QVector<Bookmark> bookmarks_;

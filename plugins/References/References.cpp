@@ -23,26 +23,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ReferencesPlugin {
 
-//------------------------------------------------------------------------------
-// Name: References
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief References::References
+ * @param parent
+ */
 References::References(QObject *parent)
 	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: ~References
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief References::~References
+ */
 References::~References() {
 	delete dialog_;
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief References::menu
+ * @param parent
+ * @return
+ */
 QMenu *References::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
@@ -55,10 +55,9 @@ QMenu *References::menu(QWidget *parent) {
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: showMenu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief References::showMenu
+ */
 void References::showMenu() {
 
 	if (!dialog_) {

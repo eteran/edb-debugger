@@ -21,11 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace HardwareBreakpointsPlugin {
 
-//------------------------------------------------------------------------------
-// Name: validateBreakpoint
-// Desc:
-//------------------------------------------------------------------------------
-BreakpointStatus validateBreakpoint(const BreakpointState &bp_state) {
+/**
+ * @brief validate_breakpoint
+ * @param bp_state
+ * @return
+ */
+BreakpointStatus validate_breakpoint(const BreakpointState &bp_state) {
 
 	if (bp_state.enabled) {
 		switch (bp_state.type) {
@@ -50,10 +51,13 @@ BreakpointStatus validateBreakpoint(const BreakpointState &bp_state) {
 	return Valid;
 }
 
-//------------------------------------------------------------------------------
-// Name: breakpointState
-//------------------------------------------------------------------------------
-BreakpointState breakpointState(const State *state, int num) {
+/**
+ * @brief breakpoint_state
+ * @param state
+ * @param num
+ * @return
+ */
+BreakpointState breakpoint_state(const State *state, int num) {
 
 	Q_ASSERT(num < RegisterCount);
 
@@ -115,11 +119,13 @@ BreakpointState breakpointState(const State *state, int num) {
 	return bp_state;
 }
 
-//------------------------------------------------------------------------------
-// Name: setBreakpointState
-// Desc:
-//------------------------------------------------------------------------------
-void setBreakpointState(State *state, int num, const BreakpointState &bp_state) {
+/**
+ * @brief set_breakpoint_state
+ * @param state
+ * @param num
+ * @param bp_state
+ */
+void set_breakpoint_state(State *state, int num, const BreakpointState &bp_state) {
 
 	const int N1 = 16 + (num * 4);
 	const int N2 = 18 + (num * 4);

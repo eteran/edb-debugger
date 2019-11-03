@@ -44,7 +44,7 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::addBreakpoint(edb::address_t addr
 	try {
 		if (attached()) {
 			if (!findBreakpoint(address)) {
-				auto bp = std::make_shared<Breakpoint>(address);
+				auto bp               = std::make_shared<Breakpoint>(address);
 				breakpoints_[address] = bp;
 				return bp;
 			}
@@ -80,7 +80,7 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::findBreakpoint(edb::address_t add
 std::shared_ptr<IBreakpoint> DebuggerCoreBase::findTriggeredBreakpoint(edb::address_t address) {
 	if (attached()) {
 		for (const size_t size : Breakpoint::possibleRewindSizes()) {
-			const edb::address_t bpAddr = address - size;
+			const edb::address_t bpAddr           = address - size;
 			const std::shared_ptr<IBreakpoint> bp = findBreakpoint(bpAddr);
 
 			if (bp && bp->address() == bpAddr) {
@@ -143,15 +143,19 @@ DebuggerCoreBase::BreakpointList DebuggerCoreBase::backupBreakpoints() const {
 	return breakpoints_;
 }
 
-//------------------------------------------------------------------------------
-// Name: attached
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCoreBase::attached
+ * @return
+ */
 bool DebuggerCoreBase::attached() const {
 	return process() != nullptr;
 }
 
-auto DebuggerCoreBase::supportedBreakpointTypes() const -> std::vector<IBreakpoint::BreakpointType> {
+/**
+ * @brief DebuggerCoreBase::supportedBreakpointTypes
+ * @return
+ */
+std::vector<IBreakpoint::BreakpointType> DebuggerCoreBase::supportedBreakpointTypes() const {
 	return Breakpoint::supportedTypes();
 }
 

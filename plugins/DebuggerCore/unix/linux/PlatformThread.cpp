@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 
 #ifndef _GNU_SOURCE
-#define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
+#define _GNU_SOURCE /* or _BSD_SOURCE or _SVID_SOURCE */
 #endif
 
 namespace DebuggerCorePlugin {
@@ -34,7 +34,8 @@ namespace DebuggerCorePlugin {
 // Name: PlatformThread
 // Desc:
 //------------------------------------------------------------------------------
-PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, edb::tid_t tid) : core_(core), process_(process), tid_(tid) {
+PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, edb::tid_t tid)
+	: core_(core), process_(process), tid_(tid) {
 	assert(process);
 	assert(core);
 }
@@ -51,10 +52,10 @@ edb::tid_t PlatformThread::tid() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QString PlatformThread::name() const  {
+QString PlatformThread::name() const {
 	struct user_stat thread_stat;
 	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);
-	if(n >= 2) {
+	if (n >= 2) {
 		return thread_stat.comm;
 	}
 
@@ -65,10 +66,10 @@ QString PlatformThread::name() const  {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-int PlatformThread::priority() const  {
+int PlatformThread::priority() const {
 	struct user_stat thread_stat;
 	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);
-	if(n >= 18) {
+	if (n >= 18) {
 		return thread_stat.priority;
 	}
 
@@ -79,11 +80,11 @@ int PlatformThread::priority() const  {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t PlatformThread::instructionPointer() const  {
+edb::address_t PlatformThread::instructionPointer() const {
 	// FIXME(ARM): doesn't work at least on ARM32
 	struct user_stat thread_stat;
 	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);
-	if(n >= 30) {
+	if (n >= 30) {
 		return thread_stat.kstkeip;
 	}
 
@@ -94,11 +95,11 @@ edb::address_t PlatformThread::instructionPointer() const  {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QString PlatformThread::runState() const  {
+QString PlatformThread::runState() const {
 	struct user_stat thread_stat;
 	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);
-	if(n >= 3) {
-		switch(thread_stat.state) {           // 03
+	if (n >= 3) {
+		switch (thread_stat.state) { // 03
 		case 'R':
 			return tr("%1 (Running)").arg(thread_stat.state);
 		case 'S':
@@ -134,7 +135,7 @@ QString PlatformThread::runState() const  {
 //       (unless the signal was SIGSTOP)
 //------------------------------------------------------------------------------
 Status PlatformThread::resume() {
-	return core_->ptrace_continue(tid_, resume_code(status_));
+	return core_->ptraceContinue(tid_, resume_code(status_));
 }
 
 //------------------------------------------------------------------------------
@@ -144,7 +145,7 @@ Status PlatformThread::resume() {
 //------------------------------------------------------------------------------
 Status PlatformThread::resume(edb::EVENT_STATUS status) {
 	const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(status_) : 0;
-	return core_->ptrace_continue(tid_, code);
+	return core_->ptraceContinue(tid_, code);
 }
 
 //------------------------------------------------------------------------------

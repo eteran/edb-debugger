@@ -56,8 +56,8 @@ private:
 
 private:
 	Ui::DialogProcessProperties ui;
-	ThreadsModel *threadsModel_;
-	QSortFilterProxyModel *threadsFilter_;
+	ThreadsModel *threadsModel_           = nullptr;
+	QSortFilterProxyModel *threadsFilter_ = nullptr;
 };
 
 }

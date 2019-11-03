@@ -72,13 +72,13 @@ QList<QByteArray> PlatformProcess::arguments() const {
 QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
 	QList<std::shared_ptr<IRegion>> regions;
 
-	if(pid_ != 0) {
+	if (pid_ != 0) {
 		char buffer[PATH_MAX] = {};
 		struct ptrace_vm_entry vm_entry;
 		memset(&vm_entry, 0, sizeof(vm_entry));
 		vm_entry.pve_entry = 0;
 
-		while(ptrace(PT_VM_ENTRY, pid_, reinterpret_cast<char*>(&vm_entry), NULL) == 0) {
+		while (ptrace(PT_VM_ENTRY, pid_, reinterpret_cast<char *>(&vm_entry), NULL) == 0) {
 			vm_entry.pve_path    = buffer;
 			vm_entry.pve_pathlen = sizeof(buffer);
 

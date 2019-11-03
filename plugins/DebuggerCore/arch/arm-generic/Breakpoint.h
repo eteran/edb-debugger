@@ -47,17 +47,17 @@ public:
 	~Breakpoint() override;
 
 public:
-	edb::address_t      address() const override { return address_; }
-	quint64             hitCount() const override { return hitCount_; }
-	bool                enabled() const override { return enabled_; }
-	bool                oneTime() const override { return oneTime_; }
-	bool                internal() const override { return internal_; }
-	size_t              size() const override { return originalBytes_.size(); }
-	const quint8 *      originalBytes() const override { return &originalBytes_[0]; }
+	edb::address_t address() const override { return address_; }
+	quint64 hitCount() const override { return hitCount_; }
+	bool enabled() const override { return enabled_; }
+	bool oneTime() const override { return oneTime_; }
+	bool internal() const override { return internal_; }
+	size_t size() const override { return originalBytes_.size(); }
+	const quint8 *originalBytes() const override { return &originalBytes_[0]; }
 	IBreakpoint::TypeId type() const override { return type_; }
 
 	static std::vector<BreakpointType> supportedTypes();
-	static std::vector<size_t>         possibleRewindSizes();
+	static std::vector<size_t> possibleRewindSizes();
 
 public:
 	bool enable() override;
@@ -70,12 +70,12 @@ public:
 
 private:
 	std::vector<quint8> originalBytes_;
-	edb::address_t      address_;
-	quint64             hitCount_;
-	bool                enabled_;
-	bool                oneTime_;
-	bool                internal_;
-	Type                type_;
+	edb::address_t address_;
+	quint64 hitCount_;
+	bool enabled_;
+	bool oneTime_;
+	bool internal_;
+	Type type_;
 };
 
 }

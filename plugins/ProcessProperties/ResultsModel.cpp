@@ -22,18 +22,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ProcessPropertiesPlugin {
 
-//------------------------------------------------------------------------------
-// Name: BookmarksModel
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultsModel::ResultsModel
+ * @param parent
+ */
 ResultsModel::ResultsModel(QObject *parent)
 	: QAbstractItemModel(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: headerData
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultsModel::headerData
+ * @param section
+ * @param orientation
+ * @param role
+ * @return
+ */
 QVariant ResultsModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
 	if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
@@ -50,10 +53,12 @@ QVariant ResultsModel::headerData(int section, Qt::Orientation orientation, int 
 	return QVariant();
 }
 
-//------------------------------------------------------------------------------
-// Name: data
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultsModel::data
+ * @param index
+ * @param role
+ * @return
+ */
 QVariant ResultsModel::data(const QModelIndex &index, int role) const {
 
 	if (!index.isValid()) {
@@ -88,20 +93,23 @@ QVariant ResultsModel::data(const QModelIndex &index, int role) const {
 	return QVariant();
 }
 
-//------------------------------------------------------------------------------
-// Name: addBookmark
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultsModel::addResult
+ * @param r
+ */
 void ResultsModel::addResult(const Result &r) {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
 	results_.push_back(r);
 	endInsertRows();
 }
 
-//------------------------------------------------------------------------------
-// Name: index
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultsModel::index
+ * @param row
+ * @param column
+ * @param parent
+ * @return
+ */
 QModelIndex ResultsModel::index(int row, int column, const QModelIndex &parent) const {
 
 	Q_UNUSED(parent)
@@ -121,37 +129,41 @@ QModelIndex ResultsModel::index(int row, int column, const QModelIndex &parent) 
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: parent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultsModel::parent
+ * @param index
+ * @return
+ */
 QModelIndex ResultsModel::parent(const QModelIndex &index) const {
 	Q_UNUSED(index)
 	return QModelIndex();
 }
 
-//------------------------------------------------------------------------------
-// Name: rowCount
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultsModel::rowCount
+ * @param parent
+ * @return
+ */
 int ResultsModel::rowCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 	return results_.size();
 }
 
-//------------------------------------------------------------------------------
-// Name: columnCount
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultsModel::columnCount
+ * @param parent
+ * @return
+ */
 int ResultsModel::columnCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 	return 3;
 }
 
-//------------------------------------------------------------------------------
-// Name: sort
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ResultsModel::sort
+ * @param column
+ * @param order
+ */
 void ResultsModel::sort(int column, Qt::SortOrder order) {
 
 	if (order == Qt::AscendingOrder) {

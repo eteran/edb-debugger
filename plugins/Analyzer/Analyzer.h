@@ -110,7 +110,7 @@ private:
 		QVector<quint8> memory;
 	};
 
-	QMenu *menu_ = nullptr;
+	QMenu *menu_                    = nullptr;
 	AnalyzerWidget *analyzerWidget_ = nullptr;
 	QHash<edb::address_t, RegionData> analysisInfo_;
 	QSet<edb::address_t> specifiedFunctions_;

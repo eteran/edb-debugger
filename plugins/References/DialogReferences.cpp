@@ -29,16 +29,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace ReferencesPlugin {
 
 enum Role {
-	TypeRole = Qt::UserRole + 0,
+	TypeRole    = Qt::UserRole + 0,
 	AddressRole = Qt::UserRole + 1
 };
 
-//------------------------------------------------------------------------------
-// Name: DialogReferences
-// Desc: constructor
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogReferences::DialogReferences
+ * @param parent
+ * @param f
+ */
 DialogReferences::DialogReferences(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 	connect(this, &DialogReferences::updateProgress, ui.progressBar, &QProgressBar::setValue);
 
@@ -55,19 +57,17 @@ DialogReferences::DialogReferences(QWidget *parent, Qt::WindowFlags f)
 	ui.buttonBox->addButton(buttonFind_, QDialogButtonBox::ActionRole);
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogReferences::showEvent
+ */
 void DialogReferences::showEvent(QShowEvent *) {
 	ui.listWidget->clear();
 	ui.progressBar->setValue(0);
 }
 
-//------------------------------------------------------------------------------
-// Name: doFind
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogReferences::doFind
+ */
 void DialogReferences::doFind() {
 	bool ok = false;
 	edb::address_t address;
@@ -87,11 +87,11 @@ void DialogReferences::doFind() {
 			// a short circut for speading things up
 			if (region->accessible() || !ui.chkSkipNoAccess->isChecked()) {
 
-				const size_t page_count = region->size() / page_size;
+				const size_t page_count     = region->size() / page_size;
 				const QVector<quint8> pages = edb::v1::read_pages(region->start(), page_count);
 
 				if (!pages.isEmpty()) {
-					const quint8 *p = &pages[0];
+					const quint8 *p               = &pages[0];
 					const quint8 *const pages_end = &pages[0] + region->size();
 
 					while (p != pages_end) {
@@ -169,10 +169,13 @@ void DialogReferences::doFind() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: on_listWidget_itemDoubleClicked
-// Desc: follows the found item in the data view
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogReferences::on_listWidget_itemDoubleClicked
+ *
+ * follows the found item in the data view
+ *
+ * @param item
+ */
 void DialogReferences::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
 	const edb::address_t addr = item->data(AddressRole).toULongLong();
 	if (item->data(TypeRole).toChar() == 'D') {

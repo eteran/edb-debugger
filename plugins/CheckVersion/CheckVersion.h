@@ -57,9 +57,9 @@ private:
 	void setProxy(const QUrl &url);
 
 private:
-	QMenu *menu_ = nullptr;
+	QMenu *menu_                    = nullptr;
 	QNetworkAccessManager *network_ = nullptr;
-	bool initialCheck_ = true;
+	bool initialCheck_              = true;
 };
 
 }

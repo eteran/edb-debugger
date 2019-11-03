@@ -53,9 +53,9 @@ void SET_OK(bool &ok, long value) {
 }
 
 int resume_code(int status) {
-	if(WIFSIGNALED(status)) {
+	if (WIFSIGNALED(status)) {
 		return WTERMSIG(status);
-	} else if(WIFSTOPPED(status)) {
+	} else if (WIFSTOPPED(status)) {
 		return WSTOPSIG(status);
 	}
 	return 0;
@@ -107,22 +107,22 @@ DebuggerCore::~DebuggerCore() {
 //      it will return false if an error or timeout occurs
 //------------------------------------------------------------------------------
 std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
-	if(attached()) {
+	if (attached()) {
 		int status;
 		bool timeout;
 
 		const edb::tid_t tid = Posix::waitpid_timeout(pid(), &status, 0, msecs, &timeout);
-		if(!timeout) {
-			if(tid > 0) {
+		if (!timeout) {
+			if (tid > 0) {
 
 				// normal event
-				auto e = std::make_shared<PlatformEvent>();
+				auto e    = std::make_shared<PlatformEvent>();
 				e->pid    = pid();
 				e->tid    = tid;
 				e->status = status;
 
 				char errbuf[_POSIX2_LINE_MAX];
-				if(kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
+				if (kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
 					int rc;
 					struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid(), &rc);
 
@@ -161,8 +161,8 @@ std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 
 	Q_ASSERT(ok);
-	errno = 0;
-	const long v = ptrace(PT_READ_D, pid(), reinterpret_cast<char*>(address), 0);
+	errno        = 0;
+	const long v = ptrace(PT_READ_D, pid(), reinterpret_cast<char *>(address), 0);
 	SET_OK(*ok, v);
 	return v;
 }
@@ -172,7 +172,7 @@ long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::write_data(edb::address_t address, long value) {
-	return ptrace(PT_WRITE_D, pid(), reinterpret_cast<char*>(address), value) != -1;
+	return ptrace(PT_WRITE_D, pid(), reinterpret_cast<char *>(address), value) != -1;
 }
 
 //------------------------------------------------------------------------------
@@ -183,7 +183,7 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 	detach();
 
 	const long ret = ptrace(PT_ATTACH, pid, 0, 0);
-	if(ret == 0) {
+	if (ret == 0) {
 		pid_           = pid;
 		active_thread_ = pid;
 		threads_.clear();
@@ -200,12 +200,12 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::detach() {
-	if(attached()) {
+	if (attached()) {
 
 		// TODO: do i need to stop each thread first, and wait for them?
 
 		clear_breakpoints();
-		for(auto it = threads_.begin(); it != threads_.end(); ++it) {
+		for (auto it = threads_.begin(); it != threads_.end(); ++it) {
 			ptrace(PT_DETACH, it.key(), 0, 0);
 		}
 
@@ -219,7 +219,7 @@ void DebuggerCore::detach() {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::kill() {
-	if(attached()) {
+	if (attached()) {
 		clear_breakpoints();
 		ptrace(PT_KILL, pid(), 0, 0);
 		Posix::waitpid(pid(), 0, WAIT_ANY);
@@ -233,8 +233,8 @@ void DebuggerCore::kill() {
 // Desc: stops *all* threads of a process
 //------------------------------------------------------------------------------
 void DebuggerCore::pause() {
-	if(attached()) {
-		for(auto it = threads_.begin(); it != threads_.end(); ++it) {
+	if (attached()) {
+		for (auto it = threads_.begin(); it != threads_.end(); ++it) {
 			::kill(it.key(), SIGSTOP);
 		}
 	}
@@ -247,10 +247,10 @@ void DebuggerCore::pause() {
 void DebuggerCore::resume(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 
-	if(attached()) {
-		if(status != edb::DEBUG_STOP) {
+	if (attached()) {
+		if (status != edb::DEBUG_STOP) {
 			const edb::tid_t tid = active_thread();
-			const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(threads_[tid].status) : 0;
+			const int code       = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(threads_[tid].status) : 0;
 			ptrace(PT_CONTINUE, tid, reinterpret_cast<caddr_t>(1), code);
 		}
 	}
@@ -264,7 +264,7 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 	detach();
 	pid_t pid;
 
-	switch(pid = fork()) {
+	switch (pid = fork()) {
 	case 0:
 		// we are in the child now...
 
@@ -272,7 +272,7 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 		ptrace(PT_TRACE_ME, 0, 0, 0);
 
 		// redirect it's I/O
-		if(!tty.isEmpty()) {
+		if (!tty.isEmpty()) {
 			FILE *const std_out = freopen(qPrintable(tty), "r+b", stdout);
 			FILE *const std_in  = freopen(qPrintable(tty), "r+b", stdin);
 			FILE *const std_err = freopen(qPrintable(tty), "r+b", stderr);
@@ -298,12 +298,12 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 			threads_.clear();
 
 			int status;
-			if(Posix::waitpid(pid, &status, 0) == -1) {
+			if (Posix::waitpid(pid, &status, 0) == -1) {
 				return false;
 			}
 
 			// the very first event should be a STOP of type SIGTRAP
-			if(!WIFSTOPPED(status) || WSTOPSIG(status) != SIGTRAP) {
+			if (!WIFSTOPPED(status) || WSTOPSIG(status) != SIGTRAP) {
 				detach();
 				return false;
 			}
@@ -314,7 +314,7 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 			active_thread_       = pid;
 			threads_[pid].status = status;
 			return true;
-		} while(0);
+		} while (0);
 		break;
 	}
 }
@@ -345,14 +345,14 @@ QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
 
 	char ebuffer[_POSIX2_LINE_MAX];
 	int numprocs;
-	if(kvm_t *const kaccess = kvm_openfiles(_PATH_DEVNULL, _PATH_DEVNULL, 0, O_RDONLY, ebuffer)) {
-		if(struct kinfo_proc *const kprocaccess = kvm_getprocs(kaccess, KERN_PROC_ALL, 0, &numprocs)) {
-			for(int i = 0; i < numprocs; ++i) {
+	if (kvm_t *const kaccess = kvm_openfiles(_PATH_DEVNULL, _PATH_DEVNULL, 0, O_RDONLY, ebuffer)) {
+		if (struct kinfo_proc *const kprocaccess = kvm_getprocs(kaccess, KERN_PROC_ALL, 0, &numprocs)) {
+			for (int i = 0; i < numprocs; ++i) {
 				ProcessInfo procInfo;
 
-				procInfo.pid   = kprocaccess[i].ki_pid;
-				procInfo.uid   = kprocaccess[i].ki_uid;
-				procInfo.name  = kprocaccess[i].ki_comm;
+				procInfo.pid  = kprocaccess[i].ki_pid;
+				procInfo.uid  = kprocaccess[i].ki_uid;
+				procInfo.name = kprocaccess[i].ki_comm;
 				ret.insert(procInfo.pid, procInfo);
 			}
 		}

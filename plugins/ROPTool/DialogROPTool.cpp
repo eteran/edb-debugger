@@ -39,11 +39,11 @@ namespace ROPToolPlugin {
 namespace {
 
 /**
- * @brief getGadgetRole
- * @param inst1
+ * @brief get_gadget_role
+ * @param inst
  * @return
  */
-uint32_t getGadgetRole(const edb::Instruction &inst) {
+uint32_t get_gadget_role(const edb::Instruction &inst) {
 	switch (inst.operation()) {
 	case X86_INS_ADD:
 	case X86_INS_ADC:
@@ -158,7 +158,12 @@ uint32_t getGadgetRole(const edb::Instruction &inst) {
 }
 
 // See issue #457, thanks mrexodia!
-bool isSafe64NopRegOp(const edb::Operand &op) {
+/**
+ * @brief is_safe_64_nop_reg_op
+ * @param op
+ * @return
+ */
+bool is_safe_64_nop_reg_op(const edb::Operand &op) {
 
 	if (op->type != X86_OP_REG) {
 		return true; // a non-register is safe
@@ -183,7 +188,12 @@ bool isSafe64NopRegOp(const edb::Operand &op) {
 	}
 }
 
-bool isEffectiveNop(const edb::Instruction &inst) {
+/**
+ * @brief is_effective_nop
+ * @param inst
+ * @return
+ */
+bool is_effective_nop(const edb::Instruction &inst) {
 
 	if (!inst) {
 		return false;
@@ -223,7 +233,7 @@ bool isEffectiveNop(const edb::Instruction &inst) {
 	case X86_INS_MOVUPD:
 	case X86_INS_XCHG:
 		// mov edi, edi
-		return inst[0]->type == X86_OP_REG && inst[1]->type == X86_OP_REG && inst[0]->reg == inst[1]->reg && isSafe64NopRegOp(inst[0]);
+		return inst[0]->type == X86_OP_REG && inst[1]->type == X86_OP_REG && inst[0]->reg == inst[1]->reg && is_safe_64_nop_reg_op(inst[0]);
 	case X86_INS_LEA: {
 		// lea eax, [eax + 0]
 		auto reg = inst[0]->reg;
@@ -231,7 +241,7 @@ bool isEffectiveNop(const edb::Instruction &inst) {
 		return inst[0]->type == X86_OP_REG && inst[1]->type == X86_OP_MEM && mem.disp == 0 &&
 			   ((mem.index == X86_REG_INVALID && mem.base == reg) ||
 				(mem.index == reg && mem.base == X86_REG_INVALID && mem.scale == 1)) &&
-			   isSafe64NopRegOp(inst[0]);
+			   is_safe_64_nop_reg_op(inst[0]);
 	}
 	case X86_INS_JMP:
 	case X86_INS_JA:
@@ -262,11 +272,11 @@ bool isEffectiveNop(const edb::Instruction &inst) {
 	case X86_INS_SAR:
 	case X86_INS_SAL:
 		// shl eax, 0
-		return inst[1]->type == X86_OP_IMM && inst[1]->imm == 0 && isSafe64NopRegOp(inst[0]);
+		return inst[1]->type == X86_OP_IMM && inst[1]->imm == 0 && is_safe_64_nop_reg_op(inst[0]);
 	case X86_INS_SHLD:
 	case X86_INS_SHRD:
 		// shld eax, ebx, 0
-		return inst[2]->type == X86_OP_IMM && inst[2]->imm == 0 && isSafe64NopRegOp(inst[0]) && isSafe64NopRegOp(inst[1]);
+		return inst[2]->type == X86_OP_IMM && inst[2]->imm == 0 && is_safe_64_nop_reg_op(inst[0]) && is_safe_64_nop_reg_op(inst[1]);
 	default:
 		return false;
 	}
@@ -274,12 +284,14 @@ bool isEffectiveNop(const edb::Instruction &inst) {
 
 }
 
-//------------------------------------------------------------------------------
-// Name: DialogROPTool
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogROPTool::DialogROPTool
+ * @param parent
+ * @param f
+ */
 DialogROPTool::DialogROPTool(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 	ui.tableView->verticalHeader()->hide();
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -299,10 +311,9 @@ DialogROPTool::DialogROPTool(QWidget *parent, Qt::WindowFlags f)
 	ui.buttonBox->addButton(buttonFind_, QDialogButtonBox::ActionRole);
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogROPTool::showEvent
+ */
 void DialogROPTool::showEvent(QShowEvent *) {
 	filterModel_->setFilterKeyColumn(3);
 	filterModel_->setSourceModel(&edb::v1::memory_regions());
@@ -319,7 +330,7 @@ void DialogROPTool::addGadget(DialogResults *results, const InstructionList &ins
 
 	if (!instructions.empty()) {
 
-		auto it = instructions.begin();
+		auto it    = instructions.begin();
 		auto inst1 = *it++;
 
 		QString instruction_string = QString("%1").arg(QString::fromStdString(edb::v1::formatter().to_string(*inst1)));
@@ -333,19 +344,18 @@ void DialogROPTool::addGadget(DialogResults *results, const InstructionList &ins
 
 			// found a gadget
 			// TODO(eteran): make this look for 1st non-NOP
-			results->addResult({inst1->rva(), instruction_string, getGadgetRole(*inst1)});
+			results->addResult({inst1->rva(), instruction_string, get_gadget_role(*inst1)});
 		}
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: doFind
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogROPTool::doFind
+ */
 void DialogROPTool::doFind() {
 
 	const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
-	const QModelIndexList sel = selModel->selectedRows();
+	const QModelIndexList sel                 = selModel->selectedRows();
 
 	if (sel.size() == 0) {
 		QMessageBox::critical(
@@ -364,9 +374,9 @@ void DialogROPTool::doFind() {
 				const QModelIndex index = filterModel_->mapToSource(selected_item);
 				if (auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
 
-					edb::address_t start_address = region->start();
+					edb::address_t start_address     = region->start();
 					const edb::address_t end_address = region->end();
-					const edb::address_t orig_start = start_address;
+					const edb::address_t orig_start  = start_address;
 
 					ByteShiftArray bsa(32);
 
@@ -377,16 +387,16 @@ void DialogROPTool::doFind() {
 						if (process->readBytes(start_address, &byte, 1)) {
 							bsa << byte;
 
-							const quint8 *p = bsa.data();
+							const quint8 *p       = bsa.data();
 							const quint8 *const l = p + bsa.size();
-							edb::address_t rva = start_address - bsa.size() + 1;
+							edb::address_t rva    = start_address - bsa.size() + 1;
 
 							InstructionList instruction_list;
 
 							// eat up any NOPs in front...
 							Q_FOREVER {
 								auto inst = std::make_shared<edb::Instruction>(p, l, rva);
-								if (!isEffectiveNop(*inst)) {
+								if (!is_effective_nop(*inst)) {
 									break;
 								}
 
@@ -417,7 +427,7 @@ void DialogROPTool::doFind() {
 									// eat up any NOPs in between...
 									Q_FOREVER {
 										auto inst = std::make_shared<edb::Instruction>(p, l, rva);
-										if (!isEffectiveNop(*inst)) {
+										if (!is_effective_nop(*inst)) {
 											break;
 										}
 

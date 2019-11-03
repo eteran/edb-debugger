@@ -23,7 +23,7 @@ namespace DebuggerCorePlugin {
 #if !defined(USE_SIGTIMEDWAIT)
 namespace {
 
-static int              selfpipe[2];
+static int selfpipe[2];
 static struct sigaction old_action;
 
 /**
@@ -189,8 +189,8 @@ bool Posix::wait_for_sigchld(int msecs) {
 
 	return false;
 #else
-	sigset_t        mask;
-	siginfo_t       info;
+	sigset_t mask;
+	siginfo_t info;
 	struct timespec ts;
 	ts.tv_sec  = (msecs / 1000);
 	ts.tv_nsec = (msecs % 1000) * 1000000;

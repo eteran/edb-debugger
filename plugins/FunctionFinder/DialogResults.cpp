@@ -62,7 +62,7 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 		qDebug("[FunctionFinder] Constructing Graph...");
 
 		const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
-		const QModelIndexList sel = selModel->selectedRows();
+		const QModelIndexList sel                 = selModel->selectedRows();
 
 		if (sel.size() == 1) {
 			const QModelIndex index = filterModel_->mapToSource(sel[0]);
@@ -85,7 +85,7 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 						// first create all of the nodes
 						for (const auto &pair : f) {
 							const BasicBlock &bb = pair.second;
-							auto node = new GraphNode(graph, bb.toString(), Qt::lightGray);
+							auto node            = new GraphNode(graph, bb.toString(), Qt::lightGray);
 							nodes.insert(bb.firstAddress(), node);
 						}
 
@@ -95,7 +95,7 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 
 							if (!bb.empty()) {
 
-								auto term = bb.back();
+								auto term  = bb.back();
 								auto &inst = *term;
 
 								if (is_unconditional_jump(inst)) {
@@ -109,7 +109,7 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 										const edb::address_t ea = op->imm;
 
 										auto from = nodes.find(bb.firstAddress());
-										auto to = nodes.find(ea);
+										auto to   = nodes.find(ea);
 										if (to != nodes.end() && from != nodes.end()) {
 											new GraphEdge(from.value(), to.value(), Qt::black);
 										}
@@ -183,7 +183,7 @@ void DialogResults::addResult(const Function &function) {
 
 	// upper bound of the function
 	result.end_address = function.end_address();
-	result.size = function.end_address() - function.entry_address() + 1;
+	result.size        = function.end_address() - function.entry_address() + 1;
 
 	// reference count
 	result.score = function.reference_count();

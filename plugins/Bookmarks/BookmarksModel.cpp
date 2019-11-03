@@ -21,18 +21,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BookmarksPlugin {
 
-//------------------------------------------------------------------------------
-// Name: BookmarksModel
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BookmarksModel::BookmarksModel
+ * @param parent
+ */
 BookmarksModel::BookmarksModel(QObject *parent)
 	: QAbstractItemModel(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: headerData
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BookmarksModel::headerData
+ * @param section
+ * @param orientation
+ * @param role
+ * @return
+ */
 QVariant BookmarksModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
 	if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
@@ -49,10 +52,12 @@ QVariant BookmarksModel::headerData(int section, Qt::Orientation orientation, in
 	return QVariant();
 }
 
-//------------------------------------------------------------------------------
-// Name: data
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BookmarksModel::data
+ * @param index
+ * @param role
+ * @return
+ */
 QVariant BookmarksModel::data(const QModelIndex &index, int role) const {
 
 	if (!index.isValid()) {
@@ -85,30 +90,32 @@ QVariant BookmarksModel::data(const QModelIndex &index, int role) const {
 	return QVariant();
 }
 
-//------------------------------------------------------------------------------
-// Name: addBookmark
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BookmarksModel::addBookmark
+ * @param r
+ */
 void BookmarksModel::addBookmark(const Bookmark &r) {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
 	bookmarks_.push_back(r);
 	endInsertRows();
 }
 
-//------------------------------------------------------------------------------
-// Name: clearBookmarks
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BookmarksModel::clearBookmarks
+ */
 void BookmarksModel::clearBookmarks() {
 	beginResetModel();
 	bookmarks_.clear();
 	endResetModel();
 }
 
-//------------------------------------------------------------------------------
-// Name: index
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BookmarksModel::index
+ * @param row
+ * @param column
+ * @param parent
+ * @return
+ */
 QModelIndex BookmarksModel::index(int row, int column, const QModelIndex &parent) const {
 
 	Q_UNUSED(parent)
@@ -128,37 +135,41 @@ QModelIndex BookmarksModel::index(int row, int column, const QModelIndex &parent
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: parent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BookmarksModel::parent
+ * @param index
+ * @return
+ */
 QModelIndex BookmarksModel::parent(const QModelIndex &index) const {
 	Q_UNUSED(index)
 	return QModelIndex();
 }
 
-//------------------------------------------------------------------------------
-// Name: rowCount
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BookmarksModel::rowCount
+ * @param parent
+ * @return
+ */
 int BookmarksModel::rowCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 	return bookmarks_.size();
 }
 
-//------------------------------------------------------------------------------
-// Name: columnCount
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BookmarksModel::columnCount
+ * @param parent
+ * @return
+ */
 int BookmarksModel::columnCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 	return 3;
 }
 
-//------------------------------------------------------------------------------
-// Name: setComment
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BookmarksModel::setComment
+ * @param index
+ * @param comment
+ */
 void BookmarksModel::setComment(const QModelIndex &index, const QString &comment) {
 
 	if (!index.isValid()) {
@@ -171,10 +182,11 @@ void BookmarksModel::setComment(const QModelIndex &index, const QString &comment
 	Q_EMIT dataChanged(index, index);
 }
 
-//------------------------------------------------------------------------------
-// Name: setComment
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BookmarksModel::setType
+ * @param index
+ * @param type
+ */
 void BookmarksModel::setType(const QModelIndex &index, const QString &type) {
 
 	if (!index.isValid()) {
@@ -188,10 +200,10 @@ void BookmarksModel::setType(const QModelIndex &index, const QString &type) {
 	Q_EMIT dataChanged(index, index);
 }
 
-//------------------------------------------------------------------------------
-// Name: deleteBookmark
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BookmarksModel::deleteBookmark
+ * @param index
+ */
 void BookmarksModel::deleteBookmark(const QModelIndex &index) {
 
 	if (!index.isValid()) {

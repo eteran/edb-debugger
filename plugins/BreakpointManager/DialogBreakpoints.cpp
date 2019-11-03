@@ -36,33 +36,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BreakpointManagerPlugin {
 
-//------------------------------------------------------------------------------
-// Name: DialogBreakpoints
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogBreakpoints::DialogBreakpoints
+ * @param parent
+ * @param f
+ */
 DialogBreakpoints::DialogBreakpoints(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 	ui.tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogBreakpoints::showEvent
+ */
 void DialogBreakpoints::showEvent(QShowEvent *) {
 	connect(edb::v1::disassembly_widget(), SIGNAL(signal_updated()), this, SLOT(updateList()));
 	updateList();
 }
 
+/**
+ * @brief DialogBreakpoints::hideEvent
+ */
 void DialogBreakpoints::hideEvent(QHideEvent *) {
 	disconnect(edb::v1::disassembly_widget(), SIGNAL(signal_updated()), this, SLOT(updateList()));
 }
 
-//------------------------------------------------------------------------------
-// Name: updateList
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogBreakpoints::updateList
+ */
 void DialogBreakpoints::updateList() {
 
 	ui.tableWidget->setSortingEnabled(false);
@@ -81,10 +84,10 @@ void DialogBreakpoints::updateList() {
 		ui.tableWidget->insertRow(row);
 
 		const edb::address_t address = bp->address();
-		const QString condition = bp->condition;
-		const bool onetime = bp->oneTime();
-		const QString symname = edb::v1::find_function_symbol(address, QString(), nullptr);
-		const QString bytes = edb::v1::format_bytes(bp->originalBytes(), bp->size());
+		const QString condition      = bp->condition;
+		const bool onetime           = bp->oneTime();
+		const QString symname        = edb::v1::find_function_symbol(address, QString(), nullptr);
+		const QString bytes          = edb::v1::format_bytes(bp->originalBytes(), bp->size());
 
 		auto item = new QTableWidgetItem(edb::v1::format_pointer(address));
 		item->setData(Qt::UserRole, address.toQVariant());
@@ -99,10 +102,9 @@ void DialogBreakpoints::updateList() {
 	ui.tableWidget->setSortingEnabled(true);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnAdd_clicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogBreakpoints::on_btnAdd_clicked
+ */
 void DialogBreakpoints::on_btnAdd_clicked() {
 
 	bool ok;
@@ -122,18 +124,17 @@ void DialogBreakpoints::on_btnAdd_clicked() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnCondition_clicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogBreakpoints::on_btnCondition_clicked
+ */
 void DialogBreakpoints::on_btnCondition_clicked() {
 	QList<QTableWidgetItem *> sel = ui.tableWidget->selectedItems();
 	if (!sel.empty()) {
 		QTableWidgetItem *const item = sel[0];
 		bool ok;
 		const edb::address_t address = item->data(Qt::UserRole).toULongLong();
-		const QString condition = edb::v1::get_breakpoint_condition(address);
-		const QString text = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, condition, &ok);
+		const QString condition      = edb::v1::get_breakpoint_condition(address);
+		const QString text           = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, condition, &ok);
 		if (ok) {
 			edb::v1::set_breakpoint_condition(address, text);
 			updateList();
@@ -141,30 +142,9 @@ void DialogBreakpoints::on_btnCondition_clicked() {
 	}
 }
 
-#if 0
-//------------------------------------------------------------------------------
-// Name: on_btnAddFunction_clicked
-// Desc:
-//------------------------------------------------------------------------------
-void DialogBreakpoints::on_btnAddFunction_clicked() {
-    bool ok;
-    const QString text = QInputDialog::getText(this, tr("Add Breakpoint On Library Function"), tr("Function Name:"), QLineEdit::Normal, QString(), &ok);
-	if(ok && !text.isEmpty()) {
-		const QList<std::shared_ptr<Symbol>> syms = edb::v1::symbol_manager().symbols();
-		for(const std::shared_ptr<Symbol> &current: syms) {
-			if(current.name_no_prefix == text) {
-				edb::v1::create_breakpoint(current.address);
-			}
-		}
-		updateList();
-	}
-}
-#endif
-
-//------------------------------------------------------------------------------
-// Name: on_btnRemove_clicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogBreakpoints::on_btnRemove_clicked
+ */
 void DialogBreakpoints::on_btnRemove_clicked() {
 	QList<QTableWidgetItem *> sel = ui.tableWidget->selectedItems();
 	if (!sel.empty()) {
@@ -175,10 +155,11 @@ void DialogBreakpoints::on_btnRemove_clicked() {
 	updateList();
 }
 
-//------------------------------------------------------------------------------
-// Name: on_tableWidget_cellDoubleClicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogBreakpoints::on_tableWidget_cellDoubleClicked
+ * @param row
+ * @param col
+ */
 void DialogBreakpoints::on_tableWidget_cellDoubleClicked(int row, int col) {
 	switch (col) {
 	case 0: // address
@@ -191,8 +172,8 @@ void DialogBreakpoints::on_tableWidget_cellDoubleClicked(int row, int col) {
 		if (QTableWidgetItem *const address_item = ui.tableWidget->item(row, 0)) {
 			bool ok;
 			const edb::address_t address = address_item->data(Qt::UserRole).toULongLong();
-			const QString condition = edb::v1::get_breakpoint_condition(address);
-			const QString text = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, condition, &ok);
+			const QString condition      = edb::v1::get_breakpoint_condition(address);
+			const QString text           = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, condition, &ok);
 			if (ok) {
 				edb::v1::set_breakpoint_condition(address, text);
 				updateList();
@@ -202,38 +183,39 @@ void DialogBreakpoints::on_tableWidget_cellDoubleClicked(int row, int col) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnImport_clicked()
-// Desc: Opens a file selection window to choose a file with newline-separated,
-//          hex address breakpoints.
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogBreakpoints::on_btnImport_clicked
+ *
+ * Opens a file selection window to choose a file with newline-separated,
+ * hex address breakpoints.
+ */
 void DialogBreakpoints::on_btnImport_clicked() {
 
-	//Let the user choose the file; get the file name.
+	// Let the user choose the file; get the file name.
 	QString home_directory = QDir::homePath();
-	QString file_name = QFileDialog::getOpenFileName(this, tr("Breakpoint Import File"), home_directory, nullptr);
+	QString file_name      = QFileDialog::getOpenFileName(this, tr("Breakpoint Import File"), home_directory, nullptr);
 
 	if (file_name.isEmpty()) {
 		return;
 	}
 
-	//Open the file; fail if error or it doesn't exist.
+	// Open the file; fail if error or it doesn't exist.
 	QFile file(file_name);
 	if (!file.open(QIODevice::ReadOnly)) {
 		QMessageBox::critical(this, tr("Error Opening File"), tr("Unable to open breakpoint file: %1").arg(file_name));
 		return;
 	}
 
-	//Keep a list of any lines in the file that don't make valid breakpoints.
+	// Keep a list of any lines in the file that don't make valid breakpoints.
 	QStringList errors;
 
-	//Iterate through each line; attempt to make a breakpoint for each line.
-	//Addreses should be prefixed with 0x, i.e. a hex number.
-	//Count each breakpoint successfully made.
+	// Iterate through each line; attempt to make a breakpoint for each line.
+	// Addreses should be prefixed with 0x, i.e. a hex number.
+	// Count each breakpoint successfully made.
 	int count = 0;
 	Q_FOREVER {
 
-		//Get the address
+		// Get the address
 		QString line = file.readLine().trimmed();
 
 		if (line.isEmpty()) {
@@ -241,17 +223,17 @@ void DialogBreakpoints::on_btnImport_clicked() {
 		}
 
 		bool ok;
-		int base = 16;
+		int base               = 16;
 		edb::address_t address = line.toULong(&ok, base);
 
-		//Skip if there's an issue.
+		// Skip if there's an issue.
 		if (!ok) {
 			errors.append(line);
 			continue;
 		}
 
-		//If there's an issue with the line or address isn't in any region,
-		//add to error list and skip.
+		// If there's an issue with the line or address isn't in any region,
+		// add to error list and skip.
 		edb::v1::memory_regions().sync();
 		std::shared_ptr<IRegion> p = edb::v1::memory_regions().findRegion(address);
 		if (!p) {
@@ -259,13 +241,13 @@ void DialogBreakpoints::on_btnImport_clicked() {
 			continue;
 		}
 
-		//If the bp already exists, skip.  No error.
+		// If the bp already exists, skip.  No error.
 		if (edb::v1::debugger_core->findBreakpoint(address)) {
 			continue;
 		}
 
-		//If the line was converted to an address, try to create the breakpoint.
-		//Access debugger_core directly to avoid many possible error windows by edb::v1::create_breakpoint()
+		// If the line was converted to an address, try to create the breakpoint.
+		// Access debugger_core directly to avoid many possible error windows by edb::v1::create_breakpoint()
 		if (const std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(address)) {
 			count++;
 		} else {
@@ -273,22 +255,23 @@ void DialogBreakpoints::on_btnImport_clicked() {
 		}
 	}
 
-	//Report any errors to the user
+	// Report any errors to the user
 	if (errors.size() > 0) {
 		QMessageBox::warning(this, tr("Invalid Breakpoints"), tr("The following breakpoints were not made:\n%1").arg(errors.join("")));
 	}
 
-	//Report breakpoints successfully made
+	// Report breakpoints successfully made
 	QMessageBox::information(this, tr("Breakpoint Import"), tr("Imported %1 breakpoints.").arg(count));
 
 	updateList();
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnExport_clicked()
-// Desc: Opens a file selection window to choose a file to save newline-separated,
-//          hex address breakpoints.
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogBreakpoints::on_btnExport_clicked
+ *
+ * Opens a file selection window to choose a file to save newline-separated,
+ * hex address breakpoints.
+ */
 void DialogBreakpoints::on_btnExport_clicked() {
 
 	//Get the current list of breakpoints
@@ -324,8 +307,7 @@ void DialogBreakpoints::on_btnExport_clicked() {
 	}
 
 	for (edb::address_t address : export_list) {
-		int base = 16;
-		QString string_address = "0x" + QString::number(address, base) + "\n";
+		QString string_address = "0x" + QString::number(address, 16) + "\n";
 		file.write(string_address.toLatin1());
 	}
 

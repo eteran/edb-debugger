@@ -23,26 +23,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace FunctionFinderPlugin {
 
-//------------------------------------------------------------------------------
-// Name: FunctionFinder
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief FunctionFinder::FunctionFinder
+ * @param parent
+ */
 FunctionFinder::FunctionFinder(QObject *parent)
 	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: ~FunctionFinder
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief FunctionFinder::~FunctionFinder
+ */
 FunctionFinder::~FunctionFinder() {
 	delete dialog_;
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief FunctionFinder::menu
+ * @param parent
+ * @return
+ */
 QMenu *FunctionFinder::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
@@ -55,10 +55,9 @@ QMenu *FunctionFinder::menu(QWidget *parent) {
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: showMenu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief FunctionFinder::showMenu
+ */
 void FunctionFinder::showMenu() {
 
 	if (!dialog_) {

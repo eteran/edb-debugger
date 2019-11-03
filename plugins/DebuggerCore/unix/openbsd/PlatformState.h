@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IState.h"
 #include "Types.h"
-#include <sys/types.h>
 #include <machine/reg.h>
+#include <sys/types.h>
 
 namespace DebuggerCore {
 
@@ -55,9 +55,9 @@ public:
 	QByteArray xmm_register(int n) const override;
 
 private:
-	struct reg     regs_;
-	struct fpreg   fpregs_;
-	edb::reg_t     dr_[8];
+	struct reg regs_;
+	struct fpreg fpregs_;
+	edb::reg_t dr_[8];
 	edb::address_t fs_base;
 	edb::address_t gs_base;
 };
@@ -65,4 +65,3 @@ private:
 }
 
 #endif
-

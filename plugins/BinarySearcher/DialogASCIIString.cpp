@@ -36,10 +36,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BinarySearcherPlugin {
 
-//------------------------------------------------------------------------------
-// Name: DialogASCIIString
-// Desc: constructor
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogASCIIString::DialogASCIIString
+ * @param parent
+ * @param f
+ */
 DialogASCIIString::DialogASCIIString(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
 	ui.setupUi(this);
@@ -57,14 +58,15 @@ DialogASCIIString::DialogASCIIString(QWidget *parent, Qt::WindowFlags f)
 	ui.buttonBox->addButton(buttonFind_, QDialogButtonBox::ActionRole);
 }
 
-//------------------------------------------------------------------------------
-// Name: doFind
-// Desc: This will find *stack aligned pointers* to exact string matches
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogASCIIString::doFind
+ *
+ * find *stack aligned pointers* to exact string matches
+ */
 void DialogASCIIString::doFind() {
 
 	const QByteArray b = ui.txtASCII->text().toLatin1();
-	auto results = new DialogResults(this);
+	auto results       = new DialogResults(this);
 
 	const auto sz = static_cast<size_t>(b.size());
 	if (sz != 0) {
@@ -81,7 +83,7 @@ void DialogASCIIString::doFind() {
 				if (std::shared_ptr<IRegion> region = edb::v1::memory_regions().findRegion(stack_ptr)) {
 
 					edb::address_t count = (region->end() - stack_ptr) / edb::v1::pointer_size();
-					stack_ptr = region->start();
+					stack_ptr            = region->start();
 
 					try {
 						std::vector<quint8> chars(sz);

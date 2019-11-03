@@ -50,11 +50,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace HeapAnalyzerPlugin {
 namespace {
 
-constexpr int PREV_INUSE = 0x1;
-constexpr int IS_MMAPPED = 0x2;
-constexpr int NON_MAIN_ARENA = 0x4;
+constexpr int PreviousInUse = 0x1;
+constexpr int IsMMapped     = 0x2;
+constexpr int NonMainArena  = 0x4;
 
-constexpr int SIZE_BITS = (PREV_INUSE | IS_MMAPPED | NON_MAIN_ARENA);
+constexpr int SizeBits = (PreviousInUse | IsMMapped | NonMainArena);
 
 // NOTE: the details of this structure are 32/64-bit sensitive!
 template <class MallocChunkPtr>
@@ -67,8 +67,8 @@ struct malloc_chunk {
 	MallocChunkPtr fd; /* double links -- used only if free. */
 	MallocChunkPtr bk;
 
-	edb::address_t chunk_size() const { return edb::address_t::fromZeroExtended(size & ~(SIZE_BITS)); }
-	bool prev_inuse() const { return size & PREV_INUSE; }
+	edb::address_t chunk_size() const { return edb::address_t::fromZeroExtended(size & ~(SizeBits)); }
+	bool prev_inuse() const { return size & PreviousInUse; }
 };
 
 template <class Addr>
@@ -165,7 +165,7 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f)
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 	buttonAnalyze_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Analyze"));
-	buttonGraph_ = new QPushButton(QIcon::fromTheme("distribute-graph"), tr("&Graph Selected Blocks"));
+	buttonGraph_   = new QPushButton(QIcon::fromTheme("distribute-graph"), tr("&Graph Selected Blocks"));
 	connect(buttonAnalyze_, &QPushButton::clicked, this, [this]() {
 		buttonAnalyze_->setEnabled(false);
 		ui.progressBar->setValue(0);
@@ -198,11 +198,11 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f)
 
 			// seed our search with the selected blocks
 			const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
-			const QModelIndexList sel = selModel->selectedRows();
+			const QModelIndexList sel                 = selModel->selectedRows();
 			if (sel.size() != 0) {
 				for (const QModelIndex &index : sel) {
 					const QModelIndex idx = filterModel_->mapToSource(index);
-					auto item = static_cast<Result *>(idx.internalPointer());
+					auto item             = static_cast<Result *>(idx.internalPointer());
 					result_stack.push(item);
 					seen_results.insert(item);
 				}
@@ -210,7 +210,7 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f)
 
 			while (!result_stack.isEmpty()) {
 				const Result *const result = result_stack.pop();
-				GraphNode *node = new GraphNode(graph, edb::v1::format_pointer(result->address), result->type == Result::Busy ? Qt::lightGray : Qt::red);
+				GraphNode *node            = new GraphNode(graph, edb::v1::format_pointer(result->address), result->type == Result::Busy ? Qt::lightGray : Qt::red);
 
 				nodes.insert(result->address, node);
 
@@ -287,7 +287,7 @@ void DialogHeap::processPotentialPointers(const QHash<edb::address_t, edb::addre
 		std::vector<edb::address_t> pointers;
 
 		if (IProcess *process = edb::v1::debugger_core->process()) {
-			if (result->data_type == Result::Unknown) {
+			if (result->dataType == Result::Unknown) {
 				edb::address_t pointer(0);
 				edb::address_t block_ptr = block_start(*result);
 				edb::address_t block_end = block_ptr + result->size;
@@ -402,7 +402,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 							currentChunk.chunk_size(),
 							asciisz)) {
 
-						data = asciiData;
+						data      = asciiData;
 						data_type = Result::Ascii;
 					} else if (edb::v1::get_utf16_string_at_address(
 								   block_start(currentChunkAddress),
@@ -410,7 +410,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 								   min_string_length,
 								   currentChunk.chunk_size(),
 								   utf16sz)) {
-						data = utf16Data;
+						data      = utf16Data;
 						data_type = Result::Utf16;
 					} else {
 
@@ -508,7 +508,7 @@ void DialogHeap::doFind() {
 
 	if (IProcess *process = edb::v1::debugger_core->process()) {
 		edb::address_t start_address = 0;
-		edb::address_t end_address = 0;
+		edb::address_t end_address   = 0;
 
 		QString libcName;
 		QString ldName;

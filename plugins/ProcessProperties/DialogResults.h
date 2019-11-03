@@ -30,8 +30,8 @@ public:
 
 private:
 	Ui::DialogResults ui;
-	ResultsModel *model_;
-	QSortFilterProxyModel *filterModel_;
+	ResultsModel *model_                = nullptr;
+	QSortFilterProxyModel *filterModel_ = nullptr;
 };
 
 #endif

@@ -18,18 +18,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PlatformRegion.h"
 
-#include "MemoryRegions.h"
-#include "edb.h"
-#include "IDebugger.h"
-#include "State.h"
 #include "IDebugEventHandler.h"
+#include "IDebugger.h"
+#include "MemoryRegions.h"
+#include "State.h"
+#include "edb.h"
 #include <QMessageBox>
-#include <sys/syscall.h>
 #include <sys/mman.h>
+#include <sys/syscall.h>
 
 namespace DebuggerCorePlugin {
 
-PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions) : start_(start), end_(end), base_(base), name_(name), permissions_(permissions) {
+PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions)
+	: start_(start), end_(end), base_(base), name_(name), permissions_(permissions) {
 }
 
 IRegion *PlatformRegion::clone() const {

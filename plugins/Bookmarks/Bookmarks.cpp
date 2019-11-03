@@ -27,18 +27,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BookmarksPlugin {
 
-//------------------------------------------------------------------------------
-// Name: Bookmarks
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Bookmarks::Bookmarks
+ * @param parent
+ */
 Bookmarks::Bookmarks(QObject *parent)
 	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Bookmarks::menu
+ * @param parent
+ * @return
+ */
 QMenu *Bookmarks::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
@@ -90,10 +91,10 @@ QMenu *Bookmarks::menu(QWidget *parent) {
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: cpuContextMenu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Bookmarks::cpuContextMenu
+ * @return
+ */
 QList<QAction *> Bookmarks::cpuContextMenu() {
 
 	QList<QAction *> ret;
@@ -105,18 +106,17 @@ QList<QAction *> Bookmarks::cpuContextMenu() {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: addBookmarkMenu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Bookmarks::addBookmarkMenu
+ */
 void Bookmarks::addBookmarkMenu() {
 	bookmarkWidget_->addAddress(edb::v1::cpu_selected_address());
 }
 
-//------------------------------------------------------------------------------
-// Name: saveState
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Bookmarks::saveState
+ * @return
+ */
 QVariantMap Bookmarks::saveState() const {
 	QVariantMap state;
 	QVariantList bookmarks;
@@ -124,7 +124,7 @@ QVariantMap Bookmarks::saveState() const {
 
 		QVariantMap entry;
 		entry["address"] = bookmark.address.toHexString();
-		entry["type"] = BookmarksModel::bookmarkTypeToString(bookmark.type);
+		entry["type"]    = BookmarksModel::bookmarkTypeToString(bookmark.type);
 		entry["comment"] = bookmark.comment;
 
 		bookmarks.push_back(entry);
@@ -134,10 +134,10 @@ QVariantMap Bookmarks::saveState() const {
 	return state;
 }
 
-//------------------------------------------------------------------------------
-// Name: restoreState
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Bookmarks::restoreState
+ * @param state
+ */
 void Bookmarks::restoreState(const QVariantMap &state) {
 
 	QVariantList bookmarks = state["bookmarks"].toList();
@@ -145,8 +145,8 @@ void Bookmarks::restoreState(const QVariantMap &state) {
 		auto bookmark = entry.value<QVariantMap>();
 
 		edb::address_t address = edb::address_t::fromHexString(bookmark["address"].toString());
-		QString type = bookmark["type"].toString();
-		QString comment = bookmark["comment"].toString();
+		QString type           = bookmark["type"].toString();
+		QString comment        = bookmark["comment"].toString();
 
 		qDebug() << "Restoring bookmark with address: " << address.toHexString();
 

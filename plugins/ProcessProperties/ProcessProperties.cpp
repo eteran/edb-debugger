@@ -24,29 +24,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ProcessPropertiesPlugin {
 
-//------------------------------------------------------------------------------
-// Name: ProcessProperties
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ProcessProperties::ProcessProperties
+ * @param parent
+ */
 ProcessProperties::ProcessProperties(QObject *parent)
 	: QObject(parent) {
+
 	dialog_ = new DialogProcessProperties(edb::v1::debugger_ui);
 }
 
-//------------------------------------------------------------------------------
-// Name: ~ProcessProperties
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ProcessProperties::~ProcessProperties
+ */
 ProcessProperties::~ProcessProperties() {
 #if 0
 	delete dialog_;
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ProcessProperties::menu
+ * @param parent
+ * @return
+ */
 QMenu *ProcessProperties::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
@@ -60,10 +61,9 @@ QMenu *ProcessProperties::menu(QWidget *parent) {
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: showMenu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ProcessProperties::showMenu
+ */
 void ProcessProperties::showMenu() {
 	dialog_->show();
 }

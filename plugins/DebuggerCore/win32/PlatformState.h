@@ -36,9 +36,9 @@ public:
 	std::unique_ptr<IState> clone() const override;
 
 public:
-	long double fpu_register(int n) const ;
-	quint64 mmx_register(int n) const ;
-	QByteArray xmm_register(int n) const ;
+	long double fpu_register(int n) const;
+	quint64 mmx_register(int n) const;
+	QByteArray xmm_register(int n) const;
 
 public:
 	QString flags_to_string() const override;
@@ -55,7 +55,8 @@ public:
 	void adjust_stack(int bytes) override;
 	void clear() override;
 	bool empty() const override {
-		qDebug("TODO: implement PlatformState::empty"); return true;
+		qDebug("TODO: implement PlatformState::empty");
+		return true;
 	}
 	void set_debug_register(size_t n, edb::reg_t value) override;
 	void set_flags(edb::reg_t flags) override;
@@ -68,37 +69,48 @@ public:
 	Register arch_register(uint64_t type, size_t n) const override;
 
 	Register mmx_register(size_t n) const override {
-		qDebug("TODO: implement PlatformState::mmx_register"); return Register();
+		qDebug("TODO: implement PlatformState::mmx_register");
+		return Register();
 	}
 	Register xmm_register(size_t n) const override {
-		qDebug("TODO: implement PlatformState::xmm_register"); return Register();
+		qDebug("TODO: implement PlatformState::xmm_register");
+		return Register();
 	}
 	Register ymm_register(size_t n) const override {
-		qDebug("TODO: implement PlatformState::ymm_register"); return Register();
+		qDebug("TODO: implement PlatformState::ymm_register");
+		return Register();
 	}
 	Register gp_register(size_t n) const override {
-		qDebug("TODO: implement PlatformState::gp_register"); return Register();
+		qDebug("TODO: implement PlatformState::gp_register");
+		return Register();
 	}
 	int fpu_stack_pointer() const override {
-		qDebug("TODO: implement PlatformState::fpu_stack_pointer"); return 0;
+		qDebug("TODO: implement PlatformState::fpu_stack_pointer");
+		return 0;
 	}
 	edb::value80 fpu_register(size_t n) const override {
-		qDebug("TODO: implement PlatformState::fpu_register"); return edb::value80();
+		qDebug("TODO: implement PlatformState::fpu_register");
+		return edb::value80();
 	}
 	bool fpu_register_is_empty(size_t n) const override {
-		qDebug("TODO: implement PlatformState::fpu_register_is_empty"); return true;
+		qDebug("TODO: implement PlatformState::fpu_register_is_empty");
+		return true;
 	}
 	QString fpu_register_tag_string(size_t n) const override {
-		qDebug("TODO: implement PlatformState::fpu_register_tag_string"); return "";
+		qDebug("TODO: implement PlatformState::fpu_register_tag_string");
+		return "";
 	}
 	edb::value16 fpu_control_word() const override {
-		qDebug("TODO: implement PlatformState::fpu_control_word"); return edb::value16();
+		qDebug("TODO: implement PlatformState::fpu_control_word");
+		return edb::value16();
 	}
 	edb::value16 fpu_status_word() const override {
-		qDebug("TODO: implement PlatformState::fpu_status_word"); return edb::value16();
+		qDebug("TODO: implement PlatformState::fpu_status_word");
+		return edb::value16();
 	}
 	edb::value16 fpu_tag_word() const override {
-		qDebug("TODO: implement PlatformState::fpu_tag_word"); return edb::value16();
+		qDebug("TODO: implement PlatformState::fpu_tag_word");
+		return edb::value16();
 	}
 
 public:
@@ -108,12 +120,12 @@ public:
 private:
 #ifdef EDB_X86_64
 	union {
-		CONTEXT        context64_ = {};
-		WOW64_CONTEXT  context32_;
+		CONTEXT context64_ = {};
+		WOW64_CONTEXT context32_;
 	};
 	bool is_wow64_ = false;
 #else
-	CONTEXT        context32_;
+	CONTEXT context32_;
 #endif
 	edb::address_t fs_base_ = 0;
 	edb::address_t gs_base_ = 0;

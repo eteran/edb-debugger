@@ -24,14 +24,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BinarySearcherPlugin {
 
+/**
+ * @brief BinarySearcher::BinarySearcher
+ * @param parent
+ */
 BinarySearcher::BinarySearcher(QObject *parent)
 	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BinarySearcher::menu
+ * @param parent
+ * @return
+ */
 QMenu *BinarySearcher::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
@@ -44,10 +49,10 @@ QMenu *BinarySearcher::menu(QWidget *parent) {
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: stack_context_menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BinarySearcher::stackContextMenu
+ * @return
+ */
 QList<QAction *> BinarySearcher::stackContextMenu() {
 
 	QList<QAction *> ret;
@@ -59,19 +64,17 @@ QList<QAction *> BinarySearcher::stackContextMenu() {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: showMenu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BinarySearcher::showMenu
+ */
 void BinarySearcher::showMenu() {
 	static auto dialog = new DialogBinaryString(edb::v1::debugger_ui);
 	dialog->show();
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuStackFindASCII
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BinarySearcher::mnuStackFindASCII
+ */
 void BinarySearcher::mnuStackFindASCII() {
 	static auto dialog = new DialogASCIIString(edb::v1::debugger_ui);
 	dialog->show();
