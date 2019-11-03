@@ -55,6 +55,7 @@ private:
 		int selected_line;
 		int line_height;
 		QPalette::ColorGroup group;
+		std::map<int, int> line_badge_width;  // for jmp drawing
 	};
 
 public:
@@ -133,7 +134,7 @@ private:
 
 	void drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, int y, bool selected);
 	void drawHeaderAndBackground(QPainter &painter, const DrawingContext *ctx, const std::unique_ptr<IBinary> &binary_info);
-	int drawRegiserBadges(QPainter &painter, const DrawingContext *ctx);
+	void drawRegiserBadges(QPainter &painter, DrawingContext *ctx);
 	void drawSymbolNames(QPainter &painter, const DrawingContext *ctx);
 	void drawSidebarElements(QPainter &painter, const DrawingContext *ctx);
 	void drawInstructionBytes(QPainter &painter, const DrawingContext *ctx);

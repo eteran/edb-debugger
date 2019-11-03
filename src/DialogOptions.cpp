@@ -200,6 +200,8 @@ void DialogOptions::showEvent(QShowEvent *event) {
 
 	ui.chkAddressColon->setChecked(config.show_address_separator);
 
+	ui.chkShowJumpArrow->setChecked(config.show_jump_arrow);
+
 	ui.signalsMessageBoxEnable->setChecked(config.enable_signals_message_box);
 
 	ui.chkTabBetweenMnemonicAndOperands->setChecked(config.tab_between_mnemonic_and_operands);
@@ -281,6 +283,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.default_breakpoint_type = ui.cmbDefaultBreakpointType->itemData(ui.cmbDefaultBreakpointType->currentIndex()).value<IBreakpoint::TypeId>();
 
 	config.function_offsets_in_hex = ui.chkHexOffsets->isChecked();
+	config.show_jump_arrow         = ui.chkShowJumpArrow->isChecked();
 
 	config.zeros_are_filling     = ui.chkZerosAreFilling->isChecked();
 	config.show_register_badges = ui.chkRegisterBadges->isChecked();
