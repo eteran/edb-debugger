@@ -48,7 +48,7 @@ void FasLoader::load() {
 	if (edb::v1::debugger_core) {
 		if (auto process = edb::v1::debugger_core->process()) {
 			auto fileName = process->executable();
-			auto fasName  = fileName;
+			auto fasName = fileName;
 			fasName.append(".fas");
 
 			Fas::Core fasCore;
@@ -59,10 +59,10 @@ void FasLoader::load() {
 
 				auto symbol = std::make_shared<Symbol>();
 
-				symbol->file    = fileName;
+				symbol->file = fileName;
 				symbol->address = pluginSymbol.value;
-				symbol->name    = QString::fromStdString(pluginSymbol.name);
-				symbol->size    = pluginSymbol.size;
+				symbol->name = QString::fromStdString(pluginSymbol.name);
+				symbol->size = pluginSymbol.size;
 				if (pluginSymbol.size > 0) {
 					symbol->type = 'd';
 				}

@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "BreakpointManager.h"
 #include "DialogBreakpoints.h"
 #include "edb.h"
-#include <QMenu>
 #include <QKeySequence>
+#include <QMenu>
 
 namespace BreakpointManagerPlugin {
 
@@ -28,7 +28,8 @@ namespace BreakpointManagerPlugin {
 // Name: BreakpointManager
 // Desc:
 //------------------------------------------------------------------------------
-BreakpointManager::BreakpointManager(QObject *parent) : QObject(parent) {
+BreakpointManager::BreakpointManager(QObject *parent)
+	: QObject(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -47,7 +48,7 @@ QMenu *BreakpointManager::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("BreakpointManager"), parent);
 		menu_->addAction(tr("&Breakpoints"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+B")));
 	}
@@ -61,7 +62,7 @@ QMenu *BreakpointManager::menu(QWidget *parent) {
 //------------------------------------------------------------------------------
 void BreakpointManager::showMenu() {
 
-	if(!dialog_) {
+	if (!dialog_) {
 		dialog_ = new DialogBreakpoints(edb::v1::debugger_ui);
 	}
 

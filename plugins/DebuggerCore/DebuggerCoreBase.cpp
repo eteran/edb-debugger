@@ -29,7 +29,7 @@ namespace DebuggerCorePlugin {
 // Desc: removes all breakpoints
 //------------------------------------------------------------------------------
 void DebuggerCoreBase::clearBreakpoints() {
-	if(attached()) {
+	if (attached()) {
 		breakpoints_.clear();
 	}
 }
@@ -42,8 +42,8 @@ void DebuggerCoreBase::clearBreakpoints() {
 std::shared_ptr<IBreakpoint> DebuggerCoreBase::addBreakpoint(edb::address_t address) {
 
 	try {
-		if(attached()) {
-			if(!findBreakpoint(address)) {
+		if (attached()) {
+			if (!findBreakpoint(address)) {
 				auto bp = std::make_shared<Breakpoint>(address);
 				breakpoints_[address] = bp;
 				return bp;
@@ -51,7 +51,7 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::addBreakpoint(edb::address_t addr
 		}
 
 		return nullptr;
-	} catch(const breakpoint_creation_error &) {
+	} catch (const breakpoint_creation_error &) {
 		qDebug() << "Failed to create breakpoint";
 		return nullptr;
 	}
@@ -62,15 +62,14 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::addBreakpoint(edb::address_t addr
 // Desc: returns the breakpoint at the given address or std::shared_ptr<IBreakpoint>()
 //------------------------------------------------------------------------------
 std::shared_ptr<IBreakpoint> DebuggerCoreBase::findBreakpoint(edb::address_t address) {
-	if(attached()) {
+	if (attached()) {
 		auto it = breakpoints_.find(address);
-		if(it != breakpoints_.end()) {
+		if (it != breakpoints_.end()) {
 			return it.value();
 		}
 	}
 	return nullptr;
 }
-
 
 //------------------------------------------------------------------------------
 // Name: find_breakpoint
@@ -79,19 +78,18 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::findBreakpoint(edb::address_t add
 // 		 up at this address after being triggered, instead of just starting there.
 //------------------------------------------------------------------------------
 std::shared_ptr<IBreakpoint> DebuggerCoreBase::findTriggeredBreakpoint(edb::address_t address) {
-	if(attached()) {
-		for(const size_t size : Breakpoint::possibleRewindSizes()) {
+	if (attached()) {
+		for (const size_t size : Breakpoint::possibleRewindSizes()) {
 			const edb::address_t bpAddr = address - size;
 			const std::shared_ptr<IBreakpoint> bp = findBreakpoint(bpAddr);
 
-			if(bp && bp->address() == bpAddr) {
+			if (bp && bp->address() == bpAddr) {
 				return bp;
 			}
 		}
 	}
 	return nullptr;
 }
-
 
 //------------------------------------------------------------------------------
 // Name: remove_breakpoint
@@ -103,9 +101,9 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::findTriggeredBreakpoint(edb::addr
 void DebuggerCoreBase::removeBreakpoint(edb::address_t address) {
 
 	// TODO(eteran): assert paused
-	if(attached()) {
+	if (attached()) {
 		auto it = breakpoints_.find(address);
-		if(it != breakpoints_.end()) {
+		if (it != breakpoints_.end()) {
 			breakpoints_.erase(it);
 		}
 	}
@@ -117,8 +115,8 @@ void DebuggerCoreBase::removeBreakpoint(edb::address_t address) {
 //		 user preferences
 //------------------------------------------------------------------------------
 void DebuggerCoreBase::endDebugSession() {
-	if(attached()) {
-        switch(edb::v1::config().close_behavior) {
+	if (attached()) {
+		switch (edb::v1::config().close_behavior) {
 		case Configuration::Detach:
 			detach();
 			break;
@@ -126,7 +124,7 @@ void DebuggerCoreBase::endDebugSession() {
 			kill();
 			break;
 		case Configuration::KillIfLaunchedDetachIfAttached:
-			if(lastMeansOfCapture() == MeansOfCapture::Launch) {
+			if (lastMeansOfCapture() == MeansOfCapture::Launch) {
 				kill();
 			} else {
 				detach();

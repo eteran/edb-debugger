@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "FunctionFinder.h"
-#include "edb.h"
 #include "DialogFunctions.h"
+#include "edb.h"
 #include <QMenu>
 
 namespace FunctionFinderPlugin {
@@ -27,7 +27,8 @@ namespace FunctionFinderPlugin {
 // Name: FunctionFinder
 // Desc:
 //------------------------------------------------------------------------------
-FunctionFinder::FunctionFinder(QObject *parent) : QObject(parent) {
+FunctionFinder::FunctionFinder(QObject *parent)
+	: QObject(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -46,9 +47,9 @@ QMenu *FunctionFinder::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("FunctionFinder"), parent);
-		menu_->addAction (tr("&Function Finder"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+Shift+F")));
+		menu_->addAction(tr("&Function Finder"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+Shift+F")));
 	}
 
 	return menu_;
@@ -60,7 +61,7 @@ QMenu *FunctionFinder::menu(QWidget *parent) {
 //------------------------------------------------------------------------------
 void FunctionFinder::showMenu() {
 
-	if(!dialog_) {
+	if (!dialog_) {
 		dialog_ = new DialogFunctions(edb::v1::debugger_ui);
 	}
 

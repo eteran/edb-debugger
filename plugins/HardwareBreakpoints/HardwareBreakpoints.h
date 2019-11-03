@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef HARDWAREBREAKPOINTS_20080228_H_
 #define HARDWAREBREAKPOINTS_20080228_H_
 
-#include "IPlugin.h"
 #include "IDebugEventHandler.h"
+#include "IPlugin.h"
 #include "libHardwareBreakpoints.h"
 
 class QDialog;
@@ -90,7 +90,7 @@ private Q_SLOTS:
 	void set_exec4();
 
 private:
-	QMenu *menu_              = nullptr;
+	QMenu *menu_ = nullptr;
 	QPointer<QDialog> dialog_ = nullptr;
 
 	QLineEdit *addresses_[4];

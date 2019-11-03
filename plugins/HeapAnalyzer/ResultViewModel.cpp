@@ -26,7 +26,8 @@ namespace HeapAnalyzerPlugin {
 // Name: ResultViewModel
 // Desc:
 //------------------------------------------------------------------------------
-ResultViewModel::ResultViewModel(QObject *parent) : QAbstractItemModel(parent) {
+ResultViewModel::ResultViewModel(QObject *parent)
+	: QAbstractItemModel(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -35,12 +36,16 @@ ResultViewModel::ResultViewModel(QObject *parent) : QAbstractItemModel(parent) {
 //------------------------------------------------------------------------------
 QVariant ResultViewModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
-	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
-		switch(section) {
-		case 0: return tr("Block");
-		case 1: return tr("Size");
-		case 2: return tr("Type");
-		case 3: return tr("Data");
+	if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
+		switch (section) {
+		case 0:
+			return tr("Block");
+		case 1:
+			return tr("Size");
+		case 2:
+			return tr("Type");
+		case 3:
+			return tr("Data");
 		}
 	}
 
@@ -53,21 +58,23 @@ QVariant ResultViewModel::headerData(int section, Qt::Orientation orientation, i
 //------------------------------------------------------------------------------
 QVariant ResultViewModel::data(const QModelIndex &index, int role) const {
 
-	if(!index.isValid()) {
+	if (!index.isValid()) {
 		return QVariant();
 	}
 
-	if(role != Qt::DisplayRole) {
+	if (role != Qt::DisplayRole) {
 		return QVariant();
 	}
 
 	const Result &result = results_[index.row()];
 
-	switch(index.column()) {
-	case 0: return edb::v1::format_pointer(result.address);
-	case 1: return edb::v1::format_pointer(result.size);
+	switch (index.column()) {
+	case 0:
+		return edb::v1::format_pointer(result.address);
+	case 1:
+		return edb::v1::format_pointer(result.size);
 	case 2:
-		switch(result.type) {
+		switch (result.type) {
 		case Result::Top:
 			return tr("Top");
 		case Result::Busy:
@@ -76,12 +83,11 @@ QVariant ResultViewModel::data(const QModelIndex &index, int role) const {
 			return tr("Free");
 		}
 		return QVariant();
-	case 3:  {
-		switch(result.data_type) {
-		case Result::Pointer:
-		{
+	case 3: {
+		switch (result.data_type) {
+		case Result::Pointer: {
 			QStringList pointers;
-			if(edb::v1::debuggeeIs32Bit()) {
+			if (edb::v1::debuggeeIs32Bit()) {
 				std::transform(result.pointers.begin(), result.pointers.end(), std::back_inserter(pointers), [](const edb::address_t pointer) -> QString {
 					return QString("dword ptr [%1]").arg(edb::v1::format_pointer(pointer));
 				});
@@ -144,15 +150,15 @@ QModelIndex ResultViewModel::index(int row, int column, const QModelIndex &paren
 
 	Q_UNUSED(parent)
 
-	if(row >= results_.size()) {
+	if (row >= results_.size()) {
 		return QModelIndex();
 	}
 
-	if(column >= 4) {
+	if (column >= 4) {
 		return QModelIndex();
 	}
 
-	if(row >= 0) {
+	if (row >= 0) {
 		return createIndex(row, column, const_cast<Result *>(&results_[row]));
 	} else {
 		return createIndex(row, column);
@@ -192,13 +198,13 @@ int ResultViewModel::columnCount(const QModelIndex &parent) const {
  * @param data
  */
 void ResultViewModel::setPointerData(const QModelIndex &index, const std::vector<edb::address_t> &pointers) {
-	if(!index.isValid()) {
+	if (!index.isValid()) {
 		return;
 	}
 
 	Result &result = results_[index.row()];
 
-	result.pointers  = pointers;
+	result.pointers = pointers;
 	result.data_type = Result::Pointer;
 	Q_EMIT dataChanged(index, index);
 }

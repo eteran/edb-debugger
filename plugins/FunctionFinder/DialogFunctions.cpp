@@ -18,25 +18,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogFunctions.h"
 #include "DialogResults.h"
-#include "edb.h"
 #include "IAnalyzer.h"
 #include "MemoryRegions.h"
+#include "edb.h"
 
 #include <QDialog>
 #include <QHeaderView>
 #include <QMenu>
 #include <QMessageBox>
-#include <QSortFilterProxyModel>
 #include <QPushButton>
+#include <QSortFilterProxyModel>
 
 namespace FunctionFinderPlugin {
-
 
 //------------------------------------------------------------------------------
 // Name: DialogFunctions
 // Desc:
 //------------------------------------------------------------------------------
-DialogFunctions::DialogFunctions(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogFunctions::DialogFunctions(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
 	ui.setupUi(this);
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
@@ -73,50 +73,49 @@ void DialogFunctions::showEvent(QShowEvent *) {
 //------------------------------------------------------------------------------
 void DialogFunctions::doFind() {
 
-	if(IAnalyzer *const analyzer = edb::v1::analyzer()) {
+	if (IAnalyzer *const analyzer = edb::v1::analyzer()) {
 		const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 		const QModelIndexList sel = selModel->selectedRows();
 
-		if(sel.size() == 0) {
+		if (sel.size() == 0) {
 			QMessageBox::critical(this, tr("No Region Selected"), tr("You must select a region which is to be scanned for functions."));
 			return;
 		}
 
 		auto analyzer_object = dynamic_cast<QObject *>(analyzer);
-		if(analyzer_object) {
+		if (analyzer_object) {
 			connect(analyzer_object, SIGNAL(update_progress(int)), ui.progressBar, SLOT(setValue(int)));
 		}
 
 		auto resultsDialog = new DialogResults(this);
 
-		for(const QModelIndex &selected_item: sel) {
+		for (const QModelIndex &selected_item : sel) {
 
 			const QModelIndex index = filterModel_->mapToSource(selected_item);
 
 			// do the search for this region!
-			if(auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
+			if (auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
 
 				analyzer->analyze(region);
 
 				const IAnalyzer::FunctionMap &results = analyzer->functions(region);
-				for(const Function &function: results) {
+				for (const Function &function : results) {
 					resultsDialog->addResult(function);
 				}
 			}
 		}
 
-		if(resultsDialog->resultCount() == 0) {
+		if (resultsDialog->resultCount() == 0) {
 			QMessageBox::information(this, tr("No Results"), tr("No Functions Found!"));
 			delete resultsDialog;
 		} else {
 			resultsDialog->show();
 		}
 
-		if(analyzer_object) {
+		if (analyzer_object) {
 			disconnect(analyzer_object, SIGNAL(update_progress(int)), ui.progressBar, SLOT(setValue(int)));
 		}
 	}
 }
-
 
 }

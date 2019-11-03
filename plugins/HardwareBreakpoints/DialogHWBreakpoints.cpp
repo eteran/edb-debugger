@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogHWBreakpoints.h"
-#include "edb.h"
 #include "IDebugger.h"
 #include "IProcess.h"
 #include "IThread.h"
-#include "libHardwareBreakpoints.h"
 #include "State.h"
+#include "edb.h"
+#include "libHardwareBreakpoints.h"
 
 namespace HardwareBreakpointsPlugin {
 
@@ -30,7 +30,8 @@ namespace HardwareBreakpointsPlugin {
 // Name: DialogHWBreakpoints
 // Desc:
 //------------------------------------------------------------------------------
-DialogHWBreakpoints::DialogHWBreakpoints(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogHWBreakpoints::DialogHWBreakpoints(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
 	ui.setupUi(this);
 
 	connect(ui.cmbType1, SIGNAL(currentIndexChanged(int)), this, SLOT(type1IndexChanged(int)));
@@ -78,7 +79,7 @@ void DialogHWBreakpoints::type4IndexChanged(int index) {
 void DialogHWBreakpoints::showEvent(QShowEvent *event) {
 	Q_UNUSED(event)
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
 
 		State state;
 		process->currentThread()->getState(&state);
@@ -93,25 +94,25 @@ void DialogHWBreakpoints::showEvent(QShowEvent *event) {
 		ui.chkBP3->setChecked(bp_state3.enabled);
 		ui.chkBP4->setChecked(bp_state4.enabled);
 
-		if(bp_state1.enabled) {
+		if (bp_state1.enabled) {
 			ui.txtBP1->setText(bp_state1.addr.toPointerString());
 			ui.cmbSize1->setCurrentIndex(bp_state1.size);
 			ui.cmbType1->setCurrentIndex(bp_state1.type);
 		}
 
-		if(bp_state2.enabled) {
+		if (bp_state2.enabled) {
 			ui.txtBP2->setText(bp_state2.addr.toPointerString());
 			ui.cmbSize2->setCurrentIndex(bp_state2.size);
 			ui.cmbType2->setCurrentIndex(bp_state2.type);
 		}
 
-		if(bp_state3.enabled) {
+		if (bp_state3.enabled) {
 			ui.txtBP3->setText(bp_state3.addr.toPointerString());
 			ui.cmbSize3->setCurrentIndex(bp_state3.size);
 			ui.cmbType3->setCurrentIndex(bp_state3.type);
 		}
 
-		if(bp_state4.enabled) {
+		if (bp_state4.enabled) {
 			ui.txtBP4->setText(bp_state4.addr.toPointerString());
 			ui.cmbSize4->setCurrentIndex(bp_state4.size);
 			ui.cmbType4->setCurrentIndex(bp_state4.type);

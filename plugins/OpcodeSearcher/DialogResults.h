@@ -29,8 +29,8 @@ public:
 	int resultCount() const;
 
 private:
-	Ui::DialogResults      ui;
-	ResultsModel *         model_;
+	Ui::DialogResults ui;
+	ResultsModel *model_;
 	QSortFilterProxyModel *filterModel_;
 };
 

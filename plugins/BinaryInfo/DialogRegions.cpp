@@ -17,23 +17,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogRegions.h"
-#include "edb.h"
-#include "MemoryRegions.h"
 #include "DialogHeader.h"
+#include "MemoryRegions.h"
+#include "edb.h"
 #include <QMessageBox>
-#include <QTreeWidgetItem>
-#include <QSortFilterProxyModel>
 #include <QPushButton>
+#include <QSortFilterProxyModel>
+#include <QTreeWidgetItem>
 
 namespace BinaryInfoPlugin {
-
-
 
 /**
  * @brief DialogRegions::DialogRegions
  * @param parent
  */
-DialogRegions::DialogRegions(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogRegions::DialogRegions(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
 	ui.setupUi(this);
 	ui.tableView->verticalHeader()->hide();
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -46,17 +45,17 @@ DialogRegions::DialogRegions(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 		const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 		const QModelIndexList sel = selModel->selectedRows();
 
-		if(sel.size() == 0) {
+		if (sel.size() == 0) {
 			QMessageBox::critical(
 				this,
 				tr("No Region Selected"),
 				tr("You must select a region which is to be scanned for executable headers."));
 		} else {
 
-			for(const QModelIndex &selected_item: sel) {
+			for (const QModelIndex &selected_item : sel) {
 
 				const QModelIndex index = filterModel_->mapToSource(selected_item);
-				if(auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
+				if (auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
 					auto dialog = new DialogHeader(region, this);
 					dialog->show();
 				}
@@ -66,7 +65,6 @@ DialogRegions::DialogRegions(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 
 	ui.buttonBox->addButton(btnExplore_, QDialogButtonBox::ActionRole);
 }
-
 
 /**
  * @brief DialogRegions::showEvent

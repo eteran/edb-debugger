@@ -10,11 +10,12 @@ namespace ProcessPropertiesPlugin {
  * @param parent
  * @param f
  */
-DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
 	ui.setupUi(this);
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	model_        = new ResultsModel(this);
+	model_ = new ResultsModel(this);
 	filterModel_ = new QSortFilterProxyModel(this);
 
 	filterModel_->setFilterKeyColumn(2);
@@ -32,20 +33,18 @@ void DialogResults::addResult(const Result &result) {
 	model_->addResult(result);
 }
 
-
 /**
  * @brief DialogResults::on_tableView_doubleClicked
  * @param index
  */
 void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
-	if(index.isValid()) {
+	if (index.isValid()) {
 		const QModelIndex realIndex = filterModel_->mapToSource(index);
-		if(realIndex.isValid()) {
-			if(auto item = static_cast<Result *>(realIndex.internalPointer())) {
+		if (realIndex.isValid()) {
+			if (auto item = static_cast<Result *>(realIndex.internalPointer())) {
 				edb::v1::dump_data(item->address, false);
 			}
 		}
-
 	}
 }
 

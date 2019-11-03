@@ -46,9 +46,9 @@ private:
 
 private:
 	Ui::SpecifiedFunctions ui;
-	QStringListModel *     model_         = nullptr;
-	QSortFilterProxyModel *filterModel_   = nullptr;
-	QPushButton *          buttonRefresh_ = nullptr;
+	QStringListModel *model_ = nullptr;
+	QSortFilterProxyModel *filterModel_ = nullptr;
+	QPushButton *buttonRefresh_ = nullptr;
 };
 
 }

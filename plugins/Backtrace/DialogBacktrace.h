@@ -46,8 +46,8 @@ private Q_SLOTS:
 
 private:
 	Ui::DialogBacktrace ui;
-	QTableWidget *      table_;
-	QPushButton *       buttonReturnTo_;
+	QTableWidget *table_;
+	QPushButton *buttonReturnTo_;
 };
 
 }

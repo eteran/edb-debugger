@@ -16,17 +16,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "OptionsPage.h"
-#include <QSettings>
-#include <QFileDialog>
 #include "demangle.h"
+#include <QFileDialog>
+#include <QSettings>
 
 namespace BinaryInfoPlugin {
 
-OptionsPage::OptionsPage(QWidget* parent, Qt::WindowFlags f) : QWidget(parent, f)  {
+OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
+	: QWidget(parent, f) {
 	ui.setupUi(this);
 }
 
-void OptionsPage::showEvent(QShowEvent*) {
+void OptionsPage::showEvent(QShowEvent *) {
 
 	QSettings settings;
 
@@ -57,7 +58,7 @@ void OptionsPage::on_btnDebugDir_clicked() {
 		QString(),
 		QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
-	if(!dir.isNull()) {
+	if (!dir.isNull()) {
 		ui.txtDebugDir->setText(dir);
 	}
 }

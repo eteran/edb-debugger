@@ -32,14 +32,14 @@ class DialogOpcodes : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogOpcodes(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogOpcodes(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogOpcodes() override = default;
 
 private:
 	void doFind();
 
 private:
-    void showEvent(QShowEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 
 private:
 	Ui::DialogOpcodes ui;

@@ -16,8 +16,8 @@ inline QString demangle(const QString &mangled) {
 	}
 
 	int failed = 0;
-	QStringList split  = mangled.split("@"); // for cases like funcName@plt
-	
+	QStringList split = mangled.split("@"); // for cases like funcName@plt
+
 	std::unique_ptr<char, decltype(std::free) *> demangled(abi::__cxa_demangle(split.front().toStdString().c_str(), nullptr, nullptr, &failed), std::free);
 
 	if (failed) {

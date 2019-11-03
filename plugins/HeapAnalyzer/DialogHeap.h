@@ -57,11 +57,11 @@ private:
 	void doFind();
 
 private:
-	Ui::DialogHeap         ui;
-	ResultViewModel *      model_;
+	Ui::DialogHeap ui;
+	ResultViewModel *model_;
 	QSortFilterProxyModel *filterModel_;
-	QPushButton *          buttonAnalyze_;
-	QPushButton *          buttonGraph_;
+	QPushButton *buttonAnalyze_;
+	QPushButton *buttonGraph_;
 };
 
 }

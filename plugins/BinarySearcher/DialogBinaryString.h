@@ -37,8 +37,8 @@ private:
 	void doFind();
 
 private:
-	 Ui::DialogBinaryString ui;
-	 QPushButton *buttonFind_;
+	Ui::DialogBinaryString ui;
+	QPushButton *buttonFind_;
 };
 
 }

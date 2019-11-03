@@ -40,7 +40,7 @@ public:
 	~CheckVersion() override = default;
 
 public:
-	QMenu *  menu(QWidget *parent = nullptr) override;
+	QMenu *menu(QWidget *parent = nullptr) override;
 	QWidget *optionsPage() override;
 
 public Q_SLOTS:
@@ -57,9 +57,9 @@ private:
 	void setProxy(const QUrl &url);
 
 private:
-	QMenu *                menu_         = nullptr;
-	QNetworkAccessManager *network_      = nullptr;
-	bool                   initialCheck_ = true;
+	QMenu *menu_ = nullptr;
+	QNetworkAccessManager *network_ = nullptr;
+	bool initialCheck_ = true;
 };
 
 }

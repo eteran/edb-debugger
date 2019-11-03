@@ -55,7 +55,7 @@ private:
 	void dumpLines(edb::address_t address, int lines);
 
 private:
-	QMenu * menu_ = nullptr;
+	QMenu *menu_ = nullptr;
 };
 
 }

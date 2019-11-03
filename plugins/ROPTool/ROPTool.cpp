@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ROPTool.h"
-#include "edb.h"
 #include "DialogROPTool.h"
+#include "edb.h"
 #include <QMenu>
 
 namespace ROPToolPlugin {
@@ -27,7 +27,8 @@ namespace ROPToolPlugin {
 // Name: ROPTool
 // Desc:
 //------------------------------------------------------------------------------
-ROPTool::ROPTool(QObject *parent) : QObject(parent) {
+ROPTool::ROPTool(QObject *parent)
+	: QObject(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -46,7 +47,7 @@ QMenu *ROPTool::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("ROPTool"), parent);
 		menu_->addAction(tr("&ROP Tool"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+Alt+R")));
 	}
@@ -60,7 +61,7 @@ QMenu *ROPTool::menu(QWidget *parent) {
 //------------------------------------------------------------------------------
 void ROPTool::showMenu() {
 
-	if(!dialog_) {
+	if (!dialog_) {
 		dialog_ = new DialogROPTool(edb::v1::debugger_ui);
 	}
 

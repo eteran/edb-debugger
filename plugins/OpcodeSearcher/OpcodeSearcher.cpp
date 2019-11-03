@@ -27,7 +27,8 @@ namespace OpcodeSearcherPlugin {
 // Name: OpcodeSearcher
 // Desc:
 //------------------------------------------------------------------------------
-OpcodeSearcher::OpcodeSearcher(QObject *parent) : QObject(parent) {
+OpcodeSearcher::OpcodeSearcher(QObject *parent)
+	: QObject(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -46,7 +47,7 @@ QMenu *OpcodeSearcher::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("OpcodeSearcher"), parent);
 		menu_->addAction(tr("&Opcode Search"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+O")));
 	}
@@ -60,7 +61,7 @@ QMenu *OpcodeSearcher::menu(QWidget *parent) {
 //------------------------------------------------------------------------------
 void OpcodeSearcher::showMenu() {
 
-	if(!dialog_) {
+	if (!dialog_) {
 		dialog_ = new DialogOpcodes(edb::v1::debugger_ui);
 	}
 

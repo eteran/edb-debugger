@@ -24,10 +24,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Util.h"
 #include "edb.h"
 
-#include <QStringListModel>
-#include <QSortFilterProxyModel>
 #include <QMenu>
 #include <QPushButton>
+#include <QSortFilterProxyModel>
+#include <QStringListModel>
 
 namespace SymbolViewerPlugin {
 
@@ -35,7 +35,8 @@ namespace SymbolViewerPlugin {
 // Name: DialogSymbolViewer
 // Desc:
 //------------------------------------------------------------------------------
-DialogSymbolViewer::DialogSymbolViewer(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f)  {
+DialogSymbolViewer::DialogSymbolViewer(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
 	ui.setupUi(this);
 
 	btnRefresh_ = new QPushButton(QIcon::fromTheme("view-refresh"), tr("Refresh"));
@@ -49,7 +50,7 @@ DialogSymbolViewer::DialogSymbolViewer(QWidget *parent, Qt::WindowFlags f) : QDi
 
 	ui.listView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-	model_        = new QStringListModel(this);
+	model_ = new QStringListModel(this);
 	filterModel_ = new QSortFilterProxyModel(this);
 
 	filterModel_->setFilterKeyColumn(0);
@@ -68,10 +69,10 @@ void DialogSymbolViewer::on_listView_doubleClicked(const QModelIndex &index) {
 
 	const QString s = index.data().toString();
 
-	if(const Result<edb::address_t, QString> addr = edb::v1::string_to_address(s.split(":")[0])) {
+	if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(s.split(":")[0])) {
 		const std::shared_ptr<Symbol> sym = edb::v1::symbol_manager().find(*addr);
 
-		if(sym && sym->is_code()) {
+		if (sym && sym->is_code()) {
 			edb::v1::jump_to_address(*addr);
 		} else {
 			edb::v1::dump_data(*addr, false);
@@ -86,17 +87,17 @@ void DialogSymbolViewer::on_listView_doubleClicked(const QModelIndex &index) {
 void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &pos) {
 
 	const QModelIndex index = ui.listView->indexAt(pos);
-	if(index.isValid()) {
+	if (index.isValid()) {
 
 		const QString s = index.data().toString();
 
-		if(const Result<edb::address_t, QString> addr = edb::v1::string_to_address(s.split(":")[0])) {
+		if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(s.split(":")[0])) {
 
 			QMenu menu;
-			QAction *const action1 = menu.addAction(tr("&Follow In Disassembly"),    this, SLOT(mnuFollowInCPU()));
-			QAction *const action2 = menu.addAction(tr("&Follow In Dump"),           this, SLOT(mnuFollowInDump()));
+			QAction *const action1 = menu.addAction(tr("&Follow In Disassembly"), this, SLOT(mnuFollowInCPU()));
+			QAction *const action2 = menu.addAction(tr("&Follow In Dump"), this, SLOT(mnuFollowInDump()));
 			QAction *const action3 = menu.addAction(tr("&Follow In Dump (New Tab)"), this, SLOT(mnuFollowInDumpNewTab()));
-			QAction *const action4 = menu.addAction(tr("&Follow In Stack"),          this, SLOT(mnuFollowInStack()));
+			QAction *const action4 = menu.addAction(tr("&Follow In Stack"), this, SLOT(mnuFollowInStack()));
 
 			action1->setData(addr->toQVariant());
 			action2->setData(addr->toQVariant());
@@ -113,7 +114,7 @@ void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &po
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::mnuFollowInDump() {
-	if(auto action = qobject_cast<QAction *>(sender())) {
+	if (auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
 		edb::v1::dump_data(address, false);
 	}
@@ -124,7 +125,7 @@ void DialogSymbolViewer::mnuFollowInDump() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::mnuFollowInDumpNewTab() {
-	if(auto action = qobject_cast<QAction *>(sender())) {
+	if (auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
 		edb::v1::dump_data(address, true);
 	}
@@ -135,7 +136,7 @@ void DialogSymbolViewer::mnuFollowInDumpNewTab() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::mnuFollowInStack() {
-	if(auto action = qobject_cast<QAction *>(sender())) {
+	if (auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
 		edb::v1::dump_stack(address, false);
 	}
@@ -146,7 +147,7 @@ void DialogSymbolViewer::mnuFollowInStack() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::mnuFollowInCPU() {
-	if(auto action = qobject_cast<QAction *>(sender())) {
+	if (auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
 		edb::v1::jump_to_address(address);
 	}
@@ -160,7 +161,7 @@ void DialogSymbolViewer::doFind() {
 	QStringList results;
 
 	const QList<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().symbols();
-	for(const std::shared_ptr<Symbol> &sym: symbols) {
+	for (const std::shared_ptr<Symbol> &sym : symbols) {
 		results << QString("%1: %2").arg(edb::v1::format_pointer(sym->address), sym->name);
 	}
 

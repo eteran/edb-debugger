@@ -25,7 +25,8 @@ namespace BookmarksPlugin {
 // Name: BookmarksModel
 // Desc:
 //------------------------------------------------------------------------------
-BookmarksModel::BookmarksModel(QObject *parent) : QAbstractItemModel(parent) {
+BookmarksModel::BookmarksModel(QObject *parent)
+	: QAbstractItemModel(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -34,11 +35,14 @@ BookmarksModel::BookmarksModel(QObject *parent) : QAbstractItemModel(parent) {
 //------------------------------------------------------------------------------
 QVariant BookmarksModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
-	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
-		switch(section) {
-		case 0: return tr("Address");
-		case 1: return tr("Type");
-		case 2: return tr("Comment");
+	if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
+		switch (section) {
+		case 0:
+			return tr("Address");
+		case 1:
+			return tr("Type");
+		case 2:
+			return tr("Comment");
 		}
 	}
 
@@ -51,24 +55,30 @@ QVariant BookmarksModel::headerData(int section, Qt::Orientation orientation, in
 //------------------------------------------------------------------------------
 QVariant BookmarksModel::data(const QModelIndex &index, int role) const {
 
-	if(!index.isValid()) {
+	if (!index.isValid()) {
 		return QVariant();
 	}
 
 	const Bookmark &bookmark = bookmarks_[index.row()];
 
-	if(role == Qt::DisplayRole) {
-		switch(index.column()) {
-		case 0:  return edb::v1::format_pointer(bookmark.address);
+	if (role == Qt::DisplayRole) {
+		switch (index.column()) {
+		case 0:
+			return edb::v1::format_pointer(bookmark.address);
 		case 1:
-			switch(bookmark.type) {
-			case Bookmark::Code:  return tr("Code");
-			case Bookmark::Data:  return tr("Data");
-			case Bookmark::Stack: return tr("Stack");
+			switch (bookmark.type) {
+			case Bookmark::Code:
+				return tr("Code");
+			case Bookmark::Data:
+				return tr("Data");
+			case Bookmark::Stack:
+				return tr("Stack");
 			}
 			break;
-		case 2:  return bookmark.comment;
-		default: return QVariant();
+		case 2:
+			return bookmark.comment;
+		default:
+			return QVariant();
 		}
 	}
 
@@ -103,15 +113,15 @@ QModelIndex BookmarksModel::index(int row, int column, const QModelIndex &parent
 
 	Q_UNUSED(parent)
 
-	if(row >= bookmarks_.size()) {
+	if (row >= bookmarks_.size()) {
 		return QModelIndex();
 	}
 
-	if(column >= 3) {
+	if (column >= 3) {
 		return QModelIndex();
 	}
 
-	if(row >= 0) {
+	if (row >= 0) {
 		return createIndex(row, column, const_cast<Bookmark *>(&bookmarks_[row]));
 	} else {
 		return createIndex(row, column);
@@ -151,7 +161,7 @@ int BookmarksModel::columnCount(const QModelIndex &parent) const {
 //------------------------------------------------------------------------------
 void BookmarksModel::setComment(const QModelIndex &index, const QString &comment) {
 
-	if(!index.isValid()) {
+	if (!index.isValid()) {
 		return;
 	}
 
@@ -167,7 +177,7 @@ void BookmarksModel::setComment(const QModelIndex &index, const QString &comment
 //------------------------------------------------------------------------------
 void BookmarksModel::setType(const QModelIndex &index, const QString &type) {
 
-	if(!index.isValid()) {
+	if (!index.isValid()) {
 		return;
 	}
 
@@ -184,7 +194,7 @@ void BookmarksModel::setType(const QModelIndex &index, const QString &type) {
 //------------------------------------------------------------------------------
 void BookmarksModel::deleteBookmark(const QModelIndex &index) {
 
-	if(!index.isValid()) {
+	if (!index.isValid()) {
 		return;
 	}
 

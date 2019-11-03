@@ -65,7 +65,7 @@ QDomDocument getAssemblerDescription() {
 	if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 
 		QXmlQuery query;
-		QString   assembler_xml;
+		QString assembler_xml;
 		query.setFocus(&file);
 		query.setQuery(QString("assemblers/assembler[@name='%1']").arg(toHtmlEscaped(assembler)));
 		if (query.isValid()) {
@@ -131,9 +131,6 @@ DialogAssembler::DialogAssembler(QWidget *parent, Qt::WindowFlags f)
 	ui.keepSize->setFocusPolicy(Qt::TabFocus);
 }
 
-
-
-
 /**
  * @brief DialogAssembler::setAddress
  * @param address
@@ -163,7 +160,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 		const QDomElement asm_root = getAssemblerDescription().documentElement();
 		if (!asm_root.isNull()) {
 			QDomElement asm_executable = asm_root.firstChildElement("executable");
-			QDomElement asm_template   = asm_root.firstChildElement("template");
+			QDomElement asm_template = asm_root.firstChildElement("template");
 #ifdef EDB_ARM32
 			const auto mode = core->cpu_mode();
 			while (mode == IDebugger::CpuMode::ARM32 && asm_template.attribute("mode") != "arm" ||
@@ -181,8 +178,8 @@ void DialogAssembler::on_buttonBox_accepted() {
 #endif
 
 			const QString asm_name = asm_root.attribute("name");
-			const QString asm_cmd  = asm_executable.attribute("command_line");
-			const QString asm_ext  = asm_executable.attribute("extension");
+			const QString asm_cmd = asm_executable.attribute("command_line");
+			const QString asm_ext = asm_executable.attribute("extension");
 			Q_UNUSED(asm_name)
 
 			QString asm_code = asm_template.text();
@@ -220,7 +217,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 			source_file.close();
 
 			QProcess process;
-			QString  program(command_line[0]);
+			QString program(command_line[0]);
 
 			command_line.pop_front();
 
@@ -244,7 +241,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 				if (exit_code != 0) {
 					QMessageBox::warning(this, tr("Error In Code"), process.readAllStandardError());
 				} else {
-					QByteArray   bytes            = output_file.readAll();
+					QByteArray bytes = output_file.readAll();
 					const size_t replacement_size = bytes.size();
 
 					if (replacement_size != 0 && replacement_size <= instructionSize_) {
@@ -293,7 +290,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 void DialogAssembler::showEvent(QShowEvent *event) {
 	Q_UNUSED(event)
 
-	QSettings     settings;
+	QSettings settings;
 	const QString assembler = settings.value("Assembler/helper", "yasm").toString();
 
 	ui.label->setText(tr("Assembler: %1").arg(assembler));

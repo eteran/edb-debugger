@@ -17,14 +17,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "BinarySearcher.h"
-#include "edb.h"
 #include "DialogASCIIString.h"
 #include "DialogBinaryString.h"
+#include "edb.h"
 #include <QMenu>
 
 namespace BinarySearcherPlugin {
 
-BinarySearcher::BinarySearcher(QObject *parent) : QObject(parent) {
+BinarySearcher::BinarySearcher(QObject *parent)
+	: QObject(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -35,7 +36,7 @@ QMenu *BinarySearcher::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("BinarySearcher"), parent);
 		menu_->addAction(tr("&Binary String Search"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+F")));
 	}

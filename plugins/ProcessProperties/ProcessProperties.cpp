@@ -28,7 +28,8 @@ namespace ProcessPropertiesPlugin {
 // Name: ProcessProperties
 // Desc:
 //------------------------------------------------------------------------------
-ProcessProperties::ProcessProperties(QObject *parent) : QObject(parent) {
+ProcessProperties::ProcessProperties(QObject *parent)
+	: QObject(parent) {
 	dialog_ = new DialogProcessProperties(edb::v1::debugger_ui);
 }
 
@@ -50,7 +51,7 @@ QMenu *ProcessProperties::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("Process Properties"), parent);
 		menu_->addAction(tr("&Process Properties"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+P")));
 		menu_->addAction(tr("Process &Strings"), dialog_, SLOT(on_btnStrings_clicked()), QKeySequence(tr("Ctrl+S")));

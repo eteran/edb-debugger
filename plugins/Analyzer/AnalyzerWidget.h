@@ -39,8 +39,8 @@ protected:
 
 private:
 	std::unique_ptr<QPixmap> cache_;
-	bool                     mousePressed_  = false;
-	int                      cacheNumFuncs_ = 0;
+	bool mousePressed_ = false;
+	int cacheNumFuncs_ = 0;
 };
 
 }

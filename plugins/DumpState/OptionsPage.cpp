@@ -25,7 +25,8 @@ namespace DumpStatePlugin {
 // Name: OptionsPage
 // Desc:
 //------------------------------------------------------------------------------
-OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f) {
+OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
+	: QWidget(parent, f) {
 	ui.setupUi(this);
 }
 

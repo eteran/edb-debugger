@@ -27,7 +27,8 @@ namespace SymbolViewerPlugin {
 // Name: SymbolViewer
 // Desc:
 //------------------------------------------------------------------------------
-SymbolViewer::SymbolViewer(QObject *parent) : QObject(parent) {
+SymbolViewer::SymbolViewer(QObject *parent)
+	: QObject(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -46,7 +47,7 @@ QMenu *SymbolViewer::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("SymbolViewer"), parent);
 		menu_->addAction(tr("&Symbol Viewer"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+Alt+S")));
 	}
@@ -60,7 +61,7 @@ QMenu *SymbolViewer::menu(QWidget *parent) {
 //------------------------------------------------------------------------------
 void SymbolViewer::showMenu() {
 
-	if(!dialog_) {
+	if (!dialog_) {
 		dialog_ = new DialogSymbolViewer(edb::v1::debugger_ui);
 	}
 

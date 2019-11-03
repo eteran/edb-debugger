@@ -26,7 +26,8 @@ namespace OpcodeSearcherPlugin {
 // Name: BookmarksModel
 // Desc:
 //------------------------------------------------------------------------------
-ResultsModel::ResultsModel(QObject *parent) : QAbstractItemModel(parent) {
+ResultsModel::ResultsModel(QObject *parent)
+	: QAbstractItemModel(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -35,10 +36,12 @@ ResultsModel::ResultsModel(QObject *parent) : QAbstractItemModel(parent) {
 //------------------------------------------------------------------------------
 QVariant ResultsModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
-	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
-		switch(section) {
-		case 0: return tr("Address");
-		case 1: return tr("Instruction");
+	if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
+		switch (section) {
+		case 0:
+			return tr("Address");
+		case 1:
+			return tr("Instruction");
 		}
 	}
 
@@ -51,17 +54,20 @@ QVariant ResultsModel::headerData(int section, Qt::Orientation orientation, int 
 //------------------------------------------------------------------------------
 QVariant ResultsModel::data(const QModelIndex &index, int role) const {
 
-	if(!index.isValid()) {
+	if (!index.isValid()) {
 		return QVariant();
 	}
 
 	const Result &result = results_[index.row()];
 
-	if(role == Qt::DisplayRole) {
-		switch(index.column()) {
-		case 0:  return edb::v1::format_pointer(result.address);
-		case 1:  return result.instruction;
-		default: return QVariant();
+	if (role == Qt::DisplayRole) {
+		switch (index.column()) {
+		case 0:
+			return edb::v1::format_pointer(result.address);
+		case 1:
+			return result.instruction;
+		default:
+			return QVariant();
 		}
 	}
 
@@ -78,7 +84,6 @@ void ResultsModel::addResult(const Result &r) {
 	endInsertRows();
 }
 
-
 //------------------------------------------------------------------------------
 // Name: index
 // Desc:
@@ -87,15 +92,15 @@ QModelIndex ResultsModel::index(int row, int column, const QModelIndex &parent) 
 
 	Q_UNUSED(parent)
 
-	if(row >= results_.size()) {
+	if (row >= results_.size()) {
 		return QModelIndex();
 	}
 
-	if(column >= 2) {
+	if (column >= 2) {
 		return QModelIndex();
 	}
 
-	if(row >= 0) {
+	if (row >= 0) {
 		return createIndex(row, column, const_cast<Result *>(&results_[row]));
 	} else {
 		return createIndex(row, column);
@@ -135,15 +140,23 @@ int ResultsModel::columnCount(const QModelIndex &parent) const {
 //------------------------------------------------------------------------------
 void ResultsModel::sort(int column, Qt::SortOrder order) {
 
-	if(order == Qt::AscendingOrder) {
-		switch(column) {
-		case 0: std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.address < s2.address; }); break;
-		case 1: std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.instruction < s2.instruction; });   break;
+	if (order == Qt::AscendingOrder) {
+		switch (column) {
+		case 0:
+			std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.address < s2.address; });
+			break;
+		case 1:
+			std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.instruction < s2.instruction; });
+			break;
 		}
 	} else {
-		switch(column) {
-		case 0: std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.address > s2.address; }); break;
-		case 1: std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.instruction > s2.instruction; });   break;
+		switch (column) {
+		case 0:
+			std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.address > s2.address; });
+			break;
+		case 1:
+			std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.instruction > s2.instruction; });
+			break;
 		}
 	}
 

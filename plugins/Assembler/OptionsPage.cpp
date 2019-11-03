@@ -34,7 +34,7 @@ OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
 
 	ui.setupUi(this);
 
-	QSettings     settings;
+	QSettings settings;
 	const QString name = settings.value("Assembler/helper", "yasm").toString();
 
 	ui.assemblerName->clear();

@@ -27,9 +27,9 @@ namespace BinaryInfoPlugin {
 class PEBinaryException : public std::exception {
 public:
 	enum Reason {
-		INVALID_ARGUMENTS    = 1,
-		READ_FAILURE         = 2,
-		INVALID_PE           = 3,
+		INVALID_ARGUMENTS = 1,
+		READ_FAILURE = 2,
+		INVALID_PE = 3,
 		INVALID_ARCHITECTURE = 4
 	};
 
@@ -47,15 +47,15 @@ public:
 	~PE32() override = default;
 
 public:
-	bool                native() const override;
-	edb::address_t      entryPoint() override;
-	size_t              headerSize() const override;
-	const void *        header() const override;
+	bool native() const override;
+	edb::address_t entryPoint() override;
+	size_t headerSize() const override;
+	const void *header() const override;
 	std::vector<Header> headers() const override;
 
 private:
-	std::shared_ptr<IRegion>  region_;
-	libPE::IMAGE_DOS_HEADER   dos_;
+	std::shared_ptr<IRegion> region_;
+	libPE::IMAGE_DOS_HEADER dos_;
 	libPE::IMAGE_NT_HEADERS32 pe_;
 };
 

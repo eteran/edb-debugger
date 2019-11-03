@@ -37,7 +37,8 @@ namespace CheckVersionPlugin {
 // Name: CheckVersion
 // Desc:
 //------------------------------------------------------------------------------
-CheckVersion::CheckVersion(QObject *parent) : QObject(parent) {
+CheckVersion::CheckVersion(QObject *parent)
+	: QObject(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -46,7 +47,7 @@ CheckVersion::CheckVersion(QObject *parent) : QObject(parent) {
 //------------------------------------------------------------------------------
 void CheckVersion::privateInit() {
 	QSettings settings;
-	if(settings.value("CheckVersion/check_on_start.enabled", true).toBool()) {
+	if (settings.value("CheckVersion/check_on_start.enabled", true).toBool()) {
 		doCheck();
 	}
 }
@@ -67,7 +68,7 @@ QMenu *CheckVersion::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("CheckVersion"), parent);
 		menu_->addAction(tr("&Check For Latest Version"), this, SLOT(showMenu()));
 	}
@@ -81,7 +82,7 @@ QMenu *CheckVersion::menu(QWidget *parent) {
 //------------------------------------------------------------------------------
 void CheckVersion::doCheck() {
 
-	if(!network_) {
+	if (!network_) {
 		network_ = new QNetworkAccessManager(this);
 		connect(network_, &QNetworkAccessManager::finished, this, &CheckVersion::requestFinished);
 	}
@@ -107,11 +108,11 @@ void CheckVersion::setProxy(const QUrl &url) {
 #ifdef Q_OS_LINUX
 	Q_UNUSED(url)
 	auto proxy_str = QString::fromUtf8(qgetenv("HTTP_PROXY"));
-	if(proxy_str.isEmpty()) {
+	if (proxy_str.isEmpty()) {
 		proxy_str = QString::fromUtf8(qgetenv("http_proxy"));
 	}
 
-	if(!proxy_str.isEmpty()) {
+	if (!proxy_str.isEmpty()) {
 		const QUrl proxy_url = QUrl::fromUserInput(proxy_str);
 		proxy = QNetworkProxy(
 			QNetworkProxy::HttpProxy,
@@ -123,7 +124,7 @@ void CheckVersion::setProxy(const QUrl &url) {
 
 #else
 	QList<QNetworkProxy> proxies = QNetworkProxyFactory::systemProxyForQuery(QNetworkProxyQuery(url));
-	if(proxies.size() >= 1) {
+	if (proxies.size() >= 1) {
 		proxy = proxies.first();
 	}
 #endif
@@ -145,10 +146,10 @@ void CheckVersion::showMenu() {
 //------------------------------------------------------------------------------
 void CheckVersion::requestFinished(QNetworkReply *reply) {
 
-    if(reply->error() != QNetworkReply::NoError) {
-		if(!initialCheck_) {
+	if (reply->error() != QNetworkReply::NoError) {
+		if (!initialCheck_) {
 			QMessageBox::critical(
-                nullptr,
+				nullptr,
 				tr("An Error Occured"),
 				reply->errorString());
 		}
@@ -158,22 +159,22 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 
 		qDebug("comparing versions: [%d] [%d]", edb::v1::int_version(s), edb::v1::edb_version());
 
-		if(edb::v1::int_version(s) > edb::v1::edb_version()) {
+		if (edb::v1::int_version(s) > edb::v1::edb_version()) {
 			QMessageBox::information(
-                nullptr,
+				nullptr,
 				tr("New Version Available"),
 				tr("There is a newer version of edb available: <strong>%1</strong>").arg(s));
 		} else {
-			if(!initialCheck_) {
+			if (!initialCheck_) {
 				QMessageBox::information(
-                    nullptr,
+					nullptr,
 					tr("You are up to date"),
 					tr("You are running the latest version of edb"));
 			}
 		}
 	}
 
-    reply->deleteLater();
+	reply->deleteLater();
 	initialCheck_ = false;
 }
 

@@ -21,10 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ELFXX.h"
 #include "IBinary.h"
 #include "ISymbolManager.h"
+#include "OptionsPage.h"
 #include "PE32.h"
 #include "edb.h"
 #include "symbols.h"
-#include "OptionsPage.h"
 
 #include <QDebug>
 #include <QMenu>
@@ -38,7 +38,8 @@ namespace BinaryInfoPlugin {
  * @brief BinaryInfo::BinaryInfo
  * @param parent
  */
-BinaryInfo::BinaryInfo(QObject *parent) : QObject(parent) {
+BinaryInfo::BinaryInfo(QObject *parent)
+	: QObject(parent) {
 }
 
 /**
@@ -65,7 +66,7 @@ void BinaryInfo::privateInit() {
  * @brief BinaryInfo::options_page
  * @return
  */
-QWidget* BinaryInfo::optionsPage() {
+QWidget *BinaryInfo::optionsPage() {
 	return new OptionsPage;
 }
 
@@ -78,7 +79,7 @@ QMenu *BinaryInfo::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("Binary Info"), parent);
 		menu_->addAction(tr("&Explore Binary Header"), this, SLOT(exploreHeader()));
 	}
@@ -109,7 +110,7 @@ QString BinaryInfo::extraArguments() const {
  */
 IPlugin::ArgumentStatus BinaryInfo::parseArguments(QStringList &args) {
 
-	if(args.size() == 3 && args[1] == "--symbols") {
+	if (args.size() == 3 && args[1] == "--symbols") {
 		generate_symbols(args[2]);
 		return ARG_EXIT;
 	}
@@ -126,8 +127,8 @@ IPlugin::ArgumentStatus BinaryInfo::parseArguments(QStringList &args) {
 bool BinaryInfo::generateSymbolFile(const QString &filename, const QString &symbol_file) {
 
 	std::ofstream file(qPrintable(symbol_file));
-	if(file) {
-		if(generate_symbols(filename, file)) {
+	if (file) {
+		if (generate_symbols(filename, file)) {
 			return true;
 		}
 	}

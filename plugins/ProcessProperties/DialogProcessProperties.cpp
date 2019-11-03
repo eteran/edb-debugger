@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Configuration.h"
 #include "DialogProcessProperties.h"
+#include "Configuration.h"
 #include "DialogStrings.h"
 #include "IDebugger.h"
 #include "IProcess.h"
@@ -57,7 +57,7 @@ namespace {
 //------------------------------------------------------------------------------
 QString file_type(const QString &filename) {
 	const QFileInfo info(filename);
-	const QString   basename(info.completeBaseName());
+	const QString basename(info.completeBaseName());
 
 	if (basename.startsWith("socket:")) {
 		return tr("Socket");
@@ -111,7 +111,7 @@ bool tcp_socket_prcoessor(QString *symlink, int sock, const QStringList &lst) {
 
 	if (lst.size() >= 13) {
 
-		bool           ok;
+		bool ok;
 		const uint32_t local_address = ntohl(lst[1].toUInt(&ok, 16));
 		if (ok) {
 			const uint16_t local_port = lst[2].toUInt(&ok, 16);
@@ -153,7 +153,7 @@ bool udp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 
 	if (lst.size() >= 13) {
 
-		bool           ok;
+		bool ok;
 		const uint32_t local_address = ntohl(lst[1].toUInt(&ok, 16));
 		if (ok) {
 			const uint16_t local_port = lst[2].toUInt(&ok, 16);
@@ -194,7 +194,7 @@ bool unix_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 	Q_ASSERT(symlink);
 
 	if (lst.size() >= 6) {
-		bool      ok;
+		bool ok;
 		const int inode = lst[6].toUInt(&ok, 10);
 		if (ok) {
 			if (inode == sock) {
@@ -219,7 +219,7 @@ QString process_socket_file(const QString &filename, QString *symlink, int sock,
 	net.open(QIODevice::ReadOnly | QIODevice::Text);
 	if (net.isOpen()) {
 		QTextStream in(&net);
-		QString     line;
+		QString line;
 
 		// ditch first line, it is just table headings
 		in.readLine();
@@ -230,7 +230,7 @@ QString process_socket_file(const QString &filename, QString *symlink, int sock,
 		// a null string means end of file (but not an empty string!)
 		while (!line.isNull()) {
 
-			QString           lline(line);
+			QString lline(line);
 			const QStringList lst = lline.replace(":", " ").split(" ", QString::SkipEmptyParts);
 
 			if (fp(symlink, sock, lst)) {
@@ -252,7 +252,7 @@ QString process_socket_tcp(QString *symlink) {
 	Q_ASSERT(symlink);
 
 	const QString socket_info(symlink->mid(symlink->indexOf("socket:[")));
-	const int     socket_number = socket_info.mid(8).remove("]").toUInt();
+	const int socket_number = socket_info.mid(8).remove("]").toUInt();
 
 	return process_socket_file("/proc/net/tcp", symlink, socket_number, tcp_socket_prcoessor);
 }
@@ -266,7 +266,7 @@ QString process_socket_unix(QString *symlink) {
 	Q_ASSERT(symlink);
 
 	const QString socket_info(symlink->mid(symlink->indexOf("socket:[")));
-	const int     socket_number = socket_info.mid(8).remove("]").toUInt();
+	const int socket_number = socket_info.mid(8).remove("]").toUInt();
 
 	return process_socket_file("/proc/net/unix", symlink, socket_number, unix_socket_processor);
 }
@@ -280,7 +280,7 @@ QString process_socket_udp(QString *symlink) {
 	Q_ASSERT(symlink);
 
 	const QString socket_info(symlink->mid(symlink->indexOf("socket:[")));
-	const int     socket_number = socket_info.mid(8).remove("]").toUInt();
+	const int socket_number = socket_info.mid(8).remove("]").toUInt();
 
 	return process_socket_file("/proc/net/udp", symlink, socket_number, udp_socket_processor);
 }
@@ -299,7 +299,7 @@ DialogProcessProperties::DialogProcessProperties(QWidget *parent, Qt::WindowFlag
 	ui.tableMemory->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	ui.threadTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	threadsModel_  = new ThreadsModel(this);
+	threadsModel_ = new ThreadsModel(this);
 	threadsFilter_ = new QSortFilterProxyModel(this);
 
 	threadsFilter_->setSourceModel(threadsModel_);
@@ -318,9 +318,9 @@ void DialogProcessProperties::updateGeneralPage() {
 			const QString exe = process->executable();
 			const QString cwd = process->currentWorkingDirectory();
 
-			std::shared_ptr<IProcess> parent     = process->parent();
-			const edb::pid_t          parent_pid = parent ? parent->pid() : 0;
-			const QString             parent_exe = parent ? parent->executable() : QString();
+			std::shared_ptr<IProcess> parent = process->parent();
+			const edb::pid_t parent_pid = parent ? parent->pid() : 0;
+			const QString parent_exe = parent ? parent->executable() : QString();
 
 			const QList<QByteArray> args = process->arguments();
 
@@ -423,11 +423,11 @@ void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 		QFile proc_environ(QString("/proc/%1/environ").arg(process->pid()));
 		if (proc_environ.open(QIODevice::ReadOnly)) {
 			QByteArray env = proc_environ.readAll();
-			char *     p   = env.data();
-			char *     ptr = p;
+			char *p = env.data();
+			char *ptr = p;
 			while (ptr != p + env.size()) {
-				const QString env       = QString::fromUtf8(ptr);
-				const QString env_name  = env.mid(0, env.indexOf("="));
+				const QString env = QString::fromUtf8(ptr);
+				const QString env_name = env.mid(0, env.indexOf("="));
 				const QString env_value = env.mid(env.indexOf("=") + 1);
 
 				if (lower_filter.isEmpty() || env_name.contains(lower_filter, Qt::CaseInsensitive)) {
@@ -457,11 +457,11 @@ void DialogProcessProperties::updateHandles() {
 
 #ifdef Q_OS_LINUX
 	if (IProcess *process = edb::v1::debugger_core->process()) {
-		QDir                dir(QString("/proc/%1/fd/").arg(process->pid()));
+		QDir dir(QString("/proc/%1/fd/").arg(process->pid()));
 		const QFileInfoList entries = dir.entryInfoList(QStringList() << "[0-9]*");
 		for (const QFileInfo &info : entries) {
 			if (info.isSymLink()) {
-				QString       symlink(info.symLinkTarget());
+				QString symlink(info.symLinkTarget());
 				const QString type(file_type(symlink));
 
 				if (type == tr("Socket")) {
@@ -513,11 +513,11 @@ void DialogProcessProperties::on_btnParent_clicked() {
 	if (edb::v1::debugger_core) {
 		if (IProcess *process = edb::v1::debugger_core->process()) {
 
-			std::shared_ptr<IProcess> parent     = process->parent();
-			const QString             parent_exe = parent ? parent->executable() : QString();
+			std::shared_ptr<IProcess> parent = process->parent();
+			const QString parent_exe = parent ? parent->executable() : QString();
 
 			QFileInfo info(parent_exe);
-			QDir      dir = info.absoluteDir();
+			QDir dir = info.absoluteDir();
 			QDesktopServices::openUrl(QUrl(tr("file://%1").arg(dir.absolutePath()), QUrl::TolerantMode));
 		}
 	}
@@ -530,7 +530,7 @@ void DialogProcessProperties::on_btnParent_clicked() {
 void DialogProcessProperties::on_btnImage_clicked() {
 	if (edb::v1::debugger_core) {
 		QFileInfo info(ui.editImage->text());
-		QDir      dir = info.absoluteDir();
+		QDir dir = info.absoluteDir();
 		QDesktopServices::openUrl(QUrl(tr("file://%1").arg(dir.absolutePath()), QUrl::TolerantMode));
 	}
 }

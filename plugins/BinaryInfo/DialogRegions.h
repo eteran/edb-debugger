@@ -40,9 +40,9 @@ private:
 	void showEvent(QShowEvent *event) override;
 
 private:
-	 Ui::DialogRegions ui;
-	 QSortFilterProxyModel *filterModel_;
-	 QPushButton *btnExplore_;
+	Ui::DialogRegions ui;
+	QSortFilterProxyModel *filterModel_;
+	QPushButton *btnExplore_;
 };
 
 }

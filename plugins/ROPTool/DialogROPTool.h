@@ -59,10 +59,10 @@ private:
 	void showEvent(QShowEvent *event) override;
 
 private:
-	Ui::DialogROPTool      ui;
+	Ui::DialogROPTool ui;
 	QSortFilterProxyModel *filterModel_;
-	QSet<QString>          uniqueResults_;
-	QPushButton *          buttonFind_;
+	QSet<QString> uniqueResults_;
+	QPushButton *buttonFind_;
 };
 
 }

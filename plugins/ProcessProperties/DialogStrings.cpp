@@ -18,16 +18,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogStrings.h"
 #include "Configuration.h"
+#include "DialogResults.h"
 #include "IRegion.h"
 #include "MemoryRegions.h"
-#include "DialogResults.h"
 #include "Util.h"
 #include "edb.h"
 
 #include <QHeaderView>
 #include <QMessageBox>
-#include <QSortFilterProxyModel>
 #include <QPushButton>
+#include <QSortFilterProxyModel>
 
 namespace ProcessPropertiesPlugin {
 
@@ -35,7 +35,8 @@ namespace ProcessPropertiesPlugin {
 // Name: DialogStrings
 // Desc:
 //------------------------------------------------------------------------------
-DialogStrings::DialogStrings(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f)  {
+DialogStrings::DialogStrings(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
 	ui.setupUi(this);
 	ui.tableView->verticalHeader()->hide();
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -79,7 +80,7 @@ void DialogStrings::doFind() {
 
 	QString str;
 
-	if(sel.size() == 0) {
+	if (sel.size() == 0) {
 		QMessageBox::critical(
 			this,
 			tr("No Region Selected"),
@@ -89,34 +90,34 @@ void DialogStrings::doFind() {
 
 	auto resultsDialog = new DialogResults(this);
 
-	for(const QModelIndex &selected_item: sel) {
+	for (const QModelIndex &selected_item : sel) {
 
 		const QModelIndex index = filterModel_->mapToSource(selected_item);
 
-		if(auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
+		if (auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
 
-			edb::address_t start_address     = region->start();
+			edb::address_t start_address = region->start();
 			const edb::address_t end_address = region->end();
-			const edb::address_t orig_start  = start_address;
+			const edb::address_t orig_start = start_address;
 
 			// do the search for this region!
-			while(start_address < end_address) {
+			while (start_address < end_address) {
 
 				int string_length = 0;
 				bool ok = edb::v1::get_ascii_string_at_address(start_address, str, min_string_length, 256, string_length);
-				if(ok) {
+				if (ok) {
 					resultsDialog->addResult({start_address, str, Result::ASCII});
-				} else if(ui.search_unicode->isChecked()) {
+				} else if (ui.search_unicode->isChecked()) {
 					string_length = 0;
 					ok = edb::v1::get_utf16_string_at_address(start_address, str, min_string_length, 256, string_length);
-					if(ok) {
+					if (ok) {
 						resultsDialog->addResult({start_address, str, Result::UTF16});
 					}
 				}
 
 				ui.progressBar->setValue(util::percentage((start_address - orig_start), region->size()));
 
-				if(ok) {
+				if (ok) {
 					start_address += string_length;
 				} else {
 					++start_address;
@@ -125,13 +126,12 @@ void DialogStrings::doFind() {
 		}
 	}
 
-	if(resultsDialog->resultCount() == 0) {
+	if (resultsDialog->resultCount() == 0) {
 		QMessageBox::information(this, tr("No Strings Found"), tr("No strings were found in the selected region"));
 		delete resultsDialog;
 	} else {
 		resultsDialog->show();
 	}
-
 }
 
 }

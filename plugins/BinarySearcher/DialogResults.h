@@ -43,7 +43,7 @@ public:
 
 public:
 	void addResult(RegionType region, edb::address_t address);
-	int  resultCount() const;
+	int resultCount() const;
 
 public Q_SLOTS:
 	void on_listWidget_itemDoubleClicked(QListWidgetItem *);

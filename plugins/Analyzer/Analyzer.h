@@ -52,23 +52,23 @@ public:
 	explicit Analyzer(QObject *parent = nullptr);
 
 public:
-	QMenu *          menu(QWidget *parent = nullptr) override;
+	QMenu *menu(QWidget *parent = nullptr) override;
 	QList<QAction *> cpuContextMenu() override;
 
 private:
-	void     privateInit() override;
+	void privateInit() override;
 	QWidget *optionsPage() override;
 
 public:
-	AddressCategory                 category(edb::address_t address) const override;
-	FunctionMap                     functions(const std::shared_ptr<IRegion> &region) const override;
-	FunctionMap                     functions() const override;
-	QSet<edb::address_t>            specifiedFunctions() const override { return specifiedFunctions_; }
+	AddressCategory category(edb::address_t address) const override;
+	FunctionMap functions(const std::shared_ptr<IRegion> &region) const override;
+	FunctionMap functions() const override;
+	QSet<edb::address_t> specifiedFunctions() const override { return specifiedFunctions_; }
 	Result<edb::address_t, QString> findContainingFunction(edb::address_t address) const override;
-	void                            analyze(const std::shared_ptr<IRegion> &region) override;
-	void                            invalidateAnalysis() override;
-	void                            invalidateAnalysis(const std::shared_ptr<IRegion> &region) override;
-	bool                            forFuncsInRange(edb::address_t start, edb::address_t end, std::function<bool(const Function *)> functor) const override;
+	void analyze(const std::shared_ptr<IRegion> &region) override;
+	void invalidateAnalysis() override;
+	void invalidateAnalysis(const std::shared_ptr<IRegion> &region) override;
+	bool forFuncsInRange(edb::address_t start, edb::address_t end, std::function<bool(const Function *)> functor) const override;
 
 private:
 	bool findContainingFunction(edb::address_t address, Function *function) const;
@@ -96,24 +96,24 @@ public Q_SLOTS:
 
 private:
 	struct RegionData {
-		QSet<edb::address_t> known_functions;
-		QSet<edb::address_t> fuzzy_functions;
+		QSet<edb::address_t> knownFunctions;
+		QSet<edb::address_t> fuzzyFunctions;
 
-		FunctionMap                       functions;
-		QHash<edb::address_t, BasicBlock> basic_blocks;
+		FunctionMap functions;
+		QHash<edb::address_t, BasicBlock> basicBlocks;
 
-		QByteArray               md5;
-		bool                     fuzzy;
+		QByteArray md5;
+		bool fuzzy;
 		std::shared_ptr<IRegion> region;
 
 		// a copy of the whole region
 		QVector<quint8> memory;
 	};
 
-	QMenu *                           menu_           = nullptr;
-	AnalyzerWidget *                  analyzerWidget_ = nullptr;
+	QMenu *menu_ = nullptr;
+	AnalyzerWidget *analyzerWidget_ = nullptr;
 	QHash<edb::address_t, RegionData> analysisInfo_;
-	QSet<edb::address_t>              specifiedFunctions_;
+	QSet<edb::address_t> specifiedFunctions_;
 };
 
 }

@@ -35,7 +35,7 @@ public:
 	~DialogFunctions() override = default;
 
 private:
-    void showEvent(QShowEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 
 private:
 	void doFind();

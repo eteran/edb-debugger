@@ -39,7 +39,7 @@ public:
 
 private:
 	void privateInit() override;
-	QWidget* optionsPage() override;
+	QWidget *optionsPage() override;
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;

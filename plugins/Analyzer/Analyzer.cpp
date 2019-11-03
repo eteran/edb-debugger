@@ -66,7 +66,7 @@ bool will_return(edb::address_t address) {
 
 	const std::shared_ptr<Symbol> symbol = edb::v1::symbol_manager().find(address);
 	if (symbol) {
-		const QString symname   = symbol->name_no_prefix;
+		const QString symname = symbol->name_no_prefix;
 		const QString func_name = symname.mid(0, symname.indexOf("@"));
 
 		if (const edb::Prototype *const info = edb::v1::get_function_info(func_name)) {
@@ -248,7 +248,7 @@ void Analyzer::showXrefs() {
 	auto dialog = new DialogXRefs(edb::v1::debugger_ui);
 
 	for (const RegionData &data : analysisInfo_) {
-		for (const BasicBlock &bb : data.basic_blocks) {
+		for (const BasicBlock &bb : data.basicBlocks) {
 			const std::vector<std::pair<edb::address_t, edb::address_t>> refs = bb.references();
 
 			for (auto it = refs.begin(); it != refs.end(); ++it) {
@@ -307,11 +307,11 @@ QList<QAction *> Analyzer::cpuContextMenu() {
 
 	QList<QAction *> ret;
 
-	auto action_find                = new QAction(tr("Analyze Here"), this);
+	auto action_find = new QAction(tr("Analyze Here"), this);
 	auto action_goto_function_start = new QAction(tr("Goto Function Start"), this);
-	auto action_goto_function_end   = new QAction(tr("Goto Function End"), this);
+	auto action_goto_function_end = new QAction(tr("Goto Function End"), this);
 	auto action_mark_function_start = new QAction(tr("Mark As Function Start"), this);
-	auto action_xrefs               = new QAction(tr("Show X-Refs"), this);
+	auto action_xrefs = new QAction(tr("Show X-Refs"), this);
 
 	connect(action_find, &QAction::triggered, this, &Analyzer::doViewAnalysis);
 	connect(action_goto_function_start, &QAction::triggered, this, &Analyzer::gotoFunctionStart);
@@ -351,7 +351,7 @@ void Analyzer::bonusMain(RegionData *data) const {
 	if (!s.isEmpty()) {
 		if (const edb::address_t main = edb::v1::locate_main_function()) {
 			if (data->region->contains(main)) {
-				data->known_functions.insert(main);
+				data->knownFunctions.insert(main);
 			}
 		}
 	}
@@ -373,7 +373,7 @@ void Analyzer::bonusSymbols(RegionData *data) {
 
 		if (data->region->contains(addr) && sym->is_code()) {
 			qDebug("[Analyzer] adding: %s <%s>", qPrintable(sym->name), qPrintable(addr.toPointerString()));
-			data->known_functions.insert(addr);
+			data->knownFunctions.insert(addr);
 		}
 	}
 }
@@ -389,7 +389,7 @@ void Analyzer::bonusMarkedFunctions(RegionData *data) {
 	Q_FOREACH (const edb::address_t addr, specifiedFunctions_) {
 		if (data->region->contains(addr)) {
 			qDebug("[Analyzer] adding user marked function: <%s>", qPrintable(addr.toPointerString()));
-			data->known_functions.insert(addr);
+			data->knownFunctions.insert(addr);
 		}
 	}
 }
@@ -411,16 +411,16 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 
 	// results
 	QHash<edb::address_t, BasicBlock> basic_blocks;
-	FunctionMap                       functions;
+	FunctionMap functions;
 
 	// push all known functions onto a stack
 	QStack<edb::address_t> known_functions;
-	Q_FOREACH (const edb::address_t function, data->known_functions) {
+	Q_FOREACH (const edb::address_t function, data->knownFunctions) {
 		known_functions.push(function);
 	}
 
 	// push all fuzzy function too...
-	Q_FOREACH (const edb::address_t function, data->fuzzy_functions) {
+	Q_FOREACH (const edb::address_t function, data->fuzzyFunctions) {
 		known_functions.push(function);
 	}
 
@@ -439,13 +439,13 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 			while (!blocks.empty()) {
 
 				const edb::address_t block_address = blocks.pop();
-				edb::address_t       address       = block_address;
-				BasicBlock           block;
+				edb::address_t address = block_address;
+				BasicBlock block;
 
 				if (!basic_blocks.contains(block_address)) {
 					while (data->region->contains(address)) {
 
-						quint8    buffer[edb::Instruction::MAX_SIZE];
+						quint8 buffer[edb::Instruction::MAX_SIZE];
 						const int buf_size = edb::v1::get_instruction_bytes(address, buffer);
 						if (buf_size == 0) {
 							break;
@@ -549,7 +549,7 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 		}
 	}
 
-	std::swap(data->basic_blocks, basic_blocks);
+	std::swap(data->basicBlocks, basic_blocks);
 	std::swap(data->functions, functions);
 }
 
@@ -560,14 +560,14 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 void Analyzer::collectFuzzyFunctions(RegionData *data) {
 	Q_ASSERT(data);
 
-	data->fuzzy_functions.clear();
+	data->fuzzyFunctions.clear();
 
 	if (data->fuzzy) {
 
 		QHash<edb::address_t, int> fuzzy_functions;
 
 		quint8 *const first = &data->memory[0];
-		quint8 *const last  = &first[data->memory.size()];
+		quint8 *const last = &first[data->memory.size()];
 
 		quint8 *p = first;
 
@@ -586,7 +586,7 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 						// skip over ones which are: "call <label>; label:"
 						if (ea != addr + inst.byte_size()) {
 
-							if (!data->known_functions.contains(ea)) {
+							if (!data->knownFunctions.contains(ea)) {
 								fuzzy_functions[ea]++;
 							}
 						}
@@ -599,7 +599,7 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 		// transfer results to data->fuzzy_functions
 		for (auto it = fuzzy_functions.begin(); it != fuzzy_functions.end(); ++it) {
 			if (it.value() > MinRefCount) {
-				data->fuzzy_functions.insert(it.key());
+				data->fuzzyFunctions.insert(it.key());
 			}
 		}
 	}
@@ -617,31 +617,31 @@ void Analyzer::analyze(const std::shared_ptr<IRegion> &region) {
 	RegionData &region_data = analysisInfo_[region->start()];
 	qDebug() << "[Analyzer] Region name:" << region->name();
 
-	QSettings  settings;
+	QSettings settings;
 	const bool fuzzy = settings.value("Analyzer/fuzzy_logic_functions.enabled", true).toBool();
 
-	const size_t page_size  = edb::v1::debugger_core->pageSize();
+	const size_t page_size = edb::v1::debugger_core->pageSize();
 	const size_t page_count = region->size() / page_size;
 
 	QVector<quint8> memory = edb::v1::read_pages(region->start(), page_count);
 
-	const QByteArray md5      = (!memory.isEmpty()) ? edb::v1::get_md5(memory) : QByteArray();
+	const QByteArray md5 = (!memory.isEmpty()) ? edb::v1::get_md5(memory) : QByteArray();
 	const QByteArray prev_md5 = region_data.md5;
 
 	if (md5 != prev_md5 || fuzzy != region_data.fuzzy) {
 
-		region_data.basic_blocks.clear();
+		region_data.basicBlocks.clear();
 		region_data.functions.clear();
-		region_data.fuzzy_functions.clear();
-		region_data.known_functions.clear();
+		region_data.fuzzyFunctions.clear();
+		region_data.knownFunctions.clear();
 
 		region_data.memory = memory;
 		region_data.region = region;
-		region_data.md5    = md5;
-		region_data.fuzzy  = fuzzy;
+		region_data.md5 = md5;
+		region_data.fuzzy = fuzzy;
 
 		const struct {
-			const char *          message;
+			const char *message;
 			std::function<void()> function;
 		} analysis_steps[] = {
 			{"identifying executable headers...", [this, &region_data]() { identHeader(&region_data); }},
@@ -778,11 +778,11 @@ bool Analyzer::findContainingFunction(edb::address_t address, Function *function
 bool Analyzer::forFuncsInRange(edb::address_t start, edb::address_t end, std::function<bool(const Function *)> functor) const {
 	if (std::shared_ptr<IRegion> region = edb::v1::memory_regions().findRegion(start)) {
 		const FunctionMap &funcs = functions(region);
-		auto               it    = funcs.lowerBound(start - 4096);
+		auto it = funcs.lowerBound(start - 4096);
 
 		while (it != funcs.end()) {
 			edb::address_t f_start = it->entry_address();
-			edb::address_t f_end   = it->end_address();
+			edb::address_t f_end = it->end_address();
 
 			// Only works if FunctionMap is a QMap
 			if (f_start > end) {
@@ -820,7 +820,7 @@ void Analyzer::bonusEntryPoint(RegionData *data) const {
 		qDebug("[Analyzer] found entry point: %s", qPrintable(entry.toPointerString()));
 
 		if (data->region->contains(entry)) {
-			data->known_functions.insert(entry);
+			data->knownFunctions.insert(entry);
 		}
 	}
 }
@@ -846,7 +846,7 @@ void Analyzer::invalidateDynamicAnalysis(const std::shared_ptr<IRegion> &region)
 
 	RegionData info;
 	info.region = region;
-	info.fuzzy  = false;
+	info.fuzzy = false;
 
 	analysisInfo_[region->start()] = info;
 }

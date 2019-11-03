@@ -17,9 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ELFXX.h"
+#include "IDebugger.h"
 #include "edb.h"
 #include "string_hash.h"
-#include "IDebugger.h"
 
 namespace BinaryInfoPlugin {
 
@@ -27,7 +27,7 @@ namespace BinaryInfoPlugin {
 // Name: native
 // Desc: returns true if this binary is native to the arch edb was built for
 //------------------------------------------------------------------------------
-template<>
+template <>
 bool ELF64::native() const {
 	return edb::v1::debugger_core->cpuType() == edb::string_hash("x86-64");
 }

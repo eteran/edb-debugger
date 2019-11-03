@@ -40,16 +40,16 @@ public:
 
 public:
 	void addResult(const Function &function);
-	int  resultCount() const;
+	int resultCount() const;
 
 public Q_SLOTS:
 	void on_tableView_doubleClicked(const QModelIndex &index);
 
 private:
-	Ui::DialogResults      ui;
-	QSortFilterProxyModel *filterModel_  = nullptr;
-	ResultsModel *         resultsModel_ = nullptr;
-	QPushButton *          buttonGraph_  = nullptr;
+	Ui::DialogResults ui;
+	QSortFilterProxyModel *filterModel_ = nullptr;
+	ResultsModel *resultsModel_ = nullptr;
+	QPushButton *buttonGraph_ = nullptr;
 };
 
 }

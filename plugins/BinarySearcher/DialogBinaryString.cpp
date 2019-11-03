@@ -17,17 +17,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogBinaryString.h"
-#include "edb.h"
+#include "DialogResults.h"
 #include "IDebugger.h"
 #include "IRegion.h"
 #include "MemoryRegions.h"
-#include "DialogResults.h"
 #include "Util.h"
-#include <QMessageBox>
-#include <QVector>
+#include "edb.h"
 #include <QListWidget>
-#include <cstring>
+#include <QMessageBox>
 #include <QPushButton>
+#include <QVector>
+#include <cstring>
 
 namespace BinarySearcherPlugin {
 
@@ -35,7 +35,8 @@ namespace BinarySearcherPlugin {
 // Name: DialogBinaryString
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogBinaryString::DialogBinaryString(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogBinaryString::DialogBinaryString(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
 	ui.setupUi(this);
 	ui.progressBar->setValue(0);
 
@@ -65,36 +66,36 @@ void DialogBinaryString::doFind() {
 	auto results = new DialogResults(this);
 
 	const int sz = b.size();
-	if(sz != 0) {
+	if (sz != 0) {
 		edb::v1::memory_regions().sync();
 		const QList<std::shared_ptr<IRegion>> regions = edb::v1::memory_regions().regions();
 		const size_t page_size = edb::v1::debugger_core->pageSize();
 
 		int i = 0;
-		for(const std::shared_ptr<IRegion> &region: regions) {
+		for (const std::shared_ptr<IRegion> &region : regions) {
 			const size_t region_size = region->size();
 
 			// a short circut for speading things up
-			if(ui.chkSkipNoAccess->isChecked() && !region->accessible()) {
+			if (ui.chkSkipNoAccess->isChecked() && !region->accessible()) {
 				ui.progressBar->setValue(util::percentage(++i, regions.size()));
 				continue;
 			}
 
-			const size_t page_count     = region_size / page_size;
+			const size_t page_count = region_size / page_size;
 			const QVector<uint8_t> pages = edb::v1::read_pages(region->start(), page_count);
 
-			if(!pages.isEmpty()) {
+			if (!pages.isEmpty()) {
 
 				const uint8_t *p = &pages[0];
 				const uint8_t *const pages_end = &pages[0] + region_size - sz;
 
-				while(p < pages_end) {
+				while (p < pages_end) {
 					// compare values..
-					if(std::memcmp(p, b.constData(), sz) == 0) {
+					if (std::memcmp(p, b.constData(), sz) == 0) {
 						const edb::address_t addr = p - &pages[0] + region->start();
 						const edb::address_t align = 1 << (ui.cmbAlignment->currentIndex() + 1);
 
-						if(!ui.chkAlignment->isChecked() || (addr % align) == 0) {
+						if (!ui.chkAlignment->isChecked() || (addr % align) == 0) {
 							results->addResult(DialogResults::RegionType::Data, addr);
 						}
 					}
@@ -110,7 +111,7 @@ void DialogBinaryString::doFind() {
 			++i;
 		}
 
-		if(results->resultCount() == 0) {
+		if (results->resultCount() == 0) {
 			QMessageBox::information(nullptr, tr("No Results"), tr("No Results were found!"));
 			delete results;
 		} else {
@@ -118,6 +119,5 @@ void DialogBinaryString::doFind() {
 		}
 	}
 }
-
 
 }

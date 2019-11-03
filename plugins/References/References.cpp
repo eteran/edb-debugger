@@ -27,7 +27,8 @@ namespace ReferencesPlugin {
 // Name: References
 // Desc:
 //------------------------------------------------------------------------------
-References::References(QObject *parent) : QObject(parent) {
+References::References(QObject *parent)
+	: QObject(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -46,7 +47,7 @@ QMenu *References::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("Reference Searcher"), parent);
 		menu_->addAction(tr("&Reference Search"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+R")));
 	}
@@ -60,7 +61,7 @@ QMenu *References::menu(QWidget *parent) {
 //------------------------------------------------------------------------------
 void References::showMenu() {
 
-	if(!dialog_) {
+	if (!dialog_) {
 		dialog_ = new DialogReferences(edb::v1::debugger_ui);
 	}
 

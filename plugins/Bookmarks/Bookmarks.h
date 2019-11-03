@@ -39,18 +39,18 @@ public:
 	explicit Bookmarks(QObject *parent = nullptr);
 
 public:
-	QMenu *          menu(QWidget *parent = nullptr) override;
+	QMenu *menu(QWidget *parent = nullptr) override;
 	QList<QAction *> cpuContextMenu() override;
 
 public:
 	QVariantMap saveState() const override;
-	void        restoreState(const QVariantMap &) override;
+	void restoreState(const QVariantMap &) override;
 
 public Q_SLOTS:
 	void addBookmarkMenu();
 
 private:
-	QMenu *         menu_           = nullptr;
+	QMenu *menu_ = nullptr;
 	BookmarkWidget *bookmarkWidget_ = nullptr;
 };
 

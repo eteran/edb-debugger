@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "HeapAnalyzer.h"
-#include "edb.h"
 #include "DialogHeap.h"
+#include "edb.h"
 #include <QMenu>
 
 namespace HeapAnalyzerPlugin {
@@ -27,7 +27,8 @@ namespace HeapAnalyzerPlugin {
 // Name: HeapAnalyzer
 // Desc:
 //------------------------------------------------------------------------------
-HeapAnalyzer::HeapAnalyzer(QObject *parent) : QObject(parent) {
+HeapAnalyzer::HeapAnalyzer(QObject *parent)
+	: QObject(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -46,9 +47,9 @@ QMenu *HeapAnalyzer::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("HeapAnalyzer"), parent);
-		menu_->addAction (tr("&Heap Analyzer"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+H")));
+		menu_->addAction(tr("&Heap Analyzer"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+H")));
 	}
 
 	return menu_;
@@ -60,7 +61,7 @@ QMenu *HeapAnalyzer::menu(QWidget *parent) {
 //------------------------------------------------------------------------------
 void HeapAnalyzer::showMenu() {
 
-	if(!dialog_) {
+	if (!dialog_) {
 		dialog_ = new DialogHeap(edb::v1::debugger_ui);
 	}
 

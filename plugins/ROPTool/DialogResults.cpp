@@ -10,11 +10,12 @@ namespace ROPToolPlugin {
  * @param parent
  * @param f
  */
-DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
 	ui.setupUi(this);
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	model_        = new ResultsModel(this);
+	model_ = new ResultsModel(this);
 	filterModel_ = new QSortFilterProxyModel(this);
 
 	resultFilter_ = new ResultFilterProxy(this);
@@ -23,7 +24,6 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 	filterModel_->setFilterKeyColumn(1);
 	filterModel_->setSourceModel(resultFilter_);
 	ui.tableView->setModel(filterModel_);
-
 
 	connect(ui.textFilter, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 	connect(ui.chkShowALU, &QCheckBox::stateChanged, this, [this](int state) {
@@ -55,21 +55,19 @@ void DialogResults::addResult(const Result &result) {
 	model_->addResult(result);
 }
 
-
 /**
  * @brief DialogResults::on_tableView_doubleClicked
  * @param index
  */
 void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
-	if(index.isValid()) {
+	if (index.isValid()) {
 		const QModelIndex realIndex = filterModel_->mapToSource(index);
-		if(realIndex.isValid()) {
+		if (realIndex.isValid()) {
 			const QModelIndex realIndex2 = resultFilter_->mapToSource(realIndex);
-			if(auto item = static_cast<Result *>(realIndex2.internalPointer())) {
+			if (auto item = static_cast<Result *>(realIndex2.internalPointer())) {
 				edb::v1::jump_to_address(item->address);
 			}
 		}
-
 	}
 }
 

@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BOOKMARKWIDGET_20101207_H_
 #define BOOKMARKWIDGET_20101207_H_
 
+#include "BookmarksModel.h"
 #include "Types.h"
 #include "ui_Bookmarks.h"
-#include "BookmarksModel.h"
 #include <QWidget>
 
 class QModelIndex;

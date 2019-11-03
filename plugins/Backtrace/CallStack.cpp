@@ -82,9 +82,9 @@ void CallStack::getCallStack() {
 			for (edb::address_t addr = rbp; region_rbp->contains(addr); addr += edb::v1::pointer_size()) {
 
 				// Get the stack value so that we can see if it's a pointer
-				bool            ok;
+				bool ok;
 				ExpressionError err;
-				edb::address_t  possible_ret = edb::v1::get_value(addr, &ok, &err);
+				edb::address_t possible_ret = edb::v1::get_value(addr, &ok, &err);
 
 				if (process->readBytes(possible_ret - CALL_MAX_SIZE, buffer, sizeof(buffer))) { // 0xfffff... if not a ptr.
 					for (int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
@@ -93,7 +93,7 @@ void CallStack::getCallStack() {
 						// If it's a call, then make a frame
 						if (is_call(inst)) {
 							stack_frame frame;
-							frame.ret    = possible_ret;
+							frame.ret = possible_ret;
 							frame.caller = possible_ret - CALL_MAX_SIZE + i;
 							stackFrames_.push_back(frame);
 							break;

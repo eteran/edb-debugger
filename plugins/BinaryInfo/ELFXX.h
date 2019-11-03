@@ -27,14 +27,14 @@ namespace BinaryInfoPlugin {
 template <class elfxx_header>
 class ELFXX : public IBinary {
 public:
-    explicit ELFXX(const std::shared_ptr<IRegion> &region);
-    ~ELFXX() override = default;
+	explicit ELFXX(const std::shared_ptr<IRegion> &region);
+	~ELFXX() override = default;
 
 public:
-    bool native() const override;
-    edb::address_t entryPoint() override;
-    size_t headerSize() const override;
-    const void *header() const override;
+	bool native() const override;
+	edb::address_t entryPoint() override;
+	size_t headerSize() const override;
+	const void *header() const override;
 	std::vector<Header> headers() const override;
 
 private:
@@ -42,9 +42,9 @@ private:
 
 private:
 	std::shared_ptr<IRegion> region_;
-	elfxx_header             header_;
-	edb::address_t           baseAddress_ { 0 };
-	std::vector<Header>      headers_;
+	elfxx_header header_;
+	edb::address_t baseAddress_{0};
+	std::vector<Header> headers_;
 };
 
 using ELF32 = ELFXX<elf32_header>;

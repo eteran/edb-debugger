@@ -17,30 +17,35 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "PE32.h"
-#include "edb.h"
 #include "IDebugger.h"
 #include "IProcess.h"
 #include "IRegion.h"
-#include "string_hash.h"
+#include "edb.h"
 #include "libPE/pe_binary.h"
+#include "string_hash.h"
 #include <QDebug>
 
 namespace BinaryInfoPlugin {
 
-PEBinaryException::PEBinaryException(Reason reason): reason_(reason) {}
-const char * PEBinaryException::what() const noexcept { return "PEBinaryException"; }
+PEBinaryException::PEBinaryException(Reason reason)
+	: reason_(reason) {
+}
+const char *PEBinaryException::what() const noexcept {
+	return "PEBinaryException";
+}
 
 //------------------------------------------------------------------------------
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-PE32::PE32(const std::shared_ptr<IRegion> &region) : region_(region) {
+PE32::PE32(const std::shared_ptr<IRegion> &region)
+	: region_(region) {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 	constexpr WORD dos_magic = 0x5A4D;
-	constexpr LONG pe_magic  = 0x00004550;
+	constexpr LONG pe_magic = 0x00004550;
 #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 	constexpr WORD dos_magic = 0x4D5A;
-	constexpr LONG pe_magic  = 0x50450000;
+	constexpr LONG pe_magic = 0x50450000;
 #endif
 
 	if (!region_) {
@@ -100,8 +105,7 @@ size_t PE32::headerSize() const {
 //------------------------------------------------------------------------------
 std::vector<IBinary::Header> PE32::headers() const {
 	std::vector<Header> results = {
-	    { region_->start(), sizeof(pe_) + dos_.e_lfanew }
-	};
+		{region_->start(), sizeof(pe_) + dos_.e_lfanew}};
 	return results;
 }
 

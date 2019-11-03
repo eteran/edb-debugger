@@ -40,8 +40,8 @@ private:
 	void doFind();
 
 private:
-	 Ui::DialogASCIIString ui;
-	 QPushButton *buttonFind_;
+	Ui::DialogASCIIString ui;
+	QPushButton *buttonFind_;
 };
 
 }

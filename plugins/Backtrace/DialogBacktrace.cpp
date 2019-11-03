@@ -31,7 +31,7 @@ namespace BacktracePlugin {
 namespace {
 
 // Default values in the table
-constexpr int FirstRow     = 0;
+constexpr int FirstRow = 0;
 constexpr int ReturnColumn = 1;
 
 //------------------------------------------------------------------------------
@@ -153,7 +153,7 @@ void DialogBacktrace::populateTable() {
 	}
 
 	//Get the call stack and populate the table with entries.
-	CallStack    call_stack;
+	CallStack call_stack;
 	const size_t size = call_stack.size();
 	for (size_t i = 0; i < size; i++) {
 
@@ -165,15 +165,15 @@ void DialogBacktrace::populateTable() {
 
 		//Get the caller & ret addresses and put them in the table
 		QList<edb::address_t> stack_entry;
-		edb::address_t        caller = frame->caller;
-		edb::address_t        ret    = frame->ret;
+		edb::address_t caller = frame->caller;
+		edb::address_t ret = frame->ret;
 		stack_entry.append(caller);
 		stack_entry.append(ret);
 
 		//Put them in the table: create string from address and set item flags.
 		for (int j = 0; j < stack_entry.size() && j < table_->columnCount(); j++) {
 
-			edb::address_t          address     = stack_entry.at(j);
+			edb::address_t address = stack_entry.at(j);
 			std::shared_ptr<Symbol> near_symbol = edb::v1::symbol_manager().findNearSymbol(address);
 
 			//Turn the address into a string prefixed with "0x"
@@ -181,8 +181,8 @@ void DialogBacktrace::populateTable() {
 			item->setData(Qt::UserRole, static_cast<qlonglong>(address));
 
 			if (near_symbol) {
-				const QString  function = near_symbol->name;
-				const uint64_t offset   = address - near_symbol->address;
+				const QString function = near_symbol->name;
+				const uint64_t offset = address - near_symbol->address;
 				item->setText(tr("0x%1 <%2+%3>").arg(QString::number(address, 16), function).arg(offset));
 			} else {
 				item->setText(tr("0x%1").arg(QString::number(address, 16)));

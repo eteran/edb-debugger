@@ -39,10 +39,10 @@ private:
 
 public:
 	stack_frame *operator[](size_t index);
-	size_t       size() const;
+	size_t size() const;
 	stack_frame *top();
 	stack_frame *bottom();
-	void         push(stack_frame frame);
+	void push(stack_frame frame);
 
 private:
 	std::deque<stack_frame> stackFrames_;

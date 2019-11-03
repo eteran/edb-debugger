@@ -77,14 +77,14 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 		return;
 	}
 
-	const QSet<edb::address_t>   specified_functions = edb::v1::analyzer()->specifiedFunctions();
-	const IAnalyzer::FunctionMap functions           = edb::v1::analyzer()->functions(region);
+	const QSet<edb::address_t> specified_functions = edb::v1::analyzer()->specifiedFunctions();
+	const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
 
 	const auto byte_width = static_cast<float>(width()) / region->size();
 
 	if (!cache_ || width() != cache_->width() || height() != cache_->height() || cacheNumFuncs_ != functions.size()) {
 
-		cache_         = std::make_unique<QPixmap>(width(), height());
+		cache_ = std::make_unique<QPixmap>(width(), height());
 		cacheNumFuncs_ = functions.size();
 
 		QPainter painter(cache_.get());
@@ -94,7 +94,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 			const Function &f = it.value();
 
 			const auto first_offset = static_cast<int>((f.entry_address() - region->start()) * byte_width);
-			const auto last_offset  = static_cast<int>((f.end_address() - region->start()) * byte_width);
+			const auto last_offset = static_cast<int>((f.end_address() - region->start()) * byte_width);
 
 			if (!specified_functions.contains(f.entry_address())) {
 				painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkGreen));
@@ -116,7 +116,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 		if (auto scroll_area = qobject_cast<QAbstractScrollArea *>(edb::v1::disassembly_widget())) {
 			if (QScrollBar *scrollbar = scroll_area->verticalScrollBar()) {
 				QFontMetrics fm(font());
-				const auto   offset = static_cast<int>(scrollbar->value() * byte_width);
+				const auto offset = static_cast<int>(scrollbar->value() * byte_width);
 
 				const QString triangle(QChar(0x25b4));
 
@@ -159,7 +159,7 @@ void AnalyzerWidget::mousePressEvent(QMouseEvent *event) {
 			const auto byte_width = static_cast<float>(width()) / region->size();
 
 			const edb::address_t start = region->start();
-			const edb::address_t end   = region->end();
+			const edb::address_t end = region->end();
 
 			edb::address_t offset = start + static_cast<int>(event->x() / byte_width);
 
