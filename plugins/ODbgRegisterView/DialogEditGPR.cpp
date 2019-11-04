@@ -29,7 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-DialogEditGPR::DialogEditGPR(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogEditGPR::DialogEditGPR(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
 
 	setWindowTitle(tr("Modify Register"));
 	setModal(true);
@@ -274,12 +275,12 @@ void DialogEditGPR::setupFocus() {
 	}
 }
 
-bool DialogEditGPR::eventFilter(QObject* obj, QEvent* event) {
-	return entryGridKeyUpDownEventFilter(this,obj,event);
+bool DialogEditGPR::eventFilter(QObject *obj, QEvent *event) {
+	return entryGridKeyUpDownEventFilter(this, obj, event);
 }
 
 void DialogEditGPR::setValue(const Register &newReg) {
-	reg_      = newReg;
+	reg_     = newReg;
 	value_   = reg_.valueAsInteger();
 	bitSize_ = reg_.bitSize();
 	setupEntriesAndLabels();

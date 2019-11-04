@@ -59,16 +59,18 @@ public:
 			ExpandedCPSR,
 			FPSCR,
 #else
-#	error "Not implemented"
+#error "Not implemented"
 #endif
 
 			NUM_GROUPS
 		} value;
 
-		RegisterGroupType(T v) : value(v) {
+		RegisterGroupType(T v)
+			: value(v) {
 		}
 
-		explicit RegisterGroupType(int v) : value(static_cast<T>(v)) {
+		explicit RegisterGroupType(int v)
+			: value(static_cast<T>(v)) {
 		}
 
 		operator T() const {
@@ -78,29 +80,29 @@ public:
 
 private:
 	std::vector<RegisterGroupType> visibleGroupTypes;
-	QList<QAction *>               menuItems;
-	DialogEditGPR *                dialogEditGPR;
-	DialogEditSIMDRegister *       dialogEditSIMDReg;
-	DialogEditFPU *                dialogEditFPU;
+	QList<QAction *> menuItems;
+	DialogEditGPR *dialogEditGPR;
+	DialogEditSIMDRegister *dialogEditSIMDReg;
+	DialogEditFPU *dialogEditFPU;
 
 	RegisterGroup *makeGroup(RegisterGroupType type);
 
 public:
 	explicit ODBRegView(const QString &settings, QWidget *parent = nullptr);
 	void setModel(RegisterViewModelBase::Model *model);
-	QList<ValueField *>  valueFields() const;
+	QList<ValueField *> valueFields() const;
 	QList<FieldWidget *> fields() const;
 	void showMenu(const QPoint &position, const QList<QAction *> &additionalItems = {}) const;
 	void saveState(const QString &settings) const;
 	void groupHidden(RegisterGroup *group);
-	DialogEditGPR *         gprEditDialog() const;
+	DialogEditGPR *gprEditDialog() const;
 	DialogEditSIMDRegister *simdEditDialog() const;
-	DialogEditFPU *         fpuEditDialog() const;
-	void                    selectAField();
+	DialogEditFPU *fpuEditDialog() const;
+	void selectAField();
 
 private:
 	ValueField *selectedField() const;
-	void        updateFieldsPalette();
+	void updateFieldsPalette();
 	void keyPressEvent(QKeyEvent *event) override;
 	void mousePressEvent(QMouseEvent *event) override;
 	void updateFont();
@@ -125,7 +127,7 @@ private:
 class Canvas : public QWidget {
 	Q_OBJECT
 public:
-    explicit Canvas(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit Canvas(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
 protected:
 	void mousePressEvent(QMouseEvent *event) override;
@@ -133,7 +135,7 @@ protected:
 
 class VolatileNameField : public FieldWidget {
 	Q_OBJECT
-	
+
 private:
 	std::function<QString()> valueFormatter;
 
@@ -151,8 +153,8 @@ private:
 	int showAsFloatActionIndex;
 
 	FieldWidget *commentWidget;
-	int          row;
-	int          column;
+	int row;
+	int column;
 
 	QPersistentModelIndex tagValueIndex;
 
@@ -171,11 +173,12 @@ public Q_SLOTS:
 #endif
 
 struct BitFieldDescription {
-	int                  textWidth;
+	int textWidth;
 	std::vector<QString> valueNames;
 	std::vector<QString> setValueTexts;
 	std::function<bool(unsigned, unsigned)> const valueEqualComparator;
-	BitFieldDescription(int textWidth, const std::vector<QString> &valueNames, const std::vector<QString> &setValueTexts, const std::function<bool(unsigned, unsigned)> &valueEqualComparator = [](unsigned a, unsigned b) { return a == b; });
+	BitFieldDescription(
+		int textWidth, const std::vector<QString> &valueNames, const std::vector<QString> &setValueTexts, const std::function<bool(unsigned, unsigned)> &valueEqualComparator = [](unsigned a, unsigned b) { return a == b; });
 };
 
 class BitFieldFormatter {
@@ -191,7 +194,7 @@ class MultiBitFieldWidget final : public ValueField {
 	Q_OBJECT
 
 public:
-	MultiBitFieldWidget(const QModelIndex &index, const BitFieldDescription &bfd, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	MultiBitFieldWidget(const QModelIndex &index_, const BitFieldDescription &bfd, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
 public Q_SLOTS:
 	void setValue(int value);
@@ -206,10 +209,10 @@ class SIMDValueManager : public QObject {
 	Q_OBJECT
 private:
 	QPersistentModelIndex regIndex;
-	int                   lineInGroup;
-	QList<ValueField *>   elements;
-	QList<QAction *>      menuItems;
-	NumberDisplayMode     intMode;
+	int lineInGroup;
+	QList<ValueField *> elements;
+	QList<QAction *> menuItems;
+	NumberDisplayMode intMode;
 	enum MenuItemNumbers {
 		VIEW_AS_BYTES,
 		VIEW_AS_WORDS,
@@ -227,13 +230,13 @@ private:
 	};
 
 	using Model = RegisterViewModelBase::Model;
-	Model *            model() const;
-	RegisterGroup *    group() const;
+	Model *model() const;
+	RegisterGroup *group() const;
 	Model::ElementSize currentSize() const;
-	NumberDisplayMode  currentFormat() const;
-	void               setupMenu();
-	void               updateMenu();
-	void               fillGroupMenu();
+	NumberDisplayMode currentFormat() const;
+	void setupMenu();
+	void updateMenu();
+	void fillGroupMenu();
 
 public:
 	SIMDValueManager(int lineInGroup, const QModelIndex &nameIndex, RegisterGroup *parent = nullptr);
@@ -253,15 +256,15 @@ class RegisterGroup : public QWidget {
 
 private:
 	QList<QAction *> menuItems;
-	QString          name;
+	QString name;
 
-	int         lineAfterLastField() const;
+	int lineAfterLastField() const;
 	ODBRegView *regView() const;
 
 public:
 	explicit RegisterGroup(const QString &name, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	QList<FieldWidget *> fields() const;
-	QList<ValueField *>  valueFields() const;
+	QList<ValueField *> valueFields() const;
 	void setIndices(const QList<QModelIndex> &indices);
 	void insert(int line, int column, FieldWidget *widget);
 	// Insert, but without moving to its place

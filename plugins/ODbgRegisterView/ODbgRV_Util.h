@@ -39,13 +39,11 @@ template <class T>
 T VALID_INDEX(T index) {
 	static_assert(
 		std::is_same<const typename std::remove_reference<T>::type, const QModelIndex>::value ||
-		std::is_same<const typename std::remove_reference<T>::type, const QPersistentModelIndex>::value,
-		"Wrong type passed to VALID_INDEX"
-	);
+			std::is_same<const typename std::remove_reference<T>::type, const QPersistentModelIndex>::value,
+		"Wrong type passed to VALID_INDEX");
 
 	assert(index.isValid());
 	return index;
-
 }
 
 template <class T, class P>
@@ -55,24 +53,24 @@ T *checked_cast(P p) {
 }
 
 template <typename T>
-T sqr(T v) {
+T square(T v) {
 	return v * v;
 }
 
-inline QPoint fieldPos(const FieldWidget *field) {
+inline QPoint field_position(const FieldWidget *field) {
 	// NOTE: mapToGlobal() is VERY slow, don't use it. Here we map to canvas, it's enough for all fields.
 	return field->mapTo(field->parentWidget()->parentWidget(), QPoint());
 }
 
 // Square of Euclidean distance between two points
 inline int distSqr(const QPoint &w1, const QPoint &w2) {
-	return sqr(w1.x() - w2.x()) + sqr(w1.y() - w2.y());
+	return square(w1.x() - w2.x()) + square(w1.y() - w2.y());
 }
 
 inline QSize letterSize(const QFont &font) {
 	const QFontMetrics fontMetrics(font);
-	const int          width  = fontMetrics.width('w');
-	const int          height = fontMetrics.height();
+	const int width  = fontMetrics.width('w');
+	const int height = fontMetrics.height();
 	return QSize(width, height);
 }
 
@@ -95,7 +93,7 @@ inline QAction *newAction(const QString &text, QObject *parent, QSignalMapper *m
 }
 
 // TODO: switch from string-based search to enum-based one (add a new Role to model data)
-inline QModelIndex findModelCategory(const  RegisterViewModelBase::Model *model, const QString &catToFind) {
+inline QModelIndex findModelCategory(const RegisterViewModelBase::Model *model, const QString &catToFind) {
 	for (int row = 0; row < model->rowCount(); ++row) {
 		const auto cat = model->index(row, 0).data(MODEL_NAME_COLUMN);
 		if (cat.isValid() && cat.toString() == catToFind)
@@ -106,8 +104,8 @@ inline QModelIndex findModelCategory(const  RegisterViewModelBase::Model *model,
 
 // TODO: switch from string-based search to enum-based one (add a new Role to model data)
 inline QModelIndex findModelRegister(QModelIndex categoryIndex,
-                              const QString &regToFind,
-							  int column = MODEL_NAME_COLUMN) {
+									 const QString &regToFind,
+									 int column = MODEL_NAME_COLUMN) {
 	const auto model = categoryIndex.model();
 	for (int row = 0; row < model->rowCount(categoryIndex); ++row) {
 		const auto regIndex = model->index(row, MODEL_NAME_COLUMN, categoryIndex);

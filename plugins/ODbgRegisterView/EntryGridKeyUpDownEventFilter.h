@@ -7,7 +7,7 @@ class QObject;
 class QEvent;
 
 namespace ODbgRegisterView {
-bool entryGridKeyUpDownEventFilter(QWidget* parent, QObject* obj, QEvent* event);
+bool entryGridKeyUpDownEventFilter(QWidget *parent, QObject *obj, QEvent *event);
 }
 
 #endif

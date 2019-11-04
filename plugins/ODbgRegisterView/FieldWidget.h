@@ -32,14 +32,14 @@ class FieldWidget : public QLabel {
 	void init(int fieldWidth);
 
 protected:
-	QPersistentModelIndex index;
-	int                   fieldWidth_;
+	QPersistentModelIndex index_;
+	int fieldWidth_;
 
 	ODBRegView *regView() const;
 	RegisterGroup *group() const;
 
 public:
-	FieldWidget(int fieldWidth, const QModelIndex &index, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	FieldWidget(int fieldWidth, const QModelIndex &index_, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	FieldWidget(int fieldWidth, const QString &fixedText, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	explicit FieldWidget(const QString &fixedText, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 

@@ -34,7 +34,7 @@ public:
 	};
 
 public:
-	GPREdit(std::size_t offsetInInteger, std::size_t integerSize, Format format, QWidget *parent = nullptr);
+	GPREdit(std::size_t offsetInInteger_, std::size_t integerSize_, Format format_, QWidget *parent = nullptr);
 
 public:
 	void setGPRValue(std::uint64_t gprValue);
@@ -50,11 +50,11 @@ private:
 	void setupFormat(Format newFormat);
 
 private:
-	int           naturalWidthInChars;
-	std::size_t   integerSize;
-	std::size_t   offsetInInteger;
-	Format        format;
-	std::uint64_t signBit;
+	int naturalWidthInChars_;
+	std::size_t integerSize_;
+	std::size_t offsetInInteger_;
+	Format format_;
+	std::uint64_t signBit_;
 };
 
 }

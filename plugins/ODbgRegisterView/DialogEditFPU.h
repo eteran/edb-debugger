@@ -33,7 +33,7 @@ class DialogEditFPU : public QDialog {
 public:
 	explicit DialogEditFPU(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	Register value() const;
-	void     setValue(const Register &reg);
+	void setValue(const Register &reg);
 
 private Q_SLOTS:
 	void onHexEdited(const QString &);
@@ -47,9 +47,9 @@ protected:
 private:
 	Register reg_;
 
-	edb::value80                   value_;
+	edb::value80 value_;
 	ODbgRegisterView::Float80Edit *floatEntry_;
-	QLineEdit *                    hexEntry_;
+	QLineEdit *hexEntry_;
 };
 
 }

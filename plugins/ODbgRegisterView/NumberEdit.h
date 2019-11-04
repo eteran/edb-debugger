@@ -38,7 +38,7 @@ public:
 	QSize sizeHint() const override;
 
 private:
-	int naturalWidthInChars = 17; // default roughly as in QLineEdit
+	int naturalWidthInChars_ = 17; // default roughly as in QLineEdit
 	int column_;
 	int colSpan_;
 };

@@ -16,14 +16,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "RegisterView.h"
-#include "ODbgRV_Util.h"
 #include "ODbgRV_Common.h"
+#include "ODbgRV_Util.h"
 #if defined EDB_X86 || defined EDB_X86_64
-#	include "x86Groups.h"
-#	include "ODbgRV_x86Common.h"
-#	include "DialogEditFPU.h"
+#include "DialogEditFPU.h"
+#include "ODbgRV_x86Common.h"
+#include "x86Groups.h"
 #elif defined EDB_ARM32
-#	include "armGroups.h"
+#include "armGroups.h"
 #endif
 #include "Configuration.h"
 #include "DialogEditGPR.h"
@@ -56,26 +56,26 @@ namespace {
 
 constexpr auto registerGroupTypeNames = util::make_array<const char *>(
 #if defined EDB_X86 || defined EDB_X86_64
-		"GPR",
-		"rIP",
-		"ExpandedEFL",
-		"Segment",
-		"EFL",
-		"FPUData",
-		"FPUWords",
-		"FPULastOp",
-		"Debug",
-		"MMX",
-		"SSEData",
-		"AVXData",
-		"MXCSR"
+	"GPR",
+	"rIP",
+	"ExpandedEFL",
+	"Segment",
+	"EFL",
+	"FPUData",
+	"FPUWords",
+	"FPULastOp",
+	"Debug",
+	"MMX",
+	"SSEData",
+	"AVXData",
+	"MXCSR"
 #elif defined EDB_ARM32
-		"GPR",
-		"CPSR",
-		"ExpandedCPSR",
-		"FPSCR"
+	"GPR",
+	"CPSR",
+	"ExpandedCPSR",
+	"FPSCR"
 #else
-#	error "Not implemented"
+#error "Not implemented"
 #endif
 );
 static_assert(registerGroupTypeNames.size() == ODBRegView::RegisterGroupType::NUM_GROUPS, "Mismatch between number of register group types and names");
@@ -86,7 +86,8 @@ const auto SETTINGS_GROUPS_ARRAY_NODE = QLatin1String("visibleGroups");
 
 // ------------------------- BitFieldFormatter impl ------------------------------
 
-BitFieldFormatter::BitFieldFormatter(const BitFieldDescription &bfd) : valueNames(bfd.valueNames) {
+BitFieldFormatter::BitFieldFormatter(const BitFieldDescription &bfd)
+	: valueNames(bfd.valueNames) {
 }
 
 QString BitFieldFormatter::operator()(const QString &str) {
@@ -95,8 +96,8 @@ QString BitFieldFormatter::operator()(const QString &str) {
 		return str; // for release builds have defined behavior
 	if (str[0] == '?')
 		return "????";
-	bool      parseOK = false;
-	const int value   = str.toInt(&parseOK);
+	bool parseOK    = false;
+	const int value = str.toInt(&parseOK);
 	if (!parseOK)
 		return "????";
 	assert(0 <= value);
@@ -106,18 +107,15 @@ QString BitFieldFormatter::operator()(const QString &str) {
 
 // ----------------------- BitFieldDescription impl -------------------------
 
-BitFieldDescription::BitFieldDescription(int textWidth,
-                                         const std::vector<QString> &valueNames,
-                                         const std::vector<QString> &setValueTexts,
-                                         const std::function<bool(unsigned, unsigned)> &valueEqualComparator)
-    : textWidth(textWidth),
+BitFieldDescription::BitFieldDescription(int textWidth, const std::vector<QString> &valueNames, const std::vector<QString> &setValueTexts, const std::function<bool(unsigned, unsigned)> &valueEqualComparator)
+	: textWidth(textWidth),
 	  valueNames(valueNames),
 	  setValueTexts(setValueTexts),
-	  valueEqualComparator(valueEqualComparator)
-{
+	  valueEqualComparator(valueEqualComparator) {
 }
 
-VolatileNameField::VolatileNameField(int fieldWidth, const std::function<QString()> &valueFormatter, QWidget *parent, Qt::WindowFlags f) : FieldWidget(fieldWidth, "", parent, f), valueFormatter(valueFormatter) {
+VolatileNameField::VolatileNameField(int fieldWidth, const std::function<QString()> &valueFormatter, QWidget *parent, Qt::WindowFlags f)
+	: FieldWidget(fieldWidth, "", parent, f), valueFormatter(valueFormatter) {
 }
 
 QString VolatileNameField::text() const {
@@ -125,16 +123,16 @@ QString VolatileNameField::text() const {
 }
 
 // -------------------------------- MultiBitFieldWidget impl ---------------------------
-MultiBitFieldWidget::MultiBitFieldWidget(const QModelIndex &index, const BitFieldDescription &bfd, QWidget *parent, Qt::WindowFlags f) : ValueField(bfd.textWidth, index, BitFieldFormatter(bfd), parent, f), equal(bfd.valueEqualComparator)
-{
+MultiBitFieldWidget::MultiBitFieldWidget(const QModelIndex &index, const BitFieldDescription &bfd, QWidget *parent, Qt::WindowFlags f)
+	: ValueField(bfd.textWidth, index, BitFieldFormatter(bfd), parent, f), equal(bfd.valueEqualComparator) {
 	const auto mapper = new QSignalMapper(this);
 	connect(mapper, SIGNAL(mapped(int)), this, SLOT(setValue(int)));
-	menuItems.push_front(newActionSeparator(this));
+	menuItems_.push_front(newActionSeparator(this));
 	for (std::size_t i = bfd.valueNames.size(); i-- > 0;) {
 		const auto &text = bfd.setValueTexts[i];
 		if (!text.isEmpty()) {
-			menuItems.push_front(newAction(text, this, mapper, i));
-			valueActions.push_front(menuItems.front());
+			menuItems_.push_front(newAction(text, this, mapper, i));
+			valueActions.push_front(menuItems_.front());
 		} else
 			valueActions.push_front(nullptr);
 	}
@@ -146,16 +144,16 @@ void MultiBitFieldWidget::setValue(int value) {
 
 	// TODO: Model: make it possible to set bit field itself, without manipulating parent directly
 	//              I.e. set value without knowing field offset, then setData(fieldIndex,word)
-	const auto regIndex = index.parent().sibling(index.parent().row(), MODEL_VALUE_COLUMN);
-	auto       byteArr  = regIndex.data(Model::RawValueRole).toByteArray();
+	const auto regIndex = index_.parent().sibling(index_.parent().row(), MODEL_VALUE_COLUMN);
+	auto byteArr        = regIndex.data(Model::RawValueRole).toByteArray();
 
 	if (byteArr.isEmpty())
 		return;
 
 	std::uint64_t word(0);
 	std::memcpy(&word, byteArr.constData(), byteArr.size());
-	const auto mask   = (1ull << (VALID_VARIANT(index.data(Model::BitFieldLengthRole)).toInt() - 1)) * 2 - 1;
-	const auto offset = VALID_VARIANT(index.data(Model::BitFieldOffsetRole)).toInt();
+	const auto mask   = (1ull << (VALID_VARIANT(index_.data(Model::BitFieldLengthRole)).toInt() - 1)) * 2 - 1;
+	const auto offset = VALID_VARIANT(index_.data(Model::BitFieldOffsetRole)).toInt();
 	word              = (word & ~(mask << offset)) | (std::uint64_t(value) << offset);
 	std::memcpy(byteArr.data(), &word, byteArr.size());
 	model()->setData(regIndex, byteArr, Model::RawValueRole);
@@ -164,7 +162,7 @@ void MultiBitFieldWidget::setValue(int value) {
 void MultiBitFieldWidget::adjustToData() {
 	ValueField::adjustToData();
 
-	const auto    byteArr = index.data(RegisterViewModelBase::Model::RawValueRole).toByteArray();
+	const auto byteArr = index_.data(RegisterViewModelBase::Model::RawValueRole).toByteArray();
 	std::uint64_t word(0);
 	assert(unsigned(byteArr.size()) <= sizeof(word));
 	std::memcpy(&word, byteArr.constData(), byteArr.size());
@@ -181,7 +179,8 @@ void MultiBitFieldWidget::adjustToData() {
 }
 
 // -------------------------------- RegisterGroup impl ----------------------------
-RegisterGroup::RegisterGroup(const QString &name, QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), name(name) {
+RegisterGroup::RegisterGroup(const QString &name, QWidget *parent, Qt::WindowFlags f)
+	: QWidget(parent, f), name(name) {
 
 	setObjectName("RegisterGroup_" + name);
 	{
@@ -208,9 +207,9 @@ void RegisterGroup::mousePressEvent(QMouseEvent *event) {
 
 ODBRegView *RegisterGroup::regView() const {
 	return checked_cast<ODBRegView>(parent()       // canvas
-	                                    ->parent() // viewport
-	                                    ->parent() // regview
-	                                );
+										->parent() // viewport
+										->parent() // regview
+	);
 }
 
 QMargins RegisterGroup::getFieldMargins() const {
@@ -241,7 +240,7 @@ void RegisterGroup::setupPositionAndSize(int line, int column, FieldWidget *widg
 	const auto margins = getFieldMargins();
 
 	const auto charSize = letterSize(font());
-	QPoint     position(charSize.width() * column, charSize.height() * line);
+	QPoint position(charSize.width() * column, charSize.height() * line);
 	position -= QPoint(margins.left(), 0);
 
 	QSize size(widget->size());
@@ -267,7 +266,7 @@ int RegisterGroup::lineAfterLastField() const {
 }
 
 void RegisterGroup::appendNameValueComment(const QModelIndex &nameIndex,
-                                           const QString &tooltip,
+										   const QString &tooltip,
 										   bool insertComment) {
 
 	assert(nameIndex.isValid());
@@ -280,8 +279,8 @@ void RegisterGroup::appendNameValueComment(const QModelIndex &nameIndex,
 	const auto valueWidth = valueIndex.data(Model::FixedLengthRole).toInt();
 	assert(valueWidth > 0);
 
-	const int  line      = lineAfterLastField();
-	int        column    = 0;
+	const int line       = lineAfterLastField();
+	int column           = 0;
 	const auto nameField = new FieldWidget(nameWidth, nameIndex.data().toString(), this);
 	insert(line, column, nameField);
 	column += nameWidth + 1;
@@ -299,7 +298,7 @@ void RegisterGroup::appendNameValueComment(const QModelIndex &nameIndex,
 }
 
 QList<FieldWidget *> RegisterGroup::fields() const {
-	const auto           children = this->children();
+	const auto children = this->children();
 	QList<FieldWidget *> fields;
 	for (const auto child : children) {
 		const auto field = qobject_cast<FieldWidget *>(child);
@@ -311,7 +310,7 @@ QList<FieldWidget *> RegisterGroup::fields() const {
 
 QList<ValueField *> RegisterGroup::valueFields() const {
 	QList<ValueField *> allValues;
-	Q_FOREACH(const auto field, fields()) {
+	Q_FOREACH (const auto field, fields()) {
 		const auto value = qobject_cast<ValueField *>(field);
 		if (value)
 			allValues.push_back(value);
@@ -321,7 +320,8 @@ QList<ValueField *> RegisterGroup::valueFields() const {
 
 // ------------------------------- Canvas impl ----------------------------------------
 
-Canvas::Canvas(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f) {
+Canvas::Canvas(QWidget *parent, Qt::WindowFlags f)
+	: QWidget(parent, f) {
 	setObjectName("RegViewCanvas");
 	const auto canvasLayout = new QVBoxLayout(this);
 	canvasLayout->setSpacing(letterSize(parent->font()).height() / 2);
@@ -348,7 +348,7 @@ void ODBRegView::mousePressEvent(QMouseEvent *event) {
 	}
 
 	if (event->button() == Qt::LeftButton) {
-		Q_FOREACH(const auto field, valueFields()) {
+		Q_FOREACH (const auto field, valueFields()) {
 			field->unselect();
 		}
 	}
@@ -356,8 +356,7 @@ void ODBRegView::mousePressEvent(QMouseEvent *event) {
 
 void ODBRegView::updateFont() {
 	QFont font;
-	if(!font.fromString(edb::v1::config().registers_font))
-	{
+	if (!font.fromString(edb::v1::config().registers_font)) {
 		font = QFont("Monospace");
 		font.setStyleHint(QFont::TypeWriter);
 	}
@@ -365,7 +364,7 @@ void ODBRegView::updateFont() {
 }
 
 void ODBRegView::fieldSelected() {
-	Q_FOREACH(const auto field, valueFields())
+	Q_FOREACH (const auto field, valueFields())
 		if (sender() != field)
 			field->unselect();
 	ensureWidgetVisible(static_cast<QWidget *>(sender()), 0, 0);
@@ -373,7 +372,7 @@ void ODBRegView::fieldSelected() {
 
 void ODBRegView::showMenu(const QPoint &position, const QList<QAction *> &additionalItems) const {
 	QMenu menu;
-	auto  items = additionalItems + menuItems;
+	auto items = additionalItems + menuItems;
 
 	if (model_->activeIndex().isValid()) {
 		QList<QAction *> debuggerActions;
@@ -395,7 +394,7 @@ void RegisterGroup::adjustWidth() {
 
 	int widthNeeded = 0;
 
-	Q_FOREACH(const auto field, fields()) {
+	Q_FOREACH (const auto field, fields()) {
 		const auto widthToRequire = field->pos().x() + field->width();
 		if (widthToRequire > widthNeeded)
 			widthNeeded = widthToRequire;
@@ -405,8 +404,8 @@ void RegisterGroup::adjustWidth() {
 }
 
 ODBRegView::RegisterGroupType findGroup(const QString &str) {
-	const auto &names   = registerGroupTypeNames;
-	const auto  foundIt = std::find(names.begin(), names.end(), str);
+	const auto &names  = registerGroupTypeNames;
+	const auto foundIt = std::find(names.begin(), names.end(), str);
 
 	if (foundIt == names.end())
 		return ODBRegView::RegisterGroupType::NUM_GROUPS;
@@ -474,11 +473,11 @@ ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 			RegisterGroupType::ExpandedCPSR,
 			RegisterGroupType::FPSCR,
 #else
-#	error "Not implemented"
+#error "Not implemented"
 #endif
 		};
 	} else {
-		Q_FOREACH(const auto &grp, groupListV.toStringList()) {
+		Q_FOREACH (const auto &grp, groupListV.toStringList()) {
 			const auto group = findGroup(grp);
 			if (group >= RegisterGroupType::NUM_GROUPS) {
 				qWarning() << qPrintable(QString("Warning: failed to understand group %1").arg(group));
@@ -512,8 +511,8 @@ DialogEditFPU *ODBRegView::fpuEditDialog() const {
 void ODBRegView::copyAllRegisters() {
 	auto allFields = fields();
 	std::sort(allFields.begin(), allFields.end(), [](const FieldWidget *f1, const FieldWidget *f2) {
-		const auto f1Pos = fieldPos(f1);
-		const auto f2Pos = fieldPos(f2);
+		const auto f1Pos = field_position(f1);
+		const auto f2Pos = field_position(f2);
 		if (f1Pos.y() < f2Pos.y())
 			return true;
 		if (f1Pos.y() > f2Pos.y())
@@ -522,8 +521,8 @@ void ODBRegView::copyAllRegisters() {
 	});
 
 	QString text;
-	int     textLine   = 0;
-	int     textColumn = 0;
+	int textLine   = 0;
+	int textColumn = 0;
 
 	for (const auto field : allFields) {
 		while (field->lineNumber() > textLine) {
@@ -553,11 +552,11 @@ void ODBRegView::groupHidden(RegisterGroup *group) {
 	using namespace std;
 	assert(util::contains(groups, group));
 	const auto groupPtrIter = std::find(groups.begin(), groups.end(), group);
-	auto &     groupPtr     = *groupPtrIter;
+	auto &groupPtr          = *groupPtrIter;
 	groupPtr->deleteLater();
 	groupPtr = nullptr;
 
-	auto &    types(visibleGroupTypes);
+	auto &types(visibleGroupTypes);
 	const int groupType = groupPtrIter - groups.begin();
 	types.erase(remove_if(types.begin(), types.end(), [=](int type) { return type == groupType; }), types.end());
 }
@@ -574,7 +573,7 @@ void ODBRegView::saveState(const QString &settingsGroup) const {
 
 void ODBRegView::setModel(RegisterViewModelBase::Model *model) {
 	model_ = model;
-	connect(model, &RegisterViewModelBase::Model::modelReset,  this, &ODBRegView::modelReset);
+	connect(model, &RegisterViewModelBase::Model::modelReset, this, &ODBRegView::modelReset);
 	connect(model, &RegisterViewModelBase::Model::dataChanged, this, &ODBRegView::modelUpdated);
 	modelReset();
 }
@@ -692,7 +691,7 @@ void ODBRegView::modelReset() {
 	widget()->hide(); // prevent flicker while groups are added to/removed from the layout
 
 	// not all groups may be in the layout, so delete them individually
-	Q_FOREACH(const auto group, groups) {
+	Q_FOREACH (const auto group, groups) {
 		if (group) {
 			group->deleteLater();
 		}
@@ -742,11 +741,11 @@ void ODBRegView::modelReset() {
 }
 
 void ODBRegView::modelUpdated() {
-	Q_FOREACH(const auto field, fields()) {
+	Q_FOREACH (const auto field, fields()) {
 		field->adjustToData();
 	}
 
-	Q_FOREACH(const auto group, groups) {
+	Q_FOREACH (const auto group, groups) {
 		if (group) {
 			group->adjustWidth();
 		}
@@ -778,12 +777,12 @@ QList<ValueField *> ODBRegView::valueFields() const {
 }
 
 void ODBRegView::updateFieldsPalette() {
-	Q_FOREACH(const auto field, valueFields())
+	Q_FOREACH (const auto field, valueFields())
 		field->updatePalette();
 }
 
 ValueField *ODBRegView::selectedField() const {
-	Q_FOREACH(const auto field, valueFields()) {
+	Q_FOREACH (const auto field, valueFields()) {
 		if (field->isSelected()) {
 			return field;
 		}
@@ -793,13 +792,12 @@ ValueField *ODBRegView::selectedField() const {
 }
 
 SIMDValueManager::SIMDValueManager(int lineInGroup,
-                                   const QModelIndex &nameIndex,
+								   const QModelIndex &nameIndex,
 								   RegisterGroup *parent)
 	: QObject(parent),
 	  regIndex(nameIndex),
 	  lineInGroup(lineInGroup),
-	  intMode(NumberDisplayMode::Hex)
-{
+	  intMode(NumberDisplayMode::Hex) {
 	setupMenu();
 
 	assert(nameIndex.isValid());
@@ -892,7 +890,7 @@ void SIMDValueManager::setupMenu() {
 void SIMDValueManager::updateMenu() {
 	if (menuItems.isEmpty())
 		return;
-	Q_FOREACH(auto item, menuItems)
+	Q_FOREACH (auto item, menuItems)
 		item->setVisible(true);
 
 	using RegisterViewModelBase::Model;
@@ -947,7 +945,7 @@ void SIMDValueManager::displayFormatChanged() {
 		intMode = newFormat;
 	}
 
-	Q_FOREACH(const auto elem, elements) {
+	Q_FOREACH (const auto elem, elements) {
 		elem->deleteLater();
 	}
 
@@ -956,12 +954,12 @@ void SIMDValueManager::displayFormatChanged() {
 	using RegisterViewModelBase::Model;
 	const auto model = regIndex.model();
 
-	const int   sizeRow   = VALID_VARIANT(regIndex.parent().data(Model::ChosenSIMDSizeRowRole)).toInt();
+	const int sizeRow     = VALID_VARIANT(regIndex.parent().data(Model::ChosenSIMDSizeRowRole)).toInt();
 	QModelIndex sizeIndex = model->index(sizeRow, MODEL_NAME_COLUMN, regIndex);
-	const auto  elemCount = model->rowCount(sizeIndex);
+	const auto elemCount  = model->rowCount(sizeIndex);
 
 	const auto regNameWidth = VALID_VARIANT(regIndex.data(Model::FixedLengthRole)).toInt();
-	int        column       = regNameWidth + 1;
+	int column              = regNameWidth + 1;
 	const auto elemWidth    = VALID_VARIANT(model->index(0, MODEL_VALUE_COLUMN, sizeIndex).data(Model::FixedLengthRole)).toInt();
 	for (int elemN = elemCount - 1; elemN >= 0; --elemN) {
 		const auto elemIndex = model->index(elemN, MODEL_VALUE_COLUMN, sizeIndex);

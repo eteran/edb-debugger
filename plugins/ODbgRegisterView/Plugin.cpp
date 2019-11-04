@@ -40,10 +40,11 @@ const auto dockObjectNameTemplate = QString(pluginName + "-%1");
 const auto VIEW                   = QLatin1String("views");
 }
 
-Plugin::Plugin(QObject *parent) : QObject(parent) {
+Plugin::Plugin(QObject *parent)
+	: QObject(parent) {
+
 	connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &Plugin::saveSettings);
 }
-
 
 void Plugin::setupDocks() {
 	QSettings settings;
@@ -61,8 +62,8 @@ void Plugin::setupDocks() {
 }
 
 void Plugin::saveSettings() const {
-	QSettings  settings;
-	const int  size     = registerViews_.size();
+	QSettings settings;
+	const int size      = registerViews_.size();
 	const auto arrayKey = pluginName + "/" + VIEW;
 	settings.remove(arrayKey);
 	settings.beginWriteArray(arrayKey, size);
@@ -83,9 +84,9 @@ void Plugin::createRegisterView(const QString &settingsGroup) {
 		registerViews_.emplace_back(regView);
 		regView->setModel(&edb::v1::arch_processor().registerViewModel());
 
-		const QString suffix            = registerViews_.size() > 1 ? dockNameSuffixTemplate.arg(registerViews_.size()) : "";
-		auto *const   regViewDockWidget = new QDockWidget(dockName + suffix, mainWindow);
-		const auto    viewNumber        = registerViews_.size();
+		const QString suffix          = registerViews_.size() > 1 ? dockNameSuffixTemplate.arg(registerViews_.size()) : "";
+		auto *const regViewDockWidget = new QDockWidget(dockName + suffix, mainWindow);
+		const auto viewNumber         = registerViews_.size();
 		regViewDockWidget->setObjectName(dockObjectNameTemplate.arg(viewNumber));
 		regViewDockWidget->setWidget(regView);
 
@@ -105,7 +106,6 @@ void Plugin::createRegisterView(const QString &settingsGroup) {
 				}
 			}
 		}
-
 
 		Q_ASSERT(menu_);
 		const auto removeDockAction = new QAction(tr("Remove %1").arg(regViewDockWidget->windowTitle()), menu_);
@@ -132,7 +132,7 @@ void Plugin::removeDock(QWidget *whatToRemove) {
 	Q_ASSERT(dynamic_cast<QDockWidget *>(whatToRemove));
 	const auto dockToRemove = static_cast<QDockWidget *>(whatToRemove);
 
-	auto &     views(registerViews_);
+	auto &views(registerViews_);
 	const auto viewIter = std::find(views.begin(), views.end(), dockToRemove->widget());
 
 	const auto viewIndex = viewIter - views.begin();
@@ -216,13 +216,6 @@ QMenu *Plugin::menu(QWidget *parent) {
 	}
 
 	return menu_;
-}
-
-QList<QAction *> Plugin::cpuContextMenu() {
-
-	QList<QAction *> ret;
-
-	return ret;
 }
 
 }

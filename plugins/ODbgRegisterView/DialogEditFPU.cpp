@@ -38,7 +38,7 @@ long double readFloat(const QString &strInput, bool &ok) {
 	ok = false;
 	const QString str(strInput.toLower().trimmed());
 
-	if(const auto value = util::fullStringToFloat<long double>(str.toStdString())) {
+	if (const auto value = util::fullStringToFloat<long double>(str.toStdString())) {
 		ok = true;
 		return *value;
 	}
@@ -76,7 +76,8 @@ long double readFloat(const QString &strInput, bool &ok) {
 }
 }
 
-DialogEditFPU::DialogEditFPU(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), floatEntry_(new ODbgRegisterView::Float80Edit(this)), hexEntry_(new QLineEdit(this)) {
+DialogEditFPU::DialogEditFPU(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f), floatEntry_(new ODbgRegisterView::Float80Edit(this)), hexEntry_(new QLineEdit(this)) {
 
 	setWindowTitle(tr("Modify Register"));
 	setModal(true);
@@ -89,7 +90,7 @@ DialogEditFPU::DialogEditFPU(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 	allContentsGrid->addWidget(hexEntry_, 1, 1);
 
 	connect(floatEntry_, &Float80Edit::textEdited, this, &DialogEditFPU::onFloatEdited);
-	connect(hexEntry_,   &QLineEdit::textEdited,   this, &DialogEditFPU::onHexEdited);
+	connect(hexEntry_, &QLineEdit::textEdited, this, &DialogEditFPU::onHexEdited);
 
 	hexEntry_->setValidator(new QRegExpValidator(QRegExp("[0-9a-fA-F ]{,20}"), this));
 	connect(floatEntry_, &Float80Edit::defocussed, this, &DialogEditFPU::updateFloatEntry);
@@ -119,12 +120,12 @@ void DialogEditFPU::updateHexEntry() {
 	hexEntry_->setText(value_.toHexString());
 }
 
-bool DialogEditFPU::eventFilter(QObject* obj, QEvent* event) {
-	return entryGridKeyUpDownEventFilter(this,obj,event);
+bool DialogEditFPU::eventFilter(QObject *obj, QEvent *event) {
+	return entryGridKeyUpDownEventFilter(this, obj, event);
 }
 
 void DialogEditFPU::setValue(const Register &newReg) {
-	reg_    = newReg;
+	reg_   = newReg;
 	value_ = reg_.value<edb::value80>();
 	updateFloatEntry();
 	updateHexEntry();
@@ -147,8 +148,8 @@ void DialogEditFPU::onHexEdited(const QString &input) {
 	}
 
 	const auto byteArray = QByteArray::fromHex(readable.toLatin1());
-	auto       source    = byteArray.constData();
-	auto       dest      = reinterpret_cast<unsigned char *>(&value_);
+	auto source          = byteArray.constData();
+	auto dest            = reinterpret_cast<unsigned char *>(&value_);
 
 	for (std::size_t i = 0; i < sizeof(value_); ++i) {
 		dest[i] = source[sizeof(value_) - i - 1];
