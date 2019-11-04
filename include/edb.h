@@ -27,8 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPointer>
 #include <QStringList>
 #include <QVector>
-#include <memory>
 #include <boost/optional.hpp>
+#include <memory>
 
 class ArchProcessor;
 class Configuration;
@@ -71,7 +71,7 @@ namespace v1 {
 
 // some useful objects
 EDB_EXPORT extern IDebugger *debugger_core;
-EDB_EXPORT extern QWidget   *debugger_ui;
+EDB_EXPORT extern QWidget *debugger_ui;
 
 // the symbol mananger
 EDB_EXPORT ISymbolManager &symbol_manager();
@@ -162,7 +162,7 @@ EDB_EXPORT bool get_instruction_bytes(address_t address, quint8 *buf, size_t *si
 template <int N>
 int get_instruction_bytes(address_t address, quint8 (&buffer)[N]) {
 	int size = N;
-	if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
+	if (edb::v1::get_instruction_bytes(address, buffer, &size)) {
 		return size;
 	}
 
@@ -209,7 +209,7 @@ EDB_EXPORT QString format_pointer(address_t p);
 EDB_EXPORT address_t cpu_selected_address();
 EDB_EXPORT void set_cpu_selected_address(address_t address);
 
-EDB_EXPORT void set_status(const QString &message, int timeoutMillisecs=2000);
+EDB_EXPORT void set_status(const QString &message, int timeoutMillisecs = 2000);
 EDB_EXPORT void clear_status();
 
 EDB_EXPORT size_t pointer_size();
@@ -222,10 +222,10 @@ EDB_EXPORT bool debuggeeIs32Bit();
 EDB_EXPORT bool debuggeeIs64Bit();
 
 EDB_EXPORT address_t selected_stack_address();
-EDB_EXPORT size_t    selected_stack_size();
+EDB_EXPORT size_t selected_stack_size();
 
 EDB_EXPORT address_t selected_data_address();
-EDB_EXPORT size_t    selected_data_size();
+EDB_EXPORT size_t selected_data_size();
 
 }
 }

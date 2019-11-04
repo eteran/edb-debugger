@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IPLUGIN_20061101_H_
 #define IPLUGIN_20061101_H_
 
-#include <QtPlugin>
 #include <QList>
 #include <QVariantMap>
+#include <QtPlugin>
 
 class QMenu;
 class QAction;
@@ -40,21 +40,21 @@ public:
 	}
 
 public:
-    virtual QMenu *menu(QWidget *parent = nullptr) = 0;
+	virtual QMenu *menu(QWidget *parent = nullptr) = 0;
 
 public:
 	// optional, overload these to have there contents added to a view's context menu
-	virtual QList<QAction *> cpuContextMenu()      { return {}; }
+	virtual QList<QAction *> cpuContextMenu() { return {}; }
 	virtual QList<QAction *> registerContextMenu() { return {}; }
-	virtual QList<QAction *> stackContextMenu()    { return {}; }
-	virtual QList<QAction *> dataContextMenu()     { return {}; }
+	virtual QList<QAction *> stackContextMenu() { return {}; }
+	virtual QList<QAction *> dataContextMenu() { return {}; }
 
 	// optional, overload this to add a page to the options dialog
 	virtual QWidget *optionsPage() { return nullptr; }
 
 public:
-	virtual QVariantMap saveState() const          { return {}; }
-	virtual void restoreState(const QVariantMap &) { }
+	virtual QVariantMap saveState() const { return {}; }
+	virtual void restoreState(const QVariantMap &) {}
 
 public:
 	enum ArgumentStatus {
@@ -65,7 +65,7 @@ public:
 
 	// optional, command line argument processing
 	// return a string to add to "--help"
-	virtual QString extraArguments() const        { return {}; }
+	virtual QString extraArguments() const { return {}; }
 
 	// take actions based on the command line arguments
 	// you *may* remove arguments which are exclusively yours

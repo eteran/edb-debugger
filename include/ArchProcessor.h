@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "API.h"
 #include "RegisterViewModelBase.h"
-#include "Types.h"
 #include "Status.h"
+#include "Types.h"
 #include <QObject>
 
 class QByteArray;
@@ -36,8 +36,8 @@ class EDB_EXPORT ArchProcessor : public QObject {
 
 public:
 	ArchProcessor();
-	ArchProcessor(const ArchProcessor &)            = delete;
-	ArchProcessor& operator=(const ArchProcessor &) = delete;
+	ArchProcessor(const ArchProcessor &) = delete;
+	ArchProcessor &operator=(const ArchProcessor &) = delete;
 	~ArchProcessor() override                       = default;
 
 public:
@@ -47,13 +47,13 @@ public:
 	//! Checks whether potentially conditional instruction's condition is satisfied
 	bool isExecuted(const edb::Instruction &inst, const State &state) const;
 	Result<edb::address_t, QString> getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state) const;
-	edb::address_t getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool& ok) const;
+	edb::address_t getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool &ok) const;
 	void reset();
 	void aboutToResume();
 	void setupRegisterView();
 	void updateRegisterView(const QString &default_region_name, const State &state);
-	std::unique_ptr<QMenu> registerItemContextMenu(const Register& reg);
-	RegisterViewModelBase::Model& registerViewModel() const;
+	std::unique_ptr<QMenu> registerItemContextMenu(const Register &reg);
+	RegisterViewModelBase::Model &registerViewModel() const;
 
 private:
 	bool justAttached_ = true;
@@ -66,4 +66,3 @@ private Q_SLOTS:
 };
 
 #endif
-

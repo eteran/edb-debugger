@@ -34,16 +34,16 @@ public:
 public:
 	using size_type              = size_t;
 	using value_type             = BasicBlock;
-	using reference              = BasicBlock&;
-	using const_reference        = const BasicBlock&;
+	using reference              = BasicBlock &;
+	using const_reference        = const BasicBlock &;
 	using iterator               = std::map<edb::address_t, BasicBlock>::iterator;
 	using const_iterator         = std::map<edb::address_t, BasicBlock>::const_iterator;
 	using reverse_iterator       = std::reverse_iterator<iterator>;
 	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 public:
-	Function()                               = default;
-	Function(const Function &other)          = default;
+	Function()                      = default;
+	Function(const Function &other) = default;
 	Function &operator=(const Function &rhs) = default;
 
 public:
@@ -82,8 +82,8 @@ public:
 	void swap(Function &other);
 
 private:
-	int                                  referenceCount_ = 0;
-	Type                                 type_ = Standard;
+	int referenceCount_ = 0;
+	Type type_          = Standard;
 	std::map<edb::address_t, BasicBlock> blocks_;
 };
 

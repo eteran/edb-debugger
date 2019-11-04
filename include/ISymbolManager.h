@@ -20,9 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define ISYMBOL_MANAGER_20110307_H_
 
 #include "Types.h"
-#include <memory>
 #include <QHash>
 #include <QList>
+#include <memory>
 
 class QString;
 class Symbol;
@@ -33,18 +33,18 @@ public:
 	virtual ~ISymbolManager() = default;
 
 public:
-	virtual const QList<std::shared_ptr<Symbol>> symbols() const = 0;
-	virtual const std::shared_ptr<Symbol> find(const QString &name) const = 0;
-	virtual const std::shared_ptr<Symbol> find(edb::address_t address) const = 0;
+	virtual const QList<std::shared_ptr<Symbol>> symbols() const                       = 0;
+	virtual const std::shared_ptr<Symbol> find(const QString &name) const              = 0;
+	virtual const std::shared_ptr<Symbol> find(edb::address_t address) const           = 0;
 	virtual const std::shared_ptr<Symbol> findNearSymbol(edb::address_t address) const = 0;
-	virtual void addSymbol(const std::shared_ptr<Symbol> &symbol) = 0;
-	virtual void clear() = 0;
-	virtual void loadSymbolFile(const QString &filename, edb::address_t base) = 0;
-	virtual void setSymbolGenerator(ISymbolGenerator *generator) = 0;
-	virtual void setLabel(edb::address_t address, const QString &label) = 0;
-	virtual QString findAddressName(edb::address_t address, bool prefixed = true) = 0;
-	virtual QHash<edb::address_t, QString> labels() const = 0;
-	virtual QStringList files() const = 0;
+	virtual void addSymbol(const std::shared_ptr<Symbol> &symbol)                      = 0;
+	virtual void clear()                                                               = 0;
+	virtual void loadSymbolFile(const QString &filename, edb::address_t base)          = 0;
+	virtual void setSymbolGenerator(ISymbolGenerator *generator)                       = 0;
+	virtual void setLabel(edb::address_t address, const QString &label)                = 0;
+	virtual QString findAddressName(edb::address_t address, bool prefixed = true)      = 0;
+	virtual QHash<edb::address_t, QString> labels() const                              = 0;
+	virtual QStringList files() const                                                  = 0;
 };
 
 #endif

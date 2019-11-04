@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * @brief Register::Register
  */
 Register::Register() {
-	util::markMemory(&value_, sizeof(value_));
+	util::mark_memory(&value_, sizeof(value_));
 }
 
 /**

@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef SYMBOL_GENERATOR_20130808_H_
 #define SYMBOL_GENERATOR_20130808_H_
 

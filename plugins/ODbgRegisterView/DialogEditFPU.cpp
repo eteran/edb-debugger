@@ -38,7 +38,7 @@ long double readFloat(const QString &strInput, bool &ok) {
 	ok = false;
 	const QString str(strInput.toLower().trimmed());
 
-	if (const auto value = util::fullStringToFloat<long double>(str.toStdString())) {
+	if (const auto value = util::full_string_to_float<long double>(str.toStdString())) {
 		ok = true;
 		return *value;
 	}

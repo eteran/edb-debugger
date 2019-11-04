@@ -199,7 +199,7 @@ Function::Type Function::type() const {
 }
 
 /**
- *
+ * @brief Function::setType
  * @param t
  */
 void Function::setType(Type t) {

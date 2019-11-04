@@ -26,23 +26,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class EDB_EXPORT Status {
 public:
 	enum OkType { Ok };
+
 public:
 	Status(OkType) {
 	}
 
-	explicit Status(const QString &message) : error_(message) {
+	explicit Status(const QString &message)
+		: error_(message) {
 	}
 
-	Status(const Status &)            = default;
-	Status& operator=(const Status &) = default;
+	Status(const Status &) = default;
+	Status &operator=(const Status &) = default;
 	Status(Status &&)                 = default;
-	Status& operator=(Status &&)      = default;
+	Status &operator=(Status &&) = default;
 
 public:
-	bool success() const           { return error_.isEmpty(); }
-	bool failure() const           { return !success(); }
-    explicit operator bool() const { return success(); }
-	QString error() const          { return error_; }
+	bool success() const { return error_.isEmpty(); }
+	bool failure() const { return !success(); }
+	explicit operator bool() const { return success(); }
+	QString error() const { return error_; }
 
 private:
 	QString error_;
@@ -50,24 +52,25 @@ private:
 
 template <class E>
 class Unexpected {
-	template<class U, class Y>
+	template <class U, class Y>
 	friend class Expected;
 
-	template<class U, class Y>
+	template <class U, class Y>
 	friend class Result;
 
 	template <class U>
 	friend Unexpected<typename std::decay<U>::type> make_unexpected(U &&);
 
 public:
-	Unexpected(const Unexpected &)            = default;
-	Unexpected& operator=(const Unexpected &) = default;
+	Unexpected(const Unexpected &) = default;
+	Unexpected &operator=(const Unexpected &) = default;
 	Unexpected(Unexpected &&)                 = default;
-	Unexpected& operator=(Unexpected &&)      = default;
+	Unexpected &operator=(Unexpected &&) = default;
 
 private:
 	template <class U>
-	Unexpected(U &&error) : error_(std::forward<U>(error)) {
+	Unexpected(U &&error)
+		: error_(std::forward<U>(error)) {
 	}
 
 private:
@@ -78,29 +81,41 @@ template <class T, class E>
 class Result {
 public:
 	template <class U>
-	Result(U &&value) : value_(std::forward<U>(value)) {
+	Result(U &&value)
+		: value_(std::forward<U>(value)) {
 	}
 
-	Result(const Unexpected<E> &value) : value_(value) {
+	Result(const Unexpected<E> &value)
+		: value_(value) {
 	}
 
-	Result(Unexpected<E> &&value) : value_(std::move(value)) {
+	Result(Unexpected<E> &&value)
+		: value_(std::move(value)) {
 	}
 
-	Result(const Result &)            = default;
-	Result& operator=(const Result &) = default;
+	Result(const Result &) = default;
+	Result &operator=(const Result &) = default;
 	Result(Result &&)                 = default;
-	Result& operator=(Result &&)      = default;
+	Result &operator=(Result &&) = default;
 
 public:
-	const T* operator->() const    { Q_ASSERT(succeeded()); return &boost::get<T>(value_); }
-	const T& operator*() const     { return value(); }
-	bool succeeded() const         { return value_.which() == 0; }
-	bool failed() const            { return value_.which() == 1; }
+	const T *operator->() const {
+		Q_ASSERT(succeeded());
+		return &boost::get<T>(value_);
+	}
+	const T &operator*() const { return value(); }
+	bool succeeded() const { return value_.which() == 0; }
+	bool failed() const { return value_.which() == 1; }
 	explicit operator bool() const { return succeeded(); }
-	bool operator!() const         { return failed(); }
-	const E &error() const         { Q_ASSERT(failed());    return boost::get<Unexpected<E>>(value_).error_; }
-	const T &value() const         { Q_ASSERT(succeeded()); return boost::get<T>(value_); }
+	bool operator!() const { return failed(); }
+	const E &error() const {
+		Q_ASSERT(failed());
+		return boost::get<Unexpected<E>>(value_).error_;
+	}
+	const T &value() const {
+		Q_ASSERT(succeeded());
+		return boost::get<T>(value_);
+	}
 
 private:
 	boost::variant<T, Unexpected<E>> value_;
@@ -112,23 +127,28 @@ public:
 	Result() {
 	}
 
-	Result(const Unexpected<E> &value) : value_(value) {
+	Result(const Unexpected<E> &value)
+		: value_(value) {
 	}
 
-	Result(Unexpected<E> &&value) : value_(std::move(value)) {
+	Result(Unexpected<E> &&value)
+		: value_(std::move(value)) {
 	}
 
-	Result(const Result &)            = default;
-	Result& operator=(const Result &) = default;
+	Result(const Result &) = default;
+	Result &operator=(const Result &) = default;
 	Result(Result &&)                 = default;
-	Result& operator=(Result &&)      = default;
+	Result &operator=(Result &&) = default;
 
 public:
-	bool succeeded() const         { return value_.which() == 0; }
-	bool failed() const            { return value_.which() == 1; }
+	bool succeeded() const { return value_.which() == 0; }
+	bool failed() const { return value_.which() == 1; }
 	explicit operator bool() const { return succeeded(); }
-	bool operator!() const         { return failed(); }
-	const E &error() const         { Q_ASSERT(failed());    return boost::get<Unexpected<E>>(value_).error_; }
+	bool operator!() const { return failed(); }
+	const E &error() const {
+		Q_ASSERT(failed());
+		return boost::get<Unexpected<E>>(value_).error_;
+	}
 
 private:
 	boost::variant<boost::blank, Unexpected<E>> value_;
@@ -136,8 +156,7 @@ private:
 
 template <class E>
 Unexpected<typename std::decay<E>::type> make_unexpected(E &&e) {
-  return Unexpected<typename std::decay<E>::type>(std::forward<E>(e));
+	return Unexpected<typename std::decay<E>::type>(std::forward<E>(e));
 }
-
 
 #endif

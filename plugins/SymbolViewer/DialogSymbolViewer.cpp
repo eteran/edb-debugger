@@ -77,7 +77,7 @@ void DialogSymbolViewer::on_listView_doubleClicked(const QModelIndex &index) {
 	if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(s.split(":")[0])) {
 		const std::shared_ptr<Symbol> sym = edb::v1::symbol_manager().find(*addr);
 
-		if (sym && sym->is_code()) {
+		if (sym && sym->isCode()) {
 			edb::v1::jump_to_address(*addr);
 		} else {
 			edb::v1::dump_data(*addr, false);

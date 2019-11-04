@@ -27,7 +27,7 @@ class QObject;
 class HexStringValidator final : public QValidator {
 	Q_OBJECT
 public:
-	HexStringValidator(QObject * parent);
+	HexStringValidator(QObject *parent);
 
 public:
 	void fixup(QString &input) const override;

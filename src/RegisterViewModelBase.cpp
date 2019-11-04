@@ -620,8 +620,8 @@ RegisterItem<T>::RegisterItem(const QString &name)
 template <typename T>
 void RegisterItem<T>::invalidate() {
 
-	util::markMemory(&value_, sizeof(value_));
-	util::markMemory(&prevValue_, sizeof(prevValue_));
+	util::mark_memory(&value_, sizeof(value_));
+	util::mark_memory(&prevValue_, sizeof(prevValue_));
 
 	comment_.clear();
 	valueKnown_     = false;
@@ -888,12 +888,12 @@ bool SIMDFormatItem<StoredType, SizingType>::changed() const {
 
 template <class SizingType>
 typename std::enable_if<(sizeof(SizingType) >= sizeof(float) && sizeof(SizingType) != sizeof(edb::value80)), QString>::type toString(SizingType value, NumberDisplayMode format) {
-	return format == NumberDisplayMode::Float ? formatFloat(value) : util::formatInt(value, format);
+	return format == NumberDisplayMode::Float ? formatFloat(value) : util::format_int(value, format);
 }
 
 template <class SizingType>
 typename std::enable_if<sizeof(SizingType) < sizeof(float), QString>::type toString(SizingType value, NumberDisplayMode format) {
-	return format == NumberDisplayMode::Float ? "(too small element width for float)" : util::formatInt(value, format);
+	return format == NumberDisplayMode::Float ? "(too small element width for float)" : util::format_int(value, format);
 }
 
 QString toString(const edb::value80 &value, NumberDisplayMode format) {

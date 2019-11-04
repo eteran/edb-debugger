@@ -24,9 +24,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class GraphicsScene : public QGraphicsScene {
 	Q_OBJECT
 public:
-    explicit GraphicsScene(QObject *parent = nullptr);
+	explicit GraphicsScene(QObject *parent = nullptr);
 	explicit GraphicsScene(const QRectF &sceneRect, QObject *parent = nullptr);
-    GraphicsScene(qreal x, qreal y, qreal width, qreal height, QObject *parent = nullptr);
+	GraphicsScene(qreal x, qreal y, qreal width, qreal height, QObject *parent = nullptr);
 	~GraphicsScene() override = default;
 
 Q_SIGNALS:

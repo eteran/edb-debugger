@@ -494,7 +494,7 @@ bool PlatformState::fillFrom(const X86XState &regs, size_t sizeFromKernel) {
 
 void PlatformState::fillStruct(UserRegsStructX86 &regs) const {
 
-	util::markMemory(&regs, sizeof(regs));
+	util::mark_memory(&regs, sizeof(regs));
 
 	if (x86.gpr32Filled) {
 		regs.eax      = x86.GPRegs[X86::EAX];
@@ -586,7 +586,7 @@ void PlatformState::fillStruct(PrStatus_X86_64 &regs) const {
 }
 
 void PlatformState::fillStruct(UserFPRegsStructX86 &regs) const {
-	util::markMemory(&regs, sizeof(regs));
+	util::mark_memory(&regs, sizeof(regs));
 	if (x87.filled) {
 		regs.swd = x87.statusWord;
 		regs.cwd = x87.controlWord;
@@ -602,7 +602,7 @@ void PlatformState::fillStruct(UserFPRegsStructX86 &regs) const {
 }
 
 void PlatformState::fillStruct(UserFPRegsStructX86_64 &regs) const {
-	util::markMemory(&regs, sizeof(regs));
+	util::mark_memory(&regs, sizeof(regs));
 	if (x87.filled) {
 		regs.swd = x87.statusWord;
 		regs.cwd = x87.controlWord;
@@ -631,7 +631,7 @@ void PlatformState::fillStruct(UserFPRegsStructX86_64 &regs) const {
 }
 
 void PlatformState::fillStruct(UserFPXRegsStructX86 &regs) const {
-	util::markMemory(&regs, sizeof(regs));
+	util::mark_memory(&regs, sizeof(regs));
 	if (x87.filled) {
 		regs.swd = x87.statusWord;
 		regs.twd = x87.reducedTagWord();
@@ -655,7 +655,7 @@ void PlatformState::fillStruct(UserFPXRegsStructX86 &regs) const {
 }
 
 size_t PlatformState::fillStruct(X86XState &regs) const {
-	util::markMemory(&regs, sizeof(regs));
+	util::mark_memory(&regs, sizeof(regs));
 	// Zero out reserved bytes; set xstate_bv to 0
 	std::memset(regs.xstate_hdr_bytes, 0, sizeof(regs.xstate_hdr_bytes));
 
@@ -748,7 +748,7 @@ void PlatformState::AVX::setZMM(size_t index, edb::value512 value) {
 }
 
 void PlatformState::X86::clear() {
-	util::markMemory(this, sizeof(*this));
+	util::mark_memory(this, sizeof(*this));
 	gpr32Filled = false;
 	gpr64Filled = false;
 
@@ -760,7 +760,7 @@ bool PlatformState::X86::empty() const {
 }
 
 void PlatformState::X87::clear() {
-	util::markMemory(this, sizeof(*this));
+	util::mark_memory(this, sizeof(*this));
 	filled       = false;
 	opCodeFilled = false;
 }
@@ -770,7 +770,7 @@ bool PlatformState::X87::empty() const {
 }
 
 void PlatformState::AVX::clear() {
-	util::markMemory(this, sizeof(*this));
+	util::mark_memory(this, sizeof(*this));
 	xmmFilledIA32  = false;
 	xmmFilledAMD64 = false;
 	ymmFilled      = false;

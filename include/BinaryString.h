@@ -22,7 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "API.h"
 #include <QWidget>
 
-namespace Ui { class BinaryStringWidget; }
+namespace Ui {
+class BinaryStringWidget;
+}
 
 class QString;
 class QByteArray;
@@ -37,8 +39,8 @@ private:
 	};
 
 public:
-    BinaryString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    ~BinaryString() override;
+	BinaryString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	~BinaryString() override;
 
 private Q_SLOTS:
 	void on_txtAscii_textEdited(const QString &text);
@@ -57,10 +59,9 @@ private:
 	void setEntriesMaxLength(int n);
 
 	::Ui::BinaryStringWidget *ui = nullptr;
-	Mode mode_               = Mode::MemoryEditing;
-	int requestedMaxLength_  = 0;
-	int valueOriginalLength_ = 0;
+	Mode mode_                   = Mode::MemoryEditing;
+	int requestedMaxLength_      = 0;
+	int valueOriginalLength_     = 0;
 };
 
 #endif
-

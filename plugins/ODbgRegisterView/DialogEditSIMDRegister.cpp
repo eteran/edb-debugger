@@ -308,7 +308,7 @@ void DialogEditSIMDRegister::setValue(const Register &newReg) {
 	resetLayout();
 	assert(newReg.bitSize() <= 8 * sizeof(value_));
 	reg_ = newReg;
-	util::markMemory(&value_, value_.size());
+	util::mark_memory(&value_, value_.size());
 	if (QRegExp("mm[0-7]").exactMatch(reg_.name())) {
 		const auto value = reg_.value<edb::value64>();
 		std::memcpy(&value_, &value, sizeof(value));

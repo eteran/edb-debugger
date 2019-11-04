@@ -371,7 +371,7 @@ void Analyzer::bonusSymbols(RegionData *data) {
 	for (const std::shared_ptr<Symbol> &sym : symbols) {
 		const edb::address_t addr = sym->address;
 
-		if (data->region->contains(addr) && sym->is_code()) {
+		if (data->region->contains(addr) && sym->isCode()) {
 			qDebug("[Analyzer] adding: %s <%s>", qPrintable(sym->name), qPrintable(addr.toPointerString()));
 			data->knownFunctions.insert(addr);
 		}

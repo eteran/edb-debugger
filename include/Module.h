@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 
 struct Module {
-	QString        name;
+	QString name;
 	edb::address_t base_address;
 };
 

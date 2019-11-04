@@ -752,12 +752,12 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								if(reg.bitSize()==32)
 								{
 									signedValue=reg.value<edb::value32>();
-									valueString=util::formatInt(reg.value<edb::value32>(),mode);
+									valueString=util::format_int(reg.value<edb::value32>(),mode);
 								}
 								else
 								{
 									signedValue=reg.value<edb::value64>();
-									valueString=util::formatInt(reg.value<edb::value64>(),mode);
+									valueString=util::format_int(reg.value<edb::value64>(),mode);
 								}
 								// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
 								// even across values in analysis view about its use of 0x prefix
@@ -789,7 +789,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							QString valueStr;
 							if(is_fpu_taking_integer(inst))
 							{
-								valueStr=util::formatInt(value,NumberDisplayMode::Signed);
+								valueStr=util::format_int(value,NumberDisplayMode::Signed);
 								// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
 								// even across values in analysis view about its use of 0x prefix
 								// Use of hexadecimal format here is pretty much pointless since the number here is
@@ -813,7 +813,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								valueStr=formatFloat(value);
 							else if(is_fpu_taking_integer(inst) || simdSI || simdUSI)
 							{
-								valueStr=util::formatInt(value,simdUSI ? NumberDisplayMode::Unsigned : NumberDisplayMode::Signed);
+								valueStr=util::format_int(value,simdUSI ? NumberDisplayMode::Unsigned : NumberDisplayMode::Signed);
 								// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
 								// even across values in analysis view about its use of 0x prefix
 								// Use of hexadecimal format here is pretty much pointless since the number here is
@@ -841,7 +841,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								valueStr=formatFloat(value);
 							else if(is_fpu_taking_integer(inst) || simdSI || simdUSI)
 							{
-								valueStr=util::formatInt(value,simdUSI ? NumberDisplayMode::Unsigned : NumberDisplayMode::Signed);
+								valueStr=util::format_int(value,simdUSI ? NumberDisplayMode::Unsigned : NumberDisplayMode::Signed);
 								// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
 								// even across values in analysis view about its use of 0x prefix
 								// Use of hexadecimal format here is pretty much pointless since the number here is

@@ -26,17 +26,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Symbol {
 public:
-	QString        file;
-	QString        name;
-	QString        name_no_prefix;
+	QString file;
+	QString name;
+	QString name_no_prefix;
 	edb::address_t address;
-	uint32_t       size;
-	char           type;
+	uint32_t size;
+	char type;
 
-	bool is_code() const { return type == 't' || type == 'T' || type == 'P'; }
-	bool is_data() const { return !is_code(); }
-	bool is_weak() const { return type == 'W'; }
+	bool isCode() const { return type == 't' || type == 'T' || type == 'P'; }
+	bool isData() const { return !isCode(); }
+	bool isWeak() const { return type == 'W'; }
 };
 
 #endif
-
