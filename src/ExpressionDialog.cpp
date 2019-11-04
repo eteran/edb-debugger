@@ -18,21 +18,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ExpressionDialog.h"
 #include "Expression.h"
-#include "ISymbolManager.h"	
+#include "ISymbolManager.h"
 #include "Symbol.h"
 #include "edb.h"
 
 #include <QCompleter>
 #include <QPushButton>
 
-ExpressionDialog::ExpressionDialog(const QString &title, const QString &prompt, QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+ExpressionDialog::ExpressionDialog(const QString &title, const QString &prompt, QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
 
 	setWindowTitle(title);
 
-	layout_      = new QVBoxLayout(this);
+	layout_     = new QVBoxLayout(this);
 	labelText_  = new QLabel(prompt, this);
 	labelError_ = new QLabel(this);
-	expression_  = new QLineEdit(this);
+	expression_ = new QLineEdit(this);
 	buttonBox_  = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
 
 	connect(buttonBox_, &QDialogButtonBox::accepted, this, &ExpressionDialog::accept);
@@ -56,7 +57,7 @@ ExpressionDialog::ExpressionDialog(const QString &title, const QString &prompt, 
 	QList<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().symbols();
 	QStringList allLabels;
 
-	for(const std::shared_ptr<Symbol> &sym: symbols) {
+	for (const std::shared_ptr<Symbol> &sym : symbols) {
 		allLabels.append(sym->name_no_prefix);
 	}
 
@@ -67,22 +68,22 @@ ExpressionDialog::ExpressionDialog(const QString &title, const QString &prompt, 
 	allLabels.clear();
 }
 
-void ExpressionDialog::on_text_changed(const QString& text) {
+void ExpressionDialog::on_text_changed(const QString &text) {
 	QHash<edb::address_t, QString> labels = edb::v1::symbol_manager().labels();
-	edb::address_t resAddr = labels.key(text);
+	edb::address_t resAddr                = labels.key(text);
 
 	bool retval = false;
 
 	if (resAddr) {
 		lastAddress_ = resAddr;
-		retval = true;
+		retval       = true;
 	} else {
 		Expression<edb::address_t> expr(text, edb::v1::get_variable, edb::v1::get_value);
 
 		Result<edb::address_t, ExpressionError> address = expr.evaluate_expression();
-		if(address) {
+		if (address) {
 			labelError_->clear();
-			retval = true;
+			retval       = true;
 			lastAddress_ = *address;
 		} else {
 			labelError_->setText(address.error().what());

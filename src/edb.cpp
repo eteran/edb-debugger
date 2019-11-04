@@ -31,8 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "IPlugin.h"
 #include "IProcess.h"
-#include "IThread.h"
 #include "IRegion.h"
+#include "IThread.h"
 #include "MemoryRegions.h"
 #include "Prototype.h"
 #include "QHexView"
@@ -47,17 +47,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QByteArray>
 #include <QCompleter>
 #include <QCoreApplication>
+#include <QCryptographicHash>
 #include <QDomDocument>
 #include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
-#include <QCryptographicHash>
 
 #include <QDebug>
 #include <cctype>
 
 IDebugger *edb::v1::debugger_core = nullptr;
-QWidget   *edb::v1::debugger_ui   = nullptr;
+QWidget *edb::v1::debugger_ui     = nullptr;
 
 namespace edb {
 
@@ -65,36 +65,35 @@ Q_DECLARE_NAMESPACE_TR(edb)
 
 namespace {
 
-    using BinaryInfoList = QList<IBinary::create_func_ptr_t>;
+using BinaryInfoList = QList<IBinary::create_func_ptr_t>;
 
-    DebugEventHandlers             g_DebugEventHandlers;
-	QAtomicPointer<IAnalyzer>      g_Analyzer          = nullptr;
-	QMap<QString, QObject *>       g_GeneralPlugins;
-	BinaryInfoList                 g_BinaryInfoList;
-	CapstoneEDB::Formatter         g_Formatter;
+DebugEventHandlers g_DebugEventHandlers;
+QAtomicPointer<IAnalyzer> g_Analyzer = nullptr;
+QMap<QString, QObject *> g_GeneralPlugins;
+BinaryInfoList g_BinaryInfoList;
+CapstoneEDB::Formatter g_Formatter;
 
-	QHash<QString, edb::Prototype> g_FunctionDB;
+QHash<QString, edb::Prototype> g_FunctionDB;
 
-	Debugger *ui() {
-		return qobject_cast<Debugger *>(edb::v1::debugger_ui);
-	}
-
-	bool function_symbol_base(edb::address_t address, QString *value, int *offset) {
-
-		Q_ASSERT(value);
-		Q_ASSERT(offset);
-
-		if(const std::shared_ptr<Symbol> s = edb::v1::symbol_manager().findNearSymbol(address)) {
-			*value = s->name;
-			*offset = address - s->address;
-			return true;
-		}
-
-		*offset = 0;
-		return false;
-	}
+Debugger *ui() {
+	return qobject_cast<Debugger *>(edb::v1::debugger_ui);
 }
 
+bool function_symbol_base(edb::address_t address, QString *value, int *offset) {
+
+	Q_ASSERT(value);
+	Q_ASSERT(offset);
+
+	if (const std::shared_ptr<Symbol> s = edb::v1::symbol_manager().findNearSymbol(address)) {
+		*value  = s->name;
+		*offset = address - s->address;
+		return true;
+	}
+
+	*offset = 0;
+	return false;
+}
+}
 
 const char version[] = "1.0.0";
 
@@ -105,7 +104,7 @@ namespace internal {
 // Desc:
 //------------------------------------------------------------------------------
 bool register_plugin(const QString &filename, QObject *plugin) {
-	if(!g_GeneralPlugins.contains(filename)) {
+	if (!g_GeneralPlugins.contains(filename)) {
 		g_GeneralPlugins[filename] = plugin;
 		return true;
 	}
@@ -121,12 +120,11 @@ void load_function_db() {
 	QFile file(":/debugger/xml/functions.xml");
 	QDomDocument doc;
 
-	if(file.open(QIODevice::ReadOnly)) {
-		if(doc.setContent(&file)) {
-			QDomElement root = doc.firstChildElement("functions");
+	if (file.open(QIODevice::ReadOnly)) {
+		if (doc.setContent(&file)) {
+			QDomElement root     = doc.firstChildElement("functions");
 			QDomElement function = root.firstChildElement("function");
 			for (; !function.isNull(); function = function.nextSiblingElement("function")) {
-
 
 				Prototype func;
 				func.name     = function.attribute("name");
@@ -150,11 +148,14 @@ void load_function_db() {
 
 }
 
-
 namespace v1 {
 
-bool debuggeeIs32Bit() { return pointer_size() == sizeof(std::uint32_t); }
-bool debuggeeIs64Bit() { return pointer_size() == sizeof(std::uint64_t); }
+bool debuggeeIs32Bit() {
+	return pointer_size() == sizeof(std::uint32_t);
+}
+bool debuggeeIs64Bit() {
+	return pointer_size() == sizeof(std::uint64_t);
+}
 
 //------------------------------------------------------------------------------
 // Name: set_cpu_selected_address
@@ -331,7 +332,7 @@ bool dump_data(address_t address) {
 //------------------------------------------------------------------------------
 void set_breakpoint_condition(address_t address, const QString &condition) {
 
-	if(std::shared_ptr<IBreakpoint> bp = find_breakpoint(address)) {
+	if (std::shared_ptr<IBreakpoint> bp = find_breakpoint(address)) {
 		bp->condition = condition;
 	}
 }
@@ -343,13 +344,12 @@ void set_breakpoint_condition(address_t address, const QString &condition) {
 QString get_breakpoint_condition(address_t address) {
 	QString ret;
 
-	if(std::shared_ptr<IBreakpoint> bp = find_breakpoint(address)) {
+	if (std::shared_ptr<IBreakpoint> bp = find_breakpoint(address)) {
 		ret = bp->condition;
 	}
 
 	return ret;
 }
-
 
 //------------------------------------------------------------------------------
 // Name: create_breakpoint
@@ -360,52 +360,50 @@ std::shared_ptr<IBreakpoint> create_breakpoint(address_t address) {
 	std::shared_ptr<IBreakpoint> bp;
 
 	memory_regions().sync();
-	if(std::shared_ptr<IRegion> region = memory_regions().findRegion(address)) {
+	if (std::shared_ptr<IRegion> region = memory_regions().findRegion(address)) {
 		int ret = QMessageBox::Yes;
 
-		if(!region->executable() && config().warn_on_no_exec_bp) {
+		if (!region->executable() && config().warn_on_no_exec_bp) {
 			ret = QMessageBox::question(
-			          nullptr,
-			          tr("Suspicious breakpoint"),
-			          tr("You want to place a breakpoint in a non-executable region.\n"
-			             "An INT3 breakpoint set on data will not execute and may cause incorrect results or crashes.\n"
-			             "Do you really want to set a breakpoint here?"),
-			          QMessageBox::Yes | QMessageBox::No);
+				nullptr,
+				tr("Suspicious breakpoint"),
+				tr("You want to place a breakpoint in a non-executable region.\n"
+				   "An INT3 breakpoint set on data will not execute and may cause incorrect results or crashes.\n"
+				   "Do you really want to set a breakpoint here?"),
+				QMessageBox::Yes | QMessageBox::No);
 		} else {
 			quint8 buffer[Instruction::MAX_SIZE + 1];
-			if(const int size = get_instruction_bytes(address, buffer)) {
+			if (const int size = get_instruction_bytes(address, buffer)) {
 				Instruction inst(buffer, buffer + size, address);
-				if(!inst) {
+				if (!inst) {
 					ret = QMessageBox::question(
-					          nullptr,
-					          tr("Suspicious breakpoint"),
-					          tr("It looks like you may be setting an INT3 breakpoint on data.\n"
-					             "An INT3 breakpoint set on data will not execute and may cause incorrect results or crashes.\n"
-					             "Do you really want to set a breakpoint here?"),
-					          QMessageBox::Yes | QMessageBox::No);
+						nullptr,
+						tr("Suspicious breakpoint"),
+						tr("It looks like you may be setting an INT3 breakpoint on data.\n"
+						   "An INT3 breakpoint set on data will not execute and may cause incorrect results or crashes.\n"
+						   "Do you really want to set a breakpoint here?"),
+						QMessageBox::Yes | QMessageBox::No);
 				}
 			}
 		}
 
-
-		if(ret == QMessageBox::Yes) {
+		if (ret == QMessageBox::Yes) {
 			bp = debugger_core->addBreakpoint(address);
-			if(!bp) {
+			if (!bp) {
 				QMessageBox::critical(
-				            nullptr,
-				            tr("Error Setting Breakpoint"),
-				            tr("Failed to set breakpoint at address %1").arg(address.toPointerString()));
+					nullptr,
+					tr("Error Setting Breakpoint"),
+					tr("Failed to set breakpoint at address %1").arg(address.toPointerString()));
 				return bp;
 			}
 			repaint_cpu_view();
 		}
 
-
 	} else {
 		QMessageBox::critical(
-		            nullptr,
-		            tr("Error Setting Breakpoint"),
-		            tr("Sorry, but setting a breakpoint which is not in a valid region is not allowed."));
+			nullptr,
+			tr("Error Setting Breakpoint"),
+			tr("Sorry, but setting a breakpoint which is not in a valid region is not allowed."));
 	}
 
 	return bp;
@@ -416,9 +414,9 @@ std::shared_ptr<IBreakpoint> create_breakpoint(address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 address_t enable_breakpoint(address_t address) {
-	if(address != 0) {
+	if (address != 0) {
 		std::shared_ptr<IBreakpoint> bp = find_breakpoint(address);
-		if(bp && bp->enable()) {
+		if (bp && bp->enable()) {
 			return address;
 		}
 	}
@@ -430,9 +428,9 @@ address_t enable_breakpoint(address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 address_t disable_breakpoint(address_t address) {
-	if(address != 0) {
+	if (address != 0) {
 		std::shared_ptr<IBreakpoint> bp = find_breakpoint(address);
-		if(bp && bp->disable()) {
+		if (bp && bp->disable()) {
 			return address;
 		}
 	}
@@ -444,7 +442,7 @@ address_t disable_breakpoint(address_t address) {
 // Desc: toggles the existence of a breakpoint at a given address
 //------------------------------------------------------------------------------
 void toggle_breakpoint(address_t address) {
-	if(find_breakpoint(address)) {
+	if (find_breakpoint(address)) {
 		remove_breakpoint(address);
 	} else {
 		create_breakpoint(address);
@@ -471,7 +469,7 @@ bool eval_expression(const QString &expression, address_t *value) {
 	Expression<address_t> expr(expression, get_variable, get_value);
 
 	const Result<edb::address_t, ExpressionError> address = expr.evaluate_expression();
-	if(address) {
+	if (address) {
 		*value = *address;
 		return true;
 	} else {
@@ -486,15 +484,15 @@ bool eval_expression(const QString &expression, address_t *value) {
 //------------------------------------------------------------------------------
 bool get_expression_from_user(const QString &title, const QString &prompt, address_t *value) {
 
-    bool retval = false;
+	bool retval      = false;
 	auto inputDialog = std::make_unique<ExpressionDialog>(title, prompt, edb::v1::debugger_ui);
 
-	if(inputDialog->exec()) {
-        *value = inputDialog->getAddress();
-        retval = true;
-    }
+	if (inputDialog->exec()) {
+		*value = inputDialog->getAddress();
+		retval = true;
+	}
 
-    return retval;
+	return retval;
 }
 
 //------------------------------------------------------------------------------
@@ -512,11 +510,11 @@ bool get_value_from_user(Register &value) {
 bool get_value_from_user(Register &value, const QString &title) {
 
 	static auto dlg = new DialogInputValue(debugger_ui);
-	bool ret = false;
+	bool ret        = false;
 
 	dlg->setWindowTitle(title);
 	dlg->setValue(value);
-	if(dlg->exec() == QDialog::Accepted) {
+	if (dlg->exec() == QDialog::Accepted) {
 		value.setScalarValue(dlg->value());
 		ret = true;
 	}
@@ -539,15 +537,15 @@ bool get_binary_string_from_user(QByteArray &value, const QString &title, int ma
 	BinaryString *const bs = dlg->binaryString();
 
 	// set the max length BEFORE the value! (or else we truncate incorrectly)
-	if(value.length() <= max_length) {
+	if (value.length() <= max_length) {
 		bs->setMaxLength(max_length);
 	}
 
 	bs->setValue(value);
 
-	if(dlg->exec() == QDialog::Accepted) {
+	if (dlg->exec() == QDialog::Accepted) {
 		value = bs->value();
-		ret = true;
+		ret   = true;
 	}
 
 	return ret;
@@ -590,18 +588,15 @@ bool get_human_string_at_address(address_t address, QString &s) {
 		if (get_ascii_string_at_address(address, string_param, edb::v1::config().min_string_length, 256, string_length)) {
 			ret = true;
 			s.append(
-				QString("ASCII \"%1\" ").arg(string_param)
-			);
+				QString("ASCII \"%1\" ").arg(string_param));
 		} else if (get_utf16_string_at_address(address, string_param, edb::v1::config().min_string_length, 256, string_length)) {
 			ret = true;
 			s.append(
-				QString("UTF16 \"%1\" ").arg(string_param)
-			);
+				QString("UTF16 \"%1\" ").arg(string_param));
 		}
 	}
 	return ret;
 }
-
 
 //------------------------------------------------------------------------------
 // Name: get_ascii_string_at_address
@@ -616,19 +611,19 @@ bool get_ascii_string_at_address(address_t address, QString &s, int min_length, 
 
 	bool is_string = false;
 
-	if(debugger_core) {
-		if(IProcess *process = debugger_core->process()) {
+	if (debugger_core) {
+		if (IProcess *process = debugger_core->process()) {
 			s.clear();
 
-			if(min_length <= max_length) {
-				while(max_length--) {
+			if (min_length <= max_length) {
+				while (max_length--) {
 					char ch;
-					if(!process->readBytes(address++, &ch, sizeof(ch))) {
+					if (!process->readBytes(address++, &ch, sizeof(ch))) {
 						break;
 					}
 
 					const int ascii_char = static_cast<unsigned char>(ch);
-					if(ascii_char < 0x80 && (std::isprint(ascii_char) || std::isspace(ascii_char))) {
+					if (ascii_char < 0x80 && (std::isprint(ascii_char) || std::isspace(ascii_char))) {
 						s += ch;
 					} else {
 						break;
@@ -638,7 +633,7 @@ bool get_ascii_string_at_address(address_t address, QString &s, int min_length, 
 
 			is_string = s.length() >= min_length;
 
-			if(is_string) {
+			if (is_string) {
 				found_length = s.length();
 				s.replace("\r", "\\r");
 				s.replace("\n", "\\n");
@@ -663,15 +658,15 @@ bool get_ascii_string_at_address(address_t address, QString &s, int min_length, 
 //------------------------------------------------------------------------------
 bool get_utf16_string_at_address(address_t address, QString &s, int min_length, int max_length, int &found_length) {
 	bool is_string = false;
-	if(debugger_core) {
-		if(IProcess *process = debugger_core->process()) {
+	if (debugger_core) {
+		if (IProcess *process = debugger_core->process()) {
 			s.clear();
 
-			if(min_length <= max_length) {
-				while(max_length--) {
+			if (min_length <= max_length) {
+				while (max_length--) {
 
 					quint16 val;
-					if(!process->readBytes(address, &val, sizeof(val))) {
+					if (!process->readBytes(address, &val, sizeof(val))) {
 						break;
 					}
 
@@ -681,7 +676,7 @@ bool get_utf16_string_at_address(address_t address, QString &s, int min_length, 
 
 					// for now, we only acknowledge ASCII chars encoded as unicode
 					const int ascii_char = ch.toLatin1();
-					if(ascii_char >= 0x20 && ascii_char < 0x80) {
+					if (ascii_char >= 0x20 && ascii_char < 0x80) {
 						s += ch;
 					} else {
 						break;
@@ -691,7 +686,7 @@ bool get_utf16_string_at_address(address_t address, QString &s, int min_length, 
 
 			is_string = s.length() >= min_length;
 
-			if(is_string) {
+			if (is_string) {
 				found_length = s.length();
 				s.replace("\r", "\\r");
 				s.replace("\n", "\\n");
@@ -713,15 +708,15 @@ QString find_function_symbol(address_t address, const QString &default_value, in
 	QString symname(default_value);
 	int off;
 
-	if(function_symbol_base(address, &symname, &off)) {
+	if (function_symbol_base(address, &symname, &off)) {
 
-        if(config().function_offsets_in_hex) {
-            symname = QString("%1+0x%2").arg(symname).arg(off, 0, 16);
-        } else {
-            symname = QString("%1+%2").arg(symname).arg(off, 0, 10);
-        }
+		if (config().function_offsets_in_hex) {
+			symname = QString("%1+0x%2").arg(symname).arg(off, 0, 16);
+		} else {
+			symname = QString("%1+%2").arg(symname).arg(off, 0, 10);
+		}
 
-		if(offset) {
+		if (offset) {
 			*offset = off;
 		}
 	}
@@ -755,14 +750,14 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 	Q_ASSERT(ok);
 	Q_ASSERT(err);
 
-	if(IProcess *process = debugger_core->process()) {
+	if (IProcess *process = debugger_core->process()) {
 
 		State state;
 		process->currentThread()->getState(&state);
 		const Register reg = state.value(s);
-		*ok = reg.valid();
-		if(!*ok) {
-			if(const std::shared_ptr<Symbol> sym = edb::v1::symbol_manager().find(s)) {
+		*ok                = reg.valid();
+		if (!*ok) {
+			if (const std::shared_ptr<Symbol> sym = edb::v1::symbol_manager().find(s)) {
 				*ok = true;
 				return sym->address;
 			}
@@ -774,13 +769,13 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 		// FIXME: should this really return segment base, not selector?
 		// FIXME: if it's really meant to return base, then need to check whether
 		//        State::operator[]() returned valid Register
-		if(reg.name() == "fs") {
+		if (reg.name() == "fs") {
 			return state["fs_base"].valueAsAddress();
-		} else if(reg.name() == "gs") {
+		} else if (reg.name() == "gs") {
 			return state["gs_base"].valueAsAddress();
 		}
 
-		if(reg.bitSize() >  8 * sizeof(edb::address_t)) {
+		if (reg.bitSize() > 8 * sizeof(edb::address_t)) {
 			*err = ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
 			return 0;
 		}
@@ -803,12 +798,12 @@ address_t get_value(address_t address, bool *ok, ExpressionError *err) {
 	Q_ASSERT(err);
 
 	address_t ret = 0;
-	*ok = false;
+	*ok           = false;
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
 		*ok = process->readBytes(address, &ret, pointer_size());
 
-		if(!*ok) {
+		if (!*ok) {
 			*err = ExpressionError(ExpressionError::CANNOT_READ_MEMORY);
 		}
 	}
@@ -826,7 +821,7 @@ bool get_instruction_bytes(address_t address, quint8 *buf, int *size) {
 	Q_ASSERT(size);
 	Q_ASSERT(*size >= 0);
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
 		*size = process->readBytes(address, buf, *size);
 		if (*size) {
 			return true;
@@ -845,7 +840,7 @@ bool get_instruction_bytes(address_t address, quint8 *buf, size_t *size) {
 	Q_ASSERT(debugger_core);
 	Q_ASSERT(size);
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
 		*size = process->readBytes(address, buf, *size);
 		if (*size) {
 			return true;
@@ -862,7 +857,7 @@ bool get_instruction_bytes(address_t address, quint8 *buf, size_t *size) {
 // Note: the caller is responsible for deleting the object!
 //------------------------------------------------------------------------------
 std::unique_ptr<IBinary> get_binary_info(const std::shared_ptr<IRegion> &region) {
-	Q_FOREACH(IBinary::create_func_ptr_t f, g_BinaryInfoList) {
+	Q_FOREACH (IBinary::create_func_ptr_t f, g_BinaryInfoList) {
 		try {
 			std::unique_ptr<IBinary> p((*f)(region));
 			// reorder the list to put this successful plugin
@@ -873,7 +868,7 @@ std::unique_ptr<IBinary> get_binary_info(const std::shared_ptr<IRegion> &region)
 			}
 			return p;
 
-        } catch (const std::exception &) {
+		} catch (const std::exception &) {
 			// let's just ignore it...
 		}
 	}
@@ -892,10 +887,10 @@ std::unique_ptr<IBinary> get_binary_info(const std::shared_ptr<IRegion> &region)
 //------------------------------------------------------------------------------
 address_t locate_main_function() {
 
-	if(debugger_core) {
-		if(IProcess *process = debugger_core->process()) {
+	if (debugger_core) {
+		if (IProcess *process = debugger_core->process()) {
 			const address_t main_func = process->calculateMain();
-			if(main_func != 0) {
+			if (main_func != 0) {
 				return main_func;
 			} else {
 				return process->entryPoint();
@@ -919,8 +914,8 @@ const QMap<QString, QObject *> &plugin_list() {
 // Desc: gets a pointer to a plugin based on it's classname
 //------------------------------------------------------------------------------
 IPlugin *find_plugin_by_name(const QString &name) {
-	Q_FOREACH(QObject *p, g_GeneralPlugins) {
-		if(name == p->metaObject()->className()) {
+	Q_FOREACH (QObject *p, g_GeneralPlugins) {
+		if (name == p->metaObject()->className()) {
 			return qobject_cast<IPlugin *>(p);
 		}
 	}
@@ -942,7 +937,7 @@ void reload_symbols() {
 const Prototype *get_function_info(const QString &function) {
 
 	auto it = g_FunctionDB.find(function);
-	if(it != g_FunctionDB.end()) {
+	if (it != g_FunctionDB.end()) {
 		return &(it.value());
 	}
 
@@ -957,11 +952,11 @@ const Prototype *get_function_info(const QString &function) {
 //------------------------------------------------------------------------------
 std::shared_ptr<IRegion> primary_data_region() {
 
-	if(debugger_core) {
-		if(IProcess *process = debugger_core->process()) {
+	if (debugger_core) {
+		if (IProcess *process = debugger_core->process()) {
 			const address_t address = process->dataAddress();
 			memory_regions().sync();
-			if(std::shared_ptr<IRegion> region = memory_regions().findRegion(address)) {
+			if (std::shared_ptr<IRegion> region = memory_regions().findRegion(address)) {
 				return region;
 			}
 		}
@@ -980,11 +975,11 @@ std::shared_ptr<IRegion> primary_data_region() {
 std::shared_ptr<IRegion> primary_code_region() {
 
 #if defined(Q_OS_LINUX)
-	if(debugger_core) {
-		if(IProcess *process = debugger_core->process()) {
+	if (debugger_core) {
+		if (IProcess *process = debugger_core->process()) {
 			const address_t address = process->codeAddress();
 			memory_regions().sync();
-			if(std::shared_ptr<IRegion> region = memory_regions().findRegion(address)) {
+			if (std::shared_ptr<IRegion> region = memory_regions().findRegion(address)) {
 				return region;
 			}
 		}
@@ -994,8 +989,8 @@ std::shared_ptr<IRegion> primary_code_region() {
 
 	memory_regions().sync();
 	const QList<std::shared_ptr<IRegion>> r = memory_regions().regions();
-	for(const std::shared_ptr<IRegion> &region: r) {
-		if(region->executable() && region->name() == process_executable) {
+	for (const std::shared_ptr<IRegion> &region : r) {
+		if (region->executable() && region->name() == process_executable) {
 			return region;
 		}
 	}
@@ -1019,8 +1014,8 @@ void pop_value(State *state) {
 void push_value(State *state, reg_t value) {
 	Q_ASSERT(state);
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
-		state->adjustStack(- static_cast<int>(pointer_size()));
+	if (IProcess *process = edb::v1::debugger_core->process()) {
+		state->adjustStack(-static_cast<int>(pointer_size()));
 		process->writeBytes(state->stackPointer(), &value, pointer_size());
 	}
 }
@@ -1030,7 +1025,7 @@ void push_value(State *state, reg_t value) {
 // Desc:
 //------------------------------------------------------------------------------
 void register_binary_info(IBinary::create_func_ptr_t fptr) {
-	if(!g_BinaryInfoList.contains(fptr)) {
+	if (!g_BinaryInfoList.contains(fptr)) {
 		g_BinaryInfoList.push_back(fptr);
 	}
 }
@@ -1049,18 +1044,18 @@ quint32 edb_version() {
 //------------------------------------------------------------------------------
 bool overwrite_check(address_t address, size_t size) {
 	bool firstConflict = true;
-	for(address_t addr = address; addr != (address + size); ++addr) {
+	for (address_t addr = address; addr != (address + size); ++addr) {
 		std::shared_ptr<IBreakpoint> bp = find_breakpoint(addr);
 
-		if(bp && bp->enabled()) {
-			if(firstConflict) {
+		if (bp && bp->enabled()) {
+			if (firstConflict) {
 				const int ret = QMessageBox::question(
-				                    nullptr,
-				                    tr("Overwritting breakpoint"),
-				                    tr("You are attempting to modify bytes which overlap with a software breakpoint. Doing this will implicitly remove any breakpoints which are a conflict. Are you sure you want to do this?"),
-				                    QMessageBox::Yes | QMessageBox::No);
+					nullptr,
+					tr("Overwritting breakpoint"),
+					tr("You are attempting to modify bytes which overlap with a software breakpoint. Doing this will implicitly remove any breakpoints which are a conflict. Are you sure you want to do this?"),
+					QMessageBox::Yes | QMessageBox::No);
 
-				if(ret == QMessageBox::No) {
+				if (ret == QMessageBox::No) {
 					return false;
 				}
 				firstConflict = false;
@@ -1089,14 +1084,14 @@ void update_ui() {
 //------------------------------------------------------------------------------
 bool modify_bytes(address_t address, size_t size, QByteArray &bytes, quint8 fill) {
 
-	if(!edb::v1::overwrite_check(address, size)) {
+	if (!edb::v1::overwrite_check(address, size)) {
 		return false;
 	}
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(size != 0) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
+		if (size != 0) {
 			// fill bytes
-			while(bytes.size() < static_cast<int>(size)) {
+			while (bytes.size() < static_cast<int>(size)) {
 				bytes.push_back(fill);
 			}
 
@@ -1137,8 +1132,8 @@ QByteArray get_file_md5(const QString &s) {
 
 	QFile file(s);
 	file.open(QIODevice::ReadOnly);
-	if(file.isOpen()) {
-		if(file.size() != 0) {
+	if (file.isOpen()) {
+		if (file.size() != 0) {
 			QCryptographicHash hasher(QCryptographicHash::Md5);
 			hasher.addData(file.readAll());
 			return hasher.result();
@@ -1147,7 +1142,6 @@ QByteArray get_file_md5(const QString &s) {
 
 	return QByteArray();
 }
-
 
 //------------------------------------------------------------------------------
 // Name: symlink_target
@@ -1164,14 +1158,14 @@ QString symlink_target(const QString &s) {
 //------------------------------------------------------------------------------
 quint32 int_version(const QString &s) {
 
-	ulong ret = 0;
+	ulong ret              = 0;
 	const QStringList list = s.split(".");
-	if(list.size() == 3) {
+	if (list.size() == 3) {
 		bool ok[3];
 		const unsigned int maj = list[0].toUInt(&ok[0]);
 		const unsigned int min = list[1].toUInt(&ok[1]);
 		const unsigned int rev = list[2].toUInt(&ok[2]);
-		if(ok[0] && ok[1] && ok[2]) {
+		if (ok[0] && ok[1] && ok[2]) {
 			ret = (maj << 12) | (min << 8) | (rev);
 		}
 	}
@@ -1187,13 +1181,13 @@ QStringList parse_command_line(const QString &cmdline) {
 	QStringList args;
 	QString arg;
 
-	int bcount = 0;
+	int bcount     = 0;
 	bool in_quotes = false;
 
 	auto s = cmdline.begin();
 
-	while(s != cmdline.end()) {
-		if(!in_quotes && s->isSpace()) {
+	while (s != cmdline.end()) {
+		if (!in_quotes && s->isSpace()) {
 
 			// Close the argument and copy it
 			args << arg;
@@ -1202,20 +1196,20 @@ QStringList parse_command_line(const QString &cmdline) {
 			// skip the remaining spaces
 			do {
 				++s;
-			} while(s->isSpace());
+			} while (s->isSpace());
 
 			// Start with a new argument
 			bcount = 0;
-		} else if(*s == '\\') {
+		} else if (*s == '\\') {
 
 			// '\\'
 			arg += *s++;
 			++bcount;
 
-		} else if(*s == '"') {
+		} else if (*s == '"') {
 
 			// '"'
-			if((bcount & 1) == 0) {
+			if ((bcount & 1) == 0) {
 				/* Preceded by an even number of '\', this is half that
 				 * number of '\', plus a quote which we erase.
 				 */
@@ -1239,7 +1233,7 @@ QStringList parse_command_line(const QString &cmdline) {
 		}
 	}
 
-	if(!arg.isEmpty()) {
+	if (!arg.isEmpty()) {
 		args << arg;
 	}
 
@@ -1252,11 +1246,11 @@ QStringList parse_command_line(const QString &cmdline) {
 //------------------------------------------------------------------------------
 Result<address_t, QString> string_to_address(const QString &s) {
 	QString hex(s);
-	hex.replace("0x","");
+	hex.replace("0x", "");
 
 	bool ok;
-	address_t r = edb::address_t::fromHexString(hex.left(2*sizeof(edb::address_t)), &ok);
-	if(ok) {
+	address_t r = edb::address_t::fromHexString(hex.left(2 * sizeof(edb::address_t)), &ok);
+	if (ok) {
 		return r;
 	}
 
@@ -1270,7 +1264,7 @@ Result<address_t, QString> string_to_address(const QString &s) {
 QString format_bytes(const uint8_t *buffer, size_t count) {
 	QString bytes;
 
-	if(count != 0) {
+	if (count != 0) {
 		bytes.reserve(count * 4);
 
 		auto it = buffer;
@@ -1279,7 +1273,7 @@ QString format_bytes(const uint8_t *buffer, size_t count) {
 		qsnprintf(buf, sizeof(buf), "%02x", *it++ & 0xff);
 		bytes += buf;
 
-		while(it != buffer + count) {
+		while (it != buffer + count) {
 			qsnprintf(buf, sizeof(buf), " %02x", *it++ & 0xff);
 			bytes += buf;
 		}
@@ -1295,7 +1289,7 @@ QString format_bytes(const uint8_t *buffer, size_t count) {
 QString format_bytes(const QByteArray &x) {
 	QString bytes;
 
-	if(!x.isEmpty()) {
+	if (!x.isEmpty()) {
 		bytes.reserve(x.size() * 4);
 
 		auto it = x.begin();
@@ -1304,7 +1298,7 @@ QString format_bytes(const QByteArray &x) {
 		qsnprintf(buf, sizeof(buf), "%02x", *it++ & 0xff);
 		bytes += buf;
 
-		while(it != x.end()) {
+		while (it != x.end()) {
 			qsnprintf(buf, sizeof(buf), " %02x", *it++ & 0xff);
 			bytes += buf;
 		}
@@ -1372,7 +1366,7 @@ void clear_status() {
 // Desc:
 //------------------------------------------------------------------------------
 std::shared_ptr<IBreakpoint> find_breakpoint(address_t address) {
-	if(debugger_core) {
+	if (debugger_core) {
 		return debugger_core->findBreakpoint(address);
 	}
 	return nullptr;
@@ -1383,7 +1377,7 @@ std::shared_ptr<IBreakpoint> find_breakpoint(address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 std::shared_ptr<IBreakpoint> find_triggered_breakpoint(address_t address) {
-	if(debugger_core) {
+	if (debugger_core) {
 		return debugger_core->findTriggeredBreakpoint(address);
 	}
 	return nullptr;
@@ -1395,7 +1389,7 @@ std::shared_ptr<IBreakpoint> find_triggered_breakpoint(address_t address) {
 //------------------------------------------------------------------------------
 size_t pointer_size() {
 
-	if(debugger_core) {
+	if (debugger_core) {
 		return debugger_core->pointerSize();
 	}
 
@@ -1417,21 +1411,21 @@ QAbstractScrollArea *disassembly_widget() {
 //------------------------------------------------------------------------------
 QVector<quint8> read_pages(address_t address, size_t page_count) {
 
-	if(debugger_core) {
-		if(IProcess *process = edb::v1::debugger_core->process()) {
+	if (debugger_core) {
+		if (IProcess *process = edb::v1::debugger_core->process()) {
 			try {
 				const size_t page_size = debugger_core->pageSize();
 				QVector<quint8> pages(page_count * page_size);
 
-				if(process->readPages(address, pages.data(), page_count)) {
+				if (process->readPages(address, pages.data(), page_count)) {
 					return pages;
 				}
 
-			} catch(const std::bad_alloc &) {
+			} catch (const std::bad_alloc &) {
 				QMessageBox::critical(
-				            nullptr,
-				            tr("Memory Allocation Error"),
-				            tr("Unable to satisfy memory allocation request for requested region"));
+					nullptr,
+					tr("Memory Allocation Error"),
+					tr("Unable to satisfy memory allocation request for requested region"));
 			}
 		}
 	}
@@ -1445,9 +1439,9 @@ QVector<quint8> read_pages(address_t address, size_t page_count) {
 //------------------------------------------------------------------------------
 QString disassemble_address(address_t address) {
 	quint8 buffer[edb::Instruction::MAX_SIZE];
-	if(const int size = edb::v1::get_instruction_bytes(address, buffer)) {
+	if (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 		edb::Instruction inst(buffer, buffer + size, address);
-		if(inst) {
+		if (inst) {
 			return QString::fromStdString(g_Formatter.to_string(inst));
 		}
 	}
@@ -1469,8 +1463,8 @@ CapstoneEDB::Formatter &formatter() {
 //------------------------------------------------------------------------------
 address_t selected_stack_address() {
 
-	if(auto hexview = qobject_cast<QHexView *>(ui()->ui.stackDock->widget())) {
-		if(hexview->hasSelectedText()) {
+	if (auto hexview = qobject_cast<QHexView *>(ui()->ui.stackDock->widget())) {
+		if (hexview->hasSelectedText()) {
 			return hexview->selectedBytesAddress();
 		}
 	}
@@ -1483,8 +1477,8 @@ address_t selected_stack_address() {
 // Desc: returns the size of the selection or 0
 //------------------------------------------------------------------------------
 size_t selected_stack_size() {
-	if(auto hexview = qobject_cast<QHexView *>(ui()->ui.stackDock->widget())) {
-		if(hexview->hasSelectedText()) {
+	if (auto hexview = qobject_cast<QHexView *>(ui()->ui.stackDock->widget())) {
+		if (hexview->hasSelectedText()) {
 			return hexview->selectedBytesSize();
 		}
 	}
@@ -1497,8 +1491,8 @@ size_t selected_stack_size() {
 // Desc: returns the address of the selection or (address_t)-1
 //------------------------------------------------------------------------------
 address_t selected_data_address() {
-	if(auto hexview = qobject_cast<QHexView *>(ui()->ui.tabWidget->currentWidget())) {
-		if(hexview->hasSelectedText()) {
+	if (auto hexview = qobject_cast<QHexView *>(ui()->ui.tabWidget->currentWidget())) {
+		if (hexview->hasSelectedText()) {
 			return hexview->selectedBytesAddress();
 		}
 	}
@@ -1511,8 +1505,8 @@ address_t selected_data_address() {
 // Desc: returns the size of the selection or 0
 //------------------------------------------------------------------------------
 size_t selected_data_size() {
-	if(auto hexview = qobject_cast<QHexView *>(ui()->ui.tabWidget->currentWidget())) {
-		if(hexview->hasSelectedText()) {
+	if (auto hexview = qobject_cast<QHexView *>(ui()->ui.tabWidget->currentWidget())) {
+		if (hexview->hasSelectedText()) {
 			return hexview->selectedBytesSize();
 		}
 	}
@@ -1533,7 +1527,7 @@ boost::optional<edb::address_t> eval_expression(const QString &expression) {
 	Expression<address_t> expr(expression, v1::get_variable, v1::get_value);
 
 	const Result<edb::address_t, ExpressionError> address = expr.evaluate_expression();
-	if(address) {
+	if (address) {
 		return *address;
 	} else {
 		QMessageBox::critical(v1::debugger_ui, tr("Error In Expression!"), address.error().what());
@@ -1549,7 +1543,7 @@ boost::optional<edb::address_t> get_expression_from_user(const QString &title, c
 
 	auto inputDialog = std::make_unique<ExpressionDialog>(title, prompt, edb::v1::debugger_ui);
 
-	if(inputDialog->exec()) {
+	if (inputDialog->exec()) {
 		return inputDialog->getAddress();
 	}
 

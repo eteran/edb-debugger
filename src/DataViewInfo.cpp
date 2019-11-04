@@ -24,10 +24,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: DataViewInfo
 // Desc:
 //------------------------------------------------------------------------------
-DataViewInfo::DataViewInfo(const std::shared_ptr<IRegion> &r) : region(r), stream(std::make_unique<RegionBuffer>(r)) {
+DataViewInfo::DataViewInfo(const std::shared_ptr<IRegion> &r)
+	: region(r), stream(std::make_unique<RegionBuffer>(r)) {
 }
 
-DataViewInfo::DataViewInfo() : DataViewInfo(nullptr) {
+DataViewInfo::DataViewInfo()
+	: DataViewInfo(nullptr) {
 }
 
 //------------------------------------------------------------------------------
@@ -42,4 +44,3 @@ void DataViewInfo::update() {
 	view->setAddressOffset(region->start());
 	view->setData(stream.get());
 }
-

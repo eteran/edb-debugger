@@ -22,8 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ProcessModel.h"
 #include "edb.h"
 
-#include <QMap>
 #include <QHeaderView>
+#include <QMap>
 #include <QSortFilterProxyModel>
 
 #ifdef Q_OS_WIN32
@@ -45,8 +45,8 @@ namespace {
 // Desc: returns true if the string only contains decimal digits
 //------------------------------------------------------------------------------
 bool is_numeric(const QString &s) {
-	for(QChar ch: s) {
-		if(!ch.isDigit()) {
+	for (QChar ch : s) {
+		if (!ch.isDigit()) {
 			return false;
 		}
 	}
@@ -60,7 +60,8 @@ bool is_numeric(const QString &s) {
 // Name: DialogAttach
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogAttach::DialogAttach(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogAttach::DialogAttach(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
 	ui.setupUi(this);
 
 	processModel_ = new ProcessModel(this);
@@ -84,7 +85,7 @@ DialogAttach::DialogAttach(QWidget *parent, Qt::WindowFlags f) : QDialog(parent,
 //------------------------------------------------------------------------------
 void DialogAttach::on_filter_textChanged(const QString &filter) {
 
-	if(is_numeric(filter)) {
+	if (is_numeric(filter)) {
 		processPidFilter_->setFilterFixedString(filter);
 		processNameFilter_->setFilterFixedString(QString());
 	} else {
@@ -99,7 +100,7 @@ void DialogAttach::on_filter_textChanged(const QString &filter) {
 //------------------------------------------------------------------------------
 void DialogAttach::updateList() {
 
-	if(isHidden()) {
+	if (isHidden()) {
 		updateTimer_.stop();
 		return;
 	}
@@ -108,24 +109,24 @@ void DialogAttach::updateList() {
 
 	processModel_->clear();
 
-	if(edb::v1::debugger_core) {
+	if (edb::v1::debugger_core) {
 		QMap<edb::pid_t, std::shared_ptr<IProcess>> procs = edb::v1::debugger_core->enumerateProcesses();
 
 		const edb::uid_t user_id = getuid();
-		const bool filterUID = ui.filter_uid->isChecked();
+		const bool filterUID     = ui.filter_uid->isChecked();
 
-		for(const std::shared_ptr<IProcess> &process: procs) {
-			if(!filterUID || process->uid() == user_id) {
+		for (const std::shared_ptr<IProcess> &process : procs) {
+			if (!filterUID || process->uid() == user_id) {
 				processModel_->addProcess(process);
 			}
 		}
 	}
 
-	if(selected_pid) {
-		const auto pid=selected_pid.value();
-		const auto*const model=ui.processes_table->model();
-		for(int row = 0; row<model->rowCount(); ++row) {
-			if(static_cast<edb::pid_t>(model->index(row,0).data().toUInt()) == pid) {
+	if (selected_pid) {
+		const auto pid          = selected_pid.value();
+		const auto *const model = ui.processes_table->model();
+		for (int row = 0; row < model->rowCount(); ++row) {
+			if (static_cast<edb::pid_t>(model->index(row, 0).data().toUInt()) == pid) {
 				ui.processes_table->selectRow(row);
 			}
 		}
@@ -156,8 +157,8 @@ void DialogAttach::on_filter_uid_clicked(bool checked) {
 // Name: on_processes_table_doubleClicked
 // Desc:
 //------------------------------------------------------------------------------
-void DialogAttach::on_processes_table_doubleClicked(const QModelIndex&) {
-	if(selectedPid()) {
+void DialogAttach::on_processes_table_doubleClicked(const QModelIndex &) {
+	if (selectedPid()) {
 		accept();
 	}
 }
@@ -169,9 +170,9 @@ void DialogAttach::on_processes_table_doubleClicked(const QModelIndex&) {
 Result<edb::pid_t, QString> DialogAttach::selectedPid() const {
 
 	const QItemSelectionModel *const selModel = ui.processes_table->selectionModel();
-	const QModelIndexList sel = selModel->selectedRows();
+	const QModelIndexList sel                 = selModel->selectedRows();
 
-	if(sel.size() == 1) {
+	if (sel.size() == 1) {
 		const QModelIndex index = processNameFilter_->mapToSource(processPidFilter_->mapToSource(sel[0]));
 		return processModel_->data(index, Qt::UserRole).toUInt();
 	}

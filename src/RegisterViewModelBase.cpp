@@ -15,11 +15,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "IDebugger.h"
 #include "RegisterViewModelBase.h"
-#include "State.h"
+#include "IDebugger.h"
 #include "IProcess.h"
 #include "IThread.h"
+#include "State.h"
 #include "Types.h"
 #include "Util.h"
 #include "edb.h"
@@ -58,7 +58,7 @@ template <typename T>
 bool set_debugee_register(const QString &name, const T &value, T &resultingValue) {
 
 	if (IDebugger *core = edb::v1::debugger_core) {
-	
+
 		IProcess *process = core->process();
 		Q_ASSERT(process);
 
@@ -69,7 +69,7 @@ bool set_debugee_register(const QString &name, const T &value, T &resultingValue
 
 		if (!reg) {
 			qWarning() << qPrintable(
-			    QString("Warning: failed to get register %1 (in function `%2`)").arg(name).arg(Q_FUNC_INFO));
+				QString("Warning: failed to get register %1 (in function `%2`)").arg(name).arg(Q_FUNC_INFO));
 			return false;
 		}
 
@@ -120,7 +120,8 @@ void RegisterViewItem::init(RegisterViewItem *parent, int row) {
 
 // ---------------- CategoriesHolder impl ------------------------------
 
-CategoriesHolder::CategoriesHolder() : RegisterViewItem("") {
+CategoriesHolder::CategoriesHolder()
+	: RegisterViewItem("") {
 }
 
 int CategoriesHolder::childCount() const {
@@ -170,7 +171,8 @@ SIMDCategory *CategoriesHolder::insertSIMD(const QString &name, const std::vecto
 
 // ---------------- Model impl -------------------
 
-Model::Model(QObject *parent) : QAbstractItemModel(parent), rootItem(new CategoriesHolder) {
+Model::Model(QObject *parent)
+	: QAbstractItemModel(parent), rootItem(new CategoriesHolder) {
 }
 
 void Model::setActiveIndex(const QModelIndex &newActiveIndex) {
@@ -246,7 +248,7 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 
 	case Qt::ForegroundRole:
 		if (index.column() != VALUE_COLUMN || !item->changed()) {
-			return {};          // default color for unchanged register and for non-value column
+			return {}; // default color for unchanged register and for non-value column
 		}
 		return QBrush(Qt::red); // TODO: use user palette
 
@@ -275,21 +277,21 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 		return {};
 	}
 	case ChosenSIMDSizeRole:
-		if(auto simdCat = dynamic_cast<const SIMDCategory *>(item)) {
+		if (auto simdCat = dynamic_cast<const SIMDCategory *>(item)) {
 			return static_cast<int>(simdCat->chosenSize());
 		}
 
 		return {};
 
 	case ChosenSIMDFormatRole:
-		if(auto simdCat = dynamic_cast<const SIMDCategory *>(item)) {
+		if (auto simdCat = dynamic_cast<const SIMDCategory *>(item)) {
 			return static_cast<int>(simdCat->chosenFormat());
 		}
 
 		return {};
 
 	case ChosenSIMDSizeRowRole:
-		if(auto simdCat = dynamic_cast<const SIMDCategory *>(item)) {
+		if (auto simdCat = dynamic_cast<const SIMDCategory *>(item)) {
 			switch (simdCat->chosenSize()) {
 			case ElementSize::BYTE:
 				return BYTES_ROW;
@@ -324,7 +326,7 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 		return {};
 
 	case ChosenSIMDFormatRowRole:
-		if(auto simdCat = dynamic_cast<const SIMDCategory *>(item)) {
+		if (auto simdCat = dynamic_cast<const SIMDCategory *>(item)) {
 			switch (simdCat->chosenFormat()) {
 			case NumberDisplayMode::Hex:
 				return SIMD_HEX_ROW;
@@ -339,7 +341,7 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 		return {};
 
 	case ValidSIMDFormatsRole:
-		if(auto simdCat = dynamic_cast<const SIMDCategory *>(item)) {
+		if (auto simdCat = dynamic_cast<const SIMDCategory *>(item)) {
 			return QVariant::fromValue(simdCat->validFormats());
 		}
 		return {};
@@ -370,13 +372,13 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 		return !!dynamic_cast<const SIMDElement *>(item);
 
 	case BitFieldOffsetRole:
-		if(auto bitField = dynamic_cast<const BitFieldProperties *>(item)) {
+		if (auto bitField = dynamic_cast<const BitFieldProperties *>(item)) {
 			return bitField->offset();
 		}
 		return {};
 
 	case BitFieldLengthRole:
-		if(auto bitField = dynamic_cast<const BitFieldProperties *>(item)) {
+		if (auto bitField = dynamic_cast<const BitFieldProperties *>(item)) {
 			return bitField->length();
 		}
 		return {};
@@ -391,7 +393,7 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 			State state;
 
 			// read
-			if(IProcess *process = core->process()) {
+			if (IProcess *process = core->process()) {
 				process->currentThread()->getState(&state);
 			}
 			return QVariant::fromValue(state[name]);
@@ -441,7 +443,7 @@ bool Model::setData(const QModelIndex &index, const QVariant &data, int role) {
 		Q_EMIT dataChanged(valueIndex, valueIndex);
 		if (rowCount(valueIndex)) {
 			Q_EMIT dataChanged(this->index(0, VALUE_COLUMN, valueIndex),
-			                   this->index(rowCount(valueIndex), COMMENT_COLUMN, valueIndex));
+							   this->index(rowCount(valueIndex), COMMENT_COLUMN, valueIndex));
 		}
 		return true;
 	}
@@ -543,11 +545,13 @@ void Model::saveValues() {
 
 // -------------------- Category impl --------------------
 
-Category::Category(const QString &name, int row) : RegisterViewItem(name) {
+Category::Category(const QString &name, int row)
+	: RegisterViewItem(name) {
 	init(nullptr, row);
 }
 
-Category::Category(Category &&other) : RegisterViewItem(std::move(other.name())) {
+Category::Category(Category &&other)
+	: RegisterViewItem(std::move(other.name())) {
 	parentItem = other.parentItem;
 	row_       = other.row_;
 	registers  = std::move(other.registers);
@@ -608,14 +612,15 @@ void Category::saveValues() {
 
 // -------------------- RegisterItem impl ------------------------
 template <typename T>
-RegisterItem<T>::RegisterItem(const QString &name) : AbstractRegisterItem(name) {
+RegisterItem<T>::RegisterItem(const QString &name)
+	: AbstractRegisterItem(name) {
 	invalidate();
 }
 
 template <typename T>
 void RegisterItem<T>::invalidate() {
 
-	util::markMemory(&value_,     sizeof(value_));
+	util::markMemory(&value_, sizeof(value_));
 	util::markMemory(&prevValue_, sizeof(prevValue_));
 
 	comment_.clear();
@@ -700,7 +705,7 @@ typename std::enable_if<(sizeof(T) > sizeof(std::uint64_t)), bool>::type setValu
 
 template <typename T>
 typename std::enable_if<sizeof(T) <= sizeof(std::uint64_t), bool>::type setValue(T &valueToSet, const QString &name, const QString &valueStr) {
-	bool ok = false;
+	bool ok          = false;
 	const auto value = T::fromHexString(valueStr, &ok);
 
 	if (!ok) {
@@ -732,7 +737,8 @@ void SimpleRegister<T>::update(const T &value, const QString &comment) {
 	this->valueKnown_ = true;
 }
 
-template <typename T> int SimpleRegister<T>::valueMaxLength() const {
+template <typename T>
+int SimpleRegister<T>::valueMaxLength() const {
 	return 2 * sizeof(T);
 }
 
@@ -746,7 +752,8 @@ template class SimpleRegister<edb::value256>;
 // ---------------- BitFieldItem impl -----------------------
 
 template <typename UnderlyingType>
-BitFieldItem<UnderlyingType>::BitFieldItem(const BitFieldDescription &descr) : RegisterViewItem(descr.name), offset_(descr.offset), length_(descr.length), explanations(descr.explanations) {
+BitFieldItem<UnderlyingType>::BitFieldItem(const BitFieldDescription &descr)
+	: RegisterViewItem(descr.name), offset_(descr.offset), length_(descr.length), explanations(descr.explanations) {
 	Q_ASSERT(8 * sizeof(UnderlyingType) >= length_);
 	Q_ASSERT(explanations.size() == 0 || explanations.size() == 2u << (length_ - 1));
 }
@@ -823,7 +830,8 @@ unsigned BitFieldItem<UnderlyingType>::offset() const {
 // ---------------- FlagsRegister impl ------------------------
 
 template <typename StoredType>
-FlagsRegister<StoredType>::FlagsRegister(const QString &name, const std::vector<BitFieldDescription> &bitFields) : SimpleRegister<StoredType>(name) {
+FlagsRegister<StoredType>::FlagsRegister(const QString &name, const std::vector<BitFieldDescription> &bitFields)
+	: SimpleRegister<StoredType>(name) {
 
 	for (auto &field : bitFields) {
 		fields.emplace_back(field);
@@ -864,7 +872,8 @@ QString SIMDFormatItem<StoredType, SizingType>::name(NumberDisplayMode format) c
 }
 
 template <class StoredType, class SizingType>
-SIMDFormatItem<StoredType, SizingType>::SIMDFormatItem(NumberDisplayMode format) : RegisterViewItem(name(format)), format_(format) {
+SIMDFormatItem<StoredType, SizingType>::SIMDFormatItem(NumberDisplayMode format)
+	: RegisterViewItem(name(format)), format_(format) {
 }
 
 template <class StoredType, class SizingType>
@@ -975,7 +984,8 @@ int SIMDFormatItem<StoredType, SizingType>::valueMaxLength() const {
 // --------------------- SIMDSizedElement  impl -------------------------
 
 template <class StoredType, class SizingType>
-SIMDSizedElement<StoredType, SizingType>::SIMDSizedElement(const QString &name, const std::vector<NumberDisplayMode> &validFormats) : RegisterViewItem(name) {
+SIMDSizedElement<StoredType, SizingType>::SIMDSizedElement(const QString &name, const std::vector<NumberDisplayMode> &validFormats)
+	: RegisterViewItem(name) {
 
 	for (const auto format : validFormats) {
 		if (format != NumberDisplayMode::Float || sizeof(SizingType) >= sizeof(float)) {
@@ -1073,7 +1083,8 @@ void SIMDSizedElementsContainer<StoredType>::addElement(Args &&... args) {
 }
 
 template <class StoredType>
-SIMDSizedElementsContainer<StoredType>::SIMDSizedElementsContainer(const QString &name, std::size_t size, const std::vector<NumberDisplayMode> &validFormats) : RegisterViewItem(name) {
+SIMDSizedElementsContainer<StoredType>::SIMDSizedElementsContainer(const QString &name, std::size_t size, const std::vector<NumberDisplayMode> &validFormats)
+	: RegisterViewItem(name) {
 
 	for (unsigned elemN = 0; elemN < sizeof(StoredType) / size; ++elemN) {
 		const auto name = QString("#%1").arg(elemN);
@@ -1098,7 +1109,8 @@ SIMDSizedElementsContainer<StoredType>::SIMDSizedElementsContainer(const QString
 }
 
 template <class StoredType>
-SIMDSizedElementsContainer<StoredType>::SIMDSizedElementsContainer(SIMDSizedElementsContainer &&other) : RegisterViewItem(other), elements(std::move(other.elements)) {
+SIMDSizedElementsContainer<StoredType>::SIMDSizedElementsContainer(SIMDSizedElementsContainer &&other)
+	: RegisterViewItem(other), elements(std::move(other.elements)) {
 }
 
 template <class StoredType>
@@ -1155,13 +1167,14 @@ bool SIMDSizedElementsContainer<StoredType>::changed() const {
 // --------------------- SIMDRegister impl -------------------------
 
 template <class StoredType>
-SIMDRegister<StoredType>::SIMDRegister(const QString &name, const std::vector<NumberDisplayMode> &validFormats) : SimpleRegister<StoredType>(name) {
+SIMDRegister<StoredType>::SIMDRegister(const QString &name, const std::vector<NumberDisplayMode> &validFormats)
+	: SimpleRegister<StoredType>(name) {
 
 	static const auto sizeNames = util::make_array(
-	                                  QObject::tr("bytes"),
-	                                  QObject::tr("words"),
-	                                  QObject::tr("dwords"),
-	                                  QObject::tr("qwords"));
+		QObject::tr("bytes"),
+		QObject::tr("words"),
+		QObject::tr("dwords"),
+		QObject::tr("qwords"));
 
 	// NOTE: If you change order, don't forget about enum SizesOrder and places where it's used
 	for (unsigned shift = 0; (1u << shift) <= sizeof(std::uint64_t); ++shift) {
@@ -1216,7 +1229,8 @@ template class SIMDRegister<edb::value256>;
 // ----------------------------- FPURegister impl ---------------------------
 
 template <class FloatType>
-FPURegister<FloatType>::FPURegister(const QString &name) : SimpleRegister<FloatType>(name) {
+FPURegister<FloatType>::FPURegister(const QString &name)
+	: SimpleRegister<FloatType>(name) {
 	formats.emplace_back(NumberDisplayMode::Hex);
 	formats.back().init(this, Model::FPU_HEX_ROW);
 	formats.emplace_back(NumberDisplayMode::Float);
@@ -1280,13 +1294,14 @@ const auto settingsMainKey     = QLatin1String("RegisterViewModelBase");
 const auto settingsFormatKey   = QLatin1String("format");
 const auto settingsSIMDSizeKey = QLatin1String("size");
 
-SIMDCategory::SIMDCategory(const QString &name, int row, const std::vector<NumberDisplayMode> &validFormats) : Category(name, row), validFormats_(validFormats) {
+SIMDCategory::SIMDCategory(const QString &name, int row, const std::vector<NumberDisplayMode> &validFormats)
+	: Category(name, row), validFormats_(validFormats) {
 
 	QSettings settings;
 	settings.beginGroup(settingsMainKey + "/" + name);
 
 	const auto defaultFormat = NumberDisplayMode::Hex;
-	chosenFormat_ = static_cast<NumberDisplayMode>(settings.value(settingsFormatKey, static_cast<int>(defaultFormat)).toInt());
+	chosenFormat_            = static_cast<NumberDisplayMode>(settings.value(settingsFormatKey, static_cast<int>(defaultFormat)).toInt());
 
 	if (!util::contains(validFormats, chosenFormat_)) {
 		chosenFormat_ = defaultFormat;
@@ -1336,7 +1351,8 @@ const std::vector<NumberDisplayMode> &SIMDCategory::validFormats() const {
 
 // ----------------------------- FPUCategory impl ---------------------------
 
-FPUCategory::FPUCategory(const QString &name, int row) : Category(name, row) {
+FPUCategory::FPUCategory(const QString &name, int row)
+	: Category(name, row) {
 
 	QSettings settings;
 	settings.beginGroup(settingsMainKey + "/" + name);
@@ -1370,9 +1386,8 @@ NumberDisplayMode FPUCategory::chosenFormat() const {
 
 void Model::dataUpdateFinished() {
 	Q_EMIT dataChanged(
-	            index(0, 1 /*names don't change*/, QModelIndex()),
-	            index(rowCount() - 1, NUM_COLS - 1, QModelIndex())
-	            );
+		index(0, 1 /*names don't change*/, QModelIndex()),
+		index(rowCount() - 1, NUM_COLS - 1, QModelIndex()));
 }
 
 }

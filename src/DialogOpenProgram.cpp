@@ -31,10 +31,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * @param directory
  * @param filter
  */
-DialogOpenProgram::DialogOpenProgram(QWidget *parent, const QString &caption, const QString &directory, const QString &filter) :
-	QFileDialog(parent, caption, directory, filter),
-	argsEdit_(new QLineEdit(this)),
-	workDir_(new QLineEdit(QDir::currentPath(), this)) {
+DialogOpenProgram::DialogOpenProgram(QWidget *parent, const QString &caption, const QString &directory, const QString &filter)
+	: QFileDialog(parent, caption, directory, filter),
+	  argsEdit_(new QLineEdit(this)),
+	  workDir_(new QLineEdit(QDir::currentPath(), this)) {
 
 	setOptions(QFileDialog::DontUseNativeDialog);
 

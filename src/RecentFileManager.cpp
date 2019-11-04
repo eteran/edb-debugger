@@ -33,29 +33,30 @@ constexpr int MaxRecentFiles = 8;
 // Name: RecentFileManager
 // Desc: constructor
 //------------------------------------------------------------------------------
-RecentFileManager::RecentFileManager(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), menu_(nullptr) {
+RecentFileManager::RecentFileManager(QWidget *parent, Qt::WindowFlags f)
+	: QWidget(parent, f), menu_(nullptr) {
 	QSettings settings;
 	settings.beginGroup("Recent");
 	const auto size = settings.beginReadArray("recent.files");
 
-	for(int i = 0; i < size; ++i) {
+	for (int i = 0; i < size; ++i) {
 		settings.setArrayIndex(i);
 		const auto file = settings.value("file").toString();
 
-		if(file.isEmpty()) {
+		if (file.isEmpty()) {
 			continue;
 		}
 
 		const auto size = settings.beginReadArray("arguments");
 
 		QList<QByteArray> args;
-		for(int i = 0; i < size; ++i) {
+		for (int i = 0; i < size; ++i) {
 			settings.setArrayIndex(i);
 			args.push_back(settings.value("arg").toByteArray());
 		}
 
 		settings.endArray();
-		files_.push_back(std::make_pair(file,args));
+		files_.push_back(std::make_pair(file, args));
 	}
 
 	settings.endArray();
@@ -71,13 +72,13 @@ RecentFileManager::~RecentFileManager() {
 	settings.beginGroup("Recent");
 	settings.beginWriteArray("recent.files");
 
-	for(int i = 0; i < files_.size(); ++i) {
+	for (int i = 0; i < files_.size(); ++i) {
 		const auto &file = files_[i];
 		settings.setArrayIndex(i);
-		settings.setValue("file", QVariant::fromValue(file.first ));
+		settings.setValue("file", QVariant::fromValue(file.first));
 		settings.beginWriteArray("arguments");
 
-		for(int i = 0; i < file.second.size(); ++i) {
+		for (int i = 0; i < file.second.size(); ++i) {
 			settings.setArrayIndex(i);
 			settings.setValue("arg", file.second[i]);
 		}
@@ -88,14 +89,13 @@ RecentFileManager::~RecentFileManager() {
 	settings.endGroup();
 }
 
-
 //------------------------------------------------------------------------------
 // Name: clear
 // Desc:
 //------------------------------------------------------------------------------
 void RecentFileManager::clear() {
 	files_.clear();
-	if(menu_) {
+	if (menu_) {
 		menu_->clear();
 		menu_->addSeparator();
 		menu_->addAction(tr("Clear &Menu"), this, SLOT(clear()));
@@ -108,7 +108,7 @@ void RecentFileManager::clear() {
 //------------------------------------------------------------------------------
 QMenu *RecentFileManager::createMenu() {
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(this);
 		update();
 	}
@@ -122,7 +122,7 @@ QMenu *RecentFileManager::createMenu() {
 //------------------------------------------------------------------------------
 QString RecentFileManager::formatEntry(const RecentFile &file) {
 	QString str = file.first;
-	for(const auto& arg : file.second) {
+	for (const auto &arg : file.second) {
 		str += " " + QString(arg);
 	}
 	return str;
@@ -133,11 +133,11 @@ QString RecentFileManager::formatEntry(const RecentFile &file) {
 // Desc:
 //------------------------------------------------------------------------------
 void RecentFileManager::update() {
-	if(menu_) {
+	if (menu_) {
 		menu_->clear();
 
-		Q_FOREACH(const auto &file, files_) {
-			if(QAction *const action = menu_->addAction(formatEntry(file), this, SLOT(itemSelected()))) {
+		Q_FOREACH (const auto &file, files_) {
+			if (QAction *const action = menu_->addAction(formatEntry(file), this, SLOT(itemSelected()))) {
 				action->setData(QVariant::fromValue(file));
 			}
 		}
@@ -152,7 +152,7 @@ void RecentFileManager::update() {
 // Desc:
 //------------------------------------------------------------------------------
 RecentFileManager::RecentFile RecentFileManager::mostRecent() const {
-	if(files_.isEmpty()) return {};
+	if (files_.isEmpty()) return {};
 	return files_.front();
 }
 
@@ -169,7 +169,7 @@ int RecentFileManager::entryCount() const {
 // Desc:
 //------------------------------------------------------------------------------
 void RecentFileManager::itemSelected() {
-	if(auto action = qobject_cast<QAction *>(sender())) {
+	if (auto action = qobject_cast<QAction *>(sender())) {
 		const auto file = action->data().value<RecentFile>();
 		Q_EMIT fileSelected(file.first, file.second);
 	}
@@ -187,16 +187,16 @@ void RecentFileManager::addFile(const QString &file, const QList<QByteArray> &ar
 	// update recent file list, we remove all entries for this file (if any)
 	// and then push the file on the front, ensuring that the recently run
 	// entries are higher in the list
-	files_.erase(std::remove_if(files_.begin(), files_.end(), [&path](const RecentFile &file){
-	    return file.first == path;
-	}), files_.end());
+	files_.erase(std::remove_if(files_.begin(), files_.end(), [&path](const RecentFile &file) {
+					 return file.first == path;
+				 }),
+				 files_.end());
 
-	files_.push_front(std::make_pair(path,args));
+	files_.push_front(std::make_pair(path, args));
 
 	// make sure we don't add more than the max
-	while(files_.size() > MaxRecentFiles) {
+	while (files_.size() > MaxRecentFiles) {
 		files_.pop_back();
 	}
 	update();
-
 }

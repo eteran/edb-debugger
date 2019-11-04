@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * @brief Register::Register
  */
 Register::Register() {
-	util::markMemory(&value_,sizeof(value_));
+	util::markMemory(&value_, sizeof(value_));
 }
 
 /**
@@ -32,7 +32,7 @@ Register::Register() {
  * @return
  */
 bool Register::operator==(const Register &rhs) const {
-	if(!valid() && !rhs.valid()) {
+	if (!valid() && !rhs.valid()) {
 		return true;
 	} else {
 		return name_ == rhs.name_ && value_ == rhs.value_ && type_ == rhs.type_ && bitSize_ == rhs.bitSize_;
@@ -44,9 +44,9 @@ bool Register::operator==(const Register &rhs) const {
  * @return
  */
 QString Register::toHexString() const {
-	if(!valid()) return tr("<undefined>");
-	if(bitSize_%8) return tr("(Error: bad register length %1 bits)").arg(bitSize_);
-	return value_.toHexString().right(bitSize_/4); // TODO: trimming should be moved to valueXX::toHexString()
+	if (!valid()) return tr("<undefined>");
+	if (bitSize_ % 8) return tr("(Error: bad register length %1 bits)").arg(bitSize_);
+	return value_.toHexString().right(bitSize_ / 4); // TODO: trimming should be moved to valueXX::toHexString()
 }
 
 /**

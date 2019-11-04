@@ -30,7 +30,7 @@ class QModelIndex;
 class DialogThreads : public QDialog {
 	Q_OBJECT
 public:
-    DialogThreads(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	DialogThreads(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogThreads() override = default;
 
 private Q_SLOTS:
@@ -38,13 +38,12 @@ private Q_SLOTS:
 	void updateThreads();
 
 public:
-    void showEvent(QShowEvent *) override;
+	void showEvent(QShowEvent *) override;
 
 private:
 	Ui::DialogThreads ui;
-	ThreadsModel          *threadsModel_ = nullptr;
+	ThreadsModel *threadsModel_           = nullptr;
 	QSortFilterProxyModel *threadsFilter_ = nullptr;
 };
 
 #endif
-

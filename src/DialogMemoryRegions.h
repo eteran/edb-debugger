@@ -33,11 +33,11 @@ class QModelIndex;
 class DialogMemoryRegions : public QDialog {
 	Q_OBJECT
 public:
-    explicit DialogMemoryRegions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogMemoryRegions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogMemoryRegions() override = default;
 
 private:
-    void showEvent(QShowEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 
 private Q_SLOTS:
 	void on_regions_table_customContextMenuRequested(const QPoint &pos);
@@ -60,7 +60,7 @@ private:
 
 private:
 	Ui::DialogMemoryRegions ui;
-	QSortFilterProxyModel * filterModel_ = nullptr;
+	QSortFilterProxyModel *filterModel_ = nullptr;
 };
 
 #endif

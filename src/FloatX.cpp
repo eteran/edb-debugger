@@ -35,8 +35,8 @@ struct SpecialValues;
 
 template <>
 struct SpecialValues<double> {
-	static constexpr std::array<std::uint8_t, 8> positiveInf {{0, 0, 0, 0, 0, 0, 0xf0, 0x7f}};
-	static constexpr std::array<std::uint8_t, 8> negativeInf {{0, 0, 0, 0, 0, 0, 0xf0, 0xff}};
+	static constexpr std::array<std::uint8_t, 8> positiveInf{{0, 0, 0, 0, 0, 0, 0xf0, 0x7f}};
+	static constexpr std::array<std::uint8_t, 8> negativeInf{{0, 0, 0, 0, 0, 0, 0xf0, 0xff}};
 	static constexpr std::array<std::uint8_t, 8> positiveSNaN{{0, 0, 0, 0, 0, 0, 0xfc, 0x7f}};
 	static constexpr std::array<std::uint8_t, 8> negativeSNaN{{0, 0, 0, 0, 0, 0, 0xfc, 0xff}};
 	static constexpr std::array<std::uint8_t, 8> positiveQNaN{{0, 0, 0, 0, 0, 0, 0xf8, 0x7f}};
@@ -45,8 +45,8 @@ struct SpecialValues<double> {
 
 template <>
 struct SpecialValues<float> {
-	static constexpr std::array<std::uint8_t, 4> positiveInf {{0, 0, 0x80, 0x7f}};
-	static constexpr std::array<std::uint8_t, 4> negativeInf {{0, 0, 0x80, 0xff}};
+	static constexpr std::array<std::uint8_t, 4> positiveInf{{0, 0, 0x80, 0x7f}};
+	static constexpr std::array<std::uint8_t, 4> negativeInf{{0, 0, 0x80, 0xff}};
 	static constexpr std::array<std::uint8_t, 4> positiveSNaN{{0, 0, 0xe0, 0x7f}};
 	static constexpr std::array<std::uint8_t, 4> negativeSNaN{{0, 0, 0xe0, 0xff}};
 	static constexpr std::array<std::uint8_t, 4> positiveQNaN{{0, 0, 0xc0, 0x7f}};
@@ -59,11 +59,11 @@ template <>
 struct SpecialValues<long double> {
 
 	static_assert(std::numeric_limits<long double>::digits == 64 &&
-	              std::numeric_limits<long double>::max_exponent == 16384,
-	              "Expected to have x87 80-bit long double");
+					  std::numeric_limits<long double>::max_exponent == 16384,
+				  "Expected to have x87 80-bit long double");
 
-	static constexpr std::array<std::uint8_t, 16> positiveInf {{0, 0, 0, 0, 0, 0, 0, 0x80, 0xff, 0x7f, 0, 0, 0, 0, 0, 0}};
-	static constexpr std::array<std::uint8_t, 16> negativeInf {{0, 0, 0, 0, 0, 0, 0, 0x80, 0xff, 0xff, 0, 0, 0, 0, 0, 0}};
+	static constexpr std::array<std::uint8_t, 16> positiveInf{{0, 0, 0, 0, 0, 0, 0, 0x80, 0xff, 0x7f, 0, 0, 0, 0, 0, 0}};
+	static constexpr std::array<std::uint8_t, 16> negativeInf{{0, 0, 0, 0, 0, 0, 0, 0x80, 0xff, 0xff, 0, 0, 0, 0, 0, 0}};
 	static constexpr std::array<std::uint8_t, 16> positiveSNaN{{0, 0, 0, 0, 0, 0, 0, 0x90, 0xff, 0x7f, 0, 0, 0, 0, 0, 0}};
 	static constexpr std::array<std::uint8_t, 16> negativeSNaN{{0, 0, 0, 0, 0, 0, 0, 0x90, 0xff, 0xff, 0, 0, 0, 0, 0, 0}};
 	static constexpr std::array<std::uint8_t, 16> positiveQNaN{{0, 0, 0, 0, 0, 0, 0, 0xc0, 0xff, 0x7f, 0, 0, 0, 0, 0, 0}};
@@ -130,13 +130,12 @@ Float readFloat(const QString &strInput, bool &ok) {
 	return value;
 }
 
-template EDB_EXPORT float readFloat<float>(const QString& strInput, bool& ok);
-template EDB_EXPORT double readFloat<double>(const QString& strInput, bool& ok);
-
+template EDB_EXPORT float readFloat<float>(const QString &strInput, bool &ok);
+template EDB_EXPORT double readFloat<double>(const QString &strInput, bool &ok);
 
 #ifndef _MSC_VER
 #if defined(EDB_X86) || defined(EDB_X86_64)
-template long double readFloat<long double>(const QString& strInput,bool& ok);
+template long double readFloat<long double>(const QString &strInput, bool &ok);
 #endif
 #endif
 
@@ -149,8 +148,8 @@ FloatValueClass ieeeClassify(FloatHolder value) {
 	constexpr auto expMax    = (1u << expLength) - 1;
 	constexpr auto QNaN_mask = 1ull << (mantissaLength - 1);
 
-	const auto mantissa  = value & ((1ull << mantissaLength) - 1);
-	const auto exponent  = (value >> mantissaLength) & expMax;
+	const auto mantissa = value & ((1ull << mantissaLength) - 1);
+	const auto exponent = (value >> mantissaLength) & expMax;
 
 	if (exponent == expMax) {
 		if (mantissa == 0u) {
@@ -314,8 +313,8 @@ long double toFloatValue(edb::value80 value) {
 const char *fixup_g_Yfmt(char *buffer, int digits10) {
 
 	const size_t len = std::strlen(buffer);
-	const char x0 = buffer[0];
-	const char x1 = buffer[1];
+	const char x0    = buffer[0];
+	const char x1    = buffer[1];
 
 	if (x0 == '.' || (x0 == '-' && x1 == '.')) {
 		// ".235" or "-.235" forms are unreadable, so insert leading zero
@@ -399,7 +398,7 @@ const char *fixup_g_Yfmt(char *buffer, int digits10) {
 template <typename Float>
 EDB_EXPORT QString formatFloat(Float value) {
 
-	const auto type = floatType(value);
+	const auto type    = floatType(value);
 	QString specialStr = "???? ";
 
 	switch (type) {

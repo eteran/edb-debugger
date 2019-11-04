@@ -25,7 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: RegionBuffer
 // Desc:
 //------------------------------------------------------------------------------
-RegionBuffer::RegionBuffer(const std::shared_ptr<IRegion> &region) : QIODevice(), region_(region) {
+RegionBuffer::RegionBuffer(const std::shared_ptr<IRegion> &region)
+	: QIODevice(), region_(region) {
 	setOpenMode(QIODevice::ReadOnly);
 }
 
@@ -33,7 +34,8 @@ RegionBuffer::RegionBuffer(const std::shared_ptr<IRegion> &region) : QIODevice()
 // Name: RegionBuffer
 // Desc:
 //------------------------------------------------------------------------------
-RegionBuffer::RegionBuffer(const std::shared_ptr<IRegion> &region, QObject *parent) : QIODevice(parent), region_(region) {
+RegionBuffer::RegionBuffer(const std::shared_ptr<IRegion> &region, QObject *parent)
+	: QIODevice(parent), region_(region) {
 	setOpenMode(QIODevice::ReadOnly);
 }
 
@@ -52,20 +54,20 @@ void RegionBuffer::setRegion(const std::shared_ptr<IRegion> &region) {
 //------------------------------------------------------------------------------
 qint64 RegionBuffer::readData(char *data, qint64 maxSize) {
 
-	if(region_) {
-		if(IProcess *process = edb::v1::debugger_core->process()) {
+	if (region_) {
+		if (IProcess *process = edb::v1::debugger_core->process()) {
 			const edb::address_t start = region_->start() + pos();
 			const edb::address_t end   = region_->start() + region_->size();
 
-			if(start + maxSize > end) {
+			if (start + maxSize > end) {
 				maxSize = end - start;
 			}
 
-			if(maxSize == 0) {
+			if (maxSize == 0) {
 				return 0;
 			}
 
-			if(process->readBytes(start, data, maxSize)) {
+			if (process->readBytes(start, data, maxSize)) {
 				return maxSize;
 			} else {
 				return -1;
@@ -74,13 +76,12 @@ qint64 RegionBuffer::readData(char *data, qint64 maxSize) {
 	}
 
 	return -1;
-
 }
 
 //------------------------------------------------------------------------------
 // Name: writeData
 // Desc:
 //------------------------------------------------------------------------------
-qint64 RegionBuffer::writeData(const char*, qint64) {
+qint64 RegionBuffer::writeData(const char *, qint64) {
 	return -1;
 }

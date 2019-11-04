@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DebugEventHandlers.h"
-#include "Util.h"
 #include "IDebugEventHandler.h"
+#include "Util.h"
 
 DebugEventHandlers::~DebugEventHandlers() {
 	if (currentHandler_) {
@@ -78,7 +78,7 @@ edb::EVENT_STATUS DebugEventHandlers::execute(const std::shared_ptr<IDebugEvent>
 		for (auto it = handlers_.begin(), end = handlers_.end(); it != end;) {
 			// increment before processing, so if it's deleted it's not a problem
 			currentHandler_ = *it++;
-			status = currentHandler_->handleEvent(event);
+			status          = currentHandler_->handleEvent(event);
 			if (status != edb::DEBUG_NEXT_HANDLER) {
 				break;
 			}

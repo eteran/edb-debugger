@@ -31,7 +31,7 @@ class DialogInputValue : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogInputValue(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogInputValue(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogInputValue() override = default;
 
 public Q_SLOTS:

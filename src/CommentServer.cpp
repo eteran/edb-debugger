@@ -60,17 +60,17 @@ Result<QString, QString> CommentServer::resolveFunctionCall(edb::address_t addre
 	// so we need to look back a few bytes
 
 	// TODO(eteran): portability warning, makes assumptions on the size of a call
-	if(IProcess *process = edb::v1::debugger_core->process()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
 
 		uint8_t buffer[edb::Instruction::MAX_SIZE];
 
-		if(process->readBytes(address - CallMaxSize, buffer, sizeof(buffer))) {
-			for(int i = (CallMaxSize - CallMinSize); i >= 0; --i) {
+		if (process->readBytes(address - CallMaxSize, buffer, sizeof(buffer))) {
+			for (int i = (CallMaxSize - CallMinSize); i >= 0; --i) {
 				edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);
-				if(is_call(inst)) {
+				if (is_call(inst)) {
 					const QString symname = edb::v1::find_function_symbol(address);
 
-					if(!symname.isEmpty()) {
+					if (!symname.isEmpty()) {
 						return tr("return to %1 <%2>").arg(edb::v1::format_pointer(address), symname);
 					} else {
 						return tr("return to %1").arg(edb::v1::format_pointer(address));
@@ -89,15 +89,15 @@ Result<QString, QString> CommentServer::resolveFunctionCall(edb::address_t addre
 //------------------------------------------------------------------------------
 Result<QString, QString> CommentServer::resolveString(edb::address_t address) const {
 
-	const int min_string_length = edb::v1::config().min_string_length;
+	const int min_string_length   = edb::v1::config().min_string_length;
 	constexpr int MaxStringLength = 256;
 
 	int stringLen;
 	QString temp;
 
-	if(edb::v1::get_ascii_string_at_address(address, temp, min_string_length, MaxStringLength, stringLen)) {
+	if (edb::v1::get_ascii_string_at_address(address, temp, min_string_length, MaxStringLength, stringLen)) {
 		return tr("ASCII \"%1\"").arg(temp);
-	} else if(edb::v1::get_utf16_string_at_address(address, temp, min_string_length, MaxStringLength, stringLen)) {
+	} else if (edb::v1::get_utf16_string_at_address(address, temp, min_string_length, MaxStringLength, stringLen)) {
 		return tr("UTF16 \"%1\"").arg(temp);
 	}
 
@@ -110,20 +110,20 @@ Result<QString, QString> CommentServer::resolveString(edb::address_t address) co
 //------------------------------------------------------------------------------
 QString CommentServer::comment(edb::address_t address, int size) const {
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
 		// if the view is currently looking at words which are a pointer in size
 		// then see if it points to anything...
-		if(size == static_cast<int>(edb::v1::pointer_size())) {
+		if (size == static_cast<int>(edb::v1::pointer_size())) {
 			edb::address_t value(0);
-			if(process->readBytes(address, &value, edb::v1::pointer_size())) {
+			if (process->readBytes(address, &value, edb::v1::pointer_size())) {
 
 				auto it = customComments_.find(value);
-				if(it != customComments_.end()) {
+				if (it != customComments_.end()) {
 					return it.value();
 				} else {
-					if(Result<QString, QString> ret = resolveFunctionCall(value)) {
+					if (Result<QString, QString> ret = resolveFunctionCall(value)) {
 						return *ret;
-					} else if(Result<QString, QString> ret = resolveString(value)) {
+					} else if (Result<QString, QString> ret = resolveString(value)) {
 						return *ret;
 					}
 				}

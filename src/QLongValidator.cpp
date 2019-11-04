@@ -22,14 +22,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: QLongValidator
 // Desc:
 //------------------------------------------------------------------------------
-QLongValidator::QLongValidator(QObject *parent) : QValidator(parent) {
+QLongValidator::QLongValidator(QObject *parent)
+	: QValidator(parent) {
 }
 
 //------------------------------------------------------------------------------
 // Name: QLongValidator
 // Desc:
 //------------------------------------------------------------------------------
-QLongValidator::QLongValidator(QLongValidator::value_type minimum, QLongValidator::value_type maximum, QObject *parent) : QValidator(parent), minimum_(minimum), maximum_(maximum) {
+QLongValidator::QLongValidator(QLongValidator::value_type minimum, QLongValidator::value_type maximum, QObject *parent)
+	: QValidator(parent), minimum_(minimum), maximum_(maximum) {
 }
 
 //------------------------------------------------------------------------------
@@ -80,17 +82,17 @@ QLongValidator::value_type QLongValidator::top() const {
 QValidator::State QLongValidator::validate(QString &input, int &pos) const {
 	Q_UNUSED(pos)
 
-	if(input.isEmpty()) {
+	if (input.isEmpty()) {
 		return QValidator::Acceptable;
 	}
 
-	if(input == "-") {
+	if (input == "-") {
 		return QValidator::Intermediate;
 	}
 
 	bool ok;
 	const value_type temp = input.toLongLong(&ok);
-	if(!ok) {
+	if (!ok) {
 		return QValidator::Invalid;
 	}
 

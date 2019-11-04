@@ -26,7 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: HexStringValidator
 // Desc: constructor
 //------------------------------------------------------------------------------
-HexStringValidator::HexStringValidator(QObject * parent) : QValidator(parent) {
+HexStringValidator::HexStringValidator(QObject *parent)
+	: QValidator(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -37,11 +38,11 @@ void HexStringValidator::fixup(QString &input) const {
 	QString temp;
 	int index = 0;
 
-	for(QChar ch: input) {
+	for (QChar ch : input) {
 		const int c = ch.toLatin1();
-		if(c < 0x80 && std::isxdigit(c)) {
+		if (c < 0x80 && std::isxdigit(c)) {
 
-			if(index != 0 && (index & 1) == 0) {
+			if (index != 0 && (index & 1) == 0) {
 				temp += ' ';
 			}
 
@@ -58,7 +59,7 @@ void HexStringValidator::fixup(QString &input) const {
 // Desc:
 //------------------------------------------------------------------------------
 QValidator::State HexStringValidator::validate(QString &input, int &pos) const {
-	if(!input.isEmpty()) {
+	if (!input.isEmpty()) {
 		// TODO: can we detect if the char which was JUST deleted
 		// (if any was deleted) was a space? and special case this?
 		// as to not have the minor bug in this case?
@@ -69,15 +70,15 @@ QValidator::State HexStringValidator::validate(QString &input, int &pos) const {
 
 		pos = 0;
 
-		while(chars != char_pos) {
-			if(input[pos] != ' ') {
+		while (chars != char_pos) {
+			if (input[pos] != ' ') {
 				++chars;
 			}
 			++pos;
 		}
 
 		// favor the right side of a space
-		if(input[pos] == ' ') {
+		if (input[pos] == ' ') {
 			++pos;
 		}
 	}

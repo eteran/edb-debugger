@@ -160,7 +160,7 @@ BasicBlock::const_reference BasicBlock::back() const {
 //------------------------------------------------------------------------------
 BasicBlock::size_type BasicBlock::byteSize() const {
 	size_type n = 0;
-	for(const instruction_pointer &inst: instructions_) {
+	for (const instruction_pointer &inst : instructions_) {
 		n += inst->byte_size();
 	}
 	return n;
@@ -189,7 +189,7 @@ QString BasicBlock::toString() const {
 	QString text;
 	QTextStream ts(&text);
 
-	for(const instruction_pointer &inst : instructions_) {
+	for (const instruction_pointer &inst : instructions_) {
 		ts << edb::address_t(inst->rva()).toPointerString() << ": " << edb::v1::formatter().to_string(*inst).c_str() << "\n";
 	}
 

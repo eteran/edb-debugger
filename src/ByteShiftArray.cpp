@@ -23,7 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: ByteShiftArray
 // Desc: constructor
 //------------------------------------------------------------------------------
-ByteShiftArray::ByteShiftArray(int size) : maxSize_(size) {
+ByteShiftArray::ByteShiftArray(int size)
+	: maxSize_(size) {
 }
 
 //------------------------------------------------------------------------------
@@ -31,7 +32,7 @@ ByteShiftArray::ByteShiftArray(int size) : maxSize_(size) {
 // Desc:
 //------------------------------------------------------------------------------
 void ByteShiftArray::swap(ByteShiftArray &other) {
-	std::swap(data_,     other.data_);
+	std::swap(data_, other.data_);
 	std::swap(maxSize_, other.maxSize_);
 }
 
@@ -41,8 +42,8 @@ void ByteShiftArray::swap(ByteShiftArray &other) {
 //------------------------------------------------------------------------------
 ByteShiftArray &ByteShiftArray::shl() {
 
-	if(data_.size() == maxSize_) {
-		for(int i = 1; i < data_.size(); ++i) {
+	if (data_.size() == maxSize_) {
+		for (int i = 1; i < data_.size(); ++i) {
 			data_[i - 1] = data_[i];
 		}
 		data_.back() = 0;
@@ -57,8 +58,8 @@ ByteShiftArray &ByteShiftArray::shl() {
 // Desc: shifts data right one byte and shifts in a 0
 //------------------------------------------------------------------------------
 ByteShiftArray &ByteShiftArray::shr() {
-	if(data_.size() == maxSize_) {
-		for(int i = 0; i < data_.size() - 1; ++i) {
+	if (data_.size() == maxSize_) {
+		for (int i = 0; i < data_.size() - 1; ++i) {
 			data_[i + 1] = data_[i];
 		}
 		data_.first() = 0;

@@ -20,12 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 
 #include <QCoreApplication>
+#include <QDataStream>
 #include <QDesktopServices>
 #include <QDir>
 #include <QFont>
 #include <QSettings>
 #include <QtDebug>
-#include <QDataStream>
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -37,7 +37,8 @@ QDataStream &operator>>(QDataStream &s, IBreakpoint::TypeId &id);
 // Name: Configuration
 // Desc: constructor
 //------------------------------------------------------------------------------
-Configuration::Configuration(QObject *parent) : QObject(parent) {
+Configuration::Configuration(QObject *parent)
+	: QObject(parent) {
 	readSettings();
 }
 
@@ -79,17 +80,16 @@ void Configuration::readSettings() {
 #ifdef Q_OS_WIN32
 	const QString default_font = QFont("Courier New", 8).toString();
 #elif defined(Q_OS_MACX)
-	const QString default_font = QFont("Courier New", 10).toString();
+	const QString default_font   = QFont("Courier New", 10).toString();
 #else
 	const QString default_font = QFont("Monospace", 8).toString();
 #endif
 
-
 #ifdef DEFAULT_PLUGIN_PATH
 	const QString default_plugin_path = DEFAULT_PLUGIN_PATH;
 #else
-	const QString edb_lib_dir=QCoreApplication::applicationDirPath()+(EDB_IS_64_BIT ? "/../lib64/edb" : "/../lib/edb");
-	const QString edb_binary_dir=QCoreApplication::applicationDirPath();
+	const QString edb_lib_dir    = QCoreApplication::applicationDirPath() + (EDB_IS_64_BIT ? "/../lib64/edb" : "/../lib/edb");
+	const QString edb_binary_dir = QCoreApplication::applicationDirPath();
 	// If the binary is in its installation directory, then look for plugins in their installation directory
 	// Otherwise assume that we are in build directory, so the plugins are in the same directory as the binary
 	const QString default_plugin_path = QRegExp(".*/bin/?$").exactMatch(edb_binary_dir) ? edb_lib_dir : edb_binary_dir;
@@ -114,44 +114,45 @@ void Configuration::readSettings() {
 	data_row_width          = settings.value("appearance.data.row_width", 16).value<int>();
 	show_address_separator  = settings.value("appearance.address_colon.enabled", true).toBool();
 	show_jump_arrow         = settings.value("appearance.show_jump_arrow.enabled", true).toBool();
-    function_offsets_in_hex = settings.value("appearance.function_offsets_in_hex.enabled", false).toBool();
-	
+	function_offsets_in_hex = settings.value("appearance.function_offsets_in_hex.enabled", false).toBool();
+
 	settings.endGroup();
 
 	settings.beginGroup("Debugging");
-	initial_breakpoint    = static_cast<InitialBreakpoint>(settings.value("debugger.initial_breakpoint", MainSymbol).value<uint>());
-	warn_on_no_exec_bp    = settings.value("debugger.BP_NX_warn.enabled", true).toBool();
-	find_main             = settings.value("debugger.find_main.enabled", true).toBool();
-	min_string_length     = settings.value("debugger.string_min", 4).value<uint>();
-	tty_enabled           = settings.value("debugger.terminal.enabled", true).toBool();
-	tty_command           = settings.value("debugger.terminal.command", "/usr/bin/xterm").toString();
-	remove_stale_symbols  = settings.value("debugger.remove_stale_symbols.enabled", true).toBool();
-	disableASLR           = settings.value("debugger.disableASLR.enabled", false).toBool();
-	disableLazyBinding    = settings.value("debugger.disableLazyBinding.enabled", false).toBool();
-	break_on_library_load = settings.value("debugger.break_on_library_load_event.enabled", false).toBool();
+	initial_breakpoint      = static_cast<InitialBreakpoint>(settings.value("debugger.initial_breakpoint", MainSymbol).value<uint>());
+	warn_on_no_exec_bp      = settings.value("debugger.BP_NX_warn.enabled", true).toBool();
+	find_main               = settings.value("debugger.find_main.enabled", true).toBool();
+	min_string_length       = settings.value("debugger.string_min", 4).value<uint>();
+	tty_enabled             = settings.value("debugger.terminal.enabled", true).toBool();
+	tty_command             = settings.value("debugger.terminal.command", "/usr/bin/xterm").toString();
+	remove_stale_symbols    = settings.value("debugger.remove_stale_symbols.enabled", true).toBool();
+	disableASLR             = settings.value("debugger.disableASLR.enabled", false).toBool();
+	disableLazyBinding      = settings.value("debugger.disableLazyBinding.enabled", false).toBool();
+	break_on_library_load   = settings.value("debugger.break_on_library_load_event.enabled", false).toBool();
 	default_breakpoint_type = settings.value("debugger.default_breakpoint_type",
-											 QVariant::fromValue(IBreakpoint::TypeId::Automatic)).value<IBreakpoint::TypeId>();
+											 QVariant::fromValue(IBreakpoint::TypeId::Automatic))
+								  .value<IBreakpoint::TypeId>();
 	settings.endGroup();
 
 	settings.beginGroup("Disassembly");
-	syntax                = static_cast<Syntax>(settings.value("disassembly.syntax", Intel).value<uint>());
-	syntax_highlighting_enabled = settings.value("disassembly.syntax_highlighting_enabled", true).toBool();
-	zeros_are_filling     = settings.value("disassembly.zeros_are_filling.enabled", true).toBool();
-	uppercase_disassembly = settings.value("disassembly.uppercase.enabled", false).toBool();
-	small_int_as_decimal  = settings.value("disassembly.small_int_as_decimal.enabled", false).toBool();
-	tab_between_mnemonic_and_operands=settings.value("disassembly.tab_between_mnemonic_and_operands.enabled", false).toBool();
-	show_register_badges  = settings.value("disassembly.show_register_badges.enabled", true).toBool();
+	syntax                                 = static_cast<Syntax>(settings.value("disassembly.syntax", Intel).value<uint>());
+	syntax_highlighting_enabled            = settings.value("disassembly.syntax_highlighting_enabled", true).toBool();
+	zeros_are_filling                      = settings.value("disassembly.zeros_are_filling.enabled", true).toBool();
+	uppercase_disassembly                  = settings.value("disassembly.uppercase.enabled", false).toBool();
+	small_int_as_decimal                   = settings.value("disassembly.small_int_as_decimal.enabled", false).toBool();
+	tab_between_mnemonic_and_operands      = settings.value("disassembly.tab_between_mnemonic_and_operands.enabled", false).toBool();
+	show_register_badges                   = settings.value("disassembly.show_register_badges.enabled", true).toBool();
 	show_local_module_name_in_jump_targets = settings.value("disassembly.show_local_module_name_in_jump_targets.enabled", true).toBool();
-	show_symbolic_addresses = settings.value("disassembly.show_symbolic_addresses.enabled", true).toBool();
-	simplify_rip_relative_targets = settings.value("disassembly.simplify_rip_relative_targets.enabled", true).toBool();
+	show_symbolic_addresses                = settings.value("disassembly.show_symbolic_addresses.enabled", true).toBool();
+	simplify_rip_relative_targets          = settings.value("disassembly.simplify_rip_relative_targets.enabled", true).toBool();
 	settings.endGroup();
 
 	settings.beginGroup("Directories");
 
 	QStringList cacheDirectories = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
-	QString cacheDirectory = !cacheDirectories.isEmpty() ? cacheDirectories[0] : QString();
+	QString cacheDirectory       = !cacheDirectories.isEmpty() ? cacheDirectories[0] : QString();
 
-	QString defaultSymbolPath = QString("%1/%2").arg(cacheDirectory, "symbols");
+	QString defaultSymbolPath  = QString("%1/%2").arg(cacheDirectory, "symbols");
 	QString defaultSessionPath = QString("%1/%2").arg(cacheDirectory, "sessions");
 
 	symbol_path  = settings.value("directory.symbol.path", defaultSymbolPath).toString();
@@ -161,12 +162,12 @@ void Configuration::readSettings() {
 
 	settings.beginGroup("Exceptions");
 	enable_signals_message_box = settings.value("signals.show_message_box.enabled", true).toBool();
-	
+
 	QVariantList temp_ignored_exceptions = settings.value("signals.ignore_list", QVariantList()).toList();
 
-    ignored_exceptions.clear();
-	for(QVariant &exception : temp_ignored_exceptions) {
-        ignored_exceptions.push_back(exception.toLongLong());
+	ignored_exceptions.clear();
+	for (QVariant &exception : temp_ignored_exceptions) {
+		ignored_exceptions.push_back(exception.toLongLong());
 	}
 
 	settings.endGroup();
@@ -175,16 +176,16 @@ void Configuration::readSettings() {
 	startup_window_location = static_cast<StartupWindowLocation>(settings.value("window.startup_window_location", SystemDefault).value<uint>());
 	settings.endGroup();
 
-	if(startup_window_location < 0 || startup_window_location > 2) {
+	if (startup_window_location < 0 || startup_window_location > 2) {
 		startup_window_location = SystemDefault;
 	}
 
 	// normalize values
-	if(data_word_width != 1 && data_word_width != 2 && data_word_width != 4 && data_word_width != 8) {
+	if (data_word_width != 1 && data_word_width != 2 && data_word_width != 4 && data_word_width != 8) {
 		data_word_width = 1;
 	}
 
-	if(data_row_width != 1 && data_row_width != 2 && data_row_width != 4 && data_row_width != 8 && data_row_width != 16) {
+	if (data_row_width != 1 && data_row_width != 2 && data_row_width != 4 && data_row_width != 8 && data_row_width != 16) {
 		data_row_width = 16;
 	}
 
@@ -199,10 +200,10 @@ void Configuration::readSettings() {
 #error "How to initialize Capstone?"
 #endif
 	CapstoneEDB::Formatter::FormatOptions options = edb::v1::formatter().options();
-	options.capitalization = uppercase_disassembly ? CapstoneEDB::Formatter::UpperCase : CapstoneEDB::Formatter::LowerCase;
-	options.syntax=static_cast<CapstoneEDB::Formatter::Syntax>(syntax);
-	options.tabBetweenMnemonicAndOperands=tab_between_mnemonic_and_operands;
-	options.simplifyRIPRelativeTargets=simplify_rip_relative_targets;
+	options.capitalization                        = uppercase_disassembly ? CapstoneEDB::Formatter::UpperCase : CapstoneEDB::Formatter::LowerCase;
+	options.syntax                                = static_cast<CapstoneEDB::Formatter::Syntax>(syntax);
+	options.tabBetweenMnemonicAndOperands         = tab_between_mnemonic_and_operands;
+	options.simplifyRIPRelativeTargets            = simplify_rip_relative_targets;
 	edb::v1::formatter().setOptions(options);
 }
 
@@ -231,7 +232,7 @@ void Configuration::writeSettings() {
 	settings.setValue("appearance.data.row_width", data_row_width);
 	settings.setValue("appearance.address_colon.enabled", show_address_separator);
 	settings.setValue("appearance.show_jump_arrow.enabled", show_jump_arrow);
-    settings.setValue("appearance.function_offsets_in_hex.enabled", function_offsets_in_hex);
+	settings.setValue("appearance.function_offsets_in_hex.enabled", function_offsets_in_hex);
 	settings.endGroup();
 
 	settings.beginGroup("Debugging");
@@ -271,10 +272,10 @@ void Configuration::writeSettings() {
 	settings.setValue("signals.show_message_box.enabled", enable_signals_message_box);
 	QVariantList temp_ignored_exceptions;
 
-    Q_FOREACH(qlonglong exception, ignored_exceptions) {
-        temp_ignored_exceptions.push_back(exception);
-    }
-	
+	Q_FOREACH (qlonglong exception, ignored_exceptions) {
+		temp_ignored_exceptions.push_back(exception);
+	}
+
 	settings.setValue("signals.ignore_list", temp_ignored_exceptions);
 	settings.endGroup();
 

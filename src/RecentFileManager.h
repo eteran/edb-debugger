@@ -32,6 +32,7 @@ class RecentFileManager : public QWidget {
 	Q_OBJECT
 public:
 	using RecentFile = std::pair<QString, QList<QByteArray>>;
+
 public:
 	RecentFileManager(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~RecentFileManager() override;
@@ -47,7 +48,7 @@ public Q_SLOTS:
 	void itemSelected();
 
 Q_SIGNALS:
-	void fileSelected(const QString &,const QList<QByteArray>&);
+	void fileSelected(const QString &, const QList<QByteArray> &);
 
 private:
 	void update();
@@ -55,10 +56,9 @@ private:
 
 private:
 	QList<RecentFile> files_;
-	QMenu *           menu_ = nullptr;
+	QMenu *menu_ = nullptr;
 };
 
 Q_DECLARE_METATYPE(RecentFileManager::RecentFile)
 
 #endif
-

@@ -30,19 +30,18 @@ class DialogPlugins : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogPlugins(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	DialogPlugins(const DialogPlugins &)            = delete;
-	DialogPlugins& operator=(const DialogPlugins &) = delete;
-	~DialogPlugins() override = default;
+	explicit DialogPlugins(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	DialogPlugins(const DialogPlugins &) = delete;
+	DialogPlugins &operator=(const DialogPlugins &) = delete;
+	~DialogPlugins() override                       = default;
 
 public:
-    void showEvent(QShowEvent *) override;
+	void showEvent(QShowEvent *) override;
 
 private:
 	Ui::DialogPlugins ui;
-	PluginModel           *plugin_model_ = nullptr;
+	PluginModel *plugin_model_            = nullptr;
 	QSortFilterProxyModel *plugin_filter_ = nullptr;
 };
 
 #endif
-

@@ -37,11 +37,11 @@ class DialogAttach final : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogAttach(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogAttach(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogAttach() override = default;
 
 private:
-    void showEvent(QShowEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 
 private:
 	void updateList();
@@ -56,11 +56,10 @@ public:
 
 private:
 	Ui::DialogAttach ui;
-	ProcessModel          *processModel_ = nullptr;
+	ProcessModel *processModel_               = nullptr;
 	QSortFilterProxyModel *processNameFilter_ = nullptr;
-	QSortFilterProxyModel *processPidFilter_ = nullptr;
+	QSortFilterProxyModel *processPidFilter_  = nullptr;
 	QTimer updateTimer_;
 };
 
 #endif
-

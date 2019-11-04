@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PLUGIN_MODEL_H_
 
 #include <QAbstractItemModel>
-#include <QVector>
 #include <QString>
+#include <QVector>
 
 class PluginModel final : public QAbstractItemModel {
 	Q_OBJECT
@@ -35,16 +35,16 @@ public:
 	};
 
 public:
-    explicit PluginModel(QObject *parent = nullptr);
-    ~PluginModel() override = default;
+	explicit PluginModel(QObject *parent = nullptr);
+	~PluginModel() override = default;
 
 public:
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &index) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+	QModelIndex parent(const QModelIndex &index) const override;
+	QVariant data(const QModelIndex &index, int role) const override;
+	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
 public:
 	void addPlugin(const QString &filename, const QString &plugin, const QString &author, const QString &url);
