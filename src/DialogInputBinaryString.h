@@ -33,7 +33,7 @@ public:
 	~DialogInputBinaryString() override = default;
 
 public:
-	BinaryString *binary_string() const;
+	BinaryString *binaryString() const;
 
 private:
 	Ui::DialogInputBinaryString ui;

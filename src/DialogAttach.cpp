@@ -41,10 +41,10 @@ int getuid() {
 namespace {
 
 //------------------------------------------------------------------------------
-// Name: isNumeric
+// Name: is_numeric
 // Desc: returns true if the string only contains decimal digits
 //------------------------------------------------------------------------------
-bool isNumeric(const QString &s) {
+bool is_numeric(const QString &s) {
 	for(QChar ch: s) {
 		if(!ch.isDigit()) {
 			return false;
@@ -63,19 +63,19 @@ bool isNumeric(const QString &s) {
 DialogAttach::DialogAttach(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
 	ui.setupUi(this);
 
-	process_model_ = new ProcessModel(this);
+	processModel_ = new ProcessModel(this);
 
-	process_name_filter_ = new QSortFilterProxyModel(this);
-	process_name_filter_->setSourceModel(process_model_);
-	process_name_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
-	process_name_filter_->setFilterKeyColumn(2);
+	processNameFilter_ = new QSortFilterProxyModel(this);
+	processNameFilter_->setSourceModel(processModel_);
+	processNameFilter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	processNameFilter_->setFilterKeyColumn(2);
 
-	process_pid_filter_ = new QSortFilterProxyModel(this);
-	process_pid_filter_->setSourceModel(process_name_filter_);
-	process_pid_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
-	process_pid_filter_->setFilterKeyColumn(0);
+	processPidFilter_ = new QSortFilterProxyModel(this);
+	processPidFilter_->setSourceModel(processNameFilter_);
+	processPidFilter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	processPidFilter_->setFilterKeyColumn(0);
 
-	ui.processes_table->setModel(process_pid_filter_);
+	ui.processes_table->setModel(processPidFilter_);
 }
 
 //------------------------------------------------------------------------------
@@ -84,29 +84,29 @@ DialogAttach::DialogAttach(QWidget *parent, Qt::WindowFlags f) : QDialog(parent,
 //------------------------------------------------------------------------------
 void DialogAttach::on_filter_textChanged(const QString &filter) {
 
-	if(isNumeric(filter)) {
-		process_pid_filter_->setFilterFixedString(filter);
-		process_name_filter_->setFilterFixedString(QString());
+	if(is_numeric(filter)) {
+		processPidFilter_->setFilterFixedString(filter);
+		processNameFilter_->setFilterFixedString(QString());
 	} else {
-		process_name_filter_->setFilterFixedString(filter);
-		process_pid_filter_->setFilterFixedString(QString());
+		processNameFilter_->setFilterFixedString(filter);
+		processPidFilter_->setFilterFixedString(QString());
 	}
 }
 
 //------------------------------------------------------------------------------
-// Name: update_list
+// Name: updateList
 // Desc:
 //------------------------------------------------------------------------------
-void DialogAttach::update_list() {
+void DialogAttach::updateList() {
 
 	if(isHidden()) {
-		updateTimer.stop();
+		updateTimer_.stop();
 		return;
 	}
 
-	const auto selectedPid = selected_pid();
+	const auto selected_pid = selectedPid();
 
-	process_model_->clear();
+	processModel_->clear();
 
 	if(edb::v1::debugger_core) {
 		QMap<edb::pid_t, std::shared_ptr<IProcess>> procs = edb::v1::debugger_core->enumerateProcesses();
@@ -116,13 +116,13 @@ void DialogAttach::update_list() {
 
 		for(const std::shared_ptr<IProcess> &process: procs) {
 			if(!filterUID || process->uid() == user_id) {
-				process_model_->addProcess(process);
+				processModel_->addProcess(process);
 			}
 		}
 	}
 
-	if(selectedPid) {
-		const auto pid=selectedPid.value();
+	if(selected_pid) {
+		const auto pid=selected_pid.value();
 		const auto*const model=ui.processes_table->model();
 		for(int row = 0; row<model->rowCount(); ++row) {
 			if(static_cast<edb::pid_t>(model->index(row,0).data().toUInt()) == pid) {
@@ -138,9 +138,9 @@ void DialogAttach::update_list() {
 //------------------------------------------------------------------------------
 void DialogAttach::showEvent(QShowEvent *event) {
 	Q_UNUSED(event)
-	update_list();
-	connect(&updateTimer, &QTimer::timeout, this, &DialogAttach::update_list);
-	updateTimer.start(1000);
+	updateList();
+	connect(&updateTimer_, &QTimer::timeout, this, &DialogAttach::updateList);
+	updateTimer_.start(1000);
 }
 
 //------------------------------------------------------------------------------
@@ -149,7 +149,7 @@ void DialogAttach::showEvent(QShowEvent *event) {
 //------------------------------------------------------------------------------
 void DialogAttach::on_filter_uid_clicked(bool checked) {
 	Q_UNUSED(checked)
-	update_list();
+	updateList();
 }
 
 //------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ void DialogAttach::on_filter_uid_clicked(bool checked) {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogAttach::on_processes_table_doubleClicked(const QModelIndex&) {
-	if(selected_pid()) {
+	if(selectedPid()) {
 		accept();
 	}
 }
@@ -166,14 +166,14 @@ void DialogAttach::on_processes_table_doubleClicked(const QModelIndex&) {
 // Name: selected_pid
 // Desc:
 //------------------------------------------------------------------------------
-Result<edb::pid_t, QString> DialogAttach::selected_pid() const {
+Result<edb::pid_t, QString> DialogAttach::selectedPid() const {
 
 	const QItemSelectionModel *const selModel = ui.processes_table->selectionModel();
 	const QModelIndexList sel = selModel->selectedRows();
 
 	if(sel.size() == 1) {
-		const QModelIndex index = process_name_filter_->mapToSource(process_pid_filter_->mapToSource(sel[0]));
-		return process_model_->data(index, Qt::UserRole).toUInt();
+		const QModelIndex index = processNameFilter_->mapToSource(processPidFilter_->mapToSource(sel[0]));
+		return processModel_->data(index, Qt::UserRole).toUInt();
 	}
 
 	return make_unexpected(tr("No Selection"));

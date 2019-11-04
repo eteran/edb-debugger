@@ -45,8 +45,8 @@ public:
 
 private:
 	Ui::DialogInputValue ui;
-	edb::reg_t mask;
-	std::size_t valueLength;
+	edb::reg_t mask_;
+	std::size_t valueLength_;
 };
 
 #endif

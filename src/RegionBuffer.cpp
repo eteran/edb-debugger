@@ -41,7 +41,7 @@ RegionBuffer::RegionBuffer(const std::shared_ptr<IRegion> &region, QObject *pare
 // Name: set_region
 // Desc:
 //------------------------------------------------------------------------------
-void RegionBuffer::set_region(const std::shared_ptr<IRegion> &region) {
+void RegionBuffer::setRegion(const std::shared_ptr<IRegion> &region) {
 	region_ = region;
 	reset();
 }

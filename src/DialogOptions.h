@@ -36,6 +36,8 @@ public Q_SLOTS:
 	void on_btnPluginDir_clicked();
 	void on_btnTTY_clicked();
 	void on_btnSessionDir_clicked();
+
+protected:
     void closeEvent(QCloseEvent *event) override;
     void accept() override;
 
@@ -44,8 +46,8 @@ public:
 	void addOptionsPage(QWidget *page);
 
 private:
-	QString font_from_dialog(const QString &default_font);
-	QString directory_from_dialog();
+	QString fontFromDialog(const QString &default_font);
+	QString directoryFromDialog();
 
 private:
 	Ui::DialogOptions ui;

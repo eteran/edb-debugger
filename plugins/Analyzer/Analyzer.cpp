@@ -105,7 +105,7 @@ void set_function_types(IAnalyzer::FunctionMap *results) {
 
 	// give bonus if we have a symbol for the address
 	std::for_each(results->begin(), results->end(), [](Function &function) {
-		if (is_thunk(function.entry_address())) {
+		if (is_thunk(function.entryAddress())) {
 			function.setType(Function::Thunk);
 		} else {
 			function.setType(Function::Standard);
@@ -271,7 +271,7 @@ void Analyzer::gotoFunctionStart() {
 
 	Function function;
 	if (findContainingFunction(address, &function)) {
-		edb::v1::jump_to_address(function.entry_address());
+		edb::v1::jump_to_address(function.entryAddress());
 		return;
 	}
 
@@ -290,7 +290,7 @@ void Analyzer::gotoFunctionEnd() {
 
 	Function function;
 	if (findContainingFunction(address, &function)) {
-		edb::v1::jump_to_address(function.last_instruction());
+		edb::v1::jump_to_address(function.lastInstruction());
 		return;
 	}
 
@@ -499,7 +499,7 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 								const edb::address_t ea = op->imm;
 
 								if (functions.contains(ea)) {
-									functions[ea].add_reference();
+									functions[ea].addReference();
 								} else if ((ea - function_address) > 0x2000u) {
 									known_functions.push(ea);
 								} else {
@@ -545,7 +545,7 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 				functions.insert(function_address, func);
 			}
 		} else {
-			functions[function_address].add_reference();
+			functions[function_address].addReference();
 		}
 	}
 
@@ -689,9 +689,9 @@ IAnalyzer::AddressCategory Analyzer::category(edb::address_t address) const {
 
 	Function func;
 	if (findContainingFunction(address, &func)) {
-		if (address == func.entry_address()) {
+		if (address == func.entryAddress()) {
 			return ADDRESS_FUNC_START;
-		} else if (address == func.end_address()) {
+		} else if (address == func.endAddress()) {
 			return ADDRESS_FUNC_END;
 		} else {
 			return ADDRESS_FUNC_BODY;
@@ -742,7 +742,7 @@ bool Analyzer::findContainingFunction(edb::address_t address, Function *function
 		}
 
 		// handle address == entrypoint case
-		if ((*iter).entry_address() == address) {
+		if ((*iter).entryAddress() == address) {
 			*function = *iter;
 			return true;
 		}
@@ -753,7 +753,7 @@ bool Analyzer::findContainingFunction(edb::address_t address, Function *function
 		}
 
 		const Function &func = *(--iter);
-		if (address >= func.entry_address() && address <= func.end_address()) {
+		if (address >= func.entryAddress() && address <= func.endAddress()) {
 			*function = func;
 			return true;
 		}
@@ -781,8 +781,8 @@ bool Analyzer::forFuncsInRange(edb::address_t start, edb::address_t end, std::fu
 		auto it                  = funcs.lowerBound(start - 4096);
 
 		while (it != funcs.end()) {
-			edb::address_t f_start = it->entry_address();
-			edb::address_t f_end   = it->end_address();
+			edb::address_t f_start = it->entryAddress();
+			edb::address_t f_end   = it->endAddress();
 
 			// Only works if FunctionMap is a QMap
 			if (f_start > end) {
@@ -868,7 +868,7 @@ Result<edb::address_t, QString> Analyzer::findContainingFunction(edb::address_t 
 
 	Function function;
 	if (findContainingFunction(address, &function)) {
-		return function.entry_address();
+		return function.entryAddress();
 	} else {
 		return make_unexpected(tr("Containing Function Not Found"));
 	}

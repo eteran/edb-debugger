@@ -48,7 +48,7 @@ public:
 
 public:
 	void insert(const BasicBlock &bb);
-	void add_reference();
+	void addReference();
 	Type type() const;
 	void setType(Type t);
 
@@ -73,10 +73,10 @@ public:
 	size_type size() const;
 
 public:
-	edb::address_t entry_address() const;
-	edb::address_t end_address() const;
-	edb::address_t last_instruction() const;
-	int reference_count() const;
+	edb::address_t entryAddress() const;
+	edb::address_t endAddress() const;
+	edb::address_t lastInstruction() const;
+	int referenceCount() const;
 
 public:
 	void swap(Function &other);

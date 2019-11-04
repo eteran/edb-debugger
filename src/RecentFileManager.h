@@ -37,24 +37,24 @@ public:
 	~RecentFileManager() override;
 
 public:
-	void add_file(const QString &file, const QList<QByteArray> &args);
-	QMenu *create_menu();
-	RecentFile most_recent() const;
-	int entry_count() const;
+	void addFile(const QString &file, const QList<QByteArray> &args);
+	QMenu *createMenu();
+	RecentFile mostRecent() const;
+	int entryCount() const;
 
 public Q_SLOTS:
-	void clear_file_list();
-	void item_selected();
+	void clear();
+	void itemSelected();
 
 Q_SIGNALS:
-	void file_selected(const QString &,const QList<QByteArray>&);
+	void fileSelected(const QString &,const QList<QByteArray>&);
 
 private:
 	void update();
-	static QString format_entry(const RecentFile &file);
+	static QString formatEntry(const RecentFile &file);
 
 private:
-	QList<RecentFile> file_list_;
+	QList<RecentFile> files_;
 	QMenu *           menu_ = nullptr;
 };
 

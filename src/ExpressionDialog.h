@@ -43,13 +43,13 @@ private Q_SLOTS:
 	void on_text_changed(const QString& text);
 	
 private:
-	QVBoxLayout      *layout_;
-	QLabel           *label_text_;
-	QLabel           *label_error_;
-	QLineEdit        *expression_;
-	QDialogButtonBox *button_box_;
-	QPalette         palette_error_;
-	edb::address_t   last_address_;
+	QVBoxLayout      *layout_     = nullptr;
+	QLabel           *labelText_  = nullptr;
+	QLabel           *labelError_ = nullptr;
+	QLineEdit        *expression_ = nullptr;
+	QDialogButtonBox *buttonBox_  = nullptr;
+	QPalette         paletteError_;
+	edb::address_t   lastAddress_;
 };
 
 #endif

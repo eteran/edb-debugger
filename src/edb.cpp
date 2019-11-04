@@ -536,7 +536,7 @@ bool get_binary_string_from_user(QByteArray &value, const QString &title, int ma
 
 	dlg->setWindowTitle(title);
 
-	BinaryString *const bs = dlg->binary_string();
+	BinaryString *const bs = dlg->binaryString();
 
 	// set the max length BEFORE the value! (or else we truncate incorrectly)
 	if(value.length() <= max_length) {

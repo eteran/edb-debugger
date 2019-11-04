@@ -34,7 +34,7 @@ public:
 	RegionBuffer(const std::shared_ptr<IRegion> &region, QObject *parent);
 
 public:
-	void set_region(const std::shared_ptr<IRegion> &region);
+	void setRegion(const std::shared_ptr<IRegion> &region);
 
 public:
     qint64 readData(char * data, qint64 maxSize) override;

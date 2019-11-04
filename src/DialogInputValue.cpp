@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: DialogInputValue
 // Desc:
 //------------------------------------------------------------------------------
-DialogInputValue::DialogInputValue(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), mask(-1ll), valueLength(sizeof(std::uint64_t)) {
+DialogInputValue::DialogInputValue(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), mask_(-1ll), valueLength_(sizeof(std::uint64_t)) {
 	ui.setupUi(this);
 
 	// Apply some defaults
@@ -47,7 +47,7 @@ DialogInputValue::DialogInputValue(QWidget *parent, Qt::WindowFlags f) : QDialog
 //------------------------------------------------------------------------------
 edb::reg_t DialogInputValue::value() const {
 	bool ok;
-	return mask & edb::reg_t::fromHexString(ui.hexInput->text(),&ok);
+	return mask_ & edb::reg_t::fromHexString(ui.hexInput->text(),&ok);
 }
 
 //------------------------------------------------------------------------------
@@ -67,8 +67,8 @@ void DialogInputValue::setValue(Register &reg) {
 	const std::uint64_t unsignedMax=(reg.bitSize()==64 ? -1 : (1ull<<(reg.bitSize()))-1); // Avoid UB
 	const std::int64_t signedMin=1ull<<(reg.bitSize()-1);
 	const std::int64_t signedMax=unsignedMax>>1;
-	mask=unsignedMax;
-	valueLength=reg.bitSize()/8;
+	mask_=unsignedMax;
+	valueLength_=reg.bitSize()/8;
 
 	ui.hexInput->setValidator(new QRegExpValidator(QRegExp(regex), this));
 	ui.signedInput->setValidator(new QLongValidator(signedMin, signedMax, this));
@@ -87,7 +87,7 @@ void DialogInputValue::on_hexInput_textEdited(const QString &s) {
 		value = 0;
 	}
 
-	ui.signedInput->setText(value.signExtended(valueLength).signedToString());
+	ui.signedInput->setText(value.signExtended(valueLength_).signedToString());
 	ui.unsignedInput->setText(value.unsignedToString());
 
 }

@@ -23,12 +23,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Instruction.h"
 #include "edb.h"
 
+namespace {
+
+// a call can be anywhere from 2 to 7 bytes long depends on if there is a Mod/RM byte
+// or a SIB byte, etc
+// this is ignoring prefixes, fortunately, no calls have mandatory prefixes
+// TODO(eteran): this is an arch specific concept
+constexpr int CallMaxSize = 7;
+constexpr int CallMinSize = 2;
+
+}
+
 //------------------------------------------------------------------------------
 // Name: set_comment
 // Desc:
 //------------------------------------------------------------------------------
-void CommentServer::set_comment(edb::address_t address, const QString &comment) {
-	custom_comments_[address] = comment;
+void CommentServer::setComment(edb::address_t address, const QString &comment) {
+	customComments_[address] = comment;
 }
 
 //------------------------------------------------------------------------------
@@ -36,33 +47,25 @@ void CommentServer::set_comment(edb::address_t address, const QString &comment) 
 // Desc:
 //------------------------------------------------------------------------------
 void CommentServer::clear() {
-	custom_comments_.clear();
+	customComments_.clear();
 }
-
-// a call can be anywhere from 2 to 7 bytes long depends on if there is a Mod/RM byte
-// or a SIB byte, etc
-// this is ignoring prefixes, fortunately, no calls have mandatory prefixes
-// TODO(eteran): this is an arch specific concept
-constexpr int CALL_MAX_SIZE = 7;
-constexpr int CALL_MIN_SIZE = 2;
 
 //------------------------------------------------------------------------------
 // Name: resolve_function_call
 // Desc:
 //------------------------------------------------------------------------------
-Result<QString, QString> CommentServer::resolve_function_call(edb::address_t address) const {
+Result<QString, QString> CommentServer::resolveFunctionCall(edb::address_t address) const {
 
 	// ok, we now want to locate the instruction before this one
 	// so we need to look back a few bytes
-
 
 	// TODO(eteran): portability warning, makes assumptions on the size of a call
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
 		uint8_t buffer[edb::Instruction::MAX_SIZE];
 
-		if(process->readBytes(address - CALL_MAX_SIZE, buffer, sizeof(buffer))) {
-			for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
+		if(process->readBytes(address - CallMaxSize, buffer, sizeof(buffer))) {
+			for(int i = (CallMaxSize - CallMinSize); i >= 0; --i) {
 				edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);
 				if(is_call(inst)) {
 					const QString symname = edb::v1::find_function_symbol(address);
@@ -84,17 +87,17 @@ Result<QString, QString> CommentServer::resolve_function_call(edb::address_t add
 // Name: resolve_string
 // Desc:
 //------------------------------------------------------------------------------
-Result<QString, QString> CommentServer::resolve_string(edb::address_t address) const {
+Result<QString, QString> CommentServer::resolveString(edb::address_t address) const {
 
 	const int min_string_length = edb::v1::config().min_string_length;
-	constexpr int max_string_length = 256;
+	constexpr int MaxStringLength = 256;
 
 	int stringLen;
 	QString temp;
 
-	if(edb::v1::get_ascii_string_at_address(address, temp, min_string_length, max_string_length, stringLen)) {
+	if(edb::v1::get_ascii_string_at_address(address, temp, min_string_length, MaxStringLength, stringLen)) {
 		return tr("ASCII \"%1\"").arg(temp);
-	} else if(edb::v1::get_utf16_string_at_address(address, temp, min_string_length, max_string_length, stringLen)) {
+	} else if(edb::v1::get_utf16_string_at_address(address, temp, min_string_length, MaxStringLength, stringLen)) {
 		return tr("UTF16 \"%1\"").arg(temp);
 	}
 
@@ -114,13 +117,13 @@ QString CommentServer::comment(edb::address_t address, int size) const {
 			edb::address_t value(0);
 			if(process->readBytes(address, &value, edb::v1::pointer_size())) {
 
-				auto it = custom_comments_.find(value);
-				if(it != custom_comments_.end()) {
+				auto it = customComments_.find(value);
+				if(it != customComments_.end()) {
 					return it.value();
 				} else {
-					if(Result<QString, QString> ret = resolve_function_call(value)) {
+					if(Result<QString, QString> ret = resolveFunctionCall(value)) {
 						return *ret;
-					} else if(Result<QString, QString> ret = resolve_string(value)) {
+					} else if(Result<QString, QString> ret = resolveString(value)) {
 						return *ret;
 					}
 				}

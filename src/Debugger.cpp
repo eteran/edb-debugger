@@ -469,8 +469,8 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	ui.listView->setModel(listModel_);
 
 	// setup the recent file manager
-	ui.action_Recent_Files->setMenu(recentFileManager_->create_menu());
-	connect(recentFileManager_, &RecentFileManager::file_selected, this, &Debugger::open_file);
+	ui.action_Recent_Files->setMenu(recentFileManager_->createMenu());
+	connect(recentFileManager_, &RecentFileManager::fileSelected, this, &Debugger::open_file);
 
 	// make us the default event handler
 	edb::v1::add_debug_event_handler(this);
@@ -563,7 +563,7 @@ void Debugger::update_menu_state(GuiState state) {
 		break;
 	case Terminated:
 		ui.actionRun_Until_Return->setEnabled(false);
-		ui.action_Restart->setEnabled(recentFileManager_->entry_count()>0);
+		ui.action_Restart->setEnabled(recentFileManager_->entryCount()>0);
 		ui.action_Run->setEnabled(false);
 		ui.action_Pause->setEnabled(false);
 		ui.action_Step_Into->setEnabled(false);
@@ -929,7 +929,7 @@ void Debugger::setup_ui() {
 	ui.menu_View->addAction(ui.stackDock    ->toggleViewAction());
 	ui.menu_View->addAction(ui.toolBar      ->toggleViewAction());
 
-	ui.action_Restart->setEnabled(recentFileManager_->entry_count()>0);
+	ui.action_Restart->setEnabled(recentFileManager_->entryCount()>0);
 
 	// make sure our widgets use custom context menus
 	ui.cpuView     ->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -2903,7 +2903,7 @@ void Debugger::set_initial_debugger_state() {
 	binaryInfo_ = edb::v1::get_binary_info(edb::v1::primary_code_region());
 
     commentServer_->clear();
-	commentServer_->set_comment(process->entryPoint(), "<entry point>");
+	commentServer_->setComment(process->entryPoint(), "<entry point>");
 }
 
 //------------------------------------------------------------------------------
@@ -2977,7 +2977,7 @@ void Debugger::on_action_Restart_triggered() {
 			common_open(s, args);
 		}
 	} else {
-		const auto file = recentFileManager_->most_recent();
+		const auto file = recentFileManager_->mostRecent();
 		if(common_open(file.first, file.second))
 			argumentsDialog_->setArguments(file.second);
 	}
@@ -3039,7 +3039,7 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 //------------------------------------------------------------------------------
 void Debugger::execute(const QString &program, const QList<QByteArray> &args) {
 	if(common_open(program, args)) {
-		recentFileManager_->add_file(program,args);
+		recentFileManager_->addFile(program,args);
 		argumentsDialog_->setArguments(args);
 	}
 }
@@ -3142,8 +3142,8 @@ void Debugger::on_action_Open_triggered() {
 	static auto dialog = new DialogOpenProgram(this, tr("Choose a file"), lastOpenDirectory_);
 
 	// Set a sensible default dir
-	if(recentFileManager_->entry_count() > 0) {
-		const RecentFileManager::RecentFile file = recentFileManager_->most_recent();
+	if(recentFileManager_->entryCount() > 0) {
+		const RecentFileManager::RecentFile file = recentFileManager_->mostRecent();
 		const QDir dir = QFileInfo(file.first).dir();
 		if(dir.exists()) {
 			dialog->setDirectory(dir);
@@ -3170,7 +3170,7 @@ void Debugger::on_action_Attach_triggered() {
 
 	if(dlg->exec() == QDialog::Accepted) {
 		if(dlg) {
-			if(const Result<edb::pid_t, QString> pid = dlg->selected_pid()) {
+			if(const Result<edb::pid_t, QString> pid = dlg->selectedPid()) {
 				attach(*pid);
 			}
 		}

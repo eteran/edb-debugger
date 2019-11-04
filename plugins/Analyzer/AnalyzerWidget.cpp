@@ -93,10 +93,10 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 		for (auto it = functions.begin(); it != functions.end(); ++it) {
 			const Function &f = it.value();
 
-			const auto first_offset = static_cast<int>((f.entry_address() - region->start()) * byte_width);
-			const auto last_offset  = static_cast<int>((f.end_address() - region->start()) * byte_width);
+			const auto first_offset = static_cast<int>((f.entryAddress() - region->start()) * byte_width);
+			const auto last_offset  = static_cast<int>((f.endAddress() - region->start()) * byte_width);
 
-			if (!specified_functions.contains(f.entry_address())) {
+			if (!specified_functions.contains(f.entryAddress())) {
 				painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkGreen));
 			} else {
 				painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkRed));

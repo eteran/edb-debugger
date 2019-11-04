@@ -1094,8 +1094,8 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 
 		if(ctx->lines_to_render != 0 && !show_addresses_.isEmpty()) {
 			analyzer->forFuncsInRange(show_addresses_[0], show_addresses_[ctx->lines_to_render-1], [&](const Function* func) {
-				auto entry_addr = func->entry_address();
-				auto end_addr   = func->end_address();
+				auto entry_addr = func->entryAddress();
+				auto end_addr   = func->endAddress();
 				int start_line;
 
 				// Find the start and draw the corner

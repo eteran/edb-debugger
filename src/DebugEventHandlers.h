@@ -71,7 +71,7 @@ private:
 	the current handler that is being executed
 	nullptr means that none is being executed at the moment
 	*/
-	IDebugEventHandler* current_handler_ = nullptr;
+	IDebugEventHandler* currentHandler_ = nullptr;
 };
 
 #endif

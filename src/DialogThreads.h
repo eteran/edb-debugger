@@ -42,8 +42,8 @@ public:
 
 private:
 	Ui::DialogThreads ui;
-	ThreadsModel          *threadsModel_;
-	QSortFilterProxyModel *threadsFilter_;
+	ThreadsModel          *threadsModel_ = nullptr;
+	QSortFilterProxyModel *threadsFilter_ = nullptr;
 };
 
 #endif

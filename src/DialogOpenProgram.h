@@ -38,8 +38,8 @@ private Q_SLOTS:
 	void browsePressed();
 	
 private:
-	QLineEdit *argsEdit;
-	QLineEdit *workDir;
+	QLineEdit *argsEdit_;
+	QLineEdit *workDir_;
 };
 
 #endif

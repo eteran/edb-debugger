@@ -55,7 +55,7 @@ namespace RegisterViewModelBase {
 // `resultingValue` can differ from `value` if e.g. the kernel doesn't allow to flip some
 // bits of the register, like EFLAGS on x86.
 template <typename T>
-bool setDebuggeeRegister(const QString &name, const T &value, T &resultingValue) {
+bool set_debugee_register(const QString &name, const T &value, T &resultingValue) {
 
 	if (IDebugger *core = edb::v1::debugger_core) {
 	
@@ -103,7 +103,7 @@ bool setDebuggeeRegister(const QString &name, const T &value, T &resultingValue)
 	return false;
 }
 
-RegisterViewItem *getItem(const QModelIndex &index) {
+RegisterViewItem *get_item(const QModelIndex &index) {
 	if (!index.isValid()) {
 		return nullptr;
 	}
@@ -202,7 +202,7 @@ QModelIndex Model::index(int row, int column, const QModelIndex &parent) const {
 }
 
 int Model::rowCount(const QModelIndex &parent) const {
-	const auto item = parent.isValid() ? getItem(parent) : rootItem.get();
+	const auto item = parent.isValid() ? get_item(parent) : rootItem.get();
 	return item->childCount();
 }
 
@@ -216,7 +216,7 @@ QModelIndex Model::parent(const QModelIndex &index) const {
 		return QModelIndex();
 	}
 
-	const auto parent = getItem(index)->parent();
+	const auto parent = get_item(index)->parent();
 	if (!parent || parent == rootItem.get()) {
 		return QModelIndex();
 	}
@@ -235,7 +235,7 @@ Qt::ItemFlags Model::flags(const QModelIndex &index) const {
 
 QVariant Model::data(const QModelIndex &index, int role) const {
 
-	const auto item = getItem(index);
+	const auto item = get_item(index);
 	if (!item) {
 		return {};
 	}
@@ -405,7 +405,7 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 }
 
 bool Model::setData(const QModelIndex &index, const QVariant &data, int role) {
-	auto item             = getItem(index);
+	auto item             = get_item(index);
 	const auto valueIndex = index.sibling(index.row(), VALUE_COLUMN);
 	bool ok               = false;
 
@@ -450,7 +450,7 @@ bool Model::setData(const QModelIndex &index, const QVariant &data, int role) {
 }
 
 void Model::setChosenSIMDSize(const QModelIndex &index, ElementSize const newSize) {
-	const auto cat = getItem(index);
+	const auto cat = get_item(index);
 	Q_ASSERT(cat);
 
 	const auto simdCat = dynamic_cast<SIMDCategory *>(cat);
@@ -470,7 +470,7 @@ void Model::setChosenSIMDSize(const QModelIndex &index, ElementSize const newSiz
 }
 
 void Model::setChosenSIMDFormat(const QModelIndex &index, NumberDisplayMode const newFormat) {
-	const auto cat = getItem(index);
+	const auto cat = get_item(index);
 	Q_ASSERT(cat);
 
 	const auto simdCat = dynamic_cast<SIMDCategory *>(cat);
@@ -490,7 +490,7 @@ void Model::setChosenSIMDFormat(const QModelIndex &index, NumberDisplayMode cons
 }
 
 void Model::setChosenFPUFormat(const QModelIndex &index, NumberDisplayMode const newFormat) {
-	const auto cat = getItem(index);
+	const auto cat = get_item(index);
 	Q_ASSERT(cat);
 
 	const auto fpuCat = dynamic_cast<FPUCategory *>(cat);
@@ -682,14 +682,14 @@ QByteArray RegisterItem<T>::rawValue() const {
 template <typename T>
 bool RegisterItem<T>::setValue(const Register &reg) {
 	assert(reg.bitSize() == 8 * sizeof(T));
-	return setDebuggeeRegister<T>(reg.name(), reg.value<T>(), value_);
+	return set_debugee_register<T>(reg.name(), reg.value<T>(), value_);
 }
 
 template <typename T>
 bool RegisterItem<T>::setValue(const QByteArray &newValue) {
 	T value;
 	std::memcpy(&value, newValue.constData(), newValue.size());
-	return setDebuggeeRegister<T>(name(), value, value_);
+	return set_debugee_register<T>(name(), value, value_);
 }
 
 template <typename T>
@@ -707,7 +707,7 @@ typename std::enable_if<sizeof(T) <= sizeof(std::uint64_t), bool>::type setValue
 		return false;
 	}
 
-	return setDebuggeeRegister(name, value, valueToSet);
+	return set_debugee_register(name, value, valueToSet);
 }
 
 template <typename T>

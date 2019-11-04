@@ -179,19 +179,19 @@ void DialogResults::addResult(const Function &function) {
 	Result result;
 
 	// entry point
-	result.start_address = function.entry_address();
+	result.start_address = function.entryAddress();
 
 	// upper bound of the function
-	result.end_address = function.end_address();
-	result.size        = function.end_address() - function.entry_address() + 1;
+	result.end_address = function.endAddress();
+	result.size        = function.endAddress() - function.entryAddress() + 1;
 
 	// reference count
-	result.score = function.reference_count();
+	result.score = function.referenceCount();
 
 	// type
 	result.type = function.type();
 
-	QString symbol_name = edb::v1::symbol_manager().findAddressName(function.entry_address());
+	QString symbol_name = edb::v1::symbol_manager().findAddressName(function.entryAddress());
 	if (!symbol_name.isEmpty()) {
 		result.symbol = symbol_name;
 	}

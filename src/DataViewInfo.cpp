@@ -38,7 +38,7 @@ void DataViewInfo::update() {
 
 	Q_ASSERT(view);
 
-	stream->set_region(region);
+	stream->setRegion(region);
 	view->setAddressOffset(region->start());
 	view->setData(stream.get());
 }

@@ -34,7 +34,7 @@ namespace {
 // Name: width_to_index
 // Desc:
 //------------------------------------------------------------------------------
-int width_to_index(int n) {
+constexpr int width_to_index(int n) {
 	switch(n) {
 	case 16: return 4;
 	case 8:  return 3;
@@ -58,7 +58,7 @@ DialogOptions::DialogOptions(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 // Name: font_from_dialog
 // Desc:
 //------------------------------------------------------------------------------
-QString DialogOptions::font_from_dialog(const QString &default_font) {
+QString DialogOptions::fontFromDialog(const QString &default_font) {
 	QFont old_font;
 	old_font.fromString(default_font);
     return QFontDialog::getFont(nullptr, old_font, this).toString();
@@ -85,7 +85,7 @@ void DialogOptions::addOptionsPage(QWidget *page) {
 // Name: directory_from_dialog
 // Desc:
 //------------------------------------------------------------------------------
-QString DialogOptions::directory_from_dialog() {
+QString DialogOptions::directoryFromDialog() {
 	return QFileDialog::getExistingDirectory(
 		this,
 		tr("Choose a directory"),
@@ -110,7 +110,7 @@ void DialogOptions::on_btnTTY_clicked() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOptions::on_btnSymbolDir_clicked() {
-	const QString s = directory_from_dialog();
+	const QString s = directoryFromDialog();
 
 	if(!s.isEmpty()) {
 		ui.txtSymbolDir->setText(s);
@@ -122,7 +122,7 @@ void DialogOptions::on_btnSymbolDir_clicked() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOptions::on_btnSessionDir_clicked() {
-	const QString s = directory_from_dialog();
+	const QString s = directoryFromDialog();
 
 	if(!s.isEmpty()) {
 		ui.txtSessionDir->setText(s);
@@ -134,7 +134,7 @@ void DialogOptions::on_btnSessionDir_clicked() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOptions::on_btnPluginDir_clicked() {
-	const QString s = directory_from_dialog();
+	const QString s = directoryFromDialog();
 
 	if(!s.isEmpty()) {
 		ui.txtPluginDir->setText(s);

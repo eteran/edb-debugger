@@ -38,7 +38,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 namespace {
-	Q_DECLARE_NAMESPACE_TR(edb)
+
+Q_DECLARE_NAMESPACE_TR(edb)
 
 //------------------------------------------------------------------------------
 // Name: load_plugins
@@ -145,6 +146,7 @@ void load_translations() {
 // Name: usage
 // Desc: displays a usage statement then exits
 //------------------------------------------------------------------------------
+[[noreturn]]
 void usage() {
 
 	QStringList args = qApp->arguments();

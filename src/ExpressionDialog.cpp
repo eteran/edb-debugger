@@ -30,23 +30,23 @@ ExpressionDialog::ExpressionDialog(const QString &title, const QString &prompt, 
 	setWindowTitle(title);
 
 	layout_      = new QVBoxLayout(this);
-	label_text_  = new QLabel(prompt, this);
-	label_error_ = new QLabel(this);
+	labelText_  = new QLabel(prompt, this);
+	labelError_ = new QLabel(this);
 	expression_  = new QLineEdit(this);
-	button_box_  = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
+	buttonBox_  = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
 
-	connect(button_box_, &QDialogButtonBox::accepted, this, &ExpressionDialog::accept);
-	connect(button_box_, &QDialogButtonBox::rejected, this, &ExpressionDialog::reject);
+	connect(buttonBox_, &QDialogButtonBox::accepted, this, &ExpressionDialog::accept);
+	connect(buttonBox_, &QDialogButtonBox::rejected, this, &ExpressionDialog::reject);
 
-	layout_->addWidget(label_text_);
+	layout_->addWidget(labelText_);
 	layout_->addWidget(expression_);
-	layout_->addWidget(label_error_);
-	layout_->addWidget(button_box_);
+	layout_->addWidget(labelError_);
+	layout_->addWidget(buttonBox_);
 
-	palette_error_.setColor(QPalette::WindowText, Qt::red);
-	label_error_->setPalette(palette_error_);
+	paletteError_.setColor(QPalette::WindowText, Qt::red);
+	labelError_->setPalette(paletteError_);
 
-	button_box_->button(QDialogButtonBox::Ok)->setEnabled(false);
+	buttonBox_->button(QDialogButtonBox::Ok)->setEnabled(false);
 
 	setLayout(layout_);
 
@@ -74,25 +74,25 @@ void ExpressionDialog::on_text_changed(const QString& text) {
 	bool retval = false;
 
 	if (resAddr) {
-		last_address_ = resAddr;
+		lastAddress_ = resAddr;
 		retval = true;
 	} else {
 		Expression<edb::address_t> expr(text, edb::v1::get_variable, edb::v1::get_value);
 
 		Result<edb::address_t, ExpressionError> address = expr.evaluate_expression();
 		if(address) {
-			label_error_->clear();
+			labelError_->clear();
 			retval = true;
-			last_address_ = *address;
+			lastAddress_ = *address;
 		} else {
-			label_error_->setText(address.error().what());
+			labelError_->setText(address.error().what());
 			retval = false;
 		}
 	}
 
-	button_box_->button(QDialogButtonBox::Ok)->setEnabled(retval);
+	buttonBox_->button(QDialogButtonBox::Ok)->setEnabled(retval);
 }
 
 edb::address_t ExpressionDialog::getAddress() {
-	return last_address_;
+	return lastAddress_;
 }
