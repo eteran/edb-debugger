@@ -18,8 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PlatformState.h"
 #include "FloatX.h"
-#include "string_hash.h"
 #include "Util.h"
+#include "string_hash.h"
 #include <QDebug>
 #include <QRegExp>
 #include <unordered_map>
@@ -52,8 +52,7 @@ const std::array<const char *, MAX_GPR_COUNT> PlatformState::X86::GPReg64Names =
 	"r12",
 	"r13",
 	"r14",
-	"r15"
-};
+	"r15"};
 
 const std::array<const char *, MAX_GPR_COUNT> PlatformState::X86::GPReg32Names = {
 	"eax",
@@ -71,8 +70,7 @@ const std::array<const char *, MAX_GPR_COUNT> PlatformState::X86::GPReg32Names =
 	"r12d",
 	"r13d",
 	"r14d",
-	"r15d"
-};
+	"r15d"};
 
 const std::array<const char *, MAX_GPR_COUNT> PlatformState::X86::GPReg16Names = {
 	"ax",
@@ -90,8 +88,7 @@ const std::array<const char *, MAX_GPR_COUNT> PlatformState::X86::GPReg16Names =
 	"r12w",
 	"r13w",
 	"r14w",
-	"r15w"
-};
+	"r15w"};
 
 const std::array<const char *, MAX_GPR_LOW_ADDRESSABLE_COUNT> PlatformState::X86::GPReg8LNames = {
 	"al",
@@ -109,24 +106,21 @@ const std::array<const char *, MAX_GPR_LOW_ADDRESSABLE_COUNT> PlatformState::X86
 	"r12b",
 	"r13b",
 	"r14b",
-	"r15b"
-};
+	"r15b"};
 
 const std::array<const char *, MAX_GPR_HIGH_ADDRESSABLE_COUNT> PlatformState::X86::GPReg8HNames = {
 	"ah",
 	"ch",
 	"dh",
-	"bh"
-};
+	"bh"};
 
-const std::array<const char *, MAX_SEG_REG_COUNT> PlatformState::X86::segRegNames  = {
+const std::array<const char *, MAX_SEG_REG_COUNT> PlatformState::X86::segRegNames = {
 	"es",
 	"cs",
 	"ss",
 	"ds",
 	"fs",
-	"gs"
-};
+	"gs"};
 
 void PlatformState::fillFrom(const UserRegsStructX86 &regs) {
 
@@ -308,7 +302,7 @@ void PlatformState::fillFrom(const UserFPRegsStructX86_64 &regs) {
 	x87.statusWord = regs.swd; // should be first for RIndexToSTIndex() to work
 
 	for (size_t n = 0; n < MAX_FPU_REG_COUNT; ++n) {
-		x87.R[n]        = edb::value80(regs.st_space, 16 * x87.RIndexToSTIndex(n));
+		x87.R[n] = edb::value80(regs.st_space, 16 * x87.RIndexToSTIndex(n));
 	}
 
 	x87.controlWord     = regs.cwd;
@@ -346,7 +340,6 @@ void PlatformState::fillFrom(const PrStatus_X86 &regs) {
 	x86.orig_ax.load(regs.orig_eax);
 	x86.flags.load(regs.eflags);
 	x86.IP.load(regs.eip);
-
 
 	x86.segRegs[X86::ES] = regs.es;
 	x86.segRegs[X86::CS] = regs.cs;
@@ -416,10 +409,10 @@ bool PlatformState::fillFrom(const X86XState &regs, size_t sizeFromKernel) {
 			x87.R[n] = edb::value80(regs.st_space, 16 * x87.RIndexToSTIndex(n));
 		}
 
-		x87.controlWord    = regs.cwd;
-		x87.tagWord        = x87.restoreTagWord(regs.twd);
-		x87.instPtrOffset  = regs.fioff;
-		x87.dataPtrOffset  = regs.fooff;
+		x87.controlWord   = regs.cwd;
+		x87.tagWord       = x87.restoreTagWord(regs.twd);
+		x87.instPtrOffset = regs.fioff;
+		x87.dataPtrOffset = regs.fooff;
 
 		if (is64Bit()) {
 			std::memcpy(reinterpret_cast<char *>(&x87.instPtrOffset) + 4, &regs.fiseg, sizeof(regs.fiseg));
@@ -793,7 +786,7 @@ bool PlatformState::AVX::empty() const {
 // Desc:
 //------------------------------------------------------------------------------
 PlatformState::PlatformState() {
-    this->clear();
+	this->clear();
 }
 
 //------------------------------------------------------------------------------
@@ -811,15 +804,15 @@ std::unique_ptr<IState> PlatformState::clone() const {
 QString PlatformState::flagsToString(edb::reg_t flags) const {
 	char buf[32];
 	qsnprintf(buf, sizeof(buf), "%c %c %c %c %c %c %c %c %c",
-		((flags & 0x001) ? 'C' : 'c'),
-		((flags & 0x004) ? 'P' : 'p'),
-		((flags & 0x010) ? 'A' : 'a'),
-		((flags & 0x040) ? 'Z' : 'z'),
-		((flags & 0x080) ? 'S' : 's'),
-		((flags & 0x100) ? 'T' : 't'),
-		((flags & 0x200) ? 'I' : 'i'),
-		((flags & 0x400) ? 'D' : 'd'),
-		((flags & 0x800) ? 'O' : 'o'));
+			  ((flags & 0x001) ? 'C' : 'c'),
+			  ((flags & 0x004) ? 'P' : 'p'),
+			  ((flags & 0x010) ? 'A' : 'a'),
+			  ((flags & 0x040) ? 'Z' : 'z'),
+			  ((flags & 0x080) ? 'S' : 's'),
+			  ((flags & 0x100) ? 'T' : 't'),
+			  ((flags & 0x200) ? 'I' : 'i'),
+			  ((flags & 0x400) ? 'D' : 'd'),
+			  ((flags & 0x800) ? 'O' : 'o'));
 	return QString::fromLatin1(buf);
 }
 
@@ -834,7 +827,7 @@ QString PlatformState::flagsToString() const {
 template <size_t BitSize = 0, class Names, class Regs>
 Register findRegisterValue(const Names &names, const Regs &regs, const QString &regName, Register::Type type, size_t maxNames, int shift = 0) {
 
-	const auto end = names.begin() + maxNames;
+	const auto end        = names.begin() + maxNames;
 	auto regNameFoundIter = std::find(names.begin(), end, regName);
 
 	if (regNameFoundIter != end) {
@@ -918,7 +911,7 @@ Register PlatformState::value(const QString &reg) const {
 			QChar digit = DRx.cap(1).at(0);
 			assert(digit.isDigit());
 			char digitChar = digit.toLatin1();
-			size_t i = digitChar - '0';
+			size_t i       = digitChar - '0';
 			assert(dbgIndexValid(i));
 
 			if (is64Bit() && x86.gpr64Filled) {
@@ -935,7 +928,7 @@ Register PlatformState::value(const QString &reg) const {
 			QChar digit = Rx.cap(1).at(0);
 			assert(digit.isDigit());
 			char digitChar = digit.toLatin1();
-			size_t i = digitChar - '0';
+			size_t i       = digitChar - '0';
 			assert(fpuIndexValid(i));
 			return make_Register(regName, x87.R[i], Register::TYPE_FPU);
 		}
@@ -947,7 +940,7 @@ Register PlatformState::value(const QString &reg) const {
 			QChar digit = STx.cap(1).at(0);
 			assert(digit.isDigit());
 			char digitChar = digit.toLatin1();
-			size_t i = digitChar - '0';
+			size_t i       = digitChar - '0';
 			assert(fpuIndexValid(i));
 			return make_Register(regName, x87.st(i), Register::TYPE_FPU);
 		}
@@ -991,7 +984,7 @@ Register PlatformState::value(const QString &reg) const {
 			QChar digit = MMx.cap(1).at(0);
 			assert(digit.isDigit());
 			char digitChar = digit.toLatin1();
-			size_t i = digitChar - '0';
+			size_t i       = digitChar - '0';
 			assert(mmxIndexValid(i));
 			return make_Register(regName, x87.R[i].mantissa(), Register::TYPE_SIMD);
 		}
@@ -1000,7 +993,7 @@ Register PlatformState::value(const QString &reg) const {
 	if (avx.xmmFilledIA32) {
 		QRegExp XMMx("^xmm([0-9]|1[0-5])$");
 		if (XMMx.indexIn(regName) != -1) {
-			bool ok = false;
+			bool ok  = false;
 			size_t i = XMMx.cap(1).toUShort(&ok);
 			assert(ok);
 			if (i >= IA32_XMM_REG_COUNT && !avx.xmmFilledAMD64) {
@@ -1016,8 +1009,8 @@ Register PlatformState::value(const QString &reg) const {
 	if (avx.ymmFilled) {
 		QRegExp YMMx("^ymm([0-9]|1[0-5])$");
 		if (YMMx.indexIn(regName) != -1) {
-			bool        ok = false;
-			size_t i  = YMMx.cap(1).toUShort(&ok);
+			bool ok  = false;
+			size_t i = YMMx.cap(1).toUShort(&ok);
 			assert(ok);
 			if (ymmIndexValid(i)) { // May be invalid but legitimate for a disassembler: e.g. YMM13 but 32 bit mode
 				return make_Register(regName, avx.ymm(i), Register::TYPE_SIMD);
@@ -1119,12 +1112,12 @@ edb::value80 PlatformState::fpuRegister(size_t n) const {
 
 	if (!x87.filled) {
 
-		edb::value80        v;
+		edb::value80 v;
 		const std::uint64_t mant = 0x0badbad1bad1bad1;
 		const std::uint16_t exp  = 0x0bad;
 
-		std::memcpy(reinterpret_cast<char *>(&v),                &mant, sizeof(mant));
-		std::memcpy(reinterpret_cast<char *>(&v) + sizeof(mant), &exp,  sizeof(exp));
+		std::memcpy(reinterpret_cast<char *>(&v), &mant, sizeof(mant));
+		std::memcpy(reinterpret_cast<char *>(&v) + sizeof(mant), &exp, sizeof(exp));
 		return v;
 	}
 
@@ -1146,11 +1139,10 @@ bool PlatformState::fpuRegisterIsEmpty(size_t n) const {
 QString PlatformState::fpuRegisterTagString(size_t n) const {
 	int tag = x87.tag(n);
 	static const std::unordered_map<int, QString> names{
-		{X87::TAG_VALID,   "Valid"},
-		{X87::TAG_ZERO,    "Zero"},
+		{X87::TAG_VALID, "Valid"},
+		{X87::TAG_ZERO, "Zero"},
 		{X87::TAG_SPECIAL, "Special"},
-		{X87::TAG_EMPTY,   "Empty"}
-	};
+		{X87::TAG_EMPTY, "Empty"}};
 
 	return names.at(tag);
 }
@@ -1247,7 +1239,7 @@ void PlatformState::setRegister(const Register &reg) {
 	const auto GPRegNameFoundIter = std::find(GPRegNames().begin(), gpr_end, regName);
 
 	if (GPRegNameFoundIter != gpr_end) {
-		size_t index = GPRegNameFoundIter - GPRegNames().begin();
+		size_t index      = GPRegNameFoundIter - GPRegNames().begin();
 		x86.GPRegs[index] = reg.value<edb::value64>();
 		return;
 	}
@@ -1255,7 +1247,7 @@ void PlatformState::setRegister(const Register &reg) {
 	auto segRegNameFoundIter = std::find(x86.segRegNames.begin(), x86.segRegNames.end(), regName);
 
 	if (segRegNameFoundIter != x86.segRegNames.end()) {
-		size_t index  = segRegNameFoundIter - x86.segRegNames.begin();
+		size_t index       = segRegNameFoundIter - x86.segRegNames.begin();
 		x86.segRegs[index] = reg.value<edb::seg_reg_t>();
 		return;
 	}
@@ -1283,10 +1275,10 @@ void PlatformState::setRegister(const Register &reg) {
 			QChar digit = MMx.cap(1).at(0);
 			assert(digit.isDigit());
 			char digitChar = digit.toLatin1();
-			size_t i = digitChar - '0';
+			size_t i       = digitChar - '0';
 			assert(mmxIndexValid(i));
 
-			const auto value = reg.value<edb::value64>();			
+			const auto value = reg.value<edb::value64>();
 			std::memcpy(reinterpret_cast<char *>(&x87.R[i]), &value, sizeof(value));
 
 			const uint16_t RiUpper = 0xffff;
@@ -1301,7 +1293,7 @@ void PlatformState::setRegister(const Register &reg) {
 			QChar digit = Rx.cap(1).at(0);
 			assert(digit.isDigit());
 			char digitChar = digit.toLatin1();
-			size_t i = digitChar - '0';
+			size_t i       = digitChar - '0';
 			assert(fpuIndexValid(i));
 			const auto value = reg.value<edb::value80>();
 			std::memcpy(&x87.R[i], &value, sizeof(value));
@@ -1315,7 +1307,7 @@ void PlatformState::setRegister(const Register &reg) {
 			QChar digit = Rx.cap(1).at(0);
 			assert(digit.isDigit());
 			char digitChar = digit.toLatin1();
-			size_t i = digitChar - '0';
+			size_t i       = digitChar - '0';
 			assert(fpuIndexValid(i));
 			const auto value = reg.value<edb::value80>();
 			std::memcpy(&x87.st(i), &value, sizeof(value));
@@ -1326,23 +1318,22 @@ void PlatformState::setRegister(const Register &reg) {
 	{
 		QRegExp XMMx("^xmm([12]?[0-9]|3[01])$");
 		if (XMMx.indexIn(regName) != -1) {
-			const auto  value = reg.value<edb::value128>();
+			const auto value = reg.value<edb::value128>();
 			bool indexReadOK = false;
-			size_t i = XMMx.cap(1).toInt(&indexReadOK);
+			size_t i         = XMMx.cap(1).toInt(&indexReadOK);
 			assert(indexReadOK && xmmIndexValid(i));
 
 			avx.zmmStorage[i].load(value);
 			return;
-
 		}
 	}
 
 	{
 		QRegExp YMMx("^ymm([12]?[0-9]|3[01])$");
 		if (YMMx.indexIn(regName) != -1) {
-			const auto  value = reg.value<edb::value256>();
+			const auto value = reg.value<edb::value256>();
 			bool indexReadOK = false;
-			size_t i = YMMx.cap(1).toInt(&indexReadOK);
+			size_t i         = YMMx.cap(1).toInt(&indexReadOK);
 			assert(indexReadOK && ymmIndexValid(i));
 
 			avx.zmmStorage[i].load(value);
@@ -1386,7 +1377,7 @@ void PlatformState::setRegister(const Register &reg) {
 			QChar digit = DRx.cap(1).at(0);
 			assert(digit.isDigit());
 			char digitChar = digit.toLatin1();
-			size_t i = digitChar - '0';
+			size_t i       = digitChar - '0';
 			assert(dbgIndexValid(i));
 			x86.dbgRegs[i] = reg.valueAsAddress();
 			return;
@@ -1411,10 +1402,13 @@ void PlatformState::setRegister(const QString &name, edb::reg_t value) {
 // Desc:
 //------------------------------------------------------------------------------
 Register PlatformState::archRegister(uint64_t type, size_t n) const {
-	switch(type) {
-	case edb::string_hash("mmx"): return mmx_register(n);
-	case edb::string_hash("xmm"): return xmm_register(n);
-	case edb::string_hash("ymm"): return ymm_register(n);
+	switch (type) {
+	case edb::string_hash("mmx"):
+		return mmx_register(n);
+	case edb::string_hash("xmm"):
+		return xmm_register(n);
+	case edb::string_hash("ymm"):
+		return ymm_register(n);
 	default:
 		break;
 	}

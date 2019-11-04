@@ -46,7 +46,7 @@ Breakpoint::Breakpoint(edb::address_t address)
 	: address_(address), type_(edb::v1::config().default_breakpoint_type) {
 
 	if (!this->enable()) {
-		throw breakpoint_creation_error();
+		throw BreakpointCreationError();
 	}
 }
 
@@ -80,7 +80,7 @@ void Breakpoint::setType(TypeId type) {
 	disable();
 	type_ = type;
 	if (!enable()) {
-		throw breakpoint_creation_error();
+		throw BreakpointCreationError();
 	}
 }
 
@@ -92,7 +92,7 @@ void Breakpoint::setType(IBreakpoint::TypeId type) {
 	disable();
 
 	if (Type{type} >= TypeId::TYPE_COUNT) {
-		throw breakpoint_creation_error();
+		throw BreakpointCreationError();
 	}
 
 	setType(type);

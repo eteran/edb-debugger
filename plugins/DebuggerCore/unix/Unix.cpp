@@ -11,7 +11,7 @@ struct Exception {
 	const char *const name;
 };
 
-const Exception Exceptions[] = {
+constexpr Exception Exceptions[] = {
 #ifdef SIGABRT
 	{SIGABRT, "SIGABRT"},
 #endif
@@ -96,12 +96,6 @@ const Exception Exceptions[] = {
 #ifdef SIGXFSZ
 	{SIGXFSZ, "SIGXFSZ"},
 #endif
-#ifdef SIGRTMIN
-	{SIGRTMIN, "SIGRTMIN"},
-#endif
-#ifdef SIGRTMAX
-	{SIGRTMAX, "SIGRTMAX"},
-#endif
 #ifdef SIGIO
 	{SIGIO, "SIGIO"},
 #endif
@@ -123,7 +117,7 @@ QMap<qlonglong, QString> Unix::exceptions() {
 
 	QMap<qlonglong, QString> exceptions;
 	for (Exception e : Exceptions) {
-		exceptions[e.value] = e.name;
+		exceptions.insert(e.value, e.name);
 	}
 	return exceptions;
 }

@@ -211,9 +211,9 @@ PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid)
 			flags |= QIODevice::WriteOnly;
 		}
 		if (memory_file->open(flags)) {
-			ro_mem_file_ = memory_file;
+			readOnlyMemFile_ = memory_file;
 			if (!core_->procMemWriteBroken_) {
-				rw_mem_file_ = memory_file;
+				readWriteMemFile_ = memory_file;
 			}
 		}
 	}
@@ -262,9 +262,9 @@ std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, std::s
 				return 1;
 			}
 
-			if (ro_mem_file_) {
-				seek_addr(*ro_mem_file_, address);
-				read = ro_mem_file_->read(ptr, 1);
+			if (readOnlyMemFile_) {
+				seek_addr(*readOnlyMemFile_, address);
+				read = readOnlyMemFile_->read(ptr, 1);
 				if (read == 1) {
 					return 1;
 				}
@@ -280,9 +280,9 @@ std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, std::s
 			}
 		}
 
-		if (ro_mem_file_) {
-			seek_addr(*ro_mem_file_, address);
-			read = ro_mem_file_->read(ptr, len);
+		if (readOnlyMemFile_) {
+			seek_addr(*readOnlyMemFile_, address);
+			read = readOnlyMemFile_->read(ptr, len);
 			if (read == 0 || read == quint64(-1)) {
 				return 0;
 			}
@@ -359,9 +359,9 @@ std::size_t PlatformProcess::writeBytes(edb::address_t address, const void *buf,
 	Q_ASSERT(core_->process_.get() == this);
 
 	if (len != 0) {
-		if (rw_mem_file_) {
-			seek_addr(*rw_mem_file_, address);
-			written = rw_mem_file_->write(reinterpret_cast<const char *>(buf), len);
+		if (readWriteMemFile_) {
+			seek_addr(*readWriteMemFile_, address);
+			written = readWriteMemFile_->write(reinterpret_cast<const char *>(buf), len);
 			if (written == 0 || written == quint64(-1)) {
 				return 0;
 			}

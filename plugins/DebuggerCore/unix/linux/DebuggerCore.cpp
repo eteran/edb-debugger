@@ -1063,10 +1063,10 @@ QString DebuggerCore::stackPointer() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::framePointer
+ * @return
+ */
 QString DebuggerCore::framePointer() const {
 #if defined EDB_X86 || defined EDB_X86_64
 	if (edb::v1::debuggeeIs32Bit()) {
@@ -1081,10 +1081,10 @@ QString DebuggerCore::framePointer() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::instructionPointer
+ * @return
+ */
 QString DebuggerCore::instructionPointer() const {
 #if defined EDB_X86 || defined EDB_X86_64
 	if (edb::v1::debuggeeIs32Bit()) {
@@ -1099,10 +1099,10 @@ QString DebuggerCore::instructionPointer() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: flag_register
-// Desc: Returns the name of the flag register as a QString.
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::flagRegister
+ * @return the name of the flag register
+ */
 QString DebuggerCore::flagRegister() const {
 #if defined EDB_X86 || defined EDB_X86_64
 	if (edb::v1::debuggeeIs32Bit()) {
@@ -1117,18 +1117,18 @@ QString DebuggerCore::flagRegister() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: process
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::process
+ * @return
+ */
 IProcess *DebuggerCore::process() const {
 	return process_.get();
 }
 
-//------------------------------------------------------------------------------
-// Name: set_ignored_exceptions
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::setIgnoredExceptions
+ * @param exceptions
+ */
 void DebuggerCore::setIgnoredExceptions(const QList<qlonglong> &exceptions) {
 	ignoredExceptions_ = exceptions;
 }
@@ -1159,6 +1159,10 @@ qlonglong DebuggerCore::exceptionValue(const QString &name) {
 	return Unix::exception_value(name);
 }
 
+/**
+ * @brief DebuggerCore::nopFillByte
+ * @return
+ */
 uint8_t DebuggerCore::nopFillByte() const {
 #if defined EDB_X86 || defined EDB_X86_64
 	return 0x90;

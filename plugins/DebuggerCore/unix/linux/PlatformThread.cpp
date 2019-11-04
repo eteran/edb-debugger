@@ -30,28 +30,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCorePlugin {
 
-//------------------------------------------------------------------------------
-// Name: PlatformThread
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformThread::PlatformThread
+ * @param core
+ * @param process
+ * @param tid
+ */
 PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, edb::tid_t tid)
 	: core_(core), process_(process), tid_(tid) {
 	assert(process);
 	assert(core);
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformThread::tid
+ * @return
+ */
 edb::tid_t PlatformThread::tid() const {
 	return tid_;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformThread::name
+ * @return
+ */
 QString PlatformThread::name() const {
 	struct user_stat thread_stat;
 	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);
@@ -62,10 +64,10 @@ QString PlatformThread::name() const {
 	return QString();
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformThread::priority
+ * @return
+ */
 int PlatformThread::priority() const {
 	struct user_stat thread_stat;
 	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);
@@ -76,25 +78,10 @@ int PlatformThread::priority() const {
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-edb::address_t PlatformThread::instructionPointer() const {
-	// FIXME(ARM): doesn't work at least on ARM32
-	struct user_stat thread_stat;
-	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);
-	if (n >= 30) {
-		return thread_stat.kstkeip;
-	}
-
-	return 0;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformThread::runState
+ * @return
+ */
 QString PlatformThread::runState() const {
 	struct user_stat thread_stat;
 	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);
@@ -129,29 +116,33 @@ QString PlatformThread::runState() const {
 	return tr("Unknown");
 }
 
-//------------------------------------------------------------------------------
-// Name: resume
-// Desc: resumes this thread, passing the signal that stopped it
-//       (unless the signal was SIGSTOP)
-//------------------------------------------------------------------------------
+/**
+ * resumes this thread, passing the signal that stopped it
+ * (unless the signal was SIGSTOP)
+ *
+ * @brief PlatformThread::resume
+ * @return
+ */
 Status PlatformThread::resume() {
 	return core_->ptraceContinue(tid_, resume_code(status_));
 }
 
-//------------------------------------------------------------------------------
-// Name: resume
-// Desc: resumes this thread , passing the signal that stopped it
-//       (unless the signal was SIGSTOP, or the passed status != DEBUG_EXCEPTION_NOT_HANDLED)
-//------------------------------------------------------------------------------
+/**
+ * resumes this thread, passing the signal that stopped it
+ * (unless the signal was SIGSTOP, or the passed status != DEBUG_EXCEPTION_NOT_HANDLED)
+ * @brief PlatformThread::resume
+ * @param status
+ * @return
+ */
 Status PlatformThread::resume(edb::EVENT_STATUS status) {
 	const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(status_) : 0;
 	return core_->ptraceContinue(tid_, code);
 }
 
-//------------------------------------------------------------------------------
-// Name: isPaused
-// Desc: returns true if this thread is currently in the debugger's wait list
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformThread::isPaused
+ * @return true if this thread is currently in the debugger's wait list
+ */
 bool PlatformThread::isPaused() const {
 	return util::contains(core_->waitedThreads_, tid_);
 }

@@ -21,23 +21,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCorePlugin {
 
 const std::array<PlatformState::GPR::RegNameVariants, GPR_COUNT> PlatformState::GPR::GPRegNames = {
-    RegNameVariants{"r0", "a1"},
-    RegNameVariants{"r1", "a2"},
-    RegNameVariants{"r2", "a3"},
-    RegNameVariants{"r3", "a4"},
-    RegNameVariants{"r4", "v1"},
-    RegNameVariants{"r5", "v2"},
-    RegNameVariants{"r6", "v3"},
-    RegNameVariants{"r7", "v4"},
-    RegNameVariants{"r8", "v5"},
-    RegNameVariants{"r9", "sb", "v6"},
-    RegNameVariants{"r10", "sl", "v7"},
-    RegNameVariants{"r11", "fp", "v8"},
-    RegNameVariants{"r12", "ip", "v6"},
-    RegNameVariants{"sp", "r13"},
-    RegNameVariants{"lr", "r14"},
-    RegNameVariants{"pc", "r15"}
-};
+	RegNameVariants{"r0", "a1"},
+	RegNameVariants{"r1", "a2"},
+	RegNameVariants{"r2", "a3"},
+	RegNameVariants{"r3", "a4"},
+	RegNameVariants{"r4", "v1"},
+	RegNameVariants{"r5", "v2"},
+	RegNameVariants{"r6", "v3"},
+	RegNameVariants{"r7", "v4"},
+	RegNameVariants{"r8", "v5"},
+	RegNameVariants{"r9", "sb", "v6"},
+	RegNameVariants{"r10", "sl", "v7"},
+	RegNameVariants{"r11", "fp", "v8"},
+	RegNameVariants{"r12", "ip", "v6"},
+	RegNameVariants{"sp", "r13"},
+	RegNameVariants{"lr", "r14"},
+	RegNameVariants{"pc", "r15"}};
 
 /**
  * @brief PlatformState::PlatformState
@@ -292,7 +291,7 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
  */
 Register PlatformState::gp_register(size_t n) const {
 #ifdef EDB_ARM32
-	if(n < GPR::GPRegNames.size())
+	if (n < GPR::GPRegNames.size())
 		return make_Register<32>(gpr.GPRegNames[n].front(), gpr.GPRegs[n], Register::TYPE_GPR);
 	return Register();
 #else

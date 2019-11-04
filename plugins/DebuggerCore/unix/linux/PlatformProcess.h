@@ -84,8 +84,8 @@ private:
 private:
 	DebuggerCore *core_ = nullptr;
 	edb::pid_t pid_;
-	std::shared_ptr<QFile> ro_mem_file_;
-	std::shared_ptr<QFile> rw_mem_file_;
+	std::shared_ptr<QFile> readOnlyMemFile_;
+	std::shared_ptr<QFile> readWriteMemFile_;
 	QMap<edb::address_t, Patch> patches_;
 };
 
