@@ -86,7 +86,7 @@ bool State::empty() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: instruction_pointer_register
+// Name: instructionPointeRregister
 // Desc:
 //------------------------------------------------------------------------------
 Register State::instructionPointerRegister() const {
@@ -97,7 +97,7 @@ Register State::instructionPointerRegister() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: instruction_pointer
+// Name: instructionPointer
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t State::instructionPointer() const {
@@ -108,7 +108,7 @@ edb::address_t State::instructionPointer() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: stack_pointer
+// Name: stackPointer
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t State::stackPointer() const {
@@ -119,7 +119,7 @@ edb::address_t State::stackPointer() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: frame_pointer
+// Name: framePointer
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t State::framePointer() const {
@@ -130,7 +130,7 @@ edb::address_t State::framePointer() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: flags_register
+// Name: flagsRegister
 // Desc:
 //------------------------------------------------------------------------------
 Register State::flagsRegister() const {
@@ -174,7 +174,7 @@ Register State::operator[](const QString &reg) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_register
+// Name: setRegister
 // Desc:
 //------------------------------------------------------------------------------
 void State::setRegister(const Register &reg) {
@@ -184,7 +184,7 @@ void State::setRegister(const Register &reg) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_register
+// Name: setRegister
 // Desc:
 //------------------------------------------------------------------------------
 void State::setRegister(const QString &name, edb::reg_t value) {
@@ -194,7 +194,7 @@ void State::setRegister(const QString &name, edb::reg_t value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: adjust_stack
+// Name: adjustStack
 // Desc:
 //------------------------------------------------------------------------------
 void State::adjustStack(int bytes) {
@@ -204,7 +204,7 @@ void State::adjustStack(int bytes) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_instruction_pointer
+// Name: setInstructionPointer
 // Desc:
 //------------------------------------------------------------------------------
 void State::setInstructionPointer(edb::address_t value) {
@@ -214,10 +214,10 @@ void State::setInstructionPointer(edb::address_t value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: flags_to_string
+// Name: flagsToString
 // Desc:
 //------------------------------------------------------------------------------
-QString State::flags_to_string() const {
+QString State::flagsToString() const {
 	if (impl_) {
 		return impl_->flagsToString();
 	}
@@ -225,10 +225,10 @@ QString State::flags_to_string() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: flags_to_string
+// Name: flagsToString
 // Desc:
 //------------------------------------------------------------------------------
-QString State::flags_to_string(edb::reg_t flags) const {
+QString State::flagsToString(edb::reg_t flags) const {
 	if (impl_) {
 		return impl_->flagsToString(flags);
 	}
@@ -236,7 +236,7 @@ QString State::flags_to_string(edb::reg_t flags) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_flags
+// Name: setFlags
 // Desc:
 //------------------------------------------------------------------------------
 void State::setFlags(edb::reg_t flags) {
@@ -246,7 +246,7 @@ void State::setFlags(edb::reg_t flags) {
 }
 
 //------------------------------------------------------------------------------
-// Name: debug_register
+// Name: debugRegister
 // Desc:
 //------------------------------------------------------------------------------
 edb::reg_t State::debugRegister(size_t n) const {
@@ -257,7 +257,7 @@ edb::reg_t State::debugRegister(size_t n) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_debug_register
+// Name: setDebugRegister
 // Desc:
 //------------------------------------------------------------------------------
 void State::setDebugRegister(size_t n, edb::reg_t value) {

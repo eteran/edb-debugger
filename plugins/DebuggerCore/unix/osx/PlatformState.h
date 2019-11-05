@@ -36,8 +36,8 @@ public:
 	std::unique_ptr<IState> clone() const override;
 
 public:
-	QString flags_to_string() const override;
-	QString flags_to_string(edb::reg_t flags) const override;
+	QString flagsToString() const override;
+	QString flagsToString(edb::reg_t flags) const override;
 	Register value(const QString &reg) const override;
 	edb::address_t frame_pointer() const override;
 	edb::address_t instruction_pointer() const override;

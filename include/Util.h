@@ -136,7 +136,7 @@ void print(Stream &str, const Arg0 &arg0, const Args &... args) {
 	} while (0)
 
 template <typename T>
-QString formatInt(T value, NumberDisplayMode mode) {
+QString format_int(T value, NumberDisplayMode mode) {
 	switch (mode) {
 	case NumberDisplayMode::Hex:
 		return value.toHexString();

@@ -41,12 +41,12 @@ PlatformEvent *PlatformEvent::clone() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-IDebugEvent::Message PlatformEvent::error_description() const {
-	Q_ASSERT(is_error());
+IDebugEvent::Message PlatformEvent::errorDescription() const {
+	Q_ASSERT(isError());
 
 	auto fault_address = static_cast<edb::address_t>(-1);
 	if (event.dwDebugEventCode == EXCEPTION_DEBUG_EVENT) {
-		fault_address = (edb::address_t)(event.u.Exception.ExceptionRecord.ExceptionInformation[1]);
+		fault_address = static_cast<edb::address_t>(event.u.Exception.ExceptionRecord.ExceptionInformation[1]);
 	}
 
 	switch (code()) {
@@ -216,7 +216,7 @@ IDebugEvent::REASON PlatformEvent::reason() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-IDebugEvent::TRAP_REASON PlatformEvent::trap_reason() const {
+IDebugEvent::TRAP_REASON PlatformEvent::trapReason() const {
 	switch (event.dwDebugEventCode) {
 	case EXCEPTION_DEBUG_EVENT:
 		switch (event.u.Exception.ExceptionRecord.ExceptionCode) {
@@ -241,7 +241,7 @@ bool PlatformEvent::exited() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-bool PlatformEvent::is_error() const {
+bool PlatformEvent::isError() const {
 	switch (event.dwDebugEventCode) {
 	case EXCEPTION_DEBUG_EVENT:
 		switch (event.u.Exception.ExceptionRecord.ExceptionCode) {
@@ -287,7 +287,7 @@ bool PlatformEvent::is_error() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-bool PlatformEvent::is_kill() const {
+bool PlatformEvent::isKill() const {
 	return false;
 }
 
@@ -295,15 +295,15 @@ bool PlatformEvent::is_kill() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-bool PlatformEvent::is_stop() const {
-	return !is_trap();
+bool PlatformEvent::isStop() const {
+	return !isTrap();
 }
 
 //------------------------------------------------------------------------------
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-bool PlatformEvent::is_trap() const {
+bool PlatformEvent::isTrap() const {
 	if (stopped()) {
 		switch (event.u.Exception.ExceptionRecord.ExceptionCode) {
 		case EXCEPTION_SINGLE_STEP:
@@ -352,7 +352,7 @@ edb::tid_t PlatformEvent::thread() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-int PlatformEvent::code() const {
+int64_t PlatformEvent::code() const {
 	if (stopped()) {
 		return event.u.Exception.ExceptionRecord.ExceptionCode;
 	}

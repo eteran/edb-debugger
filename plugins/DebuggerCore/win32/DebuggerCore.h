@@ -44,12 +44,12 @@ public:
 	~DebuggerCore() override;
 
 public:
-	bool has_extension(quint64 ext) const override;
-	size_t page_size() const override;
-	std::size_t pointer_size() const override {
+	bool hasExtension(quint64 ext) const override;
+	size_t pageSize() const override;
+	std::size_t pointerSize() const override {
 		return sizeof(void *);
 	}
-	std::shared_ptr<IDebugEvent> wait_debug_event(int msecs) override;
+	std::shared_ptr<IDebugEvent> waitDebugEvent(int msecs) override;
 	Status attach(edb::pid_t pid) override;
 	Status detach() override;
 	void kill() override;
@@ -76,41 +76,44 @@ public:
 public:
 	// thread support stuff (optional)
 	QList<edb::tid_t> thread_ids() const { return threads_.keys(); }
-	edb::tid_t active_thread() const { return active_thread_; }
+	edb::tid_t active_thread() const { return activeThread_; }
 	void set_active_thread(edb::tid_t tid) {
 		Q_ASSERT(threads_.contains(tid));
-		active_thread_ = tid;
+		activeThread_ = tid;
 	}
 
 public:
 	// process properties
-	edb::pid_t parent_pid(edb::pid_t pid) const override;
-	quint64 cpu_type() const override;
+	edb::pid_t parentPid(edb::pid_t pid) const override;
+	quint64 cpuType() const override;
 
-	CpuMode cpu_mode() const override {
+	CpuMode cpuMode() const override {
 		qDebug("TODO: Implement DebuggerCore::cpu_mode");
 		return CpuMode::Unknown;
 	}
 
 public:
-	std::unique_ptr<IState> create_state() const override;
+	std::unique_ptr<IState> createState() const override;
 
 private:
-	QMap<edb::pid_t, std::shared_ptr<IProcess>> enumerate_processes() const override;
+	QMap<edb::pid_t, std::shared_ptr<IProcess>> enumerateProcesses() const override;
 
 public:
-	QString stack_pointer() const override;
-	QString frame_pointer() const override;
-	QString instruction_pointer() const override;
-	QString flag_register() const override {
+	QString stackPointer() const override;
+	QString framePointer() const override;
+	QString instructionPointer() const override;
+	QString flagRegister() const override {
 		qDebug("TODO: Implement DebuggerCore::flag_register");
 		return "";
 	}
 
-	void set_ignored_exceptions(const QList<qlonglong> &exceptions) override {
+	void setIgnoredExceptions(const QList<qlonglong> &exceptions) override {
 		Q_UNUSED(exceptions)
 		qDebug("TODO: Implement DebuggerCore::set_ignored_exceptions");
 	}
+
+public:
+	uint8_t nopFillByte() const override;
 
 public:
 	IProcess *process() const override;
@@ -119,10 +122,10 @@ private:
 	using threadmap_t = QHash<edb::tid_t, std::shared_ptr<PlatformThread>>;
 
 private:
-	size_t page_size_ = 0;
+	size_t pageSize_ = 0;
 	std::shared_ptr<IProcess> process_;
 	threadmap_t threads_;
-	edb::tid_t active_thread_;
+	edb::tid_t activeThread_;
 };
 
 }

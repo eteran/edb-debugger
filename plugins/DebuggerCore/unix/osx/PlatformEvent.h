@@ -47,7 +47,7 @@ public:
 	bool stopped() const override;
 	edb::pid_t process() const override;
 	edb::tid_t thread() const override;
-	int code() const override;
+	int64_t code() const override;
 
 private:
 	int status;

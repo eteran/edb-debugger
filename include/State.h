@@ -48,8 +48,8 @@ public:
 	void swap(State &other);
 
 public:
-	QString flags_to_string() const;
-	QString flags_to_string(edb::reg_t flags) const;
+	QString flagsToString() const;
+	QString flagsToString(edb::reg_t flags) const;
 	Register value(const QString &reg) const;
 	Register instructionPointerRegister() const;
 	Register flagsRegister() const;
