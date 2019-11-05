@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Types.h"
 #include <QHash>
-#include <QList>
 #include <memory>
+#include <vector>
 
 class QString;
 class Symbol;
@@ -33,7 +33,7 @@ public:
 	virtual ~ISymbolManager() = default;
 
 public:
-	virtual const QList<std::shared_ptr<Symbol>> symbols() const                       = 0;
+	virtual const std::vector<std::shared_ptr<Symbol>> symbols() const                 = 0;
 	virtual const std::shared_ptr<Symbol> find(const QString &name) const              = 0;
 	virtual const std::shared_ptr<Symbol> find(edb::address_t address) const           = 0;
 	virtual const std::shared_ptr<Symbol> findNearSymbol(edb::address_t address) const = 0;

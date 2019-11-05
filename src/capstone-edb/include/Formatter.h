@@ -14,7 +14,7 @@ class Instruction;
 class EDB_EXPORT Formatter {
 public:
 	enum Syntax {
-		SyntaxIntel, 
+		SyntaxIntel,
 		SyntaxATT
 	};
 
@@ -24,10 +24,10 @@ public:
 	};
 
 	struct FormatOptions {
-		Syntax         syntax;
+		Syntax syntax;
 		Capitalization capitalization;
-		bool           tabBetweenMnemonicAndOperands;
-		bool           simplifyRIPRelativeTargets;
+		bool tabBetweenMnemonicAndOperands;
+		bool simplifyRIPRelativeTargets;
 	};
 
 public:

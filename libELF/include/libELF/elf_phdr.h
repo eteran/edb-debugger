@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* Program segment header.  */
 struct elf32_phdr {
 	elf32_word p_type;   /* Segment type */
-	elf32_off  p_offset; /* Segment file offset */
+	elf32_off p_offset;  /* Segment file offset */
 	elf32_addr p_vaddr;  /* Segment virtual address */
 	elf32_addr p_paddr;  /* Segment physical address */
 	elf32_word p_filesz; /* Segment size in file */
@@ -37,11 +37,11 @@ struct elf32_phdr {
 };
 
 struct elf64_phdr {
-	elf64_word  p_type;   /* Segment type */
-	elf64_word  p_flags;  /* Segment flags */
-	elf64_off   p_offset; /* Segment file offset */
-	elf64_addr  p_vaddr;  /* Segment virtual address */
-	elf64_addr  p_paddr;  /* Segment physical address */
+	elf64_word p_type;    /* Segment type */
+	elf64_word p_flags;   /* Segment flags */
+	elf64_off p_offset;   /* Segment file offset */
+	elf64_addr p_vaddr;   /* Segment virtual address */
+	elf64_addr p_paddr;   /* Segment physical address */
 	elf64_xword p_filesz; /* Segment size in file */
 	elf64_xword p_memsz;  /* Segment size in memory */
 	elf64_xword p_align;  /* Segment alignment */

@@ -26,19 +26,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Move records.
 struct elf32_move {
-	elf32_xword m_value;   // Symbol value.
-	elf32_word  m_info;    // Size and index.
-	elf32_word  m_poffset; // Symbol offset.
-	elf32_half  m_repeat;  // Repeat count.
-	elf32_half  m_stride;  // Stride info.
+	elf32_xword m_value;  // Symbol value.
+	elf32_word m_info;    // Size and index.
+	elf32_word m_poffset; // Symbol offset.
+	elf32_half m_repeat;  // Repeat count.
+	elf32_half m_stride;  // Stride info.
 };
 
 struct elf64_move {
 	elf64_xword m_value;   // Symbol value.
 	elf64_xword m_info;    // Size and index.
 	elf64_xword m_poffset; // Symbol offset.
-	elf64_half  m_repeat;  // Repeat count.
-	elf64_half  m_stride;  // Stride info.
+	elf64_half m_repeat;   // Repeat count.
+	elf64_half m_stride;   // Stride info.
 };
 
 // Macro to construct move records.

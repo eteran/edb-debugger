@@ -132,7 +132,7 @@ enum {
 
 template <class T>
 constexpr T ELF32_ST_VISIBILITY(T o) {
-	return ((o) & 0x03);
+	return ((o)&0x03);
 }
 
 /* For ELF64 the definitions are the same.  */

@@ -34,10 +34,11 @@ constexpr int MaxRecentFiles = 8;
 // Desc: constructor
 //------------------------------------------------------------------------------
 RecentFileManager::RecentFileManager(QWidget *parent, Qt::WindowFlags f)
-	: QWidget(parent, f), menu_(nullptr) {
+	: QWidget(parent, f) {
+
 	QSettings settings;
 	settings.beginGroup("Recent");
-	const auto size = settings.beginReadArray("recent.files");
+	const int size = settings.beginReadArray("recent.files");
 
 	for (int i = 0; i < size; ++i) {
 		settings.setArrayIndex(i);
@@ -47,7 +48,7 @@ RecentFileManager::RecentFileManager(QWidget *parent, Qt::WindowFlags f)
 			continue;
 		}
 
-		const auto size = settings.beginReadArray("arguments");
+		const int size = settings.beginReadArray("arguments");
 
 		QList<QByteArray> args;
 		for (int i = 0; i < size; ++i) {

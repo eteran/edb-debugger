@@ -31,6 +31,8 @@ class DebuggerCore;
 class PlatformThread;
 }
 
+// NOTE(eteran): the purpose of this class is simply to give IState objects
+// value semantics, so it tends to nearly replicate that interface.
 class EDB_EXPORT State {
 
 	// TODO(eteran): I don't like needing to do this
@@ -42,14 +44,16 @@ public:
 	State();
 	State(const State &other);
 	State &operator=(const State &rhs);
+	State(State &&other);
+	State &operator=(State &&rhs);
 	~State();
 
 public:
 	void swap(State &other);
 
 public:
-	QString flags_to_string() const;
-	QString flags_to_string(edb::reg_t flags) const;
+	QString flagsToString() const;
+	QString flagsToString(edb::reg_t flags) const;
 	Register value(const QString &reg) const;
 	Register instructionPointerRegister() const;
 	Register flagsRegister() const;

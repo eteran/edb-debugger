@@ -148,25 +148,26 @@ void load_translations() {
 [[noreturn]] void usage() {
 
 	QStringList args = qApp->arguments();
-	std::cerr << "Usage: " << qPrintable(args[0]) << " [OPTIONS]" << std::endl;
-	std::cerr << std::endl;
-	std::cerr << " --attach <pid>            : attach to running process" << std::endl;
-	std::cerr << " --run <program> (args...) : execute specified <program> with <args>" << std::endl;
-	std::cerr << " --version                 : output version information and exit" << std::endl;
-	std::cerr << " --dump-version            : display terse version string and exit" << std::endl;
-	std::cerr << " --help                    : display this help and exit" << std::endl;
+	std::cerr << "Usage: " << qPrintable(args[0]) << " [OPTIONS]\n";
+	std::cerr << '\n';
+	std::cerr << " --attach <pid>            : attach to running process\n";
+	std::cerr << " --run <program> (args...) : execute specified <program> with <args>\n";
+	std::cerr << " --version                 : output version information and exit\n";
+	std::cerr << " --dump-version            : display terse version string and exit\n";
+	std::cerr << " --help                    : display this help and exit\n";
 
 	for (QObject *plugin : edb::v1::plugin_list()) {
 		if (auto p = qobject_cast<IPlugin *>(plugin)) {
 			const QString s = p->extraArguments();
 			if (!s.isEmpty()) {
-				std::cerr << std::endl;
-				std::cerr << qPrintable(plugin->metaObject()->className()) << std::endl;
-				std::cerr << qPrintable(s) << std::endl;
+				std::cerr << '\n';
+				std::cerr << qPrintable(plugin->metaObject()->className()) << '\n';
+				std::cerr << qPrintable(s) << '\n';
 			}
 		}
 	}
 
+	std::cerr << std::flush;
 	std::exit(-1);
 }
 

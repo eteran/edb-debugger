@@ -68,19 +68,19 @@ private:
 	Q_DECLARE_FLAGS(ResumeFlags, ResumeFlag)
 
 	enum DebugMode {
-		MODE_STEP,
-		MODE_TRACE,
-		MODE_RUN
+        Step,
+        Trace,
+        Run
 	};
 
 	enum ExceptionResume {
-		IGNORE_EXCEPTION,
-		PASS_EXCEPTION
+        IgnoreException,
+        PassException
 	};
 
 	enum DetachAction {
-		NO_KILL_ON_DETACH,
-		KILL_ON_DETACH
+        NoKillOnDetach,
+        KillOnDetach
 	};
 
 	enum GuiState {
@@ -90,23 +90,23 @@ private:
 	};
 
 public:
-	std::shared_ptr<DataViewInfo> current_data_view_info() const;
-	bool dump_data(edb::address_t address, bool new_tab);
-	bool dump_data_range(edb::address_t address, edb::address_t end_address, bool new_tab);
-	bool dump_stack(edb::address_t address, bool scroll_to);
-	bool jump_to_address(edb::address_t address);
-	int current_tab() const;
+    std::shared_ptr<DataViewInfo> currentDataViewInfo() const;
+    bool dumpData(edb::address_t address, bool new_tab);
+    bool dumpDataRange(edb::address_t address, edb::address_t end_address, bool new_tab);
+    bool dumpStack(edb::address_t address, bool scroll_to);
+    bool jumpToAddress(edb::address_t address);
+    int currentTab() const;
 	void attach(edb::pid_t pid);
-	void clear_data(const std::shared_ptr<DataViewInfo> &v);
+    void clearData(const std::shared_ptr<DataViewInfo> &v);
 	void execute(const QString &s, const QList<QByteArray> &args);
-	void refresh_gui();
-	void update_data(const std::shared_ptr<DataViewInfo> &v);
-	void update_gui();
+    void refreshUi();
+    void updateData(const std::shared_ptr<DataViewInfo> &v);
+    void updateUi();
 	QLabel *statusLabel() const;
-	Register active_register() const;
+    Register activeRegister() const;
 
 Q_SIGNALS:
-	void gui_updated();
+    void uiUpdated();
 
 	// TODO(eteran): maybe this is better off as a single event
 	//               with a type passed?
@@ -153,8 +153,8 @@ public Q_SLOTS:
 	void toggle_flag_overflow();
 
 private:
-	void toggle_flag(int);
-	void run_to_this_line(ExceptionResume pass_signal);
+    void toggleFlag(int);
+    void runToThisLine(ExceptionResume pass_signal);
 
 private Q_SLOTS:
 	// the manually connected general slots
@@ -182,7 +182,7 @@ private Q_SLOTS:
 
 private Q_SLOTS:
 	// the manually connected Register slots
-	QList<QAction *> getCurrentRegisterContextMenuItems() const;
+    QList<QAction *> currentRegisterContextMenuItems() const;
 	void mnuRegisterFollowInDump() { follow_register_in_dump(false); }
 	void mnuRegisterFollowInDumpNewTab() { follow_register_in_dump(true); }
 	void mnuRegisterFollowInStack();
@@ -214,11 +214,11 @@ private Q_SLOTS:
 	void mnuStackToggleLock(bool locked);
 
 private Q_SLOTS:
-	void goto_triggered();
-	void next_debug_event();
-	void open_file(const QString &s, const QList<QByteArray> &a);
-	void tab_context_menu(int index, const QPoint &pos);
-	void tty_proc_finished(int exit_code, QProcess::ExitStatus exit_status);
+    void gotoTriggered();
+    void nextDebugEvent();
+    void openFile(const QString &s, const QList<QByteArray> &a);
+    void tabContextMenu(int index, const QPoint &pos);
+    void ttyProcFinished(int exit_code, QProcess::ExitStatus exit_status);
 
 private:
 	void closeEvent(QCloseEvent *event) override;

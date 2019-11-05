@@ -54,7 +54,7 @@ ExpressionDialog::ExpressionDialog(const QString &title, const QString &prompt, 
 	connect(expression_, &QLineEdit::textChanged, this, &ExpressionDialog::on_text_changed);
 	expression_->selectAll();
 
-	QList<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().symbols();
+	std::vector<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().symbols();
 	QStringList allLabels;
 
 	for (const std::shared_ptr<Symbol> &sym : symbols) {

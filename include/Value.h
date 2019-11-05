@@ -221,7 +221,8 @@ public:
 
 public:
 	void swap(value_type &other) {
-		std::swap(value_, other.value_);
+		using std::swap;
+		swap(value_, other.value_);
 	}
 
 public:

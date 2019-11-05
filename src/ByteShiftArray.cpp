@@ -32,8 +32,9 @@ ByteShiftArray::ByteShiftArray(int size)
 // Desc:
 //------------------------------------------------------------------------------
 void ByteShiftArray::swap(ByteShiftArray &other) {
-	std::swap(data_, other.data_);
-	std::swap(maxSize_, other.maxSize_);
+	using std::swap;
+	swap(data_, other.data_);
+	swap(maxSize_, other.maxSize_);
 }
 
 //------------------------------------------------------------------------------

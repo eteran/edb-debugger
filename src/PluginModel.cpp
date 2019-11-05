@@ -130,7 +130,12 @@ void PluginModel::addPlugin(const QString &filename, const QString &plugin, cons
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
 
 	const Item item = {
-		filename, plugin, author, url};
+		filename,
+		plugin,
+		author,
+		url,
+	};
+
 	items_.push_back(item);
 	endInsertRows();
 }

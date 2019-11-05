@@ -39,7 +39,7 @@ public:
 		TYPE_SEG     = 0x0004,
 		TYPE_COND    = 0x0008,
 		TYPE_FPU     = 0x0010,
-		TYPE_SIMD    = 0x0020
+		TYPE_SIMD    = 0x0020,
 	};
 
 	// Expand when AVX-512 instructions and state are supported

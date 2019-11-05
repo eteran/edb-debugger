@@ -23,9 +23,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * @param other
  */
 void Function::swap(Function &other) {
-	std::swap(referenceCount_, other.referenceCount_);
-	std::swap(type_, other.type_);
-	std::swap(blocks_, other.blocks_);
+	using std::swap;
+	swap(referenceCount_, other.referenceCount_);
+	swap(type_, other.type_);
+	swap(blocks_, other.blocks_);
 }
 
 /**

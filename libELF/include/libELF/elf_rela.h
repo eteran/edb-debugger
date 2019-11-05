@@ -26,14 +26,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Relocation table entry with addend (in section of type SHT_RELA).  */
 struct elf32_rela {
-	elf32_addr  r_offset; /* Address */
-	elf32_word  r_info;   /* Relocation type and symbol index */
+	elf32_addr r_offset;  /* Address */
+	elf32_word r_info;    /* Relocation type and symbol index */
 	elf32_sword r_addend; /* Addend */
 };
 
 struct elf64_rela {
-	elf64_addr   r_offset; /* Address */
-	elf64_xword  r_info;   /* Relocation type and symbol index */
+	elf64_addr r_offset;   /* Address */
+	elf64_xword r_info;    /* Relocation type and symbol index */
 	elf64_sxword r_addend; /* Addend */
 };
 

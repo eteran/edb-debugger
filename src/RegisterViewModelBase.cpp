@@ -65,11 +65,10 @@ bool set_debugee_register(const QString &name, const T &value, T &resultingValue
 		State state;
 		// read
 		process->currentThread()->getState(&state);
-		auto reg = state[name];
+		Register reg = state[name];
 
 		if (!reg) {
-			qWarning() << qPrintable(
-				QString("Warning: failed to get register %1 (in function `%2`)").arg(name).arg(Q_FUNC_INFO));
+			qWarning() << qPrintable(QString("Warning: failed to get register %1 (in function `%2`)").arg(name).arg(Q_FUNC_INFO));
 			return false;
 		}
 
@@ -89,7 +88,7 @@ bool set_debugee_register(const QString &name, const T &value, T &resultingValue
 
 		// check
 		process->currentThread()->getState(&state);
-		const auto resultReg = state[name];
+		const Register resultReg = state[name];
 
 		if (!resultReg) {
 			return false;
@@ -162,7 +161,7 @@ CategoryType *CategoriesHolder::insert(const QString &name) {
 	return static_cast<CategoryType *>(categories.back().get());
 }
 
-SIMDCategory *CategoriesHolder::insertSIMD(const QString &name, const std::vector<NumberDisplayMode> &validFormats) {
+SIMDCategory *CategoriesHolder::insertSimd(const QString &name, const std::vector<NumberDisplayMode> &validFormats) {
 	auto cat = std::make_unique<SIMDCategory>(name, categories.size(), validFormats);
 	auto ret = cat.get();
 	categories.emplace_back(std::move(cat));
@@ -204,7 +203,7 @@ QModelIndex Model::index(int row, int column, const QModelIndex &parent) const {
 }
 
 int Model::rowCount(const QModelIndex &parent) const {
-	const auto item = parent.isValid() ? get_item(parent) : rootItem.get();
+	const RegisterViewItem *item = parent.isValid() ? get_item(parent) : rootItem.get();
 	return item->childCount();
 }
 
@@ -218,7 +217,7 @@ QModelIndex Model::parent(const QModelIndex &index) const {
 		return QModelIndex();
 	}
 
-	const auto parent = get_item(index)->parent();
+	RegisterViewItem *parent = get_item(index)->parent();
 	if (!parent || parent == rootItem.get()) {
 		return QModelIndex();
 	}
@@ -237,7 +236,7 @@ Qt::ItemFlags Model::flags(const QModelIndex &index) const {
 
 QVariant Model::data(const QModelIndex &index, int role) const {
 
-	const auto item = get_item(index);
+	const RegisterViewItem *item = get_item(index);
 	if (!item) {
 		return {};
 	}
@@ -269,7 +268,7 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 			return {};
 		}
 
-		const auto ret = item->rawValue();
+		const QByteArray ret = item->rawValue();
 		if (ret.size()) {
 			return ret;
 		}
@@ -407,9 +406,9 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 }
 
 bool Model::setData(const QModelIndex &index, const QVariant &data, int role) {
-	auto item             = get_item(index);
-	const auto valueIndex = index.sibling(index.row(), VALUE_COLUMN);
-	bool ok               = false;
+	RegisterViewItem *item       = get_item(index);
+	const QModelIndex valueIndex = index.sibling(index.row(), VALUE_COLUMN);
+	bool ok                      = false;
 
 	switch (role) {
 	case Qt::EditRole:
@@ -522,7 +521,7 @@ Category *Model::addCategory(const QString &name) {
 }
 
 SIMDCategory *Model::addSIMDCategory(const QString &name, const std::vector<NumberDisplayMode> &validFormats) {
-	return rootItem->insertSIMD(name, validFormats);
+	return rootItem->insertSimd(name, validFormats);
 }
 
 FPUCategory *Model::addFPUCategory(const QString &name) {
@@ -888,7 +887,7 @@ bool SIMDFormatItem<StoredType, SizingType>::changed() const {
 
 template <class SizingType>
 typename std::enable_if<(sizeof(SizingType) >= sizeof(float) && sizeof(SizingType) != sizeof(edb::value80)), QString>::type toString(SizingType value, NumberDisplayMode format) {
-	return format == NumberDisplayMode::Float ? formatFloat(value) : util::format_int(value, format);
+	return format == NumberDisplayMode::Float ? format_float(value) : util::format_int(value, format);
 }
 
 template <class SizingType>
@@ -899,7 +898,7 @@ typename std::enable_if<sizeof(SizingType) < sizeof(float), QString>::type toStr
 QString toString(const edb::value80 &value, NumberDisplayMode format) {
 	switch (format) {
 	case NumberDisplayMode::Float:
-		return formatFloat(value);
+		return format_float(value);
 	case NumberDisplayMode::Hex:
 		return value.toHexString();
 	default:

@@ -366,7 +366,7 @@ void Analyzer::bonusSymbols(RegionData *data) {
 	Q_ASSERT(data);
 
 	// give bonus if we have a symbol for the address
-	const QList<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().symbols();
+	const std::vector<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().symbols();
 
 	for (const std::shared_ptr<Symbol> &sym : symbols) {
 		const edb::address_t addr = sym->address;

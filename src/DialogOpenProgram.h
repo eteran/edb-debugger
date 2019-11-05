@@ -28,7 +28,7 @@ class DialogOpenProgram : public QFileDialog {
 	Q_OBJECT
 
 public:
-	DialogOpenProgram(QWidget *parent = nullptr, const QString &caption = QString(), const QString &directory = QString(), const QString &filter = QString());
+	explicit DialogOpenProgram(QWidget *parent = nullptr, const QString &caption = QString(), const QString &directory = QString(), const QString &filter = QString());
 
 public:
 	QList<QByteArray> arguments() const;

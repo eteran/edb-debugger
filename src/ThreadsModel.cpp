@@ -118,7 +118,10 @@ void ThreadsModel::addThread(const std::shared_ptr<IThread> &thread, bool curren
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
 
 	const Item item = {
-		thread, current};
+		thread,
+		current,
+	};
+
 	items_.push_back(item);
 	endInsertRows();
 }

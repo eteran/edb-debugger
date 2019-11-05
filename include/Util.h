@@ -136,7 +136,7 @@ void print(Stream &str, const Arg0 &arg0, const Args &... args) {
 	} while (0)
 
 template <typename T>
-QString formatInt(T value, NumberDisplayMode mode) {
+QString format_int(T value, NumberDisplayMode mode) {
 	switch (mode) {
 	case NumberDisplayMode::Hex:
 		return value.toHexString();
@@ -150,7 +150,7 @@ QString formatInt(T value, NumberDisplayMode mode) {
 }
 
 template <typename Float>
-boost::optional<Float> fullStringToFloat(const std::string &s) {
+boost::optional<Float> full_string_to_float(const std::string &s) {
 
 	static_assert(
 		std::is_same<Float, float>::value ||

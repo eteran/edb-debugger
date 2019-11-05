@@ -30,15 +30,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //------------------------------------------------------------------------------
 DialogPlugins::DialogPlugins(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 
-	plugin_model_  = new PluginModel(this);
-	plugin_filter_ = new QSortFilterProxyModel(this);
+	pluginModel_  = new PluginModel(this);
+	pluginFilter_ = new QSortFilterProxyModel(this);
 
-	plugin_filter_->setSourceModel(plugin_model_);
-	plugin_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	pluginFilter_->setSourceModel(pluginModel_);
+	pluginFilter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-	ui.plugins_table->setModel(plugin_filter_);
+	ui.plugins_table->setModel(pluginFilter_);
 }
 
 //------------------------------------------------------------------------------
@@ -49,7 +50,7 @@ void DialogPlugins::showEvent(QShowEvent *) {
 
 	QMap<QString, QObject *> plugins = edb::v1::plugin_list();
 
-	plugin_model_->clear();
+	pluginModel_->clear();
 
 	for (auto it = plugins.begin(); it != plugins.end(); ++it) {
 
@@ -73,7 +74,7 @@ void DialogPlugins::showEvent(QShowEvent *) {
 			}
 		}
 
-		plugin_model_->addPlugin(filename, plugin_name, author, url);
+		pluginModel_->addPlugin(filename, plugin_name, author, url);
 	}
 
 	ui.plugins_table->resizeColumnsToContents();

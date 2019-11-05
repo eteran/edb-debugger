@@ -56,6 +56,7 @@ constexpr int width_to_index(int n) {
 //------------------------------------------------------------------------------
 DialogOptions::DialogOptions(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 }
 
@@ -87,7 +88,7 @@ void DialogOptions::addOptionsPage(QWidget *page) {
 }
 
 //------------------------------------------------------------------------------
-// Name: directory_from_dialog
+// Name: directoryFromDialog
 // Desc:
 //------------------------------------------------------------------------------
 QString DialogOptions::directoryFromDialog() {

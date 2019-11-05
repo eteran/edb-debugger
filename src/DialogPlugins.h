@@ -40,8 +40,8 @@ public:
 
 private:
 	Ui::DialogPlugins ui;
-	PluginModel *plugin_model_            = nullptr;
-	QSortFilterProxyModel *plugin_filter_ = nullptr;
+	PluginModel *pluginModel_            = nullptr;
+	QSortFilterProxyModel *pluginFilter_ = nullptr;
 };
 
 #endif

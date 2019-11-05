@@ -97,7 +97,11 @@ void ProcessModel::addProcess(const std::shared_ptr<IProcess> &process) {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
 
 	const Item item = {
-		process->pid(), process->uid(), process->user(), process->name()};
+		process->pid(),
+		process->uid(),
+		process->user(),
+		process->name(),
+	};
 
 	items_.push_back(item);
 	endInsertRows();

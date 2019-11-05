@@ -26,8 +26,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: swap
 //------------------------------------------------------------------------------
 void BasicBlock::swap(BasicBlock &other) {
-	std::swap(instructions_, other.instructions_);
-	std::swap(references_, other.references_);
+	using std::swap;
+	swap(instructions_, other.instructions_);
+	swap(references_, other.references_);
 }
 
 //------------------------------------------------------------------------------

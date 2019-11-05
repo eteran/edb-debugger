@@ -541,7 +541,7 @@ public:
 	template <typename CategoryType = Category>
 	CategoryType *insert(const QString &name);
 
-	SIMDCategory *insertSIMD(const QString &name, const std::vector<NumberDisplayMode> &validFormats);
+	SIMDCategory *insertSimd(const QString &name, const std::vector<NumberDisplayMode> &validFormats);
 	int childCount() const override;
 	RegisterViewItem *child(int row) override;
 	QVariant data(int column) const override;

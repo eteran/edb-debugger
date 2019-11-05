@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <gdtoa-desktop.h>
 #endif
 
-template <typename T>
+template <class T>
 struct SpecialValues;
 
 template <>
@@ -58,8 +58,7 @@ struct SpecialValues<float> {
 template <>
 struct SpecialValues<long double> {
 
-	static_assert(std::numeric_limits<long double>::digits == 64 &&
-					  std::numeric_limits<long double>::max_exponent == 16384,
+	static_assert(std::numeric_limits<long double>::digits == 64 && std::numeric_limits<long double>::max_exponent == 16384,
 				  "Expected to have x87 80-bit long double");
 
 	static constexpr std::array<std::uint8_t, 16> positiveInf{{0, 0, 0, 0, 0, 0, 0, 0x80, 0xff, 0x7f, 0, 0, 0, 0, 0, 0}};
@@ -97,12 +96,12 @@ constexpr std::array<std::uint8_t, 16> SpecialValues<long double>::negativeQNaN;
 #endif
 #endif
 
-template <typename Float>
-Float readFloat(const QString &strInput, bool &ok) {
+template <class Float>
+Float read_float(const QString &strInput, bool &ok) {
 
 	ok = false;
 	const QString str(strInput.toLower().trimmed());
-	if (const auto value = util::fullStringToFloat<Float>(str.toStdString())) {
+	if (const auto value = util::full_string_to_float<Float>(str.toStdString())) {
 		ok = true;
 		return *value;
 	}
@@ -130,12 +129,12 @@ Float readFloat(const QString &strInput, bool &ok) {
 	return value;
 }
 
-template EDB_EXPORT float readFloat<float>(const QString &strInput, bool &ok);
-template EDB_EXPORT double readFloat<double>(const QString &strInput, bool &ok);
+template EDB_EXPORT float read_float<float>(const QString &strInput, bool &ok);
+template EDB_EXPORT double read_float<double>(const QString &strInput, bool &ok);
 
 #ifndef _MSC_VER
 #if defined(EDB_X86) || defined(EDB_X86_64)
-template long double readFloat<long double>(const QString &strInput, bool &ok);
+template long double read_float<long double>(const QString &strInput, bool &ok);
 #endif
 #endif
 
@@ -231,7 +230,7 @@ QValidator::State FloatXValidator<Float>::validate(QString &input, int &) const 
 
 	// The input may be in hex format. std::istream doesn't support extraction
 	// of hexfloat, but std::strto[f,d,ld] do. (see wg21.link/lwg2381)
-	if (const auto v = util::fullStringToFloat<Float>(input.toStdString())) {
+	if (const auto v = util::full_string_to_float<Float>(input.toStdString())) {
 		return QValidator::Acceptable;
 	}
 
@@ -396,7 +395,7 @@ const char *fixup_g_Yfmt(char *buffer, int digits10) {
 }
 
 template <typename Float>
-EDB_EXPORT QString formatFloat(Float value) {
+EDB_EXPORT QString format_float(Float value) {
 
 	const auto type    = floatType(value);
 	QString specialStr = "???? ";
@@ -507,6 +506,6 @@ EDB_EXPORT QString formatFloat(Float value) {
 	return specialStr + hexStr;
 }
 
-template EDB_EXPORT QString formatFloat<edb::value32>(edb::value32);
-template EDB_EXPORT QString formatFloat<edb::value64>(edb::value64);
-template EDB_EXPORT QString formatFloat<edb::value80>(edb::value80);
+template EDB_EXPORT QString format_float<edb::value32>(edb::value32);
+template EDB_EXPORT QString format_float<edb::value64>(edb::value64);
+template EDB_EXPORT QString format_float<edb::value80>(edb::value80);

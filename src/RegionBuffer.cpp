@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //------------------------------------------------------------------------------
 RegionBuffer::RegionBuffer(const std::shared_ptr<IRegion> &region)
 	: QIODevice(), region_(region) {
+
 	setOpenMode(QIODevice::ReadOnly);
 }
 
@@ -36,6 +37,7 @@ RegionBuffer::RegionBuffer(const std::shared_ptr<IRegion> &region)
 //------------------------------------------------------------------------------
 RegionBuffer::RegionBuffer(const std::shared_ptr<IRegion> &region, QObject *parent)
 	: QIODevice(parent), region_(region) {
+
 	setOpenMode(QIODevice::ReadOnly);
 }
 

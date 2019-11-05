@@ -47,7 +47,7 @@ void SymbolManager::clear() {
 }
 
 //------------------------------------------------------------------------------
-// Name: load_symbol_file
+// Name: loadSymbolFile
 // Desc:
 //------------------------------------------------------------------------------
 void SymbolManager::loadSymbolFile(const QString &filename, edb::address_t base) {
@@ -124,7 +124,7 @@ const std::shared_ptr<Symbol> SymbolManager::find(edb::address_t address) const 
 }
 
 //------------------------------------------------------------------------------
-// Name: find_near_symbol
+// Name: findNearSymbol
 // Desc:
 //------------------------------------------------------------------------------
 const std::shared_ptr<Symbol> SymbolManager::findNearSymbol(edb::address_t address) const {
@@ -152,7 +152,7 @@ const std::shared_ptr<Symbol> SymbolManager::findNearSymbol(edb::address_t addre
 }
 
 //------------------------------------------------------------------------------
-// Name: add_symbol
+// Name: addSymbol
 // Desc:
 //------------------------------------------------------------------------------
 void SymbolManager::addSymbol(const std::shared_ptr<Symbol> &symbol) {
@@ -164,7 +164,7 @@ void SymbolManager::addSymbol(const std::shared_ptr<Symbol> &symbol) {
 }
 
 //------------------------------------------------------------------------------
-// Name: process_symbol_file
+// Name: processSymbolFile
 // Desc:
 // Note: returning false means 'try again', true means, 'we loaded what we could'
 //------------------------------------------------------------------------------
@@ -251,7 +251,7 @@ bool SymbolManager::processSymbolFile(const QString &f, edb::address_t base, con
 		}
 	}
 
-	// TODO: should we return false and try again later?
+	// TODO(eteran): should we return false and try again later?
 	edb::v1::clear_status();
 	return true;
 }
@@ -260,12 +260,12 @@ bool SymbolManager::processSymbolFile(const QString &f, edb::address_t base, con
 // Name: symbols
 // Desc:
 //------------------------------------------------------------------------------
-const QList<std::shared_ptr<Symbol>> SymbolManager::symbols() const {
+const std::vector<std::shared_ptr<Symbol>> SymbolManager::symbols() const {
 	return symbols_;
 }
 
 //------------------------------------------------------------------------------
-// Name: set_symbol_generator
+// Name: setSymbolGenerator
 // Desc:
 //------------------------------------------------------------------------------
 void SymbolManager::setSymbolGenerator(ISymbolGenerator *generator) {
@@ -273,7 +273,7 @@ void SymbolManager::setSymbolGenerator(ISymbolGenerator *generator) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_label
+// Name: setLabel
 // Desc: a label is like a symbol, but can be set/unset by users. They will take
 //       precidence over symbols (since this is the name that the user really
 //       wants to call this address). And only apply to code
@@ -298,7 +298,7 @@ void SymbolManager::setLabel(edb::address_t address, const QString &label) {
 }
 
 //------------------------------------------------------------------------------
-// Name: find_address_name
+// Name: findAddressName
 // Desc:
 //------------------------------------------------------------------------------
 QString SymbolManager::findAddressName(edb::address_t address, bool prefixed) {

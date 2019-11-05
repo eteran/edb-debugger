@@ -32,12 +32,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Desc:
 //------------------------------------------------------------------------------
 DialogInputValue::DialogInputValue(QWidget *parent, Qt::WindowFlags f)
-	: QDialog(parent, f), mask_(-1ll), valueLength_(sizeof(std::uint64_t)) {
+	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 
 	// Apply some defaults
-	const auto regex = QString("[A-Fa-f0-9]{0,%1}").arg(16);
-	ui.hexInput->setValidator(new QRegExpValidator(QRegExp(regex), this));
+	ui.hexInput->setValidator(new QRegExpValidator(QRegExp("[A-Fa-f0-9]{0,16}"), this));
 	ui.signedInput->setValidator(new QLongValidator(std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max(), this));
 	ui.unsignedInput->setValidator(new QULongValidator(0, std::numeric_limits<unsigned long long>::max(), this));
 }
@@ -60,6 +60,7 @@ void DialogInputValue::setValue(Register &reg) {
 		qWarning() << "Warning: DialogInputValue::setValue(tooLargeRegister): such large registers are not supported yet";
 		return;
 	}
+
 	ui.hexInput->setText(reg.toHexString());
 	ui.signedInput->setText(QString("%1").arg(reg.valueAsSignedInteger()));
 	ui.unsignedInput->setText(QString("%1").arg(reg.valueAsInteger()));

@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SYMBOLMANAGER_20060814_H_
 
 #include "ISymbolManager.h"
-#include <QCoreApplication>
 
+#include <QCoreApplication>
 #include <QHash>
 #include <QMap>
 #include <QSet>
@@ -35,7 +35,7 @@ public:
 	SymbolManager() = default;
 
 public:
-	const QList<std::shared_ptr<Symbol>> symbols() const override;
+	const std::vector<std::shared_ptr<Symbol>> symbols() const override;
 	const std::shared_ptr<Symbol> find(const QString &name) const override;
 	const std::shared_ptr<Symbol> find(edb::address_t address) const override;
 	const std::shared_ptr<Symbol> findNearSymbol(edb::address_t address) const override;
@@ -53,7 +53,7 @@ private:
 
 private:
 	QSet<QString> symbolFiles_;
-	QList<std::shared_ptr<Symbol>> symbols_;
+	std::vector<std::shared_ptr<Symbol>> symbols_;
 	QMap<edb::address_t, std::shared_ptr<Symbol>> symbolsByAddress_;
 	QHash<QString, QList<std::shared_ptr<Symbol>>> symbolsByFile_;
 	QHash<QString, std::shared_ptr<Symbol>> symbolsByName_;

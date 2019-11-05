@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //------------------------------------------------------------------------------
 DialogThreads::DialogThreads(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 
 	threadsModel_  = new ThreadsModel(this);

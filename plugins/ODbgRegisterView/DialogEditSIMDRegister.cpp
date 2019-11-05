@@ -177,7 +177,7 @@ void DialogEditSIMDRegister::updateFloatEntries(const std::array<NumberEdit *, n
 
 		T value;
 		std::memcpy(&value, &value_[i * sizeof(value)], sizeof(value));
-		entries[i]->setText(formatFloat(value));
+		entries[i]->setText(format_float(value));
 	}
 }
 
@@ -427,7 +427,7 @@ void DialogEditSIMDRegister::onFloatEdited(QObject *sender, const std::array<Num
 	const auto changedFloatEdit = qobject_cast<NumberEdit *>(sender);
 	std::size_t floatIndex      = std::find(elements.begin(), elements.end(), changedFloatEdit) - elements.begin();
 	bool ok                     = false;
-	auto value                  = readFloat<Float>(elements[floatIndex]->text(), ok);
+	auto value                  = read_float<Float>(elements[floatIndex]->text(), ok);
 	if (ok) {
 		std::memcpy(&value_[floatIndex * sizeof(value)], &value, sizeof(value));
 		updateAllEntriesExcept(elements[floatIndex]);

@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef LINKER_20170103_H_
 #define LINKER_20170103_H_
 
@@ -41,8 +40,8 @@ struct r_debug {
 template <class Addr>
 struct link_map {
 	Addr l_addr;
-	Addr l_name; // char*
-	Addr l_ld; // ElfW(Dyn)*
+	Addr l_name;         // char*
+	Addr l_ld;           // ElfW(Dyn)*
 	Addr l_next, l_prev; // struct link_map*
 };
 

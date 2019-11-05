@@ -22,7 +22,7 @@ enum class FloatValueClass {
 };
 
 template <class Float>
-Float EDB_EXPORT readFloat(const QString &strInput, bool &ok);
+Float EDB_EXPORT read_float(const QString &strInput, bool &ok);
 
 template <class Float>
 class EDB_EXPORT FloatXValidator : public QValidator {
@@ -34,7 +34,7 @@ public:
 };
 
 template <class Float>
-EDB_EXPORT QString formatFloat(Float value);
+EDB_EXPORT QString format_float(Float value);
 
 EDB_EXPORT FloatValueClass floatType(edb::value32 value);
 EDB_EXPORT FloatValueClass floatType(edb::value64 value);

@@ -25,7 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: TabWidget
 // Desc:
 //------------------------------------------------------------------------------
-TabWidget::TabWidget(QWidget *parent) : QTabWidget(parent) {
+TabWidget::TabWidget(QWidget *parent)
+	: QTabWidget(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -49,12 +50,12 @@ QVariant TabWidget::data(int index) const {
 // Desc:
 //------------------------------------------------------------------------------
 void TabWidget::mousePressEvent(QMouseEvent *event) {
-	if(event->button() != Qt::RightButton) {
+	if (event->button() != Qt::RightButton) {
 		return;
 	}
 
 	const int tab = tabBar()->tabAt(event->pos());
-	if(tab != -1) {
+	if (tab != -1) {
 		Q_EMIT customContextMenuRequested(tab, event->pos());
 	}
 }

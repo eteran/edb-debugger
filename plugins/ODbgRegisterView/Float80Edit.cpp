@@ -27,7 +27,7 @@ Float80Edit::Float80Edit(QWidget *parent)
 }
 
 void Float80Edit::setValue(edb::value80 input) {
-	setText(formatFloat(input));
+	setText(format_float(input));
 }
 
 QSize Float80Edit::sizeHint() const {

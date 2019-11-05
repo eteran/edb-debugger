@@ -23,7 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: RegisterViewDelegate
 // Desc:
 //------------------------------------------------------------------------------
-RegisterViewDelegate::RegisterViewDelegate(QTreeView *view, QWidget *parent) : QStyledItemDelegate(parent), view_(view) {
+RegisterViewDelegate::RegisterViewDelegate(QTreeView *view, QWidget *parent)
+	: QStyledItemDelegate(parent), view_(view) {
 }
 
 //------------------------------------------------------------------------------
@@ -35,14 +36,14 @@ void RegisterViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 	const QAbstractItemModel *const model = index.model();
 	Q_ASSERT(model);
 
-	if(!model->parent(index).isValid()) {
+	if (!model->parent(index).isValid()) {
 		// this is a top-level item.
 		QStyleOptionButton buttonOption;
 
 		buttonOption.state = option.state;
-	#ifdef Q_WS_MAC
+#ifdef Q_WS_MAC
 		buttonOption.state |= QStyle::State_Raised;
-	#endif
+#endif
 		buttonOption.state &= ~QStyle::State_HasFocus;
 
 		buttonOption.rect     = option.rect;
@@ -51,14 +52,14 @@ void RegisterViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 		view_->style()->drawControl(QStyle::CE_PushButton, &buttonOption, painter, view_);
 
 		static const int i = 9; // ### hardcoded in qcommonstyle.cpp
-		const QRect &r = option.rect;
+		const QRect &r     = option.rect;
 
 		QStyleOption branchOption;
 		branchOption.rect    = QRect(r.left() + i / 2, r.top() + (r.height() - i) / 2, i, i);
 		branchOption.palette = option.palette;
 		branchOption.state   = QStyle::State_Children;
 
-		if(view_->isExpanded(index)) {
+		if (view_->isExpanded(index)) {
 			branchOption.state |= QStyle::State_Open;
 		}
 
@@ -66,7 +67,7 @@ void RegisterViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 
 		// draw text
 		const QRect textrect = QRect(r.left() + i * 2, r.top(), r.width() - ((5 * i) / 2), r.height());
-		const QString text = elidedText(option.fontMetrics, textrect.width(), Qt::ElideMiddle, model->data(index, Qt::DisplayRole).toString());
+		const QString text   = elidedText(option.fontMetrics, textrect.width(), Qt::ElideMiddle, model->data(index, Qt::DisplayRole).toString());
 		view_->style()->drawItemText(painter, textrect, Qt::AlignCenter, option.palette, view_->isEnabled(), text);
 
 	} else {
@@ -80,11 +81,11 @@ void RegisterViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 //------------------------------------------------------------------------------
 QSize RegisterViewDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const {
 	const QSize defaultHint = QStyledItemDelegate::sizeHint(opt, index) + QSize(2, 2);
-	if(!index.model()->parent(index).isValid()) {
+	if (!index.model()->parent(index).isValid()) {
 		QStyleOptionButton optButton;
-		optButton.rect.setSize(opt.fontMetrics.size(Qt::TextShowMnemonic,"X"));
-		const QSize buttonHint = view_->style()->sizeFromContents(QStyle::CT_PushButton, &optButton,optButton.rect.size());
-		return QSize(defaultHint.width(),buttonHint.height());
-	}
-	else return defaultHint;
+		optButton.rect.setSize(opt.fontMetrics.size(Qt::TextShowMnemonic, "X"));
+		const QSize buttonHint = view_->style()->sizeFromContents(QStyle::CT_PushButton, &optButton, optButton.rect.size());
+		return QSize(defaultHint.width(), buttonHint.height());
+	} else
+		return defaultHint;
 }
