@@ -30,7 +30,7 @@ namespace DebuggerCorePlugin {
 
 namespace {
 
-const IRegion::permissions_t KNOWN_PERMISSIONS = (PAGE_NOACCESS | PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY);
+constexpr IRegion::permissions_t KnownPermissions = (PAGE_NOACCESS | PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY);
 
 }
 
@@ -50,7 +50,7 @@ bool PlatformRegion::accessible() const {
 }
 
 bool PlatformRegion::readable() const {
-	switch (permissions_ & KNOWN_PERMISSIONS) { // ignore modifiers
+	switch (permissions_ & KnownPermissions) { // ignore modifiers
 	case PAGE_EXECUTE_READ:
 	case PAGE_EXECUTE_READWRITE:
 	case PAGE_READONLY:
@@ -62,7 +62,7 @@ bool PlatformRegion::readable() const {
 }
 
 bool PlatformRegion::writable() const {
-	switch (permissions_ & KNOWN_PERMISSIONS) { // ignore modifiers
+	switch (permissions_ & KnownPermissions) { // ignore modifiers
 	case PAGE_EXECUTE_READWRITE:
 	case PAGE_EXECUTE_WRITECOPY:
 	case PAGE_READWRITE:
@@ -74,7 +74,7 @@ bool PlatformRegion::writable() const {
 }
 
 bool PlatformRegion::executable() const {
-	switch (permissions_ & KNOWN_PERMISSIONS) { // ignore modifiers
+	switch (permissions_ & KnownPermissions) { // ignore modifiers
 	case PAGE_EXECUTE:
 	case PAGE_EXECUTE_READ:
 	case PAGE_EXECUTE_READWRITE:
@@ -89,7 +89,7 @@ size_t PlatformRegion::size() const {
 	return end_ - start_;
 }
 
-void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
+void PlatformRegion::setPermissions(bool read, bool write, bool execute) {
 	if (HANDLE ph = OpenProcess(PROCESS_VM_OPERATION, FALSE, edb::v1::debugger_core->process()->pid())) {
 		DWORD prot = PAGE_NOACCESS;
 
@@ -120,7 +120,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 			break;
 		}
 
-		prot |= permissions_ & ~KNOWN_PERMISSIONS; // keep modifiers
+		prot |= permissions_ & ~KnownPermissions; // keep modifiers
 
 		DWORD prev_prot;
 		if (VirtualProtectEx(ph, reinterpret_cast<LPVOID>(start().toUint()), size(), prot, &prev_prot)) {
@@ -151,11 +151,11 @@ IRegion::permissions_t PlatformRegion::permissions() const {
 	return permissions_;
 }
 
-void PlatformRegion::set_start(edb::address_t address) {
+void PlatformRegion::setStart(edb::address_t address) {
 	start_ = address;
 }
 
-void PlatformRegion::set_end(edb::address_t address) {
+void PlatformRegion::setEnd(edb::address_t address) {
 	end_ = address;
 }
 

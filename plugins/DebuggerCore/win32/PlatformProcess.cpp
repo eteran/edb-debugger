@@ -227,10 +227,10 @@ bool PlatformProcess::isWow64() const {
 }
 
 /**
- * @brief PlatformProcess::start_time
+ * @brief PlatformProcess::startTime
  * @return
  */
-QDateTime PlatformProcess::start_time() const {
+QDateTime PlatformProcess::startTime() const {
 	Q_ASSERT(hProcess_);
 
 	FILETIME create;
@@ -312,7 +312,7 @@ QString PlatformProcess::user() const {
  * @return
  */
 std::shared_ptr<IProcess> PlatformProcess::parent() const {
-	edb::pid_t parent_pid = core_->parent_pid(pid());
+	edb::pid_t parent_pid = core_->parentPid(pid());
 	return std::make_shared<PlatformProcess>(core_, parent_pid);
 }
 
@@ -351,7 +351,7 @@ QMap<edb::address_t, Patch> PlatformProcess::patches() const {
  * @param len
  * @return
  */
-std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf, size_t len) {
+std::size_t PlatformProcess::writeBytes(edb::address_t address, const void *buf, size_t len) {
 	Q_ASSERT(buf);
 
 	if (hProcess_) {
@@ -368,13 +368,13 @@ std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf
 }
 
 /**
- * @brief PlatformProcess::read_bytes
+ * @brief PlatformProcess::readBytes
  * @param address
  * @param buf
  * @param len
  * @return
  */
-std::size_t PlatformProcess::read_bytes(edb::address_t address, void *buf, size_t len) const {
+std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, size_t len) const {
 	Q_ASSERT(buf);
 
 	if (hProcess_) {
@@ -401,15 +401,15 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void *buf, size_
 }
 
 /**
- * @brief PlatformProcess::read_pages
+ * @brief PlatformProcess::readPages
  * @param address
  * @param buf
  * @param count
  * @return
  */
-std::size_t PlatformProcess::read_pages(edb::address_t address, void *buf, size_t count) const {
-	Q_ASSERT(address % core_->page_size() == 0);
-	return read_bytes(address, buf, core_->page_size() * count);
+std::size_t PlatformProcess::readPages(edb::address_t address, void *buf, size_t count) const {
+	Q_ASSERT(address % core_->pageSize() == 0);
+	return readBytes(address, buf, core_->pageSize() * count);
 }
 
 /**
@@ -533,10 +533,10 @@ QList<QByteArray> PlatformProcess::arguments() const {
 }
 
 /**
- * @brief loaded_modules
+ * @brief loadedModules
  * @return
  */
-QList<Module> PlatformProcess::loaded_modules() const {
+QList<Module> PlatformProcess::loadedModules() const {
 	QList<Module> ret;
 	HANDLE hModuleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid());
 	if (hModuleSnap != INVALID_HANDLE_VALUE) {
@@ -574,22 +574,26 @@ QList<std::shared_ptr<IThread>> PlatformProcess::threads() const {
 }
 
 /**
- * @brief PlatformProcess::current_thread
+ * @brief PlatformProcess::currentThread
  * @return
  */
-std::shared_ptr<IThread> PlatformProcess::current_thread() const {
+std::shared_ptr<IThread> PlatformProcess::currentThread() const {
 
 	Q_ASSERT(core_->process_.get() == this);
 
-	auto it = core_->threads_.find(core_->active_thread_);
+	auto it = core_->threads_.find(core_->activeThread_);
 	if (it != core_->threads_.end()) {
 		return it.value();
 	}
 	return nullptr;
 }
 
-void PlatformProcess::set_current_thread(IThread &thread) {
-	core_->active_thread_ = static_cast<PlatformThread *>(&thread)->tid();
+/**
+ * @brief PlatformProcess::setCurrentThread
+ * @param thread
+ */
+void PlatformProcess::setCurrentThread(IThread &thread) {
+	core_->activeThread_ = static_cast<PlatformThread *>(&thread)->tid();
 	edb::v1::update_ui();
 }
 
@@ -598,7 +602,7 @@ Status PlatformProcess::step(edb::EVENT_STATUS status) {
 	Q_ASSERT(core_->process_.get() == this);
 
 	if (status != edb::DEBUG_STOP) {
-		if (std::shared_ptr<IThread> thread = current_thread()) {
+		if (std::shared_ptr<IThread> thread = currentThread()) {
 			return thread->step(status);
 		}
 	}

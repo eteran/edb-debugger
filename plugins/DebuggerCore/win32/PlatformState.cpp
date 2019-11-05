@@ -83,10 +83,10 @@ std::unique_ptr<IState> PlatformState::clone() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: flags_to_string
+// Name: flagsToString
 // Desc: returns the flags in a string form appropriate for this platform
 //------------------------------------------------------------------------------
-QString PlatformState::flags_to_string(edb::reg_t flags) const {
+QString PlatformState::flagsToString(edb::reg_t flags) const {
 	char buf[14];
 	qsnprintf(
 		buf,
@@ -104,11 +104,11 @@ QString PlatformState::flags_to_string(edb::reg_t flags) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: flags_to_string
+// Name: flagsToString
 // Desc: returns the flags in a string form appropriate for this platform
 //------------------------------------------------------------------------------
-QString PlatformState::flags_to_string() const {
-	return flags_to_string(flags());
+QString PlatformState::flagsToString() const {
+	return flagsToString(flags());
 }
 
 //------------------------------------------------------------------------------
@@ -189,7 +189,7 @@ Register PlatformState::value(const QString &reg) const {
 	else if (lreg == "eflags")
 		return make_Register("eflags", context32_.EFlags, Register::TYPE_COND);
 #elif defined(EDB_X86_64)
-	if (!is_wow64_) {
+	if (!isWow64_) {
 		if (lreg == "rax")
 			return make_Register("rax", context64_.Rax, Register::TYPE_GPR);
 		else if (lreg == "rbx")
@@ -422,46 +422,46 @@ Register PlatformState::value(const QString &reg) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: frame_pointer
+// Name: framePointer
 // Desc: returns what is conceptually the frame pointer for this platform
 //------------------------------------------------------------------------------
-edb::address_t PlatformState::frame_pointer() const {
+edb::address_t PlatformState::framePointer() const {
 #if defined(EDB_X86)
 	return context32_.Ebp;
 #elif defined(EDB_X86_64)
-	return is_wow64_ ? context32_.Ebp : context64_.Rbp;
+	return isWow64_ ? context32_.Ebp : context64_.Rbp;
 #endif
 }
 
 //------------------------------------------------------------------------------
-// Name: instruction_pointer
+// Name: instructionPointer
 // Desc: returns the instruction pointer for this platform
 //------------------------------------------------------------------------------
-edb::address_t PlatformState::instruction_pointer() const {
+edb::address_t PlatformState::instructionPointer() const {
 #if defined(EDB_X86)
 	return context32_.Eip;
 #elif defined(EDB_X86_64)
-	return is_wow64_ ? context32_.Eip : context64_.Rip;
+	return isWow64_ ? context32_.Eip : context64_.Rip;
 #endif
 }
 
 //------------------------------------------------------------------------------
-// Name: stack_pointer
+// Name: stackPointer
 // Desc: returns the stack pointer for this platform
 //------------------------------------------------------------------------------
-edb::address_t PlatformState::stack_pointer() const {
+edb::address_t PlatformState::stackPointer() const {
 #if defined(EDB_X86)
 	return context32_.Esp;
 #elif defined(EDB_X86_64)
-	return is_wow64_ ? context32_.Esp : context64_.Rsp;
+	return isWow64_ ? context32_.Esp : context64_.Rsp;
 #endif
 }
 
 //------------------------------------------------------------------------------
-// Name: debug_register
+// Name: debugRegister
 // Desc:
 //------------------------------------------------------------------------------
-edb::reg_t PlatformState::debug_register(size_t n) const {
+edb::reg_t PlatformState::debugRegister(size_t n) const {
 #if defined(EDB_X86)
 	switch (n) {
 	case 0:
@@ -478,7 +478,7 @@ edb::reg_t PlatformState::debug_register(size_t n) const {
 		return context32_.Dr7;
 	}
 #elif defined(EDB_X86_64)
-	if (is_wow64_) {
+	if (isWow64_) {
 		switch (n) {
 		case 0:
 			return context32_.Dr0;
@@ -521,7 +521,7 @@ edb::reg_t PlatformState::flags() const {
 #if defined(EDB_X86)
 	return context32_.EFlags;
 #elif defined(EDB_X86_64)
-	return is_wow64_ ? context32_.EFlags : context64_.EFlags;
+	return isWow64_ ? context32_.EFlags : context64_.EFlags;
 #endif
 }
 
@@ -541,7 +541,7 @@ long double PlatformState::fpu_register(int n) const {
 			ret = read_float80(p);
 		}
 #elif defined(EDB_X86_64)
-		if (is_wow64_) {
+		if (isWow64_) {
 			auto p = reinterpret_cast<const uint8_t *>(&context32_.FloatSave.RegisterArea[n * 10]);
 			if (sizeof(long double) == 10) { // can we check this at compile time?
 				ret = *(reinterpret_cast<const long double *>(p));
@@ -574,7 +574,7 @@ quint64 PlatformState::mmx_register(int n) const {
 		auto p = reinterpret_cast<const quint64 *>(&context32_.FloatSave.RegisterArea[n * 10]);
 		ret    = *p; // little endian!
 #elif defined(EDB_X86_64)
-		if (is_wow64_) {
+		if (isWow64_) {
 			auto p = reinterpret_cast<const quint64 *>(&context32_.FloatSave.RegisterArea[n * 10]);
 			ret    = *p; // little endian!
 		} else {
@@ -601,7 +601,7 @@ QByteArray PlatformState::xmm_register(int n) const {
 	}
 #elif defined(EDB_X86_64)
 	if (n >= 0 && n <= 15) {
-		if (is_wow64_) {
+		if (isWow64_) {
 			auto p = reinterpret_cast<const char *>(&context32_.ExtendedRegisters[(10 + n) * 16]);
 			ret    = QByteArray(p, 16);
 			std::reverse(ret.begin(), ret.end()); //little endian!
@@ -617,14 +617,14 @@ QByteArray PlatformState::xmm_register(int n) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: adjust_stack
+// Name: adjustStack
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformState::adjust_stack(int bytes) {
+void PlatformState::adjustStack(int bytes) {
 #if defined(EDB_X86)
 	context32_.Esp += bytes;
 #elif defined(EDB_X86_64)
-	if (is_wow64_) {
+	if (isWow64_) {
 		context32_.Esp += bytes;
 	} else {
 		context64_.Rsp += bytes;
@@ -646,10 +646,10 @@ void PlatformState::clear() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_debug_register
+// Name: setDebugRegister
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformState::set_debug_register(size_t n, edb::reg_t value) {
+void PlatformState::setDebugRegister(size_t n, edb::reg_t value) {
 #if defined(EDB_X86)
 	switch (n) {
 	case 0:
@@ -674,7 +674,7 @@ void PlatformState::set_debug_register(size_t n, edb::reg_t value) {
 		break;
 	}
 #elif defined(EDB_X86_64)
-	if (is_wow64_) {
+	if (isWow64_) {
 		switch (n) {
 		case 0:
 			context32_.Dr0 = value;
@@ -725,14 +725,14 @@ void PlatformState::set_debug_register(size_t n, edb::reg_t value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_flags
+// Name: setFlags
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformState::set_flags(edb::reg_t flags) {
+void PlatformState::setFlags(edb::reg_t flags) {
 #if defined(EDB_X86)
 	context32_.EFlags = flags;
 #elif defined(EDB_X86_64)
-	if (is_wow64_) {
+	if (isWow64_) {
 		context32_.EFlags = flags;
 	} else {
 		context64_.EFlags = flags;
@@ -741,15 +741,15 @@ void PlatformState::set_flags(edb::reg_t flags) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_instruction_pointer
+// Name: setInstructionPointer
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformState::set_instruction_pointer(edb::address_t value) {
+void PlatformState::setInstructionPointer(edb::address_t value) {
 #if defined(EDB_X86)
 	context32_.Eip = value;
 #elif defined(EDB_X86_64)
-	if (is_wow64_) {
-		context32_.Eip = value;
+	if (isWow64_) {
+		context32_.Eip = static_cast<uint32_t>(value);
 	} else {
 		context64_.Rip = value;
 	}
@@ -757,10 +757,10 @@ void PlatformState::set_instruction_pointer(edb::address_t value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_register
+// Name: setRegister
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformState::set_register(const QString &name, edb::reg_t value) {
+void PlatformState::setRegister(const QString &name, edb::reg_t value) {
 
 	const QString lreg = name.toLower();
 #if defined(EDB_X86)
@@ -798,7 +798,7 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 		context32_.EFlags = value;
 	}
 #elif defined(EDB_X86_64)
-	if (!is_wow64_) {
+	if (!isWow64_) {
 		if (lreg == "rax") {
 			context64_.Rax = value;
 		} else if (lreg == "rbx") {
@@ -886,9 +886,9 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 #endif
 }
 
-Register PlatformState::instruction_pointer_register() const {
+Register PlatformState::instructionPointerRegister() const {
 #if defined(EDB_X86_64)
-	if (!is_wow64_) {
+	if (!isWow64_) {
 		return make_Register("rip", context64_.Rip, Register::TYPE_IP);
 	} else {
 		return make_Register("eip", context32_.Eip, Register::TYPE_IP);
@@ -898,9 +898,9 @@ Register PlatformState::instruction_pointer_register() const {
 #endif
 }
 
-Register PlatformState::flags_register() const {
+Register PlatformState::flagsRegister() const {
 #if defined(EDB_X86_64)
-	if (!is_wow64_) {
+	if (!isWow64_) {
 		return make_Register("rflags", context64_.EFlags, Register::TYPE_IP);
 	} else {
 		return make_Register("eflags", context32_.EFlags, Register::TYPE_IP);
@@ -952,7 +952,7 @@ void PlatformState::getThreadState(HANDLE hThread, bool isWow64) {
 		// on x64 gs_base == TEB, maybe we can use that somehow
 	}
 
-	is_wow64_ = isWow64;
+	isWow64_ = isWow64;
 #endif
 }
 
@@ -960,7 +960,7 @@ void PlatformState::setThreadState(HANDLE hThread) const {
 #if defined(EDB_X86)
 	SetThreadContext(hThread, &context32_);
 #elif defined(EDB_X86_64)
-	if (is_wow64_) {
+	if (isWow64_) {
 		Wow64SetThreadContext(hThread, &context32_);
 	} else {
 		SetThreadContext(hThread, &context64_);
@@ -972,14 +972,14 @@ void PlatformState::setThreadState(HANDLE hThread) const {
 // Name: arch_register
 // Desc:
 //------------------------------------------------------------------------------
-Register PlatformState::arch_register(uint64_t type, size_t n) const {
+Register PlatformState::archRegister(uint64_t type, size_t n) const {
 	switch (type) {
 	case edb::string_hash("mmx"):
-		return mmx_register(n);
+		return mmxRegister(n);
 	case edb::string_hash("xmm"):
-		return xmm_register(n);
+		return xmmRegister(n);
 	case edb::string_hash("ymm"):
-		return ymm_register(n);
+		return ymmRegister(n);
 	default:
 		break;
 	}

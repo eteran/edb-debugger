@@ -37,12 +37,12 @@ public:
 	edb::tid_t tid() const override;
 	QString name() const override;
 	int priority() const override;
-	edb::address_t instruction_pointer() const override;
+	edb::address_t instructionPointer() const override;
 	QString runState() const override;
 
 public:
-	void get_state(State *state) override;
-	void set_state(const State &state) override;
+	void getState(State *state) override;
+	void setState(const State &state) override;
 
 public:
 	Status step() override;
@@ -54,10 +54,10 @@ public:
 	bool isPaused() const override;
 
 private:
-	DebuggerCore *core_;
+	DebuggerCore *core_ = nullptr;
 	std::shared_ptr<IProcess> process_;
-	HANDLE hThread_;
-	bool is_wow64_;
+	HANDLE hThread_ = nullptr;
+	bool isWow64_ = false;
 };
 
 }

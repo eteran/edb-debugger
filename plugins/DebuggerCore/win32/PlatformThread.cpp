@@ -31,7 +31,7 @@ namespace DebuggerCorePlugin {
  */
 PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, const CREATE_THREAD_DEBUG_INFO *info)
 	: core_(core), process_(process) {
-	is_wow64_ = static_cast<PlatformProcess *>(process.get())->isWow64();
+	isWow64_ = static_cast<PlatformProcess *>(process.get())->isWow64();
 
 	DuplicateHandle(
 		GetCurrentProcess(),
@@ -85,14 +85,14 @@ int PlatformThread::priority() const {
  * @brief PlatformThread::instruction_pointer
  * @return
  */
-edb::address_t PlatformThread::instruction_pointer() const {
+edb::address_t PlatformThread::instructionPointer() const {
 #if defined(EDB_X86)
 	CONTEXT context;
 	context.ContextFlags = CONTEXT_CONTROL;
 	GetThreadContext(hThread_, &context);
 	return context.Eip;
 #elif defined(EDB_X86_64)
-	if (is_wow64_) {
+	if (isWow64_) {
 		WOW64_CONTEXT context;
 		context.ContextFlags = CONTEXT_CONTROL;
 		Wow64GetThreadContext(hThread_, &context);
@@ -118,9 +118,9 @@ QString PlatformThread::runState() const {
  * @brief PlatformThread::get_state
  * @param state
  */
-void PlatformThread::get_state(State *state) {
+void PlatformThread::getState(State *state) {
 	if (auto p = static_cast<PlatformState *>(state->impl_.get())) {
-		p->getThreadState(hThread_, is_wow64_);
+		p->getThreadState(hThread_, isWow64_);
 	}
 }
 
@@ -128,7 +128,7 @@ void PlatformThread::get_state(State *state) {
  * @brief PlatformThread::set_state
  * @param state
  */
-void PlatformThread::set_state(const State &state) {
+void PlatformThread::setState(const State &state) {
 	if (auto p = static_cast<const PlatformState *>(state.impl_.get())) {
 		p->setThreadState(hThread_);
 	}
@@ -146,7 +146,7 @@ Status PlatformThread::step() {
 	context.EFlags |= (1 << 8); // set the trap flag
 	SetThreadContext(hThread_, &context);
 #elif defined(EDB_X86_64)
-	if (is_wow64_) {
+	if (isWow64_) {
 		WOW64_CONTEXT context;
 		context.ContextFlags = CONTEXT_CONTROL;
 		Wow64GetThreadContext(hThread_, &context);
@@ -177,7 +177,7 @@ Status PlatformThread::step(edb::EVENT_STATUS status) {
 	context.EFlags |= (1 << 8); // set the trap flag
 	SetThreadContext(hThread_, &context);
 #elif defined(EDB_X86_64)
-	if (is_wow64_) {
+	if (isWow64_) {
 		WOW64_CONTEXT context;
 		context.ContextFlags = CONTEXT_CONTROL;
 		Wow64GetThreadContext(hThread_, &context);

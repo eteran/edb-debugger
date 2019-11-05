@@ -103,7 +103,7 @@ DebuggerCore::DebuggerCore() {
 
 	SYSTEM_INFO sys_info;
 	GetSystemInfo(&sys_info);
-	page_size_ = sys_info.dwPageSize;
+	pageSize_ = sys_info.dwPageSize;
 
 	set_debug_privilege(GetCurrentProcess(), true); // gogo magic powers
 }
@@ -121,15 +121,15 @@ DebuggerCore::~DebuggerCore() {
 // Name: page_size
 // Desc: returns the size of a page on this system
 //------------------------------------------------------------------------------
-size_t DebuggerCore::page_size() const {
-	return page_size_;
+size_t DebuggerCore::pageSize() const {
+	return pageSize_;
 }
 
 //------------------------------------------------------------------------------
-// Name: has_extension
+// Name: hasExtension
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerCore::has_extension(quint64 ext) const {
+bool DebuggerCore::hasExtension(quint64 ext) const {
 #if !defined(EDB_X86_64)
 	switch (ext) {
 	case edb::string_hash("MMX"):
@@ -151,28 +151,28 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: wait_debug_event
+// Name: waitDebugEvent
 // Desc: waits for a debug event, secs is a timeout (but is not yet respected)
 //       ok will be set to false if the timeout expires
 //------------------------------------------------------------------------------
-std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
+std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(int msecs) {
 	if (attached()) {
 		DEBUG_EVENT de;
 		while (WaitForDebugEvent(&de, msecs == 0 ? INFINITE : static_cast<DWORD>(msecs))) {
 
 			Q_ASSERT(process_->pid() == de.dwProcessId);
 
-			active_thread_ = de.dwThreadId;
+			activeThread_ = de.dwThreadId;
 			bool propagate = false;
 
 			switch (de.dwDebugEventCode) {
 			case CREATE_THREAD_DEBUG_EVENT: {
 				auto newThread = std::make_shared<PlatformThread>(this, process_, &de.u.CreateThread);
-				threads_.insert(active_thread_, newThread);
+				threads_.insert(activeThread_, newThread);
 				break;
 			}
 			case EXIT_THREAD_DEBUG_EVENT:
-				threads_.remove(active_thread_);
+				threads_.remove(activeThread_);
 				break;
 			case CREATE_PROCESS_DEBUG_EVENT: {
 				CloseHandle(de.u.CreateProcessInfo.hFile);
@@ -185,7 +185,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 				thread_info.lpStartAddress    = de.u.CreateProcessInfo.lpStartAddress;
 				thread_info.lpThreadLocalBase = de.u.CreateProcessInfo.lpThreadLocalBase;
 				auto newThread                = std::make_shared<PlatformThread>(this, process_, &thread_info);
-				threads_.insert(active_thread_, newThread);
+				threads_.insert(activeThread_, newThread);
 				break;
 			}
 			case LOAD_DLL_DEBUG_EVENT:
@@ -247,7 +247,7 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 //------------------------------------------------------------------------------
 Status DebuggerCore::detach() {
 	if (attached()) {
-		clear_breakpoints();
+		clearBreakpoints();
 		// Make sure exceptions etc. are passed
 		ContinueDebugEvent(process_->pid(), active_thread(), DBG_CONTINUE);
 		DebugActiveProcessStop(process_->pid());
@@ -324,7 +324,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 			&startup_info,
 			&process_info)) {
 
-		active_thread_ = process_info.dwThreadId;
+		activeThread_ = process_info.dwThreadId;
 		CloseHandle(process_info.hThread); // We don't need the thread handle
 		set_debug_privilege(process_info.hProcess, false);
 
@@ -345,10 +345,10 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 }
 
 //------------------------------------------------------------------------------
-// Name: create_state
+// Name: createState
 // Desc:
 //------------------------------------------------------------------------------
-std::unique_ptr<IState> DebuggerCore::create_state() const {
+std::unique_ptr<IState> DebuggerCore::createState() const {
 	return std::make_unique<PlatformState>();
 }
 
@@ -361,10 +361,10 @@ int DebuggerCore::sys_pointer_size() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: enumerate_processes
+// Name: enumerateProcesses
 // Desc:
 //------------------------------------------------------------------------------
-QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerate_processes() const {
+QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerateProcesses() const {
 	QMap<edb::pid_t, std::shared_ptr<IProcess>> ret;
 
 	HANDLE handle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -402,7 +402,7 @@ QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerate_processes() 
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
+edb::pid_t DebuggerCore::parentPid(edb::pid_t pid) const {
 	edb::pid_t parent   = 1; // 1??
 	HANDLE hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, pid);
 	if (hProcessSnap != INVALID_HANDLE_VALUE) {
@@ -436,7 +436,7 @@ QMap<qlonglong, QString> DebuggerCore::exceptions() const {
 // Name: cpu_type
 // Desc:
 //------------------------------------------------------------------------------
-quint64 DebuggerCore::cpu_type() const {
+quint64 DebuggerCore::cpuType() const {
 #ifdef EDB_X86
 	return edb::string_hash("x86");
 #elif defined(EDB_X86_64)
@@ -448,7 +448,7 @@ quint64 DebuggerCore::cpu_type() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QString DebuggerCore::stack_pointer() const {
+QString DebuggerCore::stackPointer() const {
 #ifdef EDB_X86
 	return "esp";
 #elif defined(EDB_X86_64)
@@ -461,7 +461,7 @@ QString DebuggerCore::stack_pointer() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QString DebuggerCore::frame_pointer() const {
+QString DebuggerCore::framePointer() const {
 #ifdef EDB_X86
 	return "ebp";
 #elif defined(EDB_X86_64)
@@ -474,7 +474,7 @@ QString DebuggerCore::frame_pointer() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QString DebuggerCore::instruction_pointer() const {
+QString DebuggerCore::instructionPointer() const {
 #ifdef EDB_X86
 	return "eip";
 #elif defined(EDB_X86_64)
@@ -485,6 +485,10 @@ QString DebuggerCore::instruction_pointer() const {
 
 IProcess *DebuggerCore::process() const {
 	return process_.get();
+}
+
+uint8_t DebuggerCore::nopFillByte() const {
+	return 0x90;
 }
 
 }
