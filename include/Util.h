@@ -150,7 +150,7 @@ QString format_int(T value, NumberDisplayMode mode) {
 }
 
 template <typename Float>
-boost::optional<Float> fullStringToFloat(const std::string &s) {
+boost::optional<Float> full_string_to_float(const std::string &s) {
 
 	static_assert(
 		std::is_same<Float, float>::value ||

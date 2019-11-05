@@ -102,7 +102,7 @@ Float readFloat(const QString &strInput, bool &ok) {
 
 	ok = false;
 	const QString str(strInput.toLower().trimmed());
-	if (const auto value = util::fullStringToFloat<Float>(str.toStdString())) {
+	if (const auto value = util::full_string_to_float<Float>(str.toStdString())) {
 		ok = true;
 		return *value;
 	}
@@ -231,7 +231,7 @@ QValidator::State FloatXValidator<Float>::validate(QString &input, int &) const 
 
 	// The input may be in hex format. std::istream doesn't support extraction
 	// of hexfloat, but std::strto[f,d,ld] do. (see wg21.link/lwg2381)
-	if (const auto v = util::fullStringToFloat<Float>(input.toStdString())) {
+	if (const auto v = util::full_string_to_float<Float>(input.toStdString())) {
 		return QValidator::Acceptable;
 	}
 
