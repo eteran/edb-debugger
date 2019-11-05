@@ -223,7 +223,7 @@ edb::tid_t PlatformEvent::thread() const {
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-int PlatformEvent::code() const {
+int64_t PlatformEvent::code() const {
 	if (stopped()) {
 		return WSTOPSIG(status);
 	}
