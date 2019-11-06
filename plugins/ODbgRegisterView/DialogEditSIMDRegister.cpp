@@ -16,10 +16,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogEditSIMDRegister.h"
+#include "EntryGridKeyUpDownEventFilter.h"
 #include "FloatX.h"
 #include "NumberEdit.h"
 #include "QLongValidator.h"
 #include "QULongValidator.h"
+
 #include <QApplication>
 #include <QDebug>
 #include <QDialogButtonBox>
@@ -33,8 +35,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstring>
 #include <limits>
 #include <type_traits>
-
-#include "EntryGridKeyUpDownEventFilter.h"
 
 namespace ODbgRegisterView {
 

@@ -18,9 +18,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ODBG_REG_VIEW_UTIL_H_20170817
 #define ODBG_REG_VIEW_UTIL_H_20170817
 
-#include "RegisterView.h"
+#include "FieldWidget.h"
+#include "RegisterGroup.h"
+#include "RegisterViewModelBase.h"
 #include <QAction>
-#include <QSignalMapper>
 
 namespace ODbgRegisterView {
 
@@ -30,17 +31,17 @@ static constexpr int ModelCommentColumn = RegisterViewModelBase::Model::COMMENT_
 
 template <class T>
 T valid_variant(T variant) {
-	static_assert(std::is_same<const typename std::remove_reference<T>::type, const QVariant>::value, "Wrong type passed to valid_variant");
+	static_assert(std::is_same<const typename std::remove_reference<T>::type, const QVariant>::value,
+				  "Wrong type passed to valid_variant");
 	assert((variant).isValid());
 	return variant;
 }
 
 template <class T>
 T valid_index(T index) {
-	static_assert(
-		std::is_same<const typename std::remove_reference<T>::type, const QModelIndex>::value ||
-			std::is_same<const typename std::remove_reference<T>::type, const QPersistentModelIndex>::value,
-		"Wrong type passed to valid_index");
+	static_assert(std::is_same<const typename std::remove_reference<T>::type, const QModelIndex>::value ||
+					  std::is_same<const typename std::remove_reference<T>::type, const QPersistentModelIndex>::value,
+				  "Wrong type passed to valid_index");
 
 	assert(index.isValid());
 	return index;

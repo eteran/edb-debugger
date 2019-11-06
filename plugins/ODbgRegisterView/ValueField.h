@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "FieldWidget.h"
 #include "RegisterViewModelBase.h"
+
 #include <functional>
 
 class QAction;

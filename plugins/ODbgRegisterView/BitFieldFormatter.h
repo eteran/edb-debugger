@@ -15,41 +15,23 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_EDIT_FPU_H_20151031
-#define DIALOG_EDIT_FPU_H_20151031
+#ifndef BITFIELD_FORMATTER_H_
+#define BITFIELD_FORMATTER_H_
 
-#include "Register.h"
-#include <QDialog>
-
-class QLineEdit;
+#include <QString>
+#include <vector>
 
 namespace ODbgRegisterView {
 
-class Float80Edit;
+class BitFieldDescription;
 
-class DialogEditFPU : public QDialog {
-	Q_OBJECT
-
+class BitFieldFormatter {
 public:
-	explicit DialogEditFPU(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	Register value() const;
-	void setValue(const Register &reg);
-
-private Q_SLOTS:
-	void onHexEdited(const QString &);
-	void onFloatEdited(const QString &);
-	void updateFloatEntry();
-	void updateHexEntry();
-
-protected:
-	bool eventFilter(QObject *, QEvent *) override;
+	explicit BitFieldFormatter(const BitFieldDescription &bfd);
+	QString operator()(const QString &text) const;
 
 private:
-	Register reg_;
-
-	edb::value80 value_;
-	Float80Edit *floatEntry_ = nullptr;
-	QLineEdit *hexEntry_     = nullptr;
+	std::vector<QString> valueNames;
 };
 
 }

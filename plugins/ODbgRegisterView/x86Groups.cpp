@@ -16,9 +16,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "x86Groups.h"
+#include "FPUValueField.h"
+#include "MultiBitFieldWidget.h"
 #include "ODbgRV_Util.h"
 #include "ODbgRV_x86Common.h"
 #include "QtHelper.h"
+#include "RegisterGroup.h"
+#include "VolatileNameField.h"
+
 #include <QDebug>
 #include <unordered_map>
 
@@ -30,61 +35,86 @@ namespace {
 
 const BitFieldDescription fpuTagDescription = {
 	7,
-	{"valid",
-	 "zero",
-	 "special",
-	 "empty"},
-	{tr("Tag as used"),
-	 "",
-	 "",
-	 tr("Tag as empty")},
+	{
+		"valid",
+		"zero",
+		"special",
+		"empty",
+	},
+	{
+		tr("Tag as used"),
+		"",
+		"",
+		tr("Tag as empty"),
+	},
 	[](unsigned a, unsigned b) {
 		return a == 3 || b == 3 ? a == b : true;
-	}};
+	},
+};
 
 const BitFieldDescription roundControlDescription = {
 	4,
-	{"NEAR",
-	 "DOWN",
-	 "  UP",
-	 "ZERO"},
-	{tr("Round to nearest"),
-	 tr("Round down"),
-	 tr("Round up"),
-	 tr("Round toward zero")}};
+	{
+		"NEAR",
+		"DOWN",
+		"  UP",
+		"ZERO",
+	},
+	{
+		tr("Round to nearest"),
+		tr("Round down"),
+		tr("Round up"),
+		tr("Round toward zero"),
+	},
+};
 
 const BitFieldDescription precisionControlDescription = {
 	2,
-	{"24",
-	 "??",
-	 "53",
-	 "64"},
-	{tr("Set 24-bit precision"),
-	 "",
-	 tr("Set 53-bit precision"),
-	 tr("Set 64-bit precision")}};
+	{
+		"24",
+		"??",
+		"53",
+		"64",
+	},
+	{
+		tr("Set 24-bit precision"),
+		"",
+		tr("Set 53-bit precision"),
+		tr("Set 64-bit precision"),
+	},
+};
 
 const BitFieldDescription debugRWDescription = {
 	5,
-	{"EXEC",
-	 "WRITE",
-	 "  IO",
-	 " R/W"},
-	{tr("Break on execution"),
-	 tr("Break on data write"),
-	 "",
-	 tr("Break on data read/write")}};
+	{
+		"EXEC",
+		"WRITE",
+		"  IO",
+		" R/W",
+	},
+	{
+		tr("Break on execution"),
+		tr("Break on data write"),
+		"",
+		tr("Break on data read/write"),
+	},
+};
 
 const BitFieldDescription debugLenDescription = {
 	1,
-	{"1",
-	 "2",
-	 "8",
-	 "4"},
-	{tr("Set 1-byte length"),
-	 tr("Set 2-byte length"),
-	 tr("Set 8-byte length"),
-	 tr("Set 4-byte length")}};
+	{
+		"1",
+		"2",
+		"8",
+		"4",
+	},
+	{
+		tr("Set 1-byte length"),
+		tr("Set 2-byte length"),
+		tr("Set 8-byte length"),
+		tr("Set 4-byte length"),
+	},
+};
 
 }
 

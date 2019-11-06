@@ -15,43 +15,34 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_EDIT_FPU_H_20151031
-#define DIALOG_EDIT_FPU_H_20151031
-
-#include "Register.h"
-#include <QDialog>
-
-class QLineEdit;
+#include "BitFieldFormatter.h"
+#include "RegisterView.h"
 
 namespace ODbgRegisterView {
 
-class Float80Edit;
-
-class DialogEditFPU : public QDialog {
-	Q_OBJECT
-
-public:
-	explicit DialogEditFPU(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	Register value() const;
-	void setValue(const Register &reg);
-
-private Q_SLOTS:
-	void onHexEdited(const QString &);
-	void onFloatEdited(const QString &);
-	void updateFloatEntry();
-	void updateHexEntry();
-
-protected:
-	bool eventFilter(QObject *, QEvent *) override;
-
-private:
-	Register reg_;
-
-	edb::value80 value_;
-	Float80Edit *floatEntry_ = nullptr;
-	QLineEdit *hexEntry_     = nullptr;
-};
-
+BitFieldFormatter::BitFieldFormatter(const BitFieldDescription &bfd)
+	: valueNames(bfd.valueNames) {
 }
 
-#endif
+QString BitFieldFormatter::operator()(const QString &str) const {
+	assert(str.length());
+	if (str.isEmpty()) {
+		return str; // for release builds have defined behavior
+	}
+
+	if (str[0] == '?') {
+		return "????";
+	}
+
+	bool parseOK    = false;
+	const int value = str.toInt(&parseOK);
+	if (!parseOK) {
+		return "????";
+	}
+
+	assert(0 <= value);
+	assert(std::size_t(value) < valueNames.size());
+	return valueNames[value];
+}
+
+}

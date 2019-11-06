@@ -16,14 +16,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ValueField.h"
+#include "DialogEditGPR.h"
+#include "DialogEditSIMDRegister.h"
 #include "ODbgRV_Common.h"
 #include "ODbgRV_Util.h"
+#include "RegisterGroup.h"
+#include "RegisterView.h"
 #if defined EDB_X86 || defined EDB_X86_64
 #include "DialogEditFPU.h"
 #include "ODbgRV_x86Common.h"
 #endif
-#include "DialogEditGPR.h"
-#include "DialogEditSIMDRegister.h"
+
 #include <QApplication>
 #include <QClipboard>
 #include <QMouseEvent>

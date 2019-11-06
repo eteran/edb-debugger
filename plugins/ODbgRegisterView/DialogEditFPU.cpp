@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogEditFPU.h"
 #include "Float80Edit.h"
+
 #include <QDebug>
 #include <QDialogButtonBox>
 #include <QGridLayout>

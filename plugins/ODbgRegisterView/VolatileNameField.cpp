@@ -15,43 +15,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_EDIT_FPU_H_20151031
-#define DIALOG_EDIT_FPU_H_20151031
-
-#include "Register.h"
-#include <QDialog>
-
-class QLineEdit;
+#include "VolatileNameField.h"
 
 namespace ODbgRegisterView {
 
-class Float80Edit;
-
-class DialogEditFPU : public QDialog {
-	Q_OBJECT
-
-public:
-	explicit DialogEditFPU(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	Register value() const;
-	void setValue(const Register &reg);
-
-private Q_SLOTS:
-	void onHexEdited(const QString &);
-	void onFloatEdited(const QString &);
-	void updateFloatEntry();
-	void updateHexEntry();
-
-protected:
-	bool eventFilter(QObject *, QEvent *) override;
-
-private:
-	Register reg_;
-
-	edb::value80 value_;
-	Float80Edit *floatEntry_ = nullptr;
-	QLineEdit *hexEntry_     = nullptr;
-};
-
+VolatileNameField::VolatileNameField(int fieldWidth, const std::function<QString()> &valueFormatter, QWidget *parent, Qt::WindowFlags f)
+	: FieldWidget(fieldWidth, "", parent, f), valueFormatter(valueFormatter) {
 }
 
-#endif
+QString VolatileNameField::text() const {
+	return valueFormatter();
+}
+
+}

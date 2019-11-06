@@ -30,26 +30,11 @@ public:
 		NUM_COLS
 	};
 
-	struct ElementSize {
-		enum T {
-			BYTE  = 1,
-			WORD  = 2,
-			DWORD = 4,
-			QWORD = 8
-		} value;
-
-		ElementSize() = default;
-		ElementSize(T v)
-			: value(v) {
-		}
-
-		explicit ElementSize(int v)
-			: value(static_cast<T>(v)) {
-		}
-
-		operator T() const {
-			return value;
-		}
+	enum class ElementSize {
+		BYTE  = 1,
+		WORD  = 2,
+		DWORD = 4,
+		QWORD = 8,
 	};
 
 	enum SizesOrder {
@@ -180,6 +165,11 @@ Q_SIGNALS:
 	void SIMDDisplayFormatChanged();
 	void FPUDisplayFormatChanged();
 };
+
+inline std::ostream &operator<<(std::ostream &os, Model::ElementSize size) {
+	os << static_cast<std::underlying_type<Model::ElementSize>::type>(size);
+	return os;
+}
 
 class RegisterViewItem {
 protected:
