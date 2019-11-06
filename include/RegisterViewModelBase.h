@@ -282,14 +282,14 @@ public:
 	int valueMaxLength() const override;
 };
 
-struct BitFieldDescription {
+struct BitFieldDescriptionEx {
 	QString name;
 	unsigned offset;
 	unsigned length;
 	std::vector<QString> explanations;
 
 	// Prevent compiler warnings about missing initializer: make default argument explicitly default
-	BitFieldDescription(QString name, unsigned offset, unsigned length, std::vector<QString> explanations = std::vector<QString>())
+	BitFieldDescriptionEx(QString name, unsigned offset, unsigned length, std::vector<QString> explanations = std::vector<QString>())
 		: name(name), offset(offset), length(length), explanations(explanations) {
 	}
 };
@@ -319,7 +319,7 @@ protected:
 	UnderlyingType prevValue() const;
 
 public:
-	BitFieldItem(const BitFieldDescription &descr);
+	BitFieldItem(const BitFieldDescriptionEx &descr);
 
 public:
 	QVariant data(int column) const override;
@@ -337,7 +337,7 @@ class FlagsRegister final : public SimpleRegister<StoredType> {
 	friend class BitFieldItem;
 
 public:
-	FlagsRegister(const QString &name, const std::vector<BitFieldDescription> &bitFields);
+	FlagsRegister(const QString &name, const std::vector<BitFieldDescriptionEx> &bitFields);
 
 public:
 	RegisterViewItem *child(int) override;

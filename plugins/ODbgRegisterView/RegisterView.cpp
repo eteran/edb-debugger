@@ -137,7 +137,7 @@ void ODBRegView::fieldSelected() {
 
 void ODBRegView::showMenu(const QPoint &position, const QList<QAction *> &additionalItems) const {
 	QMenu menu;
-	auto items = additionalItems + menuItems;
+	auto items = additionalItems + menuItems_;
 
 	if (model_->activeIndex().isValid()) {
 		QList<QAction *> debuggerActions;
@@ -175,10 +175,10 @@ void ODBRegView::settingsUpdated() {
 
 ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 	: QScrollArea(parent),
-	  dialogEditGPR(new DialogEditGPR(this)),
-	  dialogEditSIMDReg(new DialogEditSIMDRegister(this)),
+	  dialogEditGpr(new DialogEditGPR(this)),
+	  dialogEditSIMDReg_(new DialogEditSIMDRegister(this)),
 #if defined EDB_X86 || defined EDB_X86_64
-	  dialogEditFPU(new DialogEditFPU(this))
+	  dialogEditFpu_(new DialogEditFPU(this))
 #else
 	  dialogEditFPU(nullptr)
 #endif
@@ -196,15 +196,15 @@ ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 	{
 		const auto sep = new QAction(this);
 		sep->setSeparator(true);
-		menuItems.push_back(sep);
-		menuItems.push_back(new_action(tr("Copy all registers"), this, this, SLOT(copyAllRegisters())));
+		menuItems_.push_back(sep);
+		menuItems_.push_back(new_action(tr("Copy all registers"), this, this, SLOT(copyAllRegisters())));
 	}
 
 	QSettings settings;
 	settings.beginGroup(settingsGroup);
 	const auto groupListV = settings.value(SETTINGS_GROUPS_ARRAY_NODE);
 	if (settings.group().isEmpty() || !groupListV.isValid()) {
-		visibleGroupTypes = {
+		visibleGroupTypes_ = {
 #if defined EDB_X86 || defined EDB_X86_64
 			RegisterGroupType::GPR,
 			RegisterGroupType::rIP,
@@ -235,7 +235,7 @@ ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 				qWarning() << qPrintable(QString("Warning: failed to understand group %1").arg(group));
 				continue;
 			}
-			visibleGroupTypes.emplace_back(group);
+			visibleGroupTypes_.emplace_back(group);
 		}
 	}
 
@@ -249,15 +249,15 @@ void ODBRegView::copyRegisterToClipboard() const {
 }
 
 DialogEditGPR *ODBRegView::gprEditDialog() const {
-	return dialogEditGPR;
+	return dialogEditGpr;
 }
 
 DialogEditSIMDRegister *ODBRegView::simdEditDialog() const {
-	return dialogEditSIMDReg;
+	return dialogEditSIMDReg_;
 }
 
 DialogEditFPU *ODBRegView::fpuEditDialog() const {
-	return dialogEditFPU;
+	return dialogEditFpu_;
 }
 
 void ODBRegView::copyAllRegisters() {
@@ -308,7 +308,7 @@ void ODBRegView::groupHidden(RegisterGroup *group) {
 	groupPtr->deleteLater();
 	groupPtr = nullptr;
 
-	auto &types(visibleGroupTypes);
+	auto &types(visibleGroupTypes_);
 	const int groupType = groupPtrIter - groups.begin();
 	types.erase(remove_if(types.begin(), types.end(), [=](int type) { return type == groupType; }), types.end());
 }
@@ -318,7 +318,7 @@ void ODBRegView::saveState(const QString &settingsGroup) const {
 	settings.beginGroup(settingsGroup);
 	settings.remove(SETTINGS_GROUPS_ARRAY_NODE);
 	QStringList groupTypes;
-	for (auto type : visibleGroupTypes)
+	for (auto type : visibleGroupTypes_)
 		groupTypes << RegisterGroupTypeNames[type];
 	settings.setValue(SETTINGS_GROUPS_ARRAY_NODE, groupTypes);
 }
@@ -468,9 +468,10 @@ void ODBRegView::modelReset() {
 
 	bool flagsAndSegsInserted = false;
 
-	for (int groupType_ = 0; groupType_ < RegisterGroupType::NUM_GROUPS; ++groupType_) {
-		const auto groupType = RegisterGroupType{groupType_};
-		if (util::contains(visibleGroupTypes, groupType)) {
+	for (int group = 0; group < RegisterGroupType::NUM_GROUPS; ++group) {
+
+		const auto groupType = static_cast<RegisterGroupType>(group);
+		if (util::contains(visibleGroupTypes_, groupType)) {
 			const auto group = makeGroup(groupType);
 			groups.push_back(group);
 			if (!group)
@@ -493,11 +494,11 @@ void ODBRegView::modelReset() {
 }
 
 void ODBRegView::modelUpdated() {
-	Q_FOREACH (const auto field, fields()) {
+	Q_FOREACH (FieldWidget *field, fields()) {
 		field->adjustToData();
 	}
 
-	Q_FOREACH (const auto group, groups) {
+	Q_FOREACH (RegisterGroup *group, groups) {
 		if (group) {
 			group->adjustWidth();
 		}
@@ -507,7 +508,7 @@ void ODBRegView::modelUpdated() {
 QList<FieldWidget *> ODBRegView::fields() const {
 
 	QList<FieldWidget *> allFields;
-	for (const auto group : groups) {
+	for (RegisterGroup *group : groups) {
 		if (group) {
 			allFields.append(group->fields());
 		}
@@ -519,7 +520,7 @@ QList<FieldWidget *> ODBRegView::fields() const {
 QList<ValueField *> ODBRegView::valueFields() const {
 
 	QList<ValueField *> allValues;
-	for (const auto group : groups) {
+	for (RegisterGroup *group : groups) {
 		if (group) {
 			allValues.append(group->valueFields());
 		}
@@ -529,12 +530,12 @@ QList<ValueField *> ODBRegView::valueFields() const {
 }
 
 void ODBRegView::updateFieldsPalette() {
-	Q_FOREACH (const auto field, valueFields())
+	Q_FOREACH (ValueField *field, valueFields())
 		field->updatePalette();
 }
 
 ValueField *ODBRegView::selectedField() const {
-	Q_FOREACH (const auto field, valueFields()) {
+	Q_FOREACH (ValueField *field, valueFields()) {
 		if (field->isSelected()) {
 			return field;
 		}
@@ -544,7 +545,7 @@ ValueField *ODBRegView::selectedField() const {
 }
 
 void ODBRegView::selectAField() {
-	const auto fields = valueFields();
+	const QList<ValueField *> fields = valueFields();
 	if (!fields.isEmpty()) {
 		fields.front()->select();
 	}
@@ -552,7 +553,7 @@ void ODBRegView::selectAField() {
 
 void ODBRegView::keyPressEvent(QKeyEvent *event) {
 
-	const auto selected = selectedField();
+	ValueField *selected = selectedField();
 
 	switch (event->key()) {
 	case Qt::Key_Up:

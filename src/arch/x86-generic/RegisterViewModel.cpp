@@ -83,7 +83,7 @@ using SSEReg     = RegisterViewModelBase::SIMDRegister<edb::value128>;
 using AVXReg     = RegisterViewModelBase::SIMDRegister<edb::value256>;
 using MXCSR      = RegisterViewModelBase::FlagsRegister<edb::value32>;
 
-std::vector<RegisterViewModelBase::BitFieldDescription> flagsDescription = {
+std::vector<RegisterViewModelBase::BitFieldDescriptionEx> flagsDescription = {
 	{QLatin1String("CF"), 0, 1},
 	{QLatin1String("PF"), 2, 1},
 	{QLatin1String("AF"), 4, 1},
@@ -109,7 +109,7 @@ static const std::vector<QString> roundingStrings{QObject::tr("Rounding to neare
 												  QObject::tr("Rounding up"),
 												  QObject::tr("Rounding toward zero")};
 
-std::vector<RegisterViewModelBase::BitFieldDescription> FCRDescription = {
+std::vector<RegisterViewModelBase::BitFieldDescriptionEx> FCRDescription = {
 	{QLatin1String("IM"), 0, 1},
 	{QLatin1String("DM"), 1, 1},
 	{QLatin1String("ZM"), 2, 1},
@@ -120,7 +120,7 @@ std::vector<RegisterViewModelBase::BitFieldDescription> FCRDescription = {
 	{QLatin1String("RC"), 10, 2, roundingStrings},
 	{QLatin1String("X"), 12, 1}};
 
-std::vector<RegisterViewModelBase::BitFieldDescription> FSRDescription = {
+std::vector<RegisterViewModelBase::BitFieldDescriptionEx> FSRDescription = {
 	{QLatin1String("IE"), 0, 1},
 	{QLatin1String("DE"), 1, 1},
 	{QLatin1String("ZE"), 2, 1},
@@ -142,7 +142,7 @@ static const std::vector<QString> tagStrings = {
 	QObject::tr("Special"),
 	QObject::tr("Empty")};
 
-std::vector<RegisterViewModelBase::BitFieldDescription> FTRDescription =
+std::vector<RegisterViewModelBase::BitFieldDescriptionEx> FTRDescription =
 	{
 		{QLatin1String("T0"), 0, 2, tagStrings},
 		{QLatin1String("T1"), 2, 2, tagStrings},
@@ -153,7 +153,7 @@ std::vector<RegisterViewModelBase::BitFieldDescription> FTRDescription =
 		{QLatin1String("T6"), 12, 2, tagStrings},
 		{QLatin1String("T7"), 14, 2, tagStrings}};
 
-std::vector<RegisterViewModelBase::BitFieldDescription> MXCSRDescription =
+std::vector<RegisterViewModelBase::BitFieldDescriptionEx> MXCSRDescription =
 	{
 		{QLatin1String("IE"), 0, 1},
 		{QLatin1String("DE"), 1, 1},
@@ -171,7 +171,7 @@ std::vector<RegisterViewModelBase::BitFieldDescription> MXCSRDescription =
 		{QLatin1String("RC"), 13, 2, roundingStrings},
 		{QLatin1String("FZ"), 15, 1}};
 
-std::vector<RegisterViewModelBase::BitFieldDescription> DR6Description =
+std::vector<RegisterViewModelBase::BitFieldDescriptionEx> DR6Description =
 	{
 		{"B0", 0, 1},
 		{"B1", 1, 1},
@@ -192,7 +192,7 @@ static const std::vector<QString> DR7_LEN{QObject::tr("1 byte"),
 										  QObject::tr("8 bytes"), // sic!
 										  QObject::tr("4 bytes")};
 
-std::vector<RegisterViewModelBase::BitFieldDescription> DR7Description =
+std::vector<RegisterViewModelBase::BitFieldDescriptionEx> DR7Description =
 	{
 		{QLatin1String("L0"), 0, 1},
 		{QLatin1String("G0"), 1, 1},

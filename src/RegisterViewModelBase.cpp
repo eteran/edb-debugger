@@ -751,7 +751,7 @@ template class SimpleRegister<edb::value256>;
 // ---------------- BitFieldItem impl -----------------------
 
 template <typename UnderlyingType>
-BitFieldItem<UnderlyingType>::BitFieldItem(const BitFieldDescription &descr)
+BitFieldItem<UnderlyingType>::BitFieldItem(const BitFieldDescriptionEx &descr)
 	: RegisterViewItem(descr.name), offset_(descr.offset), length_(descr.length), explanations(descr.explanations) {
 	Q_ASSERT(8 * sizeof(UnderlyingType) >= length_);
 	Q_ASSERT(explanations.size() == 0 || explanations.size() == 2u << (length_ - 1));
@@ -829,7 +829,7 @@ unsigned BitFieldItem<UnderlyingType>::offset() const {
 // ---------------- FlagsRegister impl ------------------------
 
 template <typename StoredType>
-FlagsRegister<StoredType>::FlagsRegister(const QString &name, const std::vector<BitFieldDescription> &bitFields)
+FlagsRegister<StoredType>::FlagsRegister(const QString &name, const std::vector<BitFieldDescriptionEx> &bitFields)
 	: SimpleRegister<StoredType>(name) {
 
 	for (auto &field : bitFields) {

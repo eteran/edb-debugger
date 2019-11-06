@@ -39,53 +39,38 @@ class ODBRegView : public QScrollArea {
 	Q_OBJECT
 
 public:
-	struct RegisterGroupType {
-		enum T : int {
+	enum RegisterGroupType : int {
 #if defined EDB_X86 || defined EDB_X86_64
-			GPR,
-			rIP,
-			ExpandedEFL,
-			Segment,
-			EFL,
-			FPUData,
-			FPUWords,
-			FPULastOp,
-			Debug,
-			MMX,
-			SSEData,
-			AVXData,
-			MXCSR,
+		GPR,
+		rIP,
+		ExpandedEFL,
+		Segment,
+		EFL,
+		FPUData,
+		FPUWords,
+		FPULastOp,
+		Debug,
+		MMX,
+		SSEData,
+		AVXData,
+		MXCSR,
 #elif defined EDB_ARM32
-			GPR,
-			CPSR,
-			ExpandedCPSR,
-			FPSCR,
+		GPR,
+		CPSR,
+		ExpandedCPSR,
+		FPSCR,
 #else
 #error "Not implemented"
 #endif
-
-			NUM_GROUPS
-		} value;
-
-		RegisterGroupType(T v)
-			: value(v) {
-		}
-
-		explicit RegisterGroupType(int v)
-			: value(static_cast<T>(v)) {
-		}
-
-		operator T() const {
-			return value;
-		}
+		NUM_GROUPS
 	};
 
 private:
-	std::vector<RegisterGroupType> visibleGroupTypes;
-	QList<QAction *> menuItems;
-	DialogEditGPR *dialogEditGPR;
-	DialogEditSIMDRegister *dialogEditSIMDReg;
-	DialogEditFPU *dialogEditFPU;
+	std::vector<RegisterGroupType> visibleGroupTypes_;
+	QList<QAction *> menuItems_;
+	DialogEditGPR *dialogEditGpr;
+	DialogEditSIMDRegister *dialogEditSIMDReg_;
+	DialogEditFPU *dialogEditFpu_;
 
 	RegisterGroup *makeGroup(RegisterGroupType type);
 
