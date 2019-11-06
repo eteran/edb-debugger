@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 struct Module {
 	QString name;
-	edb::address_t base_address;
+	edb::address_t baseAddress;
 };
 
 #endif

@@ -62,37 +62,37 @@ ValueField::ValueField(int fieldWidth, const QModelIndex &index, const std::func
 	using namespace RegisterViewModelBase;
 
 	if (index.data(Model::IsNormalRegisterRole).toBool() || index.data(Model::IsSIMDElementRole).toBool()) {
-		menuItems_.push_back(newAction(trUtf8("&Modify…"), this, this, SLOT(defaultAction())));
+		menuItems_.push_back(new_action(trUtf8("&Modify…"), this, this, SLOT(defaultAction())));
 		menuItems_.back()->setShortcut(QKeySequence(Qt::Key_Enter));
 	} else if (index.data(Model::IsBitFieldRole).toBool() && index.data(Model::BitFieldLengthRole).toInt() == 1) {
-		menuItems_.push_back(newAction(tr("&Toggle"), this, this, SLOT(defaultAction())));
+		menuItems_.push_back(new_action(tr("&Toggle"), this, this, SLOT(defaultAction())));
 		menuItems_.back()->setShortcut(QKeySequence(Qt::Key_Enter));
 	}
 
-	menuItems_.push_back(newAction(tr("&Copy to clipboard"), this, this, SLOT(copyToClipboard())));
-	menuItems_.back()->setShortcut(copyFieldShortcut);
+	menuItems_.push_back(new_action(tr("&Copy to clipboard"), this, this, SLOT(copyToClipboard())));
+	menuItems_.back()->setShortcut(CopyFieldShortcut);
 
 #if defined EDB_X86 || defined EDB_X86_64
-	if (index.sibling(index.row(), MODEL_NAME_COLUMN).data().toString() == FSR_NAME) {
-		menuItems_.push_back(newAction(tr("P&ush FPU stack"), this, this, SLOT(pushFPUStack())));
-		menuItems_.push_back(newAction(tr("P&op FPU stack"), this, this, SLOT(popFPUStack())));
+	if (index.sibling(index.row(), ModelNameColumn).data().toString() == FsrName) {
+		menuItems_.push_back(new_action(tr("P&ush FPU stack"), this, this, SLOT(pushFPUStack())));
+		menuItems_.push_back(new_action(tr("P&op FPU stack"), this, this, SLOT(popFPUStack())));
 	}
 #endif
 
-	if (index.parent().data().toString() == GPRCategoryName) {
+	if (index.parent().data().toString() == GprCategoryName) {
 		// These should be above others, so prepending instead of appending
-		menuItems_.push_front(newAction(tr("In&vert"), this, this, SLOT(invert())));
+		menuItems_.push_front(new_action(tr("In&vert"), this, this, SLOT(invert())));
 
-		menuItems_.push_front(setToOneAction_ = newAction(tr("Set to &1"), this, this, SLOT(setToOne())));
+		menuItems_.push_front(setToOneAction_ = new_action(tr("Set to &1"), this, this, SLOT(setToOne())));
 
-		menuItems_.push_front(setToZeroAction_ = newAction(tr("&Zero"), this, this, SLOT(setZero())));
-		menuItems_.front()->setShortcut(QKeySequence(setToZeroKey));
+		menuItems_.push_front(setToZeroAction_ = new_action(tr("&Zero"), this, this, SLOT(setZero())));
+		menuItems_.front()->setShortcut(QKeySequence(SetToZeroKey));
 
-		menuItems_.push_front(newAction(tr("&Decrement"), this, this, SLOT(decrement())));
-		menuItems_.front()->setShortcut(QKeySequence(decrementKey));
+		menuItems_.push_front(new_action(tr("&Decrement"), this, this, SLOT(decrement())));
+		menuItems_.front()->setShortcut(QKeySequence(DecrementKey));
 
-		menuItems_.push_front(newAction(tr("&Increment"), this, this, SLOT(increment())));
-		menuItems_.front()->setShortcut(QKeySequence(incrementKey));
+		menuItems_.push_front(new_action(tr("&Increment"), this, this, SLOT(increment())));
+		menuItems_.front()->setShortcut(QKeySequence(IncrementKey));
 	}
 }
 
@@ -117,13 +117,13 @@ ValueField *ValueField::bestNeighbor(const std::function<bool(const QPoint &, co
 
 ValueField *ValueField::up() const {
 	return bestNeighbor([](const QPoint &nPos, const ValueField *up, const QPoint &fPos) {
-		return nPos.y() < fPos.y() && (!up || distSqr(nPos, fPos) < distSqr(field_position(up), fPos));
+		return nPos.y() < fPos.y() && (!up || distance_squared(nPos, fPos) < distance_squared(field_position(up), fPos));
 	});
 }
 
 ValueField *ValueField::down() const {
 	return bestNeighbor([](const QPoint &nPos, const ValueField *down, const QPoint &fPos) {
-		return nPos.y() > fPos.y() && (!down || distSqr(nPos, fPos) < distSqr(field_position(down), fPos));
+		return nPos.y() > fPos.y() && (!down || distance_squared(nPos, fPos) < distance_squared(field_position(down), fPos));
 	});
 }
 
@@ -148,7 +148,7 @@ bool ValueField::changed() const {
 		return true;
 	}
 
-	return VALID_VARIANT(index_.data(RegisterViewModelBase::Model::RegisterChangedRole)).toBool();
+	return valid_variant(index_.data(RegisterViewModelBase::Model::RegisterChangedRole)).toBool();
 }
 
 QColor ValueField::fgColorForChangedField() const {
@@ -183,8 +183,8 @@ void ValueField::editNormalReg(const QModelIndex &indexToEdit, const QModelIndex
 	} else if (r.type() == Register::TYPE_SIMD) {
 		const auto simdEdit = regView()->simdEditDialog();
 		simdEdit->setValue(r);
-		const int size         = VALID_VARIANT(indexToEdit.parent().data(Model::ChosenSIMDSizeRole)).toInt();
-		const int format       = VALID_VARIANT(indexToEdit.parent().data(Model::ChosenSIMDFormatRole)).toInt();
+		const int size         = valid_variant(indexToEdit.parent().data(Model::ChosenSIMDSizeRole)).toInt();
+		const int format       = valid_variant(indexToEdit.parent().data(Model::ChosenSIMDFormatRole)).toInt();
 		const int elementIndex = clickedIndex.row();
 		simdEdit->set_current_element(static_cast<Model::ElementSize>(size), static_cast<NumberDisplayMode>(format), elementIndex);
 		if (simdEdit->exec() == QDialog::Accepted) {
@@ -212,7 +212,7 @@ QModelIndex ValueField::regIndex() const {
 	}
 
 	if (index_.data(Model::IsNormalRegisterRole).toBool()) {
-		return index_.sibling(index_.row(), MODEL_NAME_COLUMN);
+		return index_.sibling(index_.row(), ModelNameColumn);
 	}
 
 	return {};
@@ -224,13 +224,13 @@ void ValueField::defaultAction() {
 		// toggle
 		// TODO: Model: make it possible to set bit field itself, without manipulating parent directly
 		//              I.e. set value without knowing field offset, then setData(fieldIndex,word)
-		const auto regIndex = index_.parent().sibling(index_.parent().row(), MODEL_VALUE_COLUMN);
+		const auto regIndex = index_.parent().sibling(index_.parent().row(), ModelValueColumn);
 		auto byteArr        = regIndex.data(Model::RawValueRole).toByteArray();
 		if (byteArr.isEmpty())
 			return;
 		std::uint64_t word(0);
 		std::memcpy(&word, byteArr.constData(), byteArr.size());
-		const auto offset = VALID_VARIANT(index_.data(Model::BitFieldOffsetRole)).toInt();
+		const auto offset = valid_variant(index_.data(Model::BitFieldOffsetRole)).toInt();
 		word ^= 1ull << offset;
 		std::memcpy(byteArr.data(), &word, byteArr.size());
 		model()->setData(regIndex, byteArr, Model::RawValueRole);
@@ -244,7 +244,7 @@ void ValueField::defaultAction() {
 }
 
 void ValueField::adjustToData() {
-	if (index_.parent().data().toString() == GPRCategoryName) {
+	if (index_.parent().data().toString() == GprCategoryName) {
 		using RegisterViewModelBase::Model;
 		auto byteArr = index_.data(Model::RawValueRole).toByteArray();
 		if (byteArr.isEmpty()) {
@@ -379,12 +379,12 @@ void add_to_top(RegisterViewModelBase::Model *model, const QModelIndex &fsrIndex
 
 #if defined EDB_X86 || defined EDB_X86_64
 void ValueField::pushFPUStack() {
-	assert(index_.sibling(index_.row(), MODEL_NAME_COLUMN).data().toString() == FSR_NAME);
+	assert(index_.sibling(index_.row(), ModelNameColumn).data().toString() == FsrName);
 	add_to_top(model(), index_, -1);
 }
 
 void ValueField::popFPUStack() {
-	assert(index_.sibling(index_.row(), MODEL_NAME_COLUMN).data().toString() == FSR_NAME);
+	assert(index_.sibling(index_.row(), ModelNameColumn).data().toString() == FsrName);
 	add_to_top(model(), index_, +1);
 }
 #endif
@@ -398,7 +398,7 @@ namespace {
 template <typename Op>
 void change_gpr(const QModelIndex &index, RegisterViewModelBase::Model *const model, const Op &change) {
 
-	if (index.parent().data().toString() != GPRCategoryName) {
+	if (index.parent().data().toString() != GprCategoryName) {
 		return;
 	}
 

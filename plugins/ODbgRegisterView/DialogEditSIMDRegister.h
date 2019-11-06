@@ -22,12 +22,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "RegisterViewModelBase.h"
 #include "Util.h"
 #include <QDialog>
-#include <QDialogButtonBox>
-#include <QLabel>
 #include <array>
 #include <cstddef>
 #include <cstdint>
 
+class QLabel;
+class QDialogButtonBox;
 class QHBoxLayout;
 class QLongValidator;
 class QRadioButton;
@@ -43,7 +43,7 @@ class DialogEditSIMDRegister : public QDialog {
 	Q_OBJECT
 
 private:
-	static constexpr int numBytes = 256 / 8;
+	static constexpr int NumBytes = 256 / 8;
 
 	enum EntriesRows {
 		BYTE_INDICES_ROW,
@@ -92,16 +92,16 @@ private:
 
 private:
 	template <typename Integer>
-	void onIntegerEdited(QObject *sender, const std::array<NumberEdit *, numBytes / sizeof(Integer)> &elements);
+	void onIntegerEdited(QObject *sender, const std::array<NumberEdit *, NumBytes / sizeof(Integer)> &elements);
 
 	template <typename Float>
-	void onFloatEdited(QObject *sender, const std::array<NumberEdit *, numBytes / sizeof(Float)> &elements);
+	void onFloatEdited(QObject *sender, const std::array<NumberEdit *, NumBytes / sizeof(Float)> &elements);
 
 	template <typename T>
-	void updateIntegralEntries(const std::array<NumberEdit *, numBytes / sizeof(T)> &entries, NumberEdit *notUpdated);
+	void updateIntegralEntries(const std::array<NumberEdit *, NumBytes / sizeof(T)> &entries, NumberEdit *notUpdated);
 
 	template <typename T>
-	void updateFloatEntries(const std::array<NumberEdit *, numBytes / sizeof(T)> &entries, NumberEdit *notUpdated);
+	void updateFloatEntries(const std::array<NumberEdit *, NumBytes / sizeof(T)> &entries, NumberEdit *notUpdated);
 
 private Q_SLOTS:
 	void onByteEdited();
@@ -120,13 +120,13 @@ private:
 	QRadioButton *radioHex_;
 	QRadioButton *radioSigned_;
 	QRadioButton *radioUnsigned_;
-	std::array<NumberEdit *, numBytes / 8> floats64_;
-	std::array<NumberEdit *, numBytes / 4> floats32_;
-	std::array<NumberEdit *, numBytes / 8> qwords_;
-	std::array<NumberEdit *, numBytes / 4> dwords_;
-	std::array<NumberEdit *, numBytes / 2> words_;
-	std::array<NumberEdit *, numBytes> bytes_;
-	std::array<QLabel *, numBytes> columnLabels_;
+	std::array<NumberEdit *, NumBytes / 8> floats64_;
+	std::array<NumberEdit *, NumBytes / 4> floats32_;
+	std::array<NumberEdit *, NumBytes / 8> qwords_;
+	std::array<NumberEdit *, NumBytes / 4> dwords_;
+	std::array<NumberEdit *, NumBytes / 2> words_;
+	std::array<NumberEdit *, NumBytes> bytes_;
+	std::array<QLabel *, NumBytes> columnLabels_;
 
 	QRegExpValidator *byteHexValidator_;
 	QRegExpValidator *wordHexValidator_;
@@ -147,7 +147,7 @@ private:
 	QValidator *float64Validator_;
 
 	NumberDisplayMode intMode_;
-	std::array<std::uint8_t, numBytes> value_;
+	std::array<std::uint8_t, NumBytes> value_;
 	Register reg_;
 };
 

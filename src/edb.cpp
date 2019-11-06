@@ -268,7 +268,7 @@ void remove_debug_event_handler(IDebugEventHandler *p) {
 bool jump_to_address(address_t address) {
 	Debugger *const gui = ui();
 	Q_ASSERT(gui);
-    return gui->jumpToAddress(address);
+	return gui->jumpToAddress(address);
 }
 
 //------------------------------------------------------------------------------
@@ -279,7 +279,7 @@ bool jump_to_address(address_t address) {
 bool dump_data_range(address_t address, address_t end_address, bool new_tab) {
 	Debugger *const gui = ui();
 	Q_ASSERT(gui);
-    return gui->dumpDataRange(address, end_address, new_tab);
+	return gui->dumpDataRange(address, end_address, new_tab);
 }
 
 //------------------------------------------------------------------------------
@@ -305,7 +305,7 @@ bool dump_stack(address_t address) {
 bool dump_stack(address_t address, bool scroll_to) {
 	Debugger *const gui = ui();
 	Q_ASSERT(gui);
-    return gui->dumpStack(address, scroll_to);
+	return gui->dumpStack(address, scroll_to);
 }
 
 //------------------------------------------------------------------------------
@@ -315,7 +315,7 @@ bool dump_stack(address_t address, bool scroll_to) {
 bool dump_data(address_t address, bool new_tab) {
 	Debugger *const gui = ui();
 	Q_ASSERT(gui);
-    return gui->dumpData(address, new_tab);
+	return gui->dumpData(address, new_tab);
 }
 
 //------------------------------------------------------------------------------
@@ -1075,7 +1075,7 @@ void update_ui() {
 	// force a full update
 	Debugger *const gui = ui();
 	Q_ASSERT(gui);
-    gui->updateUi();
+	gui->updateUi();
 }
 
 //------------------------------------------------------------------------------
@@ -1100,7 +1100,7 @@ bool modify_bytes(address_t address, size_t size, QByteArray &bytes, quint8 fill
 			// do a refresh, not full update
 			Debugger *const gui = ui();
 			Q_ASSERT(gui);
-            gui->refreshUi();
+			gui->refreshUi();
 		}
 	}
 

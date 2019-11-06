@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDialogButtonBox>
 #include <QGridLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QRegExp>
 #include <QVBoxLayout>
 #include <array>
@@ -121,7 +122,7 @@ void DialogEditFPU::updateHexEntry() {
 }
 
 bool DialogEditFPU::eventFilter(QObject *obj, QEvent *event) {
-	return entryGridKeyUpDownEventFilter(this, obj, event);
+	return entry_grid_key_event_filter(this, obj, event);
 }
 
 void DialogEditFPU::setValue(const Register &newReg) {

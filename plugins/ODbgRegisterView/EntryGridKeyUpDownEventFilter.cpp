@@ -9,7 +9,7 @@
 
 namespace ODbgRegisterView {
 
-bool entryGridKeyUpDownEventFilter(QWidget *parent, QObject *obj, QEvent *event) {
+bool entry_grid_key_event_filter(QWidget *parent, QObject *obj, QEvent *event) {
 
 	auto entry = qobject_cast<QLineEdit *>(obj);
 	if (!entry || event->type() != QEvent::KeyPress) {

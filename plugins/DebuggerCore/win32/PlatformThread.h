@@ -57,7 +57,7 @@ private:
 	DebuggerCore *core_ = nullptr;
 	std::shared_ptr<IProcess> process_;
 	HANDLE hThread_ = nullptr;
-	bool isWow64_ = false;
+	bool isWow64_   = false;
 };
 
 }

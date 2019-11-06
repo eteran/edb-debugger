@@ -22,8 +22,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "QULongValidator.h"
 #include <QApplication>
 #include <QDebug>
+#include <QDialogButtonBox>
 #include <QGridLayout>
 #include <QKeyEvent>
+#include <QLabel>
 #include <QLineEdit>
 #include <QRadioButton>
 #include <QRegExp>
@@ -44,7 +46,7 @@ void DialogEditSIMDRegister::setupEntries(const QString &label, std::array<Numbe
 	contentsGrid->addWidget(new QLabel(label, this), row, ENTRIES_FIRST_COL - 1);
 	for (std::size_t entryIndex = 0; entryIndex < numEntries; ++entryIndex) {
 		auto &entry             = entries[entryIndex];
-		const int bytesPerEntry = numBytes / numEntries;
+		const int bytesPerEntry = NumBytes / numEntries;
 		entry                   = new NumberEdit(ENTRIES_FIRST_COL + bytesPerEntry * (numEntries - 1 - entryIndex), bytesPerEntry, this);
 		entry->setNaturalWidthInChars(naturalWidthInChars);
 		connect(entry, SIGNAL(textEdited(const QString &)), this, slot);
@@ -74,10 +76,10 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget *parent, Qt::WindowFlags 
 	setModal(true);
 	const auto allContentsGrid = new QGridLayout(this);
 
-	for (int byteIndex = 0; byteIndex < numBytes; ++byteIndex) {
+	for (int byteIndex = 0; byteIndex < NumBytes; ++byteIndex) {
 		columnLabels_[byteIndex] = new QLabel(std::to_string(byteIndex).c_str(), this);
 		columnLabels_[byteIndex]->setAlignment(Qt::AlignCenter);
-		allContentsGrid->addWidget(columnLabels_[byteIndex], BYTE_INDICES_ROW, ENTRIES_FIRST_COL + numBytes - 1 - byteIndex);
+		allContentsGrid->addWidget(columnLabels_[byteIndex], BYTE_INDICES_ROW, ENTRIES_FIRST_COL + NumBytes - 1 - byteIndex);
 	}
 
 	setupEntries(tr("Byte"), bytes_, BYTES_ROW, SLOT(onByteEdited()), 4);
@@ -132,32 +134,32 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget *parent, Qt::WindowFlags 
 
 	resetLayout();
 
-	for (int byte = numBytes - 1; byte > 0; --byte) {
+	for (int byte = NumBytes - 1; byte > 0; --byte) {
 		setTabOrder(bytes_[byte], bytes_[byte - 1]);
 	}
 	setTabOrder(bytes_.back(), words_.front());
 
-	for (int word = numBytes / 2 - 1; word > 0; --word) {
+	for (int word = NumBytes / 2 - 1; word > 0; --word) {
 		setTabOrder(words_[word], words_[word - 1]);
 	}
 	setTabOrder(words_.back(), dwords_.front());
 
-	for (int dword = numBytes / 4 - 1; dword > 0; --dword) {
+	for (int dword = NumBytes / 4 - 1; dword > 0; --dword) {
 		setTabOrder(dwords_[dword], dwords_[dword - 1]);
 	}
 	setTabOrder(dwords_.back(), qwords_.front());
 
-	for (int qword = numBytes / 8 - 1; qword > 0; --qword) {
+	for (int qword = NumBytes / 8 - 1; qword > 0; --qword) {
 		setTabOrder(qwords_[qword], qwords_[qword - 1]);
 	}
 	setTabOrder(qwords_.back(), floats32_.front());
 
-	for (int float32 = numBytes / 4 - 1; float32 > 0; --float32) {
+	for (int float32 = NumBytes / 4 - 1; float32 > 0; --float32) {
 		setTabOrder(floats32_[float32], floats32_[float32 - 1]);
 	}
 	setTabOrder(floats32_.back(), floats64_.front());
 
-	for (int float64 = numBytes / 8 - 1; float64 > 0; --float64) {
+	for (int float64 = NumBytes / 8 - 1; float64 > 0; --float64) {
 		setTabOrder(floats64_[float64], floats64_[float64 - 1]);
 	}
 	setTabOrder(floats64_.front(), radioHex_);
@@ -168,7 +170,7 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget *parent, Qt::WindowFlags 
 }
 
 template <typename T>
-void DialogEditSIMDRegister::updateFloatEntries(const std::array<NumberEdit *, numBytes / sizeof(T)> &entries, NumberEdit *notUpdated) {
+void DialogEditSIMDRegister::updateFloatEntries(const std::array<NumberEdit *, NumBytes / sizeof(T)> &entries, NumberEdit *notUpdated) {
 
 	for (std::size_t i = 0; i < entries.size(); ++i) {
 		if (entries[i] == notUpdated) {
@@ -182,7 +184,7 @@ void DialogEditSIMDRegister::updateFloatEntries(const std::array<NumberEdit *, n
 }
 
 template <typename T>
-void DialogEditSIMDRegister::updateIntegralEntries(const std::array<NumberEdit *, numBytes / sizeof(T)> &entries, NumberEdit *notUpdated) {
+void DialogEditSIMDRegister::updateIntegralEntries(const std::array<NumberEdit *, NumBytes / sizeof(T)> &entries, NumberEdit *notUpdated) {
 
 	for (std::size_t i = 0; i < entries.size(); ++i) {
 		if (entries[i] == notUpdated) {
@@ -214,7 +216,7 @@ void DialogEditSIMDRegister::resetLayout() {
 	auto layout = qobject_cast<QGridLayout *>(this->layout());
 
 	for (int col = ENTRIES_FIRST_COL; col < TOTAL_COLS; ++col) {
-		int i = numBytes - 1 - (col - ENTRIES_FIRST_COL);
+		int i = NumBytes - 1 - (col - ENTRIES_FIRST_COL);
 
 		columnLabels_[i]->show();
 
@@ -248,7 +250,7 @@ void DialogEditSIMDRegister::resetLayout() {
 
 	layout->removeItem(hexSignOKCancelLayout_);
 	hexSignOKCancelLayout_->setParent(nullptr);
-	layout->addLayout(hexSignOKCancelLayout_, ROW_AFTER_ENTRIES, ENTRIES_FIRST_COL, 1, numBytes);
+	layout->addLayout(hexSignOKCancelLayout_, ROW_AFTER_ENTRIES, ENTRIES_FIRST_COL, 1, NumBytes);
 }
 
 void DialogEditSIMDRegister::hideColumns(EntriesCols afterLastToHide) {
@@ -256,7 +258,7 @@ void DialogEditSIMDRegister::hideColumns(EntriesCols afterLastToHide) {
 	auto layout = qobject_cast<QGridLayout *>(this->layout());
 
 	for (int col = ENTRIES_FIRST_COL; col < afterLastToHide; ++col) {
-		int i = numBytes - 1 - (col - ENTRIES_FIRST_COL);
+		int i = NumBytes - 1 - (col - ENTRIES_FIRST_COL);
 		Q_ASSERT(0 < i && std::size_t(i) < bytes_.size());
 
 		columnLabels_[i]->hide();
@@ -301,7 +303,7 @@ void DialogEditSIMDRegister::hideRows(EntriesRows rowToHide) {
 }
 
 bool DialogEditSIMDRegister::eventFilter(QObject *obj, QEvent *event) {
-	return entryGridKeyUpDownEventFilter(this, obj, event);
+	return entry_grid_key_event_filter(this, obj, event);
 }
 
 void DialogEditSIMDRegister::setValue(const Register &newReg) {
@@ -414,7 +416,7 @@ void DialogEditSIMDRegister::formatInteger(NumberEdit *const edit, Integer integ
 }
 
 template <typename Integer>
-void DialogEditSIMDRegister::onIntegerEdited(QObject *sender, const std::array<NumberEdit *, numBytes / sizeof(Integer)> &elements) {
+void DialogEditSIMDRegister::onIntegerEdited(QObject *sender, const std::array<NumberEdit *, NumBytes / sizeof(Integer)> &elements) {
 	const auto changedElementEdit = qobject_cast<NumberEdit *>(sender);
 	std::size_t elementIndex      = std::find(elements.begin(), elements.end(), changedElementEdit) - elements.begin();
 	Integer value                 = readInteger(elements[elementIndex]);
@@ -423,7 +425,7 @@ void DialogEditSIMDRegister::onIntegerEdited(QObject *sender, const std::array<N
 }
 
 template <typename Float>
-void DialogEditSIMDRegister::onFloatEdited(QObject *sender, const std::array<NumberEdit *, numBytes / sizeof(Float)> &elements) {
+void DialogEditSIMDRegister::onFloatEdited(QObject *sender, const std::array<NumberEdit *, NumBytes / sizeof(Float)> &elements) {
 	const auto changedFloatEdit = qobject_cast<NumberEdit *>(sender);
 	std::size_t floatIndex      = std::find(elements.begin(), elements.end(), changedFloatEdit) - elements.begin();
 	bool ok                     = false;

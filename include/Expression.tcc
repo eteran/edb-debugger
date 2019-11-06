@@ -19,14 +19,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef EXPRESSION_20070402_TCC_
 #define EXPRESSION_20070402_TCC_
 
+namespace detail {
+
+inline bool is_delim(QChar ch) {
+    return QString("[]!()=+-*/%&|^~<>\t\n\r ").contains(ch);
+}
+
+}
+
 //------------------------------------------------------------------------------
 // Name: Expression
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
-Expression<T>::Expression(const QString &s, variable_getter_t vg, memory_reader_t mr) :
-		expression_(s), expression_ptr_(expression_.begin()),
-		variable_reader_(vg), memory_reader_(mr) {
+Expression<T>::Expression(const QString &s, variable_getter_t vg, memoryReader_t mr) :
+        expression_(s), expressionPtr_(expression_.begin()),
+        variableReader_(vg), memoryReader_(mr) {
 }
 
 //------------------------------------------------------------------------------
@@ -334,11 +342,11 @@ void Expression<T>::eval_exp7(T &result) {
 			T effective_address;
 			eval_exp0(effective_address);
 
-			if(memory_reader_) {
+            if(memoryReader_) {
 				bool ok;
 				ExpressionError error;
 
-				result = memory_reader_(effective_address, &ok, &error);
+                result = memoryReader_(effective_address, &ok, &error);
 				if(!ok) {
 					throw error;
 				}
@@ -372,10 +380,10 @@ void Expression<T>::eval_atom(T &result) {
 
 	switch(token_.type_) {
 	case Token::VARIABLE:
-		if(variable_reader_) {
+        if(variableReader_) {
 			bool ok;
 			ExpressionError error;
-			result = variable_reader_(token_.data_, &ok, &error);
+            result = variableReader_(token_.data_, &ok, &error);
 			if(!ok) {
 				throw error;
 			}
@@ -409,128 +417,128 @@ void Expression<T>::get_token() {
 	token_ = Token();
 
 	// eat up white space
-	while(expression_ptr_ != expression_.end() && expression_ptr_->isSpace()) {
-		++expression_ptr_;
+    while(expressionPtr_ != expression_.end() && expressionPtr_->isSpace()) {
+        ++expressionPtr_;
 	}
 
-	if(expression_ptr_ != expression_.end()) {
+    if(expressionPtr_ != expression_.end()) {
 
 		// get the token
-		switch(expression_ptr_->toLatin1()) {
+        switch(expressionPtr_->toLatin1()) {
 		case '(':
-			++expression_ptr_;
+            ++expressionPtr_;
 			token_.set("(", Token::LPAREN, Token::OPERATOR);
 			break;
 		case ')':
-			++expression_ptr_;
+            ++expressionPtr_;
 			token_.set(")", Token::RPAREN, Token::OPERATOR);
 			break;
 		case '[':
-			++expression_ptr_;
+            ++expressionPtr_;
 			token_.set("[", Token::LBRACE, Token::OPERATOR);
 			break;
 		case ']':
-			++expression_ptr_;
+            ++expressionPtr_;
 			token_.set("]", Token::RBRACE, Token::OPERATOR);
 			break;
 		case '!':
-			++expression_ptr_;
-			if(expression_ptr_ != expression_.end() && *expression_ptr_ == '=') {
-				++expression_ptr_;
+            ++expressionPtr_;
+            if(expressionPtr_ != expression_.end() && *expressionPtr_ == '=') {
+                ++expressionPtr_;
 				token_.set("!=", Token::NE, Token::OPERATOR);
 			} else {
 				token_.set("!", Token::NOT, Token::OPERATOR);
 			}
 			break;
 		case '+':
-			++expression_ptr_;
+            ++expressionPtr_;
 			token_.set("+", Token::PLUS, Token::OPERATOR);
 			break;
 		case '-':
-			++expression_ptr_;
+            ++expressionPtr_;
 			token_.set("-", Token::MINUS, Token::OPERATOR);
 			break;
 		case '*':
-			++expression_ptr_;
+            ++expressionPtr_;
 			token_.set("*", Token::MUL, Token::OPERATOR);
 			break;
 		case '/':
-			++expression_ptr_;
+            ++expressionPtr_;
 			token_.set("/", Token::DIV, Token::OPERATOR);
 			break;
 		case '%':
-			++expression_ptr_;
+            ++expressionPtr_;
 			token_.set("%", Token::MOD, Token::OPERATOR);
 			break;
 		case '&':
-			++expression_ptr_;
-			if(expression_ptr_ != expression_.end() && *expression_ptr_ == '&') {
-				++expression_ptr_;
+            ++expressionPtr_;
+            if(expressionPtr_ != expression_.end() && *expressionPtr_ == '&') {
+                ++expressionPtr_;
 				token_.set("&&", Token::LOGICAL_AND, Token::OPERATOR);
 			} else {
 				token_.set("&", Token::AND, Token::OPERATOR);
 			}
 			break;
 		case '|':
-			++expression_ptr_;
-			if(expression_ptr_ != expression_.end() && *expression_ptr_ == '|') {
-				++expression_ptr_;
+            ++expressionPtr_;
+            if(expressionPtr_ != expression_.end() && *expressionPtr_ == '|') {
+                ++expressionPtr_;
 				token_.set("||", Token::LOGICAL_OR, Token::OPERATOR);
 			} else {
 				token_.set("|", Token::OR, Token::OPERATOR);
 			}
 			break;
 		case '^':
-			++expression_ptr_;
+            ++expressionPtr_;
 			token_.set("^", Token::XOR, Token::OPERATOR);
 			break;
 		case '~':
-			++expression_ptr_;
+            ++expressionPtr_;
 			token_.set("~", Token::CMP, Token::OPERATOR);
 			break;
 		case '=':
-			++expression_ptr_;
-			if(expression_ptr_ != expression_.end() && *expression_ptr_ == '=') {
-				++expression_ptr_;
+            ++expressionPtr_;
+            if(expressionPtr_ != expression_.end() && *expressionPtr_ == '=') {
+                ++expressionPtr_;
 				token_.set("==", Token::EQ, Token::OPERATOR);
 			} else {
 				throw ExpressionError(ExpressionError::SYNTAX);
 			}
 			break;
 		case '<':
-			++expression_ptr_;
-			if(expression_ptr_ != expression_.end() && *expression_ptr_ == '<') {
-				++expression_ptr_;
+            ++expressionPtr_;
+            if(expressionPtr_ != expression_.end() && *expressionPtr_ == '<') {
+                ++expressionPtr_;
 				token_.set("<<", Token::LSHFT, Token::OPERATOR);
-			} else if(expression_ptr_ != expression_.end() && *expression_ptr_ == '=') {
-				++expression_ptr_;
+            } else if(expressionPtr_ != expression_.end() && *expressionPtr_ == '=') {
+                ++expressionPtr_;
 				token_.set("<=", Token::LE, Token::OPERATOR);
 			} else {
 				token_.set("<", Token::LT, Token::OPERATOR);
 			}
 			break;
 		case '>':
-			++expression_ptr_;
-			if(expression_ptr_ != expression_.end() && *expression_ptr_ == '>') {
-				++expression_ptr_;
+            ++expressionPtr_;
+            if(expressionPtr_ != expression_.end() && *expressionPtr_ == '>') {
+                ++expressionPtr_;
 				token_.set(">>", Token::RSHFT, Token::OPERATOR);
-			} else if(expression_ptr_ != expression_.end() && *expression_ptr_ == '=') {
-				++expression_ptr_;
+            } else if(expressionPtr_ != expression_.end() && *expressionPtr_ == '=') {
+                ++expressionPtr_;
 				token_.set(">=", Token::GE, Token::OPERATOR);
 			} else {
 				token_.set(">", Token::GT, Token::OPERATOR);
 			}
 			break;
 		case '"':
-			++expression_ptr_;
+            ++expressionPtr_;
 			// Begin a quoted string
 			{
 				QString temp_string;
 
-				while (expression_ptr_ != expression_.end() && *expression_ptr_ != '"') {
-					temp_string += *expression_ptr_++;
+                while (expressionPtr_ != expression_.end() && *expressionPtr_ != '"') {
+                    temp_string += *expressionPtr_++;
 				}
-				if (expression_ptr_ == expression_.end()) {
+                if (expressionPtr_ == expression_.end()) {
 					token_.set("\"" + temp_string, Token::NONE, Token::VARIABLE);
 				} else {
 					token_.set(temp_string, Token::NONE, Token::VARIABLE);
@@ -539,11 +547,11 @@ void Expression<T>::get_token() {
 			break;
 		default:
 			// is it a numerical constant?
-			if(expression_ptr_->isDigit()) {
+            if(expressionPtr_->isDigit()) {
 				QString temp_string;
 
-				while(expression_ptr_ != expression_.end() && !is_delim(*expression_ptr_)) {
-					temp_string += *expression_ptr_++;
+                while(expressionPtr_ != expression_.end() && !detail::is_delim(*expressionPtr_)) {
+                    temp_string += *expressionPtr_++;
 				}
 
 				token_.set(temp_string, Token::NONE, Token::NUMBER);
@@ -551,15 +559,15 @@ void Expression<T>::get_token() {
 				// it must be a variable, get its name
 				QString temp_string;
 
-				while(expression_ptr_ != expression_.end()) {
+                while(expressionPtr_ != expression_.end()) {
 					// so the expression: "VAR !" ... is kinda nonsense
 					// AND we want to allow a name to have a "!" in the middle of it
 					// since we want to support symbols with module notation
-					if(is_delim(*expression_ptr_) && *expression_ptr_ != '!') {
+                    if(detail::is_delim(*expressionPtr_) && *expressionPtr_ != '!') {
 						break;
 					}
 					
-					temp_string += *expression_ptr_++;
+                    temp_string += *expressionPtr_++;
 				}
 
 				token_.set(temp_string, Token::NONE, Token::VARIABLE);

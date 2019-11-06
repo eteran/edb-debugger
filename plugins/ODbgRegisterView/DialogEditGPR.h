@@ -20,10 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Register.h"
 #include <QDialog>
-#include <QLabel>
 #include <array>
 #include <cstddef>
 #include <cstdint>
+
+class QLabel;
 
 namespace ODbgRegisterView {
 

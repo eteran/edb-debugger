@@ -82,9 +82,10 @@ void GPREdit::setupFormat(Format newFormat) {
 	}
 }
 
-GPREdit::GPREdit(std::size_t offsetInInteger, std::size_t integerSize, Format newFormat, QWidget *parent)
+GPREdit::GPREdit(std::size_t offsetInInteger, std::size_t integerSize, Format format, QWidget *parent)
 	: QLineEdit(parent), naturalWidthInChars_(2 * integerSize), integerSize_(integerSize), offsetInInteger_(offsetInInteger) {
-	setupFormat(newFormat);
+
+	setupFormat(format);
 }
 
 void GPREdit::setGPRValue(std::uint64_t gprValue) {

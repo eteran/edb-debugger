@@ -34,7 +34,7 @@ public:
 	};
 
 public:
-	GPREdit(std::size_t offsetInInteger_, std::size_t integerSize_, Format format_, QWidget *parent = nullptr);
+	GPREdit(std::size_t offsetInInteger, std::size_t integerSize, Format format, QWidget *parent = nullptr);
 
 public:
 	void setGPRValue(std::uint64_t gprValue);

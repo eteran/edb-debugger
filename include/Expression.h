@@ -81,10 +81,10 @@ template <class T>
 class Expression {
 public:
 	using variable_getter_t = std::function<T(const QString &, bool *, ExpressionError *)>;
-	using memory_reader_t   = std::function<T(T, bool *, ExpressionError *)>;
+	using memoryReader_t    = std::function<T(T, bool *, ExpressionError *)>;
 
 public:
-	Expression(const QString &s, variable_getter_t vg, memory_reader_t mr);
+	Expression(const QString &s, variable_getter_t vg, memoryReader_t mr);
 	~Expression() = default;
 
 private:
@@ -170,16 +170,12 @@ private:
 	void eval_atom(T &result);
 	void get_token();
 
-	static bool is_delim(QChar ch) {
-		return QString("[]!()=+-*/%&|^~<>\t\n\r ").contains(ch);
-	}
-
 private:
 	QString expression_;
-	QString::const_iterator expression_ptr_;
+	QString::const_iterator expressionPtr_;
 	Token token_;
-	variable_getter_t variable_reader_;
-	memory_reader_t memory_reader_;
+	variable_getter_t variableReader_;
+	memoryReader_t memoryReader_;
 };
 
 #include "Expression.tcc"

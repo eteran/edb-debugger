@@ -66,7 +66,7 @@ public:
 	virtual bool terminated() const          = 0;
 	virtual edb::pid_t process() const       = 0;
 	virtual edb::tid_t thread() const        = 0;
-	virtual int64_t code() const                 = 0;
+	virtual int64_t code() const             = 0;
 };
 
 #endif

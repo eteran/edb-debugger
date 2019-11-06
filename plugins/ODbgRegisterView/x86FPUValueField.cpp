@@ -40,10 +40,10 @@ FPUValueField::FPUValueField(int fieldWidth, const QModelIndex &regValueIndex, c
 	Q_ASSERT(group);
 	Q_ASSERT(commentWidget);
 	showAsRawActionIndex = menuItems_.size();
-	menuItems_.push_back(newAction(tr("View FPU as raw values"), this, this, SLOT(showFPUAsRaw())));
+	menuItems_.push_back(new_action(tr("View FPU as raw values"), this, this, SLOT(showFPUAsRaw())));
 
 	showAsFloatActionIndex = menuItems_.size();
-	menuItems_.push_back(newAction(tr("View FPU as floats"), this, this, SLOT(showFPUAsFloat())));
+	menuItems_.push_back(new_action(tr("View FPU as floats"), this, this, SLOT(showFPUAsFloat())));
 
 	group->insert(row, column, this);
 	group->insert(commentWidget);
@@ -64,7 +64,7 @@ void FPUValueField::showFPUAsFloat() {
 void FPUValueField::displayFormatChanged() {
 
 	using RegisterViewModelBase::Model;
-	const auto format = static_cast<NumberDisplayMode>(VALID_VARIANT(index_.parent().data(Model::ChosenFPUFormatRole)).toInt());
+	const auto format = static_cast<NumberDisplayMode>(valid_variant(index_.parent().data(Model::ChosenFPUFormatRole)).toInt());
 
 	switch (format) {
 	case NumberDisplayMode::Hex:
@@ -82,7 +82,7 @@ void FPUValueField::displayFormatChanged() {
 	}
 
 	const auto margins = group()->getFieldMargins();
-	fieldWidth_        = VALID_VARIANT(index_.data(Model::FixedLengthRole)).toInt();
+	fieldWidth_        = valid_variant(index_.data(Model::FixedLengthRole)).toInt();
 
 	Q_ASSERT(fieldWidth_ > 0);
 
@@ -93,13 +93,13 @@ void FPUValueField::displayFormatChanged() {
 		groupDigits = false;
 	}
 
-	const auto charWidth = letterSize(font()).width();
+	const auto charWidth = letter_size(font()).width();
 	setFixedWidth(charWidth * fieldWidth_ + margins.left() + margins.right());
 	commentWidget->move(x() + maximumWidth(), commentWidget->y());
 }
 
 void FPUValueField::updatePalette() {
-	if (!changed() && tagValueIndex.data().toUInt() == FPU_TAG_EMPTY) {
+	if (!changed() && tagValueIndex.data().toUInt() == FpuTagEmpty) {
 		auto palette = group()->palette();
 		palette.setColor(foregroundRole(), palette.color(QPalette::Disabled, QPalette::Text));
 		setPalette(palette);

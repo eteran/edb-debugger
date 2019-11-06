@@ -157,10 +157,10 @@ QString format_instruction_bytes(const edb::Instruction &inst, int maxStringPx, 
 QDisassemblyView::QDisassemblyView(QWidget *parent)
 	: QAbstractScrollArea(parent),
 	  highlighter_(new SyntaxHighlighter(this)),
-	  breakpoint_renderer_(QLatin1String(":/debugger/images/breakpoint.svg")),
-	  current_renderer_(QLatin1String(":/debugger/images/arrow-right.svg")),
-	  current_bp_renderer_(QLatin1String(":/debugger/images/arrow-right-red.svg")),
-	  syntax_cache_(256) {
+	  breakpointRenderer_(QLatin1String(":/debugger/images/breakpoint.svg")),
+	  currentRenderer_(QLatin1String(":/debugger/images/arrow-right.svg")),
+	  currentBpRenderer_(QLatin1String(":/debugger/images/arrow-right-red.svg")),
+	  syntaxCache_(256) {
 
 	setShowAddressSeparator(true);
 
@@ -192,35 +192,35 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 		verticalScrollBar()->setValue(verticalScrollBar()->maximum());
 	} else if (event->matches(QKeySequence::MoveToNextLine)) {
 		const edb::address_t selected = selectedAddress();
-		const int idx                 = show_addresses_.indexOf(selected);
-		if (selected != 0 && idx > 0 && idx < show_addresses_.size() - 1 - partial_last_line_) {
-			setSelectedAddress(show_addresses_[idx + 1]);
+		const int idx                 = showAddresses_.indexOf(selected);
+		if (selected != 0 && idx > 0 && idx < showAddresses_.size() - 1 - partialLastLine_) {
+			setSelectedAddress(showAddresses_[idx + 1]);
 		} else {
-			const int current_offset = selected - address_offset_;
+			const int current_offset = selected - addressOffset_;
 			if (current_offset + 1 >= static_cast<int>(region_->size())) {
 				return;
 			}
 
-			const edb::address_t next_address = address_offset_ + following_instructions(current_offset, 1);
+			const edb::address_t next_address = addressOffset_ + following_instructions(current_offset, 1);
 			if (!addressShown(next_address)) {
-				scrollTo(show_addresses_.size() > 1 ? show_addresses_[show_addresses_.size() / 3] : next_address);
+				scrollTo(showAddresses_.size() > 1 ? showAddresses_[showAddresses_.size() / 3] : next_address);
 			}
 
 			setSelectedAddress(next_address);
 		}
 	} else if (event->matches(QKeySequence::MoveToPreviousLine)) {
 		const edb::address_t selected = selectedAddress();
-		const int idx                 = show_addresses_.indexOf(selected);
+		const int idx                 = showAddresses_.indexOf(selected);
 		if (selected != 0 && idx > 0) {
 			// we already know the previous instruction
-			setSelectedAddress(show_addresses_[idx - 1]);
+			setSelectedAddress(showAddresses_[idx - 1]);
 		} else {
-			const int current_offset = selected - address_offset_;
+			const int current_offset = selected - addressOffset_;
 			if (current_offset <= 0) {
 				return;
 			}
 
-			const edb::address_t new_address = address_offset_ + previous_instructions(current_offset, 1);
+			const edb::address_t new_address = addressOffset_ + previous_instructions(current_offset, 1);
 			if (!addressShown(new_address)) {
 				scrollTo(new_address);
 			}
@@ -235,8 +235,8 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 		}
 		updateDisassembly(instructions_.size());
 
-		if (show_addresses_.size() > selectedLine) {
-			setSelectedAddress(show_addresses_[selectedLine]);
+		if (showAddresses_.size() > selectedLine) {
+			setSelectedAddress(showAddresses_[selectedLine]);
 		}
 	} else if (event->key() == Qt::Key_Minus) {
 		edb::address_t prev_addr = history_.getPrev();
@@ -275,7 +275,7 @@ int QDisassemblyView::previous_instruction(IAnalyzer *analyzer, int current_addr
 	//
 	// If all else fails, fall back on the old heuristic which works "ok"
 	if (analyzer) {
-		edb::address_t address = address_offset_ + current_address;
+		edb::address_t address = addressOffset_ + current_address;
 
 		// find the containing function
 		if (Result<edb::address_t, QString> function_address = analyzer->findContainingFunction(address)) {
@@ -300,7 +300,7 @@ int QDisassemblyView::previous_instruction(IAnalyzer *analyzer, int current_addr
 
 						// if the NEXT address would be our target, then
 						// we are at the previous instruction!
-						if (function_start + inst.byte_size() >= current_address + address_offset_) {
+						if (function_start + inst.byte_size() >= current_address + addressOffset_) {
 							break;
 						}
 
@@ -310,7 +310,7 @@ int QDisassemblyView::previous_instruction(IAnalyzer *analyzer, int current_addr
 					}
 				}
 
-				current_address = (function_start - address_offset_);
+				current_address = (function_start - addressOffset_);
 				return current_address;
 			}
 		}
@@ -318,14 +318,14 @@ int QDisassemblyView::previous_instruction(IAnalyzer *analyzer, int current_addr
 
 	// fall back on the old heuristic
 	// iteration goal: to get exactly one new line above current instruction line
-	edb::address_t address = address_offset_ + current_address;
+	edb::address_t address = addressOffset_ + current_address;
 #if 0
 	for(int i = 1; i < static_cast<int>(edb::Instruction::MAX_SIZE); ++i) {
 #else
 	for (int i = static_cast<int>(edb::Instruction::MAX_SIZE); i > 0; --i) {
 #endif
 	edb::address_t prev_address = address - i;
-	if (address >= address_offset_) {
+	if (address >= addressOffset_) {
 
 		uint8_t buf[edb::Instruction::MAX_SIZE];
 		int size               = sizeof(buf);
@@ -368,7 +368,7 @@ int QDisassemblyView::following_instruction(int current_address) {
 	}
 
 	// read in the bytes...
-	if (!edb::v1::get_instruction_bytes(address_offset_ + current_address, buf, &buf_size)) {
+	if (!edb::v1::get_instruction_bytes(addressOffset_ + current_address, buf, &buf_size)) {
 		return current_address + 1;
 	} else {
 		const edb::Instruction inst(buf, buf + buf_size, current_address);
@@ -468,7 +468,7 @@ void QDisassemblyView::scrollbar_action_triggered(int action) {
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::setShowAddressSeparator(bool value) {
-	show_address_separator_ = value;
+	showAddressSeparator_ = value;
 }
 
 //------------------------------------------------------------------------------
@@ -477,9 +477,9 @@ void QDisassemblyView::setShowAddressSeparator(bool value) {
 //------------------------------------------------------------------------------
 QString QDisassemblyView::formatAddress(edb::address_t address) const {
 	if (edb::v1::debuggeeIs32Bit())
-		return format_address<quint32>(address.toUint(), show_address_separator_);
+		return format_address<quint32>(address.toUint(), showAddressSeparator_);
 	else
-		return format_address(address, show_address_separator_);
+		return format_address(address, showAddressSeparator_);
 }
 
 //------------------------------------------------------------------------------
@@ -496,10 +496,10 @@ void QDisassemblyView::update() {
 // Desc: returns true if a given address is in the visible range
 //------------------------------------------------------------------------------
 bool QDisassemblyView::addressShown(edb::address_t address) const {
-	const auto idx = show_addresses_.indexOf(address);
+	const auto idx = showAddresses_.indexOf(address);
 	// if the last line is only partially rendered, consider it outside the
 	// viewport.
-	return (idx > 0 && idx < show_addresses_.size() - 1 - partial_last_line_);
+	return (idx > 0 && idx < showAddresses_.size() - 1 - partialLastLine_);
 }
 
 //------------------------------------------------------------------------------
@@ -507,7 +507,7 @@ bool QDisassemblyView::addressShown(edb::address_t address) const {
 // Desc: sets the 'current address' (where EIP is usually)
 //------------------------------------------------------------------------------
 void QDisassemblyView::setCurrentAddress(edb::address_t address) {
-	current_address_ = address;
+	currentAddress_ = address;
 }
 
 //------------------------------------------------------------------------------
@@ -549,7 +549,7 @@ void QDisassemblyView::clear() {
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::setAddressOffset(edb::address_t address) {
-	address_offset_ = address;
+	addressOffset_ = address;
 }
 
 //------------------------------------------------------------------------------
@@ -557,7 +557,7 @@ void QDisassemblyView::setAddressOffset(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::scrollTo(edb::address_t address) {
-	verticalScrollBar()->setValue(address - address_offset_);
+	verticalScrollBar()->setValue(address - addressOffset_);
 }
 
 bool targetIsLocal(edb::address_t targetAddress, edb::address_t insnAddress) {
@@ -614,7 +614,7 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
 void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, int y, bool selected) {
 
 	const bool is_filling      = edb::v1::arch_processor().isFilling(inst);
-	const int x                = font_width_ + font_width_ + ctx->l3 + (font_width_ / 2);
+	const int x                = fontWidth_ + fontWidth_ + ctx->l3 + (fontWidth_ / 2);
 	const int inst_pixel_width = ctx->l4 - x;
 
 	const bool syntax_highlighting_enabled = edb::v1::config().syntax_highlighting_enabled && !selected;
@@ -631,7 +631,7 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 		painter.drawText(
 			x,
 			y,
-			opcode.length() * font_width_,
+			opcode.length() * fontWidth_,
 			ctx->line_height,
 			Qt::AlignVCenter,
 			opcode);
@@ -653,7 +653,7 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 				painter.setPen(default_dis_color);
 			}
 
-			QPixmap *map = syntax_cache_[opcode];
+			QPixmap *map = syntaxCache_[opcode];
 			if (!map) {
 
 				// create the text layout
@@ -677,7 +677,7 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 
 				textLayout.endLayout();
 
-				map = new QPixmap(QSize(opcode.length() * font_width_, ctx->line_height) * devicePixelRatio());
+				map = new QPixmap(QSize(opcode.length() * fontWidth_, ctx->line_height) * devicePixelRatio());
 				map->setDevicePixelRatio(devicePixelRatio());
 				map->fill(Qt::transparent);
 				QPainter cache_painter(map);
@@ -686,11 +686,11 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 
 				// now the render the text at the location given
 				textLayout.draw(&cache_painter, QPoint(0, 0), highlightData);
-				syntax_cache_.insert(opcode, map);
+				syntaxCache_.insert(opcode, map);
 			}
 			painter.drawPixmap(x, y, *map);
 		} else {
-			QRectF rectangle(x, y, opcode.length() * font_width_, ctx->line_height);
+			QRectF rectangle(x, y, opcode.length() * fontWidth_, ctx->line_height);
 			painter.drawText(rectangle, Qt::AlignVCenter, opcode);
 		}
 	}
@@ -713,10 +713,10 @@ void QDisassemblyView::paint_line_bg(QPainter &painter, QBrush brush, int line, 
 //------------------------------------------------------------------------------
 boost::optional<unsigned int> QDisassemblyView::get_line_of_address(edb::address_t addr) const {
 
-	if (!show_addresses_.isEmpty()) {
-		if (addr >= show_addresses_[0] && addr <= show_addresses_[show_addresses_.size() - 1]) {
-			int pos = std::find(show_addresses_.begin(), show_addresses_.end(), addr) - show_addresses_.begin();
-			if (pos < show_addresses_.size()) { // address was found
+	if (!showAddresses_.isEmpty()) {
+		if (addr >= showAddresses_[0] && addr <= showAddresses_[showAddresses_.size() - 1]) {
+			int pos = std::find(showAddresses_.begin(), showAddresses_.end(), addr) - showAddresses_.begin();
+			if (pos < showAddresses_.size()) { // address was found
 				return pos;
 			}
 		}
@@ -732,11 +732,11 @@ boost::optional<unsigned int> QDisassemblyView::get_line_of_address(edb::address
 //------------------------------------------------------------------------------
 int QDisassemblyView::updateDisassembly(int lines_to_render) {
 	instructions_.clear();
-	show_addresses_.clear();
+	showAddresses_.clear();
 
-	int bufsize                        = instruction_buffer_.size();
-	quint8 *inst_buf                   = &instruction_buffer_[0];
-	const edb::address_t start_address = address_offset_ + verticalScrollBar()->value();
+	int bufsize                        = instructionBuffer_.size();
+	quint8 *inst_buf                   = &instructionBuffer_[0];
+	const edb::address_t start_address = addressOffset_ + verticalScrollBar()->value();
 
 	if (!edb::v1::get_instruction_bytes(start_address, inst_buf, &bufsize)) {
 		qDebug() << "Failed to read" << bufsize << "bytes from" << QString::number(start_address, 16);
@@ -744,7 +744,7 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 	}
 
 	instructions_.reserve(lines_to_render);
-	show_addresses_.reserve(lines_to_render);
+	showAddresses_.reserve(lines_to_render);
 
 	const int max_offset = std::min(int(region_->end() - start_address), bufsize);
 
@@ -758,7 +758,7 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 			&inst_buf[bufsize], // end of buffer
 			address             // address of instruction
 		);
-		show_addresses_.push_back(address);
+		showAddresses_.push_back(address);
 
 		if (instructions_[line].valid()) {
 			offset += instructions_[line].byte_size();
@@ -769,8 +769,8 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 	}
 	Q_ASSERT(line <= lines_to_render);
 	if (lines_to_render != line) {
-		lines_to_render    = line;
-		partial_last_line_ = false;
+		lines_to_render  = line;
+		partialLastLine_ = false;
 	}
 
 	lines_to_render = line;
@@ -804,7 +804,7 @@ void QDisassemblyView::drawHeaderAndBackground(QPainter &painter, const DrawingC
 		auto header_size                  = binary_info->headerSize();
 		edb::address_t header_end_address = region_->start() + header_size;
 		// Find the number of lines we need to paint with the header
-		while (line < ctx->lines_to_render && header_end_address > show_addresses_[line]) {
+		while (line < ctx->lines_to_render && header_end_address > showAddresses_[line]) {
 			line++;
 		}
 		paint_line_bg(painter, QBrush(Qt::lightGray), 0, line);
@@ -874,7 +874,7 @@ void QDisassemblyView::drawRegiserBadges(QPainter &painter, DrawingContext *ctx)
 			for (int line = 0; line < ctx->lines_to_render; line++) {
 				if (!badge_labels[line].isEmpty()) {
 
-					int width          = badge_labels[line].length() * font_width_ + font_width_ / 2;
+					int width          = badge_labels[line].length() * fontWidth_ + fontWidth_ / 2;
 					int height         = ctx->line_height;
 					int triangle_point = line1() - 3;
 					int x              = triangle_point - (height / 2) - width;
@@ -898,9 +898,9 @@ void QDisassemblyView::drawRegiserBadges(QPainter &painter, DrawingContext *ctx)
 					painter.fillPath(path, Qt::blue);
 
 					painter.drawText(
-						bounds.x() + font_width_ / 4,
+						bounds.x() + fontWidth_ / 4,
 						line * ctx->line_height,
-						font_width_ * badge_labels[line].size(),
+						fontWidth_ * badge_labels[line].size(),
 						ctx->line_height,
 						Qt::AlignVCenter,
 						(edb::v1::config().uppercase_disassembly ? badge_labels[line].toUpper() : badge_labels[line]));
@@ -922,7 +922,7 @@ void QDisassemblyView::drawSymbolNames(QPainter &painter, const DrawingContext *
 		for (int line = 0; line < ctx->lines_to_render; line++) {
 
 			if (ctx->selected_line != line) {
-				auto address      = show_addresses_[line];
+				auto address      = showAddresses_[line];
 				const QString sym = edb::v1::symbol_manager().findAddressName(address);
 				if (!sym.isEmpty()) {
 					const QString symbol_buffer = painter.fontMetrics().elidedText(sym, Qt::ElideRight, width);
@@ -941,7 +941,7 @@ void QDisassemblyView::drawSymbolNames(QPainter &painter, const DrawingContext *
 		if (ctx->selected_line < ctx->lines_to_render) {
 			int line = ctx->selected_line;
 			painter.setPen(palette().color(ctx->group, QPalette::HighlightedText));
-			auto address      = show_addresses_[line];
+			auto address      = showAddresses_[line];
 			const QString sym = edb::v1::symbol_manager().findAddressName(address);
 			if (!sym.isEmpty()) {
 				const QString symbol_buffer = painter.fontMetrics().elidedText(sym, Qt::ElideRight, width);
@@ -966,25 +966,25 @@ void QDisassemblyView::drawSidebarElements(QPainter &painter, const DrawingConte
 	painter.setPen(address_color);
 
 	const auto icon_x     = ctx->l1 + 1;
-	const auto addr_x     = icon_x + icon_width_;
+	const auto addr_x     = icon_x + iconWidth_;
 	const auto addr_width = ctx->l2 - addr_x;
 
 	auto paint_address_lambda = [&](int line) {
-		auto address = show_addresses_[line];
+		auto address = showAddresses_[line];
 
 		const bool has_breakpoint = (edb::v1::find_breakpoint(address) != nullptr);
-		const bool is_eip         = address == current_address_;
+		const bool is_eip         = address == currentAddress_;
 
 		// TODO(eteran):  if highlighted render the BP/Arrow in a more readable color!
 		QSvgRenderer *icon = nullptr;
 		if (is_eip) {
-			icon = has_breakpoint ? &current_bp_renderer_ : &current_renderer_;
+			icon = has_breakpoint ? &currentBpRenderer_ : &currentRenderer_;
 		} else if (has_breakpoint) {
-			icon = &breakpoint_renderer_;
+			icon = &breakpointRenderer_;
 		}
 
 		if (icon) {
-			icon->render(&painter, QRectF(icon_x, line * ctx->line_height + 1, icon_width_, icon_height_));
+			icon->render(&painter, QRectF(icon_x, line * ctx->line_height + 1, iconWidth_, iconHeight_));
 		}
 
 		const QString address_buffer = formatAddress(address);
@@ -1017,7 +1017,7 @@ void QDisassemblyView::drawSidebarElements(QPainter &painter, const DrawingConte
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingContext *ctx) {
-	const int bytes_width = ctx->l3 - ctx->l2 - font_width_ / 2;
+	const int bytes_width = ctx->l3 - ctx->l2 - fontWidth_ / 2;
 	const auto metrics    = painter.fontMetrics();
 
 	auto painter_lambda = [&](const edb::Instruction &inst, int line) {
@@ -1041,7 +1041,7 @@ void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingCont
 			metrics);
 
 		painter.drawText(
-			ctx->l2 + (font_width_ / 2),
+			ctx->l2 + (fontWidth_ / 2),
 			line * ctx->line_height,
 			bytes_width,
 			ctx->line_height,
@@ -1071,26 +1071,26 @@ void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingCont
 //------------------------------------------------------------------------------
 void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingContext *ctx) {
 	IAnalyzer *const analyzer = edb::v1::analyzer();
-	const int x               = ctx->l3 + font_width_;
-	if (analyzer && ctx->l4 - x > font_width_ / 2) {
+	const int x               = ctx->l3 + fontWidth_;
+	if (analyzer && ctx->l4 - x > fontWidth_ / 2) {
 		painter.setPen(QPen(palette().shadow().color(), 2));
 		int next_line = 0;
 
-		if (ctx->lines_to_render != 0 && !show_addresses_.isEmpty()) {
-			analyzer->forFuncsInRange(show_addresses_[0], show_addresses_[ctx->lines_to_render - 1], [&](const Function *func) {
+		if (ctx->lines_to_render != 0 && !showAddresses_.isEmpty()) {
+			analyzer->forFuncsInRange(showAddresses_[0], showAddresses_[ctx->lines_to_render - 1], [&](const Function *func) {
 				auto entry_addr = func->entryAddress();
 				auto end_addr   = func->endAddress();
 				int start_line;
 
 				// Find the start and draw the corner
 				for (start_line = next_line; start_line < ctx->lines_to_render; start_line++) {
-					if (show_addresses_[start_line] == entry_addr) {
+					if (showAddresses_[start_line] == entry_addr) {
 						auto y = start_line * ctx->line_height;
 						// half of a horizontal
 						painter.drawLine(
 							x,
 							y + ctx->line_height / 2,
-							x + font_width_ / 2,
+							x + fontWidth_ / 2,
 							y + ctx->line_height / 2);
 
 						// half of a vertical
@@ -1103,7 +1103,7 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 						start_line++;
 						break;
 					}
-					if (show_addresses_[start_line] > entry_addr) {
+					if (showAddresses_[start_line] > entry_addr) {
 						break;
 					}
 				}
@@ -1112,7 +1112,7 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 
 				// find the end and draw the other corner
 				for (end_line = start_line; end_line < ctx->lines_to_render; end_line++) {
-					auto adjusted_end_addr = show_addresses_[end_line] + instructions_[end_line].byte_size() - 1;
+					auto adjusted_end_addr = showAddresses_[end_line] + instructions_[end_line].byte_size() - 1;
 					if (adjusted_end_addr == end_addr) {
 						auto y = end_line * ctx->line_height;
 						// half of a vertical
@@ -1126,7 +1126,7 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 						painter.drawLine(
 							x,
 							y + ctx->line_height / 2,
-							ctx->l3 + (font_width_ / 2) + font_width_,
+							ctx->l3 + (fontWidth_ / 2) + fontWidth_,
 							y + ctx->line_height / 2);
 						next_line = end_line;
 						break;
@@ -1151,11 +1151,11 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx) {
-	auto x_pos         = ctx->l4 + font_width_ + (font_width_ / 2);
+	auto x_pos         = ctx->l4 + fontWidth_ + (fontWidth_ / 2);
 	auto comment_width = width() - x_pos;
 
 	for (int line = 0; line < ctx->lines_to_render; line++) {
-		auto address = show_addresses_[line];
+		auto address = showAddresses_[line];
 
 		if (ctx->selected_line == line) {
 			painter.setPen(palette().color(ctx->group, QPalette::HighlightedText));
@@ -1287,7 +1287,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		bool is_dst_upward    = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
 		int jump_arrow_dst    = jump_arrow.dst_in_viewport ? jump_arrow.dst_line * ctx->line_height : (is_dst_upward ? 0 : viewport()->height());
 
-		int size_block     = font_width_ * 2;
+		int size_block     = fontWidth_ * 2;
 		int start_at_block = size_block;
 		int badge_line     = -1;
 
@@ -1370,13 +1370,13 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		int start_x = end_x - jump_arrow.horizontal_length;
 
 		// vertical line
-		int src_y = jump_arrow.src_line * ctx->line_height + (font_height_ / 2);
+		int src_y = jump_arrow.src_line * ctx->line_height + (fontHeight_ / 2);
 		int dst_y;
 
 		if (jump_arrow.dst_in_middle_of_instruction) {
 			dst_y = jump_arrow.dst_line * ctx->line_height;
 		} else {
-			dst_y = jump_arrow.dst_line * ctx->line_height + (font_height_ / 2);
+			dst_y = jump_arrow.dst_line * ctx->line_height + (fontHeight_ / 2);
 		}
 
 		auto arrow_color = Qt::black;
@@ -1402,13 +1402,13 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 
 		// if direct jmp (dst) is selected, then draw arrow in red
 		if (unconditional_jmp && ctx->selected_line == jump_arrow.dst_line) {
-			if (show_addresses_[jump_arrow.dst_line] != current_address_) { // if eip
+			if (showAddresses_[jump_arrow.dst_line] != currentAddress_) { // if eip
 				arrow_color = Qt::red;
 			}
 		}
 
 		// if current conditional jump is taken, then draw arrow in red
-		if (show_addresses_[jump_arrow.src_line] == current_address_) { // if eip
+		if (showAddresses_[jump_arrow.src_line] == currentAddress_) { // if eip
 			if (conditional_jmp) {
 				if (edb::v1::arch_processor().isExecuted(instructions_[jump_arrow.src_line], state)) {
 					arrow_color = Qt::red;
@@ -1438,15 +1438,15 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 				QPoint(end_x - src_reg_badge_width, src_y),
 				QPoint(start_x, src_y),
 				QPoint(start_x, dst_y),
-				QPoint(end_x - dst_reg_badge_width - font_width_ / 3, dst_y)};
+				QPoint(end_x - dst_reg_badge_width - fontWidth_ / 3, dst_y)};
 
 			painter.drawPolyline(points, 4);
 
 			// draw arrow tips
 			QPainterPath path;
 			path.moveTo(end_x - dst_reg_badge_width, dst_y);
-			path.lineTo(end_x - dst_reg_badge_width - (font_width_ / 2), dst_y - (font_height_ / 3));
-			path.lineTo(end_x - dst_reg_badge_width - (font_width_ / 2), dst_y + (font_height_ / 3));
+			path.lineTo(end_x - dst_reg_badge_width - (fontWidth_ / 2), dst_y - (fontHeight_ / 3));
+			path.lineTo(end_x - dst_reg_badge_width - (fontWidth_ / 2), dst_y + (fontHeight_ / 3));
 			path.lineTo(end_x - dst_reg_badge_width, dst_y);
 			painter.fillPath(path, QBrush(arrow_color));
 
@@ -1455,15 +1455,15 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			QPoint points[] = {
 				QPoint(end_x - src_reg_badge_width, src_y),
 				QPoint(start_x, src_y),
-				QPoint(start_x, font_width_ / 3)};
+				QPoint(start_x, fontWidth_ / 3)};
 
 			painter.drawPolyline(points, 3);
 
 			// draw arrow tips
 			QPainterPath path;
 			path.moveTo(start_x, 0);
-			path.lineTo(start_x - (font_width_ / 2), font_height_ / 3);
-			path.lineTo(start_x + (font_width_ / 2), font_height_ / 3);
+			path.lineTo(start_x - (fontWidth_ / 2), fontHeight_ / 3);
+			path.lineTo(start_x + (fontWidth_ / 2), fontHeight_ / 3);
 			path.lineTo(start_x, 0);
 			painter.fillPath(path, QBrush(arrow_color));
 
@@ -1472,15 +1472,15 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			QPoint points[] = {
 				QPoint(end_x - src_reg_badge_width, src_y),
 				QPoint(start_x, src_y),
-				QPoint(start_x, viewport()->height() - font_width_ / 3)};
+				QPoint(start_x, viewport()->height() - fontWidth_ / 3)};
 
 			painter.drawPolyline(points, 3);
 
 			// draw arrow tips
 			QPainterPath path;
 			path.moveTo(start_x, viewport()->height() - 1);
-			path.lineTo(start_x - (font_width_ / 2), viewport()->height() - (font_height_ / 3) - 1);
-			path.lineTo(start_x + (font_width_ / 2), viewport()->height() - (font_height_ / 3) - 1);
+			path.lineTo(start_x - (fontWidth_ / 2), viewport()->height() - (fontHeight_ / 3) - 1);
+			path.lineTo(start_x + (fontWidth_ / 2), viewport()->height() - (fontHeight_ / 3) - 1);
 			path.lineTo(start_x, viewport()->height() - 1);
 			painter.fillPath(path, QBrush(arrow_color));
 		}
@@ -1553,9 +1553,9 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	// Possibly render another instruction just outside the viewport
 	if (viewport()->height() % line_height > 0) {
 		lines_to_render++;
-		partial_last_line_ = true;
+		partialLastLine_ = true;
 	} else {
-		partial_last_line_ = false;
+		partialLastLine_ = false;
 	}
 
 	const auto binary_info = edb::v1::get_binary_info(region_);
@@ -1610,7 +1610,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 // Desc: overloaded version of setFont, calculates font metrics for later
 //------------------------------------------------------------------------------
 void QDisassemblyView::setFont(const QFont &f) {
-	syntax_cache_.clear();
+	syntaxCache_.clear();
 
 	QFont newFont(f);
 
@@ -1622,14 +1622,14 @@ void QDisassemblyView::setFont(const QFont &f) {
 
 	// recalculate all of our metrics/offsets
 	const QFontMetrics metrics(newFont);
-	font_width_  = metrics.width('X');
-	font_height_ = metrics.lineSpacing() + 1;
+	fontWidth_  = metrics.width('X');
+	fontHeight_ = metrics.lineSpacing() + 1;
 
 	// NOTE(eteran): we let the icons be a bit wider than the font itself, since things
 	// like arrows don't tend to have square bounds. A ratio of 2:1 seems to look pretty
 	// good on my setup.
-	icon_width_  = font_width_ * 2;
-	icon_height_ = font_height_;
+	iconWidth_  = fontWidth_ * 2;
+	iconHeight_ = fontHeight_;
 
 	updateScrollbars();
 }
@@ -1644,7 +1644,7 @@ void QDisassemblyView::resizeEvent(QResizeEvent *) {
 	const int line_height     = this->line_height();
 	const int lines_to_render = 1 + (viewport()->height() / line_height);
 
-	instruction_buffer_.resize(edb::Instruction::MAX_SIZE * lines_to_render);
+	instructionBuffer_.resize(edb::Instruction::MAX_SIZE * lines_to_render);
 
 	// Make PageUp/PageDown scroll through the whole page, but leave the line at
 	// the top/bottom visible
@@ -1656,7 +1656,7 @@ void QDisassemblyView::resizeEvent(QResizeEvent *) {
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::line_height() const {
-	return std::max({font_height_, icon_height_});
+	return std::max({fontHeight_, iconHeight_});
 }
 
 //------------------------------------------------------------------------------
@@ -1693,10 +1693,10 @@ int QDisassemblyView::line1() const {
 
 		// allocate space for register badge
 		// 4 (maximum register name for GPR) + overhead
-		return edb::v1::config().show_register_badges ? (5 * font_width_ + font_width_ / 2) : 0;
+		return edb::v1::config().show_register_badges ? (5 * fontWidth_ + fontWidth_ / 2) : 0;
 
 	} else if (line1_ == 0) {
-		return 15 * font_width_;
+		return 15 * fontWidth_;
 	} else {
 		return line1_;
 	}
@@ -1708,7 +1708,7 @@ int QDisassemblyView::line1() const {
 //------------------------------------------------------------------------------
 int QDisassemblyView::auto_line2() const {
 	const int elements = address_length();
-	return (elements * font_width_) + (font_width_ / 2) + icon_width_ + 1;
+	return (elements * fontWidth_) + (fontWidth_ / 2) + iconWidth_ + 1;
 }
 
 //------------------------------------------------------------------------------
@@ -1729,7 +1729,7 @@ int QDisassemblyView::line2() const {
 //------------------------------------------------------------------------------
 int QDisassemblyView::line3() const {
 	if (line3_ == 0) {
-		return line2() + (default_byte_width * 3) * font_width_;
+		return line2() + (default_byte_width * 3) * fontWidth_;
 	} else {
 		return line3_;
 	}
@@ -1741,7 +1741,7 @@ int QDisassemblyView::line3() const {
 //------------------------------------------------------------------------------
 int QDisassemblyView::line4() const {
 	if (line4_ == 0) {
-		return line3() + 50 * font_width_;
+		return line3() + 50 * fontWidth_;
 	} else {
 		return line4_;
 	}
@@ -1753,7 +1753,7 @@ int QDisassemblyView::line4() const {
 //------------------------------------------------------------------------------
 int QDisassemblyView::address_length() const {
 	const int address_len = edb::v1::pointer_size() * CHAR_BIT / 4;
-	return address_len + (show_address_separator_ ? 1 : 0);
+	return address_len + (showAddressSeparator_ ? 1 : 0);
 }
 
 //------------------------------------------------------------------------------
@@ -1764,7 +1764,7 @@ edb::address_t QDisassemblyView::addressFromPoint(const QPoint &pos) const {
 
 	Q_ASSERT(region_);
 
-	const edb::address_t address = address_from_coord(pos.x(), pos.y()) + address_offset_;
+	const edb::address_t address = address_from_coord(pos.x(), pos.y()) + addressOffset_;
 	if (address >= region_->end()) {
 		return 0;
 	}
@@ -1828,7 +1828,7 @@ edb::address_t QDisassemblyView::address_from_coord(int x, int y) const {
 	// add up all the instructions sizes up to the line we want
 	for (int i = 0; i < line; ++i) {
 
-		Result<int, QString> size = get_instruction_size(address_offset_ + address);
+		Result<int, QString> size = get_instruction_size(addressOffset_ + address);
 		if (size) {
 			address += (*size != 0) ? *size : 1;
 		} else {
@@ -1882,7 +1882,7 @@ bool QDisassemblyView::event(QEvent *event) {
 					const edb::Instruction inst(buf, buf + buf_size, address);
 					const QString byte_buffer = format_instruction_bytes(inst);
 
-					if ((line2() + byte_buffer.size() * font_width_) > line3()) {
+					if ((line2() + byte_buffer.size() * fontWidth_) > line3()) {
 						QToolTip::showText(helpEvent->globalPos(), byte_buffer);
 						show = true;
 					}
@@ -1908,11 +1908,11 @@ void QDisassemblyView::mouseReleaseEvent(QMouseEvent *event) {
 
 	Q_UNUSED(event)
 
-	moving_line1_      = false;
-	moving_line2_      = false;
-	moving_line3_      = false;
-	moving_line4_      = false;
-	selecting_address_ = false;
+	movingLine1_      = false;
+	movingLine2_      = false;
+	movingLine3_      = false;
+	movingLine4_      = false;
+	selectingAddress_ = false;
 
 	setCursor(Qt::ArrowCursor);
 	update();
@@ -1938,16 +1938,16 @@ void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 	if (region_) {
 		if (event->button() == Qt::LeftButton) {
 			if (near_line(event_x, line1()) && edb::v1::config().show_jump_arrow) {
-				moving_line1_ = true;
+				movingLine1_ = true;
 			} else if (near_line(event_x, line2())) {
-				moving_line2_ = true;
+				movingLine2_ = true;
 			} else if (near_line(event_x, line3())) {
-				moving_line3_ = true;
+				movingLine3_ = true;
 			} else if (near_line(event_x, line4())) {
-				moving_line4_ = true;
+				movingLine4_ = true;
 			} else {
 				updateSelectedAddress(event);
-				selecting_address_ = true;
+				selectingAddress_ = true;
 			}
 		} else {
 			updateSelectedAddress(event);
@@ -1964,32 +1964,32 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 	if (region_) {
 		const int x_pos = event->x() - line0();
 
-		if (moving_line1_) {
+		if (movingLine1_) {
 			if (line2_ == 0) {
 				line2_ = line2();
 			}
 			const int min_line1 = 0;
-			const int max_line1 = line2() - font_width_;
+			const int max_line1 = line2() - fontWidth_;
 			line1_              = std::min(std::max(min_line1, x_pos), max_line1);
 			update();
-		} else if (moving_line2_) {
+		} else if (movingLine2_) {
 			if (line3_ == 0) {
 				line3_ = line3();
 			}
-			const int min_line2 = line1() + icon_width_;
-			const int max_line2 = line3() - font_width_;
+			const int min_line2 = line1() + iconWidth_;
+			const int max_line2 = line3() - fontWidth_;
 			line2_              = std::min(std::max(min_line2, x_pos), max_line2);
 			update();
-		} else if (moving_line3_) {
+		} else if (movingLine3_) {
 			if (line4_ == 0) {
 				line4_ = line4();
 			}
-			const int min_line3 = line2() + font_width_ + font_width_ / 2;
-			const int max_line3 = line4() - font_width_;
+			const int min_line3 = line2() + fontWidth_ + fontWidth_ / 2;
+			const int max_line3 = line4() - fontWidth_;
 			line3_              = std::min(std::max(min_line3, x_pos), max_line3);
 			update();
-		} else if (moving_line4_) {
-			const int min_line4 = line3() + font_width_;
+		} else if (movingLine4_) {
+			const int min_line4 = line3() + fontWidth_;
 			const int max_line4 = width() - 1 - (verticalScrollBar()->width() + 3);
 			line4_              = std::min(std::max(min_line4, x_pos), max_line4);
 			update();
@@ -2001,7 +2001,7 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 				setCursor(Qt::SplitHCursor);
 			} else {
 				setCursor(Qt::ArrowCursor);
-				if (selecting_address_) {
+				if (selectingAddress_) {
 					updateSelectedAddress(event);
 				}
 			}
@@ -2014,7 +2014,7 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t QDisassemblyView::selectedAddress() const {
-	return selected_instruction_address_;
+	return selectedInstructionAddress_;
 }
 
 //------------------------------------------------------------------------------
@@ -2028,11 +2028,11 @@ void QDisassemblyView::setSelectedAddress(edb::address_t address) {
 		const Result<int, QString> size = get_instruction_size(address);
 
 		if (size) {
-			selected_instruction_address_ = address;
-			selected_instruction_size_    = *size;
+			selectedInstructionAddress_ = address;
+			selectedInstructionSize_    = *size;
 		} else {
-			selected_instruction_address_ = 0;
-			selected_instruction_size_    = 0;
+			selectedInstructionAddress_ = 0;
+			selectedInstructionSize_    = 0;
 		}
 
 		update();
@@ -2044,7 +2044,7 @@ void QDisassemblyView::setSelectedAddress(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::selectedSize() const {
-	return selected_instruction_size_;
+	return selectedInstructionSize_;
 }
 
 //------------------------------------------------------------------------------

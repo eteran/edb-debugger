@@ -29,10 +29,12 @@ namespace ProcessPropertiesPlugin {
 struct Result {
 	edb::address_t address = 0;
 	QString string;
-	enum { ASCII,
-		   UTF8,
-		   UTF16,
-		   UTF32 } type;
+	enum {
+		ASCII,
+		UTF8,
+		UTF16,
+		UTF32,
+	} type;
 };
 
 class ResultsModel : public QAbstractItemModel {

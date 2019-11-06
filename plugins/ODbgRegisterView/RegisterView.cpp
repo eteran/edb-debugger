@@ -124,17 +124,21 @@ QString VolatileNameField::text() const {
 
 // -------------------------------- MultiBitFieldWidget impl ---------------------------
 MultiBitFieldWidget::MultiBitFieldWidget(const QModelIndex &index, const BitFieldDescription &bfd, QWidget *parent, Qt::WindowFlags f)
-	: ValueField(bfd.textWidth, index, BitFieldFormatter(bfd), parent, f), equal(bfd.valueEqualComparator) {
-	const auto mapper = new QSignalMapper(this);
-	connect(mapper, SIGNAL(mapped(int)), this, SLOT(setValue(int)));
-	menuItems_.push_front(newActionSeparator(this));
+	: ValueField(bfd.textWidth, index, BitFieldFormatter(bfd), parent, f), equal_(bfd.valueEqualComparator) {
+
+	menuItems_.push_front(new_action_separator(this));
+
 	for (std::size_t i = bfd.valueNames.size(); i-- > 0;) {
 		const auto &text = bfd.setValueTexts[i];
 		if (!text.isEmpty()) {
-			menuItems_.push_front(newAction(text, this, mapper, i));
-			valueActions.push_front(menuItems_.front());
+			auto action = new_action(text, this, [this, i]() {
+				setValue(i);
+			});
+
+			menuItems_.push_front(action);
+			valueActions_.push_front(menuItems_.front());
 		} else
-			valueActions.push_front(nullptr);
+			valueActions_.push_front(nullptr);
 	}
 }
 
@@ -144,7 +148,7 @@ void MultiBitFieldWidget::setValue(int value) {
 
 	// TODO: Model: make it possible to set bit field itself, without manipulating parent directly
 	//              I.e. set value without knowing field offset, then setData(fieldIndex,word)
-	const auto regIndex = index_.parent().sibling(index_.parent().row(), MODEL_VALUE_COLUMN);
+	const auto regIndex = index_.parent().sibling(index_.parent().row(), ModelValueColumn);
 	auto byteArr        = regIndex.data(Model::RawValueRole).toByteArray();
 
 	if (byteArr.isEmpty())
@@ -152,8 +156,8 @@ void MultiBitFieldWidget::setValue(int value) {
 
 	std::uint64_t word(0);
 	std::memcpy(&word, byteArr.constData(), byteArr.size());
-	const auto mask   = (1ull << (VALID_VARIANT(index_.data(Model::BitFieldLengthRole)).toInt() - 1)) * 2 - 1;
-	const auto offset = VALID_VARIANT(index_.data(Model::BitFieldOffsetRole)).toInt();
+	const auto mask   = (1ull << (valid_variant(index_.data(Model::BitFieldLengthRole)).toInt() - 1)) * 2 - 1;
+	const auto offset = valid_variant(index_.data(Model::BitFieldOffsetRole)).toInt();
 	word              = (word & ~(mask << offset)) | (std::uint64_t(value) << offset);
 	std::memcpy(byteArr.data(), &word, byteArr.size());
 	model()->setData(regIndex, byteArr, Model::RawValueRole);
@@ -167,11 +171,11 @@ void MultiBitFieldWidget::adjustToData() {
 	assert(unsigned(byteArr.size()) <= sizeof(word));
 	std::memcpy(&word, byteArr.constData(), byteArr.size());
 
-	for (int value = 0; value < valueActions.size(); ++value) {
-		const auto action = valueActions[value];
+	for (int value = 0; value < valueActions_.size(); ++value) {
+		const auto action = valueActions_[value];
 		if (!action)
 			continue;
-		if (byteArr.isEmpty() || equal(word, value))
+		if (byteArr.isEmpty() || equal_(word, value))
 			action->setVisible(false);
 		else
 			action->setVisible(true);
@@ -184,14 +188,12 @@ RegisterGroup::RegisterGroup(const QString &name, QWidget *parent, Qt::WindowFla
 
 	setObjectName("RegisterGroup_" + name);
 	{
-		menuItems.push_back(newActionSeparator(this));
-		menuItems.push_back(newAction(tr("Hide %1", "register group").arg(name), this, this, SLOT(hideAndReport())));
+		menuItems.push_back(new_action_separator(this));
+		menuItems.push_back(new_action(tr("Hide %1", "register group").arg(name), this, [this]() {
+			hide();
+			regView()->groupHidden(this);
+		}));
 	}
-}
-
-void RegisterGroup::hideAndReport() {
-	hide();
-	regView()->groupHidden(this);
 }
 
 void RegisterGroup::showMenu(const QPoint &position, const QList<QAction *> &additionalItems) const {
@@ -213,7 +215,7 @@ ODBRegView *RegisterGroup::regView() const {
 }
 
 QMargins RegisterGroup::getFieldMargins() const {
-	const auto charSize  = letterSize(font());
+	const auto charSize  = letter_size(font());
 	const auto charWidth = charSize.width();
 	// extra space for highlighting rectangle, so that single-digit fields are easier to target
 	const auto marginLeft  = charWidth / 2;
@@ -239,7 +241,7 @@ void RegisterGroup::setupPositionAndSize(int line, int column, FieldWidget *widg
 
 	const auto margins = getFieldMargins();
 
-	const auto charSize = letterSize(font());
+	const auto charSize = letter_size(font());
 	QPoint position(charSize.width() * column, charSize.height() * line);
 	position -= QPoint(margins.left(), 0);
 
@@ -324,7 +326,7 @@ Canvas::Canvas(QWidget *parent, Qt::WindowFlags f)
 	: QWidget(parent, f) {
 	setObjectName("RegViewCanvas");
 	const auto canvasLayout = new QVBoxLayout(this);
-	canvasLayout->setSpacing(letterSize(parent->font()).height() / 2);
+	canvasLayout->setSpacing(letter_size(parent->font()).height() / 2);
 	canvasLayout->setContentsMargins(parent->contentsMargins());
 	canvasLayout->setAlignment(Qt::AlignTop);
 	setLayout(canvasLayout);
@@ -376,7 +378,7 @@ void ODBRegView::showMenu(const QPoint &position, const QList<QAction *> &additi
 
 	if (model_->activeIndex().isValid()) {
 		QList<QAction *> debuggerActions;
-		QMetaObject::invokeMethod(edb::v1::debugger_ui, "getCurrentRegisterContextMenuItems", Qt::DirectConnection, Q_RETURN_ARG(QList<QAction *>, debuggerActions));
+		QMetaObject::invokeMethod(edb::v1::debugger_ui, "currentRegisterContextMenuItems", Qt::DirectConnection, Q_RETURN_ARG(QList<QAction *>, debuggerActions));
 		items.push_back(nullptr);
 		items.append(debuggerActions);
 	}
@@ -445,7 +447,7 @@ ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 		const auto sep = new QAction(this);
 		sep->setSeparator(true);
 		menuItems.push_back(sep);
-		menuItems.push_back(newAction(tr("Copy all registers"), this, this, SLOT(copyAllRegisters())));
+		menuItems.push_back(new_action(tr("Copy all registers"), this, this, SLOT(copyAllRegisters())));
 	}
 
 	QSettings settings;
@@ -487,7 +489,7 @@ ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 		}
 	}
 
-	connect(new QShortcut(copyFieldShortcut, this, 0, 0, Qt::WidgetShortcut), &QShortcut::activated, this, &ODBRegView::copyRegisterToClipboard);
+	connect(new QShortcut(CopyFieldShortcut, this, 0, 0, Qt::WidgetShortcut), &QShortcut::activated, this, &ODBRegView::copyRegisterToClipboard);
 }
 
 void ODBRegView::copyRegisterToClipboard() const {
@@ -579,14 +581,14 @@ void ODBRegView::setModel(RegisterViewModelBase::Model *model) {
 }
 
 RegisterGroup *createSIMDGroup(RegisterViewModelBase::Model *model, QWidget *parent, const QString &catName, const QString &regNamePrefix) {
-	const auto catIndex = findModelCategory(model, catName);
+	const auto catIndex = find_model_category(model, catName);
 	if (!catIndex.isValid())
 		return nullptr;
 	const auto group = new RegisterGroup(catName, parent);
 	for (int row = 0; row < model->rowCount(catIndex); ++row) {
-		const auto nameIndex = VALID_INDEX(model->index(row, MODEL_NAME_COLUMN, catIndex));
+		const auto nameIndex = valid_index(model->index(row, ModelNameColumn, catIndex));
 		const auto name      = regNamePrefix + QString("%1").arg(row);
-		if (!VALID_VARIANT(nameIndex.data()).toString().toUpper().startsWith(regNamePrefix)) {
+		if (!valid_variant(nameIndex.data()).toString().toUpper().startsWith(regNamePrefix)) {
 			if (row == 0)
 				return nullptr; // don't want empty groups
 			break;
@@ -612,11 +614,11 @@ RegisterGroup *ODBRegView::makeGroup(RegisterGroupType type) {
 	switch (type) {
 	case RegisterGroupType::GPR: {
 		groupName           = tr("GPRs");
-		const auto catIndex = findModelCategory(model_, GPRCategoryName);
+		const auto catIndex = find_model_category(model_, GprCategoryName);
 		if (!catIndex.isValid())
 			break;
 		for (int row = 0; row < model_->rowCount(catIndex); ++row)
-			nameValCommentIndices.emplace_back(model_->index(row, MODEL_NAME_COLUMN, catIndex));
+			nameValCommentIndices.emplace_back(model_->index(row, ModelNameColumn, catIndex));
 		break;
 	}
 #if defined EDB_X86 || defined EDB_X86_64
@@ -642,20 +644,20 @@ RegisterGroup *ODBRegView::makeGroup(RegisterGroupType type) {
 		return createSIMDGroup(model_, widget(), "AVX", "YMM");
 	case RegisterGroupType::Segment: {
 		groupName           = tr("Segment Registers");
-		const auto catIndex = findModelCategory(model_, "Segment");
+		const auto catIndex = find_model_category(model_, "Segment");
 		if (!catIndex.isValid())
 			break;
 		for (int row = 0; row < model_->rowCount(catIndex); ++row)
-			nameValCommentIndices.emplace_back(model_->index(row, MODEL_NAME_COLUMN, catIndex));
+			nameValCommentIndices.emplace_back(model_->index(row, ModelNameColumn, catIndex));
 		break;
 	}
 	case RegisterGroupType::rIP: {
 		groupName           = tr("Instruction Pointer");
-		const auto catIndex = findModelCategory(model_, "General Status");
+		const auto catIndex = find_model_category(model_, "General Status");
 		if (!catIndex.isValid())
 			break;
-		nameValCommentIndices.emplace_back(findModelRegister(catIndex, "RIP"));
-		nameValCommentIndices.emplace_back(findModelRegister(catIndex, "EIP"));
+		nameValCommentIndices.emplace_back(find_model_register(catIndex, "RIP"));
+		nameValCommentIndices.emplace_back(find_model_register(catIndex, "EIP"));
 		break;
 	}
 #elif defined EDB_ARM32
@@ -710,7 +712,7 @@ void ODBRegView::modelReset() {
 	// (3/2+1/2)-letter — Total of 2-letter spacing. Fourth half-letter is from flag values extension.
 	// Segment extensions at LHS of the widget don't influence minimumSize request, so no need to take
 	// them into account.
-	flagsAndSegments->setSpacing(letterSize(this->font()).width() * 3 / 2);
+	flagsAndSegments->setSpacing(letter_size(this->font()).width() * 3 / 2);
 	flagsAndSegments->setContentsMargins(QMargins());
 	flagsAndSegments->setAlignment(Qt::AlignLeft);
 
@@ -791,13 +793,9 @@ ValueField *ODBRegView::selectedField() const {
 	return nullptr;
 }
 
-SIMDValueManager::SIMDValueManager(int lineInGroup,
-								   const QModelIndex &nameIndex,
-								   RegisterGroup *parent)
-	: QObject(parent),
-	  regIndex(nameIndex),
-	  lineInGroup(lineInGroup),
-	  intMode(NumberDisplayMode::Hex) {
+SIMDValueManager::SIMDValueManager(int lineInGroup, const QModelIndex &nameIndex, RegisterGroup *parent)
+	: QObject(parent), regIndex_(nameIndex), lineInGroup_(lineInGroup) {
+
 	setupMenu();
 
 	assert(nameIndex.isValid());
@@ -807,22 +805,22 @@ SIMDValueManager::SIMDValueManager(int lineInGroup,
 
 void SIMDValueManager::fillGroupMenu() {
 	const auto group = this->group();
-	group->menuItems.push_back(newActionSeparator(this));
-	group->menuItems.push_back(menuItems[VIEW_AS_BYTES]);
-	group->menuItems.push_back(menuItems[VIEW_AS_WORDS]);
-	group->menuItems.push_back(menuItems[VIEW_AS_DWORDS]);
-	group->menuItems.push_back(menuItems[VIEW_AS_QWORDS]);
-	group->menuItems.push_back(newActionSeparator(this));
-	group->menuItems.push_back(menuItems[VIEW_AS_FLOAT32]);
-	group->menuItems.push_back(menuItems[VIEW_AS_FLOAT64]);
-	group->menuItems.push_back(newActionSeparator(this));
-	group->menuItems.push_back(menuItems[VIEW_INT_AS_HEX]);
-	group->menuItems.push_back(menuItems[VIEW_INT_AS_SIGNED]);
-	group->menuItems.push_back(menuItems[VIEW_INT_AS_UNSIGNED]);
+	group->menuItems.push_back(new_action_separator(this));
+	group->menuItems.push_back(menuItems_[VIEW_AS_BYTES]);
+	group->menuItems.push_back(menuItems_[VIEW_AS_WORDS]);
+	group->menuItems.push_back(menuItems_[VIEW_AS_DWORDS]);
+	group->menuItems.push_back(menuItems_[VIEW_AS_QWORDS]);
+	group->menuItems.push_back(new_action_separator(this));
+	group->menuItems.push_back(menuItems_[VIEW_AS_FLOAT32]);
+	group->menuItems.push_back(menuItems_[VIEW_AS_FLOAT64]);
+	group->menuItems.push_back(new_action_separator(this));
+	group->menuItems.push_back(menuItems_[VIEW_INT_AS_HEX]);
+	group->menuItems.push_back(menuItems_[VIEW_INT_AS_SIGNED]);
+	group->menuItems.push_back(menuItems_[VIEW_INT_AS_UNSIGNED]);
 }
 
 auto SIMDValueManager::model() const -> Model * {
-	const auto model = static_cast<const Model *>(regIndex.model());
+	const auto model = static_cast<const Model *>(regIndex_.model());
 	// The model is not supposed to have been created as const object,
 	// and our manipulations won't invalidate the index.
 	// Thus cast the const away.
@@ -831,18 +829,18 @@ auto SIMDValueManager::model() const -> Model * {
 
 void SIMDValueManager::showAsInt(int size_) {
 	const auto size = static_cast<Model::ElementSize>(size_);
-	model()->setChosenSIMDSize(regIndex.parent(), size);
-	model()->setChosenSIMDFormat(regIndex.parent(), intMode);
+	model()->setChosenSIMDSize(regIndex_.parent(), size);
+	model()->setChosenSIMDFormat(regIndex_.parent(), intMode_);
 }
 
 void SIMDValueManager::showAsFloat(int size) {
-	model()->setChosenSIMDFormat(regIndex.parent(), NumberDisplayMode::Float);
+	model()->setChosenSIMDFormat(regIndex_.parent(), NumberDisplayMode::Float);
 	switch (size) {
 	case sizeof(edb::value32):
-		model()->setChosenSIMDSize(regIndex.parent(), Model::ElementSize::DWORD);
+		model()->setChosenSIMDSize(regIndex_.parent(), Model::ElementSize::DWORD);
 		break;
 	case sizeof(edb::value64):
-		model()->setChosenSIMDSize(regIndex.parent(), Model::ElementSize::QWORD);
+		model()->setChosenSIMDSize(regIndex_.parent(), Model::ElementSize::QWORD);
 		break;
 	default:
 		EDB_PRINT_AND_DIE("Unexpected size: ", size);
@@ -851,85 +849,104 @@ void SIMDValueManager::showAsFloat(int size) {
 
 void SIMDValueManager::setIntFormat(int format_) {
 	const auto format = static_cast<NumberDisplayMode>(format_);
-	model()->setChosenSIMDFormat(regIndex.parent(), format);
+	model()->setChosenSIMDFormat(regIndex_.parent(), format);
 }
 
 void SIMDValueManager::setupMenu() {
 	const auto group        = this->group();
-	const auto validFormats = VALID_VARIANT(regIndex.parent().data(Model::ValidSIMDFormatsRole)).value<std::vector<NumberDisplayMode>>();
+	const auto validFormats = valid_variant(regIndex_.parent().data(Model::ValidSIMDFormatsRole)).value<std::vector<NumberDisplayMode>>();
 	// Setup menu if we're the first value field creator
 	if (group->valueFields().isEmpty()) {
-		const auto intSizeMapper = new QSignalMapper(this);
-		connect(intSizeMapper, SIGNAL(mapped(int)), this, SLOT(showAsInt(int)));
-		menuItems.push_back(newAction(tr("View %1 as bytes").arg(group->name), group, intSizeMapper, Model::ElementSize::BYTE));
-		menuItems.push_back(newAction(tr("View %1 as words").arg(group->name), group, intSizeMapper, Model::ElementSize::WORD));
-		menuItems.push_back(newAction(tr("View %1 as doublewords").arg(group->name), group, intSizeMapper, Model::ElementSize::DWORD));
-		menuItems.push_back(newAction(tr("View %1 as quadwords").arg(group->name), group, intSizeMapper, Model::ElementSize::QWORD));
+
+		menuItems_.push_back(new_action(tr("View %1 as bytes").arg(group->name), group, [this]() {
+			showAsInt(Model::ElementSize::BYTE);
+		}));
+
+		menuItems_.push_back(new_action(tr("View %1 as words").arg(group->name), group, [this]() {
+			showAsInt(Model::ElementSize::WORD);
+		}));
+
+		menuItems_.push_back(new_action(tr("View %1 as doublewords").arg(group->name), group, [this]() {
+			showAsInt(Model::ElementSize::DWORD);
+		}));
+
+		menuItems_.push_back(new_action(tr("View %1 as quadwords").arg(group->name), group, [this]() {
+			showAsInt(Model::ElementSize::QWORD);
+		}));
 
 		if (util::contains(validFormats, NumberDisplayMode::Float)) {
-			const auto floatMapper = new QSignalMapper(this);
-			connect(floatMapper, SIGNAL(mapped(int)), this, SLOT(showAsFloat(int)));
-			menuItems.push_back(newAction(tr("View %1 as 32-bit floats").arg(group->name), group, floatMapper, Model::ElementSize::DWORD));
-			menuItems.push_back(newAction(tr("View %1 as 64-bit floats").arg(group->name), group, floatMapper, Model::ElementSize::QWORD));
+			menuItems_.push_back(new_action(tr("View %1 as 32-bit floats").arg(group->name), group, [this]() {
+				showAsFloat(Model::ElementSize::DWORD);
+			}));
+
+			menuItems_.push_back(new_action(tr("View %1 as 64-bit floats").arg(group->name), group, [this]() {
+				showAsFloat(Model::ElementSize::QWORD);
+			}));
 		} else {
 			// create empty elements to leave further items with correct indices
-			menuItems.push_back(newActionSeparator(this));
-			menuItems.push_back(newActionSeparator(this));
+			menuItems_.push_back(new_action_separator(this));
+			menuItems_.push_back(new_action_separator(this));
 		}
 
-		const auto intMapper = new QSignalMapper(this);
-		connect(intMapper, SIGNAL(mapped(int)), this, SLOT(setIntFormat(int)));
-		menuItems.push_back(newAction(tr("View %1 integers as hex").arg(group->name), group, intMapper, static_cast<int>(NumberDisplayMode::Hex)));
-		menuItems.push_back(newAction(tr("View %1 integers as signed").arg(group->name), group, intMapper, static_cast<int>(NumberDisplayMode::Signed)));
-		menuItems.push_back(newAction(tr("View %1 integers as unsigned").arg(group->name), group, intMapper, static_cast<int>(NumberDisplayMode::Unsigned)));
+		menuItems_.push_back(new_action(tr("View %1 integers as hex").arg(group->name), group, [this]() {
+			setIntFormat(static_cast<int>(NumberDisplayMode::Hex));
+		}));
+
+		menuItems_.push_back(new_action(tr("View %1 integers as signed").arg(group->name), group, [this]() {
+			setIntFormat(static_cast<int>(NumberDisplayMode::Signed));
+		}));
+
+		menuItems_.push_back(new_action(tr("View %1 integers as unsigned").arg(group->name), group, [this]() {
+			setIntFormat(static_cast<int>(NumberDisplayMode::Unsigned));
+		}));
 
 		fillGroupMenu();
 	}
 }
 
 void SIMDValueManager::updateMenu() {
-	if (menuItems.isEmpty())
+	if (menuItems_.isEmpty())
 		return;
-	Q_FOREACH (auto item, menuItems)
+	Q_FOREACH (auto item, menuItems_)
 		item->setVisible(true);
 
 	using RegisterViewModelBase::Model;
 	switch (currentSize()) {
 	case Model::ElementSize::BYTE:
-		menuItems[VIEW_AS_BYTES]->setVisible(false);
+		menuItems_[VIEW_AS_BYTES]->setVisible(false);
 		break;
 	case Model::ElementSize::WORD:
-		menuItems[VIEW_AS_WORDS]->setVisible(false);
+		menuItems_[VIEW_AS_WORDS]->setVisible(false);
 		break;
 	case Model::ElementSize::DWORD:
 		if (currentFormat() != NumberDisplayMode::Float)
-			menuItems[VIEW_AS_DWORDS]->setVisible(false);
+			menuItems_[VIEW_AS_DWORDS]->setVisible(false);
 		else
-			menuItems[VIEW_AS_FLOAT32]->setVisible(false);
+			menuItems_[VIEW_AS_FLOAT32]->setVisible(false);
 		break;
 	case Model::ElementSize::QWORD:
 		if (currentFormat() != NumberDisplayMode::Float)
-			menuItems[VIEW_AS_QWORDS]->setVisible(false);
+			menuItems_[VIEW_AS_QWORDS]->setVisible(false);
 		else
-			menuItems[VIEW_AS_FLOAT64]->setVisible(false);
+			menuItems_[VIEW_AS_FLOAT64]->setVisible(false);
 		break;
 	default:
 		EDB_PRINT_AND_DIE("Unexpected current size: ", currentSize());
 	}
 	switch (currentFormat()) {
 	case NumberDisplayMode::Float:
-		menuItems[VIEW_INT_AS_HEX]->setVisible(false);
-		menuItems[VIEW_INT_AS_SIGNED]->setVisible(false);
-		menuItems[VIEW_INT_AS_UNSIGNED]->setVisible(false);
+		menuItems_[VIEW_INT_AS_HEX]->setVisible(false);
+		menuItems_[VIEW_INT_AS_SIGNED]->setVisible(false);
+		menuItems_[VIEW_INT_AS_UNSIGNED]->setVisible(false);
 		break;
 	case NumberDisplayMode::Hex:
-		menuItems[VIEW_INT_AS_HEX]->setVisible(false);
+		menuItems_[VIEW_INT_AS_HEX]->setVisible(false);
 		break;
 	case NumberDisplayMode::Signed:
-		menuItems[VIEW_INT_AS_SIGNED]->setVisible(false);
+		menuItems_[VIEW_INT_AS_SIGNED]->setVisible(false);
 		break;
 	case NumberDisplayMode::Unsigned:
-		menuItems[VIEW_INT_AS_UNSIGNED]->setVisible(false);
+		menuItems_[VIEW_INT_AS_UNSIGNED]->setVisible(false);
 		break;
 	}
 }
@@ -942,31 +959,31 @@ void SIMDValueManager::displayFormatChanged() {
 	const auto newFormat = currentFormat();
 
 	if (newFormat != NumberDisplayMode::Float) {
-		intMode = newFormat;
+		intMode_ = newFormat;
 	}
 
-	Q_FOREACH (const auto elem, elements) {
+	Q_FOREACH (const auto elem, elements_) {
 		elem->deleteLater();
 	}
 
-	elements.clear();
+	elements_.clear();
 
 	using RegisterViewModelBase::Model;
-	const auto model = regIndex.model();
+	const auto model = regIndex_.model();
 
-	const int sizeRow     = VALID_VARIANT(regIndex.parent().data(Model::ChosenSIMDSizeRowRole)).toInt();
-	QModelIndex sizeIndex = model->index(sizeRow, MODEL_NAME_COLUMN, regIndex);
+	const int sizeRow     = valid_variant(regIndex_.parent().data(Model::ChosenSIMDSizeRowRole)).toInt();
+	QModelIndex sizeIndex = model->index(sizeRow, ModelNameColumn, regIndex_);
 	const auto elemCount  = model->rowCount(sizeIndex);
 
-	const auto regNameWidth = VALID_VARIANT(regIndex.data(Model::FixedLengthRole)).toInt();
+	const auto regNameWidth = valid_variant(regIndex_.data(Model::FixedLengthRole)).toInt();
 	int column              = regNameWidth + 1;
-	const auto elemWidth    = VALID_VARIANT(model->index(0, MODEL_VALUE_COLUMN, sizeIndex).data(Model::FixedLengthRole)).toInt();
+	const auto elemWidth    = valid_variant(model->index(0, ModelValueColumn, sizeIndex).data(Model::FixedLengthRole)).toInt();
 	for (int elemN = elemCount - 1; elemN >= 0; --elemN) {
-		const auto elemIndex = model->index(elemN, MODEL_VALUE_COLUMN, sizeIndex);
+		const auto elemIndex = model->index(elemN, ModelValueColumn, sizeIndex);
 		const auto field     = new ValueField(elemWidth, elemIndex, group());
-		elements.push_back(field);
+		elements_.push_back(field);
 		field->setAlignment(Qt::AlignRight);
-		group()->insert(lineInGroup, column, field);
+		group()->insert(lineInGroup_, column, field);
 		column += elemWidth + 1;
 	}
 
@@ -975,13 +992,13 @@ void SIMDValueManager::displayFormatChanged() {
 
 RegisterViewModelBase::Model::ElementSize SIMDValueManager::currentSize() const {
 	using RegisterViewModelBase::Model;
-	const int size = VALID_VARIANT(regIndex.parent().data(Model::ChosenSIMDSizeRole)).toInt();
+	const int size = valid_variant(regIndex_.parent().data(Model::ChosenSIMDSizeRole)).toInt();
 	return static_cast<Model::ElementSize>(size);
 }
 
 NumberDisplayMode SIMDValueManager::currentFormat() const {
 	using RegisterViewModelBase::Model;
-	const int size = VALID_VARIANT(regIndex.parent().data(Model::ChosenSIMDFormatRole)).toInt();
+	const int size = valid_variant(regIndex_.parent().data(Model::ChosenSIMDFormatRole)).toInt();
 	return static_cast<NumberDisplayMode>(size);
 }
 
@@ -1042,19 +1059,19 @@ void ODBRegView::keyPressEvent(QKeyEvent *event) {
 		else
 			showMenu(mapToGlobal(QPoint()));
 		break;
-	case setToZeroKey:
+	case SetToZeroKey:
 		if (selected) {
 			selected->setZero();
 			return;
 		}
 		break;
-	case incrementKey:
+	case IncrementKey:
 		if (selected) {
 			selected->increment();
 			return;
 		}
 		break;
-	case decrementKey:
+	case DecrementKey:
 		if (selected) {
 			selected->decrement();
 			return;

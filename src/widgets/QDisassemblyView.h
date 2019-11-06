@@ -145,39 +145,39 @@ private:
 	void drawDividers(QPainter &painter, const DrawingContext *ctx);
 
 private:
-	edb::address_t address_offset_{0};
-	edb::address_t selected_instruction_address_{0};
-	edb::address_t current_address_{0};
-	int font_height_               = 0; // height of a character in this font
-	int font_width_                = 0; // width of a character in this font
-	int icon_width_                = 0;
-	int icon_height_               = 0;
-	int line0_                     = 0;
-	int line1_                     = 0;
-	int line2_                     = 0;
-	int line3_                     = 0;
-	int line4_                     = 0;
-	int selected_instruction_size_ = 0;
-	bool moving_line1_             = false;
-	bool moving_line2_             = false;
-	bool moving_line3_             = false;
-	bool moving_line4_             = false;
-	bool selecting_address_        = false;
-	bool partial_last_line_        = false;
+	edb::address_t addressOffset_{0};
+	edb::address_t selectedInstructionAddress_{0};
+	edb::address_t currentAddress_{0};
+	int fontHeight_              = 0; // height of a character in this font
+	int fontWidth_               = 0; // width of a character in this font
+	int iconWidth_               = 0;
+	int iconHeight_              = 0;
+	int line0_                   = 0;
+	int line1_                   = 0;
+	int line2_                   = 0;
+	int line3_                   = 0;
+	int line4_                   = 0;
+	int selectedInstructionSize_ = 0;
+	bool movingLine1_            = false;
+	bool movingLine2_            = false;
+	bool movingLine3_            = false;
+	bool movingLine4_            = false;
+	bool selectingAddress_       = false;
+	bool partialLastLine_        = false;
 
 private:
 	std::shared_ptr<IRegion> region_;
-	QVector<edb::address_t> show_addresses_;
+	QVector<edb::address_t> showAddresses_;
 	std::vector<CapstoneEDB::Instruction> instructions_;
 	SyntaxHighlighter *highlighter_;
-	bool show_address_separator_;
+	bool showAddressSeparator_;
 	QHash<edb::address_t, QString> comments_;
 	NavigationHistory history_;
-	QSvgRenderer breakpoint_renderer_;
-	QSvgRenderer current_renderer_;
-	QSvgRenderer current_bp_renderer_;
-	std::vector<quint8> instruction_buffer_;
-	QCache<QString, QPixmap> syntax_cache_;
+	QSvgRenderer breakpointRenderer_;
+	QSvgRenderer currentRenderer_;
+	QSvgRenderer currentBpRenderer_;
+	std::vector<quint8> instructionBuffer_;
+	QCache<QString, QPixmap> syntaxCache_;
 
 private:
 	struct JumpArrow {

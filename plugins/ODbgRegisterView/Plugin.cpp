@@ -37,7 +37,7 @@ const auto pluginName             = QLatin1String("ODbgRegisterView");
 const auto dockName               = tr("Registers");
 const auto dockNameSuffixTemplate = QString(" <%1>");
 const auto dockObjectNameTemplate = QString(pluginName + "-%1");
-const auto VIEW                   = QLatin1String("views");
+const auto views                  = QLatin1String("views");
 }
 
 Plugin::Plugin(QObject *parent)
@@ -50,8 +50,8 @@ void Plugin::setupDocks() {
 	QSettings settings;
 	settings.beginGroup(pluginName);
 
-	if (settings.value(VIEW + "/size").isValid()) {
-		const int size = settings.beginReadArray(VIEW);
+	if (settings.value(views + "/size").isValid()) {
+		const int size = settings.beginReadArray(views);
 		for (int i = 0; i < size; ++i) {
 			settings.setArrayIndex(i);
 			createRegisterView(settings.group());
@@ -64,7 +64,7 @@ void Plugin::setupDocks() {
 void Plugin::saveSettings() const {
 	QSettings settings;
 	const int size      = registerViews_.size();
-	const auto arrayKey = pluginName + "/" + VIEW;
+	const auto arrayKey = pluginName + "/" + views;
 	settings.remove(arrayKey);
 	settings.beginWriteArray(arrayKey, size);
 	for (int i = 0; i < size; ++i) {

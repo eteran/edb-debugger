@@ -157,8 +157,8 @@ QList<Module> get_loaded_modules(const IProcess *process) {
 
 							if (map.l_addr) {
 								Module module;
-								module.name         = path;
-								module.base_address = map.l_addr;
+								module.name        = path;
+								module.baseAddress = map.l_addr;
 								ret.push_back(module);
 							}
 
@@ -183,8 +183,8 @@ QList<Module> get_loaded_modules(const IProcess *process) {
 			if (region->name().startsWith("/")) {
 				if (!util::contains(found_modules, region->name())) {
 					Module module;
-					module.name         = region->name();
-					module.base_address = region->start();
+					module.name        = region->name();
+					module.baseAddress = region->start();
 					found_modules.insert(region->name());
 					ret.push_back(module);
 				}

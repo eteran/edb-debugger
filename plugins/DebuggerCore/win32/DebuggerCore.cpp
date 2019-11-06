@@ -162,7 +162,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(int msecs) {
 
 			Q_ASSERT(process_->pid() == de.dwProcessId);
 
-			activeThread_ = de.dwThreadId;
+			activeThread_  = de.dwThreadId;
 			bool propagate = false;
 
 			switch (de.dwDebugEventCode) {

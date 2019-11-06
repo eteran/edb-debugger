@@ -201,18 +201,19 @@ public Q_SLOTS:
 	void adjustToData() override;
 
 private:
-	QList<QAction *> valueActions;
-	std::function<bool(unsigned, unsigned)> equal;
+	QList<QAction *> valueActions_;
+	std::function<bool(unsigned, unsigned)> equal_;
 };
 
 class SIMDValueManager : public QObject {
 	Q_OBJECT
 private:
-	QPersistentModelIndex regIndex;
-	int lineInGroup;
-	QList<ValueField *> elements;
-	QList<QAction *> menuItems;
-	NumberDisplayMode intMode;
+	QPersistentModelIndex regIndex_;
+	int lineInGroup_;
+	QList<ValueField *> elements_;
+	QList<QAction *> menuItems_;
+	NumberDisplayMode intMode_ = NumberDisplayMode::Hex;
+
 	enum MenuItemNumbers {
 		VIEW_AS_BYTES,
 		VIEW_AS_WORDS,
@@ -279,7 +280,6 @@ protected:
 
 public Q_SLOTS:
 	void adjustWidth();
-	void hideAndReport();
 };
 
 }

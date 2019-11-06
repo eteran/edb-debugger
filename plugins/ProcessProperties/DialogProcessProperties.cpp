@@ -385,7 +385,7 @@ void DialogProcessProperties::updateModulePage() {
 			for (const Module &m : modules) {
 				const int row = ui.tableModules->rowCount();
 				ui.tableModules->insertRow(row);
-				ui.tableModules->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(m.base_address)));
+				ui.tableModules->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(m.baseAddress)));
 				ui.tableModules->setItem(row, 1, new QTableWidgetItem(m.name));
 			}
 			ui.tableModules->setSortingEnabled(true);
