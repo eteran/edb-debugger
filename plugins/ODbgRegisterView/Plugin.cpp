@@ -27,7 +27,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMainWindow>
 #include <QMenu>
 #include <QSettings>
-#include <QSignalMapper>
 
 namespace ODbgRegisterView {
 Q_DECLARE_NAMESPACE_TR(ODbgRegisterView)
@@ -109,10 +108,11 @@ void Plugin::createRegisterView(const QString &settingsGroup) {
 
 		Q_ASSERT(menu_);
 		const auto removeDockAction = new QAction(tr("Remove %1").arg(regViewDockWidget->windowTitle()), menu_);
-		const auto removeDockMapper = new QSignalMapper(menu_);
-		removeDockMapper->setMapping(removeDockAction, regViewDockWidget);
-		connect(removeDockAction, SIGNAL(triggered()), removeDockMapper, SLOT(map()));
-		connect(removeDockMapper, SIGNAL(mapped(QWidget *)), this, SLOT(removeDock(QWidget *)));
+
+		connect(removeDockAction, &QAction::triggered, this, [this, regViewDockWidget]() {
+			removeDock(regViewDockWidget);
+		});
+
 		menuDeleteRegViewActions_.emplace_back(removeDockAction);
 		menu_->addAction(removeDockAction);
 	}

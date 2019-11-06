@@ -40,15 +40,15 @@ private:
 	void setupDocks();
 	void createRegisterView(const QString &settingsGroup);
 	void renumerateDocks() const;
-
-private Q_SLOTS:
-	void createRegisterView();
+	void removeDock(QWidget *);
 	void saveSettings() const;
 	void expandRSUp(bool checked) const;
 	void expandRSDown(bool checked) const;
 	void expandLSUp(bool checked) const;
 	void expandLSDown(bool checked) const;
-	void removeDock(QWidget *);
+
+private Q_SLOTS:
+	void createRegisterView();
 
 private:
 	QMenu *menu_ = nullptr;
