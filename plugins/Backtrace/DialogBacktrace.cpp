@@ -173,7 +173,7 @@ void DialogBacktrace::populateTable() {
 		table_->insertRow(i);
 
 		//Get the stack frame so that we can insert its info
-		CallStack::stack_frame *frame = call_stack[i];
+		CallStack::StackFrame *frame = call_stack[i];
 
 		//Get the caller & ret addresses and put them in the table
 		QList<edb::address_t> stack_entry;

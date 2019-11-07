@@ -75,8 +75,8 @@ void CallStack::getCallStack() {
 
 			// But if we're good, then scan from rbp downward and look for return addresses.
 			// Code is largely from CommentServer.cpp.  Makes assumption of size of call.
-			constexpr uint8_t CALL_MIN_SIZE = 2;
-			constexpr uint8_t CALL_MAX_SIZE = 7;
+			constexpr uint8_t CallMinSize = 2;
+			constexpr uint8_t CallMaxSize = 7;
 
 			uint8_t buffer[edb::Instruction::MAX_SIZE];
 			for (edb::address_t addr = rbp; region_rbp->contains(addr); addr += edb::v1::pointer_size()) {
@@ -86,15 +86,15 @@ void CallStack::getCallStack() {
 				ExpressionError err;
 				edb::address_t possible_ret = edb::v1::get_value(addr, &ok, &err);
 
-				if (process->readBytes(possible_ret - CALL_MAX_SIZE, buffer, sizeof(buffer))) { // 0xfffff... if not a ptr.
-					for (int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
+				if (process->readBytes(possible_ret - CallMaxSize, buffer, sizeof(buffer))) { // 0xfffff... if not a ptr.
+					for (int i = (CallMaxSize - CallMinSize); i >= 0; --i) {
 						edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);
 
 						// If it's a call, then make a frame
 						if (is_call(inst)) {
-							stack_frame frame;
+							StackFrame frame;
 							frame.ret    = possible_ret;
-							frame.caller = possible_ret - CALL_MAX_SIZE + i;
+							frame.caller = possible_ret - CallMaxSize + i;
 							stackFrames_.push_back(frame);
 							break;
 						}
@@ -113,7 +113,7 @@ void CallStack::getCallStack() {
  * @param index
  * @return
  */
-CallStack::stack_frame *CallStack::operator[](size_t index) {
+CallStack::StackFrame *CallStack::operator[](size_t index) {
 	if (index > size()) {
 		return nullptr;
 	}
@@ -134,7 +134,7 @@ size_t CallStack::size() const {
  * @return a pointer to the frame at the top of the call stack or nullptr
  * if there are no frames on the stack
  */
-CallStack::stack_frame *CallStack::top() {
+CallStack::StackFrame *CallStack::top() {
 	if (!size()) {
 		return nullptr;
 	}
@@ -147,7 +147,7 @@ CallStack::stack_frame *CallStack::top() {
  * @return a pointer to the frame at the bottom of the call stack or nullptr
  * if there are no frames on the stack
  */
-CallStack::stack_frame *CallStack::bottom() {
+CallStack::StackFrame *CallStack::bottom() {
 	if (!size()) {
 		return nullptr;
 	}
@@ -162,6 +162,6 @@ CallStack::stack_frame *CallStack::bottom() {
  *
  * @param frame
  */
-void CallStack::push(stack_frame frame) {
+void CallStack::push(StackFrame frame) {
 	stackFrames_.push_front(frame);
 }

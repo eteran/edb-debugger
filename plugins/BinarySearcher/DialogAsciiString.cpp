@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "DialogASCIIString.h"
+#include "DialogAsciiString.h"
 #include "DialogResults.h"
 #include "IDebugger.h"
 #include "IProcess.h"
@@ -37,11 +37,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace BinarySearcherPlugin {
 
 /**
- * @brief DialogASCIIString::DialogASCIIString
+ * @brief DialogAsciiString::DialogAsciiString
  * @param parent
  * @param f
  */
-DialogASCIIString::DialogASCIIString(QWidget *parent, Qt::WindowFlags f)
+DialogAsciiString::DialogAsciiString(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
 	ui.setupUi(this);
 	ui.progressBar->setValue(0);
@@ -59,13 +59,13 @@ DialogASCIIString::DialogASCIIString(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogASCIIString::doFind
+ * @brief DialogAsciiString::doFind
  *
  * find *stack aligned pointers* to exact string matches
  */
-void DialogASCIIString::doFind() {
+void DialogAsciiString::doFind() {
 
-	const QByteArray b = ui.txtASCII->text().toLatin1();
+	const QByteArray b = ui.txtAscii->text().toLatin1();
 	auto results       = new DialogResults(this);
 
 	const auto sz = static_cast<size_t>(b.size());
@@ -125,12 +125,12 @@ void DialogASCIIString::doFind() {
 }
 
 /**
- * @brief DialogASCIIString::showEvent
+ * @brief DialogAsciiString::showEvent
  * @param event
  */
-void DialogASCIIString::showEvent(QShowEvent *event) {
+void DialogAsciiString::showEvent(QShowEvent *event) {
 	Q_UNUSED(event)
-	ui.txtASCII->setFocus();
+	ui.txtAscii->setFocus();
 }
 
 }

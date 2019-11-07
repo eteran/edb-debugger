@@ -13,9 +13,9 @@ find_package(Qt5 5.0.0 REQUIRED Widgets)
 add_library(${PluginName} SHARED
 	BinarySearcher.cpp
 	BinarySearcher.h
-	DialogASCIIString.cpp
-	DialogASCIIString.h
-	DialogASCIIString.ui
+	DialogAsciiString.cpp
+	DialogAsciiString.h
+	DialogAsciiString.ui
 	DialogBinaryString.cpp
 	DialogBinaryString.h
 	DialogBinaryString.ui

@@ -30,10 +30,10 @@ struct Result {
 	edb::address_t address = 0;
 	QString string;
 	enum {
-		ASCII,
-		UTF8,
-		UTF16,
-		UTF32,
+		Ascii,
+		Utf8,
+		Utf16,
+		Utf32,
 	} type;
 };
 

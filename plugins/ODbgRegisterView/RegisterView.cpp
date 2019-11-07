@@ -373,19 +373,19 @@ RegisterGroup *ODBRegView::makeGroup(RegisterGroupType type) {
 	}
 #if defined EDB_X86 || defined EDB_X86_64
 	case RegisterGroupType::EFL:
-		return createEFL(model_, widget());
+		return create_eflags(model_, widget());
 	case RegisterGroupType::ExpandedEFL:
-		return createExpandedEFL(model_, widget());
+		return create_expanded_eflags(model_, widget());
 	case RegisterGroupType::FPUData:
-		return createFPUData(model_, widget());
+		return create_fpu_data(model_, widget());
 	case RegisterGroupType::FPUWords:
-		return createFPUWords(model_, widget());
+		return create_fpu_words(model_, widget());
 	case RegisterGroupType::FPULastOp:
-		return createFPULastOp(model_, widget());
+		return create_fpu_last_op(model_, widget());
 	case RegisterGroupType::Debug:
-		return createDebugGroup(model_, widget());
+		return create_debug_group(model_, widget());
 	case RegisterGroupType::MXCSR:
-		return createMXCSR(model_, widget());
+		return create_mxcsr(model_, widget());
 	case RegisterGroupType::MMX:
 		return createSIMDGroup(model_, widget(), "MMX", "MM");
 	case RegisterGroupType::SSEData:

@@ -73,13 +73,13 @@ QVariant ResultsModel::data(const QModelIndex &index, int role) const {
 			return edb::v1::format_pointer(result.address);
 		case 1:
 			switch (result.type) {
-			case Result::ASCII:
+			case Result::Ascii:
 				return tr("ASCII");
-			case Result::UTF8:
+			case Result::Utf8:
 				return tr("UTF8");
-			case Result::UTF16:
+			case Result::Utf16:
 				return tr("UTF16");
-			case Result::UTF32:
+			case Result::Utf32:
 				return tr("UTF32");
 			}
 			break;

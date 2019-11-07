@@ -8,7 +8,7 @@ set(CMAKE_AUTORCC ON)
 
 set(PluginName "Analyzer")
 
-find_package(Qt5 5.0.0 REQUIRED Widgets Concurrent)
+find_package(Qt5 5.0.0 REQUIRED Widgets)
 
 add_library(${PluginName} SHARED
 	Analyzer.cpp
@@ -26,7 +26,7 @@ add_library(${PluginName} SHARED
 	SpecifiedFunctions.ui
 )
 
-target_link_libraries(${PluginName} Qt5::Widgets Qt5::Concurrent edb)
+target_link_libraries(${PluginName} Qt5::Widgets edb)
 
 install (TARGETS ${PluginName} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
 

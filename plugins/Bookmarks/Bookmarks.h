@@ -46,7 +46,7 @@ public:
 	QVariantMap saveState() const override;
 	void restoreState(const QVariantMap &) override;
 
-public Q_SLOTS:
+private:
 	void addBookmarkMenu();
 
 private:

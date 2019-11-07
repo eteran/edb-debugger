@@ -16,22 +16,22 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOGASCIISTRING_20082201_H_
-#define DIALOGASCIISTRING_20082201_H_
+#ifndef DIALOG_ASCIISTRING_20082201_H_
+#define DIALOG_ASCIISTRING_20082201_H_
 
-#include "ui_DialogASCIIString.h"
+#include "ui_DialogAsciiString.h"
 #include <QDialog>
 
 class QListWidgetItem;
 
 namespace BinarySearcherPlugin {
 
-class DialogASCIIString : public QDialog {
+class DialogAsciiString : public QDialog {
 	Q_OBJECT
 
 public:
-	explicit DialogASCIIString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	~DialogASCIIString() override = default;
+	explicit DialogAsciiString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	~DialogAsciiString() override = default;
 
 protected:
 	void showEvent(QShowEvent *event) override;
@@ -40,7 +40,7 @@ private:
 	void doFind();
 
 private:
-	Ui::DialogASCIIString ui;
+	Ui::DialogAsciiString ui;
 	QPushButton *buttonFind_ = nullptr;
 };
 

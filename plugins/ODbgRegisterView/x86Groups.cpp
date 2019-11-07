@@ -36,29 +36,29 @@ namespace {
 const BitFieldDescription fpuTagDescription = {
 	7,
 	{
-		"valid",
-		"zero",
-		"special",
-		"empty",
+		tr("valid"),
+		tr("zero"),
+		tr("special"),
+		tr("empty"),
 	},
 	{
 		tr("Tag as used"),
-		"",
-		"",
+		tr(""),
+		tr(""),
 		tr("Tag as empty"),
 	},
 	[](unsigned a, unsigned b) {
-		return a == 3 || b == 3 ? a == b : true;
+		return (a == 3 || b == 3) ? (a == b) : true;
 	},
 };
 
 const BitFieldDescription roundControlDescription = {
 	4,
 	{
-		"NEAR",
-		"DOWN",
-		"  UP",
-		"ZERO",
+		tr("NEAR"),
+		tr("DOWN"),
+		tr("  UP"),
+		tr("ZERO"),
 	},
 	{
 		tr("Round to nearest"),
@@ -71,14 +71,14 @@ const BitFieldDescription roundControlDescription = {
 const BitFieldDescription precisionControlDescription = {
 	2,
 	{
-		"24",
-		"??",
-		"53",
-		"64",
+		tr("24"),
+		tr("??"),
+		tr("53"),
+		tr("64"),
 	},
 	{
 		tr("Set 24-bit precision"),
-		"",
+		tr(""),
 		tr("Set 53-bit precision"),
 		tr("Set 64-bit precision"),
 	},
@@ -87,15 +87,15 @@ const BitFieldDescription precisionControlDescription = {
 const BitFieldDescription debugRWDescription = {
 	5,
 	{
-		"EXEC",
-		"WRITE",
-		"  IO",
-		" R/W",
+		tr("EXEC"),
+		tr("WRITE"),
+		tr("  IO"),
+		tr(" R/W"),
 	},
 	{
 		tr("Break on execution"),
 		tr("Break on data write"),
-		"",
+		tr(""),
 		tr("Break on data read/write"),
 	},
 };
@@ -103,10 +103,10 @@ const BitFieldDescription debugRWDescription = {
 const BitFieldDescription debugLenDescription = {
 	1,
 	{
-		"1",
-		"2",
-		"8",
-		"4",
+		tr("1"),
+		tr("2"),
+		tr("8"),
+		tr("4"),
 	},
 	{
 		tr("Set 1-byte length"),
@@ -134,7 +134,8 @@ void addPrecisionMode(RegisterGroup *group, const QModelIndex &index, int row, i
 
 void addPUOZDI(RegisterGroup *group, const QModelIndex &excRegIndex, const QModelIndex &maskRegIndex, int startRow, int startColumn) {
 
-	static const QString exceptions                         = "PUOZDI";
+	static const QString exceptions = tr("PUOZDI");
+
 	static const std::unordered_map<char, QString> excNames = {
 		{'P', tr("Precision")},
 		{'U', tr("Underflow")},
@@ -144,39 +145,44 @@ void addPUOZDI(RegisterGroup *group, const QModelIndex &excRegIndex, const QMode
 		{'I', tr("Invalid Operation")}};
 
 	for (int exN = 0; exN < exceptions.length(); ++exN) {
-		const QString ex      = exceptions[exN];
-		const auto exAbbrev   = ex + "E";
-		const auto maskAbbrev = ex + "M";
-		const auto excIndex   = valid_index(find_model_register(excRegIndex, exAbbrev));
-		const auto maskIndex  = valid_index(find_model_register(maskRegIndex, maskAbbrev));
-		const int column      = startColumn + exN * 2;
-		const auto nameField  = new FieldWidget(ex, group);
+		const QString ex         = exceptions[exN];
+		const QString exAbbrev   = ex + "E";
+		const QString maskAbbrev = ex + "M";
+
+		const auto excIndex      = valid_index(find_model_register(excRegIndex, exAbbrev));
+        const auto maskIndex     = valid_index(find_model_register(maskRegIndex, maskAbbrev));
+
+        const int column         = startColumn + exN * 2;
+
+		const auto nameField     = new FieldWidget(ex, group);
 		group->insert(startRow, column, nameField);
+
 		const auto excValueField = new ValueField(1, value_index(excIndex), group);
 		group->insert(startRow + 1, column, excValueField);
+
 		const auto maskValueField = new ValueField(1, value_index(maskIndex), group);
 		group->insert(startRow + 2, column, maskValueField);
 
-		const auto excName = excNames.at(ex[0].toLatin1());
+		const QString excName = excNames.at(ex[0].toLatin1());
 		nameField->setToolTip(excName);
 		excValueField->setToolTip(excName + ' ' + tr("Exception") + " (" + exAbbrev + ")");
 		maskValueField->setToolTip(excName + ' ' + tr("Exception Mask") + " (" + maskAbbrev + ")");
 	}
 }
 
-RegisterGroup *createEFL(RegisterViewModelBase::Model *model, QWidget *parent) {
-	const auto catIndex = find_model_category(model, "General Status");
+RegisterGroup *create_eflags(RegisterViewModelBase::Model *model, QWidget *parent) {
+	const auto catIndex = find_model_category(model, tr("General Status"));
 	if (!catIndex.isValid())
-		return nullptr;
-	auto nameIndex = find_model_register(catIndex, "RFLAGS");
+        return nullptr;
+    auto nameIndex = find_model_register(catIndex, tr("RFLAGS"));
+    if (!nameIndex.isValid())
+        nameIndex = find_model_register(catIndex, tr("EFLAGS"));
 	if (!nameIndex.isValid())
-		nameIndex = find_model_register(catIndex, "EFLAGS");
-	if (!nameIndex.isValid())
-		return nullptr;
-	const auto group    = new RegisterGroup("EFL", parent);
+        return nullptr;
+    const auto group    = new RegisterGroup(tr("EFL"), parent);
 	const int nameWidth = 3;
-	int column          = 0;
-	group->insert(0, column, new FieldWidget("EFL", group));
+    int column          = 0;
+    group->insert(0, column, new FieldWidget(tr("EFL"), group));
 	const auto valueWidth = 8;
 	const auto valueIndex = nameIndex.sibling(nameIndex.row(), ModelValueColumn);
 	column += nameWidth + 1;
@@ -189,8 +195,8 @@ RegisterGroup *createEFL(RegisterViewModelBase::Model *model, QWidget *parent) {
 	return group;
 }
 
-RegisterGroup *createExpandedEFL(RegisterViewModelBase::Model *model, QWidget *parent) {
-	const auto catIndex = find_model_category(model, "General Status");
+RegisterGroup *create_expanded_eflags(RegisterViewModelBase::Model *model, QWidget *parent) {
+	const auto catIndex = find_model_category(model, tr("General Status"));
 	if (!catIndex.isValid())
 		return nullptr;
 	auto regNameIndex = find_model_register(catIndex, "RFLAGS");
@@ -248,7 +254,7 @@ RegisterGroup *createExpandedEFL(RegisterViewModelBase::Model *model, QWidget *p
 	return group;
 }
 
-RegisterGroup *createFPUData(RegisterViewModelBase::Model *model, QWidget *parent) {
+RegisterGroup *create_fpu_data(RegisterViewModelBase::Model *model, QWidget *parent) {
 	using RegisterViewModelBase::Model;
 
 	const auto catIndex = find_model_category(model, "FPU");
@@ -302,7 +308,7 @@ RegisterGroup *createFPUData(RegisterViewModelBase::Model *model, QWidget *paren
 	return group;
 }
 
-RegisterGroup *createFPUWords(RegisterViewModelBase::Model *model, QWidget *parent) {
+RegisterGroup *create_fpu_words(RegisterViewModelBase::Model *model, QWidget *parent) {
 	const auto catIndex = find_model_category(model, "FPU");
 	if (!catIndex.isValid())
 		return nullptr;
@@ -411,7 +417,7 @@ bool FOPIsIncompatible() {
 #endif
 }
 
-RegisterGroup *createFPULastOp(RegisterViewModelBase::Model *model, QWidget *parent) {
+RegisterGroup *create_fpu_last_op(RegisterViewModelBase::Model *model, QWidget *parent) {
 	using RegisterViewModelBase::Model;
 
 	const auto catIndex = find_model_category(model, "FPU");
@@ -533,7 +539,7 @@ RegisterGroup *createFPULastOp(RegisterViewModelBase::Model *model, QWidget *par
 	return group;
 }
 
-RegisterGroup *createDebugGroup(RegisterViewModelBase::Model *model, QWidget *parent) {
+RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *parent) {
 	using RegisterViewModelBase::Model;
 
 	const auto catIndex = find_model_category(model, "Debug");
@@ -701,7 +707,7 @@ RegisterGroup *createDebugGroup(RegisterViewModelBase::Model *model, QWidget *pa
 	return group;
 }
 
-RegisterGroup *createMXCSR(RegisterViewModelBase::Model *model, QWidget *parent) {
+RegisterGroup *create_mxcsr(RegisterViewModelBase::Model *model, QWidget *parent) {
 	using namespace RegisterViewModelBase;
 
 	const auto catIndex = find_model_category(model, "SSE");

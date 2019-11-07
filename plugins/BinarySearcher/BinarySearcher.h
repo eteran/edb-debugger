@@ -43,7 +43,7 @@ public:
 
 public Q_SLOTS:
 	void showMenu();
-	void mnuStackFindASCII();
+	void mnuStackFindAscii();
 
 private:
 	QMenu *menu_ = nullptr;

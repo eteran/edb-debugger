@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "BinarySearcher.h"
-#include "DialogASCIIString.h"
+#include "DialogAsciiString.h"
 #include "DialogBinaryString.h"
 #include "edb.h"
 #include <QMenu>
@@ -58,7 +58,7 @@ QList<QAction *> BinarySearcher::stackContextMenu() {
 	QList<QAction *> ret;
 
 	auto action_find = new QAction(tr("&Find ASCII String"), this);
-	connect(action_find, &QAction::triggered, this, &BinarySearcher::mnuStackFindASCII);
+	connect(action_find, &QAction::triggered, this, &BinarySearcher::mnuStackFindAscii);
 	ret << action_find;
 
 	return ret;
@@ -73,10 +73,10 @@ void BinarySearcher::showMenu() {
 }
 
 /**
- * @brief BinarySearcher::mnuStackFindASCII
+ * @brief BinarySearcher::mnuStackFindAscii
  */
-void BinarySearcher::mnuStackFindASCII() {
-	static auto dialog = new DialogASCIIString(edb::v1::debugger_ui);
+void BinarySearcher::mnuStackFindAscii() {
+	static auto dialog = new DialogAsciiString(edb::v1::debugger_ui);
 	dialog->show();
 }
 
