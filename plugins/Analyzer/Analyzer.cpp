@@ -86,7 +86,7 @@ bool will_return(edb::address_t address) {
  */
 bool is_thunk(edb::address_t address) {
 
-	quint8 buf[edb::Instruction::MaxSize];
+	uint8_t buf[edb::Instruction::MaxSize];
 	if (const int buf_size = edb::v1::get_instruction_bytes(address, buf)) {
 		const edb::Instruction inst(buf, buf + buf_size, address);
 		return is_unconditional_jump(inst);
@@ -445,7 +445,7 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 				if (!basic_blocks.contains(block_address)) {
 					while (data->region->contains(address)) {
 
-						quint8 buffer[edb::Instruction::MaxSize];
+						uint8_t buffer[edb::Instruction::MaxSize];
 						const int buf_size = edb::v1::get_instruction_bytes(address, buffer);
 						if (buf_size == 0) {
 							break;
@@ -566,10 +566,10 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 
 		QHash<edb::address_t, int> fuzzy_functions;
 
-		quint8 *const first = &data->memory[0];
-		quint8 *const last  = &first[data->memory.size()];
+		uint8_t *const first = &data->memory[0];
+		uint8_t *const last  = &first[data->memory.size()];
 
-		quint8 *p = first;
+		uint8_t *p = first;
 
 		// fuzzy_functions, known_functions
 		for (edb::address_t addr = data->region->start(); addr != data->region->end(); ++addr) {
@@ -623,7 +623,7 @@ void Analyzer::analyze(const std::shared_ptr<IRegion> &region) {
 	const size_t page_size  = edb::v1::debugger_core->pageSize();
 	const size_t page_count = region->size() / page_size;
 
-	QVector<quint8> memory = edb::v1::read_pages(region->start(), page_count);
+	QVector<uint8_t> memory = edb::v1::read_pages(region->start(), page_count);
 
 	const QByteArray md5      = (!memory.isEmpty()) ? edb::v1::get_md5(memory) : QByteArray();
 	const QByteArray prev_md5 = region_data.md5;

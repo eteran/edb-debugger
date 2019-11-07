@@ -30,38 +30,38 @@ class QString;
 class QByteArray;
 
 class EDB_EXPORT BinaryString : public QWidget {
-    Q_OBJECT
+	Q_OBJECT
 
 private:
-    enum class Mode {
-        LengthLimited, // obeys setMaxLength()
-        MemoryEditing  // obeys user's choice in keepSize checkbox
-    };
+	enum class Mode {
+		LengthLimited, // obeys setMaxLength()
+		MemoryEditing  // obeys user's choice in keepSize checkbox
+	};
 
 public:
-    BinaryString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    ~BinaryString() override;
+	BinaryString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	~BinaryString() override;
 
 private Q_SLOTS:
-    void on_txtAscii_textEdited(const QString &text);
-    void on_txtHex_textEdited(const QString &text);
-    void on_txtUTF16_textEdited(const QString &text);
-    void on_keepSize_stateChanged(int state);
+	void on_txtAscii_textEdited(const QString &text);
+	void on_txtHex_textEdited(const QString &text);
+	void on_txtUTF16_textEdited(const QString &text);
+	void on_keepSize_stateChanged(int state);
 
 public:
-    void setMaxLength(int n);
-    QByteArray value() const;
-    void setValue(const QByteArray &);
-    void setShowKeepSize(bool visible);
-    bool showKeepSize() const;
+	void setMaxLength(int n);
+	QByteArray value() const;
+	void setValue(const QByteArray &);
+	void setShowKeepSize(bool visible);
+	bool showKeepSize() const;
 
 private:
-    void setEntriesMaxLength(int n);
+	void setEntriesMaxLength(int n);
 
-    ::Ui::BinaryStringWidget *ui = nullptr;
-    Mode mode_                   = Mode::MemoryEditing;
-    int requestedMaxLength_      = 0;
-    int valueOriginalLength_     = 0;
+	::Ui::BinaryStringWidget *ui = nullptr;
+	Mode mode_                   = Mode::MemoryEditing;
+	int requestedMaxLength_      = 0;
+	int valueOriginalLength_     = 0;
 };
 
 #endif

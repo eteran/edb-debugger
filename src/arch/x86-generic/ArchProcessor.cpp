@@ -103,7 +103,7 @@ enum RegisterIndex {
 	R12 = 12,
 	R13 = 13,
 	R14 = 14,
-    R15 = 15,
+	R15 = 15,
 };
 
 enum SegmentRegisterIndex {
@@ -112,7 +112,7 @@ enum SegmentRegisterIndex {
 	SS,
 	DS,
 	FS,
-    GS,
+	GS,
 };
 
 constexpr size_t MAX_DEBUG_REGS_COUNT = 8;
@@ -194,12 +194,12 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 		if (arg < 0x80u && (std::isprint(arg) || std::isspace(arg))) {
 			return QString("'%1'").arg(static_cast<char>(arg));
 		} else {
-			return QString("'\\x%1'").arg(static_cast<quint16>(arg), 2, 16);
+			return QString("'\\x%1'").arg(static_cast<uint16_t>(arg), 2, 16);
 		}
 	case 'a': // signed char; since we're formatting as hex, we want to avoid sign
-			  // extension done inside QString::number (happening due to the cast to
-			  // qlonglong inside QString::setNum, which used in QString::number).
-			  // Similarly for other shorter-than-long-long signed types.
+		// extension done inside QString::number (happening due to the cast to
+		// qlonglong inside QString::setNum, which used in QString::number).
+		// Similarly for other shorter-than-long-long signed types.
 	case 'h':
 		return "0x" + QString::number(static_cast<unsigned char>(arg), 16);
 	case 's':
@@ -825,7 +825,7 @@ void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
 	const edb::address_t start_address = address - 128;
 	const edb::address_t end_address   = address + 127;
 
-	quint8 buffer[edb::Instruction::MaxSize];
+	uint8_t buffer[edb::Instruction::MaxSize];
 
 	for (edb::address_t addr = start_address; addr < end_address; ++addr) {
 		if (const int sz = edb::v1::get_instruction_bytes(addr, buffer)) {
@@ -1414,7 +1414,7 @@ QStringList ArchProcessor::updateInstructionInfo(edb::address_t address) {
 	Q_ASSERT(edb::v1::debugger_core);
 
 	if (IProcess *process = edb::v1::debugger_core->process()) {
-		quint8 buffer[edb::Instruction::MaxSize];
+		uint8_t buffer[edb::Instruction::MaxSize];
 
 		if (process->readBytes(address, buffer, sizeof(buffer))) {
 			edb::Instruction inst(buffer, buffer + sizeof(buffer), address);

@@ -25,17 +25,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCorePlugin {
 
 namespace {
-const std::vector<quint8> BreakpointInstructionINT3  = {0xcc};
-const std::vector<quint8> BreakpointInstructionINT1  = {0xf1};
-const std::vector<quint8> BreakpointInstructionHLT   = {0xf4};
-const std::vector<quint8> BreakpointInstructionCLI   = {0xfa};
-const std::vector<quint8> BreakpointInstructionSTI   = {0xfb};
-const std::vector<quint8> BreakpointInstructionINSB  = {0x6c};
-const std::vector<quint8> BreakpointInstructionINSD  = {0x6d};
-const std::vector<quint8> BreakpointInstructionOUTSB = {0x6e};
-const std::vector<quint8> BreakpointInstructionOUTSD = {0x6f};
-const std::vector<quint8> BreakpointInstructionUD2   = {0x0f, 0x0b};
-const std::vector<quint8> BreakpointInstructionUD0   = {0x0f, 0xff};
+const std::vector<uint8_t> BreakpointInstructionINT3  = {0xcc};
+const std::vector<uint8_t> BreakpointInstructionINT1  = {0xf1};
+const std::vector<uint8_t> BreakpointInstructionHLT   = {0xf4};
+const std::vector<uint8_t> BreakpointInstructionCLI   = {0xfa};
+const std::vector<uint8_t> BreakpointInstructionSTI   = {0xfb};
+const std::vector<uint8_t> BreakpointInstructionINSB  = {0x6c};
+const std::vector<uint8_t> BreakpointInstructionINSD  = {0x6d};
+const std::vector<uint8_t> BreakpointInstructionOUTSB = {0x6e};
+const std::vector<uint8_t> BreakpointInstructionOUTSD = {0x6f};
+const std::vector<uint8_t> BreakpointInstructionUD2   = {0x0f, 0x0b};
+const std::vector<uint8_t> BreakpointInstructionUD0   = {0x0f, 0xff};
 }
 
 /**
@@ -112,10 +112,10 @@ Breakpoint::~Breakpoint() {
 bool Breakpoint::enable() {
 	if (!enabled()) {
 		if (IProcess *process = edb::v1::debugger_core->process()) {
-			std::vector<quint8> prev(2);
+			std::vector<uint8_t> prev(2);
 			if (process->readBytes(address(), &prev[0], prev.size())) {
-				originalBytes_                     = prev;
-				const std::vector<quint8> *bpBytes = nullptr;
+				originalBytes_                      = prev;
+				const std::vector<uint8_t> *bpBytes = nullptr;
 
 				switch (TypeId{type_}) {
 				case TypeId::Automatic:

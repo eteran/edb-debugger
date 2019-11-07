@@ -107,7 +107,7 @@ ELFXX<ElfHeader>::ELFXX(const std::shared_ptr<IRegion> &region)
 	if (header_.e_type == ET_EXEC) {
 
 		// iterate all of the program headers
-		for (quint16 entry = 0; entry < header_.e_phnum; ++entry) {
+		for (uint16_t entry = 0; entry < header_.e_phnum; ++entry) {
 
 			if (!process->readBytes(phdr_base + (phdr_size * entry), &phdr, sizeof(phdr_type))) {
 				qDebug() << "Failed to read program header";

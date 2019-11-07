@@ -87,12 +87,12 @@ void DialogReferences::doFind() {
 			// a short circut for speading things up
 			if (region->accessible() || !ui.chkSkipNoAccess->isChecked()) {
 
-				const size_t page_count     = region->size() / page_size;
-				const QVector<quint8> pages = edb::v1::read_pages(region->start(), page_count);
+				const size_t page_count      = region->size() / page_size;
+				const QVector<uint8_t> pages = edb::v1::read_pages(region->start(), page_count);
 
 				if (!pages.isEmpty()) {
-					const quint8 *p               = &pages[0];
-					const quint8 *const pages_end = &pages[0] + region->size();
+					const uint8_t *p               = &pages[0];
+					const uint8_t *const pages_end = &pages[0] + region->size();
 
 					while (p != pages_end) {
 

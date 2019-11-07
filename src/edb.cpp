@@ -372,7 +372,7 @@ std::shared_ptr<IBreakpoint> create_breakpoint(address_t address) {
 				   "Do you really want to set a breakpoint here?"),
 				QMessageBox::Yes | QMessageBox::No);
 		} else {
-			quint8 buffer[Instruction::MaxSize + 1];
+			uint8_t buffer[Instruction::MaxSize + 1];
 			if (const int size = get_instruction_bytes(address, buffer)) {
 				Instruction inst(buffer, buffer + size, address);
 				if (!inst) {
@@ -665,7 +665,7 @@ bool get_utf16_string_at_address(address_t address, QString &s, int min_length, 
 			if (min_length <= max_length) {
 				while (max_length--) {
 
-					quint16 val;
+					uint16_t val;
 					if (!process->readBytes(address, &val, sizeof(val))) {
 						break;
 					}
@@ -815,7 +815,7 @@ address_t get_value(address_t address, bool *ok, ExpressionError *err) {
 // Name: get_instruction_bytes
 // Desc: attempts to read at most size bytes.
 //------------------------------------------------------------------------------
-bool get_instruction_bytes(address_t address, quint8 *buf, int *size) {
+bool get_instruction_bytes(address_t address, uint8_t *buf, int *size) {
 
 	Q_ASSERT(debugger_core);
 	Q_ASSERT(size);
@@ -835,7 +835,7 @@ bool get_instruction_bytes(address_t address, quint8 *buf, int *size) {
 // Name: get_instruction_bytes
 // Desc: attempts to read at most size bytes.
 //------------------------------------------------------------------------------
-bool get_instruction_bytes(address_t address, quint8 *buf, size_t *size) {
+bool get_instruction_bytes(address_t address, uint8_t *buf, size_t *size) {
 
 	Q_ASSERT(debugger_core);
 	Q_ASSERT(size);
@@ -1082,7 +1082,7 @@ void update_ui() {
 // Name: modify_bytes
 // Desc:
 //------------------------------------------------------------------------------
-bool modify_bytes(address_t address, size_t size, QByteArray &bytes, quint8 fill) {
+bool modify_bytes(address_t address, size_t size, QByteArray &bytes, uint8_t fill) {
 
 	if (!edb::v1::overwrite_check(address, size)) {
 		return false;
@@ -1111,7 +1111,7 @@ bool modify_bytes(address_t address, size_t size, QByteArray &bytes, quint8 fill
 // Name: get_md5
 // Desc:
 //------------------------------------------------------------------------------
-QByteArray get_md5(const QVector<quint8> &bytes) {
+QByteArray get_md5(const QVector<uint8_t> &bytes) {
 	return get_md5(&bytes[0], bytes.size());
 }
 
@@ -1311,7 +1311,7 @@ QString format_bytes(const QByteArray &x) {
 // Name: format_bytes
 // Desc:
 //------------------------------------------------------------------------------
-QString format_bytes(quint8 byte) {
+QString format_bytes(uint8_t byte) {
 	QString bytes;
 
 	bytes.reserve(4);
@@ -1409,13 +1409,13 @@ QAbstractScrollArea *disassembly_widget() {
 // Name: read_pages
 // Desc:
 //------------------------------------------------------------------------------
-QVector<quint8> read_pages(address_t address, size_t page_count) {
+QVector<uint8_t> read_pages(address_t address, size_t page_count) {
 
 	if (debugger_core) {
 		if (IProcess *process = edb::v1::debugger_core->process()) {
 			try {
 				const size_t page_size = debugger_core->pageSize();
-				QVector<quint8> pages(page_count * page_size);
+				QVector<uint8_t> pages(page_count * page_size);
 
 				if (process->readPages(address, pages.data(), page_count)) {
 					return pages;
@@ -1438,7 +1438,7 @@ QVector<quint8> read_pages(address_t address, size_t page_count) {
 // Desc: will return a QString where isNull is true on failure
 //------------------------------------------------------------------------------
 QString disassemble_address(address_t address) {
-	quint8 buffer[edb::Instruction::MaxSize];
+	uint8_t buffer[edb::Instruction::MaxSize];
 	if (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 		edb::Instruction inst(buffer, buffer + size, address);
 		if (inst) {

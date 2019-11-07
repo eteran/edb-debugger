@@ -86,7 +86,7 @@ void DialogAsciiString::doFind() {
 					stack_ptr            = region->start();
 
 					try {
-						std::vector<quint8> chars(sz);
+						std::vector<uint8_t> chars(sz);
 
 						int i = 0;
 						while (stack_ptr < region->end()) {

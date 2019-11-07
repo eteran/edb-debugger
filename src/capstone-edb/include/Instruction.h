@@ -161,7 +161,7 @@ public:
 	ConditionCode condition_code() const;
 
 private:
-    cs_insn *insn_ = nullptr;
+	cs_insn *insn_ = nullptr;
 
 	// we have our own copies of this data so we can give something meaningful
 	// even during a failed disassembly

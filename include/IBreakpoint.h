@@ -54,7 +54,7 @@ public:
 	virtual bool enabled() const                = 0;
 	virtual bool oneTime() const                = 0;
 	virtual bool internal() const               = 0;
-	virtual const quint8 *originalBytes() const = 0;
+    virtual const uint8_t *originalBytes() const = 0;
 	virtual size_t size() const                 = 0;
 	virtual TypeId type() const                 = 0;
 

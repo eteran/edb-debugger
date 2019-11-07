@@ -82,7 +82,7 @@ int ByteShiftArray::size() const {
 // Name: operator[]
 // Desc: returns and l-value version of an element in the byte array
 //------------------------------------------------------------------------------
-quint8 &ByteShiftArray::operator[](std::size_t i) {
+uint8_t &ByteShiftArray::operator[](std::size_t i) {
 	Q_ASSERT(i < INT_MAX);
 	return data_[static_cast<int>(i)];
 }
@@ -91,7 +91,7 @@ quint8 &ByteShiftArray::operator[](std::size_t i) {
 // Name: operator[]
 // Desc: returns and r-value version of an element in the byte array
 //------------------------------------------------------------------------------
-quint8 ByteShiftArray::operator[](std::size_t i) const {
+uint8_t ByteShiftArray::operator[](std::size_t i) const {
 	Q_ASSERT(i < INT_MAX);
 	return data_[static_cast<int>(i)];
 }
@@ -100,7 +100,7 @@ quint8 ByteShiftArray::operator[](std::size_t i) const {
 // Name: data
 // Desc: returns a read only pointer to the data this byte array holds
 //------------------------------------------------------------------------------
-const quint8 *ByteShiftArray::data() const {
+const uint8_t *ByteShiftArray::data() const {
 	return &data_[0];
 }
 
@@ -116,7 +116,7 @@ void ByteShiftArray::clear() {
 // Name: operator<<
 // Desc:
 //------------------------------------------------------------------------------
-ByteShiftArray &ByteShiftArray::operator<<(quint8 x) {
+ByteShiftArray &ByteShiftArray::operator<<(uint8_t x) {
 	shl();
 	data_.back() = x;
 	return *this;

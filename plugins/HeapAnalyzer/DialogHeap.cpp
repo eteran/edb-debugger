@@ -416,7 +416,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 
 						using std::memcmp;
 
-						quint8 bytes[16];
+						uint8_t bytes[16];
 						process->readBytes(block_start(currentChunkAddress), bytes, sizeof(bytes));
 
 						if (memcmp(bytes, "\x89\x50\x4e\x47", 4) == 0) {

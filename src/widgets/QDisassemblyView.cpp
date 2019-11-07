@@ -125,7 +125,7 @@ bool near_line(int x, int linex) {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-int instruction_size(const quint8 *buffer, std::size_t size) {
+int instruction_size(const uint8_t *buffer, std::size_t size) {
 	edb::Instruction inst(buffer, buffer + size, 0);
 	return inst.byte_size();
 }
@@ -356,7 +356,7 @@ int QDisassemblyView::previous_instructions(int current_address, int count) {
 }
 
 int QDisassemblyView::following_instruction(int current_address) {
-	quint8 buf[edb::Instruction::MaxSize + 1];
+	uint8_t buf[edb::Instruction::MaxSize + 1];
 
 	// do the longest read we can while still not passing the region end
 	size_t buf_size = sizeof(buf);
@@ -732,7 +732,7 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 	showAddresses_.clear();
 
 	int bufsize                        = instructionBuffer_.size();
-	quint8 *inst_buf                   = &instructionBuffer_[0];
+	uint8_t *inst_buf                  = &instructionBuffer_[0];
 	const edb::address_t start_address = addressOffset_ + verticalScrollBar()->value();
 
 	if (!edb::v1::get_instruction_bytes(start_address, inst_buf, &bufsize)) {
@@ -1772,7 +1772,7 @@ edb::address_t QDisassemblyView::addressFromPoint(const QPoint &pos) const {
 // Name: get_instruction_size
 // Desc:
 //------------------------------------------------------------------------------
-Result<int, QString> QDisassemblyView::get_instruction_size(edb::address_t address, quint8 *buf, int *size) const {
+Result<int, QString> QDisassemblyView::get_instruction_size(edb::address_t address, uint8_t *buf, int *size) const {
 
 	Q_ASSERT(buf);
 	Q_ASSERT(size);
@@ -1796,7 +1796,7 @@ Result<int, QString> QDisassemblyView::get_instruction_size(edb::address_t addre
 
 	Q_ASSERT(region_);
 
-	quint8 buf[edb::Instruction::MaxSize];
+	uint8_t buf[edb::Instruction::MaxSize];
 
 	// do the longest read we can while still not crossing region end
 	int buf_size = sizeof(buf);
@@ -1871,7 +1871,7 @@ bool QDisassemblyView::event(QEvent *event) {
 
 				const edb::address_t address = addressFromPoint(helpEvent->pos());
 
-				quint8 buf[edb::Instruction::MaxSize];
+				uint8_t buf[edb::Instruction::MaxSize];
 
 				// do the longest read we can while still not passing the region end
 				size_t buf_size = std::min<edb::address_t>((region_->end() - address), sizeof(buf));

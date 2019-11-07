@@ -826,7 +826,7 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 
 	disassembler_ = new Disassembler(mode);
 
-	quint8 buffer[edb::Instruction::MaxSize];
+	uint8_t buffer[edb::Instruction::MaxSize];
 	if (const int bufSize = edb::v1::get_instruction_bytes(address_, buffer)) {
 
 		insnBytes_      = std::vector<std::uint8_t>(buffer, buffer + bufSize);

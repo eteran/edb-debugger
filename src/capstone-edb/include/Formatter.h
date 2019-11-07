@@ -15,7 +15,7 @@ class EDB_EXPORT Formatter {
 public:
 	enum Syntax {
 		SyntaxIntel,
-        SyntaxAtt
+		SyntaxAtt
 	};
 
 	enum Capitalization {

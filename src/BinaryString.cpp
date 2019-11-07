@@ -66,7 +66,7 @@ void BinaryString::setMaxLength(int n) {
  * @param f
  */
 BinaryString::BinaryString(QWidget *parent, Qt::WindowFlags f)
-    : QWidget(parent, f), ui(new Ui::BinaryStringWidget) {
+	: QWidget(parent, f), ui(new Ui::BinaryStringWidget) {
 
 	ui->setupUi(this);
 	ui->txtHex->setValidator(new HexStringValidator(this));
@@ -79,9 +79,9 @@ BinaryString::BinaryString(QWidget *parent, Qt::WindowFlags f)
  * @brief BinaryString::~BinaryString
  */
 BinaryString::~BinaryString() {
-    // NOTE(eteran): we CAN'T use std::unique_ptr here because it doesn't
-    // support incomplete types
-    delete ui;
+	// NOTE(eteran): we CAN'T use std::unique_ptr here because it doesn't
+	// support incomplete types
+	delete ui;
 }
 
 /**
@@ -146,7 +146,7 @@ void BinaryString::on_txtUTF16_textEdited(const QString &text) {
 	QString temp;
 
 	for (QChar i : text) {
-		const quint16 ch = i.unicode();
+		const uint16_t ch = i.unicode();
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
 		textAscii += ch & 0xff;
@@ -169,8 +169,8 @@ void BinaryString::on_txtUTF16_textEdited(const QString &text) {
  */
 void BinaryString::on_txtHex_textEdited(const QString &text) {
 
-	quint16 utf16Char = 0;
-	int counter       = 0;
+	uint16_t utf16Char = 0;
+	int counter        = 0;
 
 	QString textAscii;
 	QString textUTF16;

@@ -75,7 +75,7 @@ public:
 	edb::address_t address_;
 	IRegion::permissions_t premissions_;
 	State state_;
-	quint8 buffer_[N];
+	uint8_t buffer_[N];
 	PlatformRegion *const region_;
 };
 
@@ -322,17 +322,17 @@ void PlatformRegion::setPermissions(bool read, bool write, bool execute, edb::ad
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	// start of nowhere near portable code
-	const quint8 shellcode32[] = {
+	const uint8_t shellcode32[] = {
 		"\xcd\x80" // int $0x80
 		"\xf4"     // hlt
 	};
 
-	const quint8 shellcode64[] = {
+	const uint8_t shellcode64[] = {
 		"\x0f\x05" // syscall
 		"\xf4"     // hlt
 	};
 
-	quint8 shellcode[3];
+	uint8_t shellcode[3];
 
 	if (edb::v1::debuggeeIs32Bit()) {
 		memcpy(shellcode, shellcode32, sizeof(shellcode));

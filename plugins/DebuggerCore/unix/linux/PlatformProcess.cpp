@@ -300,7 +300,7 @@ std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, std::s
 				return 0;
 			} else {
 				bool ok;
-				quint8 x = ptraceReadByte(address, &ok);
+				uint8_t x = ptraceReadByte(address, &ok);
 				if (ok) {
 					*ptr = x;
 					return 1;
@@ -320,7 +320,7 @@ std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, std::s
 
 				// read a byte, if we failed, we are done
 				bool ok;
-				const quint8 x = ptraceReadByte(address + index, &ok);
+				const uint8_t x = ptraceReadByte(address + index, &ok);
 				if (!ok) {
 					break;
 				}
@@ -600,7 +600,7 @@ QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
  * @param ok
  * @return
  */
-quint8 PlatformProcess::ptraceReadByte(edb::address_t address, bool *ok) const {
+uint8_t PlatformProcess::ptraceReadByte(edb::address_t address, bool *ok) const {
 	// TODO(eteran): assert that we are paused
 
 	Q_ASSERT(ok);
@@ -624,7 +624,7 @@ quint8 PlatformProcess::ptraceReadByte(edb::address_t address, bool *ok) const {
 	const long value = ptracePeek(address, ok);
 
 	if (*ok) {
-		quint8 result;
+		uint8_t result;
 		// We aren't interested in `value` as in number, it's just a buffer, so no endianness magic.
 		// Just have to compensate for `addressShift` when reading it.
 		std::memcpy(&result, reinterpret_cast<const char *>(&value) + addressShift, sizeof(result));
@@ -642,7 +642,7 @@ quint8 PlatformProcess::ptraceReadByte(edb::address_t address, bool *ok) const {
  * @param value
  * @param ok
  */
-void PlatformProcess::ptraceWriteByte(edb::address_t address, quint8 value, bool *ok) {
+void PlatformProcess::ptraceWriteByte(edb::address_t address, uint8_t value, bool *ok) {
 	// TODO(eteran): assert that we are paused
 	// NOTE(eteran): assumes the this will not trample any breakpoints, must
 	// be handled in calling code!
@@ -1122,7 +1122,7 @@ edb::address_t PlatformProcess::calculateMain() const {
 		edb::address_t entry_point = this->entryPoint();
 
 		for (int i = 0; i < 50; ++i) {
-			quint8 byte;
+			uint8_t byte;
 			if (readBytes(entry_point + i, &byte, sizeof(byte))) {
 				ba << byte;
 
@@ -1159,7 +1159,7 @@ edb::address_t PlatformProcess::calculateMain() const {
 		edb::address_t entry_point = this->entryPoint();
 
 		for (int i = 0; i < 50; ++i) {
-			quint8 byte;
+			uint8_t byte;
 			if (readBytes(entry_point + i, &byte, sizeof(byte))) {
 				ba << byte;
 

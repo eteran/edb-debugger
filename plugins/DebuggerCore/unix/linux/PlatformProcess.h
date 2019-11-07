@@ -78,8 +78,8 @@ public:
 private:
 	bool ptracePoke(edb::address_t address, long value);
 	long ptracePeek(edb::address_t address, bool *ok) const;
-	quint8 ptraceReadByte(edb::address_t address, bool *ok) const;
-	void ptraceWriteByte(edb::address_t address, quint8 value, bool *ok);
+	uint8_t ptraceReadByte(edb::address_t address, bool *ok) const;
+	void ptraceWriteByte(edb::address_t address, uint8_t value, bool *ok);
 
 private:
 	DebuggerCore *core_ = nullptr;

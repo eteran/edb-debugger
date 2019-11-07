@@ -107,7 +107,7 @@ private:
 		std::shared_ptr<IRegion> region;
 
 		// a copy of the whole region
-		QVector<quint8> memory;
+		QVector<uint8_t> memory;
 	};
 
 	QMenu *menu_                    = nullptr;
