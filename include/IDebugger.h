@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMap>
 #include <QString>
 #include <QtPlugin>
+#include <chrono>
 #include <memory>
 #include <vector>
 
@@ -85,7 +86,7 @@ public:
 	// basic process management
 	virtual Status attach(edb::pid_t pid)                                                                                       = 0;
 	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty = QString()) = 0;
-	virtual std::shared_ptr<IDebugEvent> waitDebugEvent(int msecs)                                                              = 0;
+	virtual std::shared_ptr<IDebugEvent> waitDebugEvent(std::chrono::milliseconds msecs)                                        = 0;
 	virtual Status detach()                                                                                                     = 0;
 	virtual void kill()                                                                                                         = 0;
 	virtual void endDebugSession()                                                                                              = 0;

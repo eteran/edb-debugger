@@ -34,10 +34,13 @@ namespace DebuggerCorePlugin {
 
 namespace {
 
-//------------------------------------------------------------------------------
-// Name: permissions_value
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief permissions_value
+ * @param read
+ * @param write
+ * @param execute
+ * @return
+ */
 IRegion::permissions_t permissions_value(bool read, bool write, bool execute) {
 	IRegion::permissions_t perms = 0;
 	if (read) perms |= PROT_READ;
@@ -76,29 +79,30 @@ public:
 	PlatformRegion *const region_;
 };
 
-//------------------------------------------------------------------------------
-// Name: BackupInfo
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BackupInfo<N>::BackupInfo
+ * @param address
+ * @param perms
+ * @param region
+ */
 template <size_t N>
 BackupInfo<N>::BackupInfo(edb::address_t address, IRegion::permissions_t perms, PlatformRegion *region)
 	: address_(address), premissions_(perms), region_(region) {
 	edb::v1::add_debug_event_handler(this);
 }
 
-//------------------------------------------------------------------------------
-// Name: BackupInfo
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BackupInfo<N>::~BackupInfo
+ */
 template <size_t N>
 BackupInfo<N>::~BackupInfo() {
 	edb::v1::remove_debug_event_handler(this);
 }
 
-//------------------------------------------------------------------------------
-// Name: backup
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BackupInfo<N>::backup
+ * @return
+ */
 template <size_t N>
 bool BackupInfo<N>::backup() {
 
@@ -112,10 +116,10 @@ bool BackupInfo<N>::backup() {
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name: restore
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BackupInfo<N>::restore
+ * @return
+ */
 template <size_t N>
 bool BackupInfo<N>::restore() {
 
@@ -130,10 +134,11 @@ bool BackupInfo<N>::restore() {
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name: handle_event
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BackupInfo<N>::handleEvent
+ * @param event
+ * @return
+ */
 template <size_t N>
 edb::EVENT_STATUS BackupInfo<N>::handleEvent(const std::shared_ptr<IDebugEvent> &event) {
 	Q_UNUSED(event)
@@ -151,66 +156,71 @@ edb::EVENT_STATUS BackupInfo<N>::handleEvent(const std::shared_ptr<IDebugEvent> 
 	return edb::DEBUG_STOP;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformRegion::PlatformRegion
+ * @param start
+ * @param end
+ * @param base
+ * @param name
+ * @param permissions
+ */
 PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions)
 	: start_(start), end_(end), base_(base), name_(name), permissions_(permissions) {
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformRegion::clone
+ * @return
+ */
 IRegion *PlatformRegion::clone() const {
 	return new PlatformRegion(start_, end_, base_, name_, permissions_);
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformRegion::accessible
+ * @return
+ */
 bool PlatformRegion::accessible() const {
 	return readable() || writable() || executable();
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformRegion::readable
+ * @return
+ */
 bool PlatformRegion::readable() const {
 	return (permissions_ & PROT_READ) != 0;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformRegion::writable
+ * @return
+ */
 bool PlatformRegion::writable() const {
 	return (permissions_ & PROT_WRITE) != 0;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformRegion::executable
+ * @return
+ */
 bool PlatformRegion::executable() const {
 	return (permissions_ & PROT_EXEC) != 0;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformRegion::size
+ * @return
+ */
 size_t PlatformRegion::size() const {
 	return end_ - start_;
 }
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformRegion::setPermissions
+ * @param read
+ * @param write
+ * @param execute
+ */
 void PlatformRegion::setPermissions(bool read, bool write, bool execute) {
 	edb::address_t temp_address                    = 0;
 	int count                                      = 0;
@@ -253,50 +263,53 @@ void PlatformRegion::setPermissions(bool read, bool write, bool execute) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformRegion::start
+ * @return
+ */
 edb::address_t PlatformRegion::start() const {
 	return start_;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformRegion::end
+ * @return
+ */
 edb::address_t PlatformRegion::end() const {
 	return end_;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformRegion::base
+ * @return
+ */
 edb::address_t PlatformRegion::base() const {
 	return base_;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformRegion::name
+ * @return
+ */
 QString PlatformRegion::name() const {
 	return name_;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformRegion::permissions
+ * @return
+ */
 IRegion::permissions_t PlatformRegion::permissions() const {
 	return permissions_;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformRegion::setPermissions
+ * @param read
+ * @param write
+ * @param execute
+ * @param temp_address
+ */
 void PlatformRegion::setPermissions(bool read, bool write, bool execute, edb::address_t temp_address) {
 	const permissions_t perms = permissions_value(read, write, execute);
 	const edb::address_t len  = size();
@@ -377,10 +390,18 @@ void PlatformRegion::setPermissions(bool read, bool write, bool execute, edb::ad
 #endif
 }
 
+/**
+ * @brief PlatformRegion::setStart
+ * @param address
+ */
 void PlatformRegion::setStart(edb::address_t address) {
 	start_ = address;
 }
 
+/**
+ * @brief PlatformRegion::setEnd
+ * @param address
+ */
 void PlatformRegion::setEnd(edb::address_t address) {
 	end_ = address;
 }

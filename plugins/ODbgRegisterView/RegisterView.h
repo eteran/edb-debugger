@@ -20,11 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RegisterViewModelBase.h"
 
-#include <QLabel>
 #include <QPersistentModelIndex>
 #include <QScrollArea>
 #include <QString>
-#include <functional>
 
 namespace ODbgRegisterView {
 
@@ -94,9 +92,6 @@ private:
 	void mousePressEvent(QMouseEvent *event) override;
 	void updateFont();
 
-private:
-	QList<RegisterGroup *> groups;
-
 public Q_SLOTS:
 	void fieldSelected();
 
@@ -109,16 +104,7 @@ private Q_SLOTS:
 
 private:
 	RegisterViewModelBase::Model *model_ = nullptr;
-};
-
-struct BitFieldDescription {
-	int textWidth;
-	std::vector<QString> valueNames;
-	std::vector<QString> setValueTexts;
-	std::function<bool(unsigned, unsigned)> const valueEqualComparator;
-
-	BitFieldDescription(
-		int textWidth, const std::vector<QString> &valueNames, const std::vector<QString> &setValueTexts, const std::function<bool(unsigned, unsigned)> &valueEqualComparator = [](unsigned a, unsigned b) { return a == b; });
+	QList<RegisterGroup *> groups_;
 };
 
 }

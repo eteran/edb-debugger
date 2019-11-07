@@ -35,42 +35,47 @@ namespace {
 // Custom class to work with files, since various wrappers
 // appear to be unreliable to check whether writes succeeded
 class File {
-	int fd;
-	bool success;
-
 public:
 	explicit File(const std::string &filename) {
-		fd      = ::open(filename.c_str(), O_RDWR);
-		success = fd != -1;
+		fd_      = ::open(filename.c_str(), O_RDWR);
+		success_ = fd_ != -1;
 	}
 
 	ssize_t write(const void *buf, size_t count) {
-		const ssize_t result = ::write(fd, buf, count);
-		success              = result != -1;
+		const ssize_t result = ::write(fd_, buf, count);
+		success_             = result != -1;
 		return result;
 	}
 
 	ssize_t read(void *buf, size_t count) {
-		const ssize_t result = ::read(fd, buf, count);
-		success              = result != -1;
+		const ssize_t result = ::read(fd_, buf, count);
+		success_             = result != -1;
 		return result;
 	}
 
 	off_t seekp(size_t offset) {
-		const off_t result = ::lseek(fd, offset, SEEK_SET);
-		success            = result != -1;
+		const off_t result = ::lseek(fd_, offset, SEEK_SET);
+		success_           = result != -1;
 		return result;
 	}
 
 	~File() {
-		close(fd);
+		close(fd_);
 	}
 
 	explicit operator bool() {
-		return success;
+		return success_;
 	}
+
+private:
+	int fd_       = -1;
+	bool success_ = false;
 };
 
+/**
+ * @brief kill_child
+ * @param pid
+ */
 void kill_child(int pid) {
 	if (kill(pid, SIGKILL) == -1) {
 		perror("failed to kill child");
@@ -79,11 +84,14 @@ void kill_child(int pid) {
 
 }
 
-//------------------------------------------------------------------------------
-// Name: detectProcAccess
-// Desc: detects whether or not reads/writes through /proc/<pid>/mem work
-//       correctly
-//------------------------------------------------------------------------------
+/**
+ * detects whether or not reads/writes through /proc/<pid>/mem work correctly
+ *
+ * @brief detect_proc_access
+ * @param read_broken
+ * @param write_broken
+ * @return
+ */
 bool detect_proc_access(bool *read_broken, bool *write_broken) {
 
 	switch (pid_t pid = fork()) {

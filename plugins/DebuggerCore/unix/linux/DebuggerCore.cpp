@@ -106,10 +106,11 @@ void disable_lazy_binding() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: is_numeric
-// Desc: returns true if the string only contains decimal digits
-//------------------------------------------------------------------------------
+/**
+ * @brief is_numeric
+ * @param s
+ * @return true if the string only contains decimal digits
+ */
 bool is_numeric(const QString &s) {
 	for (QChar ch : s) {
 		if (!ch.isDigit()) {
@@ -120,37 +121,48 @@ bool is_numeric(const QString &s) {
 	return true;
 }
 
-//------------------------------------------------------------------------------
-// Name: is_clone_event
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief is_clone_event
+ * @param status
+ * @return
+ */
 bool is_clone_event(int status) {
 	return (status >> 8 == (SIGTRAP | (PTRACE_EVENT_CLONE << 8)));
 }
 
-//------------------------------------------------------------------------------
-// Name: is_exit_trace_event
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief is_exit_trace_event
+ * @param status
+ * @return
+ */
 bool is_exit_trace_event(int status) {
 	return (status >> 8 == (SIGTRAP | (PTRACE_EVENT_EXIT << 8)));
 }
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
-bool in64BitSegment() {
+/**
+ * @brief in_64bit_segment
+ * @return
+ */
+bool in_64bit_segment() {
 	bool edbIsIn64BitSegment;
 	// Check that we're running in 64 bit segment: this can be in cases
 	// of LP64 and ILP32 programming models, so we can't rely on sizeof(void*)
-	asm(R"(
+	__asm__(R"(
 		   .byte 0x33,0xc0 # XOR EAX,EAX
 		   .byte 0x48      # DEC EAX for 32 bit, REX prefix for 64 bit
 		   .byte 0xff,0xc0 # INC EAX for 32 bit, INC RAX due to REX.W in 64 bit
 		 )"
-		: "=a"(edbIsIn64BitSegment));
+			: "=a"(edbIsIn64BitSegment));
 	return edbIsIn64BitSegment;
 }
 
-bool os64Bit(bool edbIsIn64BitSegment) {
+/**
+ * @brief os_is_64_bit
+ * @param edbIsIn64BitSegment
+ * @return
+ */
+bool os_is_64_bit(bool edbIsIn64BitSegment) {
 	bool osIs64Bit;
 
 	if (edbIsIn64BitSegment) {
@@ -175,20 +187,18 @@ bool os64Bit(bool edbIsIn64BitSegment) {
 
 }
 
-//------------------------------------------------------------------------------
-// Name: DebuggerCore
-// Desc: constructor
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::DebuggerCore
+ */
 DebuggerCore::DebuggerCore()
 #if defined(EDB_X86) || defined(EDB_X86_64)
-	: edbIsIn64BitSegment_(in64BitSegment()),
-	  osIs64Bit_(os64Bit(edbIsIn64BitSegment_)),
+	: edbIsIn64BitSegment_(in_64bit_segment()),
+	  osIs64Bit_(os_is_64_bit(edbIsIn64BitSegment_)),
 	  userCodeSegment32_(osIs64Bit_ ? 0x23 : 0x73),
 	  userCodeSegment64_(osIs64Bit_ ? 0x33 : 0xfff8), // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
 	  userStackSegment_(osIs64Bit_ ? 0x2b : 0x7b)
 #endif
 {
-
 	Posix::initialize();
 
 	feature::detect_proc_access(&procMemReadBroken_, &procMemWriteBroken_);
@@ -211,14 +221,12 @@ DebuggerCore::DebuggerCore()
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: has_extension
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::hasExtension
+ * @param ext
+ * @return
+ */
 bool DebuggerCore::hasExtension(quint64 ext) const {
-
-	Q_UNUSED(ext)
-
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	static constexpr auto mmxHash = edb::string_hash("MMX");
 	static constexpr auto xmmHash = edb::string_hash("XMM");
@@ -260,34 +268,40 @@ bool DebuggerCore::hasExtension(quint64 ext) const {
 		return false;
 	}
 #else
+	Q_UNUSED(ext)
 	return false;
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: page_size
-// Desc: returns the size of a page on this system
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::pageSize
+ * @return the size of a page on this system
+ */
 size_t DebuggerCore::pageSize() const {
 	return PageSize;
 }
 
+/**
+ * @brief DebuggerCore::pointerSize
+ * @return
+ */
 std::size_t DebuggerCore::pointerSize() const {
 	return pointerSize_;
 }
 
-//------------------------------------------------------------------------------
-// Name: ~DebuggerCore
-// Desc: destructor
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::~DebuggerCore
+ */
 DebuggerCore::~DebuggerCore() {
 	endDebugSession();
 }
 
-//------------------------------------------------------------------------------
-// Name: ptrace_getsiginfo
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::ptraceGetSigInfo
+ * @param tid
+ * @param siginfo
+ * @return
+ */
 Status DebuggerCore::ptraceGetSigInfo(edb::tid_t tid, siginfo_t *siginfo) {
 
 	Q_ASSERT(siginfo);
@@ -300,18 +314,20 @@ Status DebuggerCore::ptraceGetSigInfo(edb::tid_t tid, siginfo_t *siginfo) {
 	return Status::Ok;
 }
 
-//------------------------------------------------------------------------------
-// Name: ptrace_traceme
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::ptraceTraceme
+ * @return
+ */
 long DebuggerCore::ptraceTraceme() {
 	return ptrace(PTRACE_TRACEME, 0, 0, 0);
 }
 
-//------------------------------------------------------------------------------
-// Name: ptrace_continue
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::ptraceContinue
+ * @param tid
+ * @param status
+ * @return
+ */
 Status DebuggerCore::ptraceContinue(edb::tid_t tid, long status) {
 	// TODO(eteran): perhaps address this at a higher layer?
 	//               I would like to not have these events show up
@@ -329,10 +345,12 @@ Status DebuggerCore::ptraceContinue(edb::tid_t tid, long status) {
 	return Status(tr("ptrace_continue(): waited_threads_ doesn't contain tid %1").arg(tid));
 }
 
-//------------------------------------------------------------------------------
-// Name: ptrace_step
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::ptraceStep
+ * @param tid
+ * @param status
+ * @return
+ */
 Status DebuggerCore::ptraceStep(edb::tid_t tid, long status) {
 	// TODO(eteran): perhaps address this at a higher layer?
 	//               I would like to not have these events show up
@@ -350,10 +368,12 @@ Status DebuggerCore::ptraceStep(edb::tid_t tid, long status) {
 	return Status(tr("ptrace_step(): waited_threads_ doesn't contain tid %1").arg(tid));
 }
 
-//------------------------------------------------------------------------------
-// Name: ptrace_set_options
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::ptraceSetOptions
+ * @param tid
+ * @param options
+ * @return
+ */
 Status DebuggerCore::ptraceSetOptions(edb::tid_t tid, long options) {
 	Q_ASSERT(util::contains(waitedThreads_, tid));
 	Q_ASSERT(tid != 0);
@@ -365,10 +385,12 @@ Status DebuggerCore::ptraceSetOptions(edb::tid_t tid, long options) {
 	return Status::Ok;
 }
 
-//------------------------------------------------------------------------------
-// Name: ptrace_get_event_message
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::ptraceGetEventMessage
+ * @param tid
+ * @param message
+ * @return
+ */
 Status DebuggerCore::ptraceGetEventMessage(edb::tid_t tid, unsigned long *message) {
 	Q_ASSERT(util::contains(waitedThreads_, tid));
 	Q_ASSERT(tid != 0);
@@ -382,10 +404,10 @@ Status DebuggerCore::ptraceGetEventMessage(edb::tid_t tid, unsigned long *messag
 	return Status::Ok;
 }
 
-//------------------------------------------------------------------------------
-// Name: desired_ptrace_options
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::ptraceOptions
+ * @return
+ */
 long DebuggerCore::ptraceOptions() const {
 
 	// we want to trace clone (thread) creation events
@@ -414,10 +436,11 @@ long DebuggerCore::ptraceOptions() const {
 	return options;
 }
 
-//------------------------------------------------------------------------------
-// Name: handle_thread_exit
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::handleThreadExit
+ * @param tid
+ * @param status
+ */
 void DebuggerCore::handleThreadExit(edb::tid_t tid, int status) {
 	Q_UNUSED(status)
 
@@ -425,10 +448,12 @@ void DebuggerCore::handleThreadExit(edb::tid_t tid, int status) {
 	waitedThreads_.remove(tid);
 }
 
-//------------------------------------------------------------------------------
-// Name: handle_thread_create_event
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::handleThreadCreate
+ * @param tid
+ * @param status
+ * @return
+ */
 std::shared_ptr<IDebugEvent> DebuggerCore::handleThreadCreate(edb::tid_t tid, int status) {
 
 	Q_UNUSED(status)
@@ -479,10 +504,12 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleThreadCreate(edb::tid_t tid, in
 	return nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: handle_event
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::handleEvent
+ * @param tid
+ * @param status
+ * @return
+ */
 std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int status) {
 
 	// note that we have waited on this thread
@@ -580,10 +607,10 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int statu
 	return e;
 }
 
-//------------------------------------------------------------------------------
-// Name: stop_threads
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::stopThreads
+ * @return
+ */
 Status DebuggerCore::stopThreads() {
 
 	QString errorMessage;
@@ -629,12 +656,14 @@ Status DebuggerCore::stopThreads() {
 	return Status("\n" + errorMessage);
 }
 
-//------------------------------------------------------------------------------
-// Name: wait_debug_event
-// Desc: waits for a debug event, msecs is a timeout
-//       it will return nullptr if an error or timeout occurs
-//------------------------------------------------------------------------------
-std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(int msecs) {
+/**
+ * waits for a debug event, witha timeout specified in milliseconds
+ *
+ * @brief DebuggerCore::waitDebugEvent
+ * @param msecs
+ * @return nullptr if an error or timeout occurs
+ */
+std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(std::chrono::milliseconds msecs) {
 
 	if (process_) {
 		if (!Posix::wait_for_sigchld(msecs)) {
@@ -650,10 +679,11 @@ std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(int msecs) {
 	return nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: attach_thread
-// Desc: returns 0 if successful, errno if failed
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::attachThread
+ * @param tid
+ * @return 0 if successful, errno if failed
+ */
 int DebuggerCore::attachThread(edb::tid_t tid) {
 
 	if (ptrace(PTRACE_ATTACH, tid, 0, 0) == 0) {
@@ -686,10 +716,11 @@ int DebuggerCore::attachThread(edb::tid_t tid) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: attach
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::attach
+ * @param pid
+ * @return
+ */
 Status DebuggerCore::attach(edb::pid_t pid) {
 
 	endDebugSession();
@@ -736,10 +767,10 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 	return Status(std::strerror(lastErr));
 }
 
-//------------------------------------------------------------------------------
-// Name: detach
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::detach
+ * @return
+ */
 Status DebuggerCore::detach() {
 
 	QString errorMessage;
@@ -767,10 +798,9 @@ Status DebuggerCore::detach() {
 	return Status(errorMessage);
 }
 
-//------------------------------------------------------------------------------
-// Name: kill
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::kill
+ */
 void DebuggerCore::kill() {
 	if (attached()) {
 		clearBreakpoints();
@@ -786,6 +816,9 @@ void DebuggerCore::kill() {
 	}
 }
 
+/**
+ * @brief DebuggerCore::detectCpuMode
+ */
 void DebuggerCore::detectCpuMode() {
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
@@ -821,13 +854,13 @@ void DebuggerCore::detectCpuMode() {
 			cpu_mode_ = CpuMode::Thumb;
 			CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32_THUMB);
 		} else {
-			cpu_mode_ = CpuMode::ARM32;
+			cpu_mode_ = CpuMode::Arm32;
 			CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32_ARM);
 		}
 	}
 	pointer_size_ = sizeof(quint32);
 #elif defined(EDB_ARM64)
-	cpu_mode_ = CpuMode::ARM64;
+	cpu_mode_ = CpuMode::Arm64;
 	CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM64);
 	pointer_size_ = sizeof(quint64);
 #else
@@ -835,10 +868,14 @@ void DebuggerCore::detectCpuMode() {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: open
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::open
+ * @param path
+ * @param cwd
+ * @param args
+ * @param tty
+ * @return
+ */
 Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
 
 	endDebugSession();
@@ -958,36 +995,35 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: lastMeansOfCapture
-// Desc: Returns how the last process was captured to debug
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::lastMeansOfCapture
+ * @return how the last process was captured to debug
+ */
 DebuggerCore::MeansOfCapture DebuggerCore::lastMeansOfCapture() const {
 	return lastMeansOfCapture_;
 }
 
-//------------------------------------------------------------------------------
-// Name: reset
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::reset
+ */
 void DebuggerCore::reset() {
 	threads_.clear();
 	waitedThreads_.clear();
 	activeThread_ = 0;
 }
 
-//------------------------------------------------------------------------------
-// Name: create_state
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::createState
+ * @return
+ */
 std::unique_ptr<IState> DebuggerCore::createState() const {
 	return std::make_unique<PlatformState>();
 }
 
-//------------------------------------------------------------------------------
-// Name: enumerate_processes
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::enumerateProcesses
+ * @return
+ */
 QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerateProcesses() const {
 	QMap<edb::pid_t, std::shared_ptr<IProcess>> ret;
 
@@ -1010,10 +1046,11 @@ QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerateProcesses() c
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::parentPid
+ * @param pid
+ * @return
+ */
 edb::pid_t DebuggerCore::parentPid(edb::pid_t pid) const {
 
 	struct user_stat user_stat;
@@ -1025,10 +1062,10 @@ edb::pid_t DebuggerCore::parentPid(edb::pid_t pid) const {
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc: Returns EDB's native CPU type
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::cpuType
+ * @return edb's native CPU type
+ */
 quint64 DebuggerCore::cpuType() const {
 #if defined EDB_X86 || defined EDB_X86_64
 	if (EDB_IS_32_BIT) {
@@ -1045,10 +1082,10 @@ quint64 DebuggerCore::cpuType() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::stackPointer
+ * @return
+ */
 QString DebuggerCore::stackPointer() const {
 #if defined EDB_X86 || defined EDB_X86_64
 	if (edb::v1::debuggeeIs32Bit()) {

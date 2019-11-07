@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "BitFieldFormatter.h"
+#include "BitFieldDescription.h"
 #include "RegisterView.h"
 
 namespace ODbgRegisterView {

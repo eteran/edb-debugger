@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "x86Groups.h"
+#include "BitFieldDescription.h"
 #include "FPUValueField.h"
 #include "MultiBitFieldWidget.h"
 #include "ODbgRV_Util.h"
@@ -116,23 +117,40 @@ const BitFieldDescription debugLenDescription = {
 	},
 };
 
+// Checks that FOP is in not in compatibility mode, i.e. is updated only on unmasked exception
+// This function would return false for e.g. Pentium III or Atom, but returns true since Pentium 4.
+// This can be made return false for such CPUs by setting bit 2 in IA32_MISC_ENABLE MSR.
+bool fop_is_compatible() {
+#ifdef __GNUG__
+	char fenv[28];
+	asm volatile("fldz\n"
+				 "fstp %%st(0)\n"
+				 "fstenv %0\n"
+				 : "=m"(fenv)::"%st");
+	std::uint16_t fop;
+	std::memcpy(&fop, fenv + 18, sizeof(fop));
+	return fop == 0;
+#else
+	// TODO(eteran): figure out a way to implement this for other compilers
+	return true;
+#endif
 }
 
-void addRoundingMode(RegisterGroup *group, const QModelIndex &index, int row, int column) {
+void add_rounding_mode(RegisterGroup *group, const QModelIndex &index, int row, int column) {
 	assert(index.isValid());
 	const auto rndValueField = new MultiBitFieldWidget(index, roundControlDescription, group);
 	group->insert(row, column, rndValueField);
 	rndValueField->setToolTip(tr("Rounding mode"));
 }
 
-void addPrecisionMode(RegisterGroup *group, const QModelIndex &index, int row, int column) {
+void add_precision_mode(RegisterGroup *group, const QModelIndex &index, int row, int column) {
 	assert(index.isValid());
 	const auto precValueField = new MultiBitFieldWidget(index, precisionControlDescription, group);
 	group->insert(row, column, precValueField);
 	precValueField->setToolTip(tr("Precision mode: effective mantissa length"));
 }
 
-void addPUOZDI(RegisterGroup *group, const QModelIndex &excRegIndex, const QModelIndex &maskRegIndex, int startRow, int startColumn) {
+void add_puozdi(RegisterGroup *group, const QModelIndex &excRegIndex, const QModelIndex &maskRegIndex, int startRow, int startColumn) {
 
 	static const QString exceptions = tr("PUOZDI");
 
@@ -149,12 +167,12 @@ void addPUOZDI(RegisterGroup *group, const QModelIndex &excRegIndex, const QMode
 		const QString exAbbrev   = ex + "E";
 		const QString maskAbbrev = ex + "M";
 
-		const auto excIndex      = valid_index(find_model_register(excRegIndex, exAbbrev));
-        const auto maskIndex     = valid_index(find_model_register(maskRegIndex, maskAbbrev));
+		const auto excIndex  = valid_index(find_model_register(excRegIndex, exAbbrev));
+		const auto maskIndex = valid_index(find_model_register(maskRegIndex, maskAbbrev));
 
-        const int column         = startColumn + exN * 2;
+		const int column = startColumn + exN * 2;
 
-		const auto nameField     = new FieldWidget(ex, group);
+		const auto nameField = new FieldWidget(ex, group);
 		group->insert(startRow, column, nameField);
 
 		const auto excValueField = new ValueField(1, value_index(excIndex), group);
@@ -170,26 +188,36 @@ void addPUOZDI(RegisterGroup *group, const QModelIndex &excRegIndex, const QMode
 	}
 }
 
+}
+
 RegisterGroup *create_eflags(RegisterViewModelBase::Model *model, QWidget *parent) {
 	const auto catIndex = find_model_category(model, tr("General Status"));
 	if (!catIndex.isValid())
-        return nullptr;
-    auto nameIndex = find_model_register(catIndex, tr("RFLAGS"));
-    if (!nameIndex.isValid())
-        nameIndex = find_model_register(catIndex, tr("EFLAGS"));
+		return nullptr;
+
+	auto nameIndex = find_model_register(catIndex, tr("RFLAGS"));
 	if (!nameIndex.isValid())
-        return nullptr;
-    const auto group    = new RegisterGroup(tr("EFL"), parent);
-	const int nameWidth = 3;
-    int column          = 0;
-    group->insert(0, column, new FieldWidget(tr("EFL"), group));
-	const auto valueWidth = 8;
-	const auto valueIndex = nameIndex.sibling(nameIndex.row(), ModelValueColumn);
-	column += nameWidth + 1;
+		nameIndex = find_model_register(catIndex, tr("EFLAGS"));
+
+	if (!nameIndex.isValid())
+		return nullptr;
+
+	const auto group        = new RegisterGroup(tr("EFL"), parent);
+	constexpr int NameWidth = 3;
+	int column              = 0;
+	group->insert(0, column, new FieldWidget(tr("EFL"), group));
+
+	constexpr int ValueWidth = 8;
+	const auto valueIndex    = nameIndex.sibling(nameIndex.row(), ModelValueColumn);
+	column += NameWidth + 1;
 	group->insert(0, column, new ValueField(
-								 valueWidth, valueIndex, [](const QString &v) { return v.right(8); }, group));
+								 ValueWidth, valueIndex, [](const QString &v) {
+									 return v.right(8);
+								 },
+								 group));
+
 	const auto commentIndex = nameIndex.sibling(nameIndex.row(), ModelCommentColumn);
-	column += valueWidth + 1;
+	column += ValueWidth + 1;
 	group->insert(0, column, new FieldWidget(0, commentIndex, group));
 
 	return group;
@@ -199,12 +227,16 @@ RegisterGroup *create_expanded_eflags(RegisterViewModelBase::Model *model, QWidg
 	const auto catIndex = find_model_category(model, tr("General Status"));
 	if (!catIndex.isValid())
 		return nullptr;
+
 	auto regNameIndex = find_model_register(catIndex, "RFLAGS");
 	if (!regNameIndex.isValid())
 		regNameIndex = find_model_register(catIndex, "EFLAGS");
+
 	if (!regNameIndex.isValid())
 		return nullptr;
-	const auto group                                            = new RegisterGroup(tr("Expanded EFL"), parent);
+
+	const auto group = new RegisterGroup(tr("Expanded EFL"), parent);
+
 	static const std::unordered_map<char, QString> flagTooltips = {
 		{'C', tr("Carry flag") + " (CF)"},
 		{'P', tr("Parity flag") + " (PF)"},
@@ -221,9 +253,9 @@ RegisterGroup *create_expanded_eflags(RegisterViewModelBase::Model *model, QWidg
 		const auto flagName       = model->data(flagNameIndex).toString().toUpper();
 		if (flagName.length() != 2 || flagName[1] != 'F')
 			continue;
-		static const int flagNameWidth = 1;
-		static const int valueWidth    = 1;
-		const char name                = flagName[0].toLatin1();
+		constexpr int FlagNameWidth = 1;
+		constexpr int ValueWidth    = 1;
+		const char name             = flagName[0].toLatin1();
 
 		switch (name) {
 		case 'C':
@@ -236,8 +268,8 @@ RegisterGroup *create_expanded_eflags(RegisterViewModelBase::Model *model, QWidg
 		case 'O': {
 			const auto nameField = new FieldWidget(QChar(name), group);
 			group->insert(groupRow, 0, nameField);
-			const auto valueField = new ValueField(valueWidth, flagValueIndex, group);
-			group->insert(groupRow, flagNameWidth + 1, valueField);
+			const auto valueField = new ValueField(ValueWidth, flagValueIndex, group);
+			group->insert(groupRow, FlagNameWidth + 1, valueField);
 			++groupRow;
 
 			const auto tooltipStr = flagTooltips.at(name);
@@ -268,14 +300,15 @@ RegisterGroup *create_fpu_data(RegisterViewModelBase::Model *model, QWidget *par
 		return nullptr;
 	}
 
-	const auto group                     = new RegisterGroup(tr("FPU Data Registers"), parent);
-	static const int FPU_REG_COUNT       = 8;
-	static const int nameWidth           = 3;
-	static const int tagWidth            = 7;
-	const auto fsrIndex                  = valid_index(find_model_register(catIndex, FsrName));
-	const QPersistentModelIndex topIndex = valid_index(find_model_register(fsrIndex, "TOP", ModelValueColumn));
+	const auto group          = new RegisterGroup(tr("FPU Data Registers"), parent);
+	constexpr int FpuRegCount = 8;
+	constexpr int NameWidth   = 3;
+	constexpr int TagWidth    = 7;
+	const auto fsrIndex       = valid_index(find_model_register(catIndex, FsrName));
 
-	for (int row = 0; row < FPU_REG_COUNT; ++row) {
+	const QPersistentModelIndex topIndex = valid_index(find_model_register(fsrIndex, tr("TOP"), ModelValueColumn));
+
+	for (int row = 0; row < FpuRegCount; ++row) {
 		int column           = 0;
 		const auto nameIndex = model->index(row, ModelNameColumn, catIndex);
 		{
@@ -289,15 +322,15 @@ RegisterGroup *create_fpu_data(RegisterViewModelBase::Model *model, QWidget *par
 				const auto stI = (row + 8 - top) % 8;
 				return QString("ST%1").arg(stI);
 			};
-			const auto field = new VolatileNameField(nameWidth, STiFormatter, group);
+			const auto field = new VolatileNameField(NameWidth, STiFormatter, group);
 			QObject::connect(model, &RegisterViewModelBase::Model::dataChanged, field, &VolatileNameField::adjustToData);
 			group->insert(row, column, field);
-			column += nameWidth + 1;
+			column += NameWidth + 1;
 		}
 
 		const auto tagValueIndex = valid_index(model->index(row, ModelValueColumn, tagsIndex));
 		group->insert(row, column, new MultiBitFieldWidget(tagValueIndex, fpuTagDescription, group));
-		column += tagWidth + 1;
+		column += TagWidth + 1;
 		const auto regValueIndex = nameIndex.sibling(nameIndex.row(), ModelValueColumn);
 		const int regValueWidth  = regValueIndex.data(Model::FixedLengthRole).toInt();
 		Q_ASSERT(regValueWidth > 0);
@@ -354,8 +387,8 @@ RegisterGroup *create_fpu_words(RegisterViewModelBase::Model *model, QWidget *pa
 		valueField->setToolTip(name);
 	}
 
-	addRoundingMode(group, find_model_register(fcrIndex, "RC", ModelValueColumn), FcrRow, roundModeColumn);
-	addPrecisionMode(group, find_model_register(fcrIndex, "PC", ModelValueColumn), FcrRow, precModeColumn);
+	add_rounding_mode(group, find_model_register(fcrIndex, "RC", ModelValueColumn), FcrRow, roundModeColumn);
+	add_precision_mode(group, find_model_register(fcrIndex, "PC", ModelValueColumn), FcrRow, precModeColumn);
 
 	constexpr int ErrMaskColumn = precModeColumn + precModeWidth + 2;
 	constexpr int ErrLabelWidth = 3;
@@ -390,31 +423,12 @@ RegisterGroup *create_fpu_words(RegisterViewModelBase::Model *model, QWidget *pa
 	}
 
 	constexpr int PEPMColumn = SFColumn + 2;
-	addPUOZDI(group, fsrIndex, fcrIndex, FsrRow - 1, PEPMColumn);
+	add_puozdi(group, fsrIndex, fcrIndex, FsrRow - 1, PEPMColumn);
 
 	constexpr int PUOZDIWidth = 6 * 2 - 1;
 	group->insert(FsrRow, PEPMColumn + PUOZDIWidth + 1, new FieldWidget(0, command_index(fsrIndex), group));
 
 	return group;
-}
-
-// Checks that FOP is in not in compatibility mode, i.e. is updated only on unmasked exception
-// This function would return false for e.g. Pentium III or Atom, but returns true since Pentium 4.
-// This can be made return false for such CPUs by setting bit 2 in IA32_MISC_ENABLE MSR.
-bool FOPIsIncompatible() {
-#ifdef __GNUG__
-	char fenv[28];
-	asm volatile("fldz\n"
-				 "fstp %%st(0)\n"
-				 "fstenv %0\n"
-				 : "=m"(fenv)::"%st");
-	std::uint16_t fop;
-	std::memcpy(&fop, fenv + 18, sizeof(fop));
-	return fop == 0;
-#else
-	// TODO(eteran): figure out a way to implement this for other compilers
-	return true;
-#endif
 }
 
 RegisterGroup *create_fpu_last_op(RegisterViewModelBase::Model *model, QWidget *parent) {
@@ -485,7 +499,7 @@ RegisterGroup *create_fpu_last_op(RegisterViewModelBase::Model *model, QWidget *
 	QPersistentModelIndex const FOPIndex = find_model_register(catIndex, "FOP", ModelValueColumn);
 	QPersistentModelIndex const FSRIndex = find_model_register(catIndex, FsrName, ModelValueColumn);
 	QPersistentModelIndex const FCRIndex = find_model_register(catIndex, FcrName, ModelValueColumn);
-	bool fopRarelyUpdated                = FOPIsIncompatible();
+	bool fopRarelyUpdated                = fop_is_compatible();
 
 	const auto FOPFormatter = [FOPIndex, FSRIndex, FCRIndex, FIPIndex, fopRarelyUpdated](const QString &str) -> QString {
 		if (str.isEmpty() || str[0] == '?')
@@ -754,20 +768,20 @@ RegisterGroup *create_mxcsr(RegisterViewModelBase::Model *model, QWidget *parent
 	const QString maskName = "Mask";
 	group->insert(maskRow, column, new FieldWidget(maskName, group));
 	column += maskName.length() + 1;
-	addPUOZDI(group, mxcsrIndex, mxcsrIndex, excRow - 1, column);
+	add_puozdi(group, mxcsrIndex, mxcsrIndex, excRow - 1, column);
 	const auto rndNameColumn = fzColumn;
 	const QString rndName    = "Rnd";
 	group->insert(rndRow, rndNameColumn, new FieldWidget(rndName, group));
 	const auto rndColumn = rndNameColumn + rndName.length() + 1;
-	addRoundingMode(group, find_model_register(mxcsrIndex, "RC", ModelValueColumn), rndRow, rndColumn);
+	add_rounding_mode(group, find_model_register(mxcsrIndex, "RC", ModelValueColumn), rndRow, rndColumn);
 
 	{
-		const auto fzTooltip = tr("Flush Denormals To Zero") + " (FTZ)";
+		const auto fzTooltip = tr("Flush Denormals To Zero (FTZ)");
 		fzNameField->setToolTip(fzTooltip);
 		fzValueField->setToolTip(fzTooltip);
 	}
 	{
-		const auto dazTooltip = tr("Denormals Are Zeros") + " (DAZ)";
+		const auto dazTooltip = tr("Denormals Are Zeros (DAZ)");
 		dazNameField->setToolTip(dazTooltip);
 		dazValueField->setToolTip(dazTooltip);
 	}

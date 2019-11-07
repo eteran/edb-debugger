@@ -1,5 +1,6 @@
 
 #include "MultiBitFieldWidget.h"
+#include "BitFieldDescription.h"
 #include "BitFieldFormatter.h"
 #include "ODbgRV_Util.h"
 #include "RegisterView.h"

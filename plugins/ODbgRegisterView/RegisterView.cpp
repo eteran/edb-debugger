@@ -92,15 +92,6 @@ const auto SETTINGS_GROUPS_ARRAY_NODE = QLatin1String("visibleGroups");
 
 }
 
-// ----------------------- BitFieldDescription impl -------------------------
-
-BitFieldDescription::BitFieldDescription(int textWidth, const std::vector<QString> &valueNames, const std::vector<QString> &setValueTexts, const std::function<bool(unsigned, unsigned)> &valueEqualComparator)
-	: textWidth(textWidth),
-	  valueNames(valueNames),
-	  setValueTexts(setValueTexts),
-	  valueEqualComparator(valueEqualComparator) {
-}
-
 // -------------------------------- ODBRegView impl ----------------------------------------
 
 void ODBRegView::mousePressEvent(QMouseEvent *event) {
@@ -302,14 +293,14 @@ void ODBRegView::copyAllRegisters() {
 
 void ODBRegView::groupHidden(RegisterGroup *group) {
 	using namespace std;
-	assert(util::contains(groups, group));
-	const auto groupPtrIter = std::find(groups.begin(), groups.end(), group);
+	assert(util::contains(groups_, group));
+	const auto groupPtrIter = std::find(groups_.begin(), groups_.end(), group);
 	auto &groupPtr          = *groupPtrIter;
 	groupPtr->deleteLater();
 	groupPtr = nullptr;
 
 	auto &types(visibleGroupTypes_);
-	const int groupType = groupPtrIter - groups.begin();
+	const int groupType = groupPtrIter - groups_.begin();
 	types.erase(remove_if(types.begin(), types.end(), [=](int type) { return type == groupType; }), types.end());
 }
 
@@ -443,13 +434,13 @@ void ODBRegView::modelReset() {
 	widget()->hide(); // prevent flicker while groups are added to/removed from the layout
 
 	// not all groups may be in the layout, so delete them individually
-	Q_FOREACH (const auto group, groups) {
+	Q_FOREACH (const auto group, groups_) {
 		if (group) {
 			group->deleteLater();
 		}
 	}
 
-	groups.clear();
+	groups_.clear();
 
 	const auto layout = static_cast<QVBoxLayout *>(widget()->layout());
 
@@ -473,7 +464,7 @@ void ODBRegView::modelReset() {
 		const auto groupType = static_cast<RegisterGroupType>(group);
 		if (util::contains(visibleGroupTypes_, groupType)) {
 			const auto group = makeGroup(groupType);
-			groups.push_back(group);
+			groups_.push_back(group);
 			if (!group)
 				continue;
 #if defined EDB_X86 || defined EDB_X86_64
@@ -487,7 +478,7 @@ void ODBRegView::modelReset() {
 #endif
 				layout->addWidget(group);
 		} else
-			groups.push_back(nullptr);
+			groups_.push_back(nullptr);
 	}
 
 	widget()->show();
@@ -498,7 +489,7 @@ void ODBRegView::modelUpdated() {
 		field->adjustToData();
 	}
 
-	Q_FOREACH (RegisterGroup *group, groups) {
+	Q_FOREACH (RegisterGroup *group, groups_) {
 		if (group) {
 			group->adjustWidth();
 		}
@@ -508,7 +499,7 @@ void ODBRegView::modelUpdated() {
 QList<FieldWidget *> ODBRegView::fields() const {
 
 	QList<FieldWidget *> allFields;
-	for (RegisterGroup *group : groups) {
+	for (RegisterGroup *group : groups_) {
 		if (group) {
 			allFields.append(group->fields());
 		}
@@ -520,7 +511,7 @@ QList<FieldWidget *> ODBRegView::fields() const {
 QList<ValueField *> ODBRegView::valueFields() const {
 
 	QList<ValueField *> allValues;
-	for (RegisterGroup *group : groups) {
+	for (RegisterGroup *group : groups_) {
 		if (group) {
 			allValues.append(group->valueFields());
 		}

@@ -3384,6 +3384,8 @@ void Debugger::tabContextMenu(int index, const QPoint &pos) {
 //------------------------------------------------------------------------------
 void Debugger::nextDebugEvent() {
 
+	using namespace std::chrono_literals;
+
 	// TODO(eteran): come up with a nice system to inject a debug event
 	//               into the system, for example on windows, we want
 	//               to deliver real "memory map updated" events, but
@@ -3393,7 +3395,7 @@ void Debugger::nextDebugEvent() {
 
 	Q_ASSERT(edb::v1::debugger_core);
 
-	if (std::shared_ptr<IDebugEvent> e = edb::v1::debugger_core->waitDebugEvent(10)) {
+	if (std::shared_ptr<IDebugEvent> e = edb::v1::debugger_core->waitDebugEvent(10ms)) {
 
 		lastEvent_ = e;
 

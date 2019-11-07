@@ -21,16 +21,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCorePlugin {
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::clone
+ * @return
+ */
 IDebugEvent *PlatformEvent::clone() const {
 	return new PlatformEvent(*this);
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::createUnexpectedSignalMessage
+ * @param name
+ * @param number
+ * @return
+ */
 IDebugEvent::Message PlatformEvent::createUnexpectedSignalMessage(const QString &name, int number) {
 	return Message(
 		tr("Unexpected Signal Encountered"),
@@ -38,9 +42,10 @@ IDebugEvent::Message PlatformEvent::createUnexpectedSignalMessage(const QString 
 		tr("% received").arg(name));
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::errorDescription
+ * @return
+ */
 IDebugEvent::Message PlatformEvent::errorDescription() const {
 	Q_ASSERT(isError());
 
@@ -273,9 +278,10 @@ IDebugEvent::Message PlatformEvent::errorDescription() const {
 	return message;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::reason
+ * @return
+ */
 IDebugEvent::REASON PlatformEvent::reason() const {
 	// this basically converts our value into a 'switchable' value for convenience
 
@@ -290,9 +296,10 @@ IDebugEvent::REASON PlatformEvent::reason() const {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::trapReason
+ * @return
+ */
 IDebugEvent::TRAP_REASON PlatformEvent::trapReason() const {
 	switch (siginfo_.si_code) {
 	case TRAP_TRACE:
@@ -302,16 +309,18 @@ IDebugEvent::TRAP_REASON PlatformEvent::trapReason() const {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::exited
+ * @return
+ */
 bool PlatformEvent::exited() const {
 	return WIFEXITED(status_) != 0;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::isError
+ * @return
+ */
 bool PlatformEvent::isError() const {
 	if (stopped()) {
 		switch (code()) {
@@ -336,58 +345,66 @@ bool PlatformEvent::isError() const {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::isKill
+ * @return
+ */
 bool PlatformEvent::isKill() const {
 	return stopped() && code() == SIGKILL;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::isStop
+ * @return
+ */
 bool PlatformEvent::isStop() const {
 	return stopped() && code() == SIGSTOP;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::isTrap
+ * @return
+ */
 bool PlatformEvent::isTrap() const {
 	return stopped() && code() == SIGTRAP;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::terminated
+ * @return
+ */
 bool PlatformEvent::terminated() const {
 	return WIFSIGNALED(status_) != 0;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::stopped
+ * @return
+ */
 bool PlatformEvent::stopped() const {
 	return WIFSTOPPED(status_) != 0;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::process
+ * @return
+ */
 edb::pid_t PlatformEvent::process() const {
 	return pid_;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::thread
+ * @return
+ */
 edb::tid_t PlatformEvent::thread() const {
 	return tid_;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::code
+ * @return
+ */
 int64_t PlatformEvent::code() const {
 	if (stopped()) {
 		return WSTOPSIG(status_);

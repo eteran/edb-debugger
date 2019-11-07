@@ -11,6 +11,8 @@ set(PluginName "ODbgRegisterView")
 find_package(Qt5 5.0.0 REQUIRED Widgets)
 
 set(PluginSources
+	BitFieldDescription.h
+	BitFieldDescription.cpp
 	FPUValueField.h
 	SIMDValueManager.cpp
 	SIMDValueManager.h

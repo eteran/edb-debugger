@@ -24,10 +24,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCorePlugin {
 
-//------------------------------------------------------------------------------
-// Name: resume_code
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief resume_code
+ * @param status
+ * @return
+ */
 int resume_code(int status) {
 
 	if (WIFSTOPPED(status) && WSTOPSIG(status) == SIGSTOP) {
@@ -45,11 +46,14 @@ int resume_code(int status) {
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name: get_user_stat
-// Desc: gets the contents of /proc/<pid>/stat and returns the number of elements
-//       successfully parsed
-//------------------------------------------------------------------------------
+/**
+ * gets the contents of /proc/<pid>/stat
+ *
+ * @brief get_user_stat
+ * @param path
+ * @param user_stat
+ * @return the number of elements successfully parsed
+ */
 int get_user_stat(const char *path, struct user_stat *user_stat) {
 	Q_ASSERT(user_stat);
 

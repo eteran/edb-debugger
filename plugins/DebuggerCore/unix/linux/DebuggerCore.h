@@ -55,7 +55,7 @@ public:
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
 	bool hasExtension(quint64 ext) const override;
 	size_t pageSize() const override;
-	std::shared_ptr<IDebugEvent> waitDebugEvent(int msecs) override;
+	std::shared_ptr<IDebugEvent> waitDebugEvent(std::chrono::milliseconds msecs) override;
 	std::size_t pointerSize() const override;
 	uint8_t nopFillByte() const override;
 	void kill() override;
