@@ -150,7 +150,7 @@ void DumpState::dumpCode(const State &state) {
 	edb::address_t address  = ip;
 
 	for (int i = 0; i < instructions_to_print + 1; ++i) {
-		quint8 buf[edb::Instruction::MAX_SIZE];
+		quint8 buf[edb::Instruction::MaxSize];
 		if (const int size = edb::v1::get_instruction_bytes(address, buf)) {
 			edb::Instruction inst(buf, buf + size, address);
 			if (inst) {

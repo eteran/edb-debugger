@@ -372,7 +372,7 @@ std::shared_ptr<IBreakpoint> create_breakpoint(address_t address) {
 				   "Do you really want to set a breakpoint here?"),
 				QMessageBox::Yes | QMessageBox::No);
 		} else {
-			quint8 buffer[Instruction::MAX_SIZE + 1];
+			quint8 buffer[Instruction::MaxSize + 1];
 			if (const int size = get_instruction_bytes(address, buffer)) {
 				Instruction inst(buffer, buffer + size, address);
 				if (!inst) {
@@ -1438,7 +1438,7 @@ QVector<quint8> read_pages(address_t address, size_t page_count) {
 // Desc: will return a QString where isNull is true on failure
 //------------------------------------------------------------------------------
 QString disassemble_address(address_t address) {
-	quint8 buffer[edb::Instruction::MAX_SIZE];
+	quint8 buffer[edb::Instruction::MaxSize];
 	if (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 		edb::Instruction inst(buffer, buffer + size, address);
 		if (inst) {

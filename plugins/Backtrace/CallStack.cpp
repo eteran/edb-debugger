@@ -78,7 +78,7 @@ void CallStack::getCallStack() {
 			constexpr uint8_t CallMinSize = 2;
 			constexpr uint8_t CallMaxSize = 7;
 
-			uint8_t buffer[edb::Instruction::MAX_SIZE];
+			uint8_t buffer[edb::Instruction::MaxSize];
 			for (edb::address_t addr = rbp; region_rbp->contains(addr); addr += edb::v1::pointer_size()) {
 
 				// Get the stack value so that we can see if it's a pointer

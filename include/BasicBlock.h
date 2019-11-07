@@ -50,7 +50,7 @@ public:
 
 public:
 	void push_back(const instruction_pointer &inst);
-	void addRef(edb::address_t refsite, edb::address_t target);
+	void addReference(edb::address_t refsite, edb::address_t target);
 
 public:
 	std::vector<std::pair<edb::address_t, edb::address_t>> references() const;

@@ -12,7 +12,7 @@
 
 class RegisterRef {
 public:
-	RegisterRef(const char *name, const void *ptr, std::size_t size)
+    constexpr RegisterRef(const char *name, const void *ptr, std::size_t size)
 		: name_(name), ptr_(ptr), size_(size) {
 	}
 
@@ -28,7 +28,7 @@ public:
 	bool operator!=(const RegisterRef &rhs) const { return size_ != rhs.size_ || std::memcmp(ptr_, rhs.ptr_, size_) != 0; }
 
 public:
-	bool valid() const { return !!ptr_; }
+    bool valid() const { return ptr_ != nullptr; }
 
 public:
 	// The name of this register.

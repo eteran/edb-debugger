@@ -50,6 +50,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 namespace ILP32 {
+
 constexpr std::int32_t toInt(std::uint64_t x) {
 	return x;
 }
@@ -62,9 +63,11 @@ constexpr std::int32_t toLong(std::uint64_t x) {
 constexpr std::uint32_t toULong(std::uint64_t x) {
 	return x;
 }
+
 }
 
 namespace LP64 {
+
 constexpr std::int32_t toInt(std::uint64_t x) {
 	return x;
 }
@@ -77,6 +80,7 @@ constexpr std::int64_t toLong(std::uint64_t x) {
 constexpr std::uint64_t toULong(std::uint64_t x) {
 	return x;
 }
+
 }
 
 namespace {
@@ -99,7 +103,7 @@ enum RegisterIndex {
 	R12 = 12,
 	R13 = 13,
 	R14 = 14,
-	R15 = 15
+    R15 = 15,
 };
 
 enum SegmentRegisterIndex {
@@ -108,7 +112,7 @@ enum SegmentRegisterIndex {
 	SS,
 	DS,
 	FS,
-	GS
+    GS,
 };
 
 constexpr size_t MAX_DEBUG_REGS_COUNT = 8;
@@ -156,105 +160,6 @@ QString syscallErrName(T err) {
 	return "";
 }
 
-#if 0
-//------------------------------------------------------------------------------
-// Name: get_effective_address
-// Desc:
-//------------------------------------------------------------------------------
-edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool& ok) {
-	edb::address_t ret = 0;
-	ok=false;
-
-	// TODO: get registers by index, not string! too slow
-
-	if(op.valid()) {
-
-		if(is_register(op)) {
-			ret = state[QString::fromStdString(edb::v1::formatter().to_string(op))].valueAsAddress();
-		} else if(is_expression(op)) {
-			const Register baseR  = state[QString::fromStdString(register_name(op.mem.base))];
-			const Register indexR = state[QString::fromStdString(register_name(op.mem.index))];
-			edb::address_t base  = 0;
-			edb::address_t index = 0;
-
-			if(!baseR)
-			{
-				if(op.mem.base!=X86_REG_INVALID)
-					return ret; // register is valid, but failed to be acquired from state
-			}
-			else
-			{
-				base=baseR.valueAsAddress();
-			}
-
-			if(!indexR)
-			{
-				if(op.mem.index!=X86_REG_INVALID)
-					return ret; // register is valid, but failed to be acquired from state
-			}
-			else
-			{
-				if(indexR.type()!=Register::TYPE_GPR)
-					return ret; // TODO: add support for VSIB addressing
-				index=indexR.valueAsAddress();
-			}
-
-			// This only makes sense for x86_64, but doesn't hurt on x86
-			if(op.mem.base == X86_REG_RIP) {
-				base += inst.byte_size();
-			}
-
-			ret = base + index * op.mem.scale + op.displacement();
-
-
-			std::size_t segRegIndex = op.expression().segment;
-
-			if(segRegIndex == X86_REG_INVALID && !debuggeeIs64Bit()) {
-				switch(op.mem.base) {
-				case X86_REG_BP:
-				case X86_REG_SP:
-				case X86_REG_EBP:
-				case X86_REG_ESP:
-					segRegIndex = X86_REG_SS;
-					break;
-				default:
-					segRegIndex = X86_REG_DS;
-					break;
-				}
-			}
-
-
-			if(segRegIndex != X86_REG_INVALID) {
-
-				const Register segBase = [&segRegIndex, &state](){
-					switch(segRegIndex) {
-					case X86_REG_ES: return state[QLatin1String("es_base")];
-					case X86_REG_CS:	return state[QLatin1String("cs_base")];
-					case X86_REG_SS:	return state[QLatin1String("ss_base")];
-					case X86_REG_DS:	return state[QLatin1String("ds_base")];
-					case X86_REG_FS:	return state[QLatin1String("fs_base")];
-					case X86_REG_GS:	return state[QLatin1String("gs_base")];
-					default:
-						return Register();
-					}
-				}();
-
-				if(!segBase) return 0; // no way to reliably compute address
-				ret += segBase.valueAsAddress();
-			}
-		} else if(is_immediate(op)) {
-			const Register csBase = state["cs_base"];
-			if(!csBase) return 0; // no way to reliably compute address
-			ret = op.immediate() + csBase.valueAsAddress();
-		}
-	}
-
-	ok=true;
-	ret.normalize();
-	return ret;
-}
-#endif
-
 //------------------------------------------------------------------------------
 // Name: format_pointer
 // Desc:
@@ -292,9 +197,9 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 			return QString("'\\x%1'").arg(static_cast<quint16>(arg), 2, 16);
 		}
 	case 'a': // signed char; since we're formatting as hex, we want to avoid sign
-		// extension done inside QString::number (happening due to the cast to
-		// qlonglong inside QString::setNum, which used in QString::number).
-		// Similarly for other shorter-than-long-long signed types.
+			  // extension done inside QString::number (happening due to the cast to
+			  // qlonglong inside QString::setNum, which used in QString::number).
+			  // Similarly for other shorter-than-long-long signed types.
 	case 'h':
 		return "0x" + QString::number(static_cast<unsigned char>(arg), 16);
 	case 's':
@@ -749,7 +654,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 				if (is_immediate(operand)) {
 #if 0
 					bool ok;
-					const edb::address_t effective_address = get_effective_address(operand, state,ok);
+                    const edb::address_t effective_address = edb::v1::arch_processor().getEffectiveAddress(inst, operand, state, ok);
 					if(!ok) return;
 					ret << QString("%1 = %2").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
 #endif
@@ -920,7 +825,7 @@ void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
 	const edb::address_t start_address = address - 128;
 	const edb::address_t end_address   = address + 127;
 
-	quint8 buffer[edb::Instruction::MAX_SIZE];
+	quint8 buffer[edb::Instruction::MaxSize];
 
 	for (edb::address_t addr = start_address; addr < end_address; ++addr) {
 		if (const int sz = edb::v1::get_instruction_bytes(addr, buffer)) {
@@ -1021,7 +926,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 }
 
 //------------------------------------------------------------------------------
-// Name: get_effective_address
+// Name: getEffectiveAddress
 // Desc:
 //------------------------------------------------------------------------------
 Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state) const {
@@ -1509,7 +1414,7 @@ QStringList ArchProcessor::updateInstructionInfo(edb::address_t address) {
 	Q_ASSERT(edb::v1::debugger_core);
 
 	if (IProcess *process = edb::v1::debugger_core->process()) {
-		quint8 buffer[edb::Instruction::MAX_SIZE];
+		quint8 buffer[edb::Instruction::MaxSize];
 
 		if (process->readBytes(address, buffer, sizeof(buffer))) {
 			edb::Instruction inst(buffer, buffer + sizeof(buffer), address);

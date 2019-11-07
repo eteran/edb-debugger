@@ -48,9 +48,9 @@ class EDB_EXPORT Instruction {
 
 public:
 #if defined EDB_X86 || defined EDB_X86_64
-	static constexpr std::size_t MAX_SIZE = 15;
+	static constexpr std::size_t MaxSize = 15;
 #elif defined EDB_ARM32 || defined EDB_ARM64
-	static constexpr std::size_t MAX_SIZE = 4;
+	static constexpr std::size_t MaxSize = 4;
 #endif
 
 public:
@@ -161,7 +161,7 @@ public:
 	ConditionCode condition_code() const;
 
 private:
-	cs_insn *insn_;
+    cs_insn *insn_ = nullptr;
 
 	// we have our own copies of this data so we can give something meaningful
 	// even during a failed disassembly

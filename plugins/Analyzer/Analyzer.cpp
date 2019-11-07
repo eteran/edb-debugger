@@ -86,7 +86,7 @@ bool will_return(edb::address_t address) {
  */
 bool is_thunk(edb::address_t address) {
 
-	quint8 buf[edb::Instruction::MAX_SIZE];
+	quint8 buf[edb::Instruction::MaxSize];
 	if (const int buf_size = edb::v1::get_instruction_bytes(address, buf)) {
 		const edb::Instruction inst(buf, buf + buf_size, address);
 		return is_unconditional_jump(inst);
@@ -445,7 +445,7 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 				if (!basic_blocks.contains(block_address)) {
 					while (data->region->contains(address)) {
 
-						quint8 buffer[edb::Instruction::MAX_SIZE];
+						quint8 buffer[edb::Instruction::MaxSize];
 						const int buf_size = edb::v1::get_instruction_bytes(address, buffer);
 						if (buf_size == 0) {
 							break;
@@ -475,7 +475,7 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 										break;
 									}
 
-									block.addRef(address, ea);
+									block.addReference(address, ea);
 								}
 							} else if (is_expression(op)) {
 								// looks like: "call [...]", if it is of the form, call [C + REG]
@@ -506,7 +506,7 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 									blocks.push(ea);
 								}
 
-								block.addRef(address, ea);
+								block.addReference(address, ea);
 							}
 							break;
 						} else if (is_conditional_jump(*inst)) {
@@ -521,7 +521,7 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 								blocks.push(ea);
 								blocks.push(address + inst->byte_size());
 
-								block.addRef(address, ea);
+								block.addReference(address, ea);
 							}
 							break;
 						} else if (is_terminator(*inst)) {

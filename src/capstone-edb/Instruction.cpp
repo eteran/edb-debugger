@@ -34,7 +34,7 @@ namespace CapstoneEDB {
 
 namespace {
 
-constexpr int MAX_OPERANDS = 3;
+constexpr int MaxOperands = 3;
 
 Architecture capstoneArch = Architecture::ARCH_X86;
 bool capstoneInitialized  = false;
@@ -93,7 +93,7 @@ std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, co
 	const size_t operandCount = insn.operand_count();
 
 	// normalized number is according to Intel order
-	if (activeFormatter.options().syntax == Formatter::SyntaxATT) {
+    if (activeFormatter.options().syntax == Formatter::SyntaxAtt) {
 		assert(number < operandCount);
 		number = operandCount - 1 - number;
 	}
@@ -344,7 +344,7 @@ void Formatter::setOptions(const Formatter::FormatOptions &options) {
 	options_ = options;
 
 #if defined EDB_X86 || defined EDB_X86_64
-	if (options.syntax == SyntaxATT)
+    if (options.syntax == SyntaxAtt)
 		cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_ATT);
 	else
 		cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_INTEL);
@@ -458,8 +458,8 @@ std::vector<std::string> toOperands(QString str) {
 		operands.push_back(current.trimmed().toStdString());
 	}
 
-	if (operands.size() > MAX_OPERANDS) {
-		throw std::logic_error("got more than " + std::to_string(MAX_OPERANDS) + " operands");
+    if (operands.size() > MaxOperands) {
+        throw std::logic_error("got more than " + std::to_string(MaxOperands) + " operands");
 	}
 
 	return operands;

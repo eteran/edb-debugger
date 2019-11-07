@@ -29,10 +29,7 @@ private:
 	}
 
 public:
-	Operand()
-		: owner_(nullptr), operand_(nullptr), index_(0) {
-	}
-
+	Operand()                = default;
 	Operand(const Operand &) = default;
 	Operand &operator=(const Operand &) = default;
 	~Operand()                          = default;
@@ -50,9 +47,9 @@ public:
 	}
 
 private:
-	const Instruction *owner_;
-	op_type *operand_;
-	size_t index_;
+	const Instruction *owner_ = nullptr;
+	op_type *operand_         = nullptr;
+	size_t index_             = 0;
 };
 
 }

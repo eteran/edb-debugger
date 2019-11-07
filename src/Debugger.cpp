@@ -159,7 +159,7 @@ edb::address_t find_linker_hook_address(IProcess *process, edb::address_t debug_
 //--------------------------------------------------------------------------
 bool is_instruction_ret(edb::address_t address) {
 
-	quint8 buffer[edb::Instruction::MAX_SIZE];
+	quint8 buffer[edb::Instruction::MaxSize];
 	if (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 		edb::Instruction inst(buffer, buffer + size, address);
 		return is_ret(inst);
@@ -285,7 +285,7 @@ public:
 			//If we stepped (either because it was the first event or because we hit a jmp/jcc),
 			//then find the next block terminator and edb::DEBUG_CONTINUE.
 			//TODO: What if we started on a ret? Set bp, then the proc runs away?
-			quint8 buffer[edb::Instruction::MAX_SIZE];
+			quint8 buffer[edb::Instruction::MaxSize];
 			while (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 
 				//Get the instruction
@@ -1332,7 +1332,7 @@ void Debugger::step_over(F1 run_func, F2 step_func) {
 			thread->getState(&state);
 
 			const edb::address_t ip = state.instructionPointer();
-			quint8 buffer[edb::Instruction::MAX_SIZE];
+			quint8 buffer[edb::Instruction::MaxSize];
 			if (const int sz = edb::v1::get_instruction_bytes(ip, buffer)) {
 				edb::Instruction inst(buffer, buffer + sz, 0);
 				if (inst && edb::v1::arch_processor().canStepOver(inst)) {
@@ -1697,7 +1697,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 
 		Q_UNUSED(process)
 
-		quint8 buffer[edb::Instruction::MAX_SIZE + 1];
+		quint8 buffer[edb::Instruction::MaxSize + 1];
 		if (edb::v1::get_instruction_bytes(address, buffer, &size)) {
 			edb::Instruction inst(buffer, buffer + size, address);
 			if (inst) {
@@ -1752,7 +1752,7 @@ void Debugger::mnuCPUFollow() {
 
 	const edb::address_t address = ui.cpuView->selectedAddress();
 	int size                     = ui.cpuView->selectedSize();
-	quint8 buffer[edb::Instruction::MAX_SIZE + 1];
+	quint8 buffer[edb::Instruction::MaxSize + 1];
 	if (!edb::v1::get_instruction_bytes(address, buffer, &size))
 		return;
 
@@ -2092,7 +2092,7 @@ void Debugger::mnuCPUModify() {
 	const edb::address_t address = ui.cpuView->selectedAddress();
 	const unsigned int size      = ui.cpuView->selectedSize();
 
-	quint8 buf[edb::Instruction::MAX_SIZE];
+	quint8 buf[edb::Instruction::MaxSize];
 
 	Q_ASSERT(size <= sizeof(buf));
 

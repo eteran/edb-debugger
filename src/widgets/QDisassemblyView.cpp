@@ -285,7 +285,7 @@ int QDisassemblyView::previous_instruction(IAnalyzer *analyzer, int current_addr
 
 				// disassemble from function start until the NEXT address is where we started
 				while (true) {
-					uint8_t buf[edb::Instruction::MAX_SIZE];
+					uint8_t buf[edb::Instruction::MaxSize];
 
 					size_t buf_size = sizeof(buf);
 					if (region_) {
@@ -319,25 +319,22 @@ int QDisassemblyView::previous_instruction(IAnalyzer *analyzer, int current_addr
 	// fall back on the old heuristic
 	// iteration goal: to get exactly one new line above current instruction line
 	edb::address_t address = addressOffset_ + current_address;
-#if 0
-	for(int i = 1; i < static_cast<int>(edb::Instruction::MAX_SIZE); ++i) {
-#else
-	for (int i = static_cast<int>(edb::Instruction::MAX_SIZE); i > 0; --i) {
-#endif
-	edb::address_t prev_address = address - i;
-	if (address >= addressOffset_) {
 
-		uint8_t buf[edb::Instruction::MAX_SIZE];
-		int size               = sizeof(buf);
-		Result<int, QString> n = get_instruction_size(prev_address, buf, &size);
-		if (n && *n == i) {
-			return current_address - i;
+	for (int i = static_cast<int>(edb::Instruction::MaxSize); i > 0; --i) {
+		edb::address_t prev_address = address - i;
+		if (address >= addressOffset_) {
+
+			uint8_t buf[edb::Instruction::MaxSize];
+			int size               = sizeof(buf);
+			Result<int, QString> n = get_instruction_size(prev_address, buf, &size);
+			if (n && *n == i) {
+				return current_address - i;
+			}
 		}
 	}
-}
 
-// ensure that we make progress even if no instruction could be decoded
-return current_address - 1;
+	// ensure that we make progress even if no instruction could be decoded
+	return current_address - 1;
 }
 
 //------------------------------------------------------------------------------
@@ -359,7 +356,7 @@ int QDisassemblyView::previous_instructions(int current_address, int count) {
 }
 
 int QDisassemblyView::following_instruction(int current_address) {
-	quint8 buf[edb::Instruction::MAX_SIZE + 1];
+	quint8 buf[edb::Instruction::MaxSize + 1];
 
 	// do the longest read we can while still not passing the region end
 	size_t buf_size = sizeof(buf);
@@ -1644,7 +1641,7 @@ void QDisassemblyView::resizeEvent(QResizeEvent *) {
 	const int line_height     = this->line_height();
 	const int lines_to_render = 1 + (viewport()->height() / line_height);
 
-	instructionBuffer_.resize(edb::Instruction::MAX_SIZE * lines_to_render);
+	instructionBuffer_.resize(edb::Instruction::MaxSize * lines_to_render);
 
 	// Make PageUp/PageDown scroll through the whole page, but leave the line at
 	// the top/bottom visible
@@ -1799,7 +1796,7 @@ Result<int, QString> QDisassemblyView::get_instruction_size(edb::address_t addre
 
 	Q_ASSERT(region_);
 
-	quint8 buf[edb::Instruction::MAX_SIZE];
+	quint8 buf[edb::Instruction::MaxSize];
 
 	// do the longest read we can while still not crossing region end
 	int buf_size = sizeof(buf);
@@ -1874,7 +1871,7 @@ bool QDisassemblyView::event(QEvent *event) {
 
 				const edb::address_t address = addressFromPoint(helpEvent->pos());
 
-				quint8 buf[edb::Instruction::MAX_SIZE];
+				quint8 buf[edb::Instruction::MaxSize];
 
 				// do the longest read we can while still not passing the region end
 				size_t buf_size = std::min<edb::address_t>((region_->end() - address), sizeof(buf));

@@ -62,7 +62,7 @@ Result<QString, QString> CommentServer::resolveFunctionCall(edb::address_t addre
 	// TODO(eteran): portability warning, makes assumptions on the size of a call
 	if (IProcess *process = edb::v1::debugger_core->process()) {
 
-		uint8_t buffer[edb::Instruction::MAX_SIZE];
+		uint8_t buffer[edb::Instruction::MaxSize];
 
 		if (process->readBytes(address - CallMaxSize, buffer, sizeof(buffer))) {
 			for (int i = (CallMaxSize - CallMinSize); i >= 0; --i) {

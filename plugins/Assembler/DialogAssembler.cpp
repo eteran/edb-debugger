@@ -139,7 +139,7 @@ void DialogAssembler::setAddress(edb::address_t address) {
 	address_ = address;
 	ui.address->setText(edb::v1::format_pointer(address_));
 
-	quint8 buffer[edb::Instruction::MAX_SIZE];
+	quint8 buffer[edb::Instruction::MaxSize];
 	if (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 		edb::Instruction inst(buffer, buffer + size, address);
 		if (inst) {
