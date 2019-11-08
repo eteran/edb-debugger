@@ -561,7 +561,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int statu
 	 * user clicks resume, that the correct active thread gets (or doesn't)
 	 * get signals, and the rest get resumed properly.
 	 *
-	 * To do this, we simply only alter the active_thread_ variable if this
+     * To do this, we simply only alter the activeThread_ variable if this
 	 * event was the first we saw after a resume/run (phew!).*/
 	if (waitedThreads_.size() == 1) {
 		activeThread_ = tid;
@@ -596,7 +596,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int statu
 		const auto &thread = *it;
 		if (thread->singleStepBreakpoint) {
 
-			remove_breakpoint(thread->singleStepBreakpoint->address());
+            removeBreakpoint(thread->singleStepBreakpoint->address());
 			thread->singleStepBreakpoint = nullptr;
 
 			assert(e->siginfo_.si_signo == SIGTRAP); // signo must have already be converted to SIGTRAP if needed
@@ -847,22 +847,22 @@ void DebuggerCore::detectCpuMode() {
 	}
 #elif defined(EDB_ARM32)
 	errno           = 0;
-	const auto cpsr = ptrace(PTRACE_PEEKUSER, active_thread_, sizeof(long) * 16, 0L);
+    const auto cpsr = ptrace(PTRACE_PEEKUSER, activeThread_, sizeof(long) * 16, 0L);
 	if (!errno) {
 		const bool thumb = cpsr & 0x20;
 		if (thumb) {
-			cpu_mode_ = CpuMode::Thumb;
+            cpuMode_ = CpuMode::Thumb;
 			CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32_THUMB);
 		} else {
-			cpu_mode_ = CpuMode::Arm32;
+            cpuMode_ = CpuMode::ARM32;
 			CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32_ARM);
 		}
 	}
-	pointer_size_ = sizeof(quint32);
+    pointerSize_ = sizeof(quint32);
 #elif defined(EDB_ARM64)
-	cpu_mode_ = CpuMode::Arm64;
+    cpuMode_ = CpuMode::ARM64;
 	CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM64);
-	pointer_size_ = sizeof(quint64);
+    pointerSize_ = sizeof(quint64);
 #else
 #error "Unsupported Architecture"
 #endif

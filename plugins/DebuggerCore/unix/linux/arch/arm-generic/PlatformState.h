@@ -51,7 +51,7 @@ public:
 	QString flagsToString() const override;
 	QString flagsToString(edb::reg_t flags) const override;
 	Register value(const QString &reg) const override;
-    Register instructionPointeRegister() const override;
+    Register instructionPointerRegister() const override;
     Register flagsRegister() const override;
     edb::address_t framePointer() const override;
     edb::address_t instructionPointer() const override;
@@ -68,7 +68,7 @@ public:
     void setRegister(const QString &name, edb::reg_t value) override;
     Register gpRegister(size_t n) const override;
 
-    Register archRregister(uint64_t type, size_t n) const override {
+    Register archRegister(uint64_t type, size_t n) const override {
 		return Register();
 	}
 
