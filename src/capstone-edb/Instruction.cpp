@@ -89,6 +89,7 @@ bool KxRegisterPresent(const Instruction &insn) {
 	return false;
 }
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, const Operand &operand, bool canBeNonSIMD = false) {
 
 	if (!canBeNonSIMD)
@@ -109,6 +110,7 @@ std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, co
 
 	return number;
 }
+#endif
 
 }
 
@@ -524,6 +526,8 @@ bool KxRegisterPresent(const Instruction &insn) {
 		if (op->type == X86_OP_REG && X86_REG_K0 <= op->reg && op->reg <= X86_REG_K7)
 			return true;
 	}
+#else
+    (void)insn;
 #endif
 	return false;
 }
@@ -902,7 +906,8 @@ bool is_SIMD_PD(const Operand &operand) {
 		return false;
 	}
 #else
-	(void)operand;
+    (void)operand;
+    return false;
 #endif
 }
 
