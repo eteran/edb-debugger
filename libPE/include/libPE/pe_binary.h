@@ -36,7 +36,7 @@ using ULONG     = uint32_t;
 using UINT      = uint32_t;
 using ULONGLONG = uint64_t;
 using LONGLONG  = int64_t;
-#define IMAGE_NUMBEROF_DIRECTORY_ENTRIES 16
+constexpr int IMAGE_NUMBEROF_DIRECTORY_ENTRIES = 16;
 #endif
 
 namespace libPE {
