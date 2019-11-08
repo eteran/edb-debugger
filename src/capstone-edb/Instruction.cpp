@@ -516,20 +516,6 @@ std::string Formatter::register_name(unsigned int reg) const {
 	return str;
 }
 
-bool KxRegisterPresent(const Instruction &insn) {
-#if defined(EDB_X86) || defined(EDB_X86_64)
-	for (std::size_t i = 0; i < insn.operand_count(); ++i) {
-		const auto op = insn[i];
-
-		if (op->type == X86_OP_REG && X86_REG_K0 <= op->reg && op->reg <= X86_REG_K7)
-			return true;
-	}
-#else
-    (void)insn;
-#endif
-	return false;
-}
-
 bool is_SIMD_PS(const Operand &operand) {
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
