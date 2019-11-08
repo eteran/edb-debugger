@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Util.h"
 #include "edb.h"
 
+#include <QWidget>
 #include <cstdint>
 
 using std::uint32_t;
@@ -114,9 +115,9 @@ Result<edb::address_t, QString> adjustR15Value(const edb::Instruction &insn, con
 	if (regIndex == 15) {
 		// Even if current state's PC weren't on this instruction, the instruction still refers to
 		// self, so use `insn` instead of `state` to get the value.
-		const auto cpuMode = edb::v1::debugger_core->cpu_mode();
+        const auto cpuMode = edb::v1::debugger_core->cpuMode();
 		switch (cpuMode) {
-		case IDebugger::CpuMode::ARM32:
+        case IDebugger::CpuMode::ARM32:
 			value = insn.rva() + 8;
 			break;
 		case IDebugger::CpuMode::Thumb:
