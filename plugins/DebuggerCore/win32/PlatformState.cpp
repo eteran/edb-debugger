@@ -26,8 +26,14 @@ namespace DebuggerCorePlugin {
 
 namespace {
 
-// little-endian!
+
+/**
+ * @brief read_float80
+ * @param buffer
+ * @return
+ */
 double read_float80(const uint8_t buffer[10]) {
+    // little-endian!
 	//80 bit floating point value according to IEEE-754:
 	//1 bit sign, 15 bit exponent, 64 bit mantissa
 
@@ -74,18 +80,19 @@ double read_float80(const uint8_t buffer[10]) {
 }
 }
 
-//------------------------------------------------------------------------------
-// Name: PlatformState::clone
-// Desc: makes a copy of the state object
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::clone
+ * @return a copy of the state object
+ */
 std::unique_ptr<IState> PlatformState::clone() const {
 	return std::make_unique<PlatformState>(*this);
 }
 
-//------------------------------------------------------------------------------
-// Name: flagsToString
-// Desc: returns the flags in a string form appropriate for this platform
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::flagsToString
+ * @param flags
+ * @return the flags in a string form appropriate for this platform
+ */
 QString PlatformState::flagsToString(edb::reg_t flags) const {
 	char buf[14];
 	qsnprintf(
@@ -103,19 +110,19 @@ QString PlatformState::flagsToString(edb::reg_t flags) const {
 	return buf;
 }
 
-//------------------------------------------------------------------------------
-// Name: flagsToString
-// Desc: returns the flags in a string form appropriate for this platform
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::flagsToString
+ * @return the flags in a string form appropriate for this platform
+ */
 QString PlatformState::flagsToString() const {
 	return flagsToString(flags());
 }
 
-//------------------------------------------------------------------------------
-// Name: value
-// Desc: returns a Register object which represents the register with the name
-//       supplied
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::value
+ * @param reg
+ * @return a Register object which represents the register with the name supplied
+ */
 Register PlatformState::value(const QString &reg) const {
 	const QString lreg = reg.toLower();
 
@@ -421,10 +428,10 @@ Register PlatformState::value(const QString &reg) const {
 	return Register();
 }
 
-//------------------------------------------------------------------------------
-// Name: framePointer
-// Desc: returns what is conceptually the frame pointer for this platform
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::framePointer
+ * @return what is conceptually the frame pointer for this platform
+ */
 edb::address_t PlatformState::framePointer() const {
 #if defined(EDB_X86)
 	return context32_.Ebp;
@@ -433,10 +440,10 @@ edb::address_t PlatformState::framePointer() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: instructionPointer
-// Desc: returns the instruction pointer for this platform
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::instructionPointer
+ * @return the instruction pointer for this platform
+ */
 edb::address_t PlatformState::instructionPointer() const {
 #if defined(EDB_X86)
 	return context32_.Eip;
@@ -445,10 +452,10 @@ edb::address_t PlatformState::instructionPointer() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: stackPointer
-// Desc: returns the stack pointer for this platform
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::stackPointer
+ * @return the stack pointer for this platform
+ */
 edb::address_t PlatformState::stackPointer() const {
 #if defined(EDB_X86)
 	return context32_.Esp;
@@ -457,10 +464,11 @@ edb::address_t PlatformState::stackPointer() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: debugRegister
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::debugRegister
+ * @param n
+ * @return
+ */
 edb::reg_t PlatformState::debugRegister(size_t n) const {
 #if defined(EDB_X86)
 	switch (n) {
@@ -513,10 +521,10 @@ edb::reg_t PlatformState::debugRegister(size_t n) const {
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name: flags
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::flags
+ * @return
+ */
 edb::reg_t PlatformState::flags() const {
 #if defined(EDB_X86)
 	return context32_.EFlags;
@@ -525,10 +533,11 @@ edb::reg_t PlatformState::flags() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: fpu_register
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::fpu_register
+ * @param n
+ * @return
+ */
 long double PlatformState::fpu_register(int n) const {
 	double ret = 0.0;
 
@@ -561,10 +570,11 @@ long double PlatformState::fpu_register(int n) const {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: mmx_register
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::mmx_register
+ * @param n
+ * @return
+ */
 quint64 PlatformState::mmx_register(int n) const {
 	quint64 ret = 0;
 
@@ -586,10 +596,11 @@ quint64 PlatformState::mmx_register(int n) const {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: xmm_register
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::xmm_register
+ * @param n
+ * @return
+ */
 QByteArray PlatformState::xmm_register(int n) const {
 	QByteArray ret(16, 0);
 
@@ -616,10 +627,10 @@ QByteArray PlatformState::xmm_register(int n) const {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: adjustStack
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::adjustStack
+ * @param bytes
+ */
 void PlatformState::adjustStack(int bytes) {
 #if defined(EDB_X86)
 	context32_.Esp += bytes;
@@ -632,10 +643,9 @@ void PlatformState::adjustStack(int bytes) {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: clear
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::clear
+ */
 void PlatformState::clear() {
 	context32_ = {};
 #if defined(EDB_X86_64)
@@ -645,10 +655,11 @@ void PlatformState::clear() {
 	gs_base_ = 0;
 }
 
-//------------------------------------------------------------------------------
-// Name: setDebugRegister
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::setDebugRegister
+ * @param n
+ * @param value
+ */
 void PlatformState::setDebugRegister(size_t n, edb::reg_t value) {
 #if defined(EDB_X86)
 	switch (n) {
@@ -724,10 +735,10 @@ void PlatformState::setDebugRegister(size_t n, edb::reg_t value) {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: setFlags
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::setFlags
+ * @param flags
+ */
 void PlatformState::setFlags(edb::reg_t flags) {
 #if defined(EDB_X86)
 	context32_.EFlags = flags;
@@ -740,10 +751,10 @@ void PlatformState::setFlags(edb::reg_t flags) {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: setInstructionPointer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::setInstructionPointer
+ * @param value
+ */
 void PlatformState::setInstructionPointer(edb::address_t value) {
 #if defined(EDB_X86)
 	context32_.Eip = value;
@@ -756,10 +767,11 @@ void PlatformState::setInstructionPointer(edb::address_t value) {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: setRegister
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::setRegister
+ * @param name
+ * @param value
+ */
 void PlatformState::setRegister(const QString &name, edb::reg_t value) {
 
 	const QString lreg = name.toLower();
@@ -886,6 +898,10 @@ void PlatformState::setRegister(const QString &name, edb::reg_t value) {
 #endif
 }
 
+/**
+ * @brief PlatformState::instructionPointerRegister
+ * @return
+ */
 Register PlatformState::instructionPointerRegister() const {
 #if defined(EDB_X86_64)
 	if (!isWow64_) {
@@ -898,6 +914,10 @@ Register PlatformState::instructionPointerRegister() const {
 #endif
 }
 
+/**
+ * @brief PlatformState::flagsRegister
+ * @return
+ */
 Register PlatformState::flagsRegister() const {
 #if defined(EDB_X86_64)
 	if (!isWow64_) {
@@ -911,6 +931,11 @@ Register PlatformState::flagsRegister() const {
 	return Register();
 }
 
+/**
+ * @brief PlatformState::getThreadState
+ * @param hThread
+ * @param isWow64
+ */
 void PlatformState::getThreadState(HANDLE hThread, bool isWow64) {
 #if defined(EDB_X86)
 	context32_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
@@ -956,6 +981,10 @@ void PlatformState::getThreadState(HANDLE hThread, bool isWow64) {
 #endif
 }
 
+/**
+ * @brief PlatformState::setThreadState
+ * @param hThread
+ */
 void PlatformState::setThreadState(HANDLE hThread) const {
 #if defined(EDB_X86)
 	SetThreadContext(hThread, &context32_);
@@ -968,10 +997,12 @@ void PlatformState::setThreadState(HANDLE hThread) const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: arch_register
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformState::archRegister
+ * @param type
+ * @param n
+ * @return
+ */
 Register PlatformState::archRegister(uint64_t type, size_t n) const {
 	switch (type) {
 	case edb::string_hash("mmx"):

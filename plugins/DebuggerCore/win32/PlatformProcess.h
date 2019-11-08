@@ -110,8 +110,8 @@ private:
 	edb::address_t imageBase_    = 0;
 	DebuggerCore *core_          = nullptr;
 	HANDLE hProcess_             = nullptr;
-	QMap<edb::address_t, Patch> patches_;
-	DEBUG_EVENT lastEvent_;
+    QMap<edb::address_t, Patch> patches_;
+    DEBUG_EVENT lastEvent_ = {};
 };
 
 }

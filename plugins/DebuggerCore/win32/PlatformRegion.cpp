@@ -34,21 +34,38 @@ constexpr IRegion::permissions_t KnownPermissions = (PAGE_NOACCESS | PAGE_READON
 
 }
 
+/**
+ * @brief PlatformRegion::PlatformRegion
+ * @param start
+ * @param end
+ * @param base
+ * @param name
+ * @param permissions
+ */
 PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions)
 	: start_(start), end_(end), base_(base), name_(name), permissions_(permissions) {
 }
 
-PlatformRegion::~PlatformRegion() {
-}
-
+/**
+ * @brief PlatformRegion::clone
+ * @return
+ */
 IRegion *PlatformRegion::clone() const {
 	return new PlatformRegion(start_, end_, base_, name_, permissions_);
 }
 
+/**
+ * @brief PlatformRegion::accessible
+ * @return
+ */
 bool PlatformRegion::accessible() const {
 	return readable() || writable() || executable();
 }
 
+/**
+ * @brief PlatformRegion::readable
+ * @return
+ */
 bool PlatformRegion::readable() const {
 	switch (permissions_ & KnownPermissions) { // ignore modifiers
 	case PAGE_EXECUTE_READ:
@@ -61,6 +78,10 @@ bool PlatformRegion::readable() const {
 	}
 }
 
+/**
+ * @brief PlatformRegion::writable
+ * @return
+ */
 bool PlatformRegion::writable() const {
 	switch (permissions_ & KnownPermissions) { // ignore modifiers
 	case PAGE_EXECUTE_READWRITE:
@@ -73,6 +94,10 @@ bool PlatformRegion::writable() const {
 	}
 }
 
+/**
+ * @brief PlatformRegion::executable
+ * @return
+ */
 bool PlatformRegion::executable() const {
 	switch (permissions_ & KnownPermissions) { // ignore modifiers
 	case PAGE_EXECUTE:
@@ -85,10 +110,20 @@ bool PlatformRegion::executable() const {
 	}
 }
 
+/**
+ * @brief PlatformRegion::size
+ * @return
+ */
 size_t PlatformRegion::size() const {
 	return end_ - start_;
 }
 
+/**
+ * @brief PlatformRegion::setPermissions
+ * @param read
+ * @param write
+ * @param execute
+ */
 void PlatformRegion::setPermissions(bool read, bool write, bool execute) {
 	if (HANDLE ph = OpenProcess(PROCESS_VM_OPERATION, FALSE, edb::v1::debugger_core->process()->pid())) {
 		DWORD prot = PAGE_NOACCESS;
@@ -131,30 +166,58 @@ void PlatformRegion::setPermissions(bool read, bool write, bool execute) {
 	}
 }
 
+/**
+ * @brief PlatformRegion::start
+ * @return
+ */
 edb::address_t PlatformRegion::start() const {
 	return start_;
 }
 
+/**
+ * @brief PlatformRegion::end
+ * @return
+ */
 edb::address_t PlatformRegion::end() const {
 	return end_;
 }
 
+/**
+ * @brief PlatformRegion::base
+ * @return
+ */
 edb::address_t PlatformRegion::base() const {
 	return base_;
 }
 
+/**
+ * @brief PlatformRegion::name
+ * @return
+ */
 QString PlatformRegion::name() const {
 	return name_;
 }
 
+/**
+ * @brief PlatformRegion::permissions
+ * @return
+ */
 IRegion::permissions_t PlatformRegion::permissions() const {
 	return permissions_;
 }
 
+/**
+ * @brief PlatformRegion::setStart
+ * @param address
+ */
 void PlatformRegion::setStart(edb::address_t address) {
 	start_ = address;
 }
 
+/**
+ * @brief PlatformRegion::setEnd
+ * @param address
+ */
 void PlatformRegion::setEnd(edb::address_t address) {
 	end_ = address;
 }

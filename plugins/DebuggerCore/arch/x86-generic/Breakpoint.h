@@ -23,10 +23,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Util.h"
 #include <array>
 #include <vector>
+#include <QCoreApplication>
 
 namespace DebuggerCorePlugin {
 
 class Breakpoint final : public IBreakpoint {
+    Q_DECLARE_TR_FUNCTIONS(Breakpoint)
 public:
 	enum class TypeId {
 		Automatic = static_cast<int>(IBreakpoint::TypeId::Automatic),
