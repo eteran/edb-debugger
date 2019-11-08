@@ -75,7 +75,7 @@ timespec duration_to_timespec(std::chrono::milliseconds msecs) {
 }
 
 namespace detail {
-
+namespace {
 /**
  * @brief sigtimedwait
  * @param set
@@ -91,6 +91,7 @@ int sigtimedwait(const sigset_t *set, siginfo_t *info, const struct timespec *ti
 	return ret;
 }
 
+}
 }
 
 /**

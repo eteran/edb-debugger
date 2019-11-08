@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "DebugEventHandlers.h"
 #include "Debugger.h"
+#include "DebuggerInternal.h"
 #include "DialogInputBinaryString.h"
 #include "DialogInputValue.h"
 #include "DialogOptions.h"

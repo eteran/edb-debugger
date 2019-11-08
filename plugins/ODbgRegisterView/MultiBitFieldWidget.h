@@ -6,7 +6,7 @@
 
 namespace ODbgRegisterView {
 
-class BitFieldDescription;
+struct BitFieldDescription;
 
 class MultiBitFieldWidget final : public ValueField {
 	Q_OBJECT

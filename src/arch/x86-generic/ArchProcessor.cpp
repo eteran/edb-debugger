@@ -35,8 +35,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDomDocument>
 #include <QFile>
 #include <QVector>
-#include <QXmlQuery>
 #include <QWidget>
+#include <QXmlQuery>
 
 #include <cctype>
 #include <climits>

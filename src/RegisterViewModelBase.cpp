@@ -37,6 +37,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/range/adaptor/reversed.hpp>
 
+namespace RegisterViewModelBase {
+
 namespace {
 
 template <class T1, class T2>
@@ -45,9 +47,24 @@ T1 *checked_cast(T2 object) {
 	return static_cast<T1 *>(object);
 }
 
+RegisterViewItem *get_item(const QModelIndex &index) {
+	if (!index.isValid()) {
+		return nullptr;
+	}
+
+	return static_cast<RegisterViewItem *>(index.internalPointer());
 }
 
-namespace RegisterViewModelBase {
+QString toString(const edb::value80 &value, NumberDisplayMode format) {
+	switch (format) {
+	case NumberDisplayMode::Float:
+		return format_float(value);
+	case NumberDisplayMode::Hex:
+		return value.toHexString();
+	default:
+		return QString("bug: format=%1").arg(static_cast<int>(format));
+	}
+}
 
 // Sets register with name `name` to value `value`
 // Returns whether it succeeded
@@ -102,12 +119,6 @@ bool set_debugee_register(const QString &name, const T &value, T &resultingValue
 	return false;
 }
 
-RegisterViewItem *get_item(const QModelIndex &index) {
-	if (!index.isValid()) {
-		return nullptr;
-	}
-
-	return static_cast<RegisterViewItem *>(index.internalPointer());
 }
 
 // ----------------- RegisterViewItem impl ---------------------------
@@ -893,17 +904,6 @@ typename std::enable_if<(sizeof(SizingType) >= sizeof(float) && sizeof(SizingTyp
 template <class SizingType>
 typename std::enable_if<sizeof(SizingType) < sizeof(float), QString>::type toString(SizingType value, NumberDisplayMode format) {
 	return format == NumberDisplayMode::Float ? "(too small element width for float)" : util::format_int(value, format);
-}
-
-QString toString(const edb::value80 &value, NumberDisplayMode format) {
-	switch (format) {
-	case NumberDisplayMode::Float:
-		return format_float(value);
-	case NumberDisplayMode::Hex:
-		return value.toHexString();
-	default:
-		return QString("bug: format=%1").arg(static_cast<int>(format));
-	}
 }
 
 template <class StoredType, class SizingType>

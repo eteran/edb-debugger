@@ -27,7 +27,7 @@ class QSortFilterProxyModel;
 
 namespace HeapAnalyzerPlugin {
 
-class Result;
+struct Result;
 class ResultViewModel;
 
 class DialogHeap : public QDialog {

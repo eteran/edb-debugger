@@ -66,8 +66,9 @@ enum {
 	FIS_ROW,
 	FIP_ROW,
 	FDS_ROW,
-	FDP_ROW
+	FDP_ROW,
 };
+
 using GPR32      = typename Regs<32>::GPR;
 using GPR64      = typename Regs<64>::GPR;
 using EFLAGS     = typename Regs<32>::FLAGS;
@@ -83,7 +84,7 @@ using SSEReg     = RegisterViewModelBase::SIMDRegister<edb::value128>;
 using AVXReg     = RegisterViewModelBase::SIMDRegister<edb::value256>;
 using MXCSR      = RegisterViewModelBase::FlagsRegister<edb::value32>;
 
-std::vector<RegisterViewModelBase::BitFieldDescriptionEx> flagsDescription = {
+const std::vector<RegisterViewModelBase::BitFieldDescriptionEx> flagsDescription = {
 	{QLatin1String("CF"), 0, 1},
 	{QLatin1String("PF"), 2, 1},
 	{QLatin1String("AF"), 4, 1},
@@ -101,15 +102,17 @@ std::vector<RegisterViewModelBase::BitFieldDescriptionEx> flagsDescription = {
 	{QLatin1String("AC"), 18, 1}, // this one can be set by the application and is visible to debugger
 								  //	{QLatin1String("VIF"),19,1},
 								  //	{QLatin1String("VIP"),20,1},
-	{QLatin1String("ID"), 21, 1}  // this one can be set by the application and is visible to debugger
+	{QLatin1String("ID"), 21, 1}, // this one can be set by the application and is visible to debugger
 };
 
-static const std::vector<QString> roundingStrings{QObject::tr("Rounding to nearest"),
-												  QObject::tr("Rounding down"),
-												  QObject::tr("Rounding up"),
-												  QObject::tr("Rounding toward zero")};
+const std::vector<QString> roundingStrings = {
+	QObject::tr("Rounding to nearest"),
+	QObject::tr("Rounding down"),
+	QObject::tr("Rounding up"),
+	QObject::tr("Rounding toward zero"),
+};
 
-std::vector<RegisterViewModelBase::BitFieldDescriptionEx> FCRDescription = {
+const std::vector<RegisterViewModelBase::BitFieldDescriptionEx> FCRDescription = {
 	{QLatin1String("IM"), 0, 1},
 	{QLatin1String("DM"), 1, 1},
 	{QLatin1String("ZM"), 2, 1},
@@ -118,9 +121,10 @@ std::vector<RegisterViewModelBase::BitFieldDescriptionEx> FCRDescription = {
 	{QLatin1String("PM"), 5, 1},
 	{QLatin1String("PC"), 8, 2, {QObject::tr("Single precision (24 bit complete mantissa)"), QString(), QObject::tr("Double precision (53 bit complete mantissa)"), QObject::tr("Extended precision (64 bit mantissa)")}},
 	{QLatin1String("RC"), 10, 2, roundingStrings},
-	{QLatin1String("X"), 12, 1}};
+	{QLatin1String("X"), 12, 1},
+};
 
-std::vector<RegisterViewModelBase::BitFieldDescriptionEx> FSRDescription = {
+const std::vector<RegisterViewModelBase::BitFieldDescriptionEx> FSRDescription = {
 	{QLatin1String("IE"), 0, 1},
 	{QLatin1String("DE"), 1, 1},
 	{QLatin1String("ZE"), 2, 1},
@@ -134,88 +138,92 @@ std::vector<RegisterViewModelBase::BitFieldDescriptionEx> FSRDescription = {
 	{QLatin1String("C2"), 10, 1},
 	{QLatin1String("TOP"), 11, 3},
 	{QLatin1String("C3"), 14, 1},
-	{QLatin1String("B"), 15, 1}};
+	{QLatin1String("B"), 15, 1},
+};
 
-static const std::vector<QString> tagStrings = {
+const std::vector<QString> tagStrings = {
 	QObject::tr("Valid"),
 	QObject::tr("Zero"),
 	QObject::tr("Special"),
-	QObject::tr("Empty")};
+	QObject::tr("Empty"),
+};
 
-std::vector<RegisterViewModelBase::BitFieldDescriptionEx> FTRDescription =
-	{
-		{QLatin1String("T0"), 0, 2, tagStrings},
-		{QLatin1String("T1"), 2, 2, tagStrings},
-		{QLatin1String("T2"), 4, 2, tagStrings},
-		{QLatin1String("T3"), 6, 2, tagStrings},
-		{QLatin1String("T4"), 8, 2, tagStrings},
-		{QLatin1String("T5"), 10, 2, tagStrings},
-		{QLatin1String("T6"), 12, 2, tagStrings},
-		{QLatin1String("T7"), 14, 2, tagStrings}};
+const std::vector<RegisterViewModelBase::BitFieldDescriptionEx> FTRDescription = {
+	{QLatin1String("T0"), 0, 2, tagStrings},
+	{QLatin1String("T1"), 2, 2, tagStrings},
+	{QLatin1String("T2"), 4, 2, tagStrings},
+	{QLatin1String("T3"), 6, 2, tagStrings},
+	{QLatin1String("T4"), 8, 2, tagStrings},
+	{QLatin1String("T5"), 10, 2, tagStrings},
+	{QLatin1String("T6"), 12, 2, tagStrings},
+	{QLatin1String("T7"), 14, 2, tagStrings},
+};
 
-std::vector<RegisterViewModelBase::BitFieldDescriptionEx> MXCSRDescription =
-	{
-		{QLatin1String("IE"), 0, 1},
-		{QLatin1String("DE"), 1, 1},
-		{QLatin1String("ZE"), 2, 1},
-		{QLatin1String("OE"), 3, 1},
-		{QLatin1String("UE"), 4, 1},
-		{QLatin1String("PE"), 5, 1},
-		{QLatin1String("DAZ"), 6, 1},
-		{QLatin1String("IM"), 7, 1},
-		{QLatin1String("DM"), 8, 1},
-		{QLatin1String("ZM"), 9, 1},
-		{QLatin1String("OM"), 10, 1},
-		{QLatin1String("UM"), 11, 1},
-		{QLatin1String("PM"), 12, 1},
-		{QLatin1String("RC"), 13, 2, roundingStrings},
-		{QLatin1String("FZ"), 15, 1}};
+const std::vector<RegisterViewModelBase::BitFieldDescriptionEx> MXCSRDescription = {
+	{QLatin1String("IE"), 0, 1},
+	{QLatin1String("DE"), 1, 1},
+	{QLatin1String("ZE"), 2, 1},
+	{QLatin1String("OE"), 3, 1},
+	{QLatin1String("UE"), 4, 1},
+	{QLatin1String("PE"), 5, 1},
+	{QLatin1String("DAZ"), 6, 1},
+	{QLatin1String("IM"), 7, 1},
+	{QLatin1String("DM"), 8, 1},
+	{QLatin1String("ZM"), 9, 1},
+	{QLatin1String("OM"), 10, 1},
+	{QLatin1String("UM"), 11, 1},
+	{QLatin1String("PM"), 12, 1},
+	{QLatin1String("RC"), 13, 2, roundingStrings},
+	{QLatin1String("FZ"), 15, 1},
+};
 
-std::vector<RegisterViewModelBase::BitFieldDescriptionEx> DR6Description =
-	{
-		{"B0", 0, 1},
-		{"B1", 1, 1},
-		{"B2", 2, 1},
-		{"B3", 3, 1},
-		{"BD", 13, 1},
-		{"BS", 14, 1},
-		{"BT", 15, 1},
-		{"RTM", 16, 1}};
+const std::vector<RegisterViewModelBase::BitFieldDescriptionEx> DR6Description = {
+	{"B0", 0, 1},
+	{"B1", 1, 1},
+	{"B2", 2, 1},
+	{"B3", 3, 1},
+	{"BD", 13, 1},
+	{"BS", 14, 1},
+	{"BT", 15, 1},
+	{"RTM", 16, 1},
+};
 
-static const std::vector<QString> DR7_RW{QObject::tr("Execution"),
-										 QObject::tr("Data Writes"),
-										 QObject::tr("I/O"),
-										 QObject::tr("Data R/W")};
+const std::vector<QString> DR7_RW = {
+	QObject::tr("Execution"),
+	QObject::tr("Data Writes"),
+	QObject::tr("I/O"),
+	QObject::tr("Data R/W"),
+};
 
-static const std::vector<QString> DR7_LEN{QObject::tr("1 byte"),
-										  QObject::tr("2 bytes"),
-										  QObject::tr("8 bytes"), // sic!
-										  QObject::tr("4 bytes")};
+const std::vector<QString> DR7_LEN = {
+	QObject::tr("1 byte"),
+	QObject::tr("2 bytes"),
+	QObject::tr("8 bytes"), // sic!
+	QObject::tr("4 bytes"),
+};
 
-std::vector<RegisterViewModelBase::BitFieldDescriptionEx> DR7Description =
-	{
-		{QLatin1String("L0"), 0, 1},
-		{QLatin1String("G0"), 1, 1},
-		{QLatin1String("L1"), 2, 1},
-		{QLatin1String("G1"), 3, 1},
-		{QLatin1String("L2"), 4, 1},
-		{QLatin1String("G2"), 5, 1},
-		{QLatin1String("L3"), 6, 1},
-		{QLatin1String("G3"), 7, 1},
-		{QLatin1String("LE"), 8, 1},
-		{QLatin1String("GE"), 9, 1},
-		{QLatin1String("RTM"), 11, 1},
-		{QLatin1String("GD"), 13, 1},
-		{QLatin1String("R/W0"), 16, 2, DR7_RW},
-		{QLatin1String("LEN0"), 18, 2, DR7_LEN},
-		{QLatin1String("R/W1"), 20, 2, DR7_RW},
-		{QLatin1String("LEN1"), 22, 2, DR7_LEN},
-		{QLatin1String("R/W2"), 24, 2, DR7_RW},
-		{QLatin1String("LEN2"), 26, 2, DR7_LEN},
-		{QLatin1String("R/W3"), 28, 2, DR7_RW},
-		{QLatin1String("LEN3"), 30, 2, DR7_LEN}};
-
-}
+std::vector<RegisterViewModelBase::BitFieldDescriptionEx> DR7Description = {
+	{QLatin1String("L0"), 0, 1},
+	{QLatin1String("G0"), 1, 1},
+	{QLatin1String("L1"), 2, 1},
+	{QLatin1String("G1"), 3, 1},
+	{QLatin1String("L2"), 4, 1},
+	{QLatin1String("G2"), 5, 1},
+	{QLatin1String("L3"), 6, 1},
+	{QLatin1String("G3"), 7, 1},
+	{QLatin1String("LE"), 8, 1},
+	{QLatin1String("GE"), 9, 1},
+	{QLatin1String("RTM"), 11, 1},
+	{QLatin1String("GD"), 13, 1},
+	{QLatin1String("R/W0"), 16, 2, DR7_RW},
+	{QLatin1String("LEN0"), 18, 2, DR7_LEN},
+	{QLatin1String("R/W1"), 20, 2, DR7_RW},
+	{QLatin1String("LEN1"), 22, 2, DR7_LEN},
+	{QLatin1String("R/W2"), 24, 2, DR7_RW},
+	{QLatin1String("LEN2"), 26, 2, DR7_LEN},
+	{QLatin1String("R/W3"), 28, 2, DR7_RW},
+	{QLatin1String("LEN3"), 30, 2, DR7_LEN},
+};
 
 void addGPRs32(RegisterViewModelBase::Category *gprs32) {
 	gprs32->addRegister(std::make_unique<Regs<32>::GPR>("EAX"));
@@ -265,8 +273,9 @@ void addSegRegs(RegisterViewModelBase::Category *cat) {
 
 template <std::size_t bitSize>
 void addFPURegs(RegisterViewModelBase::Category *fpuRegs) {
-	for (std::size_t i = 0; i < FPU_REG_COUNT; ++i)
+	for (std::size_t i = 0; i < FPU_REG_COUNT; ++i) {
 		fpuRegs->addRegister(std::make_unique<FPUReg>(QString("R%1").arg(i)));
+	}
 	fpuRegs->addRegister(std::make_unique<FPUWord>("FCR", FCRDescription));
 	fpuRegs->addRegister(std::make_unique<FPUWord>("FSR", FSRDescription));
 	fpuRegs->addRegister(std::make_unique<FPUWord>("FTR", FTRDescription));
@@ -281,42 +290,58 @@ void addFPURegs(RegisterViewModelBase::Category *fpuRegs) {
 template <std::size_t bitSize>
 void addDebugRegs(RegisterViewModelBase::Category *dbgRegs) {
 	using Rs = Regs<bitSize>;
-	for (std::size_t i = 0; i < 4; ++i)
+	for (std::size_t i = 0; i < 4; ++i) {
 		dbgRegs->addRegister(std::make_unique<typename Rs::IP>(QString("DR%1").arg(i)));
+	}
+
 	dbgRegs->addRegister(std::make_unique<typename Rs::FLAGS>(QString("DR6"), DR6Description));
 	dbgRegs->addRegister(std::make_unique<typename Rs::FLAGS>(QString("DR7"), DR7Description));
 }
 
-static const std::vector<NumberDisplayMode> MMXFormats = {
-	NumberDisplayMode::Hex,
-	NumberDisplayMode::Signed,
-	NumberDisplayMode::Unsigned};
-
-static const std::vector<NumberDisplayMode> SSEAVXFormats = {
+const std::vector<NumberDisplayMode> MMXFormats = {
 	NumberDisplayMode::Hex,
 	NumberDisplayMode::Signed,
 	NumberDisplayMode::Unsigned,
-	NumberDisplayMode::Float};
+};
+
+const std::vector<NumberDisplayMode> SSEAVXFormats = {
+	NumberDisplayMode::Hex,
+	NumberDisplayMode::Signed,
+	NumberDisplayMode::Unsigned,
+	NumberDisplayMode::Float,
+};
 
 void addMMXRegs(RegisterViewModelBase::SIMDCategory *mmxRegs) {
 	using namespace RegisterViewModelBase;
 	// TODO: MMXReg should have possibility to be shown in byte/word/dword signed/unsigned/hex formats
-	for (std::size_t i = 0; i < MMX_REG_COUNT; ++i)
+	for (std::size_t i = 0; i < MMX_REG_COUNT; ++i) {
 		mmxRegs->addRegister(std::make_unique<MMXReg>(QString("MM%1").arg(i), MMXFormats));
+	}
 }
 
 void addSSERegs(RegisterViewModelBase::SIMDCategory *sseRegs, unsigned regCount) {
-	for (std::size_t i = 0; i < regCount; ++i)
+	for (std::size_t i = 0; i < regCount; ++i) {
 		sseRegs->addRegister(std::make_unique<SSEReg>(QString("XMM%1").arg(i), SSEAVXFormats));
+	}
+
 	sseRegs->addRegister(std::make_unique<MXCSR>("MXCSR", MXCSRDescription));
 }
 
 void addAVXRegs(RegisterViewModelBase::SIMDCategory *avxRegs, unsigned regCount) {
-	for (std::size_t i = 0; i < regCount; ++i)
+	for (std::size_t i = 0; i < regCount; ++i) {
 		avxRegs->addRegister(std::make_unique<AVXReg>(QString("YMM%1").arg(i), SSEAVXFormats));
+	}
 	avxRegs->addRegister(std::make_unique<MXCSR>("MXCSR", MXCSRDescription));
 }
 
+}
+
+/**
+ * @brief RegisterViewModel::data
+ * @param index
+ * @param role
+ * @return
+ */
 QVariant RegisterViewModel::data(const QModelIndex &index, int role) const {
 	if (role == FixedLengthRole) {
 
@@ -340,6 +365,11 @@ QVariant RegisterViewModel::data(const QModelIndex &index, int role) const {
 	return Model::data(index, role);
 }
 
+/**
+ * @brief RegisterViewModel::RegisterViewModel
+ * @param cpuSuppFlags
+ * @param parent
+ */
 RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject *parent)
 	: RegisterViewModelBase::Model(parent),
 	  gprs32(addCategory(tr("General Purpose"))),

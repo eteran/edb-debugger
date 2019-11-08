@@ -30,6 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <gdtoa-desktop.h>
 #endif
 
+namespace {
+
 template <class T>
 struct SpecialValues;
 
@@ -96,6 +98,174 @@ constexpr std::array<std::uint8_t, 16> SpecialValues<long double>::negativeQNaN;
 #endif
 #endif
 
+float toFloatValue(edb::value32 value) {
+	float result;
+	std::memcpy(&result, &value, sizeof(result));
+	return result;
+}
+
+double toFloatValue(edb::value64 value) {
+	double result;
+	std::memcpy(&result, &value, sizeof(result));
+	return result;
+}
+
+long double toFloatValue(edb::value80 value) {
+	return value.toFloatValue();
+}
+
+template <unsigned mantissaLength, typename FloatHolder>
+FloatValueClass ieeeClassify(FloatHolder value) {
+
+	constexpr auto expLength = 8 * sizeof(value) - mantissaLength - 1;
+	constexpr auto expMax    = (1u << expLength) - 1;
+	constexpr auto QNaN_mask = 1ull << (mantissaLength - 1);
+
+	const auto mantissa = value & ((1ull << mantissaLength) - 1);
+	const auto exponent = (value >> mantissaLength) & expMax;
+
+	if (exponent == expMax) {
+		if (mantissa == 0u) {
+			return FloatValueClass::Infinity; // |S|11..11|00..00|
+		} else if (mantissa & QNaN_mask) {
+			return FloatValueClass::QNaN; // |S|11..11|1XX..XX|
+		} else {
+			return FloatValueClass::SNaN; // |S|11..11|0XX..XX|
+		}
+	} else if (exponent == 0u) {
+		if (mantissa == 0u) {
+			return FloatValueClass::Zero; // |S|00..00|00..00|
+		} else {
+			return FloatValueClass::Denormal; // |S|00..00|XX..XX|
+		}
+	} else {
+		return FloatValueClass::Normal;
+	}
+}
+
+#ifdef HAVE_GDTOA
+/*
+ * gdtoa_g_?fmt functions do generally a good job at formatting the numbers in
+ * a form close to that specified in ECMAScript specification (actually the
+ * spec even references this implementation in 7.1.12.1/note3). There are two
+ * issues though with the function, one small and one bigger.
+ *
+ * The small issue is that this function prints numbers x such that 1e-5<|x|<1
+ * without leading zeros (contrary to the spec). It's easy to fix up, and it's
+ * the first thing the following function does.
+ *
+ * The bigger issue is that the specification prescribes to print large numbers
+ * smaller than 1e21 in fixed-point format, and append zeros(!) instead of
+ * actual digits present in the closest representable integer to the base part.
+ *
+ * This can be quite a problem for our users, because it can give a false sense
+ * of precision. E.g., consider the number 1.2345678912345678e20. Closest
+ * representable IEEE 754 binary64 number is 123456789123456778240. Next
+ * representable is 123456789123456794624. Yet gdtoa_g_dfmt (following
+ * ECMAScript) formats it as 123456789123456780000, which, having so many
+ * trailing zeros, misleads the user into thinking that all the digits are
+ * significant (the user may think that e.g. 123456789123456781000 or even
+ * 123456789123456780001 are representable too).
+ *
+ * The following function tries to ensure that such situations never occur: it
+ * takes numeric_limits::digits10 digits as the maximum length of integers (or
+ * maximum value of exponent+1 for fractions) for fixed-point format, and if the
+ * number formatted into 'buffer' is larger than that, it converts the result
+ * into exponential format, removing any trailing zeros.
+ *
+ * Note that in principle, we could use gdtoa_gdtoa directly and format the
+ * number ourselves. But this would result in even more logic to 1) prepare
+ * arguments, 2) actually do the formatting; total of both might be just as
+ * convoluted as the current post-processing logic.
+ */
+const char *fixup_g_Yfmt(char *buffer, int digits10) {
+
+	const size_t len = std::strlen(buffer);
+	const char x0    = buffer[0];
+	const char x1    = buffer[1];
+
+	if (x0 == '.' || (x0 == '-' && x1 == '.')) {
+		// ".235" or "-.235" forms are unreadable, so insert leading zero
+		const size_t posToInsert = x0 == '.' ? 0 : 1;
+		// Give space for the zero: move the remaining line with terminating zero to the right
+		std::memmove(buffer + posToInsert + 1, buffer + posToInsert, len + 1 - posToInsert);
+		buffer[posToInsert] = '0';
+		return buffer;
+	}
+
+	// We want exponential format for numbers which are too imprecise for fixed-point format.
+	// If we find a number with more than digits10 digits before point, we must fix it.
+	int digitCount = 0;
+	int pointPos   = -1;
+	for (int i = 0; i < static_cast<int>(len); ++i) {
+		const char c = buffer[i];
+		// If it's already in exponential format, it's fine, just return it
+		if (c == 'e') {
+			return buffer;
+		}
+
+		if (c == '.') {
+			pointPos = i;
+			continue;
+		} else if ('0' <= c && c <= '9') {
+			++digitCount;
+		}
+	}
+
+	// If point wasn't found, assume it's at the end of the number
+	if (pointPos < 0) {
+		pointPos = len;
+	}
+
+	const int signChars = buffer[0] == '-';
+	const int exp       = pointPos - signChars - 1;
+	if (exp + 1 > digits10) {
+
+		// Yes, the format is too precise for actual value, need to shift the
+		// point to the second position and append e+XX to the resulting string.
+		char *const buf = buffer + signChars;
+
+		// NOTE: don't attempt to replace this loop with memmove: you'll get
+		// confused trying to work out size of data to move.
+		// The original string may contain a point, may not contain any. In the
+		// former case we must move everything including the null terminator. In
+		// the latter case only the chunk up to the original point needs moving.
+		const int lenWithNull = len + 1;
+
+		char next = buf[1];
+		for (int i = 0; i < lenWithNull - signChars; ++i) {
+			// Avoid writing the point; after this, there's no more need to shift
+			if (next == '.') {
+				break;
+			}
+			std::swap(next, buf[i + 1]);
+		}
+
+		buf[1] = '.';
+
+		// Now after all the mess with present/absent point, it's better to
+		// re-calculate length of the current buffer content
+		auto len = std::strlen(buf);
+
+		// Remove trailing zeros
+		while (buf[len - 1] == '0') {
+			--len;
+		}
+
+		// Append the exponent
+		buf[len]     = 'e';
+		buf[len + 1] = '+';
+		buf[len + 2] = exp / 10 + '0';
+		buf[len + 3] = exp % 10 + '0';
+		buf[len + 4] = 0;
+	}
+
+	return buffer;
+}
+#endif
+
+}
+
 template <class Float>
 Float read_float(const QString &strInput, bool &ok) {
 
@@ -137,39 +307,6 @@ template EDB_EXPORT double read_float<double>(const QString &strInput, bool &ok)
 template long double read_float<long double>(const QString &strInput, bool &ok);
 #endif
 #endif
-
-namespace {
-
-template <unsigned mantissaLength, typename FloatHolder>
-FloatValueClass ieeeClassify(FloatHolder value) {
-
-	constexpr auto expLength = 8 * sizeof(value) - mantissaLength - 1;
-	constexpr auto expMax    = (1u << expLength) - 1;
-	constexpr auto QNaN_mask = 1ull << (mantissaLength - 1);
-
-	const auto mantissa = value & ((1ull << mantissaLength) - 1);
-	const auto exponent = (value >> mantissaLength) & expMax;
-
-	if (exponent == expMax) {
-		if (mantissa == 0u) {
-			return FloatValueClass::Infinity; // |S|11..11|00..00|
-		} else if (mantissa & QNaN_mask) {
-			return FloatValueClass::QNaN; // |S|11..11|1XX..XX|
-		} else {
-			return FloatValueClass::SNaN; // |S|11..11|0XX..XX|
-		}
-	} else if (exponent == 0u) {
-		if (mantissa == 0u) {
-			return FloatValueClass::Zero; // |S|00..00|00..00|
-		} else {
-			return FloatValueClass::Denormal; // |S|00..00|XX..XX|
-		}
-	} else {
-		return FloatValueClass::Normal;
-	}
-}
-
-}
 
 FloatValueClass floatType(edb::value32 value) {
 	return ieeeClassify<23>(value);
@@ -263,136 +400,6 @@ QValidator::State FloatXValidator<Float>::validate(QString &input, int &) const 
 template QValidator::State FloatXValidator<float>::validate(QString &input, int &) const;
 template QValidator::State FloatXValidator<double>::validate(QString &input, int &) const;
 template QValidator::State FloatXValidator<long double>::validate(QString &input, int &) const;
-
-float toFloatValue(edb::value32 value) {
-	float result;
-	std::memcpy(&result, &value, sizeof(result));
-	return result;
-}
-
-double toFloatValue(edb::value64 value) {
-	double result;
-	std::memcpy(&result, &value, sizeof(result));
-	return result;
-}
-
-long double toFloatValue(edb::value80 value) {
-	return value.toFloatValue();
-}
-
-/*
- *   gdtoa_g_?fmt functions do generally a good job at formatting the numbers in
- * a form close to that specified in ECMAScript specification (actually the
- * spec even references this implementation in 7.1.12.1/note3). There are two
- * issues though with the function, one small and one bigger.
- *   The small issue is that this function prints numbers x such that 1e-5<|x|<1
- * without leading zeros (contrary to the spec). It's easy to fix up, and it's
- * the first thing the following function does.
- *   The bigger issue is that the specification prescribes to print large numbers
- * smaller than 1e21 in fixed-point format, and append zeros(!) instead of
- * actual digits present in the closest representable integer to the base part.
- *   This can be quite a problem for our users, because it can give a false sense
- * of precision. E.g., consider the number 1.2345678912345678e20. Closest
- * representable IEEE 754 binary64 number is 123456789123456778240. Next
- * representable is 123456789123456794624. Yet gdtoa_g_dfmt (following
- * ECMAScript) formats it as 123456789123456780000, which, having so many
- * trailing zeros, misleads the user into thinking that all the digits are
- * significant (the user may think that e.g. 123456789123456781000 or even
- * 123456789123456780001 are representable too).
- *   The following function tries to ensure that such situations never occur: it
- * takes numeric_limits::digits10 digits as the maximum length of integers (or
- * maximum value of exponent+1 for fractions) for fixed-point format, and if the
- * number formatted into 'buffer' is larger than that, it converts the result
- * into exponential format, removing any trailing zeros.
- *   Note that in principle, we could use gdtoa_gdtoa directly and format the
- * number ourselves. But this would result in even more logic to 1) prepare
- * arguments, 2) actually do the formatting; total of both might be just as
- * convoluted as the current post-processing logic.
- */
-const char *fixup_g_Yfmt(char *buffer, int digits10) {
-
-	const size_t len = std::strlen(buffer);
-	const char x0    = buffer[0];
-	const char x1    = buffer[1];
-
-	if (x0 == '.' || (x0 == '-' && x1 == '.')) {
-		// ".235" or "-.235" forms are unreadable, so insert leading zero
-		const size_t posToInsert = x0 == '.' ? 0 : 1;
-		// Give space for the zero: move the remaining line with terminating zero to the right
-		std::memmove(buffer + posToInsert + 1, buffer + posToInsert, len + 1 - posToInsert);
-		buffer[posToInsert] = '0';
-		return buffer;
-	}
-
-	// We want exponential format for numbers which are too imprecise for fixed-point format.
-	// If we find a number with more than digits10 digits before point, we must fix it.
-	int digitCount = 0;
-	int pointPos   = -1;
-	for (int i = 0; i < static_cast<int>(len); ++i) {
-		const char c = buffer[i];
-		// If it's already in exponential format, it's fine, just return it
-		if (c == 'e') {
-			return buffer;
-		}
-
-		if (c == '.') {
-			pointPos = i;
-			continue;
-		} else if ('0' <= c && c <= '9') {
-			++digitCount;
-		}
-	}
-
-	// If point wasn't found, assume it's at the end of the number
-	if (pointPos < 0) {
-		pointPos = len;
-	}
-
-	const int signChars = buffer[0] == '-';
-	const int exp       = pointPos - signChars - 1;
-	if (exp + 1 > digits10) {
-
-		// Yes, the format is too precise for actual value, need to shift the
-		// point to the second position and append e+XX to the resulting string.
-		char *const buf = buffer + signChars;
-
-		// NOTE: don't attempt to replace this loop with memmove: you'll get
-		// confused trying to work out size of data to move.
-		// The original string may contain a point, may not contain any. In the
-		// former case we must move everything including the null terminator. In
-		// the latter case only the chunk up to the original point needs moving.
-		const int lenWithNull = len + 1;
-
-		char next = buf[1];
-		for (int i = 0; i < lenWithNull - signChars; ++i) {
-			// Avoid writing the point; after this, there's no more need to shift
-			if (next == '.') {
-				break;
-			}
-			std::swap(next, buf[i + 1]);
-		}
-
-		buf[1] = '.';
-
-		// Now after all the mess with present/absent point, it's better to
-		// re-calculate length of the current buffer content
-		auto len = std::strlen(buf);
-
-		// Remove trailing zeros
-		while (buf[len - 1] == '0') {
-			--len;
-		}
-
-		// Append the exponent
-		buf[len]     = 'e';
-		buf[len + 1] = '+';
-		buf[len + 2] = exp / 10 + '0';
-		buf[len + 3] = exp % 10 + '0';
-		buf[len + 4] = 0;
-	}
-
-	return buffer;
-}
 
 template <typename Float>
 EDB_EXPORT QString format_float(Float value) {

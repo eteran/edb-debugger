@@ -51,91 +51,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <capstone/capstone.h>
 
 namespace InstructionInspector {
+namespace {
 
 struct NormalizeFailure {};
-
-class Disassembler {
-private:
-	csh csh_;
-	cs_insn *insn_ = nullptr;
-
-public:
-	struct InitFailure {
-		const char *error;
-	};
-
-	explicit Disassembler(cs_mode mode) {
-		cs_err result = cs_open(
-#if defined EDB_X86 || defined EDB_X86_64
-			CS_ARCH_X86
-#elif defined EDB_ARM32
-			CS_ARCH_ARM
-#elif defined EDB_ARM64
-			CS_ARCH_ARM64
-#else
-#error "What to pass to capstone?"
-#endif
-			,
-			mode, &csh_);
-
-		if (result != CS_ERR_OK) {
-			throw InitFailure{cs_strerror(result)};
-		}
-
-		cs_option(csh_, CS_OPT_DETAIL, CS_OPT_ON);
-		cs_option(csh_, CS_OPT_SYNTAX, edb::v1::config().syntax == Configuration::Syntax::Intel ? CS_OPT_SYNTAX_INTEL : CS_OPT_SYNTAX_ATT);
-	}
-
-	cs_insn *disassemble(const std::uint8_t *buf, std::size_t size, edb::address_t address) {
-		if (insn_) {
-			cs_free(insn_, 1);
-		}
-
-		if (cs_disasm(csh_, buf, size, address, 1, &insn_)) {
-			return insn_;
-		} else {
-			return nullptr;
-		}
-	}
-
-	~Disassembler() {
-		if (insn_) {
-			cs_free(insn_, 1);
-		}
-
-		cs_close(&csh_);
-	}
-
-	csh handle() const {
-		return csh_;
-	}
-};
-
-/**
- * @brief Plugin::Plugin
- * @param parent
- */
-Plugin::Plugin(QObject *parent)
-	: QObject(parent), menuAction_(new QAction("Inspect instruction (Capstone info)", this)) {
-
-	connect(menuAction_, SIGNAL(triggered(bool)), this, SLOT(showDialog()));
-}
-
-/**
- * @brief Plugin::menu
- * @return
- */
-QMenu *Plugin::menu(QWidget *) {
-	return nullptr;
-}
-
-/**
- * @brief Plugin::cpuContextMenu
- * @return
- */
-QList<QAction *> Plugin::cpuContextMenu() {
-	return {menuAction_};
-}
 
 /**
  * @brief printBytes
@@ -185,6 +103,7 @@ std::string toHex(unsigned long long x, bool Signed = false) {
 	return str.str();
 }
 
+#if defined(EDB_ARM32)
 /**
  * @brief toFloatString
  * @param x
@@ -196,6 +115,7 @@ std::string toFloatString(double x) {
 	str << x;
 	return str.str();
 }
+#endif
 
 /**
  * @brief uppercase
@@ -253,6 +173,7 @@ std::string printReg(csh csh, int reg, bool canBeZero = false) {
 	}
 }
 
+#if 0
 /**
  * @brief printRegs
  * @param csh
@@ -279,6 +200,7 @@ std::string printRegs(csh csh, const uint16_t *regsBuffer, std::size_t size) {
 
 	return string;
 }
+#endif
 
 #if CS_API_MAJOR >= 4
 /**
@@ -607,6 +529,7 @@ std::vector<std::string> getChangedEFLAGSNames(std::uint64_t efl) {
 }
 #endif
 
+#if defined(EDB_ARM32)
 /**
  * @brief printCond
  * @param cc
@@ -638,6 +561,7 @@ std::string printCond(arm_cc cc) {
 	}
 	return found->second;
 }
+#endif
 
 /**
  * @brief printOpType
@@ -660,6 +584,7 @@ std::string printOpType(const x86_op_type &op) {
 	return found->second;
 }
 
+#if defined(EDB_ARM32)
 /**
  * @brief printShiftType
  * @param op
@@ -733,6 +658,7 @@ std::string printOpType(const arm_op_type &op) {
 	}
 	return found->second;
 }
+#endif
 
 /**
  * @brief printAVX_Bcast
@@ -797,260 +723,6 @@ std::string printAccessMode(unsigned mode) {
 #endif
 
 /**
- * @brief InstructionDialog::InstructionDialog
- * @param parent
- * @param f
- */
-InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
-	: QDialog(parent, f) {
-
-	setWindowTitle("Instruction Inspector");
-	address_ = edb::v1::cpu_selected_address();
-	const cs_mode mode =
-#if defined EDB_X86 || defined EDB_X86_64
-		edb::v1::debuggeeIs32Bit() ? CS_MODE_32 : CS_MODE_64
-#elif defined EDB_ARM32 || defined EDB_ARM64
-		// FIXME(ARM): we also have possible values:
-		//	* CS_MODE_ARM,
-		//	* CS_MODE_THUMB,
-		//	* CS_MODE_MCLASS,
-		//	* CS_MODE_V8,
-		//	and need to select the right one. Also need to choose from
-		//	* CS_MODE_LITTLE_ENDIAN and
-		//	* CS_MODE_BIG_ENDIAN
-		static_cast<cs_mode>((edb::v1::debugger_core->cpu_mode() == IDebugger::CpuMode::Thumb ? CS_MODE_THUMB : CS_MODE_ARM) | CS_MODE_LITTLE_ENDIAN)
-#else
-#error "What value should mode have?"
-#endif
-		;
-
-	disassembler_ = new Disassembler(mode);
-
-	uint8_t buffer[edb::Instruction::MaxSize];
-	if (const int bufSize = edb::v1::get_instruction_bytes(address_, buffer)) {
-
-		insnBytes_      = std::vector<std::uint8_t>(buffer, buffer + bufSize);
-		const auto insn = disassembler_->disassemble(buffer, bufSize, address_);
-		insn_           = insn;
-		tree_           = new QTreeWidget;
-		layout_         = new QVBoxLayout;
-
-		setLayout(layout_);
-		layout_->addWidget(tree_);
-		buttonCompare_ = new QPushButton("Compare disassemblers");
-		layout_->addWidget(buttonCompare_);
-
-		connect(buttonCompare_, SIGNAL(clicked(bool)), this, SLOT(compareDisassemblers()));
-
-		tree_->setUniformRowHeights(true);
-		tree_->setColumnCount(2);
-		tree_->setHeaderLabels({"Field", "Value"});
-
-		// Workaround for impossibility of default parameters in C++11 lambdas
-		struct Add {
-			QTreeWidget *const tree_;
-			explicit Add(QTreeWidget *tree)
-				: tree_(tree) {
-			}
-
-			void operator()(const QStringList &sl, QTreeWidgetItem *parent = nullptr) const {
-				tree_->addTopLevelItem(new QTreeWidgetItem(parent, sl));
-			}
-		} add(tree_);
-
-		if (!insn) {
-			add({"Bad instruction", "Failed to disassemble instruction at address " + edb::v1::format_pointer(address_)});
-			add({"Bytes", printBytes(&insnBytes_[0], insnBytes_.size()).c_str()});
-		} else {
-			add({"Address", toHex(insn->address).c_str()});
-			add({"Bytes", printBytes(insn->bytes, insn->size).c_str()});
-			add({"Mnemonic", insn->mnemonic});
-			add({"Operands string", insn->op_str});
-
-			const auto groupNames = getGroupNames(disassembler_->handle(), insn);
-			add({"Groups"});
-			auto *const groups = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
-
-			for (const auto &group : groupNames) {
-				add({group.c_str()}, groups);
-			}
-
-			{
-				add({"Regs implicitly read"});
-				auto *const regsRead = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
-				for (int r = 0; r < insn->detail->regs_read_count; ++r) {
-					add({printReg(disassembler_->handle(), insn->detail->regs_read[r]).c_str()}, regsRead);
-				}
-			}
-
-			{
-				add({"Regs implicitly written"});
-				auto *const regsWritten = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
-				for (int r = 0; r < insn->detail->regs_write_count; ++r) {
-					add({printReg(disassembler_->handle(), insn->detail->regs_write[r]).c_str()}, regsWritten);
-				}
-			}
-#if defined EDB_X86 || defined EDB_X86_64
-			add({"Prefixes", printBytes(insn->detail->x86.prefix, sizeof(insn->detail->x86.prefix), false).c_str()});
-			add({"Opcode", printBytes(insn->detail->x86.opcode, sizeof(insn->detail->x86.opcode)).c_str()});
-
-			if (insn->detail->x86.rex) {
-				add({"REX", printBytes(&insn->detail->x86.rex, 1).c_str()});
-			}
-
-			add({"AddrSize", std::to_string(+insn->detail->x86.addr_size).c_str()});
-			add({"ModRM", printBytes(&insn->detail->x86.modrm, 1).c_str()});
-			add({"SIB", printBytes(&insn->detail->x86.sib, 1).c_str()});
-
-			auto *const sib = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
-			add({"Displacement", toHex(insn->detail->x86.disp, true).c_str()}, sib);
-
-			add({"index", printReg(disassembler_->handle(), insn->detail->x86.sib_index, true).c_str()}, sib);
-			add({"scale", std::to_string(+insn->detail->x86.sib_scale).c_str()}, sib);
-			add({"base", printReg(disassembler_->handle(), insn->detail->x86.sib_base, true).c_str()}, sib);
-
-#if CS_API_MAJOR >= 4
-			if (insn->detail->x86.xop_cc) {
-				add({"XOP condition", printXOP_CC(insn->detail->x86.xop_cc).c_str()});
-			}
-#endif
-			if (insn->detail->x86.sse_cc) {
-				add({"SSE condition", printSSE_CC(insn->detail->x86.sse_cc).c_str()});
-			}
-			if (insn->detail->x86.avx_cc) {
-				add({"AVX condition", printAVX_CC(insn->detail->x86.avx_cc).c_str()});
-			}
-
-			add({"SAE", insn->detail->x86.avx_sae ? "yes" : "no"});
-
-			if (insn->detail->x86.avx_rm) {
-				add({"AVX rounding", printAVX_RM(insn->detail->x86.avx_rm).c_str()});
-			}
-
-#if CS_API_MAJOR >= 4
-			const auto changedEflagsNames = getChangedEFLAGSNames(insn->detail->x86.eflags);
-			add({"EFLAGS"});
-			auto *const eflags = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
-			for (auto efl : changedEflagsNames) {
-				add({efl.c_str()}, eflags);
-			}
-#endif
-			add({"Operands"});
-			auto *const operands = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
-			for (int op = 0; op < insn->detail->x86.op_count; ++op) {
-
-				const auto &operand = insn->detail->x86.operands[op];
-				add({("#" + std::to_string(op + 1)).c_str()}, operands);
-
-				auto *const curOpItem = operands->child(op);
-				add({"Type", printOpType(operand.type).c_str()}, curOpItem);
-
-				switch (operand.type) {
-				case X86_OP_REG:
-					add({"Register", printReg(disassembler_->handle(), operand.reg).c_str()}, curOpItem);
-					break;
-				case X86_OP_IMM:
-					add({"Immediate", toHex(operand.imm).c_str()}, curOpItem);
-					break;
-				case X86_OP_MEM:
-					add({"Segment", printReg(disassembler_->handle(), operand.mem.segment, true).c_str()}, curOpItem);
-					add({"Base", printReg(disassembler_->handle(), operand.mem.base, true).c_str()}, curOpItem);
-					add({"Index", printReg(disassembler_->handle(), operand.mem.index, true).c_str()}, curOpItem);
-					add({"Scale", std::to_string(operand.mem.scale).c_str()}, curOpItem);
-					add({"Displacement", toHex(operand.mem.disp, true).c_str()}, curOpItem);
-					break;
-				default:
-					break;
-				}
-
-				add({"Size", (std::to_string(operand.size * 8) + " bit").c_str()}, curOpItem);
-#if CS_API_MAJOR >= 4
-				add({"Access", printAccessMode(operand.access).c_str()}, curOpItem);
-#endif
-				if (operand.avx_bcast) {
-					add({"AVX Broadcast", printAVX_Bcast(operand.avx_bcast).c_str()}, curOpItem);
-				}
-
-				add({"AVX opmask", (operand.avx_zero_opmask ? "zeroing" : "merging")}, curOpItem);
-			}
-#elif defined EDB_ARM32
-			add({"User mode regs", insn->detail->arm.usermode ? "True" : "False"});
-			add({"Vector size", std::to_string(insn->detail->arm.vector_size).c_str()});
-			// TODO: vector_data
-			// TODO: cps_mode
-			// TODO: cps_flag
-			add({"Condition", printCond(insn->detail->arm.cc).c_str()});
-			add({"Updates flags", insn->detail->arm.update_flags ? "True" : "False"});
-			add({"Write-back", insn->detail->arm.writeback ? "True" : "False"});
-
-			// TODO: mem_barrier
-			add({"Operands"});
-
-			auto *const operands = tree->topLevelItem(tree->topLevelItemCount() - 1);
-
-			for (int op = 0; op < insn->detail->arm.op_count; ++op) {
-				const auto &operand = insn->detail->arm.operands[op];
-				add({("#" + std::to_string(op + 1)).c_str()}, operands);
-				auto *const curOpItem = operands->child(op);
-
-				if (operand.vector_index != -1) {
-					add({"Vector index", std::to_string(operand.vector_index).c_str()}, curOpItem);
-				}
-
-				if (operand.shift.type) {
-					add({"Shift type", printShiftType(operand.shift.type).c_str()}, curOpItem);
-					add({"Shift", std::to_string(operand.shift.value).c_str()}, curOpItem);
-				}
-
-				add({"Type", printOpType(operand.type).c_str()}, curOpItem);
-
-				switch (operand.type) {
-				case ARM_OP_SYSREG:
-				case ARM_OP_REG:
-					add({"Register", printReg(disassembler_->handle(), operand.reg).c_str()}, curOpItem);
-					break;
-				case ARM_OP_CIMM:
-				case ARM_OP_PIMM:
-				case ARM_OP_IMM:
-					add({"Immediate", toHex(util::to_unsigned(operand.imm)).c_str()}, curOpItem);
-					break;
-				case ARM_OP_FP:
-					add({"Float", toFloatString(operand.fp).c_str()}, curOpItem);
-					break;
-				case ARM_OP_MEM:
-					add({"Base", printReg(disassembler_->handle(), operand.mem.base, true).c_str()}, curOpItem);
-					add({"Index", printReg(disassembler_->handle(), operand.mem.index, true).c_str()}, curOpItem);
-					add({"Scale", std::to_string(operand.mem.scale).c_str()}, curOpItem);
-					add({"Displacement", toHex(operand.mem.disp, true).c_str()}, curOpItem);
-					add({"Left shift", std::to_string(operand.mem.lshift).c_str()}, curOpItem);
-					break;
-				case ARM_OP_SETEND:
-					add({"Type", printOpType(operand.setend).c_str()}, curOpItem);
-					break;
-				}
-
-				add({"Subtracted", operand.subtracted ? "True" : "False"}, curOpItem);
-				add({"Access", printAccessMode(operand.access).c_str()}, curOpItem);
-
-				if (operand.neon_lane != -1) {
-					add({"NEON lane", std::to_string(operand.neon_lane).c_str()}, curOpItem);
-				}
-			}
-#endif
-		}
-
-		tree_->expandAll();
-		tree_->resizeColumnToContents(0);
-	} else {
-		QMessageBox::critical(
-			edb::v1::debugger_ui,
-			tr("Error reading instruction"),
-			tr("Failed to read instruction at address %1").arg(edb::v1::format_pointer(address_)));
-		throw InstructionReadFailure{};
-	}
-}
-
-/**
  * @brief normalizeOBJDUMP
  * @param text
  * @param bits
@@ -1058,9 +730,9 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
  */
 QString normalizeOBJDUMP(const QString &text, int bits) {
 	auto parts = text.split('\t');
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	if (parts.size() != 3) return text + " ; unexpected format";
-#elif defined EDB_ARM32
+#elif defined(EDB_ARM32)
 	if (parts.size() < 3) return text + " ; unexpected format";
 #else
 	return text + " ; WARNING: InstructionInspector's normalization is not implemented for this arch";
@@ -1076,7 +748,7 @@ QString normalizeOBJDUMP(const QString &text, int bits) {
 	bytes  = bytes.trimmed().toUpper();
 	disasm = disasm.trimmed().replace(QRegExp("  +"), " ");
 
-#if defined EDB_ARM32
+#if defined(EDB_ARM32)
 	// ARM objdump prints instruction bytes as a word instead of separate bytes. We won't
 	// change this format, but will align the disassembly.
 	if (bytes.size() > 2)
@@ -1117,13 +789,13 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 	process.start(processName.c_str(), {
 		"-D",
 			"--target=binary",
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 			"--insn-width=15",
 			"--architecture=i386" + QString(bits == 64 ? ":x86-64" : ""),
 			"-M",
 			"intel,"
 			"intel-mnemonic",
-#elif defined EDB_ARM32
+#elif defined(EDB_ARM32)
 								   "--insn-width=4",
 								   "-m",
 								   "arm",
@@ -1169,7 +841,7 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 	return "; Unknown error while running " + processName;
 }
 
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 /**
  * @brief normalizeNDISASM
  * @param text
@@ -1325,8 +997,8 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 					1, // number of program headers
 					sizeof(Elf32_Shdr),
 					3, // number of section headers (one for zeroth, another for ours,third string
-					   // table (which is only needed for objconv, not for correct ELF file))
-					2  // string table index in section header table (could be SHN_UNDEF, but objconv is picky)
+					// table (which is only needed for objconv, not for correct ELF file))
+					2 // string table index in section header table (could be SHN_UNDEF, but objconv is picky)
 				};
 
 				const edb::value32 insnAddr(address);
@@ -1368,12 +1040,12 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 					0,
 					0,
 					offsetof(FileData, zerothSectionHeader), // section offset in file: at the zeroth section header,
-															 // which starts with zeros
-					1,                                       // single byte should be enough
-					SHN_UNDEF,                               // sh_link
-					0,                                       // sh_info
-					0,                                       // alignment constraints: 0 or 1 mean unaligned
-					0                                        // no fixed-size entries in this section
+					// which starts with zeros
+					1,         // single byte should be enough
+					SHN_UNDEF, // sh_link
+					0,         // sh_info
+					0,         // alignment constraints: 0 or 1 mean unaligned
+					0          // no fixed-size entries in this section
 				};
 
 				binary.write(reinterpret_cast<const char *>(&fileData), sizeof(fileData));
@@ -1405,8 +1077,8 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 					1, // number of program headers
 					sizeof(Elf64_Shdr),
 					3, // number of section headers (one for zeroth, another for ours,third string
-					   // table (which is only needed for objconv, not for correct ELF file))
-					2  // string table index in section header table (could be SHN_UNDEF, but objconv is picky)
+					// table (which is only needed for objconv, not for correct ELF file))
+					2 // string table index in section header table (could be SHN_UNDEF, but objconv is picky)
 				};
 
 				const edb::value64 insnAddr(address);
@@ -1447,12 +1119,12 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 					0,
 					0,
 					offsetof(FileData, zerothSectionHeader), // section offset in file: at the zeroth section header,
-															 // which starts with zeros
-					1,                                       // single byte should be enough
-					SHN_UNDEF,                               // sh_link
-					0,                                       // sh_info
-					0,                                       // alignment constraints: 0 or 1 mean unaligned
-					0                                        // no fixed-size entries in this section
+					// which starts with zeros
+					1,         // single byte should be enough
+					SHN_UNDEF, // sh_link
+					0,         // sh_info
+					0,         // alignment constraints: 0 or 1 mean unaligned
+					0          // no fixed-size entries in this section
 				};
 
 				binary.write(reinterpret_cast<const char *>(&fileData), sizeof(fileData));
@@ -1564,6 +1236,345 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 }
 #endif
 
+}
+
+class Disassembler {
+private:
+	csh csh_;
+	cs_insn *insn_ = nullptr;
+
+public:
+	struct InitFailure {
+		const char *error;
+	};
+
+	explicit Disassembler(cs_mode mode) {
+		cs_err result = cs_open(
+#if defined(EDB_X86) || defined(EDB_X86_64)
+			CS_ARCH_X86
+#elif defined(EDB_ARM32)
+			CS_ARCH_ARM
+#elif defined EDB_ARM64
+			CS_ARCH_ARM64
+#else
+#error "What to pass to capstone?"
+#endif
+			,
+			mode, &csh_);
+
+		if (result != CS_ERR_OK) {
+			throw InitFailure{cs_strerror(result)};
+		}
+
+		cs_option(csh_, CS_OPT_DETAIL, CS_OPT_ON);
+		cs_option(csh_, CS_OPT_SYNTAX, edb::v1::config().syntax == Configuration::Syntax::Intel ? CS_OPT_SYNTAX_INTEL : CS_OPT_SYNTAX_ATT);
+	}
+
+	cs_insn *disassemble(const std::uint8_t *buf, std::size_t size, edb::address_t address) {
+		if (insn_) {
+			cs_free(insn_, 1);
+		}
+
+		if (cs_disasm(csh_, buf, size, address, 1, &insn_)) {
+			return insn_;
+		} else {
+			return nullptr;
+		}
+	}
+
+	~Disassembler() {
+		if (insn_) {
+			cs_free(insn_, 1);
+		}
+
+		cs_close(&csh_);
+	}
+
+	csh handle() const {
+		return csh_;
+	}
+};
+
+/**
+ * @brief Plugin::Plugin
+ * @param parent
+ */
+Plugin::Plugin(QObject *parent)
+	: QObject(parent), menuAction_(new QAction("Inspect instruction (Capstone info)", this)) {
+
+	connect(menuAction_, SIGNAL(triggered(bool)), this, SLOT(showDialog()));
+}
+
+/**
+ * @brief Plugin::menu
+ * @return
+ */
+QMenu *Plugin::menu(QWidget *) {
+	return nullptr;
+}
+
+/**
+ * @brief Plugin::cpuContextMenu
+ * @return
+ */
+QList<QAction *> Plugin::cpuContextMenu() {
+	return {menuAction_};
+}
+
+/**
+ * @brief InstructionDialog::InstructionDialog
+ * @param parent
+ * @param f
+ */
+InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
+
+	setWindowTitle("Instruction Inspector");
+	address_ = edb::v1::cpu_selected_address();
+	const cs_mode mode =
+#if defined(EDB_X86) || defined(EDB_X86_64)
+		edb::v1::debuggeeIs32Bit() ? CS_MODE_32 : CS_MODE_64
+#elif defined(EDB_ARM32) || defined EDB_ARM64
+		// FIXME(ARM): we also have possible values:
+		//	* CS_MODE_ARM,
+		//	* CS_MODE_THUMB,
+		//	* CS_MODE_MCLASS,
+		//	* CS_MODE_V8,
+		//	and need to select the right one. Also need to choose from
+		//	* CS_MODE_LITTLE_ENDIAN and
+		//	* CS_MODE_BIG_ENDIAN
+		static_cast<cs_mode>((edb::v1::debugger_core->cpu_mode() == IDebugger::CpuMode::Thumb ? CS_MODE_THUMB : CS_MODE_ARM) | CS_MODE_LITTLE_ENDIAN)
+#else
+#error "What value should mode have?"
+#endif
+		;
+
+	disassembler_ = new Disassembler(mode);
+
+	uint8_t buffer[edb::Instruction::MaxSize];
+	if (const int bufSize = edb::v1::get_instruction_bytes(address_, buffer)) {
+
+		insnBytes_      = std::vector<std::uint8_t>(buffer, buffer + bufSize);
+		const auto insn = disassembler_->disassemble(buffer, bufSize, address_);
+		insn_           = insn;
+		tree_           = new QTreeWidget;
+		layout_         = new QVBoxLayout;
+
+		setLayout(layout_);
+		layout_->addWidget(tree_);
+		buttonCompare_ = new QPushButton("Compare disassemblers");
+		layout_->addWidget(buttonCompare_);
+
+		connect(buttonCompare_, SIGNAL(clicked(bool)), this, SLOT(compareDisassemblers()));
+
+		tree_->setUniformRowHeights(true);
+		tree_->setColumnCount(2);
+		tree_->setHeaderLabels({"Field", "Value"});
+
+		// Workaround for impossibility of default parameters in C++11 lambdas
+		struct Add {
+			QTreeWidget *const tree_;
+			explicit Add(QTreeWidget *tree)
+				: tree_(tree) {
+			}
+
+			void operator()(const QStringList &sl, QTreeWidgetItem *parent = nullptr) const {
+				tree_->addTopLevelItem(new QTreeWidgetItem(parent, sl));
+			}
+		} add(tree_);
+
+		if (!insn) {
+			add({"Bad instruction", "Failed to disassemble instruction at address " + edb::v1::format_pointer(address_)});
+			add({"Bytes", printBytes(&insnBytes_[0], insnBytes_.size()).c_str()});
+		} else {
+			add({"Address", toHex(insn->address).c_str()});
+			add({"Bytes", printBytes(insn->bytes, insn->size).c_str()});
+			add({"Mnemonic", insn->mnemonic});
+			add({"Operands string", insn->op_str});
+
+			const auto groupNames = getGroupNames(disassembler_->handle(), insn);
+			add({"Groups"});
+			auto *const groups = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
+
+			for (const auto &group : groupNames) {
+				add({group.c_str()}, groups);
+			}
+
+			{
+				add({"Regs implicitly read"});
+				auto *const regsRead = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
+				for (int r = 0; r < insn->detail->regs_read_count; ++r) {
+					add({printReg(disassembler_->handle(), insn->detail->regs_read[r]).c_str()}, regsRead);
+				}
+			}
+
+			{
+				add({"Regs implicitly written"});
+				auto *const regsWritten = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
+				for (int r = 0; r < insn->detail->regs_write_count; ++r) {
+					add({printReg(disassembler_->handle(), insn->detail->regs_write[r]).c_str()}, regsWritten);
+				}
+			}
+#if defined(EDB_X86) || defined(EDB_X86_64)
+			add({"Prefixes", printBytes(insn->detail->x86.prefix, sizeof(insn->detail->x86.prefix), false).c_str()});
+			add({"Opcode", printBytes(insn->detail->x86.opcode, sizeof(insn->detail->x86.opcode)).c_str()});
+
+			if (insn->detail->x86.rex) {
+				add({"REX", printBytes(&insn->detail->x86.rex, 1).c_str()});
+			}
+
+			add({"AddrSize", std::to_string(+insn->detail->x86.addr_size).c_str()});
+			add({"ModRM", printBytes(&insn->detail->x86.modrm, 1).c_str()});
+			add({"SIB", printBytes(&insn->detail->x86.sib, 1).c_str()});
+
+			auto *const sib = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
+			add({"Displacement", toHex(insn->detail->x86.disp, true).c_str()}, sib);
+
+			add({"index", printReg(disassembler_->handle(), insn->detail->x86.sib_index, true).c_str()}, sib);
+			add({"scale", std::to_string(+insn->detail->x86.sib_scale).c_str()}, sib);
+			add({"base", printReg(disassembler_->handle(), insn->detail->x86.sib_base, true).c_str()}, sib);
+
+#if CS_API_MAJOR >= 4
+			if (insn->detail->x86.xop_cc) {
+				add({"XOP condition", printXOP_CC(insn->detail->x86.xop_cc).c_str()});
+			}
+#endif
+			if (insn->detail->x86.sse_cc) {
+				add({"SSE condition", printSSE_CC(insn->detail->x86.sse_cc).c_str()});
+			}
+			if (insn->detail->x86.avx_cc) {
+				add({"AVX condition", printAVX_CC(insn->detail->x86.avx_cc).c_str()});
+			}
+
+			add({"SAE", insn->detail->x86.avx_sae ? "yes" : "no"});
+
+			if (insn->detail->x86.avx_rm) {
+				add({"AVX rounding", printAVX_RM(insn->detail->x86.avx_rm).c_str()});
+			}
+
+#if CS_API_MAJOR >= 4
+			const auto changedEflagsNames = getChangedEFLAGSNames(insn->detail->x86.eflags);
+			add({"EFLAGS"});
+			auto *const eflags = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
+			for (auto efl : changedEflagsNames) {
+				add({efl.c_str()}, eflags);
+			}
+#endif
+			add({"Operands"});
+			auto *const operands = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
+			for (int op = 0; op < insn->detail->x86.op_count; ++op) {
+
+				const auto &operand = insn->detail->x86.operands[op];
+				add({("#" + std::to_string(op + 1)).c_str()}, operands);
+
+				auto *const curOpItem = operands->child(op);
+				add({"Type", printOpType(operand.type).c_str()}, curOpItem);
+
+				switch (operand.type) {
+				case X86_OP_REG:
+					add({"Register", printReg(disassembler_->handle(), operand.reg).c_str()}, curOpItem);
+					break;
+				case X86_OP_IMM:
+					add({"Immediate", toHex(operand.imm).c_str()}, curOpItem);
+					break;
+				case X86_OP_MEM:
+					add({"Segment", printReg(disassembler_->handle(), operand.mem.segment, true).c_str()}, curOpItem);
+					add({"Base", printReg(disassembler_->handle(), operand.mem.base, true).c_str()}, curOpItem);
+					add({"Index", printReg(disassembler_->handle(), operand.mem.index, true).c_str()}, curOpItem);
+					add({"Scale", std::to_string(operand.mem.scale).c_str()}, curOpItem);
+					add({"Displacement", toHex(operand.mem.disp, true).c_str()}, curOpItem);
+					break;
+				default:
+					break;
+				}
+
+				add({"Size", (std::to_string(operand.size * 8) + " bit").c_str()}, curOpItem);
+#if CS_API_MAJOR >= 4
+				add({"Access", printAccessMode(operand.access).c_str()}, curOpItem);
+#endif
+				if (operand.avx_bcast) {
+					add({"AVX Broadcast", printAVX_Bcast(operand.avx_bcast).c_str()}, curOpItem);
+				}
+
+				add({"AVX opmask", (operand.avx_zero_opmask ? "zeroing" : "merging")}, curOpItem);
+			}
+#elif defined(EDB_ARM32)
+			add({"User mode regs", insn->detail->arm.usermode ? "True" : "False"});
+			add({"Vector size", std::to_string(insn->detail->arm.vector_size).c_str()});
+			// TODO: vector_data
+			// TODO: cps_mode
+			// TODO: cps_flag
+			add({"Condition", printCond(insn->detail->arm.cc).c_str()});
+			add({"Updates flags", insn->detail->arm.update_flags ? "True" : "False"});
+			add({"Write-back", insn->detail->arm.writeback ? "True" : "False"});
+
+			// TODO: mem_barrier
+			add({"Operands"});
+
+			auto *const operands = tree->topLevelItem(tree->topLevelItemCount() - 1);
+
+			for (int op = 0; op < insn->detail->arm.op_count; ++op) {
+				const auto &operand = insn->detail->arm.operands[op];
+				add({("#" + std::to_string(op + 1)).c_str()}, operands);
+				auto *const curOpItem = operands->child(op);
+
+				if (operand.vector_index != -1) {
+					add({"Vector index", std::to_string(operand.vector_index).c_str()}, curOpItem);
+				}
+
+				if (operand.shift.type) {
+					add({"Shift type", printShiftType(operand.shift.type).c_str()}, curOpItem);
+					add({"Shift", std::to_string(operand.shift.value).c_str()}, curOpItem);
+				}
+
+				add({"Type", printOpType(operand.type).c_str()}, curOpItem);
+
+				switch (operand.type) {
+				case ARM_OP_SYSREG:
+				case ARM_OP_REG:
+					add({"Register", printReg(disassembler_->handle(), operand.reg).c_str()}, curOpItem);
+					break;
+				case ARM_OP_CIMM:
+				case ARM_OP_PIMM:
+				case ARM_OP_IMM:
+					add({"Immediate", toHex(util::to_unsigned(operand.imm)).c_str()}, curOpItem);
+					break;
+				case ARM_OP_FP:
+					add({"Float", toFloatString(operand.fp).c_str()}, curOpItem);
+					break;
+				case ARM_OP_MEM:
+					add({"Base", printReg(disassembler_->handle(), operand.mem.base, true).c_str()}, curOpItem);
+					add({"Index", printReg(disassembler_->handle(), operand.mem.index, true).c_str()}, curOpItem);
+					add({"Scale", std::to_string(operand.mem.scale).c_str()}, curOpItem);
+					add({"Displacement", toHex(operand.mem.disp, true).c_str()}, curOpItem);
+					add({"Left shift", std::to_string(operand.mem.lshift).c_str()}, curOpItem);
+					break;
+				case ARM_OP_SETEND:
+					add({"Type", printOpType(operand.setend).c_str()}, curOpItem);
+					break;
+				}
+
+				add({"Subtracted", operand.subtracted ? "True" : "False"}, curOpItem);
+				add({"Access", printAccessMode(operand.access).c_str()}, curOpItem);
+
+				if (operand.neon_lane != -1) {
+					add({"NEON lane", std::to_string(operand.neon_lane).c_str()}, curOpItem);
+				}
+			}
+#endif
+		}
+
+		tree_->expandAll();
+		tree_->resizeColumnToContents(0);
+	} else {
+		QMessageBox::critical(
+			edb::v1::debugger_ui,
+			tr("Error reading instruction"),
+			tr("Failed to read instruction at address %1").arg(edb::v1::format_pointer(address_)));
+		throw InstructionReadFailure{};
+	}
+}
+
 /**
  * @brief InstructionDialog::compareDisassemblers
  */
@@ -1582,7 +1593,7 @@ void InstructionDialog::compareDisassemblers() {
 				<< "   db " << toHex(insnBytes_[0]);
 	}
 
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	message << "\n\n";
 	message << "ndisasm:\n";
 	message << runNDISASM(insnBytes_, address_);
@@ -1590,7 +1601,7 @@ void InstructionDialog::compareDisassemblers() {
 	message << "\n\n";
 	message << "objdump:\n";
 	message << runOBJDUMP(insnBytes_, address_);
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	message << "\n\n";
 	message << "objconv:\n";
 	message << runOBJCONV(insnBytes_, address_);
