@@ -41,8 +41,9 @@ bool capstoneInitialized  = false;
 csh csh                   = 0;
 Formatter activeFormatter;
 
-bool is_simd_register(const Operand &operand) {
 #if defined(EDB_X86) || defined(EDB_X86_64)
+bool is_simd_register(const Operand &operand) {
+
 	if (operand->type != X86_OP_REG)
 		return false;
 
@@ -56,13 +57,11 @@ bool is_simd_register(const Operand &operand) {
 		return true;
 	if (X86_REG_ZMM0 <= reg && reg <= X86_REG_ZMM31)
 		return true;
-#else
-	(void)operand;
-#endif
+
 	return false;
 }
 
-#if defined(EDB_X86) || defined(EDB_X86_64)
+
 bool apriori_not_simd(const Instruction &insn, const Operand &operand) {
 
 	if (!is_simd(insn))
