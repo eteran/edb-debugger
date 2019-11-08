@@ -42,7 +42,7 @@ csh csh                   = 0;
 Formatter activeFormatter;
 
 bool is_simd_register(const Operand &operand) {
-
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	if (operand->type != X86_OP_REG)
 		return false;
 
@@ -56,6 +56,9 @@ bool is_simd_register(const Operand &operand) {
 		return true;
 	if (X86_REG_ZMM0 <= reg && reg <= X86_REG_ZMM31)
 		return true;
+#else
+	(void)operand;
+#endif
 	return false;
 }
 
@@ -63,15 +66,17 @@ bool apriori_not_simd(const Instruction &insn, const Operand &operand) {
 
 	if (!is_simd(insn))
 		return true;
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	if (operand->type == X86_OP_REG && !is_simd_register(operand))
 		return true;
 	if (operand->type == X86_OP_IMM)
 		return true;
+#endif
 	return false;
 }
 
 bool KxRegisterPresent(const Instruction &insn) {
-
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	const size_t operandCount = insn.operand_count();
 
 	for (std::size_t i = 0; i < operandCount; ++i) {
@@ -80,7 +85,7 @@ bool KxRegisterPresent(const Instruction &insn) {
 			return true;
 		}
 	}
-
+#endif
 	return false;
 }
 
@@ -185,7 +190,7 @@ Instruction::Instruction(const void *first, const void *last, uint64_t rva) noex
 	cs_insn *insn = nullptr;
 	if (first < last && cs_disasm(csh, codeBegin, codeEnd - codeBegin, rva, 1, &insn)) {
 		insn_ = insn;
-#if defined EDB_ARM32
+#if defined(EDB_ARM32)
 		if (insn_->detail->arm.op_count >= 2) {
 			// XXX: this is a work around capstone bug #1013
 			auto &op = insn_->detail->arm.operands[1];
@@ -204,9 +209,9 @@ Operand Instruction::operator[](size_t n) const {
 	if (n > operand_count())
 		return Operand();
 
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	return Operand(this, &insn_->detail->x86.operands[n], n);
-#elif defined EDB_ARM32 || defined EDB_ARM64
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
 	return Operand(this, &insn_->detail->arm.operands[n], n);
 #else
 #error "What to return here?"
@@ -219,9 +224,9 @@ Operand Instruction::operand(size_t n) const {
 	if (n > operand_count())
 		return Operand();
 
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	return Operand(this, &insn_->detail->x86.operands[n], n);
-#elif defined EDB_ARM32 || defined EDB_ARM64
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
 	return Operand(this, &insn_->detail->arm.operands[n], n);
 #else
 #error "What to return here?"
@@ -230,7 +235,7 @@ Operand Instruction::operand(size_t n) const {
 
 Instruction::ConditionCode Instruction::condition_code() const {
 
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	switch (operation()) {
 	// J*CXZ
 	case X86_INS_JRCXZ:
@@ -266,7 +271,7 @@ Instruction::ConditionCode Instruction::condition_code() const {
 		}
 	}
 	return CC_UNCONDITIONAL;
-#elif defined EDB_ARM32
+#elif defined(EDB_ARM32)
 	switch (insn_->detail->arm.cc) {
 	case ARM_CC_EQ:
 		return CC_EQ;
@@ -324,7 +329,7 @@ QString Formatter::adjustInstructionText(const Instruction &insn) const {
 	operands.replace(QRegExp("\\bxword "), "tbyte ");
 	operands.replace(QRegExp("(word|byte) ptr "), "\\1 ");
 
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	if (activeFormatter.options().simplifyRIPRelativeTargets && isX86_64() && (insn->detail->x86.modrm & 0xc7) == 0x05) {
 		QRegExp ripRel("\\brip ?[+-] ?((0x)?[0-9a-fA-F]+)\\b");
 		operands.replace(ripRel, "rel 0x" + QString::number(insn->detail->x86.disp + insn->address + insn->size, 16));
@@ -343,12 +348,13 @@ void Formatter::setOptions(const Formatter::FormatOptions &options) {
 
 	options_ = options;
 
-#if defined EDB_X86 || defined EDB_X86_64
-	if (options.syntax == SyntaxAtt)
+#if defined(EDB_X86) || defined(EDB_X86_64)
+	if (options.syntax == SyntaxAtt) {
 		cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_ATT);
-	else
+	} else {
 		cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_INTEL);
-#elif defined EDB_ARM32 // FIXME(ARM): does this apply to AArch64?
+	}
+#elif defined(EDB_ARM32) // FIXME(ARM): does this apply to AArch64?
 	// TODO: make this optional. Don't forget to reflect this in register view!
 	cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_NOREGNAME);
 #endif
@@ -359,14 +365,14 @@ void Formatter::setOptions(const Formatter::FormatOptions &options) {
 std::string Formatter::to_string(const Instruction &insn) const {
 
 	enum {
-		tab1Size = 8,
-		tab2Size = 11,
+		Tab1Size = 8,
+		Tab2Size = 11,
 	};
 
 	if (!insn) {
 		char buf[32];
 		if (options_.tabBetweenMnemonicAndOperands) {
-			snprintf(buf, sizeof(buf), "%-*s0x%02x", tab1Size, "db", insn.byte0_);
+			snprintf(buf, sizeof(buf), "%-*s0x%02x", Tab1Size, "db", insn.byte0_);
 		} else {
 			snprintf(buf, sizeof(buf), "db 0x%02x", insn.byte0_);
 		}
@@ -381,7 +387,7 @@ std::string Formatter::to_string(const Instruction &insn) const {
 	std::string space = " ";
 	if (options_.tabBetweenMnemonicAndOperands) {
 		const auto pos = s.tellp();
-		const auto pad = pos < tab1Size ? tab1Size - pos : pos < tab2Size ? tab2Size - pos : 1;
+		const auto pad = pos < Tab1Size ? Tab1Size - pos : pos < Tab2Size ? Tab2Size - pos : 1;
 		space          = std::string(pad, ' ');
 	}
 	if (insn.operand_count() > 0) // prevent addition of trailing whitespace
@@ -511,17 +517,19 @@ std::string Formatter::register_name(unsigned int reg) const {
 }
 
 bool KxRegisterPresent(const Instruction &insn) {
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	for (std::size_t i = 0; i < insn.operand_count(); ++i) {
 		const auto op = insn[i];
 
 		if (op->type == X86_OP_REG && X86_REG_K0 <= op->reg && op->reg <= X86_REG_K7)
 			return true;
 	}
+#endif	
 	return false;
 }
 
 bool is_SIMD_PS(const Operand &operand) {
-
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
 
 	if (apriori_not_simd(insn, operand))
@@ -708,10 +716,15 @@ bool is_SIMD_PS(const Operand &operand) {
 	default:
 		return false;
 	}
+#else
+	(void)operand;
+	return false
+#endif
 }
 
 bool is_SIMD_PD(const Operand &operand) {
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
 
 	if (apriori_not_simd(insn, operand))
@@ -888,10 +901,13 @@ bool is_SIMD_PD(const Operand &operand) {
 	default:
 		return false;
 	}
+#else
+	(void)operand;
+#endif
 }
 
 bool is_SIMD_SS(const Operand &operand) {
-
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
 
 	if (apriori_not_simd(insn, operand))
@@ -978,10 +994,15 @@ bool is_SIMD_SS(const Operand &operand) {
 	default:
 		return false;
 	}
+#else
+	(void)operand;
+	return false;
+#endif
 }
 
 bool is_SIMD_SD(const Operand &operand) {
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
 
 	if (apriori_not_simd(insn, operand))
@@ -1064,10 +1085,15 @@ bool is_SIMD_SD(const Operand &operand) {
 	default:
 		return false;
 	}
+#else
+	(void)operand;
+	return false;
+#endif
 }
 
 bool is_SIMD_SI(const Operand &operand) {
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
 	const auto number       = simdOperandNormalizedNumberInInstruction(insn, operand, true);
 
@@ -1086,10 +1112,14 @@ bool is_SIMD_SI(const Operand &operand) {
 	default:
 		return false;
 	}
+#else
+	(void)operand;
+	return false;
+#endif
 }
 
 bool is_SIMD_USI(const Operand &operand) {
-
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
 	const auto number       = simdOperandNormalizedNumberInInstruction(insn, operand, true);
 
@@ -1103,6 +1133,10 @@ bool is_SIMD_USI(const Operand &operand) {
 	default:
 		return false;
 	}
+#else
+	(void)operand;
+	return false;
+#endif
 }
 
 bool is_return(const Instruction &insn) {
@@ -1123,9 +1157,9 @@ bool is_call(const Instruction &insn) {
 bool modifies_pc(const Instruction &insn) {
 	if (is_call(insn) || is_jump(insn) || is_interrupt(insn))
 		return true;
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	return false;
-#elif defined EDB_ARM32
+#elif defined(EDB_ARM32)
 	const auto &detail = *insn->detail;
 	for (uint8_t i = 0; i < detail.regs_write_count; ++i)
 		if (detail.regs_write[i] == ARM_REG_PC)
@@ -1133,8 +1167,10 @@ bool modifies_pc(const Instruction &insn) {
 	const auto &arm = detail.arm;
 	for (uint8_t i = 0; i < arm.op_count; ++i) {
 		const auto &op = arm.operands[i];
+#if CS_API_MAJOR >= 4
 		if (op.access == CS_AC_WRITE && op.type == CS_OP_REG && op.reg == ARM_REG_PC)
 			return true;
+#endif
 		if (op.type == ARM_OP_MEM && insn.native()->detail->arm.writeback && op.mem.base == ARM_REG_PC)
 			return true;
 	}
