@@ -51,24 +51,24 @@ public:
 	QString flagsToString() const override;
 	QString flagsToString(edb::reg_t flags) const override;
 	Register value(const QString &reg) const override;
-	Register instructionPointeRregister() const override;
-	Register flags_register() const override;
-	edb::address_t frame_pointer() const override;
-	edb::address_t instruction_pointer() const override;
-	edb::address_t stack_pointer() const override;
-	edb::reg_t debug_register(size_t n) const override;
+    Register instructionPointeRegister() const override;
+    Register flagsRegister() const override;
+    edb::address_t framePointer() const override;
+    edb::address_t instructionPointer() const override;
+    edb::address_t stackPointer() const override;
+    edb::reg_t debugRegister(size_t n) const override;
 	edb::reg_t flags() const override;
-	void adjust_stack(int bytes) override;
+    void adjustStack(int bytes) override;
 	void clear() override;
 	bool empty() const override;
-	void set_debug_register(size_t n, edb::reg_t value) override;
-	void set_flags(edb::reg_t flags) override;
-	void set_instruction_pointer(edb::address_t value) override;
-	void set_register(const Register &reg) override;
-	void set_register(const QString &name, edb::reg_t value) override;
-	Register gp_register(size_t n) const override;
+    void setDebugRegister(size_t n, edb::reg_t value) override;
+    void setFlags(edb::reg_t flags) override;
+    void setInstructionPointer(edb::address_t value) override;
+    void setRegister(const Register &reg) override;
+    void setRegister(const QString &name, edb::reg_t value) override;
+    Register gpRegister(size_t n) const override;
 
-	Register arch_register(uint64_t type, size_t n) const override {
+    Register archRregister(uint64_t type, size_t n) const override {
 		return Register();
 	}
 
