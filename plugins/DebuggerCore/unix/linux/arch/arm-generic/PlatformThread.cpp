@@ -203,7 +203,7 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 			const auto op                = insn.operation();
 			edb::address_t addrAfterInsn = pc + insn.byte_size();
 
-			auto targetMode = core_->cpu_mode();
+            auto targetMode = core_->cpuMode();
 			if (modifies_pc(insn) && edb::v1::arch_processor().is_executed(insn, state)) {
 				if (op == ARM_INS_BXJ)
 					return Status(QObject::tr("EDB doesn't yet support single-stepping into Jazelle state."));
@@ -224,7 +224,7 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 					if (!effAddrR) return Status(effAddrR.error());
 
 					const auto effAddr = effAddrR.value();
-					if (process_->read_bytes(effAddr, &addrAfterInsn, addrSize) != addrSize)
+                    if (process_->readBytes(effAddr, &addrAfterInsn, addrSize) != addrSize)
 						return Status(QObject::tr("failed to read memory referred to by LDR operand (address %1).").arg(effAddr.toPointerString()));
 
 					// FIXME: for ARMv5 or below (without "T" in the name) bits [1:0] are simply ignored, without any mode change
@@ -232,7 +232,7 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
                         targetMode = IDebugger::CpuMode::Thumb;
 					else
                         targetMode = IDebugger::CpuMode::ARM32;
-					switch (edb::v1::debugger_core->cpu_mode()) {
+                    switch (edb::v1::debugger_core->cpuMode()) {
                     case IDebugger::CpuMode::Thumb:
 						addrAfterInsn &= -2;
 						break;
@@ -248,11 +248,13 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 					int i = 0;
 					for (; i < opCount; ++i) {
 						const auto operand = insn.operand(i);
-						if (is_register(operand) && operand->reg == ARM_REG_PC) {
+                        if (is_register(operand) && operand->reg == ARM_REG_PC) {
+#if CS_API_MAJOR >= 4
 							assert(operand->access == CS_AC_WRITE);
-							const auto sp = state.gp_register(PlatformState::GPR::SP);
+#endif
+                            const auto sp = state.gpRegister(PlatformState::GPR::SP);
 							if (!sp) return Status(QObject::tr("failed to get value of SP register"));
-							if (process_->read_bytes(sp.valueAsAddress() + addrSize * i, &addrAfterInsn, addrSize) != addrSize)
+                            if (process_->readBytes(sp.valueAsAddress() + addrSize * i, &addrAfterInsn, addrSize) != addrSize)
 								return Status(QObject::tr("failed to read thread stack"));
 							break;
 						}
@@ -312,20 +314,20 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 				if (!singleStepBreakpoint)
 					return Status(QObject::tr("failed to set breakpoint at address %1.").arg(addrAfterInsn.toPointerString()));
 				const auto bp = std::static_pointer_cast<Breakpoint>(singleStepBreakpoint);
-				if (targetMode != core_->cpu_mode()) {
+                if (targetMode != core_->cpuMode()) {
 					switch (targetMode) {
                     case IDebugger::CpuMode::ARM32:
-                        bp->setrType(Breakpoint::TypeId::ARM32);
+                        bp->setType(Breakpoint::TypeId::ARM32);
 						break;
                     case IDebugger::CpuMode::Thumb:
-                        bp->setrType(Breakpoint::TypeId::Thumb2Byte);
+                        bp->setType(Breakpoint::TypeId::Thumb2Byte);
 						break;
 					}
 				}
                 singleStepBreakpoint->setOneTime(true); // TODO: don't forget to remove it once we've paused after this, even if the BP wasn't hit (e.g. due to an exception on current instruction)
                 singleStepBreakpoint->setInternal(true);
 			}
-			return core_->ptrace_continue(tid, status);
+            return core_->ptraceContinue(tid, status);
 		}
 		return Status(QObject::tr("failed to disassemble instruction at address %1.").arg(pc.toPointerString()));
 	}
