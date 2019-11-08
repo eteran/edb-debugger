@@ -50,7 +50,7 @@ public:
 
 private:
 	void showAll();
-	auto mode = static_cast<CpuMode>(-1);
+	CpuMode mode = static_cast<CpuMode>(-1);
 };
 
 #endif

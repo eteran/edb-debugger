@@ -99,7 +99,7 @@ int capstoneRegToGPRIndex(int capstoneReg, bool &ok) {
 
 Result<edb::address_t, QString> getOperandValueGPR(const edb::Instruction &insn, const edb::Operand &operand, const State &state) {
 
-	using ResultT = Result<edb::address_t, QString>;
+	using result_type = Result<edb::address_t, QString>;
 	bool ok;
 	const auto regIndex = capstoneRegToGPRIndex(operand->reg, ok);
 	if (!ok) return make_unexpected(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg));
@@ -107,33 +107,34 @@ Result<edb::address_t, QString> getOperandValueGPR(const edb::Instruction &insn,
 	if (!reg)
 		return make_unexpected(QObject::tr("failed to get register r%1.").arg(regIndex));
 	auto value = reg.valueAsAddress();
-	return ResultT(value);
+	return result_type(value);
 }
 
 Result<edb::address_t, QString> adjustR15Value(const edb::Instruction &insn, const int regIndex, edb::address_t value) {
 
-	using ResultT = Result<edb::address_t, QString>;
+	using result_type = Result<edb::address_t, QString>;
 	if (regIndex == 15) {
 		// Even if current state's PC weren't on this instruction, the instruction still refers to
 		// self, so use `insn` instead of `state` to get the value.
 		const auto cpuMode = edb::v1::debugger_core->cpu_mode();
 		switch (cpuMode) {
-		case IDebugger::CPUMode::ARM32:
+		case IDebugger::CpuMode::ARM32:
 			value = insn.rva() + 8;
 			break;
-		case IDebugger::CPUMode::Thumb:
+		case IDebugger::CpuMode::Thumb:
 			value = insn.rva() + 4;
 			break;
 		default:
 			return make_unexpected(QObject::tr("calculating effective address in modes other than ARM and Thumb is not supported."));
 		}
 	}
-	return ResultT(value);
+	return result_type(value);
 }
 
 uint32_t shift(uint32_t x, arm_shifter type, uint32_t shiftAmount, bool carryFlag) {
-	constexpr uint32_t highBit = 1u << 31;
-	const auto N               = shiftAmount;
+	constexpr uint32_t HighBit = 1u << 31;
+	const uint32_t N           = shiftAmount;
+
 	switch (type) {
 	case ARM_SFT_INVALID:
 		return x;
@@ -141,7 +142,7 @@ uint32_t shift(uint32_t x, arm_shifter type, uint32_t shiftAmount, bool carryFla
 	case ARM_SFT_ASR_REG:
 		assert(N >= 1 && N <= 32);
 		// NOTE: unlike on x86, shift by 32 bits on ARM is not a NOP: it sets all bits to sign bit
-		return N == 32 ? -((x & highBit) >> 31) : x >> N | ~(((x & highBit) >> N) - 1);
+		return N == 32 ? -((x & HighBit) >> 31) : x >> N | ~(((x & HighBit) >> N) - 1);
 	case ARM_SFT_LSL:
 	case ARM_SFT_LSL_REG:
 		assert(N >= 0 && N <= 31);
@@ -167,9 +168,9 @@ uint32_t shift(uint32_t x, arm_shifter type, uint32_t shiftAmount, bool carryFla
 // NOTE: this function shouldn't be used for operands other than those used as addresses.
 // E.g. for "STM Rn,{regs...}" this function shouldn't try to get the value of any of the {regs...}.
 // Also note that undefined instructions like "STM PC, {regs...}" aren't checked here.
-Result<edb::address_t, QString> ArchProcessor::get_effective_address(const edb::Instruction &insn, const edb::Operand &operand, const State &state) const {
+Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::Instruction &insn, const edb::Operand &operand, const State &state) const {
 
-	using ResultT = Result<edb::address_t, QString>;
+	using result_type = Result<edb::address_t, QString>;
 	if (!operand || !insn) return make_unexpected(QObject::tr("operand is invalid"));
 
 	const auto op = insn.operation();
@@ -207,7 +208,7 @@ Result<edb::address_t, QString> ArchProcessor::get_effective_address(const edb::
 			addr = adjustedRes.value() + operand->mem.disp;
 			if (indexR)
 				addr += operand->mem.scale * shift(indexR.valueAsAddress(), operand->shift.type, operand->shift.value, C);
-			return ResultT(addr);
+			return result_type(addr);
 		} else
 			return adjustedRes;
 	}
@@ -215,16 +216,16 @@ Result<edb::address_t, QString> ArchProcessor::get_effective_address(const edb::
 	return make_unexpected(QObject::tr("getting effective address for operand %1 of instruction %2 is not implemented").arg(operand.index() + 1).arg(insn.mnemonic().c_str()));
 }
 
-edb::address_t ArchProcessor::get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool &ok) const {
+edb::address_t ArchProcessor::getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool &ok) const {
 
 	ok                = false;
-	const auto result = get_effective_address(inst, op, state);
+	const auto result = getEffectiveAddress(inst, op, state);
 	if (!result) return 0;
 	return result.value();
 }
 
 RegisterViewModel &getModel() {
-	return static_cast<RegisterViewModel &>(edb::v1::arch_processor().get_register_view_model());
+	return static_cast<RegisterViewModel &>(edb::v1::arch_processor().registerViewModel());
 }
 
 ArchProcessor::ArchProcessor() {
@@ -233,17 +234,17 @@ ArchProcessor::ArchProcessor() {
 	}
 }
 
-QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
+QStringList ArchProcessor::updateInstructionInfo(edb::address_t address) {
 	Q_UNUSED(address)
 	QStringList ret;
 	return ret;
 }
 
-bool ArchProcessor::can_step_over(const edb::Instruction &inst) const {
+bool ArchProcessor::canStepOver(const edb::Instruction &inst) const {
 	return inst && (is_call(inst) || is_interrupt(inst) || !modifies_pc(inst));
 }
 
-bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
+bool ArchProcessor::isFilling(const edb::Instruction &inst) const {
 	Q_UNUSED(inst)
 	return false;
 }
@@ -251,15 +252,14 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 void ArchProcessor::reset() {
 }
 
-void ArchProcessor::about_to_resume() {
+void ArchProcessor::aboutToResume() {
 	getModel().saveValues();
 }
 
-void ArchProcessor::setup_register_view() {
+void ArchProcessor::setupRegisterView() {
 
 	if (edb::v1::debugger_core) {
-
-		update_register_view(QString(), State());
+		updateRegisterView(QString(), State());
 	}
 }
 
@@ -393,15 +393,15 @@ void updateVFP(RegisterViewModel &model, State const &state) {
 	}
 }
 
-void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
+void ArchProcessor::updateRegisterView(const QString &default_region_name, const State &state) {
 
 	auto &model = getModel();
 	if (state.empty()) {
-		model.setCPUMode(RegisterViewModel::CPUMode::UNKNOWN);
+		model.setCPUMode(RegisterViewModel::CpuMode::UNKNOWN);
 		return;
 	}
 
-	model.setCPUMode(RegisterViewModel::CPUMode::Defined);
+	model.setCPUMode(RegisterViewModel::CpuMode::Defined);
 
 	updateGPRs(model, state, default_region_name);
 	updateCPSR(model, state);
@@ -414,12 +414,12 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	model.dataUpdateFinished();
 }
 
-std::unique_ptr<QMenu> ArchProcessor::register_item_context_menu(const Register &reg) {
+std::unique_ptr<QMenu> ArchProcessor::registerItemContextMenu(const Register &reg) {
 	Q_UNUSED(reg)
 	return std::make_unique<QMenu>(nullptr);
 }
 
-RegisterViewModelBase::Model &ArchProcessor::get_register_view_model() const {
+RegisterViewModelBase::Model &ArchProcessor::registerViewModel() const {
 	static RegisterViewModel model(0);
 	return model;
 }
@@ -428,6 +428,6 @@ void ArchProcessor::justAttached() {
 	just_attached_ = true;
 }
 
-bool ArchProcessor::is_executed(const edb::Instruction &inst, const State &state) const {
+bool ArchProcessor::isExecuted(const edb::Instruction &inst, const State &state) const {
 	return is_jcc_taken(state.flags(), inst.condition_code());
 }

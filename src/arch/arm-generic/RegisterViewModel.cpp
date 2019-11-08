@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "RegisterViewModel.h"
 #include <QDebug>
 
+namespace {
+
 using GPR   = RegisterViewModelBase::SimpleRegister<edb::value32>;
 using CPSR  = RegisterViewModelBase::FlagsRegister<edb::value32>;
 using FPSCR = RegisterViewModelBase::FlagsRegister<edb::value32>;
@@ -50,10 +52,12 @@ std::vector<RegisterViewModelBase::BitFieldDescription> cpsrDescription = {
 	{QLatin1String("N"), 31, 1},
 };
 
-static const std::vector<QString> roundingStrings{QObject::tr("Rounding to nearest"),
-												  QObject::tr("Rounding to Plus infinity"),
-												  QObject::tr("Rounding to Minus infinity"),
-												  QObject::tr("Rounding toward zero")};
+static const std::vector<QString> roundingStrings = {
+	QObject::tr("Rounding to nearest"),
+	QObject::tr("Rounding to Plus infinity"),
+	QObject::tr("Rounding to Minus infinity"),
+	QObject::tr("Rounding toward zero"),
+};
 
 std::vector<RegisterViewModelBase::BitFieldDescription> fpscrDescription = {
 	{QLatin1String("IOC"), 0, 1},
@@ -83,6 +87,8 @@ enum {
 	CPSR_ROW,
 	FPSCR_ROW = 0,
 };
+
+}
 
 QVariant RegisterViewModel::data(QModelIndex const &index, int role) const {
 	if (role == FixedLengthRole) {
@@ -132,11 +138,12 @@ RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject *parent)
 	  gprs(addCategory(tr("General Purpose"))),
 	  genStatusRegs(addCategory(tr("General Status"))),
 	  vfpRegs(addFPUCategory(tr("VFP"))) {
+
 	addGPRs(gprs);
 	addGenStatusRegs(genStatusRegs);
 	addVFPRegs(vfpRegs);
 
-	setCPUMode(CPUMode::UNKNOWN);
+	setCPUMode(CpuMode::UNKNOWN);
 }
 
 void invalidate(RegisterViewModelBase::Category *cat, int row, const char *nameToCheck) {
@@ -180,16 +187,16 @@ void RegisterViewModel::showAll() {
 	vfpRegs->show();
 }
 
-void RegisterViewModel::setCPUMode(CPUMode newMode) {
+void RegisterViewModel::setCPUMode(CpuMode newMode) {
 	if (mode == newMode) return;
 
 	beginResetModel();
 	mode = newMode;
 	switch (newMode) {
-	case CPUMode::UNKNOWN:
+	case CpuMode::UNKNOWN:
 		hideAll();
 		break;
-	case CPUMode::Defined:
+	case CpuMode::Defined:
 		showAll();
 		break;
 	default:
