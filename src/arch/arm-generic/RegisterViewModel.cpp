@@ -143,7 +143,7 @@ RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject *parent)
 	addGenStatusRegs(genStatusRegs);
 	addVFPRegs(vfpRegs);
 
-	setCPUMode(CpuMode::UNKNOWN);
+    setCpuMode(CpuMode::UNKNOWN);
 }
 
 void invalidate(RegisterViewModelBase::Category *cat, int row, const char *nameToCheck) {
@@ -187,7 +187,7 @@ void RegisterViewModel::showAll() {
 	vfpRegs->show();
 }
 
-void RegisterViewModel::setCPUMode(CpuMode newMode) {
+void RegisterViewModel::setCpuMode(CpuMode newMode) {
 	if (mode == newMode) return;
 
 	beginResetModel();
