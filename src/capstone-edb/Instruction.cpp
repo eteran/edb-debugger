@@ -481,8 +481,11 @@ std::string Formatter::to_string(const Operand &operand) const {
 
 	const std::size_t totalOperands       = insn.operand_count();
 	const std::size_t numberInInstruction = operand.index();
-
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	if (operand->type == X86_OP_REG) {
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
+if (operand->type == X86_OP_REG) {
+#endif
 		str = register_name(operand->reg);
 	} else if (totalOperands == 1) {
 		str = insn->op_str;
