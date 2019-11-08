@@ -159,8 +159,8 @@ void DialogOptions::showEvent(QShowEvent *event) {
 
 	ui.chkHexOffsets->setChecked(config.function_offsets_in_hex);
 
-	ui.rdoSytntaxATT->setChecked(config.syntax == Configuration::ATT);
-	ui.rdoSytntaxIntel->setChecked(config.syntax != Configuration::ATT);
+	ui.rdoSytntaxATT->setChecked(config.syntax == Configuration::Att);
+	ui.rdoSytntaxIntel->setChecked(config.syntax != Configuration::Att);
 
 	ui.rdoDetach->setChecked(config.close_behavior == Configuration::Detach);
 	ui.rdoKill->setChecked(config.close_behavior == Configuration::Kill);
@@ -260,7 +260,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	if (ui.rdoSytntaxIntel->isChecked()) {
 		config.syntax = Configuration::Intel;
 	} else if (ui.rdoSytntaxATT->isChecked()) {
-		config.syntax = Configuration::ATT;
+		config.syntax = Configuration::Att;
 	}
 
 	config.tab_between_mnemonic_and_operands      = ui.chkTabBetweenMnemonicAndOperands->isChecked();

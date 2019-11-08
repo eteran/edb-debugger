@@ -21,34 +21,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMouseEvent>
 #include <QTabBar>
 
-//------------------------------------------------------------------------------
-// Name: TabWidget
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief TabWidget::TabWidget
+ * @param parent
+ */
 TabWidget::TabWidget(QWidget *parent)
 	: QTabWidget(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: setData
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief TabWidget::setData
+ * @param index
+ * @param data
+ */
 void TabWidget::setData(int index, const QVariant &data) {
 	tabBar()->setTabData(index, data);
 }
 
-//------------------------------------------------------------------------------
-// Name: data
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief TabWidget::data
+ * @param index
+ * @return
+ */
 QVariant TabWidget::data(int index) const {
 	return tabBar()->tabData(index);
 }
 
-//------------------------------------------------------------------------------
-// Name: mousePressEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief TabWidget::mousePressEvent
+ * @param event
+ */
 void TabWidget::mousePressEvent(QMouseEvent *event) {
 	if (event->button() != Qt::RightButton) {
 		return;

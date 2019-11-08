@@ -34,26 +34,27 @@ constexpr int CallMinSize = 2;
 
 }
 
-//------------------------------------------------------------------------------
-// Name: set_comment
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief CommentServer::setComment
+ * @param address
+ * @param comment
+ */
 void CommentServer::setComment(edb::address_t address, const QString &comment) {
 	customComments_[address] = comment;
 }
 
-//------------------------------------------------------------------------------
-// Name: clear
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief CommentServer::clear
+ */
 void CommentServer::clear() {
 	customComments_.clear();
 }
 
-//------------------------------------------------------------------------------
-// Name: resolve_function_call
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief CommentServer::resolveFunctionCall
+ * @param address
+ * @return
+ */
 Result<QString, QString> CommentServer::resolveFunctionCall(edb::address_t address) const {
 
 	// ok, we now want to locate the instruction before this one
@@ -83,10 +84,11 @@ Result<QString, QString> CommentServer::resolveFunctionCall(edb::address_t addre
 	return make_unexpected(tr("Failed to resolve function call"));
 }
 
-//------------------------------------------------------------------------------
-// Name: resolve_string
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief CommentServer::resolveString
+ * @param address
+ * @return
+ */
 Result<QString, QString> CommentServer::resolveString(edb::address_t address) const {
 
 	const int min_string_length   = edb::v1::config().min_string_length;
@@ -104,10 +106,12 @@ Result<QString, QString> CommentServer::resolveString(edb::address_t address) co
 	return make_unexpected(tr("Failed to resolve string"));
 }
 
-//------------------------------------------------------------------------------
-// Name: comment
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief CommentServer::comment
+ * @param address
+ * @param size
+ * @return
+ */
 QString CommentServer::comment(edb::address_t address, int size) const {
 
 	if (IProcess *process = edb::v1::debugger_core->process()) {

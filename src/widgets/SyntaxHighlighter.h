@@ -32,7 +32,7 @@ public:
 	explicit SyntaxHighlighter(QObject *parent = nullptr);
 
 private:
-	void create_rules();
+    void createRules();
 
 public:
 	QVector<QTextLayout::FormatRange> highlightBlock(const QString &text);

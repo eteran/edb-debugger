@@ -21,7 +21,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
-QTextCharFormat createRule(const QBrush &foreground, const QBrush &background, int weight, bool italic, bool underline) {
+/**
+ * @brief create_rule
+ * @param foreground
+ * @param background
+ * @param weight
+ * @param italic
+ * @param underline
+ * @return
+ */
+QTextCharFormat create_rule(const QBrush &foreground, const QBrush &background, int weight, bool italic, bool underline) {
 	QTextCharFormat format;
 	format.setForeground(foreground);
 	format.setBackground(background);
@@ -33,38 +42,42 @@ QTextCharFormat createRule(const QBrush &foreground, const QBrush &background, i
 
 }
 
-//------------------------------------------------------------------------------
-// Name: SyntaxHighlighter
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief SyntaxHighlighter::SyntaxHighlighter
+ * @param parent
+ */
 SyntaxHighlighter::SyntaxHighlighter(QObject *parent)
 	: QObject(parent) {
-	create_rules();
+
+	createRules();
 }
 
-//------------------------------------------------------------------------------
-// Name: HighlightingRule::HighlightingRule
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief SyntaxHighlighter::HighlightingRule::HighlightingRule
+ */
 SyntaxHighlighter::HighlightingRule::HighlightingRule() {
 }
 
-//------------------------------------------------------------------------------
-// Name: HighlightingRule::HighlightingRule
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief SyntaxHighlighter::HighlightingRule::HighlightingRule
+ * @param regex
+ * @param foreground
+ * @param background
+ * @param weight
+ * @param italic
+ * @param underline
+ */
 SyntaxHighlighter::HighlightingRule::HighlightingRule(const QString &regex, const QBrush &foreground, const QBrush &background, int weight, bool italic, bool underline)
 	: pattern(regex) {
 
 	pattern.setCaseSensitivity(Qt::CaseInsensitive);
-	format = createRule(foreground, background, weight, italic, underline);
+    format = create_rule(foreground, background, weight, italic, underline);
 }
 
-//------------------------------------------------------------------------------
-// Name: create_rules
-// Desc:
-//------------------------------------------------------------------------------
-void SyntaxHighlighter::create_rules() {
+/**
+ * @brief SyntaxHighlighter::createRules
+ */
+void SyntaxHighlighter::createRules() {
 
 	// TODO: make these rules be implemented in a portable way
 	// right now things are very much hard coded
@@ -260,10 +273,11 @@ void SyntaxHighlighter::create_rules() {
 		settings.value("theme.data.underline", false).toBool()));
 }
 
-//------------------------------------------------------------------------------
-// Name: highlightBlock
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief SyntaxHighlighter::highlightBlock
+ * @param text
+ * @return
+ */
 QVector<QTextLayout::FormatRange> SyntaxHighlighter::highlightBlock(const QString &text) {
 
 	QVector<QTextLayout::FormatRange> ranges;

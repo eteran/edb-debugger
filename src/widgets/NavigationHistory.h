@@ -40,7 +40,7 @@ public:
 private:
 	QList<edb::address_t> list_;
 	int pos_ = 0;
-	int max_count_;
+    int maxCount_;
 	LASTOP lastop_ = LASTOP_NONE;
 };
 
