@@ -71,7 +71,7 @@ SyntaxHighlighter::HighlightingRule::HighlightingRule(const QString &regex, cons
 	: pattern(regex) {
 
 	pattern.setCaseSensitivity(Qt::CaseInsensitive);
-    format = create_rule(foreground, background, weight, italic, underline);
+	format = create_rule(foreground, background, weight, italic, underline);
 }
 
 /**

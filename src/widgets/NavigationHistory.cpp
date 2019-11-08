@@ -19,11 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "NavigationHistory.h"
 
 NavigationHistory::NavigationHistory(int count)
-    : maxCount_(count) {
+	: maxCount_(count) {
 }
 
 void NavigationHistory::add(edb::address_t address) {
-    if (list_.size() == maxCount_) {
+	if (list_.size() == maxCount_) {
 		list_.removeFirst();
 		--pos_;
 	}

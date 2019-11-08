@@ -40,7 +40,7 @@ Q_SIGNALS:
 public:
 	enum Syntax {
 		Intel,
-		ATT
+		Att
 	};
 
 	enum CloseBehavior {

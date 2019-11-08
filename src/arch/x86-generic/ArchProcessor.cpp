@@ -196,7 +196,8 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 		} else {
 			return QString("'\\x%1'").arg(static_cast<uint16_t>(arg), 2, 16);
 		}
-	case 'a': // signed char; since we're formatting as hex, we want to avoid sign
+	case 'a':
+		// signed char; since we're formatting as hex, we want to avoid sign
 		// extension done inside QString::number (happening due to the cast to
 		// qlonglong inside QString::setNum, which used in QString::number).
 		// Similarly for other shorter-than-long-long signed types.
