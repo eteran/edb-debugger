@@ -52,7 +52,6 @@ public:
 	void aboutToResume();
 	void setupRegisterView();
 	void updateRegisterView(const QString &default_region_name, const State &state);
-	std::unique_ptr<QMenu> registerItemContextMenu(const Register &reg);
 	RegisterViewModelBase::Model &registerViewModel() const;
 
 private:

@@ -10,6 +10,8 @@
 		}                                                           \
 	} while (0)
 
+namespace {
+
 void testSignExtension() {
 
 	edb::value64 v64;
@@ -125,6 +127,8 @@ void testToString() {
 
 	QString str2 = v64.toString();
 	TEST(str2 == "81985529216486895");
+}
+
 }
 
 int main() {

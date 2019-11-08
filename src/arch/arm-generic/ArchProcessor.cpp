@@ -28,8 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cstdint>
 
-#include <QMenu>
-
 using std::uint32_t;
 
 namespace {
@@ -412,11 +410,6 @@ void ArchProcessor::updateRegisterView(const QString &default_region_name, const
 		just_attached_ = false;
 	}
 	model.dataUpdateFinished();
-}
-
-std::unique_ptr<QMenu> ArchProcessor::registerItemContextMenu(const Register &reg) {
-	Q_UNUSED(reg)
-	return std::make_unique<QMenu>(nullptr);
 }
 
 RegisterViewModelBase::Model &ArchProcessor::registerViewModel() const {

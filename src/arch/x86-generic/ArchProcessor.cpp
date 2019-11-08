@@ -34,9 +34,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 #include <QDomDocument>
 #include <QFile>
-#include <QMenu>
 #include <QVector>
 #include <QXmlQuery>
+#include <QWidget>
 
 #include <cctype>
 #include <climits>
@@ -924,151 +924,6 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 #endif
 }
 
-}
-
-//------------------------------------------------------------------------------
-// Name: getEffectiveAddress
-// Desc:
-//------------------------------------------------------------------------------
-Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state) const {
-	using ResultT = Result<edb::address_t, QString>;
-
-	edb::address_t ret = 0;
-	// TODO: get registers by index, not string! too slow
-
-	if (op) {
-		if (is_register(op)) {
-			ret = state[QString::fromStdString(edb::v1::formatter().to_string(op))].valueAsAddress();
-		} else if (is_expression(op)) {
-			const Register baseR  = state[QString::fromStdString(register_name(op->mem.base))];
-			const Register indexR = state[QString::fromStdString(register_name(op->mem.index))];
-			edb::address_t base   = 0;
-			edb::address_t index  = 0;
-
-			if (!baseR) {
-				if (op->mem.base != X86_REG_INVALID)
-					return make_unexpected(tr("failed to acquire base register from state"));
-			} else {
-				base = baseR.valueAsAddress();
-			}
-
-			if (!indexR) {
-				if (op->mem.index != X86_REG_INVALID)
-					return make_unexpected(tr("failed to acquire index register from state"));
-			} else {
-				if (indexR.type() != Register::TYPE_GPR)
-					return make_unexpected(tr("only general-purpose register is supported as index register"));
-				index = indexR.valueAsAddress();
-			}
-
-			// This only makes sense for x86_64, but doesn't hurt on x86
-			if (op->mem.base == X86_REG_RIP) {
-				base += inst.byte_size();
-			}
-
-			ret = base + index * op->mem.scale + op->mem.disp;
-
-			std::size_t segRegIndex = op->mem.segment;
-
-			// handle implicit segments on 32-bit (capstone doesn't call them out explicitly)
-			if (segRegIndex == X86_REG_INVALID && !debuggeeIs64Bit()) {
-				switch (op->mem.base) {
-				case X86_REG_BP:
-				case X86_REG_SP:
-				case X86_REG_EBP:
-				case X86_REG_ESP:
-					segRegIndex = X86_REG_SS;
-					break;
-				default:
-					segRegIndex = X86_REG_DS;
-					break;
-				}
-			}
-
-			if (segRegIndex != X86_REG_INVALID) {
-
-				const Register segBase = [&segRegIndex, &state]() {
-					switch (segRegIndex) {
-					case X86_REG_ES:
-						return state[QLatin1String("es_base")];
-					case X86_REG_CS:
-						return state[QLatin1String("cs_base")];
-					case X86_REG_SS:
-						return state[QLatin1String("ss_base")];
-					case X86_REG_DS:
-						return state[QLatin1String("ds_base")];
-					case X86_REG_FS:
-						return state[QLatin1String("fs_base")];
-					case X86_REG_GS:
-						return state[QLatin1String("gs_base")];
-					default:
-						return Register();
-					}
-				}();
-
-				if (!segBase) return make_unexpected(QObject::tr("failed to obtain segment base")); // no way to reliably compute address
-				ret += segBase.valueAsAddress();
-			}
-		} else if (is_immediate(op)) {
-			const Register csBase = state["cs_base"];
-			if (!csBase) return make_unexpected(QObject::tr("failed to obtain CS segment base")); // no way to reliably compute address
-			ret = op->imm + csBase.valueAsAddress();
-		}
-	}
-
-	ret.normalize();
-	return ResultT(ret);
-}
-
-edb::address_t ArchProcessor::getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool &ok) const {
-
-	ok                = false;
-	const auto result = getEffectiveAddress(inst, op, state);
-	if (!result) return 0;
-	ok = true;
-	return result.value();
-}
-
-//------------------------------------------------------------------------------
-// Name: ArchProcessor
-// Desc:
-//------------------------------------------------------------------------------
-ArchProcessor::ArchProcessor() {
-	if (edb::v1::debugger_core) {
-		hasMmx_ = edb::v1::debugger_core->hasExtension(edb::string_hash("MMX"));
-		hasXmm_ = edb::v1::debugger_core->hasExtension(edb::string_hash("XMM"));
-		hasYmm_ = edb::v1::debugger_core->hasExtension(edb::string_hash("YMM"));
-		connect(edb::v1::debugger_ui, SIGNAL(attachEvent()), this, SLOT(justAttached()));
-	} else {
-		hasMmx_ = false;
-		hasXmm_ = false;
-		hasYmm_ = false;
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: setup_register_view
-// Desc:
-//------------------------------------------------------------------------------
-void ArchProcessor::setupRegisterView() {
-
-	if (edb::v1::debugger_core) {
-
-		updateRegisterView(QString(), State());
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: reset
-// Desc:
-//------------------------------------------------------------------------------
-void ArchProcessor::reset() {
-
-	if (edb::v1::debugger_core) {
-		updateRegisterView(QString(), State());
-	}
-}
-
 QString gprComment(const Register &reg) {
 	QString regString;
 	int stringLength;
@@ -1333,6 +1188,181 @@ void updateSSEAVXRegs(RegisterViewModel &model, const State &state, bool hasSSE,
 	}
 }
 
+bool falseSyscallReturn(const State &state, std::int64_t origAX) {
+	// Prevent reporting of returns from execve() when the process has just launched
+	if (EDB_IS_32_BIT && origAX == 11) {
+		return state.gpRegister(rAX).valueAsInteger() == 0 &&
+			   state.gpRegister(rCX).valueAsInteger() == 0 &&
+			   state.gpRegister(rDX).valueAsInteger() == 0 &&
+			   state.gpRegister(rBX).valueAsInteger() == 0 &&
+			   state.gpRegister(rBP).valueAsInteger() == 0 &&
+			   state.gpRegister(rSI).valueAsInteger() == 0 &&
+			   state.gpRegister(rDI).valueAsInteger() == 0;
+	} else if (EDB_IS_64_BIT && origAX == 59) {
+		return state.gpRegister(rAX).valueAsInteger() == 0 &&
+			   state.gpRegister(rCX).valueAsInteger() == 0 &&
+			   state.gpRegister(rDX).valueAsInteger() == 0 &&
+			   state.gpRegister(rBX).valueAsInteger() == 0 &&
+			   state.gpRegister(rBP).valueAsInteger() == 0 &&
+			   state.gpRegister(rSI).valueAsInteger() == 0 &&
+			   state.gpRegister(rDI).valueAsInteger() == 0 &&
+			   state.gpRegister(R8).valueAsInteger() == 0 &&
+			   state.gpRegister(R9).valueAsInteger() == 0 &&
+			   state.gpRegister(R10).valueAsInteger() == 0 &&
+			   state.gpRegister(R11).valueAsInteger() == 0 &&
+			   state.gpRegister(R12).valueAsInteger() == 0 &&
+			   state.gpRegister(R13).valueAsInteger() == 0 &&
+			   state.gpRegister(R14).valueAsInteger() == 0 &&
+			   state.gpRegister(R15).valueAsInteger() == 0;
+	}
+	return false;
+}
+
+}
+
+//------------------------------------------------------------------------------
+// Name: getEffectiveAddress
+// Desc:
+//------------------------------------------------------------------------------
+Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state) const {
+	using ResultT = Result<edb::address_t, QString>;
+
+	edb::address_t ret = 0;
+	// TODO: get registers by index, not string! too slow
+
+	if (op) {
+		if (is_register(op)) {
+			ret = state[QString::fromStdString(edb::v1::formatter().to_string(op))].valueAsAddress();
+		} else if (is_expression(op)) {
+			const Register baseR  = state[QString::fromStdString(register_name(op->mem.base))];
+			const Register indexR = state[QString::fromStdString(register_name(op->mem.index))];
+			edb::address_t base   = 0;
+			edb::address_t index  = 0;
+
+			if (!baseR) {
+				if (op->mem.base != X86_REG_INVALID)
+					return make_unexpected(tr("failed to acquire base register from state"));
+			} else {
+				base = baseR.valueAsAddress();
+			}
+
+			if (!indexR) {
+				if (op->mem.index != X86_REG_INVALID)
+					return make_unexpected(tr("failed to acquire index register from state"));
+			} else {
+				if (indexR.type() != Register::TYPE_GPR)
+					return make_unexpected(tr("only general-purpose register is supported as index register"));
+				index = indexR.valueAsAddress();
+			}
+
+			// This only makes sense for x86_64, but doesn't hurt on x86
+			if (op->mem.base == X86_REG_RIP) {
+				base += inst.byte_size();
+			}
+
+			ret = base + index * op->mem.scale + op->mem.disp;
+
+			std::size_t segRegIndex = op->mem.segment;
+
+			// handle implicit segments on 32-bit (capstone doesn't call them out explicitly)
+			if (segRegIndex == X86_REG_INVALID && !debuggeeIs64Bit()) {
+				switch (op->mem.base) {
+				case X86_REG_BP:
+				case X86_REG_SP:
+				case X86_REG_EBP:
+				case X86_REG_ESP:
+					segRegIndex = X86_REG_SS;
+					break;
+				default:
+					segRegIndex = X86_REG_DS;
+					break;
+				}
+			}
+
+			if (segRegIndex != X86_REG_INVALID) {
+
+				const Register segBase = [&segRegIndex, &state]() {
+					switch (segRegIndex) {
+					case X86_REG_ES:
+						return state[QLatin1String("es_base")];
+					case X86_REG_CS:
+						return state[QLatin1String("cs_base")];
+					case X86_REG_SS:
+						return state[QLatin1String("ss_base")];
+					case X86_REG_DS:
+						return state[QLatin1String("ds_base")];
+					case X86_REG_FS:
+						return state[QLatin1String("fs_base")];
+					case X86_REG_GS:
+						return state[QLatin1String("gs_base")];
+					default:
+						return Register();
+					}
+				}();
+
+				if (!segBase) return make_unexpected(QObject::tr("failed to obtain segment base")); // no way to reliably compute address
+				ret += segBase.valueAsAddress();
+			}
+		} else if (is_immediate(op)) {
+			const Register csBase = state["cs_base"];
+			if (!csBase) return make_unexpected(QObject::tr("failed to obtain CS segment base")); // no way to reliably compute address
+			ret = op->imm + csBase.valueAsAddress();
+		}
+	}
+
+	ret.normalize();
+	return ResultT(ret);
+}
+
+edb::address_t ArchProcessor::getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool &ok) const {
+
+	ok                = false;
+	const auto result = getEffectiveAddress(inst, op, state);
+	if (!result) return 0;
+	ok = true;
+	return result.value();
+}
+
+//------------------------------------------------------------------------------
+// Name: ArchProcessor
+// Desc:
+//------------------------------------------------------------------------------
+ArchProcessor::ArchProcessor() {
+	if (edb::v1::debugger_core) {
+		hasMmx_ = edb::v1::debugger_core->hasExtension(edb::string_hash("MMX"));
+		hasXmm_ = edb::v1::debugger_core->hasExtension(edb::string_hash("XMM"));
+		hasYmm_ = edb::v1::debugger_core->hasExtension(edb::string_hash("YMM"));
+		connect(edb::v1::debugger_ui, SIGNAL(attachEvent()), this, SLOT(justAttached()));
+	} else {
+		hasMmx_ = false;
+		hasXmm_ = false;
+		hasYmm_ = false;
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: setup_register_view
+// Desc:
+//------------------------------------------------------------------------------
+void ArchProcessor::setupRegisterView() {
+
+	if (edb::v1::debugger_core) {
+
+		updateRegisterView(QString(), State());
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: reset
+// Desc:
+//------------------------------------------------------------------------------
+void ArchProcessor::reset() {
+
+	if (edb::v1::debugger_core) {
+		updateRegisterView(QString(), State());
+	}
+}
+
 //------------------------------------------------------------------------------
 // Name: update_register_view
 // Desc:
@@ -1372,36 +1402,6 @@ void ArchProcessor::aboutToResume() {
 
 void ArchProcessor::justAttached() {
 	justAttached_ = true;
-}
-
-bool falseSyscallReturn(const State &state, std::int64_t origAX) {
-	// Prevent reporting of returns from execve() when the process has just launched
-	if (EDB_IS_32_BIT && origAX == 11) {
-		return state.gpRegister(rAX).valueAsInteger() == 0 &&
-			   state.gpRegister(rCX).valueAsInteger() == 0 &&
-			   state.gpRegister(rDX).valueAsInteger() == 0 &&
-			   state.gpRegister(rBX).valueAsInteger() == 0 &&
-			   state.gpRegister(rBP).valueAsInteger() == 0 &&
-			   state.gpRegister(rSI).valueAsInteger() == 0 &&
-			   state.gpRegister(rDI).valueAsInteger() == 0;
-	} else if (EDB_IS_64_BIT && origAX == 59) {
-		return state.gpRegister(rAX).valueAsInteger() == 0 &&
-			   state.gpRegister(rCX).valueAsInteger() == 0 &&
-			   state.gpRegister(rDX).valueAsInteger() == 0 &&
-			   state.gpRegister(rBX).valueAsInteger() == 0 &&
-			   state.gpRegister(rBP).valueAsInteger() == 0 &&
-			   state.gpRegister(rSI).valueAsInteger() == 0 &&
-			   state.gpRegister(rDI).valueAsInteger() == 0 &&
-			   state.gpRegister(R8).valueAsInteger() == 0 &&
-			   state.gpRegister(R9).valueAsInteger() == 0 &&
-			   state.gpRegister(R10).valueAsInteger() == 0 &&
-			   state.gpRegister(R11).valueAsInteger() == 0 &&
-			   state.gpRegister(R12).valueAsInteger() == 0 &&
-			   state.gpRegister(R13).valueAsInteger() == 0 &&
-			   state.gpRegister(R14).valueAsInteger() == 0 &&
-			   state.gpRegister(R15).valueAsInteger() == 0;
-	}
-	return false;
 }
 
 //------------------------------------------------------------------------------
