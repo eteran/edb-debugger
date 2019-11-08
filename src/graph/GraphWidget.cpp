@@ -48,15 +48,15 @@ constexpr qreal MaximumZoom = 8.000;
 
 namespace {
 
-qreal graphHeight(Agraph_t *graph) {
+qreal graph_height(Agraph_t *graph) {
 	return GD_bb(graph).UR.y;
 }
 
-QPointF toPoint(pointf p, qreal gheight) {
+QPointF to_point(pointf p, qreal gheight) {
 	return QPointF(p.x, gheight - p.y);
 }
 
-QPointF centerToOrigin(const QPointF &p, qreal width, qreal height) {
+QPointF center_to_origin(const QPointF &p, qreal width, qreal height) {
 	return QPointF(p.x() - width / 2, p.y() - height / 2);
 }
 
@@ -98,12 +98,10 @@ GraphWidget::GraphWidget(QWidget *parent)
 	setGraphAttribute("nslimit1", "1");
 	setGraphAttribute("splines", "line"); // ugly but should be much faster
 
-#if 1
 	//Set default attributes for the future nodes
 	setNodeAttribute("fixedsize", "false");
 	setNodeAttribute("label", "");
 	setNodeAttribute("regular", "true");
-#endif
 
 	//Divide the wanted width by the DPI to get the value in points
 	QString nodePtsWidth = QString("%1").arg(NodeWidth / _agget(graph_, "dpi", "96,0").toDouble());
@@ -181,16 +179,15 @@ void GraphWidget::layout() {
 
 	qDebug() << "Starting Layout Engine";
 
-#if 1
 	gvFreeLayout(context_, graph_);
 	gvLayout(context_, graph_, "dot");
 
 	Q_FOREACH (QGraphicsItem *item, items()) {
 		if (auto node = qgraphicsitem_cast<GraphNode *>(item)) {
-			qreal gheight = graphHeight(graph_);
+			qreal gheight = graph_height(graph_);
 			if (auto internalNode = node->node_) {
-				QPointF point = toPoint(ND_coord(internalNode), gheight);
-				node->setPos(centerToOrigin(point, node->boundingRect().width(), node->boundingRect().height()));
+				QPointF point = to_point(ND_coord(internalNode), gheight);
+				node->setPos(center_to_origin(point, node->boundingRect().width(), node->boundingRect().height()));
 			}
 		}
 	}
@@ -200,7 +197,7 @@ void GraphWidget::layout() {
 			edge->syncState();
 		}
 	}
-#endif
+
 	qDebug() << "Layout Complete";
 
 	// make the scene HUGE so it feels like you can just scroll forever

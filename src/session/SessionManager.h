@@ -41,15 +41,17 @@ public:
 	static SessionManager &instance();
 
 public:
-	Result<void, SessionError> load_session(const QString &);
-	void save_session(const QString &);
-	void get_comments(QVariantList &);
-	void add_comment(Comment &);
-	void remove_comment(edb::address_t);
+	Result<void, SessionError> loadSession(const QString &filename);
+	void saveSession(const QString &filename);
+	QVariantList comments() const;
+	void addComment(const Comment &c);
+	void removeComment(edb::address_t address);
 
 private:
-	QVariantMap session_data;
-	void load_plugin_data();
+	void loadPluginData();
+
+private:
+	QVariantMap sessionData_;
 };
 
 #endif

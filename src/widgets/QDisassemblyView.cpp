@@ -2061,7 +2061,7 @@ void QDisassemblyView::add_comment(edb::address_t address, QString comment) {
 	Comment temp_comment = {
 		address,
 		comment};
-	SessionManager::instance().add_comment(temp_comment);
+	SessionManager::instance().addComment(temp_comment);
 	comments_.insert(address, comment);
 }
 
@@ -2070,7 +2070,7 @@ void QDisassemblyView::add_comment(edb::address_t address, QString comment) {
 // Desc: Removes a comment from the comment hash and returns the number of comments removed.
 //------------------------------------------------------------------------------
 int QDisassemblyView::remove_comment(edb::address_t address) {
-	SessionManager::instance().remove_comment(address);
+	SessionManager::instance().removeComment(address);
 	return comments_.remove(address);
 }
 
