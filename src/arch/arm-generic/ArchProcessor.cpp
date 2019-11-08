@@ -203,13 +203,13 @@ Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::In
 		const bool C = cpsrR ? cpsrR.valueAsInteger() & 0x20000000 : false;
 
 		edb::address_t addr = baseR.valueAsAddress();
-		if (const auto adjustedRes = adjustR15Value(insn, baseIndex, addr)) {
+        if (auto adjustedRes = adjustR15Value(insn, baseIndex, addr)) {
 			addr = adjustedRes.value() + operand->mem.disp;
 			if (indexR)
 				addr += operand->mem.scale * shift(indexR.valueAsAddress(), operand->shift.type, operand->shift.value, C);
 			return result_type(addr);
-		} else
-			return adjustedRes;
+        } else
+            return adjustedRes;
 	}
 
 	return make_unexpected(QObject::tr("getting effective address for operand %1 of instruction %2 is not implemented").arg(operand.index() + 1).arg(insn.mnemonic().c_str()));
