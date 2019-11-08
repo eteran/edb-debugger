@@ -12,7 +12,7 @@ class MultiBitFieldWidget final : public ValueField {
 	Q_OBJECT
 
 public:
-	MultiBitFieldWidget(const QModelIndex &index_, const BitFieldDescription &bfd, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	MultiBitFieldWidget(const QModelIndex &index, const BitFieldDescription &bfd, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
 public Q_SLOTS:
 	void setValue(int value);
