@@ -94,10 +94,9 @@ bool set_debug_privilege(HANDLE process, bool set) {
 
 }
 
-//------------------------------------------------------------------------------
-// Name: DebuggerCore
-// Desc: constructor
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::DebuggerCore
+ */
 DebuggerCore::DebuggerCore() {
 	DebugSetProcessKillOnExit(false);
 
@@ -108,27 +107,27 @@ DebuggerCore::DebuggerCore() {
 	set_debug_privilege(GetCurrentProcess(), true); // gogo magic powers
 }
 
-//------------------------------------------------------------------------------
-// Name: ~DebuggerCore
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::~DebuggerCore
+ */
 DebuggerCore::~DebuggerCore() {
 	detach();
 	set_debug_privilege(GetCurrentProcess(), false);
 }
 
-//------------------------------------------------------------------------------
-// Name: page_size
-// Desc: returns the size of a page on this system
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::pageSize
+ * @return the size of a page on this system
+ */
 size_t DebuggerCore::pageSize() const {
 	return pageSize_;
 }
 
-//------------------------------------------------------------------------------
-// Name: hasExtension
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::hasExtension
+ * @param ext
+ * @return
+ */
 bool DebuggerCore::hasExtension(quint64 ext) const {
 #if !defined(EDB_X86_64)
 	switch (ext) {
@@ -150,15 +149,17 @@ bool DebuggerCore::hasExtension(quint64 ext) const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: waitDebugEvent
-// Desc: waits for a debug event, secs is a timeout (but is not yet respected)
-//       ok will be set to false if the timeout expires
-//------------------------------------------------------------------------------
-std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(int msecs) {
+/**
+ * waits for a debug event, secs is a timeout (but is not yet respected)
+ *
+ * @brief DebuggerCore::waitDebugEvent
+ * @param msecs
+ * @return null if timeout occured
+ */
+std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(std::chrono::milliseconds msecs) {
 	if (attached()) {
-		DEBUG_EVENT de;
-		while (WaitForDebugEvent(&de, msecs == 0 ? INFINITE : static_cast<DWORD>(msecs))) {
+        DEBUG_EVENT de;
+        while (WaitForDebugEvent(&de, msecs.count() == 0 ? INFINITE : msecs.count())) {
 
 			Q_ASSERT(process_->pid() == de.dwProcessId);
 
@@ -214,8 +215,8 @@ std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(int msecs) {
 
 			if (propagate) {
 				// normal event
-				auto e   = std::make_shared<PlatformEvent>();
-				e->event = de;
+                auto e    = std::make_shared<PlatformEvent>();
+                e->event_ = de;
 				return e;
 			}
 
@@ -225,10 +226,11 @@ std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(int msecs) {
 	return nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: attach
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::attach
+ * @param pid
+ * @return
+ */
 Status DebuggerCore::attach(edb::pid_t pid) {
 
 	detach();
@@ -241,10 +243,10 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 	return Status("Error DebuggerCore::attach");
 }
 
-//------------------------------------------------------------------------------
-// Name: detach
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::detach
+ * @return
+ */
 Status DebuggerCore::detach() {
 	if (attached()) {
 		clearBreakpoints();
@@ -257,10 +259,9 @@ Status DebuggerCore::detach() {
 	return Status::Ok;
 }
 
-//------------------------------------------------------------------------------
-// Name: kill
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::kill
+ */
 void DebuggerCore::kill() {
 	if (auto p = static_cast<PlatformProcess *>(process_.get())) {
 		TerminateProcess(p->hProcess_, -1);
@@ -268,13 +269,18 @@ void DebuggerCore::kill() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: open
-// Desc:
-// TODO: Don't inherit security descriptors from this process (default values)
-//       Is this even possible?
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::open
+ * @param path
+ * @param cwd
+ * @param args
+ * @param tty
+ * @return
+ */
 Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
+
+    // TODO: Don't inherit security descriptors from this process (default values)
+    //       Is this even possible?
 
 	Q_UNUSED(tty)
 
@@ -284,16 +290,11 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 
 	detach();
 
-	// default to process's directory
-	QString tcwd;
-	if (cwd.isEmpty()) {
-		tcwd = QFileInfo(path).canonicalPath();
-	} else {
-		tcwd = cwd;
-	}
+    // default to process's directory
+    QString tcwd = cwd.isEmpty() ? QFileInfo(path).canonicalPath() : cwd;
 
-	STARTUPINFO startup_info         = {0};
-	PROCESS_INFORMATION process_info = {nullptr};
+    STARTUPINFO startup_info         = {};
+    PROCESS_INFORMATION process_info = {};
 
 	const DWORD CREATE_FLAGS = DEBUG_PROCESS | DEBUG_ONLY_THIS_PROCESS | CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE;
 
@@ -344,26 +345,26 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: createState
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::createState
+ * @return
+ */
 std::unique_ptr<IState> DebuggerCore::createState() const {
 	return std::make_unique<PlatformState>();
 }
 
-//------------------------------------------------------------------------------
-// Name: sys_pointer_size
-// Desc: returns the size of a pointer on this arch
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::sys_pointer_size
+ * @return the size of a pointer on this arch
+ */
 int DebuggerCore::sys_pointer_size() const {
 	return sizeof(void *);
 }
 
-//------------------------------------------------------------------------------
-// Name: enumerateProcesses
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::enumerateProcesses
+ * @return
+ */
 QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerateProcesses() const {
 	QMap<edb::pid_t, std::shared_ptr<IProcess>> ret;
 
@@ -398,10 +399,11 @@ QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerateProcesses() c
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::parentPid
+ * @param pid
+ * @return
+ */
 edb::pid_t DebuggerCore::parentPid(edb::pid_t pid) const {
 	edb::pid_t parent   = 1; // 1??
 	HANDLE hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, pid);
@@ -422,20 +424,20 @@ edb::pid_t DebuggerCore::parentPid(edb::pid_t pid) const {
 	return parent;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::exceptions
+ * @return
+ */
 QMap<qlonglong, QString> DebuggerCore::exceptions() const {
 	QMap<qlonglong, QString> exceptions;
 
 	return exceptions;
 }
 
-//------------------------------------------------------------------------------
-// Name: cpu_type
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::cpuType
+ * @return
+ */
 quint64 DebuggerCore::cpuType() const {
 #ifdef EDB_X86
 	return edb::string_hash("x86");
@@ -444,10 +446,10 @@ quint64 DebuggerCore::cpuType() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::stackPointer
+ * @return
+ */
 QString DebuggerCore::stackPointer() const {
 #ifdef EDB_X86
 	return "esp";
@@ -457,10 +459,10 @@ QString DebuggerCore::stackPointer() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::framePointer
+ * @return
+ */
 QString DebuggerCore::framePointer() const {
 #ifdef EDB_X86
 	return "ebp";
@@ -470,10 +472,10 @@ QString DebuggerCore::framePointer() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::instructionPointer
+ * @return
+ */
 QString DebuggerCore::instructionPointer() const {
 #ifdef EDB_X86
 	return "eip";
@@ -483,10 +485,18 @@ QString DebuggerCore::instructionPointer() const {
 #endif
 }
 
+/**
+ * @brief DebuggerCore::process
+ * @return
+ */
 IProcess *DebuggerCore::process() const {
 	return process_.get();
 }
 
+/**
+ * @brief DebuggerCore::nopFillByte
+ * @return
+ */
 uint8_t DebuggerCore::nopFillByte() const {
 	return 0x90;
 }

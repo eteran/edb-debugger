@@ -31,6 +31,7 @@ namespace DebuggerCorePlugin {
  */
 PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, const CREATE_THREAD_DEBUG_INFO *info)
 	: core_(core), process_(process) {
+
 	isWow64_ = static_cast<PlatformProcess *>(process.get())->isWow64();
 
 	DuplicateHandle(

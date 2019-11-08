@@ -21,32 +21,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCorePlugin {
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-PlatformEvent::PlatformEvent()
-	: event(DEBUG_EVENT()) {
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::clone
+ * @return
+ */
 PlatformEvent *PlatformEvent::clone() const {
 	return new PlatformEvent(*this);
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::errorDescription
+ * @return
+ */
 IDebugEvent::Message PlatformEvent::errorDescription() const {
 	Q_ASSERT(isError());
 
 	auto fault_address = static_cast<edb::address_t>(-1);
-	if (event.dwDebugEventCode == EXCEPTION_DEBUG_EVENT) {
-		fault_address = static_cast<edb::address_t>(event.u.Exception.ExceptionRecord.ExceptionInformation[1]);
+    if (event_.dwDebugEventCode == EXCEPTION_DEBUG_EVENT) {
+        fault_address = static_cast<edb::address_t>(event_.u.Exception.ExceptionRecord.ExceptionInformation[1]);
 	}
 
 	switch (code()) {
@@ -184,14 +176,14 @@ IDebugEvent::Message PlatformEvent::errorDescription() const {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::reason
+ * @return
+ */
 IDebugEvent::REASON PlatformEvent::reason() const {
-	switch (event.dwDebugEventCode) {
+    switch (event_.dwDebugEventCode) {
 	case EXCEPTION_DEBUG_EVENT:
-		if (event.u.Exception.ExceptionRecord.ExceptionFlags == EXCEPTION_NONCONTINUABLE) {
+        if (event_.u.Exception.ExceptionRecord.ExceptionFlags == EXCEPTION_NONCONTINUABLE) {
 			return EVENT_TERMINATED;
 		} else {
 			return EVENT_STOPPED;
@@ -212,14 +204,14 @@ IDebugEvent::REASON PlatformEvent::reason() const {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::trapReason
+ * @return
+ */
 IDebugEvent::TRAP_REASON PlatformEvent::trapReason() const {
-	switch (event.dwDebugEventCode) {
+    switch (event_.dwDebugEventCode) {
 	case EXCEPTION_DEBUG_EVENT:
-		switch (event.u.Exception.ExceptionRecord.ExceptionCode) {
+        switch (event_.u.Exception.ExceptionRecord.ExceptionCode) {
 		case EXCEPTION_BREAKPOINT:
 			return TRAP_BREAKPOINT;
 		case EXCEPTION_SINGLE_STEP:
@@ -229,22 +221,22 @@ IDebugEvent::TRAP_REASON PlatformEvent::trapReason() const {
 	return TRAP_BREAKPOINT;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::exited
+ * @return
+ */
 bool PlatformEvent::exited() const {
 	return reason() == EVENT_EXITED;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::isError
+ * @return
+ */
 bool PlatformEvent::isError() const {
-	switch (event.dwDebugEventCode) {
+    switch (event_.dwDebugEventCode) {
 	case EXCEPTION_DEBUG_EVENT:
-		switch (event.u.Exception.ExceptionRecord.ExceptionCode) {
+        switch (event_.u.Exception.ExceptionRecord.ExceptionCode) {
 		case EXCEPTION_ACCESS_VIOLATION:
 		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
 		case EXCEPTION_DATATYPE_MISALIGNMENT:
@@ -283,29 +275,29 @@ bool PlatformEvent::isError() const {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::isKill
+ * @return
+ */
 bool PlatformEvent::isKill() const {
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::isStop
+ * @return
+ */
 bool PlatformEvent::isStop() const {
 	return !isTrap();
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::isTrap
+ * @return
+ */
 bool PlatformEvent::isTrap() const {
 	if (stopped()) {
-		switch (event.u.Exception.ExceptionRecord.ExceptionCode) {
+        switch (event_.u.Exception.ExceptionRecord.ExceptionCode) {
 		case EXCEPTION_SINGLE_STEP:
 		case EXCEPTION_BREAKPOINT:
 			return true;
@@ -316,53 +308,53 @@ bool PlatformEvent::isTrap() const {
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::terminated
+ * @return
+ */
 bool PlatformEvent::terminated() const {
 	return reason() == EVENT_TERMINATED;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::stopped
+ * @return
+ */
 bool PlatformEvent::stopped() const {
 	return reason() == EVENT_STOPPED;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::process
+ * @return
+ */
 edb::pid_t PlatformEvent::process() const {
-	return event.dwProcessId;
+    return event_.dwProcessId;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::thread
+ * @return
+ */
 edb::tid_t PlatformEvent::thread() const {
-	return event.dwThreadId;
+    return event_.dwThreadId;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformEvent::code
+ * @return
+ */
 int64_t PlatformEvent::code() const {
 	if (stopped()) {
-		return event.u.Exception.ExceptionRecord.ExceptionCode;
+        return event_.u.Exception.ExceptionRecord.ExceptionCode;
 	}
 
 	if (terminated()) {
-		return event.u.Exception.ExceptionRecord.ExceptionCode;
+        return event_.u.Exception.ExceptionRecord.ExceptionCode;
 	}
 
 	if (exited()) {
-		return event.u.ExitProcess.dwExitCode;
+        return event_.u.ExitProcess.dwExitCode;
 	}
 
 	return 0;
