@@ -717,8 +717,8 @@ bool is_SIMD_PS(const Operand &operand) {
 		return false;
 	}
 #else
-	(void)operand;
-	return false
+    (void)operand;
+    return false;
 #endif
 }
 
