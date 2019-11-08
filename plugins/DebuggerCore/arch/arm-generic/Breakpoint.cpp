@@ -102,7 +102,7 @@ bool Breakpoint::enable() {
 				const std::vector<quint8> *bpBytes = nullptr;
 				switch (TypeId{type_}) {
 				case TypeId::Automatic:
-                    if (edb::v1::debugger_core->cpuMode() == IDebugger::CPUMode::Thumb) {
+                    if (edb::v1::debugger_core->cpuMode() == IDebugger::CpuMode::Thumb) {
 						bpBytes = &BreakpointInstructionThumb_LE;
 					} else {
 						bpBytes = &BreakpointInstructionARM_LE;
