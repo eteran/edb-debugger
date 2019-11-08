@@ -76,7 +76,7 @@ void Breakpoint::setType(IBreakpoint::TypeId type) {
 	disable();
 	if (Type{type} >= TypeId::TYPE_COUNT)
         throw BreakpointCreationError();
-	set_type(type);
+    setType(type);
 }
 
 //------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ bool Breakpoint::enable() {
 				const std::vector<quint8> *bpBytes = nullptr;
 				switch (TypeId{type_}) {
 				case TypeId::Automatic:
-					if (edb::v1::debugger_core->cpu_mode() == IDebugger::CPUMode::Thumb) {
+                    if (edb::v1::debugger_core->cpuMode() == IDebugger::CPUMode::Thumb) {
 						bpBytes = &BreakpointInstructionThumb_LE;
 					} else {
 						bpBytes = &BreakpointInstructionARM_LE;
@@ -164,7 +164,7 @@ bool Breakpoint::disable() {
 // Desc:
 //------------------------------------------------------------------------------
 void Breakpoint::hit() {
-	++hit_count_;
+    ++hitCount_;
 }
 
 //------------------------------------------------------------------------------
@@ -172,7 +172,7 @@ void Breakpoint::hit() {
 // Desc:
 //------------------------------------------------------------------------------
 void Breakpoint::setOneTime(bool value) {
-	one_time_ = value;
+    oneTime_ = value;
 }
 
 //------------------------------------------------------------------------------
@@ -183,7 +183,7 @@ void Breakpoint::setInternal(bool value) {
 	internal_ = value;
 }
 
-std::vector<size_t> Breakpoint::possible_rewind_sizes() {
+std::vector<size_t> Breakpoint::possibleRewindSizes() {
 	return {0}; // Even BKPT stops before the instruction, let alone UDF
 }
 
