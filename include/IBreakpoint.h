@@ -49,14 +49,14 @@ public:
 	};
 
 public:
-	virtual edb::address_t address() const      = 0;
-	virtual quint64 hitCount() const            = 0;
-	virtual bool enabled() const                = 0;
-	virtual bool oneTime() const                = 0;
-	virtual bool internal() const               = 0;
-    virtual const uint8_t *originalBytes() const = 0;
-	virtual size_t size() const                 = 0;
-	virtual TypeId type() const                 = 0;
+	virtual edb::address_t address() const       = 0;
+	virtual quint64 hitCount() const             = 0;
+	virtual bool enabled() const                 = 0;
+	virtual bool oneTime() const                 = 0;
+	virtual bool internal() const                = 0;
+	virtual const uint8_t *originalBytes() const = 0;
+	virtual size_t size() const                  = 0;
+	virtual TypeId type() const                  = 0;
 
 public:
 	virtual bool enable()                = 0;

@@ -383,13 +383,13 @@ void DialogROPTool::doFind() {
 					while (start_address < end_address) {
 
 						// read in the next byte
-                        uint8_t byte;
+						uint8_t byte;
 						if (process->readBytes(start_address, &byte, 1)) {
 							bsa << byte;
 
-                            const uint8_t *p       = bsa.data();
-                            const uint8_t *const l = p + bsa.size();
-							edb::address_t rva    = start_address - bsa.size() + 1;
+							const uint8_t *p       = bsa.data();
+							const uint8_t *const l = p + bsa.size();
+							edb::address_t rva     = start_address - bsa.size() + 1;
 
 							InstructionList instruction_list;
 

@@ -546,8 +546,8 @@ QList<Module> PlatformProcess::loadedModules() const {
 		if (Module32First(hModuleSnap, &me32)) {
 			do {
 				Module module;
-                module.baseAddress = edb::address_t::fromZeroExtended(me32.modBaseAddr);
-                module.name        = QString::fromWCharArray(me32.szModule);
+				module.baseAddress = edb::address_t::fromZeroExtended(me32.modBaseAddr);
+				module.name        = QString::fromWCharArray(me32.szModule);
 				ret.push_back(module);
 			} while (Module32Next(hModuleSnap, &me32));
 		}

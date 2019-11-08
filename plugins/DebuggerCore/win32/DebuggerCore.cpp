@@ -158,8 +158,8 @@ bool DebuggerCore::hasExtension(quint64 ext) const {
  */
 std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(std::chrono::milliseconds msecs) {
 	if (attached()) {
-        DEBUG_EVENT de;
-        while (WaitForDebugEvent(&de, msecs.count() == 0 ? INFINITE : msecs.count())) {
+		DEBUG_EVENT de;
+		while (WaitForDebugEvent(&de, msecs.count() == 0 ? INFINITE : msecs.count())) {
 
 			Q_ASSERT(process_->pid() == de.dwProcessId);
 
@@ -215,8 +215,8 @@ std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(std::chrono::milliseco
 
 			if (propagate) {
 				// normal event
-                auto e    = std::make_shared<PlatformEvent>();
-                e->event_ = de;
+				auto e    = std::make_shared<PlatformEvent>();
+				e->event_ = de;
 				return e;
 			}
 
@@ -279,8 +279,8 @@ void DebuggerCore::kill() {
  */
 Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
 
-    // TODO: Don't inherit security descriptors from this process (default values)
-    //       Is this even possible?
+	// TODO: Don't inherit security descriptors from this process (default values)
+	//       Is this even possible?
 
 	Q_UNUSED(tty)
 
@@ -290,11 +290,11 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 
 	detach();
 
-    // default to process's directory
-    QString tcwd = cwd.isEmpty() ? QFileInfo(path).canonicalPath() : cwd;
+	// default to process's directory
+	QString tcwd = cwd.isEmpty() ? QFileInfo(path).canonicalPath() : cwd;
 
-    STARTUPINFO startup_info         = {};
-    PROCESS_INFORMATION process_info = {};
+	STARTUPINFO startup_info         = {};
+	PROCESS_INFORMATION process_info = {};
 
 	const DWORD CREATE_FLAGS = DEBUG_PROCESS | DEBUG_ONLY_THIS_PROCESS | CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE;
 

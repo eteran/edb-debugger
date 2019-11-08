@@ -32,8 +32,8 @@ class PlatformRegion : public IRegion {
 	friend class BackupInfo;
 
 public:
-    PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions);
-    ~PlatformRegion() override = default;
+	PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions);
+	~PlatformRegion() override = default;
 
 public:
 	IRegion *clone() const override;

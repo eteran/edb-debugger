@@ -29,7 +29,7 @@ class PlatformEvent : public IDebugEvent {
 	friend class DebuggerCore;
 
 public:
-    PlatformEvent() = default;
+	PlatformEvent() = default;
 
 public:
 	PlatformEvent *clone() const override;
@@ -50,7 +50,7 @@ public:
 	int64_t code() const override;
 
 private:
-    DEBUG_EVENT event_ = {};
+	DEBUG_EVENT event_ = {};
 };
 
 }

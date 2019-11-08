@@ -48,8 +48,8 @@ public:
 	size_t pageSize() const override;
 	std::size_t pointerSize() const override {
 		return sizeof(void *);
-    }
-    std::shared_ptr<IDebugEvent> waitDebugEvent(std::chrono::milliseconds msecs) override;
+	}
+	std::shared_ptr<IDebugEvent> waitDebugEvent(std::chrono::milliseconds msecs) override;
 	Status attach(edb::pid_t pid) override;
 	Status detach() override;
 	void kill() override;

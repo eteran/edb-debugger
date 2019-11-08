@@ -36,18 +36,18 @@ public:
 	void swap(ByteShiftArray &other);
 
 public:
-    ByteShiftArray &operator<<(uint8_t x);
+	ByteShiftArray &operator<<(uint8_t x);
 
 public:
 	int size() const;
 
 public:
-    uint8_t &operator[](std::size_t i);
-    uint8_t operator[](std::size_t i) const;
-    const uint8_t *data() const;
+	uint8_t &operator[](std::size_t i);
+	uint8_t operator[](std::size_t i) const;
+	const uint8_t *data() const;
 
 private:
-    QVector<uint8_t> data_;
+	QVector<uint8_t> data_;
 	int maxSize_;
 };
 

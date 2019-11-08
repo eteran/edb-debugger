@@ -26,14 +26,13 @@ namespace DebuggerCorePlugin {
 
 namespace {
 
-
 /**
  * @brief read_float80
  * @param buffer
  * @return
  */
 double read_float80(const uint8_t buffer[10]) {
-    // little-endian!
+	// little-endian!
 	//80 bit floating point value according to IEEE-754:
 	//1 bit sign, 15 bit exponent, 64 bit mantissa
 

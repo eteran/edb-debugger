@@ -37,8 +37,8 @@ IDebugEvent::Message PlatformEvent::errorDescription() const {
 	Q_ASSERT(isError());
 
 	auto fault_address = static_cast<edb::address_t>(-1);
-    if (event_.dwDebugEventCode == EXCEPTION_DEBUG_EVENT) {
-        fault_address = static_cast<edb::address_t>(event_.u.Exception.ExceptionRecord.ExceptionInformation[1]);
+	if (event_.dwDebugEventCode == EXCEPTION_DEBUG_EVENT) {
+		fault_address = static_cast<edb::address_t>(event_.u.Exception.ExceptionRecord.ExceptionInformation[1]);
 	}
 
 	switch (code()) {
@@ -181,9 +181,9 @@ IDebugEvent::Message PlatformEvent::errorDescription() const {
  * @return
  */
 IDebugEvent::REASON PlatformEvent::reason() const {
-    switch (event_.dwDebugEventCode) {
+	switch (event_.dwDebugEventCode) {
 	case EXCEPTION_DEBUG_EVENT:
-        if (event_.u.Exception.ExceptionRecord.ExceptionFlags == EXCEPTION_NONCONTINUABLE) {
+		if (event_.u.Exception.ExceptionRecord.ExceptionFlags == EXCEPTION_NONCONTINUABLE) {
 			return EVENT_TERMINATED;
 		} else {
 			return EVENT_STOPPED;
@@ -209,9 +209,9 @@ IDebugEvent::REASON PlatformEvent::reason() const {
  * @return
  */
 IDebugEvent::TRAP_REASON PlatformEvent::trapReason() const {
-    switch (event_.dwDebugEventCode) {
+	switch (event_.dwDebugEventCode) {
 	case EXCEPTION_DEBUG_EVENT:
-        switch (event_.u.Exception.ExceptionRecord.ExceptionCode) {
+		switch (event_.u.Exception.ExceptionRecord.ExceptionCode) {
 		case EXCEPTION_BREAKPOINT:
 			return TRAP_BREAKPOINT;
 		case EXCEPTION_SINGLE_STEP:
@@ -234,9 +234,9 @@ bool PlatformEvent::exited() const {
  * @return
  */
 bool PlatformEvent::isError() const {
-    switch (event_.dwDebugEventCode) {
+	switch (event_.dwDebugEventCode) {
 	case EXCEPTION_DEBUG_EVENT:
-        switch (event_.u.Exception.ExceptionRecord.ExceptionCode) {
+		switch (event_.u.Exception.ExceptionRecord.ExceptionCode) {
 		case EXCEPTION_ACCESS_VIOLATION:
 		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
 		case EXCEPTION_DATATYPE_MISALIGNMENT:
@@ -297,7 +297,7 @@ bool PlatformEvent::isStop() const {
  */
 bool PlatformEvent::isTrap() const {
 	if (stopped()) {
-        switch (event_.u.Exception.ExceptionRecord.ExceptionCode) {
+		switch (event_.u.Exception.ExceptionRecord.ExceptionCode) {
 		case EXCEPTION_SINGLE_STEP:
 		case EXCEPTION_BREAKPOINT:
 			return true;
@@ -329,7 +329,7 @@ bool PlatformEvent::stopped() const {
  * @return
  */
 edb::pid_t PlatformEvent::process() const {
-    return event_.dwProcessId;
+	return event_.dwProcessId;
 }
 
 /**
@@ -337,7 +337,7 @@ edb::pid_t PlatformEvent::process() const {
  * @return
  */
 edb::tid_t PlatformEvent::thread() const {
-    return event_.dwThreadId;
+	return event_.dwThreadId;
 }
 
 /**
@@ -346,15 +346,15 @@ edb::tid_t PlatformEvent::thread() const {
  */
 int64_t PlatformEvent::code() const {
 	if (stopped()) {
-        return event_.u.Exception.ExceptionRecord.ExceptionCode;
+		return event_.u.Exception.ExceptionRecord.ExceptionCode;
 	}
 
 	if (terminated()) {
-        return event_.u.Exception.ExceptionRecord.ExceptionCode;
+		return event_.u.Exception.ExceptionRecord.ExceptionCode;
 	}
 
 	if (exited()) {
-        return event_.u.ExitProcess.dwExitCode;
+		return event_.u.ExitProcess.dwExitCode;
 	}
 
 	return 0;

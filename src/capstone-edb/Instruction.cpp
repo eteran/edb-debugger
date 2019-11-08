@@ -524,7 +524,7 @@ bool KxRegisterPresent(const Instruction &insn) {
 		if (op->type == X86_OP_REG && X86_REG_K0 <= op->reg && op->reg <= X86_REG_K7)
 			return true;
 	}
-#endif	
+#endif
 	return false;
 }
 

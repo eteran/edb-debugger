@@ -56,18 +56,18 @@ Breakpoint::Breakpoint(edb::address_t address)
  */
 auto Breakpoint::supportedTypes() -> std::vector<BreakpointType> {
 	std::vector<BreakpointType> types = {
-        BreakpointType{Type{TypeId::Automatic}, tr("Automatic")},
-        BreakpointType{Type{TypeId::INT3}, tr("INT3")},
-        BreakpointType{Type{TypeId::INT1}, tr("INT1 (ICEBP)")},
-        BreakpointType{Type{TypeId::HLT}, tr("HLT")},
-        BreakpointType{Type{TypeId::CLI}, tr("CLI")},
-        BreakpointType{Type{TypeId::STI}, tr("STI")},
-        BreakpointType{Type{TypeId::INSB}, tr("INSB")},
-        BreakpointType{Type{TypeId::INSD}, tr("INSD")},
-        BreakpointType{Type{TypeId::OUTSB}, tr("OUTSB")},
-        BreakpointType{Type{TypeId::OUTSD}, tr("OUTSD")},
-        BreakpointType{Type{TypeId::UD2}, tr("UD2 (2-byte)")},
-        BreakpointType{Type{TypeId::UD0}, tr("UD0 (2-byte)")},
+		BreakpointType{Type{TypeId::Automatic}, tr("Automatic")},
+		BreakpointType{Type{TypeId::INT3}, tr("INT3")},
+		BreakpointType{Type{TypeId::INT1}, tr("INT1 (ICEBP)")},
+		BreakpointType{Type{TypeId::HLT}, tr("HLT")},
+		BreakpointType{Type{TypeId::CLI}, tr("CLI")},
+		BreakpointType{Type{TypeId::STI}, tr("STI")},
+		BreakpointType{Type{TypeId::INSB}, tr("INSB")},
+		BreakpointType{Type{TypeId::INSD}, tr("INSD")},
+		BreakpointType{Type{TypeId::OUTSB}, tr("OUTSB")},
+		BreakpointType{Type{TypeId::OUTSD}, tr("OUTSD")},
+		BreakpointType{Type{TypeId::UD2}, tr("UD2 (2-byte)")},
+		BreakpointType{Type{TypeId::UD0}, tr("UD0 (2-byte)")},
 	};
 	return types;
 }
