@@ -60,7 +60,7 @@ std::unique_ptr<IState> PlatformState::clone() const {
  * @return
  */
 QString PlatformState::flagsToString() const {
-    return flagsToString(flags_register().valueAsInteger());
+    return flagsToString(flagsRegister().valueAsInteger());
 }
 
 /**
@@ -96,7 +96,7 @@ auto PlatformState::findGPR(QString const &name) const -> decltype(gpr.GPRegName
 Register PlatformState::value(const QString &reg) const {
 	const QString name = reg.toLower();
 	if (name == "cpsr") {
-		return flags_register();
+        return flagsRegister();
 	}
 
 	if (vfp.filled && name == "fpscr") {
@@ -105,7 +105,7 @@ Register PlatformState::value(const QString &reg) const {
 
 	const auto gprFoundIt = findGPR(name);
 	if (gprFoundIt != GPR::GPRegNames.end()) {
-		return gp_register(gprFoundIt - GPR::GPRegNames.begin());
+        return gpRegister(gprFoundIt - GPR::GPRegNames.begin());
 	}
 
 	return Register();
@@ -117,7 +117,7 @@ Register PlatformState::value(const QString &reg) const {
  */
 Register PlatformState::instructionPointerRegister() const {
 #ifdef EDB_ARM32
-	return gp_register(GPR::PC);
+    return gpRegister(GPR::PC);
 #else
 	return Register(); // FIXME: stub
 #endif
