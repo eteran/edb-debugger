@@ -203,6 +203,7 @@ Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::In
 		const bool C = cpsrR ? cpsrR.valueAsInteger() & 0x20000000 : false;
 
 		edb::address_t addr = baseR.valueAsAddress();
+        // TODO(eteran): why does making this const cause an error on the return? Bug in conversion constructor for Result?
         if (auto adjustedRes = adjustR15Value(insn, baseIndex, addr)) {
 			addr = adjustedRes.value() + operand->mem.disp;
 			if (indexR)

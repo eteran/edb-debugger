@@ -27,7 +27,7 @@ using GPR   = RegisterViewModelBase::SimpleRegister<edb::value32>;
 using CPSR  = RegisterViewModelBase::FlagsRegister<edb::value32>;
 using FPSCR = RegisterViewModelBase::FlagsRegister<edb::value32>;
 
-std::vector<RegisterViewModelBase::BitFieldDescription> cpsrDescription = {
+std::vector<RegisterViewModelBase::BitFieldDescriptionEx> cpsrDescription = {
 	{QLatin1String("M"), 0, 5},
 	{QLatin1String("T"), 5, 1},
 	{QLatin1String("F"), 6, 1},
@@ -59,7 +59,7 @@ static const std::vector<QString> roundingStrings = {
 	QObject::tr("Rounding toward zero"),
 };
 
-std::vector<RegisterViewModelBase::BitFieldDescription> fpscrDescription = {
+std::vector<RegisterViewModelBase::BitFieldDescriptionEx> fpscrDescription = {
 	{QLatin1String("IOC"), 0, 1},
 	{QLatin1String("DZC"), 1, 1},
 	{QLatin1String("OFC"), 2, 1},
