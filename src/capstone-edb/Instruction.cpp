@@ -62,21 +62,22 @@ bool is_simd_register(const Operand &operand) {
 	return false;
 }
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 bool apriori_not_simd(const Instruction &insn, const Operand &operand) {
 
 	if (!is_simd(insn))
 		return true;
-#if defined(EDB_X86) || defined(EDB_X86_64)
+
 	if (operand->type == X86_OP_REG && !is_simd_register(operand))
 		return true;
 	if (operand->type == X86_OP_IMM)
 		return true;
-#endif
+
 	return false;
 }
 
+
 bool KxRegisterPresent(const Instruction &insn) {
-#if defined(EDB_X86) || defined(EDB_X86_64)
 	const size_t operandCount = insn.operand_count();
 
 	for (std::size_t i = 0; i < operandCount; ++i) {
@@ -85,11 +86,9 @@ bool KxRegisterPresent(const Instruction &insn) {
 			return true;
 		}
 	}
-#endif
 	return false;
 }
 
-#if defined(EDB_X86) || defined(EDB_X86_64)
 std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, const Operand &operand, bool canBeNonSIMD = false) {
 
 	if (!canBeNonSIMD)
