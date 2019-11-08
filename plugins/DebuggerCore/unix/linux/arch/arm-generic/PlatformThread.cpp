@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IProcess.h"
 #include "PlatformCommon.h"
 #include "PlatformState.h"
+#include "Instruction.h"
 #include "State.h"
 #include "Types.h"
 #include <QtDebug>
@@ -219,7 +220,7 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 					const auto srcOperand = insn.operand(1);
 					if (!is_expression(srcOperand))
 						return Status(QObject::tr("unexpected type of second operand of LDR instruction."));
-					const auto effAddrR = edb::v1::arch_processor().get_effective_address(insn, srcOperand, state);
+                    const auto effAddrR = edb::v1::arch_processor().getEffectiveAddress(insn, srcOperand, state);
 					if (!effAddrR) return Status(effAddrR.error());
 
 					const auto effAddr = effAddrR.value();
@@ -228,14 +229,14 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 
 					// FIXME: for ARMv5 or below (without "T" in the name) bits [1:0] are simply ignored, without any mode change
 					if (addrAfterInsn & 1)
-						targetMode = IDebugger::CPUMode::Thumb;
+                        targetMode = IDebugger::CpuMode::Thumb;
 					else
-						targetMode = IDebugger::CPUMode::ARM32;
+                        targetMode = IDebugger::CpuMode::ARM32;
 					switch (edb::v1::debugger_core->cpu_mode()) {
-					case IDebugger::CPUMode::Thumb:
+                    case IDebugger::CpuMode::Thumb:
 						addrAfterInsn &= -2;
 						break;
-					case IDebugger::CPUMode::ARM32:
+                    case IDebugger::CpuMode::ARM32:
 						addrAfterInsn &= -4;
 						break;
 					default:
@@ -271,25 +272,25 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 					if (is_immediate(operand)) {
 						addrAfterInsn = edb::address_t(util::to_unsigned(operand->imm));
 						if (op == ARM_INS_BX || op == ARM_INS_BLX) {
-							if (targetMode == IDebugger::CPUMode::ARM32)
-								targetMode = IDebugger::CPUMode::Thumb;
+                            if (targetMode == IDebugger::CpuMode::ARM32)
+                                targetMode = IDebugger::CpuMode::Thumb;
 							else
-								targetMode = IDebugger::CPUMode::ARM32;
+                                targetMode = IDebugger::CpuMode::ARM32;
 						}
 						break;
 					} else if (is_register(operand)) {
 						if (operand->reg == ARM_REG_PC && (op == ARM_INS_BX || op == ARM_INS_BLX))
 							return Status(QObject::tr("unpredictable instruction"));
 						// This may happen only with BX or BLX: B and BL require an immediate operand
-						const auto result = edb::v1::arch_processor().get_effective_address(insn, operand, state);
+                        const auto result = edb::v1::arch_processor().getEffectiveAddress(insn, operand, state);
 						if (!result) return Status(result.error());
 						addrAfterInsn = result.value();
 						if (addrAfterInsn & 1)
-							targetMode = IDebugger::CPUMode::Thumb;
+                            targetMode = IDebugger::CpuMode::Thumb;
 						else
-							targetMode = IDebugger::CPUMode::ARM32;
+                            targetMode = IDebugger::CpuMode::ARM32;
 						addrAfterInsn &= ~1;
-						if (addrAfterInsn & 0x3 && targetMode != IDebugger::CPUMode::Thumb)
+                        if (addrAfterInsn & 0x3 && targetMode != IDebugger::CpuMode::Thumb)
 							return Status(QObject::tr("won't try to set breakpoint at unaligned address"));
 						break;
 					}
@@ -302,27 +303,27 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 
 			if (singleStepBreakpoint)
 				return Status(QObject::tr("internal EDB error: single-step breakpoint still present"));
-			if (const auto oldBP = core_->find_breakpoint(addrAfterInsn)) {
+            if (const auto oldBP = core_->findBreakpoint(addrAfterInsn)) {
 				// TODO: EDB should support overlapping breakpoints
 				if (!oldBP->enabled())
 					return Status(QObject::tr("a disabled breakpoint is present at address %1, can't set one for single step.").arg(addrAfterInsn.toPointerString()));
 			} else {
-				singleStepBreakpoint = core_->add_breakpoint(addrAfterInsn);
+                singleStepBreakpoint = core_->addBreakpoint(addrAfterInsn);
 				if (!singleStepBreakpoint)
 					return Status(QObject::tr("failed to set breakpoint at address %1.").arg(addrAfterInsn.toPointerString()));
 				const auto bp = std::static_pointer_cast<Breakpoint>(singleStepBreakpoint);
 				if (targetMode != core_->cpu_mode()) {
 					switch (targetMode) {
-					case IDebugger::CPUMode::ARM32:
-						bp->set_type(Breakpoint::TypeId::ARM32);
+                    case IDebugger::CpuMode::ARM32:
+                        bp->setrType(Breakpoint::TypeId::ARM32);
 						break;
-					case IDebugger::CPUMode::Thumb:
-						bp->set_type(Breakpoint::TypeId::Thumb2Byte);
+                    case IDebugger::CpuMode::Thumb:
+                        bp->setrType(Breakpoint::TypeId::Thumb2Byte);
 						break;
 					}
 				}
-				singleStepBreakpoint->set_one_time(true); // TODO: don't forget to remove it once we've paused after this, even if the BP wasn't hit (e.g. due to an exception on current instruction)
-				singleStepBreakpoint->set_internal(true);
+                singleStepBreakpoint->setOneTime(true); // TODO: don't forget to remove it once we've paused after this, even if the BP wasn't hit (e.g. due to an exception on current instruction)
+                singleStepBreakpoint->setInternal(true);
 			}
 			return core_->ptrace_continue(tid, status);
 		}
