@@ -117,10 +117,10 @@ bool PlatformThread::fillStateFromVFPRegs(PlatformState *state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_state
+// Name: getState
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformThread::get_state(State *state) {
+void PlatformThread::getState(State *state) {
 	// TODO: assert that we are paused
 
 	core_->detectCPUMode();
@@ -133,10 +133,10 @@ void PlatformThread::get_state(State *state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_state
+// Name: setState
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformThread::set_state(const State &state) {
+void PlatformThread::setState(const State &state) {
 
 	// TODO: assert that we are paused
 
@@ -157,18 +157,18 @@ void PlatformThread::set_state(const State &state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_debug_register
+// Name: getDebugRegister
 // Desc:
 //------------------------------------------------------------------------------
-unsigned long PlatformThread::get_debug_register(std::size_t n) {
+unsigned long PlatformThread::getDebugRegister(std::size_t n) {
 	return 0;
 }
 
 //------------------------------------------------------------------------------
-// Name: set_debug_register
+// Name: setDebugRegister
 // Desc:
 //------------------------------------------------------------------------------
-long PlatformThread::set_debug_register(std::size_t n, long value) {
+long PlatformThread::setDebugRegister(std::size_t n, long value) {
 	return 0;
 }
 
@@ -177,9 +177,9 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 	constexpr auto addrSize = 4; // The code here is ARM32-specific anyway...
 
 	State state;
-	get_state(&state);
+    getState(&state);
 	if (state.empty()) return Status(QObject::tr("failed to get thread state."));
-	const auto pc    = state.instruction_pointer();
+    const auto pc    = state.instructionPointer();
 	const auto flags = state.flags();
 	enum {
 		CPSR_Tbit = 1 << 5,
