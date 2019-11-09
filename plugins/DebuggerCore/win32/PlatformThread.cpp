@@ -83,7 +83,7 @@ int PlatformThread::priority() const {
 }
 
 /**
- * @brief PlatformThread::instruction_pointer
+ * @brief PlatformThread::instructionPointer
  * @return
  */
 edb::address_t PlatformThread::instructionPointer() const {
