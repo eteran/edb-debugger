@@ -1557,8 +1557,8 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 				}
 
 				add({"Subtracted", operand.subtracted ? "True" : "False"}, curOpItem);
-				add({"Access", printAccessMode(operand.access).c_str()}, curOpItem);
 #if CS_API_MAJOR >= 4
+                add({"Access", printAccessMode(operand.access).c_str()}, curOpItem);
 				if (operand.neon_lane != -1) {
 					add({"NEON lane", std::to_string(operand.neon_lane).c_str()}, curOpItem);
 				}
