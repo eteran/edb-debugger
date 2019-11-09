@@ -16,10 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Debugger.h"
 #include "ArchProcessor.h"
 #include "CommentServer.h"
 #include "Configuration.h"
+#include "Debugger.h"
 #include "DebuggerInternal.h"
 #include "DialogAbout.h"
 #include "DialogArguments.h"
@@ -2001,13 +2001,8 @@ void Debugger::mnuCPUToggleBreakpoint() {
 void Debugger::mnuCPUAddConditionalBreakpoint() {
 	bool ok;
 	const edb::address_t address = ui.cpuView->selectedAddress();
-	const QString condition      = QInputDialog::getText(
-        this,
-        tr("Set Breakpoint Condition"),
-        tr("Expression:"),
-        QLineEdit::Normal,
-        QString(),
-        &ok);
+
+	const QString condition = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, QString(), &ok);
 	if (ok) {
 		if (std::shared_ptr<IBreakpoint> bp = edb::v1::create_breakpoint(address)) {
 			if (!condition.isEmpty()) {

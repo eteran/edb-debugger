@@ -429,8 +429,8 @@ long DebuggerCore::ptraceOptions() const {
 	}
 
 #if 0
-    // TODO(eteran): research this option for issue #46
-    options |= PTRACE_O_TRACEEXIT;
+	// TODO(eteran): research this option for issue #46
+	options |= PTRACE_O_TRACEEXIT;
 #endif
 
 	return options;
@@ -561,7 +561,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int statu
 	 * user clicks resume, that the correct active thread gets (or doesn't)
 	 * get signals, and the rest get resumed properly.
 	 *
-     * To do this, we simply only alter the activeThread_ variable if this
+	 * To do this, we simply only alter the activeThread_ variable if this
 	 * event was the first we saw after a resume/run (phew!).*/
 	if (waitedThreads_.size() == 1) {
 		activeThread_ = tid;

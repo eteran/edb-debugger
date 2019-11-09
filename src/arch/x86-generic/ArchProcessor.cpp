@@ -655,8 +655,8 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 				if (is_immediate(operand)) {
 #if 0
 					bool ok;
-                    const edb::address_t effective_address = edb::v1::arch_processor().getEffectiveAddress(inst, operand, state, ok);
-					if(!ok) return;
+					const edb::address_t effective_address = edb::v1::arch_processor().getEffectiveAddress(inst, operand, state, ok);
+					if (!ok) return;
 					ret << QString("%1 = %2").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
 #endif
 				} else if (is_register(operand)) {

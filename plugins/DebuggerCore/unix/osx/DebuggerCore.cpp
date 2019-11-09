@@ -592,12 +592,20 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 
 #if 0
-    static const char * inheritance_strings[] = {
-		"SHARE", "COPY", "NONE", "DONATE_COPY",
+	static const char *inheritance_strings[] = {
+		"SHARE",
+		"COPY",
+		"NONE",
+		"DONATE_COPY",
 	};
 
-	static const char * behavior_strings[] = {
-		"DEFAULT", "RANDOM", "SEQUENTIAL", "RESQNTL", "WILLNEED", "DONTNEED",
+	static const char *behavior_strings[] = {
+		"DEFAULT",
+		"RANDOM",
+		"SEQUENTIAL",
+		"RESQNTL",
+		"WILLNEED",
+		"DONTNEED",
 	};
 #endif
 

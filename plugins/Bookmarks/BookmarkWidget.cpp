@@ -129,13 +129,17 @@ void BookmarkWidget::on_btnClear_clicked() {
 void BookmarkWidget::addAddress(edb::address_t address, const QString &type, const QString &comment) {
 
 	const QVector<BookmarksModel::Bookmark> &bookmarks = model_->bookmarks();
-	auto it                                            = std::find_if(bookmarks.begin(), bookmarks.end(), [address](const BookmarksModel::Bookmark &bookmark) {
-        return bookmark.address == address;
-    });
+
+	auto it = std::find_if(bookmarks.begin(), bookmarks.end(), [address](const BookmarksModel::Bookmark &bookmark) {
+		return bookmark.address == address;
+	});
 
 	if (it == bookmarks.end()) {
 		BookmarksModel::Bookmark bookmark = {
-			address, BookmarksModel::bookmarkStringToType(type), comment};
+			address,
+			BookmarksModel::bookmarkStringToType(type),
+			comment,
+		};
 
 		model_->addBookmark(bookmark);
 	}
