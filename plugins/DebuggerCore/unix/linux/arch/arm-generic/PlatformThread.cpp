@@ -177,11 +177,7 @@ long PlatformThread::setDebugRegister(std::size_t n, long value) {
  * @return
  */
 edb::address_t PlatformThread::instructionPointer() const {
-
-    // TODO(eteran): inefficient, but I'm just trying to get this working!
-    State state;
-    getState(&state);
-    return state.instructionPointer();
+    return 0;
 }
 
 Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
