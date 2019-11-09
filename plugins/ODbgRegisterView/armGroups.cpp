@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "armGroups.h"
 #include "ODbgRV_Util.h"
 #include "BitFieldDescription.h"
+#include "MultiBitFieldWidget.h"
+#include "ValueField.h"
 #include <QDebug>
 #include <unordered_map>
 
@@ -106,10 +108,10 @@ const BitFieldDescription roundControlDescription = {
 }
 
 RegisterGroup *createCPSR(RegisterViewModelBase::Model *model, QWidget *parent) {
-	const auto catIndex = findModelCategory(model, "General Status");
+    const auto catIndex = find_model_category(model, "General Status");
 	if (!catIndex.isValid())
 		return nullptr;
-	auto nameIndex = findModelRegister(catIndex, "CPSR");
+    auto nameIndex = find_model_register(catIndex, "CPSR");
 	if (!nameIndex.isValid())
 		return nullptr;
 	const auto group    = new RegisterGroup("CPS", parent);
@@ -131,10 +133,10 @@ RegisterGroup *createCPSR(RegisterViewModelBase::Model *model, QWidget *parent) 
 RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *parent) {
 	using namespace RegisterViewModelBase;
 
-	const auto catIndex = findModelCategory(model, "General Status");
+    const auto catIndex = find_model_category(model, "General Status");
 	if (!catIndex.isValid())
 		return nullptr;
-	auto regNameIndex = findModelRegister(catIndex, "CPSR");
+    auto regNameIndex = find_model_register(catIndex, "CPSR");
 	if (!regNameIndex.isValid())
 		return nullptr;
 	const auto group                                            = new RegisterGroup(QObject::tr("Expanded CPSR"), parent);
@@ -196,7 +198,7 @@ RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *
 				group->insert(0, groupCol, nameField);
 				nameField->setToolTip(tooltipStr);
 			}
-			const auto indexInModel = findModelRegister(regNameIndex, QString("GE%1").arg(geIndex));
+            const auto indexInModel = find_model_register(regNameIndex, QString("GE%1").arg(geIndex));
 			if (!indexInModel.isValid())
 				continue;
 			const auto valueIndex = indexInModel.sibling(indexInModel.row(), MODEL_VALUE_COLUMN);
@@ -228,7 +230,7 @@ RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *
 					QObject::tr("Flag marking active four-instruction IT-block"),
 				};
 			for (int i = 4; i >= 0; --i, column += 2) {
-				const auto nameIndex  = findModelRegister(regNameIndex, QString("IT%1").arg(i));
+                const auto nameIndex  = find_model_register(regNameIndex, QString("IT%1").arg(i));
 				const auto valueIndex = nameIndex.sibling(nameIndex.row(), MODEL_VALUE_COLUMN);
 				if (!valueIndex.isValid())
 					continue;
@@ -242,7 +244,7 @@ RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *
 			}
 		}
 		{
-			const auto itBaseCondNameIndex  = findModelRegister(regNameIndex, QString("ITbcond").toUpper());
+            const auto itBaseCondNameIndex  = find_model_register(regNameIndex, QString("ITbcond").toUpper());
 			const auto itBaseCondValueIndex = itBaseCondNameIndex.sibling(itBaseCondNameIndex.row(), MODEL_VALUE_COLUMN);
 			if (itBaseCondValueIndex.isValid()) {
 				const auto itBaseCondField = new MultiBitFieldWidget(itBaseCondValueIndex, itBaseCondDescription, group);
@@ -277,14 +279,14 @@ void addDXUOZI(RegisterGroup *const group,
 		const auto excAbbrevStart = excNames.at(ex[0].toLatin1()).first;
 		const auto exAbbrev       = excAbbrevStart + "C";
 		const auto enabAbbrev     = excAbbrevStart + "E";
-		const auto excIndex       = VALID_INDEX(findModelRegister(fpscrIndex, exAbbrev));
-		const auto enabIndex      = VALID_INDEX(findModelRegister(fpscrIndex, enabAbbrev));
+        const auto excIndex       = valid_index(find_model_register(fpscrIndex, exAbbrev));
+        const auto enabIndex      = valid_index(find_model_register(fpscrIndex, enabAbbrev));
 		const int column          = startColumn + exN * 2;
 		const auto nameField      = new FieldWidget(ex, group);
 		group->insert(startRow, column, nameField);
-		const auto excValueField = new ValueField(1, getValueIndex(excIndex), group);
+        const auto excValueField = new ValueField(1, value_index(excIndex), group);
 		group->insert(startRow + 1, column, excValueField);
-		const auto enabValueField = new ValueField(1, getValueIndex(enabIndex), group);
+        const auto enabValueField = new ValueField(1, value_index(enabIndex), group);
 		group->insert(startRow + 2, column, enabValueField);
 
 		const auto excName = excNames.at(ex[0].toLatin1()).second;
@@ -297,7 +299,7 @@ void addDXUOZI(RegisterGroup *const group,
 RegisterGroup *createFPSCR(RegisterViewModelBase::Model *model, QWidget *parent) {
 	using namespace RegisterViewModelBase;
 
-	const auto catIndex = findModelCategory(model, "VFP");
+    const auto catIndex = find_model_category(model, "VFP");
 	if (!catIndex.isValid())
 		return nullptr;
 	const auto group        = new RegisterGroup("FSC", parent);
@@ -310,7 +312,7 @@ RegisterGroup *createFPSCR(RegisterViewModelBase::Model *model, QWidget *parent)
 	fpscrLabelField->setToolTip(QObject::tr("Floating-point status and control register") + " (FPSCR)");
 	group->insert(fpscrRow, column, fpscrLabelField);
 	column += fpscrName.length() + 1;
-	const auto fpscrIndex      = findModelRegister(catIndex, "FPSCR", MODEL_VALUE_COLUMN);
+    const auto fpscrIndex      = find_model_register(catIndex, "FPSCR", MODEL_VALUE_COLUMN);
 	const auto fpscrValueWidth = fpscrIndex.data(Model::FixedLengthRole).toInt();
 	assert(fpscrValueWidth > 0);
 	group->insert(fpscrRow, column, new ValueField(fpscrValueWidth, fpscrIndex, group));
@@ -325,10 +327,10 @@ RegisterGroup *createFPSCR(RegisterViewModelBase::Model *model, QWidget *parent)
 		static const QString nzcv = "NZCV";
 		for (int i = 0; i < nzcv.length(); ++i) {
 			const auto flag      = nzcv[i];
-			const auto flagIndex = VALID_INDEX(findModelRegister(fpscrIndex, flag, MODEL_VALUE_COLUMN));
+            const auto flagIndex = valid_index(find_model_register(fpscrIndex, flag, MODEL_VALUE_COLUMN));
 			const auto nameField = new FieldWidget(flag, group);
 			group->insert(nzcvRow, column, nameField);
-			const auto flagValueField = new ValueField(1, getValueIndex(flagIndex), group);
+            const auto flagValueField = new ValueField(1, value_index(flagIndex), group);
 			group->insert(nzcvValueRow, column, flagValueField);
 
 			const auto descr = nzcvDescriptions.at(flag.toLatin1());
@@ -355,7 +357,7 @@ RegisterGroup *createFPSCR(RegisterViewModelBase::Model *model, QWidget *parent)
 		const auto strNameField = new FieldWidget(strName, group);
 		const auto strRow       = excRow;
 		group->insert(strRow, column, strNameField);
-		const auto strIndex      = findModelRegister(fpscrIndex, "STR", MODEL_VALUE_COLUMN);
+        const auto strIndex      = find_model_register(fpscrIndex, "STR", MODEL_VALUE_COLUMN);
 		const auto strValueField = new MultiBitFieldWidget(strIndex, fpscrSTRDescription, group);
 		column += strName.length();
 		group->insert(strRow, column, strValueField);
@@ -368,7 +370,7 @@ RegisterGroup *createFPSCR(RegisterViewModelBase::Model *model, QWidget *parent)
 		const auto fzNameField = new FieldWidget(fzName, group);
 		const auto fzRow       = excRow;
 		group->insert(fzRow, column, fzNameField);
-		const auto fzIndex      = findModelRegister(fpscrIndex, "FZ", MODEL_VALUE_COLUMN);
+        const auto fzIndex      = find_model_register(fpscrIndex, "FZ", MODEL_VALUE_COLUMN);
 		const auto fzValueWidth = 1;
 		const auto fzValueField = new ValueField(fzValueWidth, fzIndex, group);
 		column += fzName.length() + 1;
@@ -382,7 +384,7 @@ RegisterGroup *createFPSCR(RegisterViewModelBase::Model *model, QWidget *parent)
 		const auto lenNameField = new FieldWidget(lenName, group);
 		const auto lenRow       = enabRow;
 		group->insert(lenRow, column, lenNameField);
-		const auto lenIndex      = findModelRegister(fpscrIndex, "LEN-1", MODEL_VALUE_COLUMN);
+        const auto lenIndex      = find_model_register(fpscrIndex, "LEN-1", MODEL_VALUE_COLUMN);
 		const auto lenValueField = new MultiBitFieldWidget(lenIndex, fpscrLENDescription, group);
 		column += lenName.length() + 1;
 		group->insert(lenRow, column, lenValueField);
@@ -395,7 +397,7 @@ RegisterGroup *createFPSCR(RegisterViewModelBase::Model *model, QWidget *parent)
 		const auto dnNameField = new FieldWidget(dnName, group);
 		const auto dnRow       = enabRow;
 		group->insert(dnRow, column, dnNameField);
-		const auto dnIndex      = findModelRegister(fpscrIndex, "DN", MODEL_VALUE_COLUMN);
+        const auto dnIndex      = find_model_register(fpscrIndex, "DN", MODEL_VALUE_COLUMN);
 		const auto dnValueWidth = 1;
 		const auto dnValueField = new ValueField(dnValueWidth, dnIndex, group);
 		column += dnName.length() + 1;
@@ -413,7 +415,7 @@ RegisterGroup *createFPSCR(RegisterViewModelBase::Model *model, QWidget *parent)
 		group->insert(rndRow, column, new FieldWidget(rndName, group));
 		column += rndName.length() + 1;
 		const auto rndValueField = new MultiBitFieldWidget(
-			findModelRegister(fpscrIndex, "RC", MODEL_VALUE_COLUMN),
+            find_model_register(fpscrIndex, "RC", MODEL_VALUE_COLUMN),
 			roundControlDescription, group);
 		group->insert(rndRow, column, rndValueField);
 		rndValueField->setToolTip(QObject::tr("Rounding mode"));
