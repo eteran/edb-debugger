@@ -123,7 +123,7 @@ bool PlatformThread::fillStateFromVFPRegs(PlatformState *state) {
 void PlatformThread::getState(State *state) {
 	// TODO: assert that we are paused
 
-	core_->detectCPUMode();
+    core_->detectCpuMode();
 
 	if (auto state_impl = static_cast<PlatformState *>(state->impl_.get())) {
 
@@ -204,7 +204,7 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 			edb::address_t addrAfterInsn = pc + insn.byte_size();
 
             auto targetMode = core_->cpuMode();
-			if (modifies_pc(insn) && edb::v1::arch_processor().is_executed(insn, state)) {
+            if (modifies_pc(insn) && edb::v1::arch_processor().isExecuted(insn, state)) {
 				if (op == ARM_INS_BXJ)
 					return Status(QObject::tr("EDB doesn't yet support single-stepping into Jazelle state."));
 
