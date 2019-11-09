@@ -1547,7 +1547,9 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 					add({"Index", printReg(disassembler_->handle(), operand.mem.index, true).c_str()}, curOpItem);
 					add({"Scale", std::to_string(operand.mem.scale).c_str()}, curOpItem);
 					add({"Displacement", toHex(operand.mem.disp, true).c_str()}, curOpItem);
+#if CS_API_MAJOR >= 4
 					add({"Left shift", std::to_string(operand.mem.lshift).c_str()}, curOpItem);
+#endif
 					break;
 				case ARM_OP_SETEND:
 					add({"Type", printOpType(operand.setend).c_str()}, curOpItem);
