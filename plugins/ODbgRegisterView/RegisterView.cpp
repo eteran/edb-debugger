@@ -171,7 +171,7 @@ ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 #if defined EDB_X86 || defined EDB_X86_64
 	  dialogEditFpu_(new DialogEditFPU(this))
 #else
-      dialogEditFpu_(nullptr)
+	  dialogEditFpu_(nullptr)
 #endif
 {
 	setObjectName("ODBRegView");

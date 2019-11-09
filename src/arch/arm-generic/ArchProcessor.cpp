@@ -102,7 +102,7 @@ Result<edb::address_t, QString> getOperandValueGPR(const edb::Instruction &insn,
 	bool ok;
 	const auto regIndex = capstoneRegToGPRIndex(operand->reg, ok);
 	if (!ok) return make_unexpected(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg));
-    const auto reg = state.gpRegister(regIndex);
+	const auto reg = state.gpRegister(regIndex);
 	if (!reg)
 		return make_unexpected(QObject::tr("failed to get register r%1.").arg(regIndex));
 	auto value = reg.valueAsAddress();
@@ -115,9 +115,9 @@ Result<edb::address_t, QString> adjustR15Value(const edb::Instruction &insn, con
 	if (regIndex == 15) {
 		// Even if current state's PC weren't on this instruction, the instruction still refers to
 		// self, so use `insn` instead of `state` to get the value.
-        const auto cpuMode = edb::v1::debugger_core->cpuMode();
+		const auto cpuMode = edb::v1::debugger_core->cpuMode();
 		switch (cpuMode) {
-        case IDebugger::CpuMode::ARM32:
+		case IDebugger::CpuMode::ARM32:
 			value = insn.rva() + 8;
 			break;
 		case IDebugger::CpuMode::Thumb:
@@ -177,7 +177,7 @@ Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::In
 		bool ok;
 		const auto regIndex = capstoneRegToGPRIndex(operand->reg, ok);
 		if (!ok) return make_unexpected(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg));
-        const auto reg = state.gpRegister(regIndex);
+		const auto reg = state.gpRegister(regIndex);
 		if (!reg) return make_unexpected(QObject::tr("failed to get register r%1.").arg(regIndex));
 		auto value = reg.valueAsAddress();
 		return adjustR15Value(insn, regIndex, value);
@@ -187,30 +187,30 @@ Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::In
 
 		const auto baseIndex = capstoneRegToGPRIndex(operand->mem.base, ok);
 		// base must be valid
-        if (!ok || !(baseR = state.gpRegister(baseIndex)))
+		if (!ok || !(baseR = state.gpRegister(baseIndex)))
 			return make_unexpected(QObject::tr("failed to get register r%1.").arg(baseIndex));
 
 		const auto indexIndex = capstoneRegToGPRIndex(operand->mem.index, ok);
 		if (ok) // index register may be irrelevant, only try to get it if its index is valid
 		{
-            if (!(indexR = state.gpRegister(indexIndex)))
+			if (!(indexR = state.gpRegister(indexIndex)))
 				return make_unexpected(QObject::tr("failed to get register r%1.").arg(indexIndex));
 		}
 
-        cpsrR = state.flagsRegister();
+		cpsrR = state.flagsRegister();
 		if (!cpsrR && (operand->shift.type == ARM_SFT_RRX || operand->shift.type == ARM_SFT_RRX_REG))
 			return make_unexpected(QObject::tr("failed to get CPSR."));
 		const bool C = cpsrR ? cpsrR.valueAsInteger() & 0x20000000 : false;
 
 		edb::address_t addr = baseR.valueAsAddress();
-        // TODO(eteran): why does making this const cause an error on the return? Bug in conversion constructor for Result?
-        if (auto adjustedRes = adjustR15Value(insn, baseIndex, addr)) {
+		// TODO(eteran): why does making this const cause an error on the return? Bug in conversion constructor for Result?
+		if (auto adjustedRes = adjustR15Value(insn, baseIndex, addr)) {
 			addr = adjustedRes.value() + operand->mem.disp;
 			if (indexR)
 				addr += operand->mem.scale * shift(indexR.valueAsAddress(), operand->shift.type, operand->shift.value, C);
 			return result_type(addr);
-        } else
-            return adjustedRes;
+		} else
+			return adjustedRes;
 	}
 
 	return make_unexpected(QObject::tr("getting effective address for operand %1 of instruction %2 is not implemented").arg(operand.index() + 1).arg(insn.mnemonic().c_str()));
@@ -282,7 +282,7 @@ QString gprComment(Register const &reg) {
 
 void updateGPRs(RegisterViewModel &model, State const &state, QString const &default_region_name) {
 	for (std::size_t i = 0; i < GPR_COUNT; ++i) {
-        const auto reg = state.gpRegister(i);
+		const auto reg = state.gpRegister(i);
 		Q_ASSERT(!!reg);
 		Q_ASSERT(reg.bitSize() == 32);
 		QString comment;
@@ -363,7 +363,7 @@ QString cpsrComment(edb::reg_t flags) {
 }
 
 void updateCPSR(RegisterViewModel &model, State const &state) {
-    const auto flags = state.flagsRegister();
+	const auto flags = state.flagsRegister();
 	Q_ASSERT(!!flags);
 	const auto comment = cpsrComment(flags.valueAsInteger());
 	model.updateCPSR(flags.value<edb::value32>(), comment);
@@ -397,19 +397,19 @@ void ArchProcessor::updateRegisterView(const QString &default_region_name, const
 
 	auto &model = getModel();
 	if (state.empty()) {
-        model.setCpuMode(RegisterViewModel::CpuMode::UNKNOWN);
+		model.setCpuMode(RegisterViewModel::CpuMode::UNKNOWN);
 		return;
 	}
 
-    model.setCpuMode(RegisterViewModel::CpuMode::Defined);
+	model.setCpuMode(RegisterViewModel::CpuMode::Defined);
 
 	updateGPRs(model, state, default_region_name);
 	updateCPSR(model, state);
 	updateVFP(model, state);
 
-    if (justAttached_) {
+	if (justAttached_) {
 		model.saveValues();
-        justAttached_ = false;
+		justAttached_ = false;
 	}
 	model.dataUpdateFinished();
 }
@@ -420,7 +420,7 @@ RegisterViewModelBase::Model &ArchProcessor::registerViewModel() const {
 }
 
 void ArchProcessor::justAttached() {
-    justAttached_ = true;
+	justAttached_ = true;
 }
 
 bool ArchProcessor::isExecuted(const edb::Instruction &inst, const State &state) const {

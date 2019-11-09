@@ -596,7 +596,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int statu
 		const auto &thread = *it;
 		if (thread->singleStepBreakpoint) {
 
-            removeBreakpoint(thread->singleStepBreakpoint->address());
+			removeBreakpoint(thread->singleStepBreakpoint->address());
 			thread->singleStepBreakpoint = nullptr;
 
 			assert(e->siginfo_.si_signo == SIGTRAP); // signo must have already be converted to SIGTRAP if needed
@@ -847,22 +847,22 @@ void DebuggerCore::detectCpuMode() {
 	}
 #elif defined(EDB_ARM32)
 	errno           = 0;
-    const auto cpsr = ptrace(PTRACE_PEEKUSER, activeThread_, sizeof(long) * 16, 0L);
+	const auto cpsr = ptrace(PTRACE_PEEKUSER, activeThread_, sizeof(long) * 16, 0L);
 	if (!errno) {
 		const bool thumb = cpsr & 0x20;
 		if (thumb) {
-            cpuMode_ = CpuMode::Thumb;
+			cpuMode_ = CpuMode::Thumb;
 			CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32_THUMB);
 		} else {
-            cpuMode_ = CpuMode::ARM32;
+			cpuMode_ = CpuMode::ARM32;
 			CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32_ARM);
 		}
 	}
-    pointerSize_ = sizeof(quint32);
+	pointerSize_ = sizeof(quint32);
 #elif defined(EDB_ARM64)
-    cpuMode_ = CpuMode::ARM64;
+	cpuMode_ = CpuMode::ARM64;
 	CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM64);
-    pointerSize_ = sizeof(quint64);
+	pointerSize_ = sizeof(quint64);
 #else
 #error "Unsupported Architecture"
 #endif

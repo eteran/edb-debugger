@@ -799,7 +799,7 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 								   "--insn-width=4",
 								   "-m",
 								   "arm",
-                                   edb::v1::debugger_core->cpuMode() == IDebugger::CpuMode::Thumb ? "-Mforce-thumb" : "-Mno-force-thumb",
+								   edb::v1::debugger_core->cpuMode() == IDebugger::CpuMode::Thumb ? "-Mforce-thumb" : "-Mno-force-thumb",
 #else
 #error "Not implemented"
 #endif
@@ -1343,7 +1343,7 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 		//	and need to select the right one. Also need to choose from
 		//	* CS_MODE_LITTLE_ENDIAN and
 		//	* CS_MODE_BIG_ENDIAN
-        static_cast<cs_mode>((edb::v1::debugger_core->cpuMode() == IDebugger::CpuMode::Thumb ? CS_MODE_THUMB : CS_MODE_ARM) | CS_MODE_LITTLE_ENDIAN)
+		static_cast<cs_mode>((edb::v1::debugger_core->cpuMode() == IDebugger::CpuMode::Thumb ? CS_MODE_THUMB : CS_MODE_ARM) | CS_MODE_LITTLE_ENDIAN)
 #else
 #error "What value should mode have?"
 #endif
@@ -1511,7 +1511,7 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 			// TODO: mem_barrier
 			add({"Operands"});
 
-            auto *const operands = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
+			auto *const operands = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
 
 			for (int op = 0; op < insn->detail->arm.op_count; ++op) {
 				const auto &operand = insn->detail->arm.operands[op];
@@ -1558,7 +1558,7 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 
 				add({"Subtracted", operand.subtracted ? "True" : "False"}, curOpItem);
 #if CS_API_MAJOR >= 4
-                add({"Access", printAccessMode(operand.access).c_str()}, curOpItem);
+				add({"Access", printAccessMode(operand.access).c_str()}, curOpItem);
 				if (operand.neon_lane != -1) {
 					add({"NEON lane", std::to_string(operand.neon_lane).c_str()}, curOpItem);
 				}

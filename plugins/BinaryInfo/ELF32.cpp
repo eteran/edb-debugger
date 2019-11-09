@@ -30,9 +30,9 @@ namespace BinaryInfoPlugin {
 template <>
 bool ELF32::native() const {
 #if defined EDB_X86 || defined EDB_X86_64
-    return edb::v1::debugger_core->cpuType() == edb::string_hash("x86");
+	return edb::v1::debugger_core->cpuType() == edb::string_hash("x86");
 #elif defined EDB_ARM32 || defined EDB_ARM64
-    return edb::v1::debugger_core->cpuType() == edb::string_hash("arm");
+	return edb::v1::debugger_core->cpuType() == edb::string_hash("arm");
 #else
 #error "Unsupported Architecture"
 #endif

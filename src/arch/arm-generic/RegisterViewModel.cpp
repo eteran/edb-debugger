@@ -143,7 +143,7 @@ RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject *parent)
 	addGenStatusRegs(genStatusRegs);
 	addVFPRegs(vfpRegs);
 
-    setCpuMode(CpuMode::UNKNOWN);
+	setCpuMode(CpuMode::UNKNOWN);
 }
 
 void invalidate(RegisterViewModelBase::Category *cat, int row, const char *nameToCheck) {

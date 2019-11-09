@@ -44,10 +44,10 @@ const std::vector<quint8> BreakpointInstructionARM32BKPT_LE         = {0x70, 0x0
 // Desc: constructor
 //------------------------------------------------------------------------------
 Breakpoint::Breakpoint(edb::address_t address)
-    : address_(address), type_(edb::v1::config().default_breakpoint_type) {
+	: address_(address), type_(edb::v1::config().default_breakpoint_type) {
 
 	if (!enable()) {
-        throw BreakpointCreationError();
+		throw BreakpointCreationError();
 	}
 }
 
@@ -68,15 +68,15 @@ void Breakpoint::setType(TypeId type) {
 	disable();
 	type_ = type;
 	if (!enable()) {
-        throw BreakpointCreationError();
+		throw BreakpointCreationError();
 	}
 }
 
 void Breakpoint::setType(IBreakpoint::TypeId type) {
 	disable();
 	if (Type{type} >= TypeId::TYPE_COUNT)
-        throw BreakpointCreationError();
-    setType(type);
+		throw BreakpointCreationError();
+	setType(type);
 }
 
 //------------------------------------------------------------------------------
@@ -95,14 +95,14 @@ bool Breakpoint::enable() {
 	if (!enabled()) {
 		if (IProcess *process = edb::v1::debugger_core->process()) {
 			std::vector<quint8> prev(4);
-            prev.resize(process->readBytes(address(), &prev[0], prev.size()));
+			prev.resize(process->readBytes(address(), &prev[0], prev.size()));
 			if (prev.size()) {
-                originalBytes_ = prev;
+				originalBytes_ = prev;
 
 				const std::vector<quint8> *bpBytes = nullptr;
 				switch (TypeId{type_}) {
 				case TypeId::Automatic:
-                    if (edb::v1::debugger_core->cpuMode() == IDebugger::CpuMode::Thumb) {
+					if (edb::v1::debugger_core->cpuMode() == IDebugger::CpuMode::Thumb) {
 						bpBytes = &BreakpointInstructionThumb_LE;
 					} else {
 						bpBytes = &BreakpointInstructionARM_LE;
@@ -128,12 +128,12 @@ bool Breakpoint::enable() {
 					break;
 				}
 				assert(bpBytes);
-                assert(originalBytes_.size() >= bpBytes->size());
-                originalBytes_.resize(bpBytes->size());
+				assert(originalBytes_.size() >= bpBytes->size());
+				originalBytes_.resize(bpBytes->size());
 
 				// FIXME: we don't check whether this breakpoint will overlap any of the existing breakpoints
 
-                if (process->writeBytes(address(), bpBytes->data(), bpBytes->size())) {
+				if (process->writeBytes(address(), bpBytes->data(), bpBytes->size())) {
 					enabled_ = true;
 					return true;
 				}
@@ -150,7 +150,7 @@ bool Breakpoint::enable() {
 bool Breakpoint::disable() {
 	if (enabled()) {
 		if (IProcess *process = edb::v1::debugger_core->process()) {
-            if (process->writeBytes(address(), &originalBytes_[0], originalBytes_.size())) {
+			if (process->writeBytes(address(), &originalBytes_[0], originalBytes_.size())) {
 				enabled_ = false;
 				return true;
 			}
@@ -164,7 +164,7 @@ bool Breakpoint::disable() {
 // Desc:
 //------------------------------------------------------------------------------
 void Breakpoint::hit() {
-    ++hitCount_;
+	++hitCount_;
 }
 
 //------------------------------------------------------------------------------
@@ -172,7 +172,7 @@ void Breakpoint::hit() {
 // Desc:
 //------------------------------------------------------------------------------
 void Breakpoint::setOneTime(bool value) {
-    oneTime_ = value;
+	oneTime_ = value;
 }
 
 //------------------------------------------------------------------------------

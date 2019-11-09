@@ -70,11 +70,11 @@ public:
 
 private:
 	std::vector<uint8_t> originalBytes_;
-    edb::address_t address_;
-    quint64 hitCount_ = 0;
-    bool enabled_ = false;
-    bool oneTime_ = false;
-    bool internal_ = false;
+	edb::address_t address_;
+	quint64 hitCount_ = 0;
+	bool enabled_     = false;
+	bool oneTime_     = false;
+	bool internal_    = false;
 	Type type_;
 };
 

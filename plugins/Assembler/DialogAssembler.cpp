@@ -162,7 +162,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 			QDomElement asm_executable = asm_root.firstChildElement("executable");
 			QDomElement asm_template   = asm_root.firstChildElement("template");
 #ifdef EDB_ARM32
-            const auto mode = core->cpuMode();
+			const auto mode = core->cpuMode();
 			while (mode == IDebugger::CpuMode::ARM32 && asm_template.attribute("mode") != "arm" ||
 				   mode == IDebugger::CpuMode::Thumb && asm_template.attribute("mode") != "thumb") {
 

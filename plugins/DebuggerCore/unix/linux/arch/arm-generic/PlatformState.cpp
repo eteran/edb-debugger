@@ -60,7 +60,7 @@ std::unique_ptr<IState> PlatformState::clone() const {
  * @return
  */
 QString PlatformState::flagsToString() const {
-    return flagsToString(flagsRegister().valueAsInteger());
+	return flagsToString(flagsRegister().valueAsInteger());
 }
 
 /**
@@ -96,7 +96,7 @@ auto PlatformState::findGPR(QString const &name) const -> decltype(gpr.GPRegName
 Register PlatformState::value(const QString &reg) const {
 	const QString name = reg.toLower();
 	if (name == "cpsr") {
-        return flagsRegister();
+		return flagsRegister();
 	}
 
 	if (vfp.filled && name == "fpscr") {
@@ -105,7 +105,7 @@ Register PlatformState::value(const QString &reg) const {
 
 	const auto gprFoundIt = findGPR(name);
 	if (gprFoundIt != GPR::GPRegNames.end()) {
-        return gpRegister(gprFoundIt - GPR::GPRegNames.begin());
+		return gpRegister(gprFoundIt - GPR::GPRegNames.begin());
 	}
 
 	return Register();
@@ -117,7 +117,7 @@ Register PlatformState::value(const QString &reg) const {
  */
 Register PlatformState::instructionPointerRegister() const {
 #ifdef EDB_ARM32
-    return gpRegister(GPR::PC);
+	return gpRegister(GPR::PC);
 #else
 	return Register(); // FIXME: stub
 #endif
@@ -213,7 +213,7 @@ bool PlatformState::GPR::empty() const {
  * @brief PlatformState::GPR::clear
  */
 void PlatformState::GPR::clear() {
-    util::mark_memory(this, sizeof(*this));
+	util::mark_memory(this, sizeof(*this));
 	filled = false;
 }
 
@@ -253,7 +253,7 @@ void PlatformState::setRegister(const Register &reg) {
 
 	const QString name = reg.name().toLower();
 	if (name == "cpsr") {
-        setFlags(reg.value<edb::reg_t>());
+		setFlags(reg.value<edb::reg_t>());
 		return;
 	}
 
@@ -279,7 +279,7 @@ void PlatformState::setRegister(const Register &reg) {
 void PlatformState::setRegister(const QString &name, edb::reg_t value) {
 #ifdef EDB_ARM32
 	const QString regName = name.toLower();
-    setRegister(make_Register<32>(regName, value, Register::TYPE_GPR));
+	setRegister(make_Register<32>(regName, value, Register::TYPE_GPR));
 	// FIXME: this doesn't take into account any 64-bit registers - possibly FPU data?
 #endif
 }
@@ -330,7 +330,7 @@ void PlatformState::fillFrom(user_vfp const &regs) {
  * @param regs
  */
 void PlatformState::fillStruct(user_regs &regs) const {
-    util::mark_memory(&regs, sizeof(regs));
+	util::mark_memory(&regs, sizeof(regs));
 	if (gpr.filled) {
 		for (unsigned i = 0; i < gpr.GPRegs.size(); ++i) {
 			regs.uregs[i] = gpr.GPRegs[i];
@@ -346,7 +346,7 @@ void PlatformState::fillStruct(user_regs &regs) const {
  * @param regs
  */
 void PlatformState::fillStruct(user_vfp &regs) const {
-    util::mark_memory(&regs, sizeof(regs));
+	util::mark_memory(&regs, sizeof(regs));
 	if (vfp.filled) {
 		for (unsigned i = 0; i < vfp.d.size(); ++i) {
 			regs.fpregs[i] = vfp.d[i];

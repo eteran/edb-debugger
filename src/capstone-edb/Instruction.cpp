@@ -61,7 +61,6 @@ bool is_simd_register(const Operand &operand) {
 	return false;
 }
 
-
 bool apriori_not_simd(const Instruction &insn, const Operand &operand) {
 
 	if (!is_simd(insn))
@@ -74,7 +73,6 @@ bool apriori_not_simd(const Instruction &insn, const Operand &operand) {
 
 	return false;
 }
-
 
 bool KxRegisterPresent(const Instruction &insn) {
 	const size_t operandCount = insn.operand_count();
@@ -484,7 +482,7 @@ std::string Formatter::to_string(const Operand &operand) const {
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	if (operand->type == X86_OP_REG) {
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
-    if (operand->type == ARM_OP_REG) {
+	if (operand->type == ARM_OP_REG) {
 #endif
 		str = register_name(operand->reg);
 	} else if (totalOperands == 1) {
@@ -708,8 +706,8 @@ bool is_SIMD_PS(const Operand &operand) {
 		return false;
 	}
 #else
-    (void)operand;
-    return false;
+	(void)operand;
+	return false;
 #endif
 }
 
@@ -893,8 +891,8 @@ bool is_SIMD_PD(const Operand &operand) {
 		return false;
 	}
 #else
-    (void)operand;
-    return false;
+	(void)operand;
+	return false;
 #endif
 }
 
