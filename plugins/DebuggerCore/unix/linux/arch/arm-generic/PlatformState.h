@@ -39,6 +39,7 @@ struct user_vfp {
 };
 
 class PlatformState final : public IState {
+    Q_DECLARE_TR_FUNCTIONS(PlatformThread)
 	friend class DebuggerCore;
 	friend class PlatformThread;
 

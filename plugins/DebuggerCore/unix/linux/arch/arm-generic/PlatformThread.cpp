@@ -73,19 +73,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCorePlugin {
 
-//------------------------------------------------------------------------------
-// Name: fillStateFromPrStatus
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformThread::fillStateFromPrStatus
+ * @param state
+ * @return
+ */
 bool PlatformThread::fillStateFromPrStatus(PlatformState *state) {
 
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name: fillStateFromSimpleRegs
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformThread::fillStateFromSimpleRegs
+ * @param state
+ * @return
+ */
 bool PlatformThread::fillStateFromSimpleRegs(PlatformState *state) {
 
 	user_regs regs;
@@ -99,10 +101,11 @@ bool PlatformThread::fillStateFromSimpleRegs(PlatformState *state) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: fillStateFromVFPRegs
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformThread::fillStateFromVFPRegs
+ * @param state
+ * @return
+ */
 bool PlatformThread::fillStateFromVFPRegs(PlatformState *state) {
 
 	user_vfp fpr;
@@ -116,10 +119,10 @@ bool PlatformThread::fillStateFromVFPRegs(PlatformState *state) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: getState
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformThread::getState
+ * @param state
+ */
 void PlatformThread::getState(State *state) {
 	// TODO: assert that we are paused
 
@@ -132,10 +135,10 @@ void PlatformThread::getState(State *state) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: setState
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformThread::setState
+ * @param state
+ */
 void PlatformThread::setState(const State &state) {
 
 	// TODO: assert that we are paused
@@ -156,18 +159,21 @@ void PlatformThread::setState(const State &state) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: getDebugRegister
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformThread::getDebugRegister
+ * @param n
+ * @return
+ */
 unsigned long PlatformThread::getDebugRegister(std::size_t n) {
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name: setDebugRegister
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief PlatformThread::setDebugRegister
+ * @param n
+ * @param value
+ * @return
+ */
 long PlatformThread::setDebugRegister(std::size_t n, long value) {
 	return 0;
 }
@@ -180,13 +186,19 @@ edb::address_t PlatformThread::instructionPointer() const {
     return 0;
 }
 
+/**
+ * @brief PlatformThread::doStep
+ * @param tid
+ * @param status
+ * @return
+ */
 Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 
-	constexpr auto addrSize = 4; // The code here is ARM32-specific anyway...
+    constexpr auto AddressSize = 4; // The code here is ARM32-specific anyway...
 
 	State state;
     getState(&state);
-	if (state.empty()) return Status(QObject::tr("failed to get thread state."));
+    if (state.empty()) return Status(tr("failed to get thread state."));
     const auto pc    = state.instructionPointer();
 	const auto flags = state.flags();
 	enum {
@@ -201,9 +213,9 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 		CPSR_ITmask10 = 0x06000000,
 	};
 	if (flags & CPSR_Jbit)
-		return Status(QObject::tr("EDB doesn't yet support single-stepping in Jazelle state."));
+        return Status(tr("EDB doesn't yet support single-stepping in Jazelle state."));
 	if (flags & CPSR_Tbit && flags & (CPSR_ITmask10 | CPSR_ITmask72))
-		return Status(QObject::tr("EDB doesn't yet support single-stepping inside Thumb-2 IT-block."));
+        return Status(tr("EDB doesn't yet support single-stepping inside Thumb-2 IT-block."));
 	quint8 buffer[4];
 	if (const int size = edb::v1::get_instruction_bytes(pc, buffer)) {
 		if (const auto insn = edb::Instruction(buffer, buffer + size, pc)) {
@@ -214,26 +226,26 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
             auto targetMode = core_->cpuMode();
             if (modifies_pc(insn) && edb::v1::arch_processor().isExecuted(insn, state)) {
 				if (op == ARM_INS_BXJ)
-					return Status(QObject::tr("EDB doesn't yet support single-stepping into Jazelle state."));
+                    return Status(tr("EDB doesn't yet support single-stepping into Jazelle state."));
 
 				const auto opCount = insn.operand_count();
 				if (opCount == 0)
-					return Status(QObject::tr("instruction %1 isn't supported yet.").arg(insn.mnemonic().c_str()));
+                    return Status(tr("instruction %1 isn't supported yet.").arg(insn.mnemonic().c_str()));
 
 				switch (op) {
 				case ARM_INS_LDR: {
 					const auto destOperand = insn.operand(0);
 					if (!is_register(destOperand) || destOperand->reg != ARM_REG_PC)
-						return Status(QObject::tr("instruction %1 with non-PC destination isn't supported yet.").arg(insn.mnemonic().c_str()));
+                        return Status(tr("instruction %1 with non-PC destination isn't supported yet.").arg(insn.mnemonic().c_str()));
 					const auto srcOperand = insn.operand(1);
 					if (!is_expression(srcOperand))
-						return Status(QObject::tr("unexpected type of second operand of LDR instruction."));
+                        return Status(tr("unexpected type of second operand of LDR instruction."));
                     const auto effAddrR = edb::v1::arch_processor().getEffectiveAddress(insn, srcOperand, state);
 					if (!effAddrR) return Status(effAddrR.error());
 
 					const auto effAddr = effAddrR.value();
-                    if (process_->readBytes(effAddr, &addrAfterInsn, addrSize) != addrSize)
-						return Status(QObject::tr("failed to read memory referred to by LDR operand (address %1).").arg(effAddr.toPointerString()));
+                    if (process_->readBytes(effAddr, &addrAfterInsn, AddressSize) != AddressSize)
+                        return Status(tr("failed to read memory referred to by LDR operand (address %1).").arg(effAddr.toPointerString()));
 
 					// FIXME: for ARMv5 or below (without "T" in the name) bits [1:0] are simply ignored, without any mode change
 					if (addrAfterInsn & 1)
@@ -248,7 +260,7 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 						addrAfterInsn &= -4;
 						break;
 					default:
-						return Status(QObject::tr("single-stepping LDR instruction in modes other than ARM or Thumb is not supported yet."));
+                        return Status(tr("single-stepping LDR instruction in modes other than ARM or Thumb is not supported yet."));
 					}
 					break;
 				}
@@ -261,14 +273,14 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 							assert(operand->access == CS_AC_WRITE);
 #endif
                             const auto sp = state.gpRegister(PlatformState::GPR::SP);
-							if (!sp) return Status(QObject::tr("failed to get value of SP register"));
-                            if (process_->readBytes(sp.valueAsAddress() + addrSize * i, &addrAfterInsn, addrSize) != addrSize)
-								return Status(QObject::tr("failed to read thread stack"));
+                            if (!sp) return Status(tr("failed to get value of SP register"));
+                            if (process_->readBytes(sp.valueAsAddress() + AddressSize * i, &addrAfterInsn, AddressSize) != AddressSize)
+                                return Status(tr("failed to read thread stack"));
 							break;
 						}
 					}
 					if (i == opCount)
-						return Status(QObject::tr("internal EDB error: failed to locate PC in the instruction operand list"));
+                        return Status(tr("internal EDB error: failed to locate PC in the instruction operand list"));
 					break;
 				}
 				case ARM_INS_BX:
@@ -276,7 +288,7 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 				case ARM_INS_B:
 				case ARM_INS_BL: {
 					if (opCount != 1)
-						return Status(QObject::tr("unexpected form of instruction %1 with %2 operands.").arg(insn.mnemonic().c_str()).arg(opCount));
+                        return Status(tr("unexpected form of instruction %1 with %2 operands.").arg(insn.mnemonic().c_str()).arg(opCount));
 					const auto &operand = insn.operand(0);
 					assert(operand);
 					if (is_immediate(operand)) {
@@ -290,7 +302,7 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 						break;
 					} else if (is_register(operand)) {
 						if (operand->reg == ARM_REG_PC && (op == ARM_INS_BX || op == ARM_INS_BLX))
-							return Status(QObject::tr("unpredictable instruction"));
+                            return Status(tr("unpredictable instruction"));
 						// This may happen only with BX or BLX: B and BL require an immediate operand
                         const auto result = edb::v1::arch_processor().getEffectiveAddress(insn, operand, state);
 						if (!result) return Status(result.error());
@@ -301,26 +313,26 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
                             targetMode = IDebugger::CpuMode::ARM32;
 						addrAfterInsn &= ~1;
                         if (addrAfterInsn & 0x3 && targetMode != IDebugger::CpuMode::Thumb)
-							return Status(QObject::tr("won't try to set breakpoint at unaligned address"));
+                            return Status(tr("won't try to set breakpoint at unaligned address"));
 						break;
 					}
-					return Status(QObject::tr("bad operand for %1 instruction.").arg(insn.mnemonic().c_str()));
+                    return Status(tr("bad operand for %1 instruction.").arg(insn.mnemonic().c_str()));
 				}
 				default:
-					return Status(QObject::tr("instruction %1 modifies PC, but isn't a branch instruction known to EDB's single-stepper.").arg(insn.mnemonic().c_str()));
+                    return Status(tr("instruction %1 modifies PC, but isn't a branch instruction known to EDB's single-stepper.").arg(insn.mnemonic().c_str()));
 				}
 			}
 
 			if (singleStepBreakpoint)
-				return Status(QObject::tr("internal EDB error: single-step breakpoint still present"));
+                return Status(tr("internal EDB error: single-step breakpoint still present"));
             if (const auto oldBP = core_->findBreakpoint(addrAfterInsn)) {
 				// TODO: EDB should support overlapping breakpoints
 				if (!oldBP->enabled())
-					return Status(QObject::tr("a disabled breakpoint is present at address %1, can't set one for single step.").arg(addrAfterInsn.toPointerString()));
+                    return Status(tr("a disabled breakpoint is present at address %1, can't set one for single step.").arg(addrAfterInsn.toPointerString()));
 			} else {
                 singleStepBreakpoint = core_->addBreakpoint(addrAfterInsn);
 				if (!singleStepBreakpoint)
-					return Status(QObject::tr("failed to set breakpoint at address %1.").arg(addrAfterInsn.toPointerString()));
+                    return Status(tr("failed to set breakpoint at address %1.").arg(addrAfterInsn.toPointerString()));
 				const auto bp = std::static_pointer_cast<Breakpoint>(singleStepBreakpoint);
                 if (targetMode != core_->cpuMode()) {
 					switch (targetMode) {
@@ -337,25 +349,30 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 			}
             return core_->ptraceContinue(tid, status);
 		}
-		return Status(QObject::tr("failed to disassemble instruction at address %1.").arg(pc.toPointerString()));
+        return Status(tr("failed to disassemble instruction at address %1.").arg(pc.toPointerString()));
 	}
-	return Status(QObject::tr("failed to get instruction bytes at address %1.").arg(pc.toPointerString()));
+    return Status(tr("failed to get instruction bytes at address %1.").arg(pc.toPointerString()));
 }
 
-//------------------------------------------------------------------------------
-// Name: step
-// Desc: steps this thread one instruction, passing the signal that stopped it
-//       (unless the signal was SIGSTOP)
-//------------------------------------------------------------------------------
+/**
+ * steps this thread one instruction, passing the signal that stopped it
+ * (unless the signal was SIGSTOP)
+ *
+ * @brief PlatformThread::step
+ * @return
+ */
 Status PlatformThread::step() {
 	return doStep(tid_, resume_code(status_));
 }
 
-//------------------------------------------------------------------------------
-// Name: step
-// Desc: steps this thread one instruction, passing the signal that stopped it
-//       (unless the signal was SIGSTOP, or the passed status != DEBUG_EXCEPTION_NOT_HANDLED)
-//------------------------------------------------------------------------------
+/**
+ * steps this thread one instruction, passing the signal that stopped it
+ * (unless the signal was SIGSTOP, or the passed status != DEBUG_EXCEPTION_NOT_HANDLED)
+ *
+ * @brief PlatformThread::step
+ * @param status
+ * @return
+ */
 Status PlatformThread::step(edb::EVENT_STATUS status) {
 	const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(status_) : 0;
 	return doStep(tid_, code);
