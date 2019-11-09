@@ -1511,7 +1511,7 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 			// TODO: mem_barrier
 			add({"Operands"});
 
-			auto *const operands = tree->topLevelItem(tree->topLevelItemCount() - 1);
+            auto *const operands = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
 
 			for (int op = 0; op < insn->detail->arm.op_count; ++op) {
 				const auto &operand = insn->detail->arm.operands[op];
@@ -1556,10 +1556,11 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 
 				add({"Subtracted", operand.subtracted ? "True" : "False"}, curOpItem);
 				add({"Access", printAccessMode(operand.access).c_str()}, curOpItem);
-
+#if CS_API_MAJOR >= 4
 				if (operand.neon_lane != -1) {
 					add({"NEON lane", std::to_string(operand.neon_lane).c_str()}, curOpItem);
 				}
+#endif
 			}
 #endif
 		}
