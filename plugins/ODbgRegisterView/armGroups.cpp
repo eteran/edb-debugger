@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "armGroups.h"
 #include "ODbgRV_Util.h"
+#include "BitFieldDescription.h"
 #include <QDebug>
 #include <unordered_map>
 
@@ -26,33 +27,42 @@ namespace {
 
 const BitFieldDescription itBaseCondDescription = {
 	2,
-	{"EQ",
+    {
+        "EQ",
 	 "HS",
 	 "MI",
 	 "VS",
 	 "HI",
 	 "GE",
 	 "GT",
-	 "AL"},
-	{QObject::tr("Set EQ"),
+     "AL",
+        },
+    {
+        QObject::tr("Set EQ"),
 	 QObject::tr("Set HS"),
 	 QObject::tr("Set MI"),
 	 QObject::tr("Set VS"),
 	 QObject::tr("Set HI"),
 	 QObject::tr("Set GE"),
 	 QObject::tr("Set GT"),
-	 QObject::tr("Set AL")}};
+     QObject::tr("Set AL",
+                    )},
+    };
 
 const BitFieldDescription fpscrSTRDescription = {
 	3,
-	{" 1 ",
+    {
+        " 1 ",
 	 "D=1",
 	 "D=2",
-	 " 2 "},
-	{QObject::tr("Set stride to 1"),
+     " 2 ",
+        },
+    {
+        QObject::tr("Set stride to 1"),
 	 "",
 	 "",
-	 QObject::tr("Set stride to 2")}};
+     QObject::tr("Set stride to 2")},
+    };
 
 const BitFieldDescription fpscrLENDescription = {
 	1,
@@ -64,7 +74,8 @@ const BitFieldDescription fpscrLENDescription = {
 	 "5",
 	 "6",
 	 "7",
-	 "8"},
+     "8",
+     },
 	{// FIXME: this is ugly. Maybe edit it as a number?
 	 QObject::tr("Set LEN to 1"),
 	 QObject::tr("Set LEN to 2"),
@@ -73,18 +84,25 @@ const BitFieldDescription fpscrLENDescription = {
 	 QObject::tr("Set LEN to 5"),
 	 QObject::tr("Set LEN to 6"),
 	 QObject::tr("Set LEN to 7"),
-	 QObject::tr("Set LEN to 8")}};
+     QObject::tr("Set LEN to 8"),
+     },
+    };
 
 const BitFieldDescription roundControlDescription = {
-	4,
-	{"NEAR",
+    4,
+
+    {"NEAR",
 	 "DOWN",
 	 "  UP",
-	 "ZERO"},
-	{QObject::tr("Round to nearest"),
+     "ZERO",
+     },
+    {
+        QObject::tr("Round to nearest"),
 	 QObject::tr("Round down"),
 	 QObject::tr("Round up"),
-	 QObject::tr("Round toward zero")}};
+     QObject::tr("Round toward zero"),
+        },
+    };
 }
 
 RegisterGroup *createCPSR(RegisterViewModelBase::Model *model, QWidget *parent) {
