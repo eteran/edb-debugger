@@ -426,7 +426,7 @@ RegisterGroup *create_fpu_words(RegisterViewModelBase::Model *model, QWidget *pa
 	add_puozdi(group, fsrIndex, fcrIndex, FsrRow - 1, PEPMColumn);
 
 	constexpr int PUOZDIWidth = 6 * 2 - 1;
-	group->insert(FsrRow, PEPMColumn + PUOZDIWidth + 1, new FieldWidget(0, command_index(fsrIndex), group));
+	group->insert(FsrRow, PEPMColumn + PUOZDIWidth + 1, new FieldWidget(0, comment_index(fsrIndex), group));
 
 	return group;
 }

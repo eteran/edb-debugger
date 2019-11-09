@@ -120,7 +120,7 @@ inline QModelIndex find_model_register(QModelIndex categoryIndex, const QString 
 	return QModelIndex();
 }
 
-inline QModelIndex command_index(const QModelIndex &nameIndex) {
+inline QModelIndex comment_index(const QModelIndex &nameIndex) {
 	assert(nameIndex.isValid());
 	return nameIndex.sibling(nameIndex.row(), ModelCommentColumn);
 }

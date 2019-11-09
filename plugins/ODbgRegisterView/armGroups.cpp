@@ -348,7 +348,7 @@ RegisterGroup *createFPSCR(RegisterViewModelBase::Model *model, QWidget *parent)
 	addDXUOZI(group, fpscrIndex, fpscrRow, column);
 	{
 		const int DXUOZIWidth = 6 * 2 - 1;
-        group->insert(nzcvValueRow, column + DXUOZIWidth + 1, new FieldWidget(0, commentIndex(fpscrIndex), group));
+        group->insert(nzcvValueRow, column + DXUOZIWidth + 1, new FieldWidget(0, comment_index(fpscrIndex), group));
 	}
 
 	const QString dnName = "DN", fzName = "FZ", strName = "STR", lenName = "LEN";
