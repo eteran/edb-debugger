@@ -42,6 +42,11 @@ csh csh                   = 0;
 Formatter activeFormatter;
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
+/**
+ * @brief is_simd_register
+ * @param operand
+ * @return
+ */
 bool is_simd_register(const Operand &operand) {
 
 	if (operand->type != X86_OP_REG)
@@ -61,6 +66,12 @@ bool is_simd_register(const Operand &operand) {
 	return false;
 }
 
+/**
+ * @brief apriori_not_simd
+ * @param insn
+ * @param operand
+ * @return
+ */
 bool apriori_not_simd(const Instruction &insn, const Operand &operand) {
 
 	if (!is_simd(insn))
@@ -74,6 +85,11 @@ bool apriori_not_simd(const Instruction &insn, const Operand &operand) {
 	return false;
 }
 
+/**
+ * @brief KxRegisterPresent
+ * @param insn
+ * @return
+ */
 bool KxRegisterPresent(const Instruction &insn) {
 	const size_t operandCount = insn.operand_count();
 
@@ -86,6 +102,13 @@ bool KxRegisterPresent(const Instruction &insn) {
 	return false;
 }
 
+/**
+ * @brief simdOperandNormalizedNumberInInstruction
+ * @param insn
+ * @param operand
+ * @param canBeNonSIMD
+ * @return
+ */
 std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, const Operand &operand, bool canBeNonSIMD = false) {
 
 	if (!canBeNonSIMD)
@@ -108,10 +131,73 @@ std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, co
 }
 #endif
 
-}
-
+/**
+ * @brief isX86_64
+ * @return
+ */
 bool isX86_64() {
 	return capstoneArch == Architecture::ARCH_AMD64;
+}
+
+/**
+ * @brief to_operands
+ * @param str
+ * @return
+ */
+std::vector<std::string> to_operands(QString str) {
+
+	// Remove any decorations: we want just operands themselves
+	static const QRegularExpression re(",?\\{[^}]*\\}");
+	str.replace(re, "");
+
+	QStringList betweenCommas = str.split(",");
+	std::vector<std::string> operands;
+
+	// Have to work around inconvenient AT&T syntax for SIB, that's why so complicated logic
+	for (auto it = betweenCommas.begin(); it != betweenCommas.end(); ++it) {
+
+		QString &current(*it);
+
+		// We've split operand string by commas, but there may be SIB scheme
+		// in the form (B,I,S) or (B) or (I,S). Let's find missing parts of it.
+		if (it->contains("(") && !it->contains(")")) {
+
+			std::logic_error matchFailed("failed to find matching ')'");
+
+			// the next part must exist and have continuation of SIB scheme
+			if (std::next(it) == betweenCommas.end()) {
+				throw matchFailed;
+			}
+
+			current += ",";
+			current += *(++it);
+
+			// This may still be not enough
+			if (current.contains("(") && !current.contains(")")) {
+				if (std::next(it) == betweenCommas.end()) {
+					throw matchFailed;
+				}
+
+				current += ",";
+				current += *(++it);
+			}
+
+			// The expected SIB string has at most three components.
+			// If we still haven't found closing parenthesis, we're screwed
+			if (current.contains("(") && !current.contains(")")) {
+				throw matchFailed;
+			}
+		}
+		operands.push_back(current.trimmed().toStdString());
+	}
+
+	if (operands.size() > MaxOperands) {
+		throw std::logic_error("got more than " + std::to_string(MaxOperands) + " operands");
+	}
+
+	return operands;
+}
+
 }
 
 bool init(Architecture arch) {
@@ -156,6 +242,7 @@ bool init(Architecture arch) {
 
 Instruction::Instruction(Instruction &&other) noexcept
 	: insn_(other.insn_), byte0_(other.byte0_), rva_(other.rva_) {
+
 	other.insn_  = nullptr;
 	other.byte0_ = 0;
 	other.rva_   = 0;
@@ -179,6 +266,7 @@ Instruction::~Instruction() {
 
 Instruction::Instruction(const void *first, const void *last, uint64_t rva) noexcept
 	: rva_(rva) {
+
 	assert(capstoneInitialized);
 	auto codeBegin = static_cast<const uint8_t *>(first);
 	auto codeEnd   = static_cast<const uint8_t *>(last);
@@ -415,60 +503,6 @@ void Formatter::checkCapitalize(std::string &str, bool canContainHex) const {
 	}
 }
 
-std::vector<std::string> toOperands(QString str) {
-
-	// Remove any decorations: we want just operands themselves
-	static const QRegularExpression re(",?\\{[^}]*\\}");
-	str.replace(re, "");
-
-	QStringList betweenCommas = str.split(",");
-	std::vector<std::string> operands;
-
-	// Have to work around inconvenient AT&T syntax for SIB, that's why so complicated logic
-	for (auto it = betweenCommas.begin(); it != betweenCommas.end(); ++it) {
-
-		QString &current(*it);
-
-		// We've split operand string by commas, but there may be SIB scheme
-		// in the form (B,I,S) or (B) or (I,S). Let's find missing parts of it.
-		if (it->contains("(") && !it->contains(")")) {
-
-			std::logic_error matchFailed("failed to find matching ')'");
-
-			// the next part must exist and have continuation of SIB scheme
-			if (std::next(it) == betweenCommas.end()) {
-				throw matchFailed;
-			}
-
-			current += ",";
-			current += *(++it);
-
-			// This may still be not enough
-			if (current.contains("(") && !current.contains(")")) {
-				if (std::next(it) == betweenCommas.end()) {
-					throw matchFailed;
-				}
-
-				current += ",";
-				current += *(++it);
-			}
-
-			// The expected SIB string has at most three components.
-			// If we still haven't found closing parenthesis, we're screwed
-			if (current.contains("(") && !current.contains(")")) {
-				throw matchFailed;
-			}
-		}
-		operands.push_back(current.trimmed().toStdString());
-	}
-
-	if (operands.size() > MaxOperands) {
-		throw std::logic_error("got more than " + std::to_string(MaxOperands) + " operands");
-	}
-
-	return operands;
-}
-
 std::string Formatter::to_string(const Operand &operand) const {
 	if (!operand)
 		return "(bad)";
@@ -491,7 +525,7 @@ std::string Formatter::to_string(const Operand &operand) const {
 		// Capstone doesn't provide a way to get operand string, so we try
 		// to extract it from the formatted all-operands string
 		try {
-			const auto operands = toOperands(insn->op_str);
+			const auto operands = to_operands(insn->op_str);
 
 			if (operands.size() <= numberInInstruction) {
 				throw std::logic_error("got less than " + std::to_string(numberInInstruction) + " operands");
