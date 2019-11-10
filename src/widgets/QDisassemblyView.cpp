@@ -42,6 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPainter>
 #include <QPixmap>
 #include <QScrollBar>
+#include <QSettings>
 #include <QTextLayout>
 #include <QToolTip>
 #include <QtGlobal>
@@ -61,14 +62,7 @@ struct WidgetState1 {
 	int line4;
 };
 
-constexpr int default_byte_width = 8;
-
-// TODO(eteran): make these themeable!
-const QColor filling_dis_color = Qt::gray;
-const QColor default_dis_color = Qt::blue;
-const QColor invalid_dis_color = Qt::blue;
-const QColor data_dis_color    = Qt::blue;
-const QColor address_color     = Qt::red;
+constexpr int DefaultByteWidth = 8;
 
 struct show_separator_tag {};
 
@@ -168,6 +162,15 @@ QDisassemblyView::QDisassemblyView(QWidget *parent)
 	  currentRenderer_(QLatin1String(":/debugger/images/arrow-right.svg")),
 	  currentBpRenderer_(QLatin1String(":/debugger/images/arrow-right-red.svg")),
 	  syntaxCache_(256) {
+
+	QSettings settings;
+	settings.beginGroup("Theme");
+
+	takenJumpColor_         = QColor(settings.value("theme.taken_jump.foreground", "gray").toString());
+	fillingBytesColor_      = QColor(settings.value("theme.filling.foreground", "gray").toString());
+	addressForegroundColor_ = QColor(settings.value("theme.address.foreground", "red").toString());
+	badgeBackgroundColor_   = QColor(settings.value("theme.badge.background", "blue").toString());
+	badgeForegroundColor_   = QColor(settings.value("theme.badge.foreground", "white").toString());
 
 	setShowAddressSeparator(true);
 
@@ -610,6 +613,8 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
 //------------------------------------------------------------------------------
 void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, int y, bool selected) {
 
+	painter.save();
+
 	const bool is_filling      = edb::v1::arch_processor().isFilling(inst);
 	const int x                = fontWidth_ + fontWidth_ + ctx->l3 + (fontWidth_ / 2);
 	const int inst_pixel_width = ctx->l4 - x;
@@ -620,7 +625,7 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 
 	if (is_filling) {
 		if (syntax_highlighting_enabled) {
-			painter.setPen(filling_dis_color);
+			painter.setPen(fillingBytesColor_);
 		}
 
 		opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, inst_pixel_width);
@@ -644,11 +649,6 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 		opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, inst_pixel_width);
 
 		if (syntax_highlighting_enabled) {
-			if (!inst) {
-				painter.setPen(invalid_dis_color);
-			} else {
-				painter.setPen(default_dis_color);
-			}
 
 			QPixmap *map = syntaxCache_[opcode];
 			if (!map) {
@@ -691,6 +691,8 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 			painter.drawText(rectangle, Qt::AlignVCenter, opcode);
 		}
 	}
+
+	painter.restore();
 }
 
 //------------------------------------------------------------------------------
@@ -794,6 +796,9 @@ int QDisassemblyView::getSelectedLineNumber() const {
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::drawHeaderAndBackground(QPainter &painter, const DrawingContext *ctx, const std::unique_ptr<IBinary> &binary_info) {
+
+	painter.save();
+
 	// HEADER & ALTERNATION BACKGROUND PAINTING STEP
 	// paint the header gray
 	int line = 0;
@@ -817,9 +822,12 @@ void QDisassemblyView::drawHeaderAndBackground(QPainter &painter, const DrawingC
 			}
 		}
 	}
+
 	if (ctx->selected_line < ctx->lines_to_render) {
 		paint_line_bg(painter, palette().color(ctx->group, QPalette::Highlight), ctx->selected_line);
 	}
+
+	painter.restore();
 }
 
 //------------------------------------------------------------------------------
@@ -828,6 +836,7 @@ void QDisassemblyView::drawHeaderAndBackground(QPainter &painter, const DrawingC
 //------------------------------------------------------------------------------
 void QDisassemblyView::drawRegiserBadges(QPainter &painter, DrawingContext *ctx) {
 
+	painter.save();
 	if (IProcess *process = edb::v1::debugger_core->process()) {
 
 		if (process->isPaused()) {
@@ -866,7 +875,7 @@ void QDisassemblyView::drawRegiserBadges(QPainter &painter, DrawingContext *ctx)
 				}
 			}
 
-			painter.setPen(Qt::white);
+			painter.setPen(badgeForegroundColor_);
 
 			for (int line = 0; line < ctx->lines_to_render; line++) {
 				if (!badge_labels[line].isEmpty()) {
@@ -892,7 +901,7 @@ void QDisassemblyView::drawRegiserBadges(QPainter &painter, DrawingContext *ctx)
 					path.moveTo(bounds.x() + bounds.width(), bounds.y());                   // top right
 					path.lineTo(triangle_point, bounds.y() + bounds.height() / 2);          // triangle point
 					path.lineTo(bounds.x() + bounds.width(), bounds.y() + bounds.height()); // bottom right
-					painter.fillPath(path, Qt::blue);
+					painter.fillPath(path, badgeBackgroundColor_);
 
 					painter.drawText(
 						bounds.x() + fontWidth_ / 4,
@@ -905,6 +914,7 @@ void QDisassemblyView::drawRegiserBadges(QPainter &painter, DrawingContext *ctx)
 			}
 		}
 	}
+	painter.restore();
 }
 
 //------------------------------------------------------------------------------
@@ -912,6 +922,8 @@ void QDisassemblyView::drawRegiserBadges(QPainter &painter, DrawingContext *ctx)
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::drawSymbolNames(QPainter &painter, const DrawingContext *ctx) {
+	painter.save();
+
 	painter.setPen(palette().color(ctx->group, QPalette::Text));
 	const int x     = ctx->l1 + auto_line2();
 	const int width = ctx->l2 - x;
@@ -953,6 +965,8 @@ void QDisassemblyView::drawSymbolNames(QPainter &painter, const DrawingContext *
 			}
 		}
 	}
+
+	painter.restore();
 }
 
 //------------------------------------------------------------------------------
@@ -960,7 +974,9 @@ void QDisassemblyView::drawSymbolNames(QPainter &painter, const DrawingContext *
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::drawSidebarElements(QPainter &painter, const DrawingContext *ctx) {
-	painter.setPen(address_color);
+
+	painter.save();
+	painter.setPen(addressForegroundColor_);
 
 	const auto icon_x     = ctx->l1 + 1;
 	const auto addr_x     = icon_x + iconWidth_;
@@ -972,7 +988,7 @@ void QDisassemblyView::drawSidebarElements(QPainter &painter, const DrawingConte
 		const bool has_breakpoint = (edb::v1::find_breakpoint(address) != nullptr);
 		const bool is_eip         = address == currentAddress_;
 
-		// TODO(eteran):  if highlighted render the BP/Arrow in a more readable color!
+		// TODO(eteran): if highlighted render the BP/Arrow in a more readable color!
 		QSvgRenderer *icon = nullptr;
 		if (is_eip) {
 			icon = has_breakpoint ? &currentBpRenderer_ : &currentRenderer_;
@@ -1007,6 +1023,8 @@ void QDisassemblyView::drawSidebarElements(QPainter &painter, const DrawingConte
 		painter.setPen(palette().color(ctx->group, QPalette::HighlightedText));
 		paint_address_lambda(ctx->selected_line);
 	}
+
+	painter.restore();
 }
 
 //------------------------------------------------------------------------------
@@ -1014,6 +1032,9 @@ void QDisassemblyView::drawSidebarElements(QPainter &painter, const DrawingConte
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingContext *ctx) {
+
+	painter.save();
+
 	const int bytes_width = ctx->l3 - ctx->l2 - fontWidth_ / 2;
 	const auto metrics    = painter.fontMetrics();
 
@@ -1060,6 +1081,8 @@ void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingCont
 		painter.setPen(palette().color(ctx->group, QPalette::HighlightedText));
 		painter_lambda(instructions_[ctx->selected_line], ctx->selected_line);
 	}
+
+	painter.restore();
 }
 
 //------------------------------------------------------------------------------
@@ -1067,6 +1090,9 @@ void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingCont
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingContext *ctx) {
+
+	painter.save();
+
 	IAnalyzer *const analyzer = edb::v1::analyzer();
 	const int x               = ctx->l3 + fontWidth_;
 	if (analyzer && ctx->l4 - x > fontWidth_ / 2) {
@@ -1141,6 +1167,8 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 			});
 		}
 	}
+
+	painter.restore();
 }
 
 //------------------------------------------------------------------------------
@@ -1148,6 +1176,9 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx) {
+
+	painter.save();
+
 	auto x_pos         = ctx->l4 + fontWidth_ + (fontWidth_ / 2);
 	auto comment_width = width() - x_pos;
 
@@ -1187,6 +1218,7 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 				}
 			}
 		}
+
 		painter.drawText(
 			x_pos,
 			line * ctx->line_height,
@@ -1195,6 +1227,8 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 			Qt::AlignLeft,
 			annotation);
 	}
+
+	painter.restore();
 }
 
 //------------------------------------------------------------------------------
@@ -1202,6 +1236,7 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *ctx) {
+
 	std::vector<JumpArrow> jump_arrow_vec;
 
 	for (int line = 0; line < ctx->lines_to_render; ++line) {
@@ -1376,9 +1411,9 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			dst_y = jump_arrow.dst_line * ctx->line_height + (fontHeight_ / 2);
 		}
 
-		auto arrow_color = Qt::black;
-		auto arrow_width = 1.0;
-		auto arrow_style = Qt::DashLine;
+		QColor arrow_color = palette().color(ctx->group, QPalette::Text);
+		double arrow_width = 1.0;
+		auto arrow_style   = Qt::DashLine;
 
 		if (ctx->selected_line == jump_arrow.src_line || ctx->selected_line == jump_arrow.dst_line) {
 			arrow_width = 2.0; // enlarge arrow width
@@ -1394,13 +1429,13 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 
 		// if direct jmp (src) is selected, then draw arrow in red
 		if (unconditional_jmp && ctx->selected_line == jump_arrow.src_line) {
-			arrow_color = Qt::red;
+			arrow_color = takenJumpColor_;
 		}
 
 		// if direct jmp (dst) is selected, then draw arrow in red
 		if (unconditional_jmp && ctx->selected_line == jump_arrow.dst_line) {
 			if (showAddresses_[jump_arrow.dst_line] != currentAddress_) { // if eip
-				arrow_color = Qt::red;
+				arrow_color = takenJumpColor_;
 			}
 		}
 
@@ -1408,7 +1443,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		if (showAddresses_[jump_arrow.src_line] == currentAddress_) { // if eip
 			if (conditional_jmp) {
 				if (edb::v1::arch_processor().isExecuted(instructions_[jump_arrow.src_line], state)) {
-					arrow_color = Qt::red;
+					arrow_color = takenJumpColor_;
 				}
 			}
 		}
@@ -1493,6 +1528,9 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::drawDisassembly(QPainter &painter, const DrawingContext *ctx) {
+
+	painter.save();
+
 	for (int line = 0; line < ctx->lines_to_render; line++) {
 
 		// we set the pen here to sensible defaults for the case where it doesn't get overridden by
@@ -1505,6 +1543,8 @@ void QDisassemblyView::drawDisassembly(QPainter &painter, const DrawingContext *
 			drawInstruction(painter, instructions_[line], ctx, line * ctx->line_height, false);
 		}
 	}
+
+	painter.restore();
 }
 
 //------------------------------------------------------------------------------
@@ -1512,6 +1552,9 @@ void QDisassemblyView::drawDisassembly(QPainter &painter, const DrawingContext *
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::drawDividers(QPainter &painter, const DrawingContext *ctx) {
+
+	painter.save();
+
 	const QPen divider_pen = palette().shadow().color();
 	painter.setPen(divider_pen);
 
@@ -1522,6 +1565,8 @@ void QDisassemblyView::drawDividers(QPainter &painter, const DrawingContext *ctx
 	painter.drawLine(ctx->l2, 0, ctx->l2, height());
 	painter.drawLine(ctx->l3, 0, ctx->l3, height());
 	painter.drawLine(ctx->l4, 0, ctx->l4, height());
+
+	painter.restore();
 }
 
 //------------------------------------------------------------------------------
@@ -1726,7 +1771,7 @@ int QDisassemblyView::line2() const {
 //------------------------------------------------------------------------------
 int QDisassemblyView::line3() const {
 	if (line3_ == 0) {
-		return line2() + (default_byte_width * 3) * fontWidth_;
+		return line2() + (DefaultByteWidth * 3) * fontWidth_;
 	} else {
 		return line3_;
 	}

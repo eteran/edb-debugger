@@ -90,11 +90,11 @@ void SyntaxHighlighter::createRules() {
 	// comma
 	rules_.emplace_back(HighlightingRule(
 		"(?:,)",
-		QColor(settings.value("theme.brackets.foreground", "blue").toString()),
-		QColor(settings.value("theme.brackets.background", "transparent").toString()),
-		settings.value("theme.brackets.weight", QFont::Normal).toInt(),
-		settings.value("theme.brackets.italic", false).toBool(),
-		settings.value("theme.brackets.underline", false).toBool()));
+		QColor(settings.value("theme.comma.foreground", "blue").toString()),
+		QColor(settings.value("theme.comma.background", "transparent").toString()),
+		settings.value("theme.comma.weight", QFont::Normal).toInt(),
+		settings.value("theme.comma.italic", false).toBool(),
+		settings.value("theme.comma.underline", false).toBool()));
 
 	// expression brackets
 	rules_.emplace_back(HighlightingRule(

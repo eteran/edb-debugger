@@ -148,22 +148,27 @@ private:
 	edb::address_t addressOffset_{0};
 	edb::address_t selectedInstructionAddress_{0};
 	edb::address_t currentAddress_{0};
-	int fontHeight_              = 0; // height of a character in this font
-	int fontWidth_               = 0; // width of a character in this font
-	int iconWidth_               = 0;
-	int iconHeight_              = 0;
-	int line0_                   = 0;
-	int line1_                   = 0;
-	int line2_                   = 0;
-	int line3_                   = 0;
-	int line4_                   = 0;
-	int selectedInstructionSize_ = 0;
-	bool movingLine1_            = false;
-	bool movingLine2_            = false;
-	bool movingLine3_            = false;
-	bool movingLine4_            = false;
-	bool selectingAddress_       = false;
-	bool partialLastLine_        = false;
+	int fontHeight_                = 0; // height of a character in this font
+	int fontWidth_                 = 0; // width of a character in this font
+	int iconWidth_                 = 0;
+	int iconHeight_                = 0;
+	int line0_                     = 0;
+	int line1_                     = 0;
+	int line2_                     = 0;
+	int line3_                     = 0;
+	int line4_                     = 0;
+	int selectedInstructionSize_   = 0;
+	bool movingLine1_              = false;
+	bool movingLine2_              = false;
+	bool movingLine3_              = false;
+	bool movingLine4_              = false;
+	bool selectingAddress_         = false;
+	bool partialLastLine_          = false;
+	QColor addressForegroundColor_ = Qt::red;
+	QColor fillingBytesColor_      = Qt::gray;
+	QColor badgeBackgroundColor_   = Qt::blue;
+	QColor badgeForegroundColor_   = Qt::white;
+	QColor takenJumpColor_         = Qt::red;
 
 private:
 	std::shared_ptr<IRegion> region_;

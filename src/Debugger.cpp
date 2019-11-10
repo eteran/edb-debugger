@@ -748,6 +748,19 @@ void Debugger::create_data_tab() {
 
 	auto hexview = std::make_shared<QHexView>();
 
+	QSettings settings;
+	settings.beginGroup("Theme");
+
+	QColor addressForegroundColor = QColor(settings.value("theme.address.foreground", "red").toString());
+	QColor alternatingByteColor   = QColor(settings.value("theme.alternating_byte.foreground", "blue").toString());
+	QColor nonPrintableTextColor  = QColor(settings.value("theme.non_printing_character.foreground", "red").toString());
+	hexview->setAddressColor(addressForegroundColor);
+	hexview->setAlternateWordColor(alternatingByteColor);
+	hexview->setNonPrintableTextColor(nonPrintableTextColor);
+
+	//QColor coldZoneColor_         = Qt::gray;
+	//QColor lineColor_             = Qt::black;
+
 	new_data_view->view = hexview;
 
 	// setup the context menu
@@ -951,6 +964,16 @@ void Debugger::setup_ui() {
 void Debugger::setup_stack_view() {
 
 	stackView_ = std::make_shared<QHexView>();
+
+	QSettings settings;
+	settings.beginGroup("Theme");
+
+	QColor addressForegroundColor = QColor(settings.value("theme.address.foreground", "red").toString());
+	QColor alternatingByteColor   = QColor(settings.value("theme.alternating_byte.foreground", "blue").toString());
+	QColor nonPrintableTextColor  = QColor(settings.value("theme.non_printing_character.foreground", "red").toString());
+	stackView_->setAddressColor(addressForegroundColor);
+	stackView_->setAlternateWordColor(alternatingByteColor);
+	stackView_->setNonPrintableTextColor(nonPrintableTextColor);
 
 	stackView_->setUserConfigRowWidth(false);
 	stackView_->setUserConfigWordWidth(false);
