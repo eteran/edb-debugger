@@ -20,26 +20,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "demangle.h"
 #include "edb.h"
 
-#include <set>
 #include <iostream>
 #include <memory>
+#include <set>
 
 #include <QDateTime>
 #include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QList>
-#include <QString>
 #include <QSettings>
+#include <QString>
 
-#include "libELF/elf_types.h"
 #include "libELF/elf_header.h"
-#include "libELF/elf_rela.h"
-#include "libELF/elf_rel.h"
-#include "libELF/elf_sym.h"
-#include "libELF/elf_shdr.h"
-#include "libELF/elf_syminfo.h"
 #include "libELF/elf_model.h"
+#include "libELF/elf_rel.h"
+#include "libELF/elf_rela.h"
+#include "libELF/elf_shdr.h"
+#include "libELF/elf_sym.h"
+#include "libELF/elf_syminfo.h"
+#include "libELF/elf_types.h"
 
 namespace BinaryInfoPlugin {
 namespace {
@@ -48,16 +48,16 @@ struct elf32_model : elf_model<32> {
 
 	static constexpr size_t plt_entry_size = 0x10;
 
-	static constexpr uint32_t elf_r_sym(uint32_t x)  { return ELF32_R_SYM(x); }
+	static constexpr uint32_t elf_r_sym(uint32_t x) { return ELF32_R_SYM(x); }
 	static constexpr uint32_t elf_r_type(uint32_t x) { return ELF32_R_TYPE(x); }
-	static constexpr uint8_t elf_st_type(uint8_t x)  { return ELF32_ST_TYPE(x); }
-	static constexpr uint8_t elf_st_bind(uint8_t x)  { return ELF32_ST_BIND(x); }
+	static constexpr uint8_t elf_st_type(uint8_t x) { return ELF32_ST_TYPE(x); }
+	static constexpr uint8_t elf_st_bind(uint8_t x) { return ELF32_ST_BIND(x); }
 
 	struct symbol {
 		elf_addr address;
-		size_t   size;
-		QString  name;
-		char     type;
+		size_t size;
+		QString name;
+		char type;
 
 		bool operator<(const symbol &rhs) const {
 			return std::tie(address, name) < std::tie(rhs.address, rhs.name);
@@ -77,16 +77,16 @@ struct elf64_model : elf_model<64> {
 
 	static constexpr size_t plt_entry_size = 0x10;
 
-	static constexpr uint64_t elf_r_sym(uint64_t x)  { return ELF64_R_SYM(x); }
+	static constexpr uint64_t elf_r_sym(uint64_t x) { return ELF64_R_SYM(x); }
 	static constexpr uint64_t elf_r_type(uint64_t x) { return ELF64_R_TYPE(x); }
-	static constexpr uint8_t elf_st_type(uint8_t x)  { return ELF64_ST_TYPE(x); }
-	static constexpr uint8_t elf_st_bind(uint8_t x)  { return ELF64_ST_BIND(x); }
+	static constexpr uint8_t elf_st_type(uint8_t x) { return ELF64_ST_TYPE(x); }
+	static constexpr uint8_t elf_st_bind(uint8_t x) { return ELF64_ST_BIND(x); }
 
 	struct symbol {
 		elf_addr address;
-		size_t   size;
-		QString  name;
-		char     type;
+		size_t size;
+		QString name;
+		char type;
 
 		bool operator<(const symbol &rhs) const {
 			return std::tie(address, name) < std::tie(rhs.address, rhs.name);
@@ -102,10 +102,9 @@ struct elf64_model : elf_model<64> {
 	};
 };
 
-
 bool is_elf32(const void *ptr) {
 	auto elf32_hdr = reinterpret_cast<const elf32_header *>(ptr);
-	if(std::memcmp(elf32_hdr->e_ident, ELFMAG, SELFMAG) == 0) {
+	if (std::memcmp(elf32_hdr->e_ident, ELFMAG, SELFMAG) == 0) {
 		return elf32_hdr->e_ident[EI_CLASS] == ELFCLASS32;
 	}
 	return false;
@@ -113,7 +112,7 @@ bool is_elf32(const void *ptr) {
 
 bool is_elf64(const void *ptr) {
 	auto elf64_hdr = reinterpret_cast<const elf64_header *>(ptr);
-	if(std::memcmp(elf64_hdr->e_ident, ELFMAG, SELFMAG) == 0) {
+	if (std::memcmp(elf64_hdr->e_ident, ELFMAG, SELFMAG) == 0) {
 		return elf64_hdr->e_ident[EI_CLASS] == ELFCLASS64;
 	}
 	return false;
@@ -173,7 +172,6 @@ the symbol is local; if uppercase, the symbol is global (external).
 "?" The symbol type is unknown, or object file format specific.
 */
 
-
 template <class M, class Size>
 void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &symbols) {
 	Q_UNUSED(size)
@@ -188,7 +186,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 
 	const auto base = reinterpret_cast<uintptr_t>(p);
 
-	const auto header = static_cast<const elf_header*>(p);
+	const auto header = static_cast<const elf_header *>(p);
 	if (header->e_shnum == 0 || header->e_shentsize == 0) {
 		return;
 	}
@@ -201,194 +199,186 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 	std::set<elf_addr> plt_addresses;
 
 	// collect special section addresses
-	for(const elf_shdr *section = sections_begin; section != sections_end; ++section) {
-		if(strcmp(&section_strings[section->sh_name], ".plt") == 0) {
+	for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
+		if (strcmp(&section_strings[section->sh_name], ".plt") == 0) {
 			plt_address = section->sh_addr;
-		} else if(strcmp(&section_strings[section->sh_name], ".got") == 0) {
+		} else if (strcmp(&section_strings[section->sh_name], ".got") == 0) {
 			got_address = section->sh_addr;
 		}
 	}
 
 	// print out relocated symbols for special sections
-	for(const elf_shdr *section = sections_begin; section != sections_end; ++section) {
+	for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
 		elf_addr base_address = 0;
-		if(strcmp(&section_strings[section->sh_name], ".rela.plt") == 0) {
+		if (strcmp(&section_strings[section->sh_name], ".rela.plt") == 0) {
 			base_address = plt_address;
-		} else if(strcmp(&section_strings[section->sh_name], ".rel.plt") == 0) {
+		} else if (strcmp(&section_strings[section->sh_name], ".rel.plt") == 0) {
 			base_address = plt_address;
-		} else if(strcmp(&section_strings[section->sh_name], ".rela.got") == 0) {
+		} else if (strcmp(&section_strings[section->sh_name], ".rela.got") == 0) {
 			base_address = got_address;
-		} else if(strcmp(&section_strings[section->sh_name], ".rel.got") == 0) {
+		} else if (strcmp(&section_strings[section->sh_name], ".rel.got") == 0) {
 			base_address = got_address;
 		} else {
 			continue;
 		}
 
-		switch(section->sh_type) {
-		case SHT_RELA:
-			{
-			    elf_addr n = 0;
-				auto relocation = reinterpret_cast<elf_rela*>(base + section->sh_offset);
+		switch (section->sh_type) {
+		case SHT_RELA: {
+			elf_addr n      = 0;
+			auto relocation = reinterpret_cast<elf_rela *>(base + section->sh_offset);
 
-                if(section->sh_link == 0) {
-                    break;
-                }
-
-				for(size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
-
-					const size_t sym_index = M::elf_r_sym(relocation[i].r_info);
-					const elf_shdr *linked = &sections_begin[section->sh_link];
-					auto symbol_tab        = reinterpret_cast<elf_sym*>(base + linked->sh_offset);
-					auto string_tab        = reinterpret_cast<const char*>(base + sections_begin[linked->sh_link].sh_offset);
-
-					const elf_addr symbol_address = base_address + ++n * M::plt_entry_size;
-
-					const char *sym_name = &section_strings[section->sh_name];
-					if(strlen(sym_name) > (sizeof(".rela.") - 1) && memcmp(sym_name, ".rela.", (sizeof(".rela.") - 1)) == 0) {
-						sym_name += 6;
-					}
-
-					plt_addresses.insert(symbol_address);
-
-					symbol sym;
-					sym.address = symbol_address;
-					sym.size    = (symbol_tab[sym_index].st_size ? symbol_tab[sym_index].st_size : 0x10);
-					sym.name    = &string_tab[symbol_tab[sym_index].st_name];
-					sym.name    += "@";
-					sym.name    += sym_name;
-					sym.type    = 'P';
-					symbols.push_back(sym);
-				}
+			if (section->sh_link == 0) {
+				break;
 			}
-			break;
-		case SHT_REL:
-			{
-			    elf_addr n = 0;
-				auto relocation = reinterpret_cast<elf_rel*>(base + section->sh_offset);
 
-                if(section->sh_link == 0) {
-                    break;
-                }
+			for (size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
 
-				for(size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
+				const size_t sym_index = M::elf_r_sym(relocation[i].r_info);
+				const elf_shdr *linked = &sections_begin[section->sh_link];
+				auto symbol_tab        = reinterpret_cast<elf_sym *>(base + linked->sh_offset);
+				auto string_tab        = reinterpret_cast<const char *>(base + sections_begin[linked->sh_link].sh_offset);
 
-					const size_t sym_index = M::elf_r_sym(relocation[i].r_info);
-					const elf_shdr *linked = &sections_begin[section->sh_link];
-					auto symbol_tab        = reinterpret_cast<elf_sym*>(base + linked->sh_offset);
-					auto string_tab        = reinterpret_cast<const char*>(base + sections_begin[linked->sh_link].sh_offset);
+				const elf_addr symbol_address = base_address + ++n * M::plt_entry_size;
 
-					const elf_addr symbol_address = base_address + ++n * M::plt_entry_size;
-
-					const char *sym_name = &section_strings[section->sh_name];
-					if(strlen(sym_name) > (sizeof(".rel.") - 1) && memcmp(sym_name, ".rel.", (sizeof(".rel.") - 1)) == 0) {
-						sym_name += 5;
-					}
-
-					plt_addresses.insert(symbol_address);
-
-					symbol sym;
-					sym.address = symbol_address;
-					sym.size    = (symbol_tab[sym_index].st_size ? symbol_tab[sym_index].st_size : 0x10);
-					sym.name    = &string_tab[symbol_tab[sym_index].st_name];
-					sym.name    += "@";
-					sym.name    += sym_name;
-					sym.type    = 'P';
-					symbols.push_back(sym);
+				const char *sym_name = &section_strings[section->sh_name];
+				if (strlen(sym_name) > (sizeof(".rela.") - 1) && memcmp(sym_name, ".rela.", (sizeof(".rela.") - 1)) == 0) {
+					sym_name += 6;
 				}
+
+				plt_addresses.insert(symbol_address);
+
+				symbol sym;
+				sym.address = symbol_address;
+				sym.size    = (symbol_tab[sym_index].st_size ? symbol_tab[sym_index].st_size : 0x10);
+				sym.name    = &string_tab[symbol_tab[sym_index].st_name];
+				sym.name += "@";
+				sym.name += sym_name;
+				sym.type = 'P';
+				symbols.push_back(sym);
 			}
-			break;
+		} break;
+		case SHT_REL: {
+			elf_addr n      = 0;
+			auto relocation = reinterpret_cast<elf_rel *>(base + section->sh_offset);
+
+			if (section->sh_link == 0) {
+				break;
+			}
+
+			for (size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
+
+				const size_t sym_index = M::elf_r_sym(relocation[i].r_info);
+				const elf_shdr *linked = &sections_begin[section->sh_link];
+				auto symbol_tab        = reinterpret_cast<elf_sym *>(base + linked->sh_offset);
+				auto string_tab        = reinterpret_cast<const char *>(base + sections_begin[linked->sh_link].sh_offset);
+
+				const elf_addr symbol_address = base_address + ++n * M::plt_entry_size;
+
+				const char *sym_name = &section_strings[section->sh_name];
+				if (strlen(sym_name) > (sizeof(".rel.") - 1) && memcmp(sym_name, ".rel.", (sizeof(".rel.") - 1)) == 0) {
+					sym_name += 5;
+				}
+
+				plt_addresses.insert(symbol_address);
+
+				symbol sym;
+				sym.address = symbol_address;
+				sym.size    = (symbol_tab[sym_index].st_size ? symbol_tab[sym_index].st_size : 0x10);
+				sym.name    = &string_tab[symbol_tab[sym_index].st_name];
+				sym.name += "@";
+				sym.name += sym_name;
+				sym.type = 'P';
+				symbols.push_back(sym);
+			}
+		} break;
 		}
 	}
 
 	// collect regular symbols
-	for(const elf_shdr *section = sections_begin; section != sections_end; ++section) {
+	for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
 
-		switch(section->sh_type) {
+		switch (section->sh_type) {
 		case SHT_SYMTAB:
-		case SHT_DYNSYM:
-			{
-			    auto symbol_tab = reinterpret_cast<elf_sym*>(base + section->sh_offset);
-				auto string_tab = reinterpret_cast<const char*>(base + sections_begin[section->sh_link].sh_offset);
+		case SHT_DYNSYM: {
+			auto symbol_tab = reinterpret_cast<elf_sym *>(base + section->sh_offset);
+			auto string_tab = reinterpret_cast<const char *>(base + sections_begin[section->sh_link].sh_offset);
 
-				for(size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
+			for (size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
 
-					const elf_shdr *related_section = nullptr;
+				const elf_shdr *related_section = nullptr;
 
-					if(symbol_tab[i].st_shndx != SHN_UNDEF && symbol_tab[i].st_shndx < SHN_LORESERVE) {
-						related_section = &sections_begin[symbol_tab[i].st_shndx];
-					}
+				if (symbol_tab[i].st_shndx != SHN_UNDEF && symbol_tab[i].st_shndx < SHN_LORESERVE) {
+					related_section = &sections_begin[symbol_tab[i].st_shndx];
+				}
 
-					Q_UNUSED(related_section)
+				Q_UNUSED(related_section)
 
-					if(plt_addresses.find(symbol_tab[i].st_value) == plt_addresses.end()) {
+				if (plt_addresses.find(symbol_tab[i].st_value) == plt_addresses.end()) {
 
-						if(symbol_tab[i].st_value && strlen(&string_tab[symbol_tab[i].st_name]) > 0) {
+					if (symbol_tab[i].st_value && strlen(&string_tab[symbol_tab[i].st_name]) > 0) {
 
-							symbol sym;
-							sym.address = symbol_tab[i].st_value;
-							sym.size    = symbol_tab[i].st_size;
-							sym.name    = &string_tab[symbol_tab[i].st_name];
-							sym.type    = (M::elf_st_type(symbol_tab[i].st_info) == STT_FUNC ? 'T' : 'D');
-							symbols.push_back(sym);
-						}
+						symbol sym;
+						sym.address = symbol_tab[i].st_value;
+						sym.size    = symbol_tab[i].st_size;
+						sym.name    = &string_tab[symbol_tab[i].st_name];
+						sym.type    = (M::elf_st_type(symbol_tab[i].st_info) == STT_FUNC ? 'T' : 'D');
+						symbols.push_back(sym);
 					}
 				}
 			}
-			break;
+		} break;
 		}
 	}
 
 	// collect unnamed symbols
-	for(const elf_shdr *section = sections_begin; section != sections_end; ++section) {
+	for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
 
-		switch(section->sh_type) {
+		switch (section->sh_type) {
 		case SHT_SYMTAB:
-		case SHT_DYNSYM:
-			{
-			    auto symbol_tab = reinterpret_cast<elf_sym*>(base + section->sh_offset);
-				auto string_tab = reinterpret_cast<const char*>(base + sections_begin[section->sh_link].sh_offset);
+		case SHT_DYNSYM: {
+			auto symbol_tab = reinterpret_cast<elf_sym *>(base + section->sh_offset);
+			auto string_tab = reinterpret_cast<const char *>(base + sections_begin[section->sh_link].sh_offset);
 
-				for(size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
+			for (size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
 
-					const elf_shdr *related_section = nullptr;
+				const elf_shdr *related_section = nullptr;
 
-					if(symbol_tab[i].st_shndx != SHN_UNDEF && symbol_tab[i].st_shndx < SHN_LORESERVE) {
-						related_section = &sections_begin[symbol_tab[i].st_shndx];
-					}
+				if (symbol_tab[i].st_shndx != SHN_UNDEF && symbol_tab[i].st_shndx < SHN_LORESERVE) {
+					related_section = &sections_begin[symbol_tab[i].st_shndx];
+				}
 
-					Q_UNUSED(related_section)
+				Q_UNUSED(related_section)
 
-					if(plt_addresses.find(symbol_tab[i].st_value) == plt_addresses.end()) {
+				if (plt_addresses.find(symbol_tab[i].st_value) == plt_addresses.end()) {
 
-						if(symbol_tab[i].st_value && strlen(&string_tab[symbol_tab[i].st_name]) == 0) {
-							symbol sym;
-							sym.address = symbol_tab[i].st_value;
-							sym.size    = symbol_tab[i].st_size;
+					if (symbol_tab[i].st_value && strlen(&string_tab[symbol_tab[i].st_name]) == 0) {
+						symbol sym;
+						sym.address = symbol_tab[i].st_value;
+						sym.size    = symbol_tab[i].st_size;
 
-							for(const elf_shdr *section = sections_begin; section != sections_end; ++section) {
-								if(sym.address >= section->sh_addr && sym.address + sym.size <= section->sh_addr + section->sh_size) {
-									const std::int64_t offset = sym.address - section->sh_addr;
-									const QString hexPrefix = std::abs(offset) > 9 ? "0x" : "";
-									const QString offsetStr = offset ? "+" + hexPrefix + QString::number(offset, 16) : "";
-									const QString sectionName(&section_strings[section->sh_name]);
-									if(!sectionName.isEmpty()) {
-										sym.name = QString(sectionName+offsetStr);
-										break;
-									}
+						for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
+							if (sym.address >= section->sh_addr && sym.address + sym.size <= section->sh_addr + section->sh_size) {
+								const std::int64_t offset = sym.address - section->sh_addr;
+								const QString hexPrefix   = std::abs(offset) > 9 ? "0x" : "";
+								const QString offsetStr   = offset ? "+" + hexPrefix + QString::number(offset, 16) : "";
+								const QString sectionName(&section_strings[section->sh_name]);
+								if (!sectionName.isEmpty()) {
+									sym.name = QString(sectionName + offsetStr);
+									break;
 								}
 							}
-
-							if(sym.name.isEmpty()) {
-								sym.name = QString("$sym_%1").arg(edb::v1::format_pointer(symbol_tab[i].st_value));
-							}
-
-							sym.type = (M::elf_st_type(symbol_tab[i].st_info) == STT_FUNC ? 'T' : 'D');
-							symbols.push_back(sym);
 						}
+
+						if (sym.name.isEmpty()) {
+							sym.name = QString("$sym_%1").arg(edb::v1::format_pointer(symbol_tab[i].st_value));
+						}
+
+						sym.type = (M::elf_st_type(symbol_tab[i].st_info) == STT_FUNC ? 'T' : 'D');
+						symbols.push_back(sym);
 					}
 				}
 			}
-			break;
+		} break;
 		}
 	}
 }
@@ -401,24 +391,23 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 template <class Symbol>
 void output_symbols(std::vector<Symbol> &symbols, std::ostream &os) {
 	std::sort(symbols.begin(), symbols.end());
-	auto new_end = std::unique(symbols.begin(), symbols.end());
+	auto new_end                 = std::unique(symbols.begin(), symbols.end());
 	const auto demanglingEnabled = QSettings().value("BinaryInfo/demangling_enabled", true).toBool();
-	for(auto it = symbols.begin(); it != new_end; ++it) {
-		if(demanglingEnabled) {
+	for (auto it = symbols.begin(); it != new_end; ++it) {
+		if (demanglingEnabled) {
 			it->name = demangle(it->name);
 		}
 		os << qPrintable(it->to_string()) << '\n';
 	}
 }
 
-
 //--------------------------------------------------------------------------
 // Name: generate_symbols_internal
 // Desc:
 //--------------------------------------------------------------------------
 bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, std::ostream &os) {
-	if(auto file_ptr = reinterpret_cast<void *>(file.map(0, file.size(), QFile::NoOptions))) {
-		if(is_elf64(file_ptr)) {
+	if (auto file_ptr = reinterpret_cast<void *>(file.map(0, file.size(), QFile::NoOptions))) {
+		if (is_elf64(file_ptr)) {
 
 			using symbol = typename elf64_model::symbol;
 			std::vector<symbol> symbols;
@@ -426,15 +415,15 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 			collect_symbols<elf64_model>(file_ptr, file.size(), symbols);
 
 			// if there was a debug file
-			if(debugFile) {
+			if (debugFile) {
 				// and we sucessfully opened it
-				if(debugFile->open(QIODevice::ReadOnly)) {
+				if (debugFile->open(QIODevice::ReadOnly)) {
 
 					// map it and include it with the symbols
-					if(auto debug_ptr = reinterpret_cast<void *>(debugFile->map(0, debugFile->size(), QFile::NoOptions))) {
+					if (auto debug_ptr = reinterpret_cast<void *>(debugFile->map(0, debugFile->size(), QFile::NoOptions))) {
 
 						// this should never fail... but just being sure
-						if(is_elf64(debug_ptr)) {
+						if (is_elf64(debug_ptr)) {
 							collect_symbols<elf64_model>(debug_ptr, debugFile->size(), symbols);
 						}
 					}
@@ -443,7 +432,7 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 
 			output_symbols(symbols, os);
 			return true;
-		} else if(is_elf32(file_ptr)) {
+		} else if (is_elf32(file_ptr)) {
 
 			using symbol = typename elf32_model::symbol;
 			std::vector<symbol> symbols;
@@ -451,15 +440,15 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 			collect_symbols<elf32_model>(file_ptr, file.size(), symbols);
 
 			// if there was a debug file
-			if(debugFile) {
+			if (debugFile) {
 				// and we sucessfully opened it
-				if(debugFile->open(QIODevice::ReadOnly)) {
+				if (debugFile->open(QIODevice::ReadOnly)) {
 
 					// map it and include it with the symbols
-					if(auto debug_ptr = reinterpret_cast<void *>(debugFile->map(0, debugFile->size(), QFile::NoOptions))) {
+					if (auto debug_ptr = reinterpret_cast<void *>(debugFile->map(0, debugFile->size(), QFile::NoOptions))) {
 
 						// this should never fail... but just being sure
-						if(is_elf32(debug_ptr)) {
+						if (is_elf32(debug_ptr)) {
 							collect_symbols<elf32_model>(debug_ptr, debugFile->size(), symbols);
 						}
 					}
@@ -478,14 +467,16 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 
 }
 
-//--------------------------------------------------------------------------
-// Name: generate_symbols
-// Desc:
-//--------------------------------------------------------------------------
+/**
+ * @brief generate_symbols
+ * @param filename
+ * @param os
+ * @return
+ */
 bool generate_symbols(const QString &filename, std::ostream &os) {
 
 	QFile file(filename);
-	if(file.open(QIODevice::ReadOnly)) {
+	if (file.open(QIODevice::ReadOnly)) {
 		os << qPrintable(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)) << " +0000" << '\n';
 		const QByteArray md5 = edb::v1::get_file_md5(filename);
 		os << md5.toHex().data() << ' ' << qPrintable(QFileInfo(filename).absoluteFilePath()) << '\n';
@@ -493,9 +484,9 @@ bool generate_symbols(const QString &filename, std::ostream &os) {
 		const QString debugInfoPath = QSettings().value("BinaryInfo/debug_info_path", "/usr/lib/debug").toString();
 
 		std::shared_ptr<QFile> debugFile;
-		if(!debugInfoPath.isEmpty()) {
+		if (!debugInfoPath.isEmpty()) {
 			debugFile = std::make_shared<QFile>(QString("%1/%2.debug").arg(debugInfoPath, filename));
-			if(!debugFile->exists()) { // systems such as Ubuntu don't have .debug suffix, try without it
+			if (!debugFile->exists()) { // systems such as Ubuntu don't have .debug suffix, try without it
 				debugFile = std::make_shared<QFile>(QString("%1/%2").arg(debugInfoPath, filename));
 			}
 		}

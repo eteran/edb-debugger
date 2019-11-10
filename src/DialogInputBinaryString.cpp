@@ -22,7 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: DialogInputBinaryString
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogInputBinaryString::DialogInputBinaryString(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogInputBinaryString::DialogInputBinaryString(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 }
 
@@ -30,6 +32,6 @@ DialogInputBinaryString::DialogInputBinaryString(QWidget *parent, Qt::WindowFlag
 // Name: binary_string
 // Desc: returns the binary string we wrap around
 //------------------------------------------------------------------------------
-BinaryString *DialogInputBinaryString::binary_string() const {
+BinaryString *DialogInputBinaryString::binaryString() const {
 	return ui.binaryString;
 }

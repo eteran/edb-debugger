@@ -129,7 +129,6 @@ struct _PEB_T {
 };
 #pragma pack(pop)
 
-
 typedef _PEB_T<DWORD, DWORD64, 34> PEB32;
 typedef _PEB_T<DWORD64, DWORD, 30> PEB64;
 
@@ -151,19 +150,19 @@ typedef enum _PROCESSINFOCLASS {
 bool getProcessEntry(edb::pid_t pid, PROCESSENTRY32 *entry) {
 
 	bool ret = false;
-	if(HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)) {
+	if (HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)) {
 
 		PROCESSENTRY32 peInfo;
 		peInfo.dwSize = sizeof(peInfo); // this line is REQUIRED
 
-		if(Process32First(hSnapshot, &peInfo)) {
+		if (Process32First(hSnapshot, &peInfo)) {
 			do {
-				if(peInfo.th32ProcessID == pid) {
+				if (peInfo.th32ProcessID == pid) {
 					*entry = peInfo;
 					ret    = true;
 					break;
 				}
-			} while(Process32Next(hSnapshot, &peInfo));
+			} while (Process32Next(hSnapshot, &peInfo));
 		}
 
 		CloseHandle(hSnapshot);
@@ -174,13 +173,13 @@ bool getProcessEntry(edb::pid_t pid, PROCESSENTRY32 *entry) {
 
 }
 
-
 /**
  * @brief PlatformProcess::PlatformProcess
  * @param core
  * @param pid
  */
-PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(core) {
+PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid)
+	: core_(core) {
 	hProcess_ = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
 }
 
@@ -189,22 +188,23 @@ PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(cor
  * @param core
  * @param handle
  */
-PlatformProcess::PlatformProcess(DebuggerCore *core, HANDLE handle) : core_(core) {
+PlatformProcess::PlatformProcess(DebuggerCore *core, HANDLE handle)
+	: core_(core) {
 
 	DuplicateHandle(
-	            GetCurrentProcess(),
-	            handle,
-	            GetCurrentProcess(),
-	            &hProcess_,
-	            0,
-	            FALSE,
-	            DUPLICATE_SAME_ACCESS);
+		GetCurrentProcess(),
+		handle,
+		GetCurrentProcess(),
+		&hProcess_,
+		0,
+		FALSE,
+		DUPLICATE_SAME_ACCESS);
 }
 
 /**
  * @brief PlatformProcess::~PlatformProcess
  */
-PlatformProcess::~PlatformProcess()  {
+PlatformProcess::~PlatformProcess() {
 	CloseHandle(hProcess_);
 }
 
@@ -216,7 +216,7 @@ bool PlatformProcess::isWow64() const {
 #if defined(EDB_X86_64)
 	BOOL wow64 = FALSE;
 
-	using LPFN_ISWOW64PROCESS = BOOL(WINAPI *) (HANDLE, PBOOL);
+	using LPFN_ISWOW64PROCESS    = BOOL(WINAPI *)(HANDLE, PBOOL);
 	static auto fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
 
 	if (fnIsWow64Process && fnIsWow64Process(hProcess_, &wow64)) {
@@ -227,10 +227,10 @@ bool PlatformProcess::isWow64() const {
 }
 
 /**
- * @brief PlatformProcess::start_time
+ * @brief PlatformProcess::startTime
  * @return
  */
-QDateTime PlatformProcess::start_time() const {
+QDateTime PlatformProcess::startTime() const {
 	Q_ASSERT(hProcess_);
 
 	FILETIME create;
@@ -238,7 +238,7 @@ QDateTime PlatformProcess::start_time() const {
 	FILETIME kernel;
 	FILETIME user;
 
-	if(GetProcessTimes(hProcess_, &create, &exit, &kernel, &user)) {
+	if (GetProcessTimes(hProcess_, &create, &exit, &kernel, &user)) {
 
 		ULARGE_INTEGER createTime;
 		createTime.LowPart  = create.dwLowDateTime;
@@ -263,15 +263,14 @@ edb::pid_t PlatformProcess::pid() const {
  */
 QString PlatformProcess::name() const {
 
-	PROCESSENTRY32 pEntry  = {};
+	PROCESSENTRY32 pEntry = {};
 	getProcessEntry(pid(), &pEntry);
 
 	QString name = QString::fromWCharArray(pEntry.szExeFile);
-	if(isWow64()) {
+	if (isWow64()) {
 		name += " *32";
 	}
 	return name;
-
 }
 
 /**
@@ -292,7 +291,7 @@ QString PlatformProcess::user() const {
 			if (GetTokenInformation(hToken, TokenOwner, owner, needed, &needed)) {
 				WCHAR user_buf[MAX_PATH];
 				WCHAR domain[MAX_PATH];
-				DWORD user_sz = MAX_PATH;
+				DWORD user_sz   = MAX_PATH;
 				DWORD domain_sz = MAX_PATH;
 				SID_NAME_USE snu;
 
@@ -312,8 +311,8 @@ QString PlatformProcess::user() const {
  * @brief PlatformProcess::parent
  * @return
  */
-std::shared_ptr<IProcess> PlatformProcess::parent() const  {
-	edb::pid_t parent_pid = core_->parent_pid(pid());
+std::shared_ptr<IProcess> PlatformProcess::parent() const {
+	edb::pid_t parent_pid = core_->parentPid(pid());
 	return std::make_shared<PlatformProcess>(core_, parent_pid);
 }
 
@@ -329,8 +328,8 @@ edb::uid_t PlatformProcess::uid() const {
 	DWORD length;
 
 	// TODO(eteran): is this on the right track?
-	if(OpenProcessToken(hProcess_, 0, &token)) {
-		if(GetTokenInformation(token, TokenUser, &user, sizeof(user), &length)) {
+	if (OpenProcessToken(hProcess_, 0, &token)) {
+		if (GetTokenInformation(token, TokenUser, &user, sizeof(user), &length)) {
 		}
 	}
 
@@ -352,16 +351,16 @@ QMap<edb::address_t, Patch> PlatformProcess::patches() const {
  * @param len
  * @return
  */
-std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf, size_t len) {
+std::size_t PlatformProcess::writeBytes(edb::address_t address, const void *buf, size_t len) {
 	Q_ASSERT(buf);
 
-	if(hProcess_) {
-		if(len == 0) {
+	if (hProcess_) {
+		if (len == 0) {
 			return 0;
 		}
 
 		SIZE_T bytes_written = 0;
-		if(WriteProcessMemory(hProcess_, reinterpret_cast<LPVOID>(address.toUint()), buf, len, &bytes_written)) {
+		if (WriteProcessMemory(hProcess_, reinterpret_cast<LPVOID>(address.toUint()), buf, len, &bytes_written)) {
 			return bytes_written;
 		}
 	}
@@ -369,23 +368,23 @@ std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf
 }
 
 /**
- * @brief PlatformProcess::read_bytes
+ * @brief PlatformProcess::readBytes
  * @param address
  * @param buf
  * @param len
  * @return
  */
-std::size_t PlatformProcess::read_bytes(edb::address_t address, void *buf, size_t len) const {
+std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, size_t len) const {
 	Q_ASSERT(buf);
 
-	if(hProcess_) {
-		if(len == 0) {
+	if (hProcess_) {
+		if (len == 0) {
 			return 0;
 		}
 
 		memset(buf, 0xff, len);
 		SIZE_T bytes_read = 0;
-		if(ReadProcessMemory(hProcess_, reinterpret_cast<LPCVOID>(address.toUint()), buf, len, &bytes_read)) {
+		if (ReadProcessMemory(hProcess_, reinterpret_cast<LPCVOID>(address.toUint()), buf, len, &bytes_read)) {
 			// TODO(eteran): implement breakpoint stuff
 #if 0
 			for(const std::shared_ptr<IBreakpoint> &bp: breakpoints_) {
@@ -402,24 +401,24 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void *buf, size_
 }
 
 /**
- * @brief PlatformProcess::read_pages
+ * @brief PlatformProcess::readPages
  * @param address
  * @param buf
  * @param count
  * @return
  */
-std::size_t PlatformProcess::read_pages(edb::address_t address, void *buf, size_t count) const {
-	Q_ASSERT(address % core_->page_size() == 0);
-	return read_bytes(address, buf, core_->page_size() * count);
+std::size_t PlatformProcess::readPages(edb::address_t address, void *buf, size_t count) const {
+	Q_ASSERT(address % core_->pageSize() == 0);
+	return readBytes(address, buf, core_->pageSize() * count);
 }
 
 /**
  * @brief PlatformProcess::pause
  * @return
  */
-Status PlatformProcess::pause()  {
+Status PlatformProcess::pause() {
 	Q_ASSERT(hProcess_);
-	if(DebugBreakProcess(hProcess_)) {
+	if (DebugBreakProcess(hProcess_)) {
 		return Status::Ok;
 	}
 
@@ -434,38 +433,38 @@ Status PlatformProcess::pause()  {
 QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
 	QList<std::shared_ptr<IRegion>> regions;
 
-	if(hProcess_) {
-		    edb::address_t addr = 0;
-			auto last_base      = reinterpret_cast<LPVOID>(-1);
+	if (hProcess_) {
+		edb::address_t addr = 0;
+		auto last_base      = reinterpret_cast<LPVOID>(-1);
 
-			Q_FOREVER {
-				MEMORY_BASIC_INFORMATION info;
-				VirtualQueryEx(hProcess_, reinterpret_cast<LPVOID>(addr.toUint()), &info, sizeof(info));
+		Q_FOREVER {
+			MEMORY_BASIC_INFORMATION info;
+			VirtualQueryEx(hProcess_, reinterpret_cast<LPVOID>(addr.toUint()), &info, sizeof(info));
 
-				if(last_base == info.BaseAddress) {
-					break;
-				}
-
-				last_base = info.BaseAddress;
-
-				if(info.State == MEM_COMMIT) {
-
-					const auto start   = edb::address_t::fromZeroExtended(info.BaseAddress);
-					const auto end     = edb::address_t::fromZeroExtended(info.BaseAddress) + info.RegionSize;
-					const auto base    = edb::address_t::fromZeroExtended(info.AllocationBase);
-					const QString name = QString();
-					const IRegion::permissions_t permissions = info.Protect; // let std::shared_ptr<IRegion> handle permissions and modifiers
-
-					if(info.Type == MEM_IMAGE) {
-						// set region.name to the module name
-					}
-					// get stack addresses, PEB, TEB, etc. and set name accordingly
-
-					regions.push_back(std::make_shared<PlatformRegion>(start, end, base, name, permissions));
-				}
-
-				addr += info.RegionSize;
+			if (last_base == info.BaseAddress) {
+				break;
 			}
+
+			last_base = info.BaseAddress;
+
+			if (info.State == MEM_COMMIT) {
+
+				const auto start                         = edb::address_t::fromZeroExtended(info.BaseAddress);
+				const auto end                           = edb::address_t::fromZeroExtended(info.BaseAddress) + info.RegionSize;
+				const auto base                          = edb::address_t::fromZeroExtended(info.AllocationBase);
+				const QString name                       = QString();
+				const IRegion::permissions_t permissions = info.Protect; // let std::shared_ptr<IRegion> handle permissions and modifiers
+
+				if (info.Type == MEM_IMAGE) {
+					// set region.name to the module name
+				}
+				// get stack addresses, PEB, TEB, etc. and set name accordingly
+
+				regions.push_back(std::make_shared<PlatformRegion>(start, end, base, name, permissions));
+			}
+
+			addr += info.RegionSize;
+		}
 	}
 
 	return regions;
@@ -475,30 +474,29 @@ QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
  * @brief PlatformProcess::executable
  * @return
  */
-QString PlatformProcess::executable() const  {
+QString PlatformProcess::executable() const {
 	Q_ASSERT(hProcess_);
 
 	// These functions don't work immediately after CreateProcess but only
 	// after basic initialization, usually after the system breakpoint
 	// The same applies to psapi/toolhelp, maybe using NtQueryXxxxxx is the way to go
 
-	using QueryFullProcessImageNameWPtr = BOOL (WINAPI *)(
-	    HANDLE hProcess,
-	    DWORD dwFlags,
-	    LPWSTR lpExeName,
-	    PDWORD lpdwSize
-	);
+	using QueryFullProcessImageNameWPtr = BOOL(WINAPI *)(
+		HANDLE hProcess,
+		DWORD dwFlags,
+		LPWSTR lpExeName,
+		PDWORD lpdwSize);
 
-	HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
+	HMODULE kernel32                    = GetModuleHandleW(L"kernel32.dll");
 	auto QueryFullProcessImageNameWFunc = (QueryFullProcessImageNameWPtr)GetProcAddress(kernel32, "QueryFullProcessImageNameW");
 
 	wchar_t name[MAX_PATH] = L"";
 
-	if(QueryFullProcessImageNameWFunc/* && LOBYTE(GetVersion()) >= 6*/) { // Vista and up
+	if (QueryFullProcessImageNameWFunc /* && LOBYTE(GetVersion()) >= 6*/) { // Vista and up
 
 		DWORD size = _countof(name);
-		if(QueryFullProcessImageNameWFunc(hProcess_, 0, name, &size)) {
-			return  QString::fromWCharArray(name);
+		if (QueryFullProcessImageNameWFunc(hProcess_, 0, name, &size)) {
+			return QString::fromWCharArray(name);
 		}
 	}
 
@@ -509,50 +507,49 @@ QString PlatformProcess::executable() const  {
  * @brief PlatformProcess::arguments
  * @return
  */
-QList<QByteArray> PlatformProcess::arguments() const  {
+QList<QByteArray> PlatformProcess::arguments() const {
 
 	QList<QByteArray> ret;
-	if(hProcess_) {
+	if (hProcess_) {
 
 		using ZwQueryInformationProcessPtr = NTSTATUS (*WINAPI)(
-		  HANDLE ProcessHandle,
-		  PROCESSINFOCLASS ProcessInformationClass,
-		  PVOID ProcessInformation,
-		  ULONG ProcessInformationLength,
-		  PULONG ReturnLength
-		);
+			HANDLE ProcessHandle,
+			PROCESSINFOCLASS ProcessInformationClass,
+			PVOID ProcessInformation,
+			ULONG ProcessInformationLength,
+			PULONG ReturnLength);
 
-		HMODULE ntdll = GetModuleHandleW(L"ntdll.dll");
+		HMODULE ntdll                      = GetModuleHandleW(L"ntdll.dll");
 		auto ZwQueryInformationProcessFunc = (ZwQueryInformationProcessPtr)GetProcAddress(ntdll, "NtQueryInformationProcess");
 		PROCESS_BASIC_INFORMATION ProcessInfo;
 
-		if(ZwQueryInformationProcessFunc) {
-			    ULONG l;
-				NTSTATUS r = ZwQueryInformationProcessFunc(hProcess_, ProcessBasicInformation, &ProcessInfo, sizeof(PROCESS_BASIC_INFORMATION), &l);
-				printf("TODO(eteran): implement this\n");
+		if (ZwQueryInformationProcessFunc) {
+			ULONG l;
+			NTSTATUS r = ZwQueryInformationProcessFunc(hProcess_, ProcessBasicInformation, &ProcessInfo, sizeof(PROCESS_BASIC_INFORMATION), &l);
+			printf("TODO(eteran): implement this\n");
 		}
 	}
 	return ret;
 }
 
 /**
- * @brief loaded_modules
+ * @brief loadedModules
  * @return
  */
-QList<Module> PlatformProcess::loaded_modules() const {
+QList<Module> PlatformProcess::loadedModules() const {
 	QList<Module> ret;
 	HANDLE hModuleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid());
-	if(hModuleSnap != INVALID_HANDLE_VALUE) {
+	if (hModuleSnap != INVALID_HANDLE_VALUE) {
 		MODULEENTRY32 me32;
 		me32.dwSize = sizeof(me32);
 
-		if(Module32First(hModuleSnap, &me32)) {
+		if (Module32First(hModuleSnap, &me32)) {
 			do {
 				Module module;
-				module.base_address = edb::address_t::fromZeroExtended(me32.modBaseAddr);
-				module.name         = QString::fromWCharArray(me32.szModule);
+				module.baseAddress = edb::address_t::fromZeroExtended(me32.modBaseAddr);
+				module.name        = QString::fromWCharArray(me32.szModule);
 				ret.push_back(module);
-			} while(Module32Next(hModuleSnap, &me32));
+			} while (Module32Next(hModuleSnap, &me32));
 		}
 	}
 	CloseHandle(hModuleSnap);
@@ -569,7 +566,7 @@ QList<std::shared_ptr<IThread>> PlatformProcess::threads() const {
 
 	QList<std::shared_ptr<IThread>> threadList;
 
-	for(auto &thread : core_->threads_) {
+	for (auto &thread : core_->threads_) {
 		threadList.push_back(thread);
 	}
 
@@ -577,22 +574,26 @@ QList<std::shared_ptr<IThread>> PlatformProcess::threads() const {
 }
 
 /**
- * @brief PlatformProcess::current_thread
+ * @brief PlatformProcess::currentThread
  * @return
  */
-std::shared_ptr<IThread> PlatformProcess::current_thread() const {
+std::shared_ptr<IThread> PlatformProcess::currentThread() const {
 
 	Q_ASSERT(core_->process_.get() == this);
 
-	auto it = core_->threads_.find(core_->active_thread_);
-	if(it != core_->threads_.end()) {
+	auto it = core_->threads_.find(core_->activeThread_);
+	if (it != core_->threads_.end()) {
 		return it.value();
 	}
 	return nullptr;
 }
 
-void PlatformProcess::set_current_thread(IThread& thread) {
-	core_->active_thread_ = static_cast<PlatformThread *>(&thread)->tid();
+/**
+ * @brief PlatformProcess::setCurrentThread
+ * @param thread
+ */
+void PlatformProcess::setCurrentThread(IThread &thread) {
+	core_->activeThread_ = static_cast<PlatformThread *>(&thread)->tid();
 	edb::v1::update_ui();
 }
 
@@ -600,8 +601,8 @@ Status PlatformProcess::step(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 	Q_ASSERT(core_->process_.get() == this);
 
-	if(status != edb::DEBUG_STOP) {
-		if(std::shared_ptr<IThread> thread = current_thread()) {
+	if (status != edb::DEBUG_STOP) {
+		if (std::shared_ptr<IThread> thread = currentThread()) {
 			return thread->step(status);
 		}
 	}
@@ -609,8 +610,8 @@ Status PlatformProcess::step(edb::EVENT_STATUS status) {
 }
 
 bool PlatformProcess::isPaused() const {
-	for(auto &thread : threads()) {
-		if(!thread->isPaused()) {
+	for (auto &thread : threads()) {
+		if (!thread->isPaused()) {
 			return false;
 		}
 	}
@@ -627,7 +628,7 @@ Status PlatformProcess::resume(edb::EVENT_STATUS status) {
 
 	int ret;
 
-	switch(status) {
+	switch (status) {
 	case edb::EVENT_STATUS::DEBUG_CONTINUE:
 		ret = ContinueDebugEvent(lastEvent_.dwProcessId, lastEvent_.dwThreadId, DBG_CONTINUE);
 		break;
@@ -640,10 +641,9 @@ Status PlatformProcess::resume(edb::EVENT_STATUS status) {
 	case edb::EVENT_STATUS::DEBUG_STOP:
 	default:
 		break;
-
 	}
 
-	if(ret) {
+	if (ret) {
 		return Status::Ok;
 	}
 

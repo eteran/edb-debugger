@@ -21,9 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerInternal.h"
 #include "IDebugger.h"
 #include "IPlugin.h"
+#include "QtHelper.h"
 #include "edb.h"
 #include "version.h"
-#include "QtHelper.h"
 
 #include <QApplication>
 #include <QDir>
@@ -38,7 +38,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 namespace {
-	Q_DECLARE_NAMESPACE_TR(edb)
+
+Q_DECLARE_NAMESPACE_TR(edb)
 
 //------------------------------------------------------------------------------
 // Name: load_plugins
@@ -55,22 +56,22 @@ void load_plugins(const QString &directory) {
 	//               running from the build directory without further config
 	plugins_dir.cd(directory);
 
-	Q_FOREACH(const QString &file_name, plugins_dir.entryList(QDir::Files)) {
-		if(QLibrary::isLibrary(file_name)) {
+	Q_FOREACH (const QString &file_name, plugins_dir.entryList(QDir::Files)) {
+		if (QLibrary::isLibrary(file_name)) {
 			const QString full_path = plugins_dir.absoluteFilePath(file_name);
 			QPluginLoader loader(full_path);
 			loader.setLoadHints(QLibrary::ExportExternalSymbolsHint);
 
-			if(QObject *const plugin = loader.instance()) {
-				if(auto core_plugin = qobject_cast<IDebugger *>(plugin)) {
-					if(!edb::v1::debugger_core) {
+			if (QObject *const plugin = loader.instance()) {
+				if (auto core_plugin = qobject_cast<IDebugger *>(plugin)) {
+					if (!edb::v1::debugger_core) {
 						edb::v1::debugger_core = core_plugin;
 
 						// load in the settings that the core needs
-						edb::v1::debugger_core->set_ignored_exceptions(edb::v1::config().ignored_exceptions);
+						edb::v1::debugger_core->setIgnoredExceptions(edb::v1::config().ignored_exceptions);
 					}
-				} else if(qobject_cast<IPlugin *>(plugin)) {
-					if(edb::internal::register_plugin(full_path, plugin)) {
+				} else if (qobject_cast<IPlugin *>(plugin)) {
+					if (edb::internal::register_plugin(full_path, plugin)) {
 					}
 				}
 			} else {
@@ -97,9 +98,9 @@ int start_debugger(edb::pid_t attach_pid, const QString &program, const QList<QB
 	// ok things are initialized to a reasonable degree, let's show the main window
 	debugger.show();
 
-	if(!edb::v1::debugger_core) {
+	if (!edb::v1::debugger_core) {
 		QMessageBox::warning(
-		    nullptr,
+			nullptr,
 			tr("edb Failed To Load A Necessary Plugin"),
 			tr("Failed to successfully load the debugger core plugin. Please make sure it exists and that the plugin path is correctly configured.\n"
 			   "This is normal if edb has not been previously run or the configuration file has been removed."));
@@ -107,18 +108,17 @@ int start_debugger(edb::pid_t attach_pid, const QString &program, const QList<QB
 		edb::v1::dialog_options()->exec();
 
 		QMessageBox::warning(
-		    nullptr,
+			nullptr,
 			tr("edb"),
-			tr("edb will now close. If you were successful in specifying the location of the debugger core plugin, please run edb again.")
-			);
+			tr("edb will now close. If you were successful in specifying the location of the debugger core plugin, please run edb again."));
 
 		// TODO: detect if they corrected the issue and try again
 		return -1;
 	} else {
 		// have we been asked to attach to a given program?
-		if(attach_pid != 0) {
+		if (attach_pid != 0) {
 			debugger.attach(attach_pid);
-		} else if(!program.isEmpty()) {
+		} else if (!program.isEmpty()) {
 			debugger.execute(program, programArgs);
 		}
 
@@ -145,33 +145,33 @@ void load_translations() {
 // Name: usage
 // Desc: displays a usage statement then exits
 //------------------------------------------------------------------------------
-void usage() {
+[[noreturn]] void usage() {
 
 	QStringList args = qApp->arguments();
-	std::cerr << "Usage: " << qPrintable(args[0]) << " [OPTIONS]" << std::endl;
-	std::cerr << std::endl;
-	std::cerr << " --attach <pid>            : attach to running process" << std::endl;
-	std::cerr << " --run <program> (args...) : execute specified <program> with <args>" << std::endl;
-	std::cerr << " --version                 : output version information and exit" << std::endl;
-	std::cerr << " --dump-version            : display terse version string and exit" << std::endl;
-	std::cerr << " --help                    : display this help and exit" << std::endl;
+	std::cerr << "Usage: " << qPrintable(args[0]) << " [OPTIONS]\n";
+	std::cerr << '\n';
+	std::cerr << " --attach <pid>            : attach to running process\n";
+	std::cerr << " --run <program> (args...) : execute specified <program> with <args>\n";
+	std::cerr << " --version                 : output version information and exit\n";
+	std::cerr << " --dump-version            : display terse version string and exit\n";
+	std::cerr << " --help                    : display this help and exit\n";
 
-	for(QObject *plugin: edb::v1::plugin_list()) {
-		if(auto p = qobject_cast<IPlugin *>(plugin)) {
-			const QString s = p->extra_arguments();
-			if(!s.isEmpty()) {
-				std::cerr << std::endl;
-				std::cerr << qPrintable(plugin->metaObject()->className()) << std::endl;
-				std::cerr << qPrintable(s) << std::endl;
+	for (QObject *plugin : edb::v1::plugin_list()) {
+		if (auto p = qobject_cast<IPlugin *>(plugin)) {
+			const QString s = p->extraArguments();
+			if (!s.isEmpty()) {
+				std::cerr << '\n';
+				std::cerr << qPrintable(plugin->metaObject()->className()) << '\n';
+				std::cerr << qPrintable(s) << '\n';
 			}
 		}
 	}
 
+	std::cerr << std::flush;
 	std::exit(-1);
 }
 
 }
-
 
 //------------------------------------------------------------------------------
 // Name: main
@@ -182,9 +182,9 @@ int main(int argc, char *argv[]) {
 	QT_REQUIRE_VERSION(argc, argv, "5.0.0");
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
-    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+	QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
 	QApplication app(argc, argv);
 	QApplication::setWindowIcon(QIcon(":/debugger/images/edb48-logo.png"));
@@ -202,18 +202,18 @@ int main(int argc, char *argv[]) {
 	// look for some plugins..
 	load_plugins(edb::v1::config().plugin_path);
 
-	QStringList args = app.arguments();
-	edb::pid_t        attach_pid = 0;
+	QStringList args      = app.arguments();
+	edb::pid_t attach_pid = 0;
 	QList<QByteArray> run_args;
-	QString           run_app;
+	QString run_app;
 
 	// call the init function for each plugin, this is done after
 	// ALL plugins are loaded in case there are inter-plugin dependencies
-	for(QObject *plugin: edb::v1::plugin_list()) {
-		if(auto p = qobject_cast<IPlugin *>(plugin)) {
+	for (QObject *plugin : edb::v1::plugin_list()) {
+		if (auto p = qobject_cast<IPlugin *>(plugin)) {
 
-			const IPlugin::ArgumentStatus r = p->parse_arguments(args);
-			switch(r) {
+			const IPlugin::ArgumentStatus r = p->parseArguments(args);
+			switch (r) {
 			case IPlugin::ARG_ERROR:
 				usage();
 				break;
@@ -225,19 +225,19 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	if(args.size() > 1) {
-		if(args.size() == 3 && args[1] == "--attach") {
+	if (args.size() > 1) {
+		if (args.size() == 3 && args[1] == "--attach") {
 			attach_pid = args[2].toUInt();
-		} else if(args.size() >= 3 && args[1] == "--run") {
+		} else if (args.size() >= 3 && args[1] == "--run") {
 			run_app = args[2];
 
-			for(int i = 3; i < args.size(); ++i) {
+			for (int i = 3; i < args.size(); ++i) {
 				run_args.push_back(argv[i]);
 			}
-		} else if(args.size() == 2 && args[1] == "--version") {
+		} else if (args.size() == 2 && args[1] == "--version") {
 			std::cout << "edb version: " << edb::version << std::endl;
 			return 0;
-		} else if(args.size() == 2 && args[1] == "--dump-version") {
+		} else if (args.size() == 2 && args[1] == "--dump-version") {
 			std::cout << edb::version << std::endl;
 			return 0;
 		} else {

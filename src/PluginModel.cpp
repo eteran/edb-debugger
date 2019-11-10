@@ -24,7 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: PluginModel
 // Desc:
 //------------------------------------------------------------------------------
-PluginModel::PluginModel(QObject *parent) : QAbstractItemModel(parent) {
+PluginModel::PluginModel(QObject *parent)
+	: QAbstractItemModel(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -34,11 +35,11 @@ PluginModel::PluginModel(QObject *parent) : QAbstractItemModel(parent) {
 QModelIndex PluginModel::index(int row, int column, const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 
-	if(row >= rowCount(parent) || column >= columnCount(parent)) {
+	if (row >= rowCount(parent) || column >= columnCount(parent)) {
 		return QModelIndex();
 	}
 
-	if(row >= 0) {
+	if (row >= 0) {
 		return createIndex(row, column, const_cast<Item *>(&items_[row]));
 	} else {
 		return createIndex(row, column);
@@ -60,12 +61,12 @@ QModelIndex PluginModel::parent(const QModelIndex &index) const {
 //------------------------------------------------------------------------------
 QVariant PluginModel::data(const QModelIndex &index, int role) const {
 
-	if(index.isValid()) {
+	if (index.isValid()) {
 
 		const Item &item = items_[index.row()];
 
-		if(role == Qt::DisplayRole) {
-			switch(index.column()) {
+		if (role == Qt::DisplayRole) {
+			switch (index.column()) {
 			case 0:
 				return item.filename;
 			case 1:
@@ -87,8 +88,8 @@ QVariant PluginModel::data(const QModelIndex &index, int role) const {
 //------------------------------------------------------------------------------
 QVariant PluginModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
-	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
-		switch(section) {
+	if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
+		switch (section) {
 		case 0:
 			return tr("File Name");
 		case 1:
@@ -129,8 +130,12 @@ void PluginModel::addPlugin(const QString &filename, const QString &plugin, cons
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
 
 	const Item item = {
-		filename, plugin, author, url
+		filename,
+		plugin,
+		author,
+		url,
 	};
+
 	items_.push_back(item);
 	endInsertRows();
 }

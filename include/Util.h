@@ -34,9 +34,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <type_traits>
 
 enum class NumberDisplayMode {
-	Hex, 
-	Signed, 
-	Unsigned, 
+	Hex,
+	Signed,
+	Unsigned,
 	Float
 };
 
@@ -46,13 +46,16 @@ namespace util {
 template <typename AbstractEnum, typename ConcreteEnum>
 class AbstractEnumData {
 	AbstractEnum data;
+
 public:
-	AbstractEnumData(AbstractEnum a) : data(a) {
+	AbstractEnumData(AbstractEnum a)
+		: data(a) {
 	}
-	
-	AbstractEnumData(ConcreteEnum c) : data(static_cast<AbstractEnum>(c)) {
+
+	AbstractEnumData(ConcreteEnum c)
+		: data(static_cast<AbstractEnum>(c)) {
 	}
-	
+
 	operator AbstractEnum() const { return data; }
 	operator ConcreteEnum() const { return static_cast<ConcreteEnum>(data); }
 };
@@ -90,18 +93,19 @@ int percentage(N1 bytes_done, N2 bytes_total) {
 	return percentage(0, 1, bytes_done, bytes_total);
 }
 
-inline void markMemory(void *memory, std::size_t size) {
+inline void mark_memory(void *memory, std::size_t size) {
 
-	auto p = reinterpret_cast<char *>(memory);
+	auto p = reinterpret_cast<uint8_t *>(memory);
+
 	// Fill memory with 0xbad1bad1 marker
 	for (std::size_t i = 0; i < size; ++i) {
-		p[i] = i & 1 ? 0xba : 0xd1;
+		p[i] = (i & 1) ? 0xba : 0xd1;
 	}
 }
 
 template <typename T, typename... Tail>
 constexpr auto make_array(T head, Tail... tail) -> std::array<T, 1 + sizeof...(Tail)> {
-	return std::array<T, 1 + sizeof...(Tail)>{ head, tail... };
+	return std::array<T, 1 + sizeof...(Tail)>{head, tail...};
 }
 
 template <typename Container, typename Element>
@@ -125,15 +129,14 @@ void print(Stream &str, const Arg0 &arg0, const Args &... args) {
 	print(str, args...);
 }
 
-#define EDB_PRINT_AND_DIE(...) \
-do {                                                                                                    \
-	util::print(std::cerr, __FILE__, ":", __LINE__, ": ", Q_FUNC_INFO, ": Fatal error: ", __VA_ARGS__); \
-	std::abort();                                                                                       \
-} while(0)
-
+#define EDB_PRINT_AND_DIE(...)                                                                              \
+	do {                                                                                                    \
+		util::print(std::cerr, __FILE__, ":", __LINE__, ": ", Q_FUNC_INFO, ": Fatal error: ", __VA_ARGS__); \
+		std::abort();                                                                                       \
+	} while (0)
 
 template <typename T>
-QString formatInt(T value, NumberDisplayMode mode) {
+QString format_int(T value, NumberDisplayMode mode) {
 	switch (mode) {
 	case NumberDisplayMode::Hex:
 		return value.toHexString();
@@ -146,16 +149,15 @@ QString formatInt(T value, NumberDisplayMode mode) {
 	}
 }
 
-
 template <typename Float>
-boost::optional<Float> fullStringToFloat(const std::string &s) {
+boost::optional<Float> full_string_to_float(const std::string &s) {
 
 	static_assert(
-		std::is_same<Float, float>::value  || 
-		std::is_same<Float, double>::value ||
-		std::is_same<Float, long double>::value,
+		std::is_same<Float, float>::value ||
+			std::is_same<Float, double>::value ||
+			std::is_same<Float, long double>::value,
 		"Floating-point type not supported by this function");
-		
+
 	// NOTE: Don't use std::istringstream: it doesn't support hexfloat.
 	//       Don't use std::sto{f,d,ld} either: they throw std::out_of_range on denormals.
 	//       Only std::strto{f,d,ld} are sane, for some definitions of sane...
@@ -163,7 +165,7 @@ boost::optional<Float> fullStringToFloat(const std::string &s) {
 	char *end;
 	Float value;
 	errno = 0;
-	
+
 	if (std::is_same<Float, float>::value) {
 		value = std::strtof(str, &end);
 	} else if (std::is_same<Float, double>::value) {
@@ -171,7 +173,7 @@ boost::optional<Float> fullStringToFloat(const std::string &s) {
 	} else {
 		value = std::strtold(str, &end);
 	}
-	
+
 	if (errno) {
 		if ((errno == ERANGE && (value == 0 || std::isinf(value))) || errno != ERANGE) {
 			return boost::none;
@@ -187,14 +189,14 @@ boost::optional<Float> fullStringToFloat(const std::string &s) {
 
 template <class T, size_t N, class U = T>
 constexpr void shl(std::array<T, N> &buffer, U value = T()) {
-	static_assert (std::is_convertible<T, U>::value, "U must be convertable to the type contained in the array!");
+	static_assert(std::is_convertible<T, U>::value, "U must be convertable to the type contained in the array!");
 	std::rotate(buffer.begin(), buffer.begin() + 1, buffer.end());
 	buffer[N - 1] = value;
 }
 
 template <class T, size_t N, class U = T>
 constexpr void shr(std::array<T, N> &buffer, U value = T()) {
-	static_assert (std::is_convertible<T, U>::value, "U must be convertable to the type contained in the array!");
+	static_assert(std::is_convertible<T, U>::value, "U must be convertable to the type contained in the array!");
 	std::rotate(buffer.rbegin(), buffer.rbegin() + 1, buffer.rend());
 	buffer[0] = value;
 }

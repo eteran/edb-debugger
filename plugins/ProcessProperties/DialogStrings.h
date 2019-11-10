@@ -32,19 +32,19 @@ class DialogStrings : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogStrings(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogStrings(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogStrings() override = default;
 
 private:
-    void showEvent(QShowEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 
 private:
-	void do_find();
+	void doFind();
 
 private:
-	 Ui::DialogStrings ui;
-	 QSortFilterProxyModel *filter_model_;
-	 QPushButton *btnFind_;
+	Ui::DialogStrings ui;
+	QSortFilterProxyModel *filterModel_ = nullptr;
+	QPushButton *buttonFind_            = nullptr;
 };
 
 }

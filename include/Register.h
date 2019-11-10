@@ -39,7 +39,7 @@ public:
 		TYPE_SEG     = 0x0004,
 		TYPE_COND    = 0x0008,
 		TYPE_FPU     = 0x0010,
-		TYPE_SIMD    = 0x0020
+		TYPE_SIMD    = 0x0020,
 	};
 
 	// Expand when AVX-512 instructions and state are supported
@@ -47,7 +47,7 @@ public:
 
 public:
 	Register();
-	Register(const Register &other)          = default;
+	Register(const Register &other) = default;
 	Register &operator=(const Register &rhs) = default;
 
 public:
@@ -58,13 +58,13 @@ public:
 	bool valid() const { return type_ != TYPE_INVALID; }
 	explicit operator bool() const { return valid(); }
 
-	Type type() const           { return type_; }
-	QString name() const        { return name_; }
+	Type type() const { return type_; }
+	QString name() const { return name_; }
 	std::size_t bitSize() const { return bitSize_; }
-	const char* rawData() const { return reinterpret_cast<const char*>(&value_); }
+	const char *rawData() const { return reinterpret_cast<const char *>(&value_); }
 
 	template <class T>
-	T value() const             { return T(value_); }
+	T value() const { return T(value_); }
 
 	// Return the value, zero-extended to address_t to be usable in address calculations
 	edb::address_t valueAsAddress() const;
@@ -76,7 +76,7 @@ public:
 	int64_t valueAsSignedInteger() const {
 		uint64_t result = valueAsInteger();
 		// If MSB is set, sign extend the result
-		if(result & (1ll << (bitSize_ - 1))) {
+		if (result & (1ll << (bitSize_ - 1))) {
 			result = -1ll;
 			std::memcpy(&result, &value_, bitSize_ / 8);
 		}
@@ -85,7 +85,7 @@ public:
 
 	void setScalarValue(std::uint64_t newValue);
 
-	template<typename T>
+	template <typename T>
 	void setValueFrom(const T &source) {
 		assert(bitSize_ <= 8 * sizeof(source));
 
@@ -99,9 +99,9 @@ public:
 	QString toHexString() const;
 
 private:
-	QString     name_    = tr("<unknown>");
-	StoredType  value_   = {};
-	Type        type_    = TYPE_INVALID;
+	QString name_        = tr("<unknown>");
+	StoredType value_    = {};
+	Type type_           = TYPE_INVALID;
 	std::size_t bitSize_ = 0;
 
 	template <std::size_t bitSize, typename T>
@@ -121,7 +121,7 @@ Register make_Register(const QString &name, T value, Register::Type type) {
 
 	constexpr std::size_t size = bitSize / 8;
 	static_assert(size <= sizeof(T), "ValueType appears smaller than size specified");
-	util::markMemory(&reg.value_, sizeof(reg.value_));
+	util::mark_memory(&reg.value_, sizeof(reg.value_));
 
 	// NOTE(eteran): used to avoid warnings from GCC >= 8.2
 	auto from = reinterpret_cast<const char *>(&value);

@@ -40,7 +40,7 @@ bool is_syscall(const Instruction &insn) {
 }
 
 bool is_interrupt(const Instruction &insn) {
-	if(!insn) return false;
+	if (!insn) return false;
 	const int op = insn.operation();
 	return op == X86_INS_INT || op == X86_INS_INT1 || op == X86_INS_INT3 || op == X86_INS_INTO;
 }

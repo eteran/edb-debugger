@@ -32,7 +32,7 @@ class SpecifiedFunctions : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit SpecifiedFunctions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit SpecifiedFunctions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~SpecifiedFunctions() override = default;
 
 public Q_SLOTS:
@@ -42,13 +42,13 @@ private:
 	void showEvent(QShowEvent *event) override;
 
 private:
-	void do_find();
+	void doFind();
 
 private:
-	 Ui::SpecifiedFunctions ui;
-	 QStringListModel *model_;
-	 QSortFilterProxyModel *filter_model_;
-	 QPushButton *btnRefresh_;
+	Ui::SpecifiedFunctions ui;
+	QStringListModel *model_            = nullptr;
+	QSortFilterProxyModel *filterModel_ = nullptr;
+	QPushButton *buttonRefresh_         = nullptr;
 };
 
 }

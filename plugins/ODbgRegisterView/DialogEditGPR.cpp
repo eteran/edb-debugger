@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 #include <QDialogButtonBox>
 #include <QGridLayout>
+#include <QLabel>
 #include <cmath>
 #include <cstring>
 #include <tuple>
@@ -29,7 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-DialogEditGPR::DialogEditGPR(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogEditGPR::DialogEditGPR(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
 
 	setWindowTitle(tr("Modify Register"));
 	setModal(true);
@@ -100,27 +102,27 @@ DialogEditGPR::DialogEditGPR(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 	dialogLayout->addLayout(allContentsGrid);
 	dialogLayout->addWidget(okCancel);
 
-	for (std::size_t entry = 1; entry < entries.size(); ++entry) {
-		setTabOrder(entries[entry - 1], entries[entry]);
+	for (std::size_t entry = 1; entry < entries_.size(); ++entry) {
+		setTabOrder(entries_[entry - 1], entries_[entry]);
 	}
 }
 
 GPREdit *&DialogEditGPR::entry(DialogEditGPR::Row row, DialogEditGPR::Column col) {
 
 	if (row < ENTRY_ROWS)
-		return entries.at((row - FIRST_ENTRY_ROW) * ENTRY_COLS + (col - FIRST_ENTRY_COL));
+		return entries_.at((row - FIRST_ENTRY_ROW) * ENTRY_COLS + (col - FIRST_ENTRY_COL));
 	if (col == GPR8H_COL)
-		return *(entries.end() - 2);
+		return *(entries_.end() - 2);
 	if (col == GPR8L_COL)
-		return entries.back();
+		return entries_.back();
 
 	Q_ASSERT("Invalid row&col specified" && 0);
-	return entries.front(); // silence the compiler
+	return entries_.front(); // silence the compiler
 }
 
 void DialogEditGPR::updateAllEntriesExcept(GPREdit *notUpdated) {
 
-	for (auto entry : entries) {
+	for (auto entry : entries_) {
 		if (entry != notUpdated && !entry->isHidden()) {
 			entry->setGPRValue(value_);
 		}
@@ -128,11 +130,11 @@ void DialogEditGPR::updateAllEntriesExcept(GPREdit *notUpdated) {
 }
 
 QLabel *&DialogEditGPR::columnLabel(DialogEditGPR::Column col) {
-	return labels.at(col - FIRST_ENTRY_COL);
+	return labels_.at(col - FIRST_ENTRY_COL);
 }
 
 QLabel *&DialogEditGPR::rowLabel(DialogEditGPR::Row row) {
-	return labels.at(ENTRY_COLS + row - FIRST_ENTRY_ROW);
+	return labels_.at(ENTRY_COLS + row - FIRST_ENTRY_ROW);
 }
 
 void DialogEditGPR::hideColumn(DialogEditGPR::Column col) {
@@ -156,11 +158,11 @@ void DialogEditGPR::hideRow(Row row) {
 }
 
 void DialogEditGPR::resetLayout() {
-	for (auto entry : entries) {
+	for (auto entry : entries_) {
 		entry->show();
 	}
 
-	for (auto label : labels) {
+	for (auto label : labels_) {
 		label->show();
 	}
 
@@ -193,7 +195,7 @@ void DialogEditGPR::setupEntriesAndLabels() {
 		Q_ASSERT("Unsupported bitSize" && 0);
 	}
 
-	const QString regName = reg.name().toUpper();
+	const QString regName = reg_.name().toUpper();
 
 	if (bitSize_ == 64)
 		columnLabel(GPR64_COL)->setText(regName);
@@ -266,7 +268,7 @@ void DialogEditGPR::setupEntriesAndLabels() {
 }
 
 void DialogEditGPR::setupFocus() {
-	for (auto entry : entries) {
+	for (auto entry : entries_) {
 		if (!entry->isHidden()) {
 			entry->setFocus(Qt::OtherFocusReason);
 			break;
@@ -274,22 +276,22 @@ void DialogEditGPR::setupFocus() {
 	}
 }
 
-bool DialogEditGPR::eventFilter(QObject* obj, QEvent* event) {
-	return entryGridKeyUpDownEventFilter(this,obj,event);
+bool DialogEditGPR::eventFilter(QObject *obj, QEvent *event) {
+	return entry_grid_key_event_filter(this, obj, event);
 }
 
-void DialogEditGPR::set_value(const Register &newReg) {
-	reg      = newReg;
-	value_   = reg.valueAsInteger();
-	bitSize_ = reg.bitSize();
+void DialogEditGPR::setValue(const Register &newReg) {
+	reg_     = newReg;
+	value_   = reg_.valueAsInteger();
+	bitSize_ = reg_.bitSize();
 	setupEntriesAndLabels();
-	setWindowTitle(tr("Modify %1").arg(reg.name().toUpper()));
+	setWindowTitle(tr("Modify %1").arg(reg_.name().toUpper()));
 	updateAllEntriesExcept(nullptr);
 	setupFocus();
 }
 
 Register DialogEditGPR::value() const {
-	Register ret(reg);
+	Register ret(reg_);
 	ret.setScalarValue(value_);
 	return ret;
 }

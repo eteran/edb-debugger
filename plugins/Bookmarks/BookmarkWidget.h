@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BOOKMARKWIDGET_20101207_H_
 #define BOOKMARKWIDGET_20101207_H_
 
+#include "BookmarksModel.h"
 #include "Types.h"
 #include "ui_Bookmarks.h"
-#include "BookmarksModel.h"
 #include <QWidget>
 
 class QModelIndex;
@@ -46,12 +46,12 @@ public Q_SLOTS:
 
 public:
 	void shortcut(int index);
-	void add_address(edb::address_t address, const QString &type = QString(), const QString &comment = QString());
+	void addAddress(edb::address_t address, const QString &type = QString(), const QString &comment = QString());
 	QList<BookmarksModel::Bookmark> entries() const;
 
 private:
 	Ui::Bookmarks ui;
-	BookmarksModel *model_;
+	BookmarksModel *model_ = nullptr;
 };
 
 }

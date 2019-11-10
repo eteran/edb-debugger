@@ -24,19 +24,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef WIN32
 #include <Windows.h>
 #else
-using BYTE      = uint8_t;
-using BOOLEAN   = uint8_t;
-using SHORT     = int16_t;
-using WORD      = uint16_t;
-using USHORT    = uint16_t;
-using INT       = int32_t;
-using LONG      = int32_t;
-using DWORD     = uint32_t;
-using ULONG     = uint32_t;
-using UINT      = uint32_t;
-using ULONGLONG = uint64_t;
-using LONGLONG  = int64_t;
-#define IMAGE_NUMBEROF_DIRECTORY_ENTRIES 16
+using BYTE                                     = uint8_t;
+using BOOLEAN                                  = uint8_t;
+using SHORT                                    = int16_t;
+using WORD                                     = uint16_t;
+using USHORT                                   = uint16_t;
+using INT                                      = int32_t;
+using LONG                                     = int32_t;
+using DWORD                                    = uint32_t;
+using ULONG                                    = uint32_t;
+using UINT                                     = uint32_t;
+using ULONGLONG                                = uint64_t;
+using LONGLONG                                 = int64_t;
+constexpr int IMAGE_NUMBEROF_DIRECTORY_ENTRIES = 16;
 #endif
 
 namespace libPE {
@@ -69,91 +69,91 @@ struct IMAGE_DATA_DIRECTORY {
 };
 
 struct IMAGE_OPTIONAL_HEADER64 {
-	WORD                 Magic;
-	BYTE                 MajorLinkerVersion;
-	BYTE                 MinorLinkerVersion;
-	DWORD                SizeOfCode;
-	DWORD                SizeOfInitializedData;
-	DWORD                SizeOfUninitializedData;
-	DWORD                AddressOfEntryPoint;
-	DWORD                BaseOfCode;
-	ULONGLONG            ImageBase;
-	DWORD                SectionAlignment;
-	DWORD                FileAlignment;
-	WORD                 MajorOperatingSystemVersion;
-	WORD                 MinorOperatingSystemVersion;
-	WORD                 MajorImageVersion;
-	WORD                 MinorImageVersion;
-	WORD                 MajorSubsystemVersion;
-	WORD                 MinorSubsystemVersion;
-	DWORD                Win32VersionValue;
-	DWORD                SizeOfImage;
-	DWORD                SizeOfHeaders;
-	DWORD                CheckSum;
-	WORD                 Subsystem;
-	WORD                 DllCharacteristics;
-	ULONGLONG            SizeOfStackReserve;
-	ULONGLONG            SizeOfStackCommit;
-	ULONGLONG            SizeOfHeapReserve;
-	ULONGLONG            SizeOfHeapCommit;
-	DWORD                LoaderFlags;
-	DWORD                NumberOfRvaAndSizes;
+	WORD Magic;
+	BYTE MajorLinkerVersion;
+	BYTE MinorLinkerVersion;
+	DWORD SizeOfCode;
+	DWORD SizeOfInitializedData;
+	DWORD SizeOfUninitializedData;
+	DWORD AddressOfEntryPoint;
+	DWORD BaseOfCode;
+	ULONGLONG ImageBase;
+	DWORD SectionAlignment;
+	DWORD FileAlignment;
+	WORD MajorOperatingSystemVersion;
+	WORD MinorOperatingSystemVersion;
+	WORD MajorImageVersion;
+	WORD MinorImageVersion;
+	WORD MajorSubsystemVersion;
+	WORD MinorSubsystemVersion;
+	DWORD Win32VersionValue;
+	DWORD SizeOfImage;
+	DWORD SizeOfHeaders;
+	DWORD CheckSum;
+	WORD Subsystem;
+	WORD DllCharacteristics;
+	ULONGLONG SizeOfStackReserve;
+	ULONGLONG SizeOfStackCommit;
+	ULONGLONG SizeOfHeapReserve;
+	ULONGLONG SizeOfHeapCommit;
+	DWORD LoaderFlags;
+	DWORD NumberOfRvaAndSizes;
 	IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
 };
 
 struct IMAGE_OPTIONAL_HEADER32 {
-	WORD                 Magic;
-	BYTE                 MajorLinkerVersion;
-	BYTE                 MinorLinkerVersion;
-	DWORD                SizeOfCode;
-	DWORD                SizeOfInitializedData;
-	DWORD                SizeOfUninitializedData;
-	DWORD                AddressOfEntryPoint;
-	DWORD                BaseOfCode;
-	DWORD                BaseOfData;
-	DWORD                ImageBase;
-	DWORD                SectionAlignment;
-	DWORD                FileAlignment;
-	WORD                 MajorOperatingSystemVersion;
-	WORD                 MinorOperatingSystemVersion;
-	WORD                 MajorImageVersion;
-	WORD                 MinorImageVersion;
-	WORD                 MajorSubsystemVersion;
-	WORD                 MinorSubsystemVersion;
-	DWORD                Win32VersionValue;
-	DWORD                SizeOfImage;
-	DWORD                SizeOfHeaders;
-	DWORD                CheckSum;
-	WORD                 Subsystem;
-	WORD                 DllCharacteristics;
-	DWORD                SizeOfStackReserve;
-	DWORD                SizeOfStackCommit;
-	DWORD                SizeOfHeapReserve;
-	DWORD                SizeOfHeapCommit;
-	DWORD                LoaderFlags;
-	DWORD                NumberOfRvaAndSizes;
+	WORD Magic;
+	BYTE MajorLinkerVersion;
+	BYTE MinorLinkerVersion;
+	DWORD SizeOfCode;
+	DWORD SizeOfInitializedData;
+	DWORD SizeOfUninitializedData;
+	DWORD AddressOfEntryPoint;
+	DWORD BaseOfCode;
+	DWORD BaseOfData;
+	DWORD ImageBase;
+	DWORD SectionAlignment;
+	DWORD FileAlignment;
+	WORD MajorOperatingSystemVersion;
+	WORD MinorOperatingSystemVersion;
+	WORD MajorImageVersion;
+	WORD MinorImageVersion;
+	WORD MajorSubsystemVersion;
+	WORD MinorSubsystemVersion;
+	DWORD Win32VersionValue;
+	DWORD SizeOfImage;
+	DWORD SizeOfHeaders;
+	DWORD CheckSum;
+	WORD Subsystem;
+	WORD DllCharacteristics;
+	DWORD SizeOfStackReserve;
+	DWORD SizeOfStackCommit;
+	DWORD SizeOfHeapReserve;
+	DWORD SizeOfHeapCommit;
+	DWORD LoaderFlags;
+	DWORD NumberOfRvaAndSizes;
 	IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
 };
 
 struct IMAGE_FILE_HEADER {
-	WORD  Machine;
-	WORD  NumberOfSections;
+	WORD Machine;
+	WORD NumberOfSections;
 	DWORD TimeDateStamp;
 	DWORD PointerToSymbolTable;
 	DWORD NumberOfSymbols;
-	WORD  SizeOfOptionalHeader;
-	WORD  Characteristics;
+	WORD SizeOfOptionalHeader;
+	WORD Characteristics;
 };
 
 struct IMAGE_NT_HEADERS32 {
-	DWORD                   Signature;
-	IMAGE_FILE_HEADER       FileHeader;
+	DWORD Signature;
+	IMAGE_FILE_HEADER FileHeader;
 	IMAGE_OPTIONAL_HEADER32 OptionalHeader;
 };
 
 struct IMAGE_NT_HEADERS64 {
-	DWORD                   Signature;
-	IMAGE_FILE_HEADER       FileHeader;
+	DWORD Signature;
+	IMAGE_FILE_HEADER FileHeader;
 	IMAGE_OPTIONAL_HEADER64 OptionalHeader;
 };
 

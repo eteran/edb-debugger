@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "PlatformThread.h"
-#include "PlatformState.h"
 #include "PlatformProcess.h"
+#include "PlatformState.h"
 #include "State.h"
 
 namespace DebuggerCorePlugin {
@@ -29,17 +29,19 @@ namespace DebuggerCorePlugin {
  * @param process
  * @param hThread
  */
-PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, const CREATE_THREAD_DEBUG_INFO *info) : core_(core), process_(process) {
-	is_wow64_ = static_cast<PlatformProcess *>(process.get())->isWow64();
+PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, const CREATE_THREAD_DEBUG_INFO *info)
+	: core_(core), process_(process) {
+
+	isWow64_ = static_cast<PlatformProcess *>(process.get())->isWow64();
 
 	DuplicateHandle(
-	            GetCurrentProcess(),
-	            info->hThread,
-	            GetCurrentProcess(),
-	            &hThread_,
-	            0,
-	            FALSE,
-	            DUPLICATE_SAME_ACCESS);
+		GetCurrentProcess(),
+		info->hThread,
+		GetCurrentProcess(),
+		&hThread_,
+		0,
+		FALSE,
+		DUPLICATE_SAME_ACCESS);
 }
 
 /**
@@ -56,10 +58,10 @@ edb::tid_t PlatformThread::tid() const {
  */
 QString PlatformThread::name() const {
 
-	using GetThreadDescriptionType = HRESULT  (WINAPI *)(HANDLE,  PWSTR*);
+	using GetThreadDescriptionType = HRESULT(WINAPI *)(HANDLE, PWSTR *);
 
 	static auto fnGetThreadDescription = (GetThreadDescriptionType)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "GetThreadDescription");
-	if(fnGetThreadDescription) {
+	if (fnGetThreadDescription) {
 		WCHAR *data;
 		HRESULT hr = fnGetThreadDescription(hThread_, &data);
 		if (SUCCEEDED(hr)) {
@@ -70,7 +72,6 @@ QString PlatformThread::name() const {
 	}
 
 	return tr("Thread: %1").arg(tid());
-
 }
 
 /**
@@ -82,17 +83,17 @@ int PlatformThread::priority() const {
 }
 
 /**
- * @brief PlatformThread::instruction_pointer
+ * @brief PlatformThread::instructionPointer
  * @return
  */
-edb::address_t PlatformThread::instruction_pointer() const {
+edb::address_t PlatformThread::instructionPointer() const {
 #if defined(EDB_X86)
 	CONTEXT context;
 	context.ContextFlags = CONTEXT_CONTROL;
 	GetThreadContext(hThread_, &context);
 	return context.Eip;
 #elif defined(EDB_X86_64)
-	if(is_wow64_) {
+	if (isWow64_) {
 		WOW64_CONTEXT context;
 		context.ContextFlags = CONTEXT_CONTROL;
 		Wow64GetThreadContext(hThread_, &context);
@@ -118,9 +119,9 @@ QString PlatformThread::runState() const {
  * @brief PlatformThread::get_state
  * @param state
  */
-void PlatformThread::get_state(State *state) {
-	if(auto p = static_cast<PlatformState *>(state->impl_.get())) {
-		p->getThreadState(hThread_, is_wow64_);
+void PlatformThread::getState(State *state) {
+	if (auto p = static_cast<PlatformState *>(state->impl_.get())) {
+		p->getThreadState(hThread_, isWow64_);
 	}
 }
 
@@ -128,8 +129,8 @@ void PlatformThread::get_state(State *state) {
  * @brief PlatformThread::set_state
  * @param state
  */
-void PlatformThread::set_state(const State &state) {
-	if(auto p = static_cast<const PlatformState *>(state.impl_.get())) {
+void PlatformThread::setState(const State &state) {
+	if (auto p = static_cast<const PlatformState *>(state.impl_.get())) {
 		p->setThreadState(hThread_);
 	}
 }
@@ -146,7 +147,7 @@ Status PlatformThread::step() {
 	context.EFlags |= (1 << 8); // set the trap flag
 	SetThreadContext(hThread_, &context);
 #elif defined(EDB_X86_64)
-	if(is_wow64_) {
+	if (isWow64_) {
 		WOW64_CONTEXT context;
 		context.ContextFlags = CONTEXT_CONTROL;
 		Wow64GetThreadContext(hThread_, &context);
@@ -177,7 +178,7 @@ Status PlatformThread::step(edb::EVENT_STATUS status) {
 	context.EFlags |= (1 << 8); // set the trap flag
 	SetThreadContext(hThread_, &context);
 #elif defined(EDB_X86_64)
-	if(is_wow64_) {
+	if (isWow64_) {
 		WOW64_CONTEXT context;
 		context.ContextFlags = CONTEXT_CONTROL;
 		Wow64GetThreadContext(hThread_, &context);
@@ -217,12 +218,11 @@ Status PlatformThread::resume(edb::EVENT_STATUS status) {
 	// TODO(eteran): suspend the other threads, then basically just call process_->resume
 
 	ContinueDebugEvent(
-	    process_->pid(),
-	    tid(),
-	    (status == edb::DEBUG_CONTINUE) ? (DBG_CONTINUE) : (DBG_EXCEPTION_NOT_HANDLED));
+		process_->pid(),
+		tid(),
+		(status == edb::DEBUG_CONTINUE) ? (DBG_CONTINUE) : (DBG_EXCEPTION_NOT_HANDLED));
 	return Status::Ok;
 }
-
 
 /**
  * @brief PlatformThread::isPaused

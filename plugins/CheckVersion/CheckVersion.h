@@ -41,23 +41,25 @@ public:
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
-	QWidget *options_page() override;
+	QWidget *optionsPage() override;
 
 public Q_SLOTS:
-	void show_menu();
+	void showMenu();
+
+private:
 	void requestFinished(QNetworkReply *reply);
 
 protected:
-	void private_init() override;
+	void privateInit() override;
 
 private:
-	void do_check();
-	void set_proxy(const QUrl &url);
+	void doCheck();
+	void setProxy(const QUrl &url);
 
 private:
-	QMenu                 *menu_          = nullptr;
-	QNetworkAccessManager *network_       = nullptr;
-	bool                   initial_check_ = true;
+	QMenu *menu_                    = nullptr;
+	QNetworkAccessManager *network_ = nullptr;
+	bool initialCheck_              = true;
 };
 
 }

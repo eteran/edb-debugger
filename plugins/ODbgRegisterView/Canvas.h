@@ -1,6 +1,5 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2015 Ruslan Kabatsayev <b7.10110111@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,32 +15,20 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOGASCIISTRING_20082201_H_
-#define DIALOGASCIISTRING_20082201_H_
+#ifndef CANVAS_H_20151031
+#define CANVAS_H_20151031
 
-#include "ui_DialogASCIIString.h"
-#include <QDialog>
+#include <QWidget>
 
-class QListWidgetItem;
+namespace ODbgRegisterView {
 
-namespace BinarySearcherPlugin {
-
-class DialogASCIIString : public QDialog {
+class Canvas : public QWidget {
 	Q_OBJECT
-
 public:
-	explicit DialogASCIIString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	~DialogASCIIString() override = default;
+	explicit Canvas(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
 protected:
-	void showEvent(QShowEvent *event) override;
-
-private:
-	void do_find();
-
-private:
-	 Ui::DialogASCIIString ui;
-	 QPushButton *btnFind_;
+	void mousePressEvent(QMouseEvent *event) override;
 };
 
 }

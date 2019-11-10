@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DEBUGGERMAIN_20090811_H_
 #define DEBUGGERMAIN_20090811_H_
 
-#include "Debugger.h"
 #include "DataViewInfo.h"
+#include "Debugger.h"
 #include "IDebugEventHandler.h"
 #include "OSTypes.h"
 #include "QHexView"
@@ -55,59 +55,58 @@ class QLabel;
 class Debugger : public QMainWindow, public IDebugEventHandler {
 	Q_OBJECT
 public:
-    explicit Debugger(QWidget *parent = nullptr);
-	Debugger(const Debugger &)            = delete;
-	Debugger& operator=(const Debugger &) = delete;
+	explicit Debugger(QWidget *parent = nullptr);
+	Debugger(const Debugger &) = delete;
+	Debugger &operator=(const Debugger &) = delete;
 	~Debugger() override;
 
 private:
-
 	enum ResumeFlag {
 		None   = 0,
 		Forced = 1,
 	};
 	Q_DECLARE_FLAGS(ResumeFlags, ResumeFlag)
 
-	enum DEBUG_MODE {
-		MODE_STEP,
-		MODE_TRACE,
-		MODE_RUN
+	enum DebugMode {
+		Step,
+		Trace,
+		Run
 	};
 
-	enum EXCEPTION_RESUME {
-		IGNORE_EXCEPTION,
-		PASS_EXCEPTION
+	enum ExceptionResume {
+		IgnoreException,
+		PassException
 	};
 
-	enum DETACH_ACTION {
-		NO_KILL_ON_DETACH,
-		KILL_ON_DETACH
+	enum DetachAction {
+		NoKillOnDetach,
+		KillOnDetach
 	};
 
-	enum GUI_STATE {
-		PAUSED,
-		RUNNING,
-		TERMINATED
+	enum GuiState {
+		Paused,
+		Running,
+		Terminated
 	};
 
 public:
-	std::shared_ptr<DataViewInfo> current_data_view_info() const;
-	bool dump_data(edb::address_t address, bool new_tab);
-	bool dump_data_range(edb::address_t address, edb::address_t end_address, bool new_tab);
-	bool dump_stack(edb::address_t address, bool scroll_to);
-	bool jump_to_address(edb::address_t address);
-	int current_tab() const;
+	std::shared_ptr<DataViewInfo> currentDataViewInfo() const;
+	bool dumpData(edb::address_t address, bool new_tab);
+	bool dumpDataRange(edb::address_t address, edb::address_t end_address, bool new_tab);
+	bool dumpStack(edb::address_t address, bool scroll_to);
+	bool jumpToAddress(edb::address_t address);
+	int currentTab() const;
 	void attach(edb::pid_t pid);
-	void clear_data(const std::shared_ptr<DataViewInfo> &v);
+	void clearData(const std::shared_ptr<DataViewInfo> &v);
 	void execute(const QString &s, const QList<QByteArray> &args);
-	void refresh_gui();
-	void update_data(const std::shared_ptr<DataViewInfo> &v);
-	void update_gui();
+	void refreshUi();
+	void updateData(const std::shared_ptr<DataViewInfo> &v);
+	void updateUi();
 	QLabel *statusLabel() const;
-	Register active_register() const;
+	Register activeRegister() const;
 
 Q_SIGNALS:
-	void gui_updated();
+	void uiUpdated();
 
 	// TODO(eteran): maybe this is better off as a single event
 	//               with a type passed?
@@ -143,7 +142,7 @@ public Q_SLOTS:
 	void on_cpuView_breakPointToggled(edb::address_t);
 	void on_cpuView_customContextMenuRequested(const QPoint &);
 
-//Flag-toggling slots for right-click --> toggle flag
+	//Flag-toggling slots for right-click --> toggle flag
 public Q_SLOTS:
 	void toggle_flag_carry();
 	void toggle_flag_parity();
@@ -154,8 +153,8 @@ public Q_SLOTS:
 	void toggle_flag_overflow();
 
 private:
-	void toggle_flag(int);
-	void run_to_this_line(EXCEPTION_RESUME pass_signal);
+	void toggleFlag(int);
+	void runToThisLine(ExceptionResume pass_signal);
 
 private Q_SLOTS:
 	// the manually connected general slots
@@ -183,8 +182,8 @@ private Q_SLOTS:
 
 private Q_SLOTS:
 	// the manually connected Register slots
-	QList<QAction*> getCurrentRegisterContextMenuItems() const;
-	void mnuRegisterFollowInDump()       { follow_register_in_dump(false); }
+	QList<QAction *> currentRegisterContextMenuItems() const;
+	void mnuRegisterFollowInDump() { follow_register_in_dump(false); }
 	void mnuRegisterFollowInDumpNewTab() { follow_register_in_dump(true); }
 	void mnuRegisterFollowInStack();
 
@@ -215,20 +214,20 @@ private Q_SLOTS:
 	void mnuStackToggleLock(bool locked);
 
 private Q_SLOTS:
-	void goto_triggered();
-	void next_debug_event();
-	void open_file(const QString &s,const QList<QByteArray> &a);
-	void tab_context_menu(int index, const QPoint &pos);
-	void tty_proc_finished(int exit_code, QProcess::ExitStatus exit_status);
+	void gotoTriggered();
+	void nextDebugEvent();
+	void openFile(const QString &s, const QList<QByteArray> &a);
+	void tabContextMenu(int index, const QPoint &pos);
+	void ttyProcFinished(int exit_code, QProcess::ExitStatus exit_status);
 
 private:
-    void closeEvent(QCloseEvent *event) override;
-    void showEvent(QShowEvent *event) override;
-    void dragEnterEvent(QDragEnterEvent* event) override;
-    void dropEvent(QDropEvent* event) override;
+	void closeEvent(QCloseEvent *event) override;
+	void showEvent(QShowEvent *event) override;
+	void dragEnterEvent(QDragEnterEvent *event) override;
+	void dropEvent(QDropEvent *event) override;
 
 public:
-    edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) override;
+	edb::EVENT_STATUS handleEvent(const std::shared_ptr<IDebugEvent> &event) override;
 
 private:
 	std::shared_ptr<IRegion> update_cpu_view(const State &state);
@@ -246,15 +245,15 @@ private:
 	void apply_default_fonts();
 	void apply_default_show_separator();
 	void cleanup_debugger();
-	void cpu_fill(quint8 byte);
+	void cpu_fill(uint8_t byte);
 	void create_data_tab();
 	void delete_data_tab();
-	void detach_from_process(DETACH_ACTION kill);
+	void detach_from_process(DetachAction kill);
 	void do_jump_to_address(edb::address_t address, const std::shared_ptr<IRegion> &r, bool scroll_to);
 	void finish_plugin_setup();
 	void follow_register_in_dump(bool tabbed);
 	void load_session(const QString &session_file);
-	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, ResumeFlags flags);
+	void resume_execution(ExceptionResume pass_exception, DebugMode mode, ResumeFlags flags);
 	void save_session(const QString &session_file);
 	void set_debugger_caption(const QString &appname);
 	void set_initial_breakpoint(const QString &s);
@@ -266,10 +265,10 @@ private:
 	void setup_data_views();
 	void update_data_views();
 	void update_disassembly(edb::address_t address, const std::shared_ptr<IRegion> &r);
-	void update_menu_state(GUI_STATE state);
+	void update_menu_state(GuiState state);
 	void update_stack_view(const State &state);
 	void update_tab_caption(const std::shared_ptr<QHexView> &view, edb::address_t start, edb::address_t end);
-	QAction *createAction(const QString &text, const QKeySequence &keySequence, void(Debugger::*slotPtr)());
+	QAction *createAction(const QString &text, const QKeySequence &keySequence, void (Debugger::*slotPtr)());
 	void attachComplete();
 
 private:
@@ -280,7 +279,7 @@ private:
 	Result<edb::address_t, QString> get_follow_address(const T &hexview);
 
 	template <class F>
-	QList<QAction*> get_plugin_context_menu_items(const F &f) const;
+	QList<QAction *> get_plugin_context_menu_items(const F &f) const;
 
 	template <class F, class T>
 	void add_plugin_context_menu(const T &menu, const F &f);
@@ -304,35 +303,35 @@ public:
 	Ui::Debugger ui;
 
 private:
-	GUI_STATE           gui_state_           = TERMINATED;
-	QProcess           *tty_proc_            = nullptr;
-	DialogArguments    *arguments_dialog_    = nullptr;
-	QLabel             *status_              = nullptr;
-	QStringListModel   *list_model_          = nullptr;
-	QTimer             *timer_               = nullptr;
-	QToolButton        *add_tab_             = nullptr;
-	QToolButton        *del_tab_             = nullptr;
-	RecentFileManager  *recent_file_manager_ = nullptr;
-	bool                stack_view_locked_   = false;
+	GuiState guiState_                    = Terminated;
+	QProcess *ttyProc_                    = nullptr;
+	DialogArguments *argumentsDialog_     = nullptr;
+	QLabel *status_                       = nullptr;
+	QStringListModel *listModel_          = nullptr;
+	QTimer *timer_                        = nullptr;
+	QToolButton *tabCreate_               = nullptr;
+	QToolButton *tabDelete_               = nullptr;
+	RecentFileManager *recentFileManager_ = nullptr;
+	bool stackViewLocked_                 = false;
 
 #if defined(Q_OS_LINUX)
-	edb::address_t      debug_pointer_       { 0 };
-	bool                dynamic_info_bp_set_ = false;
+	edb::address_t debugtPointer_  = 0;
+	bool dynamicInfoBreakpointSet_ = false;
 #endif
 
 private:
-	DataViewInfo                                      stack_view_info_;
-	QString                                           last_open_directory_;
-	QString                                           program_executable_;
-	QString                                           tty_file_;
-	QString                                           working_directory_;
-	QVector<std::shared_ptr<DataViewInfo>>            data_regions_;
-	std::shared_ptr<IBreakpoint>                      reenable_breakpoint_run_;
-	std::shared_ptr<IBreakpoint>                      reenable_breakpoint_step_;
-	std::shared_ptr<CommentServer>                    comment_server_;
-	std::shared_ptr<QHexView>                         stack_view_;
-	std::shared_ptr<const IDebugEvent>                last_event_;
-	std::unique_ptr<IBinary>                          binary_info_;
+	DataViewInfo stackViewInfo_;
+	QString lastOpenDirectory_;
+	QString programExecutable_;
+	QString ttyFile_;
+	QString workingDirectory_;
+	QVector<std::shared_ptr<DataViewInfo>> dataRegions_;
+	std::shared_ptr<IBreakpoint> reenableBreakpointRun_;
+	std::shared_ptr<IBreakpoint> reenableBreakpointStep_;
+	std::shared_ptr<CommentServer> commentServer_;
+	std::shared_ptr<QHexView> stackView_;
+	std::shared_ptr<const IDebugEvent> lastEvent_;
+	std::unique_ptr<IBinary> binaryInfo_;
 
 private:
 	QAction *gotoAddressAction_;

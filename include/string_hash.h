@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef STRING_HASH_20110823_H_
 #define STRING_HASH_20110823_H_
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
 
 namespace edb {
@@ -31,7 +31,7 @@ constexpr typename std::enable_if<N <= 9 && n == 0, uint64_t>::type string_hash(
 	return 0;
 }
 
-template <std::size_t N, std::size_t n=N-1>
+template <std::size_t N, std::size_t n = N - 1>
 constexpr typename std::enable_if<N <= 9 && n != 0, uint64_t>::type string_hash(const char (&array)[N]) {
 	return string_hash<N, n - 1>(array) | ((array[n - 1] & 0xffull) << (8 * (n - 1)));
 }

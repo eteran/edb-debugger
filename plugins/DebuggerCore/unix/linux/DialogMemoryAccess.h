@@ -28,14 +28,14 @@ class DialogMemoryAccess final : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogMemoryAccess(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogMemoryAccess(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogMemoryAccess() override = default;
 
 public:
 	bool warnNextTime() const;
 
 private:
-	 Ui::DialogMemoryAccess ui;
+	Ui::DialogMemoryAccess ui;
 };
 
 }

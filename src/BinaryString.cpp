@@ -25,46 +25,49 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
-constexpr auto charHexLength = 3; // "hh "
+constexpr auto CharHexLength = 3; // "hh "
 
 // magic numerator from Qt defaults
-constexpr auto UNLIMITED_MAX_LENGTH = 32767 / charHexLength;
+constexpr auto UnlimitedMaxLength = 32767 / CharHexLength;
 
 }
 
-//------------------------------------------------------------------------------
-// Name: setEntriesMaxLength
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BinaryString::setEntriesMaxLength
+ * @param n
+ */
 void BinaryString::setEntriesMaxLength(int n) {
 
 	ui->txtAscii->setMaxLength(n);
 	ui->txtUTF16->setMaxLength(n / 2);
-	ui->txtHex->setMaxLength(n * charHexLength);
+	ui->txtHex->setMaxLength(n * CharHexLength);
 }
 
-//------------------------------------------------------------------------------
-// Name: setMaxLength
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BinaryString::setMaxLength
+ * @param n
+ */
 void BinaryString::setMaxLength(int n) {
-	requestedMaxLength_=n;
-	if(n) {
-		mode_=Mode::LengthLimited;
+	requestedMaxLength_ = n;
+	if (n) {
+		mode_ = Mode::LengthLimited;
 		ui->keepSize->hide();
 	} else {
-		mode_=Mode::MemoryEditing;
-		n=UNLIMITED_MAX_LENGTH;
+		mode_ = Mode::MemoryEditing;
+		n     = UnlimitedMaxLength;
 		ui->keepSize->show();
 	}
 	setEntriesMaxLength(n);
 }
 
-//------------------------------------------------------------------------------
-// Name: BinaryString
-// Desc: constructor
-//------------------------------------------------------------------------------
-BinaryString::BinaryString(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), ui(new Ui::BinaryStringWidget) {
+/**
+ * @brief BinaryString::BinaryString
+ * @param parent
+ * @param f
+ */
+BinaryString::BinaryString(QWidget *parent, Qt::WindowFlags f)
+	: QWidget(parent, f), ui(new Ui::BinaryStringWidget) {
+
 	ui->setupUi(this);
 	ui->txtHex->setValidator(new HexStringValidator(this));
 	ui->keepSize->setFocusPolicy(Qt::TabFocus);
@@ -72,37 +75,38 @@ BinaryString::BinaryString(QWidget *parent, Qt::WindowFlags f) : QWidget(parent,
 	connect(ui->keepSize, &QCheckBox::stateChanged, this, &BinaryString::on_keepSize_stateChanged);
 }
 
-//------------------------------------------------------------------------------
-// Name: ~BinaryString
-// Desc: destructor
-//------------------------------------------------------------------------------
+/**
+ * @brief BinaryString::~BinaryString
+ */
 BinaryString::~BinaryString() {
+	// NOTE(eteran): we CAN'T use std::unique_ptr here because it doesn't
+	// support incomplete types
 	delete ui;
 }
 
-//------------------------------------------------------------------------------
-// Name: on_keepSize_stateChanged
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BinaryString::on_keepSize_stateChanged
+ * @param state
+ */
 void BinaryString::on_keepSize_stateChanged(int state) {
 
 	Q_UNUSED(state)
 
-	if(mode_ != Mode::MemoryEditing) return;
+	if (mode_ != Mode::MemoryEditing) return;
 
 	// There's a comment in get_binary_string_from_user(), that max length must be set before value.
 	// FIXME: do we need this here? What does "truncate incorrectly" mean there?
 	// NOTE: not doing this for now
-	if(ui->keepSize->checkState() == Qt::Unchecked)
-		setEntriesMaxLength(UNLIMITED_MAX_LENGTH);
+	if (ui->keepSize->checkState() == Qt::Unchecked)
+		setEntriesMaxLength(UnlimitedMaxLength);
 	else
 		setEntriesMaxLength(valueOriginalLength_);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_txtAscii_textEdited
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BinaryString::on_txtAscii_textEdited
+ * @param text
+ */
 void BinaryString::on_txtAscii_textEdited(const QString &text) {
 
 	const QByteArray p = text.toLatin1();
@@ -113,7 +117,7 @@ void BinaryString::on_txtAscii_textEdited(const QString &text) {
 
 	int counter = 0;
 
-	for(uint8_t ch: p) {
+	for (uint8_t ch : p) {
 
 		textHex += temp.sprintf("%02x ", ch & 0xff);
 
@@ -122,7 +126,7 @@ void BinaryString::on_txtAscii_textEdited(const QString &text) {
 #else
 		utf16Char = (utf16Char << 8) | ch;
 #endif
-		if(counter++ & 1) {
+		if (counter++ & 1) {
 			textUTF16 += QChar(utf16Char);
 		}
 	}
@@ -131,27 +135,27 @@ void BinaryString::on_txtAscii_textEdited(const QString &text) {
 	ui->txtUTF16->setText(textUTF16);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_txtUTF16_textEdited
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BinaryString::on_txtUTF16_textEdited
+ * @param text
+ */
 void BinaryString::on_txtUTF16_textEdited(const QString &text) {
 
 	QString textAscii;
 	QString textHex;
 	QString temp;
 
-	for(QChar i: text) {
-		const quint16 ch = i.unicode();
+	for (QChar i : text) {
+		const uint16_t ch = i.unicode();
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
 		textAscii += ch & 0xff;
 		textAscii += (ch >> 8) & 0xff;
-		textHex   += temp.sprintf("%02x %02x ", ch & 0xff, (ch >> 8) & 0xff);
+		textHex += temp.sprintf("%02x %02x ", ch & 0xff, (ch >> 8) & 0xff);
 #else
 		textAscii += (ch >> 8) & 0xff;
 		textAscii += ch & 0xff;
-		textHex   += temp.sprintf("%02x %02x ", (ch >> 8) & 0xff, ch & 0xff);
+		textHex += temp.sprintf("%02x %02x ", (ch >> 8) & 0xff, ch & 0xff);
 #endif
 	}
 
@@ -159,21 +163,21 @@ void BinaryString::on_txtUTF16_textEdited(const QString &text) {
 	ui->txtAscii->setText(textAscii);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_txtHex_textEdited
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BinaryString::on_txtHex_textEdited
+ * @param text
+ */
 void BinaryString::on_txtHex_textEdited(const QString &text) {
 
-	quint16 utf16Char = 0;
-	int counter = 0;
+	uint16_t utf16Char = 0;
+	int counter        = 0;
 
 	QString textAscii;
 	QString textUTF16;
 
 	const QStringList list1 = text.split(" ", QString::SkipEmptyParts);
 
-	for(const QString &s: list1) {
+	for (const QString &s : list1) {
 
 		const uint8_t ch = s.toUInt(nullptr, 16);
 
@@ -185,7 +189,7 @@ void BinaryString::on_txtHex_textEdited(const QString &text) {
 
 		textAscii += ch;
 
-		if(counter++ & 1) {
+		if (counter++ & 1) {
 			textUTF16 += QChar(utf16Char);
 		}
 	}
@@ -194,26 +198,26 @@ void BinaryString::on_txtHex_textEdited(const QString &text) {
 	ui->txtAscii->setText(textAscii);
 }
 
-//------------------------------------------------------------------------------
-// Name: value
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BinaryString::value
+ * @return
+ */
 QByteArray BinaryString::value() const {
 
 	QByteArray ret;
 	const QStringList list1 = ui->txtHex->text().split(" ", QString::SkipEmptyParts);
 
-	for(const QString &i: list1) {
+	for (const QString &i : list1) {
 		ret += static_cast<uint8_t>(i.toUInt(nullptr, 16));
 	}
 
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: setValue
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BinaryString::setValue
+ * @param data
+ */
 void BinaryString::setValue(const QByteArray &data) {
 
 	valueOriginalLength_ = data.size();
@@ -224,18 +228,18 @@ void BinaryString::setValue(const QByteArray &data) {
 	on_txtAscii_textEdited(temp);
 }
 
-//------------------------------------------------------------------------------
-// Name: setShowKeepSize
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BinaryString::setShowKeepSize
+ * @param visible
+ */
 void BinaryString::setShowKeepSize(bool visible) {
 	ui->keepSize->setVisible(visible);
 }
 
-//------------------------------------------------------------------------------
-// Name: showKeepSize
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BinaryString::showKeepSize
+ * @return
+ */
 bool BinaryString::showKeepSize() const {
 	return ui->keepSize->isVisible();
 }

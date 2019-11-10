@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ITHREAD_20150529_H_
 #define ITHREAD_20150529_H_
 
-#include "Types.h"
 #include "OSTypes.h"
 #include "Status.h"
+#include "Types.h"
 
 class State;
 
@@ -30,20 +30,20 @@ public:
 	virtual ~IThread() = default;
 
 public:
-	virtual edb::tid_t tid() const = 0;
-	virtual QString name() const = 0;
-	virtual int priority() const = 0;
-	virtual edb::address_t instruction_pointer() const = 0;
-	virtual QString runState() const = 0;
+	virtual edb::tid_t tid() const                    = 0;
+	virtual QString name() const                      = 0;
+	virtual int priority() const                      = 0;
+	virtual edb::address_t instructionPointer() const = 0;
+	virtual QString runState() const                  = 0;
 
 public:
-	virtual void get_state(State *state) = 0;
-	virtual void set_state(const State &state) = 0;
+	virtual void getState(State *state)       = 0;
+	virtual void setState(const State &state) = 0;
 
 public:
-	virtual Status step() = 0;
-	virtual Status step(edb::EVENT_STATUS status) = 0;
-	virtual Status resume() = 0;
+	virtual Status step()                           = 0;
+	virtual Status step(edb::EVENT_STATUS status)   = 0;
+	virtual Status resume()                         = 0;
 	virtual Status resume(edb::EVENT_STATUS status) = 0;
 
 public:

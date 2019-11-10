@@ -33,55 +33,55 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace CheckVersionPlugin {
 
-//------------------------------------------------------------------------------
-// Name: CheckVersion
-// Desc:
-//------------------------------------------------------------------------------
-CheckVersion::CheckVersion(QObject *parent) : QObject(parent) {
+/**
+ * @brief CheckVersion::CheckVersion
+ * @param parent
+ */
+CheckVersion::CheckVersion(QObject *parent)
+	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: private_init
-// Desc:
-//------------------------------------------------------------------------------
-void CheckVersion::private_init() {
+/**
+ * @brief CheckVersion::privateInit
+ */
+void CheckVersion::privateInit() {
 	QSettings settings;
-	if(settings.value("CheckVersion/check_on_start.enabled", true).toBool()) {
-		do_check();
+	if (settings.value("CheckVersion/check_on_start.enabled", true).toBool()) {
+		doCheck();
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: options_page
-// Desc:
-//------------------------------------------------------------------------------
-QWidget *CheckVersion::options_page() {
+/**
+ * @brief CheckVersion::optionsPage
+ * @return
+ */
+QWidget *CheckVersion::optionsPage() {
 	return new OptionsPage;
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief CheckVersion::menu
+ * @param parent
+ * @return
+ */
 QMenu *CheckVersion::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("CheckVersion"), parent);
-		menu_->addAction(tr("&Check For Latest Version"), this, SLOT(show_menu()));
+		menu_->addAction(tr("&Check For Latest Version"), this, SLOT(showMenu()));
 	}
 
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: do_check
-// Desc:
-//------------------------------------------------------------------------------
-void CheckVersion::do_check() {
+/**
+ * @brief CheckVersion::doCheck
+ */
+void CheckVersion::doCheck() {
 
-	if(!network_) {
+	if (!network_) {
 		network_ = new QNetworkAccessManager(this);
 		connect(network_, &QNetworkAccessManager::finished, this, &CheckVersion::requestFinished);
 	}
@@ -91,90 +91,85 @@ void CheckVersion::do_check() {
 	const QUrl update_url("http://codef00.com/projects/debugger-latest");
 	const QNetworkRequest request(update_url);
 
-	set_proxy(update_url);
+	setProxy(update_url);
 
 	network_->get(request);
 }
 
-//------------------------------------------------------------------------------
-// Name: set_proxy
-// Desc:
-//------------------------------------------------------------------------------
-void CheckVersion::set_proxy(const QUrl &url) {
+/**
+ * @brief CheckVersion::setProxy
+ * @param url
+ */
+void CheckVersion::setProxy(const QUrl &url) {
 
 	QNetworkProxy proxy;
 
 #ifdef Q_OS_LINUX
 	Q_UNUSED(url)
 	auto proxy_str = QString::fromUtf8(qgetenv("HTTP_PROXY"));
-	if(proxy_str.isEmpty()) {
+	if (proxy_str.isEmpty()) {
 		proxy_str = QString::fromUtf8(qgetenv("http_proxy"));
 	}
 
-	if(!proxy_str.isEmpty()) {
+	if (!proxy_str.isEmpty()) {
 		const QUrl proxy_url = QUrl::fromUserInput(proxy_str);
-		proxy = QNetworkProxy(
-			QNetworkProxy::HttpProxy,
-			proxy_url.host(),
-			proxy_url.port(80),
-			proxy_url.userName(),
-			proxy_url.password());
+
+		proxy = QNetworkProxy(QNetworkProxy::HttpProxy, proxy_url.host(), proxy_url.port(80), proxy_url.userName(), proxy_url.password());
 	}
 
 #else
 	QList<QNetworkProxy> proxies = QNetworkProxyFactory::systemProxyForQuery(QNetworkProxyQuery(url));
-	if(proxies.size() >= 1) {
+	if (proxies.size() >= 1) {
 		proxy = proxies.first();
 	}
 #endif
 	network_->setProxy(proxy);
 }
 
-//------------------------------------------------------------------------------
-// Name: show_menu
-// Desc:
-//------------------------------------------------------------------------------
-void CheckVersion::show_menu() {
-	initial_check_ = false;
-	do_check();
+/**
+ * @brief CheckVersion::showMenu
+ */
+void CheckVersion::showMenu() {
+	initialCheck_ = false;
+	doCheck();
 }
 
-//------------------------------------------------------------------------------
-// Name: requestFinished
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief CheckVersion::requestFinished
+ * @param reply
+ */
 void CheckVersion::requestFinished(QNetworkReply *reply) {
 
-    if(reply->error() != QNetworkReply::NoError) {
-		if(!initial_check_) {
+	if (reply->error() != QNetworkReply::NoError) {
+		if (!initialCheck_) {
 			QMessageBox::critical(
-                nullptr,
+				nullptr,
 				tr("An Error Occured"),
 				reply->errorString());
 		}
 	} else {
 		const QByteArray result = reply->readAll();
-		const QString s = result;
+		const QString s         = result;
 
 		qDebug("comparing versions: [%d] [%d]", edb::v1::int_version(s), edb::v1::edb_version());
 
-		if(edb::v1::int_version(s) > edb::v1::edb_version()) {
+		if (edb::v1::int_version(s) > edb::v1::edb_version()) {
 			QMessageBox::information(
-                nullptr,
+				nullptr,
 				tr("New Version Available"),
 				tr("There is a newer version of edb available: <strong>%1</strong>").arg(s));
 		} else {
-			if(!initial_check_) {
+			if (!initialCheck_) {
 				QMessageBox::information(
-                    nullptr,
+					nullptr,
 					tr("You are up to date"),
 					tr("You are running the latest version of edb"));
 			}
 		}
 	}
 
-    reply->deleteLater();
-	initial_check_ = false;
+	reply->deleteLater();
+	initialCheck_ = false;
 }
 
 }

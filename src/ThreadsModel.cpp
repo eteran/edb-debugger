@@ -22,17 +22,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QtAlgorithms>
 
-ThreadsModel::ThreadsModel(QObject *parent) : QAbstractItemModel(parent) {
+ThreadsModel::ThreadsModel(QObject *parent)
+	: QAbstractItemModel(parent) {
 }
 
 QModelIndex ThreadsModel::index(int row, int column, const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 
-	if(row >= rowCount(parent) || column >= columnCount(parent)) {
+	if (row >= rowCount(parent) || column >= columnCount(parent)) {
 		return QModelIndex();
 	}
 
-	if(row >= 0) {
+	if (row >= 0) {
 		return createIndex(row, column, const_cast<Item *>(&items_[row]));
 	} else {
 		return createIndex(row, column);
@@ -46,37 +47,36 @@ QModelIndex ThreadsModel::parent(const QModelIndex &index) const {
 
 QVariant ThreadsModel::data(const QModelIndex &index, int role) const {
 
-	if(index.isValid()) {
+	if (index.isValid()) {
 
 		const Item &item = items_[index.row()];
 
-		if(role == Qt::DisplayRole) {
-			switch(index.column()) {
+		if (role == Qt::DisplayRole) {
+			switch (index.column()) {
 			case 0:
-				if(item.current) {
+				if (item.current) {
 					return tr("*%1").arg(item.thread->tid());
 				} else {
 					return QVariant::fromValue(item.thread->tid());
 				}
 			case 1:
 				return item.thread->priority();
-			case 2:
-				{
-					const QString default_region_name;
-					const QString symname = edb::v1::find_function_symbol(item.thread->instruction_pointer(), default_region_name);
+			case 2: {
+				const QString default_region_name;
+				const QString symname = edb::v1::find_function_symbol(item.thread->instructionPointer(), default_region_name);
 
-					if(!symname.isEmpty()) {
-						return QString("%1 <%2>").arg(edb::v1::format_pointer(item.thread->instruction_pointer()), symname);
-					} else {
-						return QString("%1").arg(edb::v1::format_pointer(item.thread->instruction_pointer()));
-					}
+				if (!symname.isEmpty()) {
+					return QString("%1 <%2>").arg(edb::v1::format_pointer(item.thread->instructionPointer()), symname);
+				} else {
+					return QString("%1").arg(edb::v1::format_pointer(item.thread->instructionPointer()));
 				}
+			}
 			case 3:
 				return item.thread->runState();
 			case 4:
 				return item.thread->name();
 			}
-		} else if(role == Qt::UserRole) {
+		} else if (role == Qt::UserRole) {
 			return QVariant::fromValue(item.thread->tid());
 		}
 	}
@@ -86,8 +86,8 @@ QVariant ThreadsModel::data(const QModelIndex &index, int role) const {
 
 QVariant ThreadsModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
-	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
-		switch(section) {
+	if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
+		switch (section) {
 		case 0:
 			return tr("ID");
 		case 1:
@@ -118,8 +118,10 @@ void ThreadsModel::addThread(const std::shared_ptr<IThread> &thread, bool curren
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
 
 	const Item item = {
-		thread, current
+		thread,
+		current,
 	};
+
 	items_.push_back(item);
 	endInsertRows();
 }

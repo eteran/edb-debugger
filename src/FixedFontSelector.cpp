@@ -22,10 +22,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-FixedFontSelector::FixedFontSelector(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f) {
+FixedFontSelector::FixedFontSelector(QWidget *parent, Qt::WindowFlags f)
+	: QWidget(parent, f) {
+
 	ui.setupUi(this);
 
-	Q_FOREACH(int size, QFontDatabase::standardSizes()) {
+	Q_FOREACH (int size, QFontDatabase::standardSizes()) {
 		ui.fontSize->addItem(QString("%1").arg(size), size);
 	}
 }
@@ -53,7 +55,7 @@ void FixedFontSelector::setCurrentFont(const QString &font) {
 void FixedFontSelector::setCurrentFont(const QFont &font) {
 	ui.fontCombo->setCurrentFont(font);
 	int n = ui.fontSize->findData(font.pointSize());
-	if(n != -1) {
+	if (n != -1) {
 		ui.fontSize->setCurrentIndex(n);
 	}
 }

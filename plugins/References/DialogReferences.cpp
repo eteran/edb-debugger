@@ -22,8 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Util.h"
 #include "edb.h"
 
-#include <QPushButton>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QVector>
 
 namespace ReferencesPlugin {
@@ -33,69 +33,70 @@ enum Role {
 	AddressRole = Qt::UserRole + 1
 };
 
-//------------------------------------------------------------------------------
-// Name: DialogReferences
-// Desc: constructor
-//------------------------------------------------------------------------------
-DialogReferences::DialogReferences(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+/**
+ * @brief DialogReferences::DialogReferences
+ * @param parent
+ * @param f
+ */
+DialogReferences::DialogReferences(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 	connect(this, &DialogReferences::updateProgress, ui.progressBar, &QProgressBar::setValue);
 
-	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
-	connect(btnFind_, &QPushButton::clicked, this, [this]() {
-		btnFind_->setEnabled(false);
+	buttonFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
+	connect(buttonFind_, &QPushButton::clicked, this, [this]() {
+		buttonFind_->setEnabled(false);
 		ui.progressBar->setValue(0);
 		ui.listWidget->clear();
-		do_find();
+		doFind();
 		ui.progressBar->setValue(100);
-		btnFind_->setEnabled(true);
+		buttonFind_->setEnabled(true);
 	});
 
-	ui.buttonBox->addButton(btnFind_, QDialogButtonBox::ActionRole);
+	ui.buttonBox->addButton(buttonFind_, QDialogButtonBox::ActionRole);
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogReferences::showEvent
+ */
 void DialogReferences::showEvent(QShowEvent *) {
 	ui.listWidget->clear();
 	ui.progressBar->setValue(0);
 }
 
-//------------------------------------------------------------------------------
-// Name: do_find
-// Desc:
-//------------------------------------------------------------------------------
-void DialogReferences::do_find() {
+/**
+ * @brief DialogReferences::doFind
+ */
+void DialogReferences::doFind() {
 	bool ok = false;
 	edb::address_t address;
-	const size_t page_size = edb::v1::debugger_core->page_size();
+	const size_t page_size = edb::v1::debugger_core->pageSize();
 
 	const QString text = ui.txtAddress->text();
-	if(!text.isEmpty()) {
+	if (!text.isEmpty()) {
 		ok = edb::v1::eval_expression(text, &address);
 	}
 
-	if(ok) {
+	if (ok) {
 		edb::v1::memory_regions().sync();
 		const QList<std::shared_ptr<IRegion>> regions = edb::v1::memory_regions().regions();
 
 		int i = 0;
-		for(const std::shared_ptr<IRegion> &region: regions) {
+		for (const std::shared_ptr<IRegion> &region : regions) {
 			// a short circut for speading things up
-			if(region->accessible() || !ui.chkSkipNoAccess->isChecked()) {
+			if (region->accessible() || !ui.chkSkipNoAccess->isChecked()) {
 
-				const size_t page_count = region->size() / page_size;
-				const QVector<quint8> pages = edb::v1::read_pages(region->start(), page_count);
+				const size_t page_count      = region->size() / page_size;
+				const QVector<uint8_t> pages = edb::v1::read_pages(region->start(), page_count);
 
-				if(!pages.isEmpty()) {
-					const quint8 *p = &pages[0];
-					const quint8 *const pages_end = &pages[0] + region->size();
+				if (!pages.isEmpty()) {
+					const uint8_t *p               = &pages[0];
+					const uint8_t *const pages_end = &pages[0] + region->size();
 
-					while(p != pages_end) {
+					while (p != pages_end) {
 
-						if(pages_end - p < static_cast<int>(edb::v1::pointer_size())) {
+						if (pages_end - p < static_cast<int>(edb::v1::pointer_size())) {
 							break;
 						}
 
@@ -104,7 +105,7 @@ void DialogReferences::do_find() {
 						edb::address_t test_address(0);
 						memcpy(&test_address, p, edb::v1::pointer_size());
 
-						if(test_address == address) {
+						if (test_address == address) {
 							auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 							item->setData(TypeRole, 'D');
 							item->setData(AddressRole, addr.toQVariant());
@@ -113,14 +114,14 @@ void DialogReferences::do_find() {
 
 						edb::Instruction inst(p, pages_end, addr);
 
-						if(inst) {
-							switch(inst.operation()) {
+						if (inst) {
+							switch (inst.operation()) {
 							case X86_INS_MOV:
 								// instructions of the form: mov [ADDR], 0xNNNNNNNN
 								Q_ASSERT(inst.operand_count() == 2);
 
-								if(is_expression(inst[0])) {
-									if(is_immediate(inst[1]) && static_cast<edb::address_t>(inst[1]->imm) == address) {
+								if (is_expression(inst[0])) {
+									if (is_immediate(inst[1]) && static_cast<edb::address_t>(inst[1]->imm) == address) {
 										auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 										item->setData(TypeRole, 'C');
 										item->setData(AddressRole, addr.toQVariant());
@@ -133,7 +134,7 @@ void DialogReferences::do_find() {
 								// instructions of the form: push 0xNNNNNNNN
 								Q_ASSERT(inst.operand_count() == 1);
 
-								if(is_immediate(inst[0]) && static_cast<edb::address_t>(inst[0]->imm) == address) {
+								if (is_immediate(inst[0]) && static_cast<edb::address_t>(inst[0]->imm) == address) {
 									auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 									item->setData(TypeRole, 'C');
 									item->setData(AddressRole, addr.toQVariant());
@@ -141,9 +142,9 @@ void DialogReferences::do_find() {
 								}
 								break;
 							default:
-								if(is_jump(inst) || is_call(inst)) {
-									if(is_immediate(inst[0])) {
-										if(static_cast<edb::address_t>(inst[0]->imm) == address) {
+								if (is_jump(inst) || is_call(inst)) {
+									if (is_immediate(inst[0])) {
+										if (static_cast<edb::address_t>(inst[0]->imm) == address) {
 											auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 											item->setData(TypeRole, 'C');
 											item->setData(AddressRole, addr.toQVariant());
@@ -168,13 +169,16 @@ void DialogReferences::do_find() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: on_listWidget_itemDoubleClicked
-// Desc: follows the found item in the data view
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogReferences::on_listWidget_itemDoubleClicked
+ *
+ * follows the found item in the data view
+ *
+ * @param item
+ */
 void DialogReferences::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
 	const edb::address_t addr = item->data(AddressRole).toULongLong();
-	if(item->data(TypeRole).toChar() == 'D') {
+	if (item->data(TypeRole).toChar() == 'D') {
 		edb::v1::dump_data(addr, false);
 	} else {
 		edb::v1::jump_to_address(addr);

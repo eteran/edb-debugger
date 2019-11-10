@@ -17,30 +17,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Instruction.h"
 
-#include <QRegularExpression>
 #include <QRegExp>
+#include <QRegularExpression>
 #include <QString>
 #include <QStringList>
 
-#include <vector>
 #include <algorithm>
 #include <cassert>
 #include <cctype>
 #include <cstring>
 #include <sstream>
 #include <stdexcept>
+#include <vector>
 
 namespace CapstoneEDB {
 
 namespace {
 
-constexpr int MAX_OPERANDS       = 3;
+constexpr int MaxOperands = 3;
 
-Architecture capstoneArch        = Architecture::ARCH_X86;
-bool         capstoneInitialized = false;
-csh          csh                 = 0;
-Formatter    activeFormatter;
+Architecture capstoneArch = Architecture::ARCH_X86;
+bool capstoneInitialized  = false;
+csh csh                   = 0;
+Formatter activeFormatter;
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 bool is_simd_register(const Operand &operand) {
 
 	if (operand->type != X86_OP_REG)
@@ -56,6 +57,7 @@ bool is_simd_register(const Operand &operand) {
 		return true;
 	if (X86_REG_ZMM0 <= reg && reg <= X86_REG_ZMM31)
 		return true;
+
 	return false;
 }
 
@@ -63,15 +65,16 @@ bool apriori_not_simd(const Instruction &insn, const Operand &operand) {
 
 	if (!is_simd(insn))
 		return true;
+
 	if (operand->type == X86_OP_REG && !is_simd_register(operand))
 		return true;
 	if (operand->type == X86_OP_IMM)
 		return true;
+
 	return false;
 }
 
 bool KxRegisterPresent(const Instruction &insn) {
-
 	const size_t operandCount = insn.operand_count();
 
 	for (std::size_t i = 0; i < operandCount; ++i) {
@@ -80,20 +83,19 @@ bool KxRegisterPresent(const Instruction &insn) {
 			return true;
 		}
 	}
-
 	return false;
 }
 
-std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, const Operand &operand, bool canBeNonSIMD=false) {
+std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, const Operand &operand, bool canBeNonSIMD = false) {
 
-	if(!canBeNonSIMD)
+	if (!canBeNonSIMD)
 		assert(!apriori_not_simd(insn, operand));
 
-	size_t number = operand.index();
+	size_t number             = operand.index();
 	const size_t operandCount = insn.operand_count();
 
 	// normalized number is according to Intel order
-	if (activeFormatter.options().syntax == Formatter::SyntaxATT) {
+	if (activeFormatter.options().syntax == Formatter::SyntaxAtt) {
 		assert(number < operandCount);
 		number = operandCount - 1 - number;
 	}
@@ -104,6 +106,7 @@ std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, co
 
 	return number;
 }
+#endif
 
 }
 
@@ -151,7 +154,8 @@ bool init(Architecture arch) {
 	return true;
 }
 
-Instruction::Instruction(Instruction &&other) noexcept : insn_(other.insn_), byte0_(other.byte0_), rva_(other.rva_) {
+Instruction::Instruction(Instruction &&other) noexcept
+	: insn_(other.insn_), byte0_(other.byte0_), rva_(other.rva_) {
 	other.insn_  = nullptr;
 	other.byte0_ = 0;
 	other.rva_   = 0;
@@ -173,7 +177,8 @@ Instruction::~Instruction() {
 	}
 }
 
-Instruction::Instruction(const void *first, const void *last, uint64_t rva) noexcept : rva_(rva) {
+Instruction::Instruction(const void *first, const void *last, uint64_t rva) noexcept
+	: rva_(rva) {
 	assert(capstoneInitialized);
 	auto codeBegin = static_cast<const uint8_t *>(first);
 	auto codeEnd   = static_cast<const uint8_t *>(last);
@@ -183,13 +188,12 @@ Instruction::Instruction(const void *first, const void *last, uint64_t rva) noex
 	cs_insn *insn = nullptr;
 	if (first < last && cs_disasm(csh, codeBegin, codeEnd - codeBegin, rva, 1, &insn)) {
 		insn_ = insn;
-#if defined EDB_ARM32
-		if(insn_->detail->arm.op_count>=2)
-		{
+#if defined(EDB_ARM32)
+		if (insn_->detail->arm.op_count >= 2) {
 			// XXX: this is a work around capstone bug #1013
-			auto& op=insn_->detail->arm.operands[1];
-			if(op.type==ARM_OP_MEM && op.subtracted && op.mem.scale==1)
-				op.mem.scale=-1;
+			auto &op = insn_->detail->arm.operands[1];
+			if (op.type == ARM_OP_MEM && op.subtracted && op.mem.scale == 1)
+				op.mem.scale = -1;
 		}
 #endif
 	} else {
@@ -203,12 +207,12 @@ Operand Instruction::operator[](size_t n) const {
 	if (n > operand_count())
 		return Operand();
 
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	return Operand(this, &insn_->detail->x86.operands[n], n);
-#elif defined EDB_ARM32 || defined EDB_ARM64
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
 	return Operand(this, &insn_->detail->arm.operands[n], n);
 #else
-#	error "What to return here?"
+#error "What to return here?"
 #endif
 }
 
@@ -218,18 +222,18 @@ Operand Instruction::operand(size_t n) const {
 	if (n > operand_count())
 		return Operand();
 
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	return Operand(this, &insn_->detail->x86.operands[n], n);
-#elif defined EDB_ARM32 || defined EDB_ARM64
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
 	return Operand(this, &insn_->detail->arm.operands[n], n);
 #else
-#	error "What to return here?"
+#error "What to return here?"
 #endif
 }
 
 Instruction::ConditionCode Instruction::condition_code() const {
 
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	switch (operation()) {
 	// J*CXZ
 	case X86_INS_JRCXZ:
@@ -265,36 +269,51 @@ Instruction::ConditionCode Instruction::condition_code() const {
 		}
 	}
 	return CC_UNCONDITIONAL;
-#elif defined EDB_ARM32
-	switch(insn_->detail->arm.cc)
-	{
-	case ARM_CC_EQ: return CC_EQ;
-	case ARM_CC_NE: return CC_NE;
-	case ARM_CC_HS: return CC_HS;
-	case ARM_CC_LO: return CC_LO;
-	case ARM_CC_MI: return CC_MI;
-	case ARM_CC_PL: return CC_PL;
-	case ARM_CC_VS: return CC_VS;
-	case ARM_CC_VC: return CC_VC;
-	case ARM_CC_HI: return CC_HI;
-	case ARM_CC_LS: return CC_LS;
-	case ARM_CC_GE: return CC_GE;
-	case ARM_CC_LT: return CC_LT;
-	case ARM_CC_GT: return CC_GT;
-	case ARM_CC_LE: return CC_LE;
-	case ARM_CC_AL: return CC_AL;
-	default: return CC_AL;
+#elif defined(EDB_ARM32)
+	switch (insn_->detail->arm.cc) {
+	case ARM_CC_EQ:
+		return CC_EQ;
+	case ARM_CC_NE:
+		return CC_NE;
+	case ARM_CC_HS:
+		return CC_HS;
+	case ARM_CC_LO:
+		return CC_LO;
+	case ARM_CC_MI:
+		return CC_MI;
+	case ARM_CC_PL:
+		return CC_PL;
+	case ARM_CC_VS:
+		return CC_VS;
+	case ARM_CC_VC:
+		return CC_VC;
+	case ARM_CC_HI:
+		return CC_HI;
+	case ARM_CC_LS:
+		return CC_LS;
+	case ARM_CC_GE:
+		return CC_GE;
+	case ARM_CC_LT:
+		return CC_LT;
+	case ARM_CC_GT:
+		return CC_GT;
+	case ARM_CC_LE:
+		return CC_LE;
+	case ARM_CC_AL:
+		return CC_AL;
+	default:
+		return CC_AL;
 	}
 #else
-#	error "Not implemented"
+#error "Not implemented"
 #endif
 }
 
 void Instruction::swap(Instruction &other) {
 	using std::swap;
-	swap(insn_,  other.insn_);
+	swap(insn_, other.insn_);
 	swap(byte0_, other.byte0_);
-	swap(rva_,   other.rva_);
+	swap(rva_, other.rva_);
 }
 
 QString Formatter::adjustInstructionText(const Instruction &insn) const {
@@ -308,7 +327,7 @@ QString Formatter::adjustInstructionText(const Instruction &insn) const {
 	operands.replace(QRegExp("\\bxword "), "tbyte ");
 	operands.replace(QRegExp("(word|byte) ptr "), "\\1 ");
 
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	if (activeFormatter.options().simplifyRIPRelativeTargets && isX86_64() && (insn->detail->x86.modrm & 0xc7) == 0x05) {
 		QRegExp ripRel("\\brip ?[+-] ?((0x)?[0-9a-fA-F]+)\\b");
 		operands.replace(ripRel, "rel 0x" + QString::number(insn->detail->x86.disp + insn->address + insn->size, 16));
@@ -327,12 +346,13 @@ void Formatter::setOptions(const Formatter::FormatOptions &options) {
 
 	options_ = options;
 
-#if defined EDB_X86 || defined EDB_X86_64
-	if (options.syntax == SyntaxATT)
+#if defined(EDB_X86) || defined(EDB_X86_64)
+	if (options.syntax == SyntaxAtt) {
 		cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_ATT);
-	else
+	} else {
 		cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_INTEL);
-#elif defined EDB_ARM32 // FIXME(ARM): does this apply to AArch64?
+	}
+#elif defined(EDB_ARM32) // FIXME(ARM): does this apply to AArch64?
 	// TODO: make this optional. Don't forget to reflect this in register view!
 	cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_NOREGNAME);
 #endif
@@ -343,14 +363,14 @@ void Formatter::setOptions(const Formatter::FormatOptions &options) {
 std::string Formatter::to_string(const Instruction &insn) const {
 
 	enum {
-		tab1Size = 8,
-		tab2Size = 11,
+		Tab1Size = 8,
+		Tab2Size = 11,
 	};
 
 	if (!insn) {
 		char buf[32];
 		if (options_.tabBetweenMnemonicAndOperands) {
-			snprintf(buf, sizeof(buf), "%-*s0x%02x", tab1Size, "db", insn.byte0_);
+			snprintf(buf, sizeof(buf), "%-*s0x%02x", Tab1Size, "db", insn.byte0_);
 		} else {
 			snprintf(buf, sizeof(buf), "db 0x%02x", insn.byte0_);
 		}
@@ -360,19 +380,18 @@ std::string Formatter::to_string(const Instruction &insn) const {
 		return str;
 	}
 
-
 	std::ostringstream s;
 	s << insn->mnemonic;
-	std::string space=" ";
+	std::string space = " ";
 	if (options_.tabBetweenMnemonicAndOperands) {
 		const auto pos = s.tellp();
-		const auto pad = pos < tab1Size ? tab1Size - pos : pos < tab2Size ? tab2Size - pos : 1;
-		space=std::string(pad, ' ');
+		const auto pad = pos < Tab1Size ? Tab1Size - pos : pos < Tab2Size ? Tab2Size - pos : 1;
+		space          = std::string(pad, ' ');
 	}
 	if (insn.operand_count() > 0) // prevent addition of trailing whitespace
 	{
 		s << space << adjustInstructionText(insn).toStdString();
-	} else if(insn->op_str[0] != 0) {
+	} else if (insn->op_str[0] != 0) {
 		// This may happen for instructions like IT in Thumb-2: e.g. ITT NE
 		s << space << insn->op_str;
 	}
@@ -387,7 +406,6 @@ void Formatter::checkCapitalize(std::string &str, bool canContainHex) const {
 		std::transform(str.begin(), str.end(), str.begin(), ::toupper);
 		if (canContainHex) {
 			QString qstr = QString::fromStdString(str);
-
 
 			const QRegularExpression re("\\b0X([0-9A-F]+)\\b");
 			qstr.replace(re, "0x\\1");
@@ -444,8 +462,8 @@ std::vector<std::string> toOperands(QString str) {
 		operands.push_back(current.trimmed().toStdString());
 	}
 
-	if (operands.size() > MAX_OPERANDS) {
-		throw std::logic_error("got more than " + std::to_string(MAX_OPERANDS) + " operands");
+	if (operands.size() > MaxOperands) {
+		throw std::logic_error("got more than " + std::to_string(MaxOperands) + " operands");
 	}
 
 	return operands;
@@ -461,8 +479,11 @@ std::string Formatter::to_string(const Operand &operand) const {
 
 	const std::size_t totalOperands       = insn.operand_count();
 	const std::size_t numberInInstruction = operand.index();
-
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	if (operand->type == X86_OP_REG) {
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
+	if (operand->type == ARM_OP_REG) {
+#endif
 		str = register_name(operand->reg);
 	} else if (totalOperands == 1) {
 		str = insn->op_str;
@@ -496,19 +517,8 @@ std::string Formatter::register_name(unsigned int reg) const {
 	return str;
 }
 
-bool KxRegisterPresent(const Instruction &insn) {
-	for (std::size_t i = 0; i < insn.operand_count(); ++i) {
-		const auto op = insn[i];
-
-		if (op->type == X86_OP_REG && X86_REG_K0 <= op->reg && op->reg <= X86_REG_K7)
-			return true;
-	}
-	return false;
-}
-
-
 bool is_SIMD_PS(const Operand &operand) {
-
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
 
 	if (apriori_not_simd(insn, operand))
@@ -695,10 +705,15 @@ bool is_SIMD_PS(const Operand &operand) {
 	default:
 		return false;
 	}
+#else
+	(void)operand;
+	return false;
+#endif
 }
 
 bool is_SIMD_PD(const Operand &operand) {
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
 
 	if (apriori_not_simd(insn, operand))
@@ -875,10 +890,14 @@ bool is_SIMD_PD(const Operand &operand) {
 	default:
 		return false;
 	}
+#else
+	(void)operand;
+	return false;
+#endif
 }
 
 bool is_SIMD_SS(const Operand &operand) {
-
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
 
 	if (apriori_not_simd(insn, operand))
@@ -965,10 +984,15 @@ bool is_SIMD_SS(const Operand &operand) {
 	default:
 		return false;
 	}
+#else
+	(void)operand;
+	return false;
+#endif
 }
 
 bool is_SIMD_SD(const Operand &operand) {
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
 
 	if (apriori_not_simd(insn, operand))
@@ -1051,84 +1075,98 @@ bool is_SIMD_SD(const Operand &operand) {
 	default:
 		return false;
 	}
+#else
+	(void)operand;
+	return false;
+#endif
 }
 
 bool is_SIMD_SI(const Operand &operand) {
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
-	const auto number = simdOperandNormalizedNumberInInstruction(insn, operand, true);
+	const auto number       = simdOperandNormalizedNumberInInstruction(insn, operand, true);
 
 	switch (insn->id) {
 	case X86_INS_VCVTSI2SS:
 	case X86_INS_VCVTSI2SD:
-		return number==2;
+		return number == 2;
 	case X86_INS_CVTSI2SS:
 	case X86_INS_CVTSI2SD:
-		return number==1;
+		return number == 1;
 	case X86_INS_CVTSS2SI:
 	case X86_INS_VCVTSS2SI:
 	case X86_INS_CVTSD2SI:
 	case X86_INS_VCVTSD2SI:
-		return number==0;
+		return number == 0;
 	default:
 		return false;
 	}
+#else
+	(void)operand;
+	return false;
+#endif
 }
 
 bool is_SIMD_USI(const Operand &operand) {
-
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
-	const auto number = simdOperandNormalizedNumberInInstruction(insn, operand, true);
+	const auto number       = simdOperandNormalizedNumberInInstruction(insn, operand, true);
 
 	switch (insn->id) {
 	case X86_INS_VCVTUSI2SS:
 	case X86_INS_VCVTUSI2SD:
-		return number==2;
+		return number == 2;
 	case X86_INS_VCVTSS2USI:
 	case X86_INS_VCVTSD2USI:
-		return number==0;
+		return number == 0;
 	default:
 		return false;
 	}
+#else
+	(void)operand;
+	return false;
+#endif
 }
 
 bool is_return(const Instruction &insn) {
-	if(!insn) return false;
+	if (!insn) return false;
 	return cs_insn_group(csh, insn.native(), CS_GRP_RET);
 }
 
 bool is_jump(const Instruction &insn) {
-	if(!insn) return false;
+	if (!insn) return false;
 	return cs_insn_group(csh, insn.native(), CS_GRP_JUMP);
 }
 
 bool is_call(const Instruction &insn) {
-	if(!insn) return false;
+	if (!insn) return false;
 	return cs_insn_group(csh, insn.native(), CS_GRP_CALL);
 }
 
 bool modifies_pc(const Instruction &insn) {
-	if(is_call(insn) || is_jump(insn) || is_interrupt(insn))
+	if (is_call(insn) || is_jump(insn) || is_interrupt(insn))
 		return true;
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	return false;
-#elif defined EDB_ARM32
-	const auto& detail=*insn->detail;
-	for(uint8_t i=0;i<detail.regs_write_count;++i)
-		if(detail.regs_write[i]==ARM_REG_PC)
+#elif defined(EDB_ARM32)
+	const auto &detail = *insn->detail;
+	for (uint8_t i = 0; i < detail.regs_write_count; ++i)
+		if (detail.regs_write[i] == ARM_REG_PC)
 			return true;
-	const auto& arm=detail.arm;
-	for(uint8_t i=0;i<arm.op_count;++i)
-	{
-		const auto& op=arm.operands[i];
-		if(op.access==CS_AC_WRITE && op.type==CS_OP_REG && op.reg==ARM_REG_PC)
+	const auto &arm = detail.arm;
+	for (uint8_t i = 0; i < arm.op_count; ++i) {
+		const auto &op = arm.operands[i];
+#if CS_API_MAJOR >= 4
+		if (op.access == CS_AC_WRITE && op.type == CS_OP_REG && op.reg == ARM_REG_PC)
 			return true;
-		if(op.type==ARM_OP_MEM && insn.native()->detail->arm.writeback && op.mem.base==ARM_REG_PC)
+#endif
+		if (op.type == ARM_OP_MEM && insn.native()->detail->arm.writeback && op.mem.base == ARM_REG_PC)
 			return true;
 	}
 	return false;
 #else
-#	error "Not implemented"
+#error "Not implemented"
 #endif
 }
 

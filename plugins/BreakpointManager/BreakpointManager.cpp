@@ -19,49 +19,49 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "BreakpointManager.h"
 #include "DialogBreakpoints.h"
 #include "edb.h"
-#include <QMenu>
 #include <QKeySequence>
+#include <QMenu>
 
 namespace BreakpointManagerPlugin {
 
-//------------------------------------------------------------------------------
-// Name: BreakpointManager
-// Desc:
-//------------------------------------------------------------------------------
-BreakpointManager::BreakpointManager(QObject *parent) : QObject(parent) {
+/**
+ * @brief BreakpointManager::BreakpointManager
+ * @param parent
+ */
+BreakpointManager::BreakpointManager(QObject *parent)
+	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: ~BreakpointManager
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BreakpointManager::~BreakpointManager
+ */
 BreakpointManager::~BreakpointManager() {
 	delete dialog_;
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BreakpointManager::menu
+ * @param parent
+ * @return
+ */
 QMenu *BreakpointManager::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("BreakpointManager"), parent);
-		menu_->addAction(tr("&Breakpoints"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+B")));
+		menu_->addAction(tr("&Breakpoints"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+B")));
 	}
 
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: show_menu
-// Desc:
-//------------------------------------------------------------------------------
-void BreakpointManager::show_menu() {
+/**
+ * @brief BreakpointManager::showMenu
+ */
+void BreakpointManager::showMenu() {
 
-	if(!dialog_) {
+	if (!dialog_) {
 		dialog_ = new DialogBreakpoints(edb::v1::debugger_ui);
 	}
 

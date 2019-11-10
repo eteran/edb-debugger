@@ -17,119 +17,122 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "PlatformCommon.h"
-#include <sys/wait.h>
-#include <linux/limits.h>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <linux/limits.h>
+#include <sys/wait.h>
 
 namespace DebuggerCorePlugin {
 
-//------------------------------------------------------------------------------
-// Name: resume_code
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief resume_code
+ * @param status
+ * @return
+ */
 int resume_code(int status) {
 
-	if(WIFSTOPPED(status) && WSTOPSIG(status) == SIGSTOP) {
+	if (WIFSTOPPED(status) && WSTOPSIG(status) == SIGSTOP) {
 		return 0;
 	}
 
-	if(WIFSIGNALED(status)) {
+	if (WIFSIGNALED(status)) {
 		return WTERMSIG(status);
 	}
 
-	if(WIFSTOPPED(status)) {
+	if (WIFSTOPPED(status)) {
 		return WSTOPSIG(status);
 	}
 
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name: get_user_stat
-// Desc: gets the contents of /proc/<pid>/stat and returns the number of elements
-//       successfully parsed
-//------------------------------------------------------------------------------
+/**
+ * gets the contents of /proc/<pid>/stat
+ *
+ * @brief get_user_stat
+ * @param path
+ * @param user_stat
+ * @return the number of elements successfully parsed
+ */
 int get_user_stat(const char *path, struct user_stat *user_stat) {
 	Q_ASSERT(user_stat);
 
 	std::ifstream stream(path);
 	std::string line;
-	if(std::getline(stream, line)) {
+	if (std::getline(stream, line)) {
 		// the comm field is wrapped with "(" and ")", so we look for the closing one
 		size_t left  = line.find_first_of('(');
 		size_t right = line.find_last_of(')');
 
-		if(right == std::string::npos || left == std::string::npos) {
+		if (right == std::string::npos || left == std::string::npos) {
 			return -1;
 		}
 
 		int r = sscanf(&line[right + 2], "%c %d %d %d %d %d %u %llu %llu %llu %llu %llu %llu %lld %lld %lld %lld %lld %lld %llu %llu %lld %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %d %d %u %u %llu %llu %lld %llu %llu %llu %llu %llu %llu %llu %d",
-		        &user_stat->state,
-		        &user_stat->ppid,
-		        &user_stat->pgrp,
-		        &user_stat->session,
-		        &user_stat->tty_nr,
-		        &user_stat->tpgid,
-		        &user_stat->flags,
-		        &user_stat->minflt,
-		        &user_stat->cminflt,
-		        &user_stat->majflt,
-		        &user_stat->cmajflt,
-		        &user_stat->utime,
-		        &user_stat->stime,
-		        &user_stat->cutime,
-		        &user_stat->cstime,
-		        &user_stat->priority,
-		        &user_stat->nice,
-		        &user_stat->num_threads,
-		        &user_stat->itrealvalue,
-		        &user_stat->starttime,
-		        &user_stat->vsize,
-		        &user_stat->rss,
-		        &user_stat->rsslim,
-		        &user_stat->startcode,
-		        &user_stat->endcode,
-		        &user_stat->startstack,
-		        &user_stat->kstkesp,
-		        &user_stat->kstkeip,
-		        &user_stat->signal,
-		        &user_stat->blocked,
-		        &user_stat->sigignore,
-		        &user_stat->sigcatch,
-		        &user_stat->wchan,
-		        &user_stat->nswap,
-		        &user_stat->cnswap,
-		        &user_stat->exit_signal,
-		        &user_stat->processor,
-		        &user_stat->rt_priority,
-		        &user_stat->policy,
+					   &user_stat->state,
+					   &user_stat->ppid,
+					   &user_stat->pgrp,
+					   &user_stat->session,
+					   &user_stat->tty_nr,
+					   &user_stat->tpgid,
+					   &user_stat->flags,
+					   &user_stat->minflt,
+					   &user_stat->cminflt,
+					   &user_stat->majflt,
+					   &user_stat->cmajflt,
+					   &user_stat->utime,
+					   &user_stat->stime,
+					   &user_stat->cutime,
+					   &user_stat->cstime,
+					   &user_stat->priority,
+					   &user_stat->nice,
+					   &user_stat->num_threads,
+					   &user_stat->itrealvalue,
+					   &user_stat->starttime,
+					   &user_stat->vsize,
+					   &user_stat->rss,
+					   &user_stat->rsslim,
+					   &user_stat->startcode,
+					   &user_stat->endcode,
+					   &user_stat->startstack,
+					   &user_stat->kstkesp,
+					   &user_stat->kstkeip,
+					   &user_stat->signal,
+					   &user_stat->blocked,
+					   &user_stat->sigignore,
+					   &user_stat->sigcatch,
+					   &user_stat->wchan,
+					   &user_stat->nswap,
+					   &user_stat->cnswap,
+					   &user_stat->exit_signal,
+					   &user_stat->processor,
+					   &user_stat->rt_priority,
+					   &user_stat->policy,
 
-		        // Linux 2.6.18
-		        &user_stat->delayacct_blkio_ticks,
+					   // Linux 2.6.18
+					   &user_stat->delayacct_blkio_ticks,
 
-		        // Linux 2.6.24
-		        &user_stat->guest_time,
-		        &user_stat->cguest_time,
+					   // Linux 2.6.24
+					   &user_stat->guest_time,
+					   &user_stat->cguest_time,
 
-		        // Linux 3.3
-		        &user_stat->start_data,
-		        &user_stat->end_data,
-		        &user_stat->start_brk,
+					   // Linux 3.3
+					   &user_stat->start_data,
+					   &user_stat->end_data,
+					   &user_stat->start_brk,
 
-		        // Linux 3.5
-		        &user_stat->arg_start,
-		        &user_stat->arg_end,
-		        &user_stat->env_start,
-		        &user_stat->env_end,
-		        &user_stat->exit_code
-		        );
+					   // Linux 3.5
+					   &user_stat->arg_start,
+					   &user_stat->arg_end,
+					   &user_stat->env_start,
+					   &user_stat->env_end,
+					   &user_stat->exit_code);
 
 		// fill in the pid
 		r += sscanf(&line[0], "%d", &user_stat->pid);
 
 		// fill in the comm field
-		size_t len = std::min(sizeof(user_stat->comm), (right - left) - 1);
+		const size_t len = std::min(sizeof(user_stat->comm), (right - left) - 1);
 		line.copy(user_stat->comm, len, left + 1);
 		user_stat->comm[len] = '\0';
 		++r;

@@ -18,68 +18,69 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogStrings.h"
 #include "Configuration.h"
+#include "DialogResults.h"
 #include "IRegion.h"
 #include "MemoryRegions.h"
-#include "DialogResults.h"
 #include "Util.h"
 #include "edb.h"
 
 #include <QHeaderView>
 #include <QMessageBox>
-#include <QSortFilterProxyModel>
 #include <QPushButton>
+#include <QSortFilterProxyModel>
 
 namespace ProcessPropertiesPlugin {
 
-//------------------------------------------------------------------------------
-// Name: DialogStrings
-// Desc:
-//------------------------------------------------------------------------------
-DialogStrings::DialogStrings(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f)  {
+/**
+ * @brief DialogStrings::DialogStrings
+ * @param parent
+ * @param f
+ */
+DialogStrings::DialogStrings(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 	ui.tableView->verticalHeader()->hide();
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	filter_model_ = new QSortFilterProxyModel(this);
-	connect(ui.txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+	filterModel_ = new QSortFilterProxyModel(this);
+	connect(ui.txtSearch, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 
-	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
-	connect(btnFind_, &QPushButton::clicked, this, [this]() {
-		btnFind_->setEnabled(false);
+	buttonFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
+	connect(buttonFind_, &QPushButton::clicked, this, [this]() {
+		buttonFind_->setEnabled(false);
 		ui.progressBar->setValue(0);
-		do_find();
+		doFind();
 		ui.progressBar->setValue(100);
-		btnFind_->setEnabled(true);
+		buttonFind_->setEnabled(true);
 	});
 
-	ui.buttonBox->addButton(btnFind_, QDialogButtonBox::ActionRole);
+	ui.buttonBox->addButton(buttonFind_, QDialogButtonBox::ActionRole);
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogStrings::showEvent
+ */
 void DialogStrings::showEvent(QShowEvent *) {
-	filter_model_->setFilterKeyColumn(3);
-	filter_model_->setSourceModel(&edb::v1::memory_regions());
-	ui.tableView->setModel(filter_model_);
+	filterModel_->setFilterKeyColumn(3);
+	filterModel_->setSourceModel(&edb::v1::memory_regions());
+	ui.tableView->setModel(filterModel_);
 	ui.progressBar->setValue(0);
 }
 
-//------------------------------------------------------------------------------
-// Name: do_find
-// Desc:
-//------------------------------------------------------------------------------
-void DialogStrings::do_find() {
+/**
+ * @brief DialogStrings::doFind
+ */
+void DialogStrings::doFind() {
 
 	const int min_string_length = edb::v1::config().min_string_length;
 
 	const QItemSelectionModel *const selection_model = ui.tableView->selectionModel();
-	const QModelIndexList sel = selection_model->selectedRows();
+	const QModelIndexList sel                        = selection_model->selectedRows();
 
 	QString str;
 
-	if(sel.size() == 0) {
+	if (sel.size() == 0) {
 		QMessageBox::critical(
 			this,
 			tr("No Region Selected"),
@@ -89,34 +90,34 @@ void DialogStrings::do_find() {
 
 	auto resultsDialog = new DialogResults(this);
 
-	for(const QModelIndex &selected_item: sel) {
+	for (const QModelIndex &selected_item : sel) {
 
-		const QModelIndex index = filter_model_->mapToSource(selected_item);
+		const QModelIndex index = filterModel_->mapToSource(selected_item);
 
-		if(auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
+		if (auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
 
 			edb::address_t start_address     = region->start();
 			const edb::address_t end_address = region->end();
 			const edb::address_t orig_start  = start_address;
 
 			// do the search for this region!
-			while(start_address < end_address) {
+			while (start_address < end_address) {
 
 				int string_length = 0;
-				bool ok = edb::v1::get_ascii_string_at_address(start_address, str, min_string_length, 256, string_length);
-				if(ok) {
-					resultsDialog->addResult({start_address, str, Result::ASCII});
-				} else if(ui.search_unicode->isChecked()) {
+				bool ok           = edb::v1::get_ascii_string_at_address(start_address, str, min_string_length, 256, string_length);
+				if (ok) {
+					resultsDialog->addResult({start_address, str, Result::Ascii});
+				} else if (ui.search_unicode->isChecked()) {
 					string_length = 0;
-					ok = edb::v1::get_utf16_string_at_address(start_address, str, min_string_length, 256, string_length);
-					if(ok) {
-						resultsDialog->addResult({start_address, str, Result::UTF16});
+					ok            = edb::v1::get_utf16_string_at_address(start_address, str, min_string_length, 256, string_length);
+					if (ok) {
+						resultsDialog->addResult({start_address, str, Result::Utf16});
 					}
 				}
 
 				ui.progressBar->setValue(util::percentage((start_address - orig_start), region->size()));
 
-				if(ok) {
+				if (ok) {
 					start_address += string_length;
 				} else {
 					++start_address;
@@ -125,13 +126,12 @@ void DialogStrings::do_find() {
 		}
 	}
 
-	if(resultsDialog->resultCount() == 0) {
+	if (resultsDialog->resultCount() == 0) {
 		QMessageBox::information(this, tr("No Strings Found"), tr("No strings were found in the selected region"));
 		delete resultsDialog;
 	} else {
 		resultsDialog->show();
 	}
-
 }
 
 }

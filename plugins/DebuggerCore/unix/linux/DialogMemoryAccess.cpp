@@ -20,12 +20,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCorePlugin {
 
-DialogMemoryAccess::DialogMemoryAccess(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f)  {
+/**
+ * @brief DialogMemoryAccess::DialogMemoryAccess
+ * @param parent
+ * @param f
+ */
+DialogMemoryAccess::DialogMemoryAccess(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 	adjustSize();
 	setFixedSize(width(), height());
 }
 
+/**
+ * @brief DialogMemoryAccess::warnNextTime
+ * @return
+ */
 bool DialogMemoryAccess::warnNextTime() const {
 	return !ui.checkNeverShowAgain->isChecked();
 }

@@ -9,7 +9,7 @@
 
 namespace ODbgRegisterView {
 
-bool entryGridKeyUpDownEventFilter(QWidget *parent, QObject *obj, QEvent *event) {
+bool entry_grid_key_event_filter(QWidget *parent, QObject *obj, QEvent *event) {
 
 	auto entry = qobject_cast<QLineEdit *>(obj);
 	if (!entry || event->type() != QEvent::KeyPress) {
@@ -51,11 +51,12 @@ bool entryGridKeyUpDownEventFilter(QWidget *parent, QObject *obj, QEvent *event)
 	// Remove those too far vertically, so that they don't interfere with later calculations
 	const auto verticallyClosestY = neighbors.front()->y();
 	neighbors.erase(std::remove_if(neighbors.begin(), neighbors.end(), [verticallyClosestY](QLineEdit *e) {
-	    return e->y() != verticallyClosestY;
-	}), neighbors.end());
+						return e->y() != verticallyClosestY;
+					}),
+					neighbors.end());
 
 	assert(!neighbors.empty());
-	const auto x = pos.x();
+	const auto x            = pos.x();
 	const auto bestNeighbor = *std::min_element(neighbors.begin(), neighbors.end(), [x](QLineEdit *a, QLineEdit *b) {
 		return std::abs(x - a->x()) < std::abs(x - b->x());
 	});

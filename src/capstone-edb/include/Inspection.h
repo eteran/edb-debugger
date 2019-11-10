@@ -44,7 +44,6 @@ EDB_EXPORT bool is_conditional_set(const Instruction &insn);
 EDB_EXPORT bool is_unconditional_jump(const Instruction &insn);
 EDB_EXPORT bool is_conditional_jump(const Instruction &insn);
 
-
 EDB_EXPORT bool is_terminator(const Instruction &insn);
 EDB_EXPORT bool is_unconditional_jump(const Instruction &insn);
 
@@ -64,7 +63,6 @@ EDB_EXPORT bool is_fpu_taking_bcd(const Instruction &insn);
 
 // Check that instruction comes from any SIMD ISA extension
 EDB_EXPORT bool is_simd(const Instruction &insn);
-
 
 EDB_EXPORT bool is_expression(const Operand &operand);
 EDB_EXPORT bool is_immediate(const Operand &operand);

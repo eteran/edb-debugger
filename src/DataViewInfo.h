@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DATAVIEWINFO_20100101_H_
 #define DATAVIEWINFO_20100101_H_
 
-#include <memory>
 #include <QtGlobal>
+#include <memory>
 
 class QHexView;
 class RegionBuffer;
@@ -30,13 +30,13 @@ class DataViewInfo {
 public:
 	explicit DataViewInfo(const std::shared_ptr<IRegion> &r);
 	DataViewInfo();
-	DataViewInfo(const DataViewInfo &)            = delete;
-	DataViewInfo& operator=(const DataViewInfo &) = delete;
-	~DataViewInfo() = default;
+	DataViewInfo(const DataViewInfo &) = delete;
+	DataViewInfo &operator=(const DataViewInfo &) = delete;
+	~DataViewInfo()                               = default;
 
 public:
-	std::shared_ptr<IRegion>      region;
-	std::shared_ptr<QHexView>     view;
+	std::shared_ptr<IRegion> region;
+	std::shared_ptr<QHexView> view;
 	std::unique_ptr<RegionBuffer> stream;
 
 public:
@@ -44,4 +44,3 @@ public:
 };
 
 #endif
-

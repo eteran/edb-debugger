@@ -29,11 +29,11 @@ class DialogInputBinaryString : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogInputBinaryString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogInputBinaryString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogInputBinaryString() override = default;
 
 public:
-	BinaryString *binary_string() const;
+	BinaryString *binaryString() const;
 
 private:
 	Ui::DialogInputBinaryString ui;

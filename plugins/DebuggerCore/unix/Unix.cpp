@@ -1,115 +1,109 @@
 
 #include "Unix.h"
-#include <signal.h>
 #include <cstring>
+#include <signal.h>
 
 namespace DebuggerCorePlugin {
-namespace  {
+namespace {
 
 struct Exception {
-	qlonglong         value;
+	qlonglong value;
 	const char *const name;
 };
 
-const Exception Exceptions[] = {
+constexpr Exception Exceptions[] = {
 #ifdef SIGABRT
-    { SIGABRT, "SIGABRT" },
+	{SIGABRT, "SIGABRT"},
 #endif
 #ifdef SIGALRM
-    { SIGALRM, "SIGALRM" },
+	{SIGALRM, "SIGALRM"},
 #endif
 #ifdef SIGVTALRM
-    { SIGVTALRM, "SIGVTALRM" },
+	{SIGVTALRM, "SIGVTALRM"},
 #endif
 #ifdef SIGPROF
-    { SIGPROF, "SIGPROF" },
+	{SIGPROF, "SIGPROF"},
 #endif
 #ifdef SIGBUS
-    { SIGBUS, "SIGBUS" },
+	{SIGBUS, "SIGBUS"},
 #endif
 #ifdef SIGCHLD
-    { SIGCHLD, "SIGCHLD" },
+	{SIGCHLD, "SIGCHLD"},
 #endif
 #ifdef SIGCONT
-    { SIGCONT, "SIGCONT" },
+	{SIGCONT, "SIGCONT"},
 #endif
 #ifdef SIGFPE
-    { SIGFPE, "SIGFPE" },
+	{SIGFPE, "SIGFPE"},
 #endif
 #ifdef SIGHUP
-    { SIGHUP, "SIGHUP" },
+	{SIGHUP, "SIGHUP"},
 #endif
 #ifdef SIGILL
-    { SIGILL, "SIGILL" },
+	{SIGILL, "SIGILL"},
 #endif
 #ifdef SIGINT
-    { SIGINT, "SIGINT" },
+	{SIGINT, "SIGINT"},
 #endif
 #ifdef SIGKILL
-    { SIGKILL, "SIGKILL" },
+	{SIGKILL, "SIGKILL"},
 #endif
 #ifdef SIGPIPE
-    { SIGPIPE, "SIGPIPE" },
+	{SIGPIPE, "SIGPIPE"},
 #endif
 #ifdef SIGQUIT
-    { SIGQUIT, "SIGQUIT" },
+	{SIGQUIT, "SIGQUIT"},
 #endif
 #ifdef SIGSEGV
-    { SIGSEGV, "SIGSEGV" },
+	{SIGSEGV, "SIGSEGV"},
 #endif
 #ifdef SIGSTOP
-    { SIGSTOP, "SIGSTOP" },
+	{SIGSTOP, "SIGSTOP"},
 #endif
 #ifdef SIGTERM
-    { SIGTERM, "SIGTERM" },
+	{SIGTERM, "SIGTERM"},
 #endif
 #ifdef SIGTSTP
-    { SIGTSTP, "SIGTSTP" },
+	{SIGTSTP, "SIGTSTP"},
 #endif
 #ifdef SIGTTIN
-    { SIGTTIN, "SIGTTIN" },
+	{SIGTTIN, "SIGTTIN"},
 #endif
 #ifdef SIGTTOU
-    { SIGTTOU, "SIGTTOU" },
+	{SIGTTOU, "SIGTTOU"},
 #endif
 #ifdef SIGUSR1
-    { SIGUSR1, "SIGUSR1" },
+	{SIGUSR1, "SIGUSR1"},
 #endif
 #ifdef SIGUSR2
-    { SIGUSR2, "SIGUSR2" },
+	{SIGUSR2, "SIGUSR2"},
 #endif
 #ifdef SIGPOLL
-    { SIGPOLL, "SIGPOLL" },
+	{SIGPOLL, "SIGPOLL"},
 #endif
 #ifdef SIGSYS
-    { SIGSYS, "SIGSYS" },
+	{SIGSYS, "SIGSYS"},
 #endif
 #ifdef SIGTRAP
-    { SIGTRAP, "SIGTRAP" },
+	{SIGTRAP, "SIGTRAP"},
 #endif
 #ifdef SIGURG
-    { SIGURG, "SIGURG" },
+	{SIGURG, "SIGURG"},
 #endif
 #ifdef SIGXCPU
-    { SIGXCPU, "SIGXCPU" },
+	{SIGXCPU, "SIGXCPU"},
 #endif
 #ifdef SIGXFSZ
-    { SIGXFSZ, "SIGXFSZ" },
-#endif
-#ifdef SIGRTMIN
-    { SIGRTMIN, "SIGRTMIN" },
-#endif
-#ifdef SIGRTMAX
-    { SIGRTMAX, "SIGRTMAX" },
+	{SIGXFSZ, "SIGXFSZ"},
 #endif
 #ifdef SIGIO
-    { SIGIO, "SIGIO" },
+	{SIGIO, "SIGIO"},
 #endif
 #ifdef SIGSTKFLT
-    { SIGSTKFLT, "SIGSTKFLT" },
+	{SIGSTKFLT, "SIGSTKFLT"},
 #endif
 #ifdef SIGWINCH
-    { SIGWINCH, "SIGWINCH" },
+	{SIGWINCH, "SIGWINCH"},
 #endif
 };
 
@@ -122,23 +116,23 @@ const Exception Exceptions[] = {
 QMap<qlonglong, QString> Unix::exceptions() {
 
 	QMap<qlonglong, QString> exceptions;
-	for(Exception e : Exceptions) {
-		exceptions[e.value] = e.name;
+	for (Exception e : Exceptions) {
+		exceptions.insert(e.value, e.name);
 	}
 	return exceptions;
 }
 
 /**
- * @brief Unix::exceptionName
+ * @brief Unix::exception_name
  * @param value
  * @return
  */
-QString Unix::exceptionName(qlonglong value) {
+QString Unix::exception_name(qlonglong value) {
 	auto it = std::find_if(std::begin(Exceptions), std::end(Exceptions), [value](const Exception &ex) {
 		return ex.value == value;
 	});
 
-	if(it != std::end(Exceptions)) {
+	if (it != std::end(Exceptions)) {
 		return it->name;
 	}
 
@@ -146,16 +140,16 @@ QString Unix::exceptionName(qlonglong value) {
 }
 
 /**
- * @brief Unix::exceptionValue
+ * @brief Unix::exception_value
  * @param name
  * @return
  */
-qlonglong Unix::exceptionValue(const QString &name) {
+qlonglong Unix::exception_value(const QString &name) {
 	auto it = std::find_if(std::begin(Exceptions), std::end(Exceptions), [&name](const Exception &ex) {
 		return ex.name == name;
 	});
 
-	if(it != std::end(Exceptions)) {
+	if (it != std::end(Exceptions)) {
 		return it->value;
 	}
 
@@ -174,7 +168,7 @@ Status Unix::execute_process(const QString &path, const QString &cwd, const QLis
 	QString errorString = "internal error";
 
 	// change to the desired working directory
-	if(::chdir(qPrintable(cwd)) == 0) {
+	if (::chdir(qPrintable(cwd)) == 0) {
 
 		// allocate space for all the arguments
 		auto argv_pointers = new char *[args.count() + 2];
@@ -185,7 +179,7 @@ Status Unix::execute_process(const QString &path, const QString &cwd, const QLis
 		std::strcpy(*p, qPrintable(path));
 		++p;
 
-		for(int i = 0; i < args.count(); ++i) {
+		for (int i = 0; i < args.count(); ++i) {
 			const QByteArray s(args[i]);
 			*p = new char[s.length() + 1];
 			std::strcpy(*p, s.constData());
@@ -202,13 +196,13 @@ Status Unix::execute_process(const QString &path, const QString &cwd, const QLis
 		// should be no need to cleanup, the process which allocated all that
 		// space no longer exists!
 		// if we get here...execv failed!
-		if(ret == -1) {
+		if (ret == -1) {
 			errorString = QString("execv() failed: %1").arg(strerror(errno));
-			p = argv_pointers;
-			while(*p) {
-				delete [] *p++;
+			p           = argv_pointers;
+			while (*p) {
+				delete[] * p++;
 			}
-			delete [] argv_pointers;
+			delete[] argv_pointers;
 		}
 	}
 

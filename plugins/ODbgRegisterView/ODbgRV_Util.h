@@ -18,34 +18,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ODBG_REG_VIEW_UTIL_H_20170817
 #define ODBG_REG_VIEW_UTIL_H_20170817
 
-#include "RegisterView.h"
+#include "FieldWidget.h"
+#include "RegisterGroup.h"
+#include "RegisterViewModelBase.h"
 #include <QAction>
-#include <QSignalMapper>
 
 namespace ODbgRegisterView {
 
-static constexpr int MODEL_NAME_COLUMN    = RegisterViewModelBase::Model::NAME_COLUMN;
-static constexpr int MODEL_VALUE_COLUMN   = RegisterViewModelBase::Model::VALUE_COLUMN;
-static constexpr int MODEL_COMMENT_COLUMN = RegisterViewModelBase::Model::COMMENT_COLUMN;
+static constexpr int ModelNameColumn    = RegisterViewModelBase::Model::NAME_COLUMN;
+static constexpr int ModelValueColumn   = RegisterViewModelBase::Model::VALUE_COLUMN;
+static constexpr int ModelCommentColumn = RegisterViewModelBase::Model::COMMENT_COLUMN;
 
 template <class T>
-T VALID_VARIANT(T variant) {
-	static_assert(std::is_same<const typename std::remove_reference<T>::type, const QVariant>::value, "Wrong type passed to VALID_VARIANT");
+T valid_variant(T variant) {
+	static_assert(std::is_same<const typename std::remove_reference<T>::type, const QVariant>::value,
+				  "Wrong type passed to valid_variant");
 	assert((variant).isValid());
 	return variant;
 }
 
 template <class T>
-T VALID_INDEX(T index) {
-	static_assert(
-		std::is_same<const typename std::remove_reference<T>::type, const QModelIndex>::value ||
-		std::is_same<const typename std::remove_reference<T>::type, const QPersistentModelIndex>::value,
-		"Wrong type passed to VALID_INDEX"
-	);
+T valid_index(T index) {
+	static_assert(std::is_same<const typename std::remove_reference<T>::type, const QModelIndex>::value ||
+					  std::is_same<const typename std::remove_reference<T>::type, const QPersistentModelIndex>::value,
+				  "Wrong type passed to valid_index");
 
 	assert(index.isValid());
 	return index;
-
 }
 
 template <class T, class P>
@@ -55,49 +54,50 @@ T *checked_cast(P p) {
 }
 
 template <typename T>
-T sqr(T v) {
+constexpr T square(T v) {
 	return v * v;
 }
 
-inline QPoint fieldPos(const FieldWidget *const field) {
+inline QPoint field_position(const FieldWidget *field) {
 	// NOTE: mapToGlobal() is VERY slow, don't use it. Here we map to canvas, it's enough for all fields.
 	return field->mapTo(field->parentWidget()->parentWidget(), QPoint());
 }
 
 // Square of Euclidean distance between two points
-inline int distSqr(const QPoint &w1, const QPoint &w2) {
-	return sqr(w1.x() - w2.x()) + sqr(w1.y() - w2.y());
+inline int distance_squared(const QPoint &w1, const QPoint &w2) {
+	return square(w1.x() - w2.x()) + square(w1.y() - w2.y());
 }
 
-inline QSize letterSize(const QFont &font) {
+inline QSize letter_size(const QFont &font) {
 	const QFontMetrics fontMetrics(font);
-	const int          width  = fontMetrics.width('w');
-	const int          height = fontMetrics.height();
+	const int width  = fontMetrics.width('w');
+	const int height = fontMetrics.height();
 	return QSize(width, height);
 }
 
-inline QAction *newActionSeparator(QObject *parent) {
+inline QAction *new_action_separator(QObject *parent) {
 	const auto sep = new QAction(parent);
 	sep->setSeparator(true);
 	return sep;
 }
 
-inline QAction *newAction(const QString &text, QObject *parent, QObject *signalReceiver, const char *slot) {
+inline QAction *new_action(const QString &text, QObject *parent, QObject *signalReceiver, const char *slot) {
 	const auto action = new QAction(text, parent);
 	QObject::connect(action, SIGNAL(triggered()), signalReceiver, slot);
 	return action;
 }
 
-inline QAction *newAction(const QString &text, QObject *parent, QSignalMapper *mapper, int mapping) {
-	const auto action = newAction(text, parent, mapper, SLOT(map()));
-	mapper->setMapping(action, mapping);
+template <class Func>
+inline QAction *new_action(const QString &text, QObject *parent, Func func) {
+	const auto action = new QAction(text, parent);
+	QObject::connect(action, &QAction::triggered, parent, func);
 	return action;
 }
 
 // TODO: switch from string-based search to enum-based one (add a new Role to model data)
-inline QModelIndex findModelCategory(const  RegisterViewModelBase::Model *const model, const QString &catToFind) {
+inline QModelIndex find_model_category(const RegisterViewModelBase::Model *model, const QString &catToFind) {
 	for (int row = 0; row < model->rowCount(); ++row) {
-		const auto cat = model->index(row, 0).data(MODEL_NAME_COLUMN);
+		const auto cat = model->index(row, 0).data(ModelNameColumn);
 		if (cat.isValid() && cat.toString() == catToFind)
 			return model->index(row, 0);
 	}
@@ -105,15 +105,14 @@ inline QModelIndex findModelCategory(const  RegisterViewModelBase::Model *const 
 }
 
 // TODO: switch from string-based search to enum-based one (add a new Role to model data)
-inline QModelIndex findModelRegister(QModelIndex categoryIndex,
-                              const QString &regToFind,
-							  int column = MODEL_NAME_COLUMN) {
+inline QModelIndex find_model_register(QModelIndex categoryIndex, const QString &regToFind, int column = ModelNameColumn) {
+
 	const auto model = categoryIndex.model();
 	for (int row = 0; row < model->rowCount(categoryIndex); ++row) {
-		const auto regIndex = model->index(row, MODEL_NAME_COLUMN, categoryIndex);
+		const auto regIndex = model->index(row, ModelNameColumn, categoryIndex);
 		const auto name     = model->data(regIndex).toString();
 		if (name.toUpper() == regToFind) {
-			if (column == MODEL_NAME_COLUMN)
+			if (column == ModelNameColumn)
 				return regIndex;
 			return regIndex.sibling(regIndex.row(), column);
 		}
@@ -121,14 +120,14 @@ inline QModelIndex findModelRegister(QModelIndex categoryIndex,
 	return QModelIndex();
 }
 
-inline QModelIndex getCommentIndex(const QModelIndex &nameIndex) {
+inline QModelIndex comment_index(const QModelIndex &nameIndex) {
 	assert(nameIndex.isValid());
-	return nameIndex.sibling(nameIndex.row(), MODEL_COMMENT_COLUMN);
+	return nameIndex.sibling(nameIndex.row(), ModelCommentColumn);
 }
 
-inline QModelIndex getValueIndex(const QModelIndex &nameIndex) {
+inline QModelIndex value_index(const QModelIndex &nameIndex) {
 	assert(nameIndex.isValid());
-	return nameIndex.sibling(nameIndex.row(), MODEL_VALUE_COLUMN);
+	return nameIndex.sibling(nameIndex.row(), ModelValueColumn);
 }
 
 }

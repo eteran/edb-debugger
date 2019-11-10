@@ -22,13 +22,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-RegisterGroup *createEFL(RegisterViewModelBase::Model *model, QWidget *parent);
-RegisterGroup *createExpandedEFL(RegisterViewModelBase::Model *model, QWidget *parent);
-RegisterGroup *createFPUData(RegisterViewModelBase::Model *model, QWidget *parent);
-RegisterGroup *createFPUWords(RegisterViewModelBase::Model *model, QWidget *parent);
-RegisterGroup *createFPULastOp(RegisterViewModelBase::Model *model, QWidget *parent);
-RegisterGroup *createDebugGroup(RegisterViewModelBase::Model *model, QWidget *parent);
-RegisterGroup *createMXCSR(RegisterViewModelBase::Model *model, QWidget *parent);
+RegisterGroup *create_eflags(RegisterViewModelBase::Model *model, QWidget *parent);
+RegisterGroup *create_expanded_eflags(RegisterViewModelBase::Model *model, QWidget *parent);
+RegisterGroup *create_fpu_data(RegisterViewModelBase::Model *model, QWidget *parent);
+RegisterGroup *create_fpu_words(RegisterViewModelBase::Model *model, QWidget *parent);
+RegisterGroup *create_fpu_last_op(RegisterViewModelBase::Model *model, QWidget *parent);
+RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *parent);
+RegisterGroup *create_mxcsr(RegisterViewModelBase::Model *model, QWidget *parent);
 
 }
 

@@ -17,82 +17,82 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Assembler.h"
-#include "edb.h"
 #include "DialogAssembler.h"
 #include "MemoryRegions.h"
 #include "OptionsPage.h"
+#include "edb.h"
 
-#include <QMenu>
-#include <QList>
 #include <QAction>
+#include <QList>
+#include <QMenu>
 
 namespace AssemblerPlugin {
 
-//------------------------------------------------------------------------------
-// Name: Assembler
-// Desc:
-//------------------------------------------------------------------------------
-Assembler::Assembler(QObject *parent) : QObject(parent) {
+/**
+ * @brief Assembler::Assembler
+ * @param parent
+ */
+Assembler::Assembler(QObject *parent)
+	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: ~Assembler
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Assembler::~Assembler
+ */
 Assembler::~Assembler() {
 	delete dialog_;
 }
 
-//------------------------------------------------------------------------------
-// Name: cpu_context_menu
-// Desc:
-//------------------------------------------------------------------------------
-QList<QAction *> Assembler::cpu_context_menu() {
+/**
+ * @brief Assembler::cpuContextMenu
+ * @return
+ */
+QList<QAction *> Assembler::cpuContextMenu() {
 
 	QList<QAction *> ret;
 
 	auto action_assemble = new QAction(tr("&Assemble..."), this);
 	action_assemble->setShortcut(QKeySequence(tr("Space")));
 
-	connect(action_assemble, &QAction::triggered, this, &Assembler::show_dialog);
+	connect(action_assemble, &QAction::triggered, this, &Assembler::showDialog);
 	ret << action_assemble;
 
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Assembler::menu
+ * @param parent
+ * @return
+ */
 QMenu *Assembler::menu(QWidget *parent) {
 	Q_UNUSED(parent)
 	return nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: show_dialog
-// Desc:
-//------------------------------------------------------------------------------
-void Assembler::show_dialog() {
+/**
+ * @brief Assembler::showDialog
+ */
+void Assembler::showDialog() {
 
-	if(!dialog_) {
+	if (!dialog_) {
 		dialog_ = new DialogAssembler(edb::v1::debugger_ui);
 	}
 
 	const edb::address_t address = edb::v1::cpu_selected_address();
-	if(std::shared_ptr<IRegion> region = edb::v1::memory_regions().find_region(address)) {
-		if(auto d = qobject_cast<DialogAssembler *>(dialog_)) {
-			d->set_address(address);
+	if (std::shared_ptr<IRegion> region = edb::v1::memory_regions().findRegion(address)) {
+		if (auto d = qobject_cast<DialogAssembler *>(dialog_)) {
+			d->setAddress(address);
 		}
 		dialog_->show();
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: options_page
-// Desc:
-//------------------------------------------------------------------------------
-QWidget *Assembler::options_page() {
+/**
+ * @brief Assembler::optionsPage
+ * @return
+ */
+QWidget *Assembler::optionsPage() {
 	return new OptionsPage;
 }
 

@@ -23,44 +23,44 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ReferencesPlugin {
 
-//------------------------------------------------------------------------------
-// Name: References
-// Desc:
-//------------------------------------------------------------------------------
-References::References(QObject *parent) : QObject(parent) {
+/**
+ * @brief References::References
+ * @param parent
+ */
+References::References(QObject *parent)
+	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: ~References
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief References::~References
+ */
 References::~References() {
 	delete dialog_;
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief References::menu
+ * @param parent
+ * @return
+ */
 QMenu *References::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("Reference Searcher"), parent);
-		menu_->addAction(tr("&Reference Search"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+R")));
+		menu_->addAction(tr("&Reference Search"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+R")));
 	}
 
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: show_menu
-// Desc:
-//------------------------------------------------------------------------------
-void References::show_menu() {
+/**
+ * @brief References::showMenu
+ */
+void References::showMenu() {
 
-	if(!dialog_) {
+	if (!dialog_) {
 		dialog_ = new DialogReferences(edb::v1::debugger_ui);
 	}
 

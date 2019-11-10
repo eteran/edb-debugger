@@ -19,10 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef RESULTVIEWMODEL_20070419_H_
 #define RESULTVIEWMODEL_20070419_H_
 
+#include "Types.h"
 #include <QAbstractItemModel>
 #include <QVector>
 #include <vector>
-#include "Types.h"
 
 namespace HeapAnalyzerPlugin {
 
@@ -46,26 +46,26 @@ struct Result {
 		Busy
 	};
 
-	edb::address_t        address = 0;
-	edb::address_t        size    = 0;
-	NodeType              type;
-	DataType              data_type = Unknown;
-	QString               data;
+	edb::address_t address = 0;
+	edb::address_t size    = 0;
+	NodeType type;
+	DataType dataType = Unknown;
+	QString data;
 	std::vector<edb::address_t> pointers;
 };
 
 class ResultViewModel : public QAbstractItemModel {
 	Q_OBJECT
 public:
-    explicit ResultViewModel(QObject *parent = nullptr);
+	explicit ResultViewModel(QObject *parent = nullptr);
 
 public:
-    QVariant data(const QModelIndex &index, int role) const override;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &index) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+	QVariant data(const QModelIndex &index, int role) const override;
+	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+	QModelIndex parent(const QModelIndex &index) const override;
+	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
 public:
 	void addResult(const Result &r);
@@ -73,7 +73,7 @@ public:
 	void setPointerData(const QModelIndex &index, const std::vector<edb::address_t> &pointers);
 
 public:
-	QVector<Result> &results() { return results_; }
+	const QVector<Result> &results() const { return results_; }
 
 private:
 	QVector<Result> results_;

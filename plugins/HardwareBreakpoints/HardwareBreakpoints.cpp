@@ -17,16 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "HardwareBreakpoints.h"
-#include "edb.h"
+#include "DialogHWBreakpoints.h"
+#include "IDebugEvent.h"
 #include "IDebugger.h"
 #include "IProcess.h"
-#include "IDebugEvent.h"
-#include "DialogHWBreakpoints.h"
-#include "State.h"
 #include "IThread.h"
+#include "State.h"
+#include "edb.h"
 
-#include <QMenu>
 #include <QDialog>
+#include <QMenu>
 #include <QMessageBox>
 #include <QtDebug>
 
@@ -46,16 +46,17 @@ namespace HardwareBreakpointsPlugin {
  * @brief HardwareBreakpoints::HardwareBreakpoints
  * @param parent
  */
-HardwareBreakpoints::HardwareBreakpoints(QObject *parent) : QObject(parent) {
+HardwareBreakpoints::HardwareBreakpoints(QObject *parent)
+	: QObject(parent) {
 }
 
 /**
  * @brief HardwareBreakpoints::private_init
  */
-void HardwareBreakpoints::private_init() {
+void HardwareBreakpoints::privateInit() {
 
 	auto dialog = new DialogHWBreakpoints(edb::v1::debugger_ui);
-	dialog_ = dialog;
+	dialog_     = dialog;
 
 	// indexed access to members for simplicity later
 	enabled_[Register1] = dialog->ui.chkBP1;
@@ -82,9 +83,9 @@ void HardwareBreakpoints::private_init() {
 }
 
 /**
- * @brief HardwareBreakpoints::private_fini
+ * @brief HardwareBreakpoints::privateFini
  */
-void HardwareBreakpoints::private_fini() {
+void HardwareBreakpoints::privateFini() {
 	edb::v1::remove_debug_event_handler(this);
 }
 
@@ -97,9 +98,9 @@ QMenu *HardwareBreakpoints::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("Hardware BreakpointManager"), parent);
-		menu_->addAction(tr("&Hardware Breakpoints"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+Shift+H")));
+		menu_->addAction(tr("&Hardware Breakpoints"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+Shift+H")));
 	}
 
 	return menu_;
@@ -110,9 +111,9 @@ QMenu *HardwareBreakpoints::menu(QWidget *parent) {
  */
 void HardwareBreakpoints::setupBreakpoints() {
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
 
-		if(!process->isPaused()) {
+		if (!process->isPaused()) {
 			QMessageBox::warning(
 				nullptr,
 				tr("Process Not Paused"),
@@ -126,17 +127,17 @@ void HardwareBreakpoints::setupBreakpoints() {
 			enabled_[Register3]->isChecked() ||
 			enabled_[Register4]->isChecked();
 
-		if(enabled) {
+		if (enabled) {
 
 			edb::address_t addr[RegisterCount];
 			bool ok[RegisterCount];
 
 			// evaluate all the expressions
-			for(int i = 0; i < RegisterCount; ++i) {
+			for (int i = 0; i < RegisterCount; ++i) {
 				ok[i] = enabled_[i]->isChecked() && edb::v1::eval_expression(addresses_[i]->text(), &addr[i]);
 			}
 
-			if(!ok[Register1] && !ok[Register2] && !ok[Register3] && !ok[Register4]) {
+			if (!ok[Register1] && !ok[Register2] && !ok[Register3] && !ok[Register4]) {
 				QMessageBox::critical(
 					nullptr,
 					tr("Address Error"),
@@ -144,17 +145,15 @@ void HardwareBreakpoints::setupBreakpoints() {
 				return;
 			}
 
-			for(int i = 0; i < RegisterCount; ++i) {
-				if(ok[i]) {
+			for (int i = 0; i < RegisterCount; ++i) {
+				if (ok[i]) {
 
-					const BreakpointStatus status = validateBreakpoint({
-						enabled_[i]->isChecked(),
-						addr[i],
-						types_[i]->currentIndex(),
-						sizes_[i]->currentIndex()
-					});
+					const BreakpointStatus status = validate_breakpoint({enabled_[i]->isChecked(),
+																		 addr[i],
+																		 types_[i]->currentIndex(),
+																		 sizes_[i]->currentIndex()});
 
-					switch(status) {
+					switch (status) {
 					case AlignmentError:
 						QMessageBox::critical(
 							nullptr,
@@ -162,10 +161,10 @@ void HardwareBreakpoints::setupBreakpoints() {
 							tr("Hardware read/write breakpoint address must be aligned to breakpoint size."));
 						return;
 					case SizeError:
-					QMessageBox::critical(
-						nullptr,
-						tr("BP Size Error"),
-						tr("Hardware read/write breakpoints cannot be 8-bytes in a 32-bit debuggee."));
+						QMessageBox::critical(
+							nullptr,
+							tr("BP Size Error"),
+							tr("Hardware read/write breakpoints cannot be 8-bytes in a 32-bit debuggee."));
 						return;
 					case Valid:
 						break;
@@ -173,72 +172,70 @@ void HardwareBreakpoints::setupBreakpoints() {
 				}
 			}
 
-			for(std::shared_ptr<IThread> &thread : process->threads()) {
+			for (std::shared_ptr<IThread> &thread : process->threads()) {
 				State state;
-				thread->get_state(&state);
+				thread->getState(&state);
 
-				for(int i = 0; i < RegisterCount; ++i) {
-					if(ok[i]) {
-						setBreakpointState(
+				for (int i = 0; i < RegisterCount; ++i) {
+					if (ok[i]) {
+						set_breakpoint_state(
 							&state,
 							i,
-							{
-								enabled_[i]->isChecked(),
-								addr[i],
-								types_[i]->currentIndex(),
-								sizes_[i]->currentIndex()
-							});
+							{enabled_[i]->isChecked(),
+							 addr[i],
+							 types_[i]->currentIndex(),
+							 sizes_[i]->currentIndex()});
 					}
 				}
 
-				thread->set_state(state);
+				thread->setState(state);
 			}
 
 		} else {
 
-			for(std::shared_ptr<IThread> &thread : process->threads()) {
+			for (std::shared_ptr<IThread> &thread : process->threads()) {
 				State state;
-				thread->get_state(&state);
-				state.set_debug_register(7, 0);
-				thread->set_state(state);
+				thread->getState(&state);
+				state.setDebugRegister(7, 0);
+				thread->setState(state);
 			}
-
 		}
 	}
 
 	edb::v1::update_ui();
-
 }
 
-//------------------------------------------------------------------------------
-// Name: show_menu
-// Desc:
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::show_menu() {
+/**
+ * @brief HardwareBreakpoints::showMenu
+ */
+void HardwareBreakpoints::showMenu() {
 
-	if(dialog_->exec() == QDialog::Accepted) {
+	if (dialog_->exec() == QDialog::Accepted) {
 		setupBreakpoints();
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: handle_event
-// Desc: this hooks the debug event handler so we can make the breakpoints
-//       able to be resumed
-//------------------------------------------------------------------------------
-edb::EVENT_STATUS HardwareBreakpoints::handle_event(const std::shared_ptr<IDebugEvent> &event) {
+/**
+ * @brief HardwareBreakpoints::handleEvent
+ *
+ * this hooks the debug event handler so we can make the breakpoints able to be resumed
+ *
+ * @param event
+ * @return
+ */
+edb::EVENT_STATUS HardwareBreakpoints::handleEvent(const std::shared_ptr<IDebugEvent> &event) {
 
-	if(event->stopped() && event->is_trap()) {
+	if (event->stopped() && event->isTrap()) {
 
-		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(std::shared_ptr<IThread> thread = process->current_thread()) {
+		if (IProcess *process = edb::v1::debugger_core->process()) {
+			if (std::shared_ptr<IThread> thread = process->currentThread()) {
 				// check DR6 to see if it was a HW BP event
 				// if so, set the resume flag
 				State state;
-				thread->get_state(&state);
-				if((state.debug_register(6) & 0x0f) != 0x00) {
-					state.set_flags(state.flags() | (1 << 16));
-					thread->set_state(state);
+				thread->getState(&state);
+				if ((state.debugRegister(6) & 0x0f) != 0x00) {
+					state.setFlags(state.flags() | (1 << 16));
+					thread->setState(state);
 				}
 			}
 		}
@@ -248,22 +245,22 @@ edb::EVENT_STATUS HardwareBreakpoints::handle_event(const std::shared_ptr<IDebug
 	return edb::DEBUG_NEXT_HANDLER;
 }
 
-//------------------------------------------------------------------------------
-// Name: stack_context_menu
-// Desc:
-//------------------------------------------------------------------------------
-QList<QAction *> HardwareBreakpoints::stack_context_menu() {
+/**
+ * @brief HardwareBreakpoints::stackContextMenu
+ * @return
+ */
+QList<QAction *> HardwareBreakpoints::stackContextMenu() {
 	auto menu = new QMenu(tr("Hardware Breakpoints"));
 
-	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(set_access1()));
-	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(set_access2()));
-	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, SLOT(set_access3()));
-	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, SLOT(set_access4()));
+	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(setAccess1()));
+	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(setAccess2()));
+	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, SLOT(setAccess3()));
+	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, SLOT(setAccess4()));
 
-	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, SLOT(set_write1()));
-	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, SLOT(set_write2()));
-	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, SLOT(set_write3()));
-	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, SLOT(set_write4()));
+	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, SLOT(setWrite1()));
+	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, SLOT(setWrite2()));
+	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, SLOT(setWrite3()));
+	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, SLOT(setWrite4()));
 
 	rw1->setData(1);
 	rw2->setData(1);
@@ -283,22 +280,22 @@ QList<QAction *> HardwareBreakpoints::stack_context_menu() {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: data_context_menu
-// Desc:
-//------------------------------------------------------------------------------
-QList<QAction *> HardwareBreakpoints::data_context_menu() {
+/**
+ * @brief HardwareBreakpoints::dataContextMenu
+ * @return
+ */
+QList<QAction *> HardwareBreakpoints::dataContextMenu() {
 	auto menu = new QMenu(tr("Hardware Breakpoints"));
 
-	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(set_access1()));
-	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(set_access2()));
-	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, SLOT(set_access3()));
-	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, SLOT(set_access4()));
+	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(setAccess1()));
+	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(setAccess2()));
+	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, SLOT(setAccess3()));
+	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, SLOT(setAccess4()));
 
-	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, SLOT(set_write1()));
-	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, SLOT(set_write2()));
-	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, SLOT(set_write3()));
-	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, SLOT(set_write4()));
+	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, SLOT(setWrite1()));
+	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, SLOT(setWrite2()));
+	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, SLOT(setWrite3()));
+	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, SLOT(setWrite4()));
 
 	rw1->setData(2);
 	rw2->setData(2);
@@ -318,28 +315,27 @@ QList<QAction *> HardwareBreakpoints::data_context_menu() {
 	return ret;
 }
 
-
-//------------------------------------------------------------------------------
-// Name: cpu_context_menu
-// Desc:
-//------------------------------------------------------------------------------
-QList<QAction *> HardwareBreakpoints::cpu_context_menu() {
+/**
+ * @brief HardwareBreakpoints::cpuContextMenu
+ * @return
+ */
+QList<QAction *> HardwareBreakpoints::cpuContextMenu() {
 
 	auto menu = new QMenu(tr("Hardware Breakpoints"));
-	auto ex1 = menu->addAction(tr("Hardware, On Execute #1"), this, SLOT(set_exec1()));
-	auto ex2 = menu->addAction(tr("Hardware, On Execute #2"), this, SLOT(set_exec2()));
-	auto ex3 = menu->addAction(tr("Hardware, On Execute #3"), this, SLOT(set_exec3()));
-	auto ex4 = menu->addAction(tr("Hardware, On Execute #4"), this, SLOT(set_exec4()));
+	auto ex1  = menu->addAction(tr("Hardware, On Execute #1"), this, SLOT(setExec1()));
+	auto ex2  = menu->addAction(tr("Hardware, On Execute #2"), this, SLOT(setExec2()));
+	auto ex3  = menu->addAction(tr("Hardware, On Execute #3"), this, SLOT(setExec3()));
+	auto ex4  = menu->addAction(tr("Hardware, On Execute #4"), this, SLOT(setExec4()));
 
-	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(set_access1()));
-	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(set_access2()));
-	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, SLOT(set_access3()));
-	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, SLOT(set_access4()));
+	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(setAccess1()));
+	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(setAccess2()));
+	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, SLOT(setAccess3()));
+	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, SLOT(setAccess4()));
 
-	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, SLOT(set_write1()));
-	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, SLOT(set_write2()));
-	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, SLOT(set_write3()));
-	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, SLOT(set_write4()));
+	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, SLOT(setWrite1()));
+	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, SLOT(setWrite2()));
+	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, SLOT(setWrite3()));
+	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, SLOT(setWrite4()));
 
 	ex1->setData(3);
 	ex2->setData(3);
@@ -364,15 +360,16 @@ QList<QAction *> HardwareBreakpoints::cpu_context_menu() {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: setExecuteBP
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief HardwareBreakpoints::setExecuteBP
+ * @param index
+ * @param inUse
+ */
 void HardwareBreakpoints::setExecuteBP(int index, bool inUse) {
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
 
-		if(!process->isPaused()) {
+		if (!process->isPaused()) {
 			QMessageBox::warning(
 				nullptr,
 				tr("Process Not Paused"),
@@ -380,35 +377,38 @@ void HardwareBreakpoints::setExecuteBP(int index, bool inUse) {
 			return;
 		}
 
-		if(inUse) {
+		if (inUse) {
 			QMessageBox::StandardButton button = QMessageBox::question(nullptr, tr("Breakpoint Already In Use"), tr("This breakpoint is already being used. Do you want to replace it?"), QMessageBox::Yes | QMessageBox::Cancel);
-			if(button != QMessageBox::Yes) {
+			if (button != QMessageBox::Yes) {
 				return;
 			}
 		}
 
 		edb::address_t address = edb::v1::cpu_selected_address();
 
-		for(std::shared_ptr<IThread> &thread : process->threads()) {
+		for (std::shared_ptr<IThread> &thread : process->threads()) {
 			State state;
-			thread->get_state(&state);
-			setBreakpointState(&state, index, { true, address, 0, 0 });
-			thread->set_state(state);
+			thread->getState(&state);
+			set_breakpoint_state(&state, index, {true, address, 0, 0});
+			thread->setState(state);
 		}
 	}
 
 	edb::v1::update_ui();
 }
 
-//------------------------------------------------------------------------------
-// Name: setWriteBP
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief HardwareBreakpoints::setWriteBP
+ * @param index
+ * @param inUse
+ * @param address
+ * @param size
+ */
 void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t address, size_t size) {
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
 
-		if(!process->isPaused()) {
+		if (!process->isPaused()) {
 			QMessageBox::warning(
 				nullptr,
 				tr("Process Not Paused"),
@@ -416,51 +416,54 @@ void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t addre
 			return;
 		}
 
-		if(inUse) {
+		if (inUse) {
 			QMessageBox::StandardButton button = QMessageBox::question(nullptr, tr("Breakpoint Already In Use"), tr("This breakpoint is already being used. Do you want to replace it?"), QMessageBox::Yes | QMessageBox::Cancel);
-			if(button != QMessageBox::Yes) {
+			if (button != QMessageBox::Yes) {
 				return;
 			}
 		}
 
-		for(std::shared_ptr<IThread> &thread : process->threads()) {
+		for (std::shared_ptr<IThread> &thread : process->threads()) {
 			State state;
-			thread->get_state(&state);
+			thread->getState(&state);
 
-			switch(size) {
+			switch (size) {
 			case 1:
-				setBreakpointState(&state, index, { true, address, 1, 0 });
+				set_breakpoint_state(&state, index, {true, address, 1, 0});
 				break;
 			case 2:
-				setBreakpointState(&state, index, { true, address, 1, 1 });
+				set_breakpoint_state(&state, index, {true, address, 1, 1});
 				break;
 			case 4:
-				setBreakpointState(&state, index, { true, address, 1, 2 });
+				set_breakpoint_state(&state, index, {true, address, 1, 2});
 				break;
 			case 8:
-				setBreakpointState(&state, index, { true, address, 1, 3 });
+				set_breakpoint_state(&state, index, {true, address, 1, 3});
 				break;
 			default:
 				QMessageBox::critical(nullptr, tr("Invalid Selection Size"), tr("Please select 1, 2, 4, or 8 bytes for this type of hardware breakpoint"));
 				return;
 			}
 
-			thread->set_state(state);
+			thread->setState(state);
 		}
 	}
 
 	edb::v1::update_ui();
 }
 
-//------------------------------------------------------------------------------
-// Name: setReadWriteBP
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief HardwareBreakpoints::setReadWriteBP
+ * @param index
+ * @param inUse
+ * @param address
+ * @param size
+ */
 void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t address, size_t size) {
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
 
-		if(!process->isPaused()) {
+		if (!process->isPaused()) {
 			QMessageBox::warning(
 				nullptr,
 				tr("Process Not Paused"),
@@ -468,52 +471,53 @@ void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t a
 			return;
 		}
 
-		if(inUse) {
+		if (inUse) {
 			QMessageBox::StandardButton button = QMessageBox::question(
-			                                         nullptr,
-			                                         tr("Breakpoint Already In Use"),
-			                                         tr("This breakpoint is already being used. Do you want to replace it?"),
-			                                         QMessageBox::Yes | QMessageBox::Cancel);
-			if(button != QMessageBox::Yes) {
+				nullptr,
+				tr("Breakpoint Already In Use"),
+				tr("This breakpoint is already being used. Do you want to replace it?"),
+				QMessageBox::Yes | QMessageBox::Cancel);
+			if (button != QMessageBox::Yes) {
 				return;
 			}
 		}
 
-		for(std::shared_ptr<IThread> &thread : process->threads()) {
+		for (std::shared_ptr<IThread> &thread : process->threads()) {
 			State state;
-			thread->get_state(&state);
+			thread->getState(&state);
 
-			switch(size) {
+			switch (size) {
 			case 1:
-				setBreakpointState(&state, index, { true, address, 2, 0 });
+				set_breakpoint_state(&state, index, {true, address, 2, 0});
 				break;
 			case 2:
-				setBreakpointState(&state, index, { true, address, 2, 1 });
+				set_breakpoint_state(&state, index, {true, address, 2, 1});
 				break;
 			case 4:
-				setBreakpointState(&state, index, { true, address, 2, 2 });
+				set_breakpoint_state(&state, index, {true, address, 2, 2});
 				break;
 			case 8:
-				setBreakpointState(&state, index, { true, address, 2, 3 });
+				set_breakpoint_state(&state, index, {true, address, 2, 3});
 				break;
 			default:
 				QMessageBox::critical(nullptr, tr("Invalid Selection Size"), tr("Please select 1, 2, 4, or 8 bytes for this type of hardward breakpoint"));
 				return;
 			}
 
-			thread->set_state(state);
+			thread->setState(state);
 		}
 	}
 
 	edb::v1::update_ui();
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_exec(int index) {
-	if(auto a = qobject_cast<QAction *>(sender())) {
-		switch(a->data().toLongLong()) {
+/**
+ * @brief HardwareBreakpoints::setExec
+ * @param index
+ */
+void HardwareBreakpoints::setExec(int index) {
+	if (auto a = qobject_cast<QAction *>(sender())) {
+		switch (a->data().toLongLong()) {
 		case 3:
 			setExecuteBP(index, enabled_[index]->isChecked());
 			break;
@@ -524,12 +528,13 @@ void HardwareBreakpoints::set_exec(int index) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_write(int index) {
-	if(auto a = qobject_cast<QAction *>(sender())) {
-		switch(a->data().toLongLong()) {
+/**
+ * @brief HardwareBreakpoints::setWrite
+ * @param index
+ */
+void HardwareBreakpoints::setWrite(int index) {
+	if (auto a = qobject_cast<QAction *>(sender())) {
+		switch (a->data().toLongLong()) {
 		case 1:
 			setStackWriteBP(index, enabled_[index]->isChecked());
 			break;
@@ -546,12 +551,13 @@ void HardwareBreakpoints::set_write(int index) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_access(int index) {
-	if(auto a = qobject_cast<QAction *>(sender())) {
-		switch(a->data().toLongLong()) {
+/**
+ * @brief HardwareBreakpoints::setAccess
+ * @param index
+ */
+void HardwareBreakpoints::setAccess(int index) {
+	if (auto a = qobject_cast<QAction *>(sender())) {
+		switch (a->data().toLongLong()) {
 		case 1:
 			setStackReadWriteBP(index, enabled_[index]->isChecked());
 			break;
@@ -568,132 +574,154 @@ void HardwareBreakpoints::set_access(int index) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief HardwareBreakpoints::setDataReadWriteBP
+ * @param index
+ * @param inUse
+ */
 void HardwareBreakpoints::setDataReadWriteBP(int index, bool inUse) {
 	const edb::address_t address = edb::v1::selected_data_address();
-	const size_t         size    = edb::v1::selected_data_size();
+	const size_t size            = edb::v1::selected_data_size();
 	setReadWriteBP(index, inUse, address, size);
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief HardwareBreakpoints::setDataWriteBP
+ * @param index
+ * @param inUse
+ */
 void HardwareBreakpoints::setDataWriteBP(int index, bool inUse) {
 	const edb::address_t address = edb::v1::selected_data_address();
-	const size_t         size    = edb::v1::selected_data_size();
+	const size_t size            = edb::v1::selected_data_size();
 	setReadWriteBP(index, inUse, address, size);
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief HardwareBreakpoints::setStackReadWriteBP
+ * @param index
+ * @param inUse
+ */
 void HardwareBreakpoints::setStackReadWriteBP(int index, bool inUse) {
 	const edb::address_t address = edb::v1::selected_stack_address();
-	const size_t         size    = edb::v1::selected_stack_size();
+	const size_t size            = edb::v1::selected_stack_size();
 	setReadWriteBP(index, inUse, address, size);
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief HardwareBreakpoints::setStackWriteBP
+ * @param index
+ * @param inUse
+ */
 void HardwareBreakpoints::setStackWriteBP(int index, bool inUse) {
 	const edb::address_t address = edb::v1::selected_stack_address();
-	const size_t         size    = edb::v1::selected_stack_size();
+	const size_t size            = edb::v1::selected_stack_size();
 	setWriteBP(index, inUse, address, size);
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief HardwareBreakpoints::setCPUReadWriteBP
+ * @param index
+ * @param inUse
+ */
 void HardwareBreakpoints::setCPUReadWriteBP(int index, bool inUse) {
 	const edb::address_t address = edb::v1::cpu_selected_address();
-	const size_t         size    = 1;
-	setWriteBP(index, inUse, address, size);
+	constexpr size_t Size        = 1;
+	setWriteBP(index, inUse, address, Size);
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief HardwareBreakpoints::setCPUWriteBP
+ * @param index
+ * @param inUse
+ */
 void HardwareBreakpoints::setCPUWriteBP(int index, bool inUse) {
 	const edb::address_t address = edb::v1::cpu_selected_address();
-	const size_t         size    = 1;
-	setWriteBP(index, inUse, address, size);
+	constexpr size_t Size        = 1;
+	setWriteBP(index, inUse, address, Size);
 }
 
-//------------------------------------------------------------------------------
-// Name: set_exec1
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_exec1() {
-	set_exec(Register1);
+/**
+ * @brief HardwareBreakpoints::setExec1
+ */
+void HardwareBreakpoints::setExec1() {
+	setExec(Register1);
 }
- //------------------------------------------------------------------------------
-// Name: set_exec2
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_exec2() {
-	set_exec(Register2);
+
+/**
+ * @brief HardwareBreakpoints::setExec2
+ */
+void HardwareBreakpoints::setExec2() {
+	setExec(Register2);
 }
- //------------------------------------------------------------------------------
-// Name: set_exec3
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_exec3() {
-	set_exec(Register3);
+
+/**
+ * @brief HardwareBreakpoints::setExec3
+ */
+void HardwareBreakpoints::setExec3() {
+	setExec(Register3);
 }
- //------------------------------------------------------------------------------
-// Name: set_exec4
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_exec4() {
-	set_exec(Register4);
+
+/**
+ * @brief HardwareBreakpoints::setExec4
+ */
+void HardwareBreakpoints::setExec4() {
+	setExec(Register4);
 }
- //------------------------------------------------------------------------------
-// Name: set_access1
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_access1() {
-	set_access(Register1);
+
+/**
+ * @brief HardwareBreakpoints::setAccess1
+ */
+void HardwareBreakpoints::setAccess1() {
+	setAccess(Register1);
 }
- //------------------------------------------------------------------------------
-// Name: set_access2
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_access2() {
-	set_access(Register2);
+
+/**
+ * @brief HardwareBreakpoints::setAccess2
+ */
+void HardwareBreakpoints::setAccess2() {
+	setAccess(Register2);
 }
- //------------------------------------------------------------------------------
-// Name: set_access3
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_access3() {
-	set_access(Register3);
+
+/**
+ * @brief HardwareBreakpoints::setAccess3
+ */
+void HardwareBreakpoints::setAccess3() {
+	setAccess(Register3);
 }
- //------------------------------------------------------------------------------
-// Name: set_access4
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_access4() {
-	set_access(Register4);
+
+/**
+ * @brief HardwareBreakpoints::setAccess4
+ */
+void HardwareBreakpoints::setAccess4() {
+	setAccess(Register4);
 }
- //------------------------------------------------------------------------------
-// Name: set_write1
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_write1() {
-	set_write(Register1);
+
+/**
+ * @brief HardwareBreakpoints::setWrite1
+ */
+void HardwareBreakpoints::setWrite1() {
+	setWrite(Register1);
 }
- //------------------------------------------------------------------------------
-// Name: set_write2
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_write2() {
-	set_write(Register2);
+
+/**
+ * @brief HardwareBreakpoints::setWrite2
+ */
+void HardwareBreakpoints::setWrite2() {
+	setWrite(Register2);
 }
- //------------------------------------------------------------------------------
-// Name: set_write3
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_write3() {
-	set_write(Register3);
+
+/**
+ * @brief HardwareBreakpoints::setWrite3
+ */
+void HardwareBreakpoints::setWrite3() {
+	setWrite(Register3);
 }
- //------------------------------------------------------------------------------
-// Name: set_write4
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_write4() {
-	set_write(Register4);
+
+/**
+ * @brief HardwareBreakpoints::setWrite4
+ */
+void HardwareBreakpoints::setWrite4() {
+	setWrite(Register4);
 }
 
 }
-

@@ -28,16 +28,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: DialogPlugins
 // Desc:
 //------------------------------------------------------------------------------
-DialogPlugins::DialogPlugins(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogPlugins::DialogPlugins(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 
-	plugin_model_  = new PluginModel(this);
-	plugin_filter_ = new QSortFilterProxyModel(this);
+	pluginModel_  = new PluginModel(this);
+	pluginFilter_ = new QSortFilterProxyModel(this);
 
-	plugin_filter_->setSourceModel(plugin_model_);
-	plugin_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	pluginFilter_->setSourceModel(pluginModel_);
+	pluginFilter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-	ui.plugins_table->setModel(plugin_filter_);
+	ui.plugins_table->setModel(pluginFilter_);
 }
 
 //------------------------------------------------------------------------------
@@ -48,9 +50,9 @@ void DialogPlugins::showEvent(QShowEvent *) {
 
 	QMap<QString, QObject *> plugins = edb::v1::plugin_list();
 
-	plugin_model_->clear();
+	pluginModel_->clear();
 
-	for(auto it = plugins.begin(); it != plugins.end(); ++it) {
+	for (auto it = plugins.begin(); it != plugins.end(); ++it) {
 
 		const QString filename = it.key();
 		QString plugin_name;
@@ -58,21 +60,21 @@ void DialogPlugins::showEvent(QShowEvent *) {
 		QString url;
 
 		// get a QObject from the plugin
-		if(QObject *const p = it.value()) {
+		if (QObject *const p = it.value()) {
 			const QMetaObject *const meta = p->metaObject();
-			plugin_name = meta->className();
-			const int author_index = meta->indexOfClassInfo("author");
-			if(author_index != -1) {
+			plugin_name                   = meta->className();
+			const int author_index        = meta->indexOfClassInfo("author");
+			if (author_index != -1) {
 				author = meta->classInfo(author_index).value();
 			}
 
 			const int url_index = meta->indexOfClassInfo("url");
-			if(url_index != -1) {
+			if (url_index != -1) {
 				url = meta->classInfo(url_index).value();
 			}
 		}
 
-		plugin_model_->addPlugin(filename, plugin_name, author, url);
+		pluginModel_->addPlugin(filename, plugin_name, author, url);
 	}
 
 	ui.plugins_table->resizeColumnsToContents();

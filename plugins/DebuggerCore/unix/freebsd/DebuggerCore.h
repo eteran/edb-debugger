@@ -46,7 +46,7 @@ public:
 	Status detach() override;
 	void kill() override;
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
-	MeansOfCapture last_means_of_capture() const override;
+	MeansOfCapture lastMeansOfCapture() const override;
 	void set_ignored_exceptions(const QList<qlonglong> &exceptions) override;
 
 public:
@@ -83,16 +83,17 @@ private:
 	struct thread_info {
 	public:
 		thread_info() = default;
-		thread_info(int s) : status(s) {
+		thread_info(int s)
+			: status(s) {
 		}
 
 		int status = 0;
 	};
 
-	typedef QHash<edb::tid_t, thread_info> threadmap_t;
+	using threadmap_t = QHash<edb::tid_t, thread_info>;
 
 	edb::address_t page_size_;
-	threadmap_t    threads_;
+	threadmap_t threads_;
 };
 
 }

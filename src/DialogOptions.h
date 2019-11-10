@@ -28,7 +28,7 @@ class QToolBox;
 class DialogOptions final : public QDialog {
 	Q_OBJECT
 public:
-    explicit DialogOptions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogOptions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogOptions() override = default;
 
 public Q_SLOTS:
@@ -36,20 +36,22 @@ public Q_SLOTS:
 	void on_btnPluginDir_clicked();
 	void on_btnTTY_clicked();
 	void on_btnSessionDir_clicked();
-    void closeEvent(QCloseEvent *event) override;
-    void accept() override;
+
+protected:
+	void closeEvent(QCloseEvent *event) override;
+	void accept() override;
 
 public:
-    void showEvent(QShowEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 	void addOptionsPage(QWidget *page);
 
 private:
-	QString font_from_dialog(const QString &default_font);
-	QString directory_from_dialog();
+	QString fontFromDialog(const QString &default_font);
+	QString directoryFromDialog();
 
 private:
 	Ui::DialogOptions ui;
-	QToolBox *               toolbox_ = nullptr;
+	QToolBox *toolbox_ = nullptr;
 };
 
 #endif

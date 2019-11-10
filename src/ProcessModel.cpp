@@ -21,17 +21,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QtAlgorithms>
 
-ProcessModel::ProcessModel(QObject *parent) : QAbstractItemModel(parent) {
+ProcessModel::ProcessModel(QObject *parent)
+	: QAbstractItemModel(parent) {
 }
 
 QModelIndex ProcessModel::index(int row, int column, const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 
-	if(row >= rowCount(parent) || column >= columnCount(parent)) {
+	if (row >= rowCount(parent) || column >= columnCount(parent)) {
 		return QModelIndex();
 	}
 
-	if(row >= 0) {
+	if (row >= 0) {
 		return createIndex(row, column, const_cast<Item *>(&items_[row]));
 	} else {
 		return createIndex(row, column);
@@ -45,12 +46,12 @@ QModelIndex ProcessModel::parent(const QModelIndex &index) const {
 
 QVariant ProcessModel::data(const QModelIndex &index, int role) const {
 
-	if(index.isValid()) {
+	if (index.isValid()) {
 
 		const Item &item = items_[index.row()];
 
-		if(role == Qt::DisplayRole) {
-			switch(index.column()) {
+		if (role == Qt::DisplayRole) {
+			switch (index.column()) {
 			case 0:
 				return QVariant::fromValue(item.pid);
 			case 1:
@@ -58,7 +59,7 @@ QVariant ProcessModel::data(const QModelIndex &index, int role) const {
 			case 2:
 				return item.name;
 			}
-		} else if(role == Qt::UserRole) {
+		} else if (role == Qt::UserRole) {
 			return QVariant::fromValue(item.pid);
 		}
 	}
@@ -68,8 +69,8 @@ QVariant ProcessModel::data(const QModelIndex &index, int role) const {
 
 QVariant ProcessModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
-	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
-		switch(section) {
+	if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
+		switch (section) {
 		case 0:
 			return tr("PID");
 		case 1:
@@ -96,7 +97,10 @@ void ProcessModel::addProcess(const std::shared_ptr<IProcess> &process) {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
 
 	const Item item = {
-		process->pid(), process->uid(), process->user(), process->name()
+		process->pid(),
+		process->uid(),
+		process->user(),
+		process->name(),
 	};
 
 	items_.push_back(item);

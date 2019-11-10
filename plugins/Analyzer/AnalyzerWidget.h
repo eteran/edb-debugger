@@ -38,9 +38,9 @@ protected:
 	void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
-	bool mouse_pressed_ = false;
 	std::unique_ptr<QPixmap> cache_;
-	int cache_num_funcs_ = 0;
+	bool mousePressed_ = false;
+	int cacheNumFuncs_ = 0;
 };
 
 }

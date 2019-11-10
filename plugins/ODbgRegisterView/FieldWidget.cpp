@@ -15,48 +15,54 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "RegisterView.h"
 #include "ODbgRV_Util.h"
+#include "RegisterView.h"
 
 namespace ODbgRegisterView {
 
 QString FieldWidget::text() const {
-	if (!index.isValid() && !this->isEnabled())
+	if (!index_.isValid() && !this->isEnabled())
 		return QLabel::text();
-	const auto text = index.data();
+	const auto text = index_.data();
 	if (!text.isValid())
-		return QString(width() / letterSize(font()).width() - 1, QChar('?'));
+		return QString(width() / letter_size(font()).width() - 1, QChar('?'));
 	return text.toString();
 }
 
 int FieldWidget::lineNumber() const {
-	const auto charSize = letterSize(font());
-	return fieldPos(this).y() / charSize.height();
+	const auto charSize = letter_size(font());
+	return field_position(this).y() / charSize.height();
 }
 
 int FieldWidget::columnNumber() const {
-	const auto charSize = letterSize(font());
-	return fieldPos(this).x() / charSize.width();
+	const auto charSize = letter_size(font());
+	return field_position(this).x() / charSize.width();
 }
 
 void FieldWidget::init(int fieldWidth) {
 	setObjectName("FieldWidget");
-	const auto charSize = letterSize(font());
+	const auto charSize = letter_size(font());
 	setFixedHeight(charSize.height());
 	if (fieldWidth > 0)
 		setFixedWidth(fieldWidth * charSize.width());
 	setDisabled(true);
 }
 
-FieldWidget::FieldWidget(int fieldWidth, const QModelIndex &index, QWidget *parent, Qt::WindowFlags f) : QLabel("Fw???", parent, f), index(index), fieldWidth_(fieldWidth) {
+FieldWidget::FieldWidget(int fieldWidth, const QModelIndex &index, QWidget *parent, Qt::WindowFlags f)
+	: QLabel("Fw???", parent, f), index_(index), fieldWidth_(fieldWidth) {
+
 	init(fieldWidth);
 }
 
-FieldWidget::FieldWidget(int fieldWidth, const QString &fixedText, QWidget *parent, Qt::WindowFlags f) : QLabel(fixedText, parent, f), fieldWidth_(fieldWidth) {
+FieldWidget::FieldWidget(int fieldWidth, const QString &fixedText, QWidget *parent, Qt::WindowFlags f)
+	: QLabel(fixedText, parent, f), fieldWidth_(fieldWidth) {
+
 	init(fieldWidth); // NOTE: fieldWidth!=fixedText.length() in general
 }
 
-FieldWidget::FieldWidget(const QString &fixedText, QWidget *parent, Qt::WindowFlags f) : QLabel(fixedText, parent, f),fieldWidth_(fixedText.length()) {
+FieldWidget::FieldWidget(const QString &fixedText, QWidget *parent, Qt::WindowFlags f)
+	: QLabel(fixedText, parent, f), fieldWidth_(fixedText.length()) {
+
 	init(fixedText.length());
 }
 
@@ -71,11 +77,9 @@ void FieldWidget::adjustToData() {
 
 ODBRegView *FieldWidget::regView() const {
 	const auto parent = parentWidget()        // group
-	                         ->parentWidget()  // canvas
-	                         ->parentWidget()  // viewport
-	                         ->parentWidget(); // regview
-
-
+							->parentWidget()  // canvas
+							->parentWidget()  // viewport
+							->parentWidget(); // regview
 
 	return checked_cast<ODBRegView>(parent);
 }

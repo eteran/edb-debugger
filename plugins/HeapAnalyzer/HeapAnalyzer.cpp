@@ -17,50 +17,50 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "HeapAnalyzer.h"
-#include "edb.h"
 #include "DialogHeap.h"
+#include "edb.h"
 #include <QMenu>
 
 namespace HeapAnalyzerPlugin {
 
-//------------------------------------------------------------------------------
-// Name: HeapAnalyzer
-// Desc:
-//------------------------------------------------------------------------------
-HeapAnalyzer::HeapAnalyzer(QObject *parent) : QObject(parent) {
+/**
+ * @brief HeapAnalyzer::HeapAnalyzer
+ * @param parent
+ */
+HeapAnalyzer::HeapAnalyzer(QObject *parent)
+	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: ~HeapAnalyzer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief HeapAnalyzer::~HeapAnalyzer
+ */
 HeapAnalyzer::~HeapAnalyzer() {
 	delete dialog_;
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief HeapAnalyzer::menu
+ * @param parent
+ * @return
+ */
 QMenu *HeapAnalyzer::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("HeapAnalyzer"), parent);
-		menu_->addAction (tr("&Heap Analyzer"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+H")));
+		menu_->addAction(tr("&Heap Analyzer"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+H")));
 	}
 
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuHeapAnalyzer
-// Desc:
-//------------------------------------------------------------------------------
-void HeapAnalyzer::show_menu() {
+/**
+ * @brief HeapAnalyzer::showMenu
+ */
+void HeapAnalyzer::showMenu() {
 
-	if(!dialog_) {
+	if (!dialog_) {
 		dialog_ = new DialogHeap(edb::v1::debugger_ui);
 	}
 

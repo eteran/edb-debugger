@@ -21,18 +21,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DumpStatePlugin {
 
-//------------------------------------------------------------------------------
-// Name: OptionsPage
-// Desc:
-//------------------------------------------------------------------------------
-OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f) {
+/**
+ * @brief OptionsPage::OptionsPage
+ * @param parent
+ * @param f
+ */
+OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
+	: QWidget(parent, f) {
+
 	ui.setupUi(this);
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief OptionsPage::showEvent
+ * @param event
+ */
 void OptionsPage::showEvent(QShowEvent *event) {
 	Q_UNUSED(event)
 
@@ -42,28 +45,28 @@ void OptionsPage::showEvent(QShowEvent *event) {
 	ui.colorizeOutput->setChecked(settings.value("DumpState/colorize", true).toBool());
 }
 
-//------------------------------------------------------------------------------
-// Name: on_instructionsBeforeIP_valueChanged
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief OptionsPage::on_instructionsBeforeIP_valueChanged
+ * @param i
+ */
 void OptionsPage::on_instructionsBeforeIP_valueChanged(int i) {
 	QSettings settings;
 	settings.setValue("DumpState/instructions_before_ip", i);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_instructionsAfterIP_valueChanged
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief OptionsPage::on_instructionsAfterIP_valueChanged
+ * @param i
+ */
 void OptionsPage::on_instructionsAfterIP_valueChanged(int i) {
 	QSettings settings;
 	settings.setValue("DumpState/instructions_after_ip", i);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_colorizeOutput_toggled
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief OptionsPage::on_colorizeOutput_toggled
+ * @param value
+ */
 void OptionsPage::on_colorizeOutput_toggled(bool value) {
 	QSettings settings;
 	settings.setValue("DumpState/colorize", value);

@@ -27,8 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPointer>
 #include <QStringList>
 #include <QVector>
-#include <memory>
 #include <boost/optional.hpp>
+#include <memory>
 
 class ArchProcessor;
 class Configuration;
@@ -71,7 +71,7 @@ namespace v1 {
 
 // some useful objects
 EDB_EXPORT extern IDebugger *debugger_core;
-EDB_EXPORT extern QWidget   *debugger_ui;
+EDB_EXPORT extern QWidget *debugger_ui;
 
 // the symbol mananger
 EDB_EXPORT ISymbolManager &symbol_manager();
@@ -156,13 +156,13 @@ EDB_EXPORT IAnalyzer *set_analyzer(IAnalyzer *p);
 EDB_EXPORT IAnalyzer *analyzer();
 
 // reads up to size bytes from address (stores how many it could read in size)
-EDB_EXPORT bool get_instruction_bytes(address_t address, quint8 *buf, int *size);
-EDB_EXPORT bool get_instruction_bytes(address_t address, quint8 *buf, size_t *size);
+EDB_EXPORT bool get_instruction_bytes(address_t address, uint8_t *buf, int *size);
+EDB_EXPORT bool get_instruction_bytes(address_t address, uint8_t *buf, size_t *size);
 
 template <int N>
-int get_instruction_bytes(address_t address, quint8 (&buffer)[N]) {
+int get_instruction_bytes(address_t address, uint8_t (&buffer)[N]) {
 	int size = N;
-	if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
+	if (edb::v1::get_instruction_bytes(address, buffer, &size)) {
 		return size;
 	}
 
@@ -192,29 +192,29 @@ EDB_EXPORT void push_value(State *state, reg_t value);
 EDB_EXPORT void register_binary_info(IBinary::create_func_ptr_t fptr);
 
 EDB_EXPORT bool overwrite_check(address_t address, size_t size);
-EDB_EXPORT bool modify_bytes(address_t address, size_t size, QByteArray &bytes, quint8 fill);
+EDB_EXPORT bool modify_bytes(address_t address, size_t size, QByteArray &bytes, uint8_t fill);
 
 EDB_EXPORT QByteArray get_file_md5(const QString &s);
 EDB_EXPORT QByteArray get_md5(const void *p, size_t n);
-EDB_EXPORT QByteArray get_md5(const QVector<quint8> &bytes);
+EDB_EXPORT QByteArray get_md5(const QVector<uint8_t> &bytes);
 
 EDB_EXPORT QString symlink_target(const QString &s);
 EDB_EXPORT QStringList parse_command_line(const QString &cmdline);
 EDB_EXPORT Result<address_t, QString> string_to_address(const QString &s);
 EDB_EXPORT QString format_bytes(const QByteArray &x);
 EDB_EXPORT QString format_bytes(const uint8_t *buffer, size_t count);
-EDB_EXPORT QString format_bytes(quint8 byte);
+EDB_EXPORT QString format_bytes(uint8_t byte);
 EDB_EXPORT QString format_pointer(address_t p);
 
 EDB_EXPORT address_t cpu_selected_address();
 EDB_EXPORT void set_cpu_selected_address(address_t address);
 
-EDB_EXPORT void set_status(const QString &message, int timeoutMillisecs=2000);
+EDB_EXPORT void set_status(const QString &message, int timeoutMillisecs = 2000);
 EDB_EXPORT void clear_status();
 
 EDB_EXPORT size_t pointer_size();
 
-EDB_EXPORT QVector<quint8> read_pages(address_t address, size_t page_count);
+EDB_EXPORT QVector<uint8_t> read_pages(address_t address, size_t page_count);
 
 EDB_EXPORT CapstoneEDB::Formatter &formatter();
 
@@ -222,10 +222,10 @@ EDB_EXPORT bool debuggeeIs32Bit();
 EDB_EXPORT bool debuggeeIs64Bit();
 
 EDB_EXPORT address_t selected_stack_address();
-EDB_EXPORT size_t    selected_stack_size();
+EDB_EXPORT size_t selected_stack_size();
 
 EDB_EXPORT address_t selected_data_address();
-EDB_EXPORT size_t    selected_data_size();
+EDB_EXPORT size_t selected_data_size();
 
 }
 }

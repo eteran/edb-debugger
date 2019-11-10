@@ -18,10 +18,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef X86_COMMON_H_20170817
 #define X86_COMMON_H_20170817
 
-constexpr unsigned FPU_TAG_EMPTY = 3;
+static constexpr unsigned FpuTagEmpty = 3;
 
-static constexpr auto FSR_NAME = "FSR";
-static constexpr auto FCR_NAME = "FCR";
-static constexpr auto FTR_NAME = "FTR";
+static constexpr const char *FsrName = "FSR";
+static constexpr const char *FcrName = "FCR";
+static constexpr const char *FtrName = "FTR";
 
 #endif

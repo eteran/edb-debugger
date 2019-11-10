@@ -20,11 +20,11 @@
 
 namespace DebuggerCorePlugin {
 
-#if !defined(USE_SIGTIMEDWAIT)
 namespace {
 
-static int              selfpipe[2];
-static struct sigaction old_action;
+#if !defined(USE_SIGTIMEDWAIT)
+int selfpipe[2];
+struct sigaction old_action;
 
 /**
  * @brief sigchld_handler
@@ -58,12 +58,24 @@ void sigchld_handler(int sig, siginfo_t *info, void *p) {
 	}
 }
 
+struct timeval duration_to_timeval(std::chrono::milliseconds msecs) {
+	struct timeval tv;
+	tv.tv_sec  = (msecs.count() / 1000);
+	tv.tv_usec = (msecs.count() % 1000) * 1000;
+	return tv;
+}
+#else
+timespec duration_to_timespec(std::chrono::milliseconds msecs) {
+	struct timespec ts;
+	ts.tv_sec  = (msecs.count() / 1000);
+	ts.tv_nsec = (msecs.count() % 1000) * 1000000;
+	return ts;
+}
+#endif
 }
 
-#endif
-
 namespace detail {
-
+namespace {
 /**
  * @brief sigtimedwait
  * @param set
@@ -79,6 +91,7 @@ int sigtimedwait(const sigset_t *set, siginfo_t *info, const struct timespec *ti
 	return ret;
 }
 
+}
 }
 
 /**
@@ -143,6 +156,7 @@ pid_t Posix::waitpid(pid_t pid, int *status, int options) {
 	return ret;
 }
 
+#if !defined(USE_SIGTIMEDWAIT)
 /**
  * similar to select but has the timeout specified as a quantity of msecs
  *
@@ -154,25 +168,22 @@ pid_t Posix::waitpid(pid_t pid, int *status, int options) {
  * @param msecs - 0 means wait forever.
  * @return
  */
-int Posix::select_ex(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, int64_t msecs) {
-	if (msecs != 0) {
-		struct timeval tv;
-
-		tv.tv_sec  = (msecs / 1000);
-		tv.tv_usec = (msecs % 1000) * 1000;
-
+int Posix::select_ex(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, std::chrono::milliseconds msecs) {
+	if (msecs.count() != 0) {
+		struct timeval tv = duration_to_timeval(msecs);
 		return Posix::select(nfds, readfds, writefds, exceptfds, &tv);
 	} else {
 		return Posix::select(nfds, readfds, writefds, exceptfds, nullptr);
 	}
 }
+#endif
 
 /**
  * @brief Posix::wait_for_sigchld
  * @param msecs
  * @return
  */
-bool Posix::wait_for_sigchld(int msecs) {
+bool Posix::wait_for_sigchld(std::chrono::milliseconds msecs) {
 #if !defined(USE_SIGTIMEDWAIT)
 	fd_set rfds;
 	FD_ZERO(&rfds);
@@ -189,12 +200,9 @@ bool Posix::wait_for_sigchld(int msecs) {
 
 	return false;
 #else
-	sigset_t        mask;
-	siginfo_t       info;
-	struct timespec ts;
-	ts.tv_sec  = (msecs / 1000);
-	ts.tv_nsec = (msecs % 1000) * 1000000;
-
+	sigset_t mask;
+	siginfo_t info;
+	struct timespec ts = duration_to_timespec(msecs);
 	sigemptyset(&mask);
 	sigaddset(&mask, SIGCHLD);
 

@@ -27,30 +27,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class EDB_EXPORT Function {
 public:
 	enum Type {
-		FUNCTION_STANDARD,
-		FUNCTION_THUNK
+		Standard,
+		Thunk
 	};
 
 public:
 	using size_type              = size_t;
 	using value_type             = BasicBlock;
-	using reference              = BasicBlock&;
-	using const_reference        = const BasicBlock&;
+	using reference              = BasicBlock &;
+	using const_reference        = const BasicBlock &;
 	using iterator               = std::map<edb::address_t, BasicBlock>::iterator;
 	using const_iterator         = std::map<edb::address_t, BasicBlock>::const_iterator;
 	using reverse_iterator       = std::reverse_iterator<iterator>;
 	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 public:
-	Function()                               = default;
-	Function(const Function &other)          = default;
+	Function()                      = default;
+	Function(const Function &other) = default;
 	Function &operator=(const Function &rhs) = default;
 
 public:
 	void insert(const BasicBlock &bb);
-	void add_reference();
+	void addReference();
 	Type type() const;
-	void set_type(Type t);
+	void setType(Type t);
 
 public:
 	const_reference back() const;
@@ -73,17 +73,17 @@ public:
 	size_type size() const;
 
 public:
-	edb::address_t entry_address() const;
-	edb::address_t end_address() const;
-	edb::address_t last_instruction() const;
-	int reference_count() const;
+	edb::address_t entryAddress() const;
+	edb::address_t endAddress() const;
+	edb::address_t lastInstruction() const;
+	int referenceCount() const;
 
 public:
 	void swap(Function &other);
 
 private:
-	int                                  reference_count_ = 0;
-	Type                                 type_ = FUNCTION_STANDARD;
+	int referenceCount_ = 0;
+	Type type_          = Standard;
 	std::map<edb::address_t, BasicBlock> blocks_;
 };
 

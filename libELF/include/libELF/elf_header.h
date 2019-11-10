@@ -60,7 +60,7 @@ enum {
 	ELFDATANUM  = 3,
 
 	EI_VERSION = 6, /* File version byte index */
-	                /* Value must be EV_CURRENT */
+					/* Value must be EV_CURRENT */
 };
 
 /* Legal values for e_version (version).  */
@@ -200,20 +200,20 @@ struct elf32_header {
 	using elf_phdr = elf32_phdr;
 	enum { ELFCLASS = ELFCLASS32 };
 
-	uint8_t    e_ident[EI_NIDENT]; /* Magic number and other info */
-	elf32_half e_type;             /* Object file type */
-	elf32_half e_machine;          /* Architecture */
-	elf32_word e_version;          /* Object file version */
-	elf32_addr e_entry;            /* Entry point virtual address */
-	elf32_off  e_phoff;            /* Program header table file offset */
-	elf32_off  e_shoff;            /* Section header table file offset */
-	elf32_word e_flags;            /* Processor-specific flags */
-	elf32_half e_ehsize;           /* ELF header size in bytes */
-	elf32_half e_phentsize;        /* Program header table entry size */
-	elf32_half e_phnum;            /* Program header table entry count */
-	elf32_half e_shentsize;        /* Section header table entry size */
-	elf32_half e_shnum;            /* Section header table entry count */
-	elf32_half e_shstrndx;         /* Section header string table index */
+	uint8_t e_ident[EI_NIDENT]; /* Magic number and other info */
+	elf32_half e_type;          /* Object file type */
+	elf32_half e_machine;       /* Architecture */
+	elf32_word e_version;       /* Object file version */
+	elf32_addr e_entry;         /* Entry point virtual address */
+	elf32_off e_phoff;          /* Program header table file offset */
+	elf32_off e_shoff;          /* Section header table file offset */
+	elf32_word e_flags;         /* Processor-specific flags */
+	elf32_half e_ehsize;        /* ELF header size in bytes */
+	elf32_half e_phentsize;     /* Program header table entry size */
+	elf32_half e_phnum;         /* Program header table entry count */
+	elf32_half e_shentsize;     /* Section header table entry size */
+	elf32_half e_shnum;         /* Section header table entry count */
+	elf32_half e_shstrndx;      /* Section header string table index */
 };
 
 struct elf64_phdr;
@@ -221,20 +221,20 @@ struct elf64_header {
 	using elf_phdr = elf64_phdr;
 	enum { ELFCLASS = ELFCLASS64 };
 
-	uint8_t    e_ident[EI_NIDENT]; /* Magic number and other info */
-	elf64_half e_type;             /* Object file type */
-	elf64_half e_machine;          /* Architecture */
-	elf64_word e_version;          /* Object file version */
-	elf64_addr e_entry;            /* Entry point virtual address */
-	elf64_off  e_phoff;            /* Program header table file offset */
-	elf64_off  e_shoff;            /* Section header table file offset */
-	elf64_word e_flags;            /* Processor-specific flags */
-	elf64_half e_ehsize;           /* ELF header size in bytes */
-	elf64_half e_phentsize;        /* Program header table entry size */
-	elf64_half e_phnum;            /* Program header table entry count */
-	elf64_half e_shentsize;        /* Section header table entry size */
-	elf64_half e_shnum;            /* Section header table entry count */
-	elf64_half e_shstrndx;         /* Section header string table index */
+	uint8_t e_ident[EI_NIDENT]; /* Magic number and other info */
+	elf64_half e_type;          /* Object file type */
+	elf64_half e_machine;       /* Architecture */
+	elf64_word e_version;       /* Object file version */
+	elf64_addr e_entry;         /* Entry point virtual address */
+	elf64_off e_phoff;          /* Program header table file offset */
+	elf64_off e_shoff;          /* Section header table file offset */
+	elf64_word e_flags;         /* Processor-specific flags */
+	elf64_half e_ehsize;        /* ELF header size in bytes */
+	elf64_half e_phentsize;     /* Program header table entry size */
+	elf64_half e_phnum;         /* Program header table entry count */
+	elf64_half e_shentsize;     /* Section header table entry size */
+	elf64_half e_shnum;         /* Section header table entry count */
+	elf64_half e_shstrndx;      /* Section header string table index */
 };
 
 #endif

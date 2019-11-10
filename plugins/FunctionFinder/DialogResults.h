@@ -47,9 +47,9 @@ public Q_SLOTS:
 
 private:
 	Ui::DialogResults ui;
-	QSortFilterProxyModel *filter_model_;
-	ResultsModel *resultsModel_;
-	QPushButton *btnGraph_;
+	QSortFilterProxyModel *filterModel_ = nullptr;
+	ResultsModel *resultsModel_         = nullptr;
+	QPushButton *buttonGraph_           = nullptr;
 };
 
 }

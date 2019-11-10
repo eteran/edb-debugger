@@ -38,10 +38,10 @@ public:
 	~References() override;
 
 public:
-    QMenu *menu(QWidget *parent = nullptr) override;
+	QMenu *menu(QWidget *parent = nullptr) override;
 
 public Q_SLOTS:
-	void show_menu();
+	void showMenu();
 
 private:
 	QMenu *menu_              = nullptr;

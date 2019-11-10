@@ -19,20 +19,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SYNTAX_HIGHLIGHTER_H
 #define SYNTAX_HIGHLIGHTER_H
 
-#include <vector>
-#include <QVector>
 #include <QRegExp>
 #include <QTextCharFormat>
 #include <QTextLayout>
+#include <QVector>
+#include <vector>
 
 class SyntaxHighlighter : public QObject {
 	Q_OBJECT
 
 public:
-    explicit SyntaxHighlighter(QObject *parent = nullptr);
+	explicit SyntaxHighlighter(QObject *parent = nullptr);
 
 private:
-	void create_rules();
+	void createRules();
 
 public:
 	QVector<QTextLayout::FormatRange> highlightBlock(const QString &text);
@@ -42,7 +42,7 @@ private:
 		HighlightingRule();
 		HighlightingRule(const QString &regex, const QBrush &foreground, const QBrush &background, int weight, bool italic, bool underline);
 
-		QRegExp         pattern;
+		QRegExp pattern;
 		QTextCharFormat format;
 	};
 

@@ -50,11 +50,11 @@ private:
 	void setupFormat(Format newFormat);
 
 private:
-	int           naturalWidthInChars;
-	std::size_t   integerSize;
-	std::size_t   offsetInInteger;
-	Format        format;
-	std::uint64_t signBit;
+	int naturalWidthInChars_;
+	std::size_t integerSize_;
+	std::size_t offsetInInteger_;
+	Format format_;
+	std::uint64_t signBit_;
 };
 
 }

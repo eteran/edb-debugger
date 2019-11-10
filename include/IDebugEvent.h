@@ -38,7 +38,8 @@ public:
 
 	struct Message {
 		Message() = default;
-		Message(const QString &c, const QString &m, const QString &s) : caption(c), message(m), statusMessage(s) {
+		Message(const QString &c, const QString &m, const QString &s)
+			: caption(c), message(m), statusMessage(s) {
 		}
 
 		QString caption;
@@ -53,19 +54,19 @@ public:
 	virtual IDebugEvent *clone() const = 0;
 
 public:
-	virtual Message error_description() const = 0;
-	virtual REASON reason() const = 0;
-	virtual TRAP_REASON trap_reason() const = 0;
-	virtual bool exited() const = 0;
-	virtual bool is_error() const = 0;
-	virtual bool is_kill() const = 0;
-	virtual bool is_stop() const = 0;
-	virtual bool is_trap() const = 0;
-	virtual bool stopped() const = 0;
-	virtual bool terminated() const = 0;
-	virtual edb::pid_t process() const = 0;
-	virtual edb::tid_t thread() const = 0;
-	virtual int code() const = 0;
+	virtual Message errorDescription() const = 0;
+	virtual REASON reason() const            = 0;
+	virtual TRAP_REASON trapReason() const   = 0;
+	virtual bool exited() const              = 0;
+	virtual bool isError() const             = 0;
+	virtual bool isKill() const              = 0;
+	virtual bool isStop() const              = 0;
+	virtual bool isTrap() const              = 0;
+	virtual bool stopped() const             = 0;
+	virtual bool terminated() const          = 0;
+	virtual edb::pid_t process() const       = 0;
+	virtual edb::tid_t thread() const        = 0;
+	virtual int64_t code() const             = 0;
 };
 
 #endif

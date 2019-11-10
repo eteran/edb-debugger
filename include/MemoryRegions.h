@@ -31,19 +31,19 @@ class EDB_EXPORT MemoryRegions final : public QAbstractItemModel {
 	Q_OBJECT
 
 public:
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &index) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+	QModelIndex parent(const QModelIndex &index) const override;
+	QVariant data(const QModelIndex &index, int role) const override;
+	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
 public:
 	MemoryRegions();
 	~MemoryRegions() override = default;
 
 public:
-	std::shared_ptr<IRegion> find_region(edb::address_t address) const;
+	std::shared_ptr<IRegion> findRegion(edb::address_t address) const;
 	const QList<std::shared_ptr<IRegion>> &regions() const { return regions_; }
 	void clear();
 	void sync();

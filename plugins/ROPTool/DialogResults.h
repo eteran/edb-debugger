@@ -2,10 +2,10 @@
 #ifndef ROPTOOL_DIALOG_RESULTS_H
 #define ROPTOOL_DIALOG_RESULTS_H
 
-#include <QDialog>
-#include <QSortFilterProxyModel>
 #include "ResultsModel.h"
 #include "ui_DialogResults.h"
+#include <QDialog>
+#include <QSortFilterProxyModel>
 
 class QSortFilterProxyModel;
 
@@ -16,13 +16,14 @@ class ResultsModel;
 class ResultFilterProxy : public QSortFilterProxyModel {
 	Q_OBJECT
 public:
-	explicit ResultFilterProxy(QObject *parent = nullptr) : QSortFilterProxyModel(parent) {
+	explicit ResultFilterProxy(QObject *parent = nullptr)
+		: QSortFilterProxyModel(parent) {
 	}
 
 public:
 	void setMask(uint32_t mask, bool value) {
 		beginResetModel();
-		if(value) {
+		if (value) {
 			mask_ |= mask;
 		} else {
 			mask_ &= ~mask;
@@ -33,9 +34,9 @@ public:
 protected:
 	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override {
 		QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-		if(index.isValid()) {
-			if(auto result = reinterpret_cast<const Result *>(index.internalPointer())) {
-				if(result->role & mask_) {
+		if (index.isValid()) {
+			if (auto result = reinterpret_cast<const Result *>(index.internalPointer())) {
+				if (result->role & mask_) {
 					return true;
 				}
 			}
@@ -64,15 +65,11 @@ public:
 	int resultCount() const;
 
 private:
-	Ui::DialogResults      ui;
-	ResultsModel          *model_;
-	QSortFilterProxyModel *filter_model_;
-	ResultFilterProxy     *result_filter_;
+	Ui::DialogResults ui;
+	ResultsModel *model_                = nullptr;
+	QSortFilterProxyModel *filterModel_ = nullptr;
+	ResultFilterProxy *resultFilter_    = nullptr;
 };
 
-
-
-
 #endif
-
 }

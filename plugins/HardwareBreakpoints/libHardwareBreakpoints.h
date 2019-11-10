@@ -23,17 +23,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace HardwareBreakpointsPlugin {
 
-constexpr int Register1 	= 0;
-constexpr int Register2 	= 1;
-constexpr int Register3 	= 2;
-constexpr int Register4 	= 3;
+constexpr int Register1     = 0;
+constexpr int Register2     = 1;
+constexpr int Register3     = 2;
+constexpr int Register4     = 3;
 constexpr int RegisterCount = 4;
 
 struct BreakpointState {
-	bool           enabled;
+	bool enabled;
 	edb::address_t addr;
-	int            type;
-	int            size;
+	int type;
+	int size;
 };
 
 enum BreakpointStatus {
@@ -42,9 +42,9 @@ enum BreakpointStatus {
 	SizeError
 };
 
-BreakpointState breakpointState(const State *state, int num);
-void setBreakpointState(State *state, int num, const BreakpointState &bp_state);
-BreakpointStatus validateBreakpoint(const BreakpointState &bp_state);
+BreakpointState breakpoint_state(const State *state, int num);
+void set_breakpoint_state(State *state, int num, const BreakpointState &bp_state);
+BreakpointStatus validate_breakpoint(const BreakpointState &bp_state);
 
 }
 

@@ -17,23 +17,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogOpcodes.h"
-#include "DialogResults.h"
 #include "ByteShiftArray.h"
+#include "DialogResults.h"
 #include "IDebugger.h"
 #include "IProcess.h"
 #include "IRegion.h"
+#include "Instruction.h"
 #include "MemoryRegions.h"
 #include "Util.h"
 #include "edb.h"
-#include "Instruction.h"
 
-#include <QList>
-#include <QHeaderView>
-#include <QMessageBox>
-#include <QSortFilterProxyModel>
-#include <QListWidgetItem>
-#include <QPushButton>
 #include <QDebug>
+#include <QHeaderView>
+#include <QList>
+#include <QListWidgetItem>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QSortFilterProxyModel>
 
 #include <vector>
 
@@ -52,14 +52,14 @@ using OpcodeData = std::array<uint8_t, sizeof(uint64_t)>;
  * @param rva
  */
 void add_result(DialogResults *resultsDialog, const InstructionList &instructions, edb::address_t rva) {
-	if(!instructions.empty()) {
+	if (!instructions.empty()) {
 
-		auto it = instructions.begin();
+		auto it                       = instructions.begin();
 		const edb::Instruction *inst1 = *it++;
 
 		auto instruction_string = QString::fromStdString(edb::v1::formatter().to_string(*inst1));
 
-		for(; it != instructions.end(); ++it) {
+		for (; it != instructions.end(); ++it) {
 			const edb::Instruction *inst = *it;
 			instruction_string.append(QString("; %1").arg(QString::fromStdString(edb::v1::formatter().to_string(*inst))));
 		}
@@ -76,26 +76,26 @@ void add_result(DialogResults *resultsDialog, const InstructionList &instruction
  */
 template <int Register>
 void test_deref_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
-	const uint8_t *p = data.data();
+	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
 
-	if(inst) {
+	if (inst) {
 
-		if(is_call(inst) || is_jump(inst)) {
+		if (is_call(inst) || is_jump(inst)) {
 			const auto op1 = inst[0];
-			if(is_expression(op1)) {
+			if (is_expression(op1)) {
 
-				if(op1->mem.disp == 0) {
+				if (op1->mem.disp == 0) {
 
-					if(op1->mem.base == Register && op1->mem.index == X86_REG_INVALID && op1->mem.scale == 1) {
-						add_result(resultsDialog, { &inst }, start_address);
+					if (op1->mem.base == Register && op1->mem.index == X86_REG_INVALID && op1->mem.scale == 1) {
+						add_result(resultsDialog, {&inst}, start_address);
 						return;
 					}
 
-					if(op1->mem.index == Register && op1->mem.base == X86_REG_INVALID && op1->mem.scale == 1) {
-						add_result(resultsDialog, { &inst }, start_address);
+					if (op1->mem.index == Register && op1->mem.base == X86_REG_INVALID && op1->mem.scale == 1) {
+						add_result(resultsDialog, {&inst}, start_address);
 						return;
 					}
 				}
@@ -113,50 +113,50 @@ void test_deref_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, 
 template <int Register, int StackRegister>
 void test_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
 
-	const uint8_t *p = data.data();
+	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
 
-	if(inst) {
-		if(is_call(inst) || is_jump(inst)) {
+	if (inst) {
+		if (is_call(inst) || is_jump(inst)) {
 			const auto op1 = inst[0];
-			if(is_register(op1)) {
-				if(op1->reg == Register) {
-					add_result(resultsDialog, { &inst }, start_address);
+			if (is_register(op1)) {
+				if (op1->reg == Register) {
+					add_result(resultsDialog, {&inst}, start_address);
 					return;
 				}
 			}
 		} else {
 			const auto op1 = inst[0];
-			switch(inst.operation()) {
+			switch (inst.operation()) {
 			case X86_INS_PUSH:
-				if(is_register(op1)) {
-					if(op1->reg == Register) {
+				if (is_register(op1)) {
+					if (op1->reg == Register) {
 
 						p += inst.byte_size();
 						edb::Instruction inst2(p, last, 0);
-						if(inst2) {
+						if (inst2) {
 							const auto op2 = inst2[0];
 
-							if(is_ret(inst2)) {
-								add_result(resultsDialog, { &inst, &inst2 }, start_address);
+							if (is_ret(inst2)) {
+								add_result(resultsDialog, {&inst, &inst2}, start_address);
 							} else {
-								switch(inst2.operation()) {
+								switch (inst2.operation()) {
 								case X86_INS_JMP:
 								case X86_INS_CALL:
 
-									if(is_expression(op2)) {
+									if (is_expression(op2)) {
 
-										if(op2->mem.disp == 0) {
+										if (op2->mem.disp == 0) {
 
-											if(op2->mem.base == StackRegister && op2->mem.index == X86_REG_INVALID) {
-												add_result(resultsDialog, { &inst, &inst2 }, start_address);
+											if (op2->mem.base == StackRegister && op2->mem.index == X86_REG_INVALID) {
+												add_result(resultsDialog, {&inst, &inst2}, start_address);
 												return;
 											}
 
-											if(op2->mem.index == StackRegister && op2->mem.base == X86_REG_INVALID) {
-												add_result(resultsDialog, { &inst, &inst2 }, start_address);
+											if (op2->mem.index == StackRegister && op2->mem.base == X86_REG_INVALID) {
+												add_result(resultsDialog, {&inst, &inst2}, start_address);
 												return;
 											}
 										}
@@ -186,48 +186,48 @@ void test_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 template <int StackRegister>
 void test_esp_add_0(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
 
-	const uint8_t *p = data.data();
+	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
 
-	if(inst) {
+	if (inst) {
 		const auto op1 = inst[0];
-		if(is_ret(inst)) {
-			add_result(resultsDialog, { &inst }, start_address);
-		} else if(is_call(inst) || is_jump(inst)) {
-				if(is_expression(op1)) {
+		if (is_ret(inst)) {
+			add_result(resultsDialog, {&inst}, start_address);
+		} else if (is_call(inst) || is_jump(inst)) {
+			if (is_expression(op1)) {
 
-					if(op1->mem.disp == 0) {
+				if (op1->mem.disp == 0) {
 
-						if(op1->mem.base == StackRegister && op1->mem.index == X86_REG_INVALID) {
-							add_result(resultsDialog, { &inst }, start_address);
-							return;
-						}
+					if (op1->mem.base == StackRegister && op1->mem.index == X86_REG_INVALID) {
+						add_result(resultsDialog, {&inst}, start_address);
+						return;
+					}
 
-						if(op1->mem.index == StackRegister && op1->mem.base == X86_REG_INVALID) {
-							add_result(resultsDialog, { &inst }, start_address);
-							return;
-						}
+					if (op1->mem.index == StackRegister && op1->mem.base == X86_REG_INVALID) {
+						add_result(resultsDialog, {&inst}, start_address);
+						return;
 					}
 				}
+			}
 		} else {
-			switch(inst.operation()) {
+			switch (inst.operation()) {
 			case X86_INS_POP:
-				if(is_register(op1)) {
+				if (is_register(op1)) {
 
 					p += inst.byte_size();
 					edb::Instruction inst2(p, last, 0);
-					if(inst2) {
+					if (inst2) {
 						const auto op2 = inst2[0];
-						switch(inst2.operation()) {
+						switch (inst2.operation()) {
 						case X86_INS_JMP:
 						case X86_INS_CALL:
 
-							if(is_register(op2)) {
+							if (is_register(op2)) {
 
-								if(op1->reg == op2->reg) {
-									add_result(resultsDialog, { &inst, &inst2 }, start_address);
+								if (op1->reg == op2->reg) {
+									add_result(resultsDialog, {&inst, &inst2}, start_address);
 								}
 							}
 							break;
@@ -253,51 +253,50 @@ void test_esp_add_0(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 template <int StackRegister>
 void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
 
-	const uint8_t *p = data.data();
+	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
 
-	if(inst) {
+	if (inst) {
 		const auto op1 = inst[0];
-		if(is_call(inst) || is_jump(inst)) {
-				if(is_expression(op1)) {
+		if (is_call(inst) || is_jump(inst)) {
+			if (is_expression(op1)) {
 
-					if(op1->mem.disp == 4) {
-						if(op1->mem.base == StackRegister && op1->mem.index == X86_REG_INVALID) {
-							add_result(resultsDialog, { &inst }, start_address);
-						} else if(op1->mem.base == X86_REG_INVALID && op1->mem.index == StackRegister && op1->mem.scale == 1) {
-							add_result(resultsDialog, { &inst }, start_address);
-						}
-
+				if (op1->mem.disp == 4) {
+					if (op1->mem.base == StackRegister && op1->mem.index == X86_REG_INVALID) {
+						add_result(resultsDialog, {&inst}, start_address);
+					} else if (op1->mem.base == X86_REG_INVALID && op1->mem.index == StackRegister && op1->mem.scale == 1) {
+						add_result(resultsDialog, {&inst}, start_address);
 					}
 				}
+			}
 		} else {
-			switch(inst.operation()) {
+			switch (inst.operation()) {
 			case X86_INS_POP:
 
-				if(!is_register(op1) || op1->reg != StackRegister) {
+				if (!is_register(op1) || op1->reg != StackRegister) {
 					p += inst.byte_size();
 					edb::Instruction inst2(p, last, 0);
-					if(inst2) {
-						if(is_ret(inst2)) {
-							add_result(resultsDialog, { &inst, &inst2 }, start_address);
+					if (inst2) {
+						if (is_ret(inst2)) {
+							add_result(resultsDialog, {&inst, &inst2}, start_address);
 						}
 					}
 				}
 				break;
 			case X86_INS_SUB:
-				if(is_register(op1) && op1->reg == StackRegister) {
+				if (is_register(op1) && op1->reg == StackRegister) {
 
 					const auto op2 = inst[1];
-					if(is_expression(op2)) {
+					if (is_expression(op2)) {
 
-						if(op2->imm == -static_cast<int>(sizeof(edb::reg_t))) {
+						if (op2->imm == -static_cast<int>(sizeof(edb::reg_t))) {
 							p += inst.byte_size();
 							edb::Instruction inst2(p, last, 0);
-							if(inst2) {
-								if(is_ret(inst2)) {
-									add_result(resultsDialog, { &inst, &inst2 }, start_address);
+							if (inst2) {
+								if (is_ret(inst2)) {
+									add_result(resultsDialog, {&inst, &inst2}, start_address);
 								}
 							}
 						}
@@ -305,17 +304,17 @@ void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 				}
 				break;
 			case X86_INS_ADD:
-				if(is_register(op1) && op1->reg == StackRegister) {
+				if (is_register(op1) && op1->reg == StackRegister) {
 
 					const auto op2 = inst[1];
-					if(is_expression(op2)) {
+					if (is_expression(op2)) {
 
-						if(op2->imm == sizeof(edb::reg_t)) {
+						if (op2->imm == sizeof(edb::reg_t)) {
 							p += inst.byte_size();
 							edb::Instruction inst2(p, last, 0);
-							if(inst2) {
-								if(is_ret(inst2)) {
-									add_result(resultsDialog, { &inst, &inst2 }, start_address);
+							if (inst2) {
+								if (is_ret(inst2)) {
+									add_result(resultsDialog, {&inst, &inst2}, start_address);
 								}
 							}
 						}
@@ -339,43 +338,42 @@ void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 template <int StackRegister>
 void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
 
-	const uint8_t *p = data.data();
+	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
 
-	if(inst) {
+	if (inst) {
 		const auto op1 = inst[0];
-		if(is_call(inst) || is_jump(inst)) {
-			if(is_expression(op1)) {
+		if (is_call(inst) || is_jump(inst)) {
+			if (is_expression(op1)) {
 
-				if(op1->mem.disp == (sizeof(edb::reg_t) * 2)) {
-					if(op1->mem.base == StackRegister && op1->mem.index == X86_REG_INVALID) {
-						add_result(resultsDialog, { &inst }, start_address);
-					} else if(op1->mem.base == X86_REG_INVALID && op1->mem.index == StackRegister && op1->mem.scale == 1) {
-						add_result(resultsDialog, { &inst }, start_address);
+				if (op1->mem.disp == (sizeof(edb::reg_t) * 2)) {
+					if (op1->mem.base == StackRegister && op1->mem.index == X86_REG_INVALID) {
+						add_result(resultsDialog, {&inst}, start_address);
+					} else if (op1->mem.base == X86_REG_INVALID && op1->mem.index == StackRegister && op1->mem.scale == 1) {
+						add_result(resultsDialog, {&inst}, start_address);
 					}
-
 				}
 			}
 		} else {
-			switch(inst.operation()) {
+			switch (inst.operation()) {
 			case X86_INS_POP:
 
-				if(!is_register(op1) || op1->reg != StackRegister) {
+				if (!is_register(op1) || op1->reg != StackRegister) {
 					p += inst.byte_size();
 					edb::Instruction inst2(p, last, 0);
-					if(inst2) {
+					if (inst2) {
 						const auto op2 = inst2[0];
-						switch(inst2.operation()) {
+						switch (inst2.operation()) {
 						case X86_INS_POP:
 
-							if(!is_register(op2) || op2->reg != StackRegister) {
+							if (!is_register(op2) || op2->reg != StackRegister) {
 								p += inst2.byte_size();
 								edb::Instruction inst3(p, last, 0);
-								if(inst3) {
-									if(is_ret(inst3)) {
-										add_result(resultsDialog, { &inst, &inst2, &inst3 }, start_address);
+								if (inst3) {
+									if (is_ret(inst3)) {
+										add_result(resultsDialog, {&inst, &inst2, &inst3}, start_address);
 									}
 								}
 							}
@@ -387,17 +385,17 @@ void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, ed
 				}
 				break;
 			case X86_INS_SUB:
-				if(is_register(op1) && op1->reg == StackRegister) {
+				if (is_register(op1) && op1->reg == StackRegister) {
 
 					const auto op2 = inst[1];
-					if(is_expression(op2)) {
+					if (is_expression(op2)) {
 
-						if(op2->imm == -static_cast<int>(sizeof(edb::reg_t) * 2)) {
+						if (op2->imm == -static_cast<int>(sizeof(edb::reg_t) * 2)) {
 							p += inst.byte_size();
 							edb::Instruction inst2(p, last, 0);
-							if(inst2) {
-								if(is_ret(inst2)) {
-									add_result(resultsDialog, { &inst, &inst2 }, start_address);
+							if (inst2) {
+								if (is_ret(inst2)) {
+									add_result(resultsDialog, {&inst, &inst2}, start_address);
 								}
 							}
 						}
@@ -406,17 +404,17 @@ void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, ed
 				break;
 
 			case X86_INS_ADD:
-				if(is_register(op1) && op1->reg == StackRegister) {
+				if (is_register(op1) && op1->reg == StackRegister) {
 
 					const auto op2 = inst[1];
-					if(is_expression(op2)) {
+					if (is_expression(op2)) {
 
-						if(op2->imm == (sizeof(edb::reg_t) * 2)) {
+						if (op2->imm == (sizeof(edb::reg_t) * 2)) {
 							p += inst.byte_size();
 							edb::Instruction inst2(p, last, 0);
-							if(inst2) {
-								if(is_ret(inst2)) {
-									add_result(resultsDialog, { &inst, &inst2 }, start_address);
+							if (inst2) {
+								if (is_ret(inst2)) {
+									add_result(resultsDialog, {&inst, &inst2}, start_address);
 								}
 							}
 						}
@@ -440,39 +438,38 @@ void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, ed
 template <int StackRegister>
 void test_esp_sub_regx1(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
 
-	const uint8_t *p = data.data();
+	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
 
-	if(inst) {
+	if (inst) {
 		const auto op1 = inst[0];
-		if(is_call(inst) || is_jump(inst)) {
-			if(is_expression(op1)) {
+		if (is_call(inst) || is_jump(inst)) {
+			if (is_expression(op1)) {
 
-				if(op1->mem.disp == -static_cast<int>(sizeof(edb::reg_t))) {
-					if(op1->mem.base == StackRegister && op1->mem.index == X86_REG_INVALID) {
-						add_result(resultsDialog, { &inst }, start_address);
-					} else if(op1->mem.base == X86_REG_INVALID && op1->mem.index == StackRegister && op1->mem.scale == 1) {
-						add_result(resultsDialog, { &inst }, start_address);
+				if (op1->mem.disp == -static_cast<int>(sizeof(edb::reg_t))) {
+					if (op1->mem.base == StackRegister && op1->mem.index == X86_REG_INVALID) {
+						add_result(resultsDialog, {&inst}, start_address);
+					} else if (op1->mem.base == X86_REG_INVALID && op1->mem.index == StackRegister && op1->mem.scale == 1) {
+						add_result(resultsDialog, {&inst}, start_address);
 					}
-
 				}
 			}
 		} else {
-			switch(inst.operation()) {
+			switch (inst.operation()) {
 			case X86_INS_SUB:
-				if(is_register(op1) && op1->reg == StackRegister) {
+				if (is_register(op1) && op1->reg == StackRegister) {
 
 					const auto op2 = inst[1];
-					if(is_expression(op2)) {
+					if (is_expression(op2)) {
 
-						if(op2->imm == static_cast<int>(sizeof(edb::reg_t))) {
+						if (op2->imm == static_cast<int>(sizeof(edb::reg_t))) {
 							p += inst.byte_size();
 							edb::Instruction inst2(p, last, 0);
-							if(inst2) {
-								if(is_ret(inst2)) {
-									add_result(resultsDialog, { &inst, &inst2 }, start_address);
+							if (inst2) {
+								if (is_ret(inst2)) {
+									add_result(resultsDialog, {&inst, &inst2}, start_address);
 								}
 							}
 						}
@@ -481,17 +478,17 @@ void test_esp_sub_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 				break;
 
 			case X86_INS_ADD:
-				if(is_register(op1) && op1->reg == StackRegister) {
+				if (is_register(op1) && op1->reg == StackRegister) {
 
 					const auto op2 = inst[1];
-					if(is_expression(op2)) {
+					if (is_expression(op2)) {
 
-						if(op2->imm == -static_cast<int>(sizeof(edb::reg_t))) {
+						if (op2->imm == -static_cast<int>(sizeof(edb::reg_t))) {
 							p += inst.byte_size();
 							edb::Instruction inst2(p, last, 0);
-							if(inst2) {
-								if(is_ret(inst2)) {
-									add_result(resultsDialog, { &inst, &inst2 }, start_address);
+							if (inst2) {
+								if (is_ret(inst2)) {
+									add_result(resultsDialog, {&inst, &inst2}, start_address);
 								}
 							}
 						}
@@ -516,16 +513,32 @@ void test_esp_sub_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 void run_tests(DialogResults *resultsDialog, int classtype, const OpcodeData &opcode, edb::address_t address) {
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
-	if(edb::v1::debuggeeIs32Bit()) {
-		switch(classtype) {
-		case 1: test_reg_to_ip<X86_REG_EAX, X86_REG_ESP>(resultsDialog, opcode, address); break;
-		case 2: test_reg_to_ip<X86_REG_EBX, X86_REG_ESP>(resultsDialog, opcode, address); break;
-		case 3: test_reg_to_ip<X86_REG_ECX, X86_REG_ESP>(resultsDialog, opcode, address); break;
-		case 4: test_reg_to_ip<X86_REG_EDX, X86_REG_ESP>(resultsDialog, opcode, address); break;
-		case 5: test_reg_to_ip<X86_REG_EBP, X86_REG_ESP>(resultsDialog, opcode, address); break;
-		case 6: test_reg_to_ip<X86_REG_ESP, X86_REG_ESP>(resultsDialog, opcode, address); break;
-		case 7: test_reg_to_ip<X86_REG_ESI, X86_REG_ESP>(resultsDialog, opcode, address); break;
-		case 8: test_reg_to_ip<X86_REG_EDI, X86_REG_ESP>(resultsDialog, opcode, address); break;
+	if (edb::v1::debuggeeIs32Bit()) {
+		switch (classtype) {
+		case 1:
+			test_reg_to_ip<X86_REG_EAX, X86_REG_ESP>(resultsDialog, opcode, address);
+			break;
+		case 2:
+			test_reg_to_ip<X86_REG_EBX, X86_REG_ESP>(resultsDialog, opcode, address);
+			break;
+		case 3:
+			test_reg_to_ip<X86_REG_ECX, X86_REG_ESP>(resultsDialog, opcode, address);
+			break;
+		case 4:
+			test_reg_to_ip<X86_REG_EDX, X86_REG_ESP>(resultsDialog, opcode, address);
+			break;
+		case 5:
+			test_reg_to_ip<X86_REG_EBP, X86_REG_ESP>(resultsDialog, opcode, address);
+			break;
+		case 6:
+			test_reg_to_ip<X86_REG_ESP, X86_REG_ESP>(resultsDialog, opcode, address);
+			break;
+		case 7:
+			test_reg_to_ip<X86_REG_ESI, X86_REG_ESP>(resultsDialog, opcode, address);
+			break;
+		case 8:
+			test_reg_to_ip<X86_REG_EDI, X86_REG_ESP>(resultsDialog, opcode, address);
+			break;
 		case 17:
 			test_reg_to_ip<X86_REG_EAX, X86_REG_ESP>(resultsDialog, opcode, address);
 			test_reg_to_ip<X86_REG_EBX, X86_REG_ESP>(resultsDialog, opcode, address);
@@ -554,23 +567,55 @@ void run_tests(DialogResults *resultsDialog, int classtype, const OpcodeData &op
 			break;
 		}
 	} else {
-		switch(classtype) {
-		case 1: test_reg_to_ip<X86_REG_RAX, X86_REG_RSP>(resultsDialog, opcode, address); break;
-		case 2: test_reg_to_ip<X86_REG_RBX, X86_REG_RSP>(resultsDialog, opcode, address); break;
-		case 3: test_reg_to_ip<X86_REG_RCX, X86_REG_RSP>(resultsDialog, opcode, address); break;
-		case 4: test_reg_to_ip<X86_REG_RDX, X86_REG_RSP>(resultsDialog, opcode, address); break;
-		case 5: test_reg_to_ip<X86_REG_RBP, X86_REG_RSP>(resultsDialog, opcode, address); break;
-		case 6: test_reg_to_ip<X86_REG_RSP, X86_REG_RSP>(resultsDialog, opcode, address); break;
-		case 7: test_reg_to_ip<X86_REG_RSI, X86_REG_RSP>(resultsDialog, opcode, address); break;
-		case 8: test_reg_to_ip<X86_REG_RDI, X86_REG_RSP>(resultsDialog, opcode, address); break;
-		case 9: test_reg_to_ip<X86_REG_R8, X86_REG_RSP>(resultsDialog, opcode, address); break;
-		case 10: test_reg_to_ip<X86_REG_R9, X86_REG_RSP>(resultsDialog, opcode, address); break;
-		case 11: test_reg_to_ip<X86_REG_R10, X86_REG_RSP>(resultsDialog, opcode, address); break;
-		case 12: test_reg_to_ip<X86_REG_R11, X86_REG_RSP>(resultsDialog, opcode, address); break;
-		case 13: test_reg_to_ip<X86_REG_R12, X86_REG_RSP>(resultsDialog, opcode, address); break;
-		case 14: test_reg_to_ip<X86_REG_R13, X86_REG_RSP>(resultsDialog, opcode, address); break;
-		case 15: test_reg_to_ip<X86_REG_R14, X86_REG_RSP>(resultsDialog, opcode, address); break;
-		case 16: test_reg_to_ip<X86_REG_R15, X86_REG_RSP>(resultsDialog, opcode, address); break;
+		switch (classtype) {
+		case 1:
+			test_reg_to_ip<X86_REG_RAX, X86_REG_RSP>(resultsDialog, opcode, address);
+			break;
+		case 2:
+			test_reg_to_ip<X86_REG_RBX, X86_REG_RSP>(resultsDialog, opcode, address);
+			break;
+		case 3:
+			test_reg_to_ip<X86_REG_RCX, X86_REG_RSP>(resultsDialog, opcode, address);
+			break;
+		case 4:
+			test_reg_to_ip<X86_REG_RDX, X86_REG_RSP>(resultsDialog, opcode, address);
+			break;
+		case 5:
+			test_reg_to_ip<X86_REG_RBP, X86_REG_RSP>(resultsDialog, opcode, address);
+			break;
+		case 6:
+			test_reg_to_ip<X86_REG_RSP, X86_REG_RSP>(resultsDialog, opcode, address);
+			break;
+		case 7:
+			test_reg_to_ip<X86_REG_RSI, X86_REG_RSP>(resultsDialog, opcode, address);
+			break;
+		case 8:
+			test_reg_to_ip<X86_REG_RDI, X86_REG_RSP>(resultsDialog, opcode, address);
+			break;
+		case 9:
+			test_reg_to_ip<X86_REG_R8, X86_REG_RSP>(resultsDialog, opcode, address);
+			break;
+		case 10:
+			test_reg_to_ip<X86_REG_R9, X86_REG_RSP>(resultsDialog, opcode, address);
+			break;
+		case 11:
+			test_reg_to_ip<X86_REG_R10, X86_REG_RSP>(resultsDialog, opcode, address);
+			break;
+		case 12:
+			test_reg_to_ip<X86_REG_R11, X86_REG_RSP>(resultsDialog, opcode, address);
+			break;
+		case 13:
+			test_reg_to_ip<X86_REG_R12, X86_REG_RSP>(resultsDialog, opcode, address);
+			break;
+		case 14:
+			test_reg_to_ip<X86_REG_R13, X86_REG_RSP>(resultsDialog, opcode, address);
+			break;
+		case 15:
+			test_reg_to_ip<X86_REG_R14, X86_REG_RSP>(resultsDialog, opcode, address);
+			break;
+		case 16:
+			test_reg_to_ip<X86_REG_R15, X86_REG_RSP>(resultsDialog, opcode, address);
+			break;
 		case 17:
 			test_reg_to_ip<X86_REG_RAX, X86_REG_RSP>(resultsDialog, opcode, address);
 			test_reg_to_ip<X86_REG_RBX, X86_REG_RSP>(resultsDialog, opcode, address);
@@ -605,21 +650,51 @@ void run_tests(DialogResults *resultsDialog, int classtype, const OpcodeData &op
 			// [ESP - 4] -> EIP
 			test_esp_sub_regx1<X86_REG_RSP>(resultsDialog, opcode, address);
 			break;
-		case 22: test_deref_reg_to_ip<X86_REG_RAX>(resultsDialog, opcode, address); break;
-		case 23: test_deref_reg_to_ip<X86_REG_RBX>(resultsDialog, opcode, address); break;
-		case 24: test_deref_reg_to_ip<X86_REG_RCX>(resultsDialog, opcode, address); break;
-		case 25: test_deref_reg_to_ip<X86_REG_RDX>(resultsDialog, opcode, address); break;
-		case 26: test_deref_reg_to_ip<X86_REG_RBP>(resultsDialog, opcode, address); break;
-		case 28: test_deref_reg_to_ip<X86_REG_RSI>(resultsDialog, opcode, address); break;
-		case 29: test_deref_reg_to_ip<X86_REG_RDI>(resultsDialog, opcode, address); break;
-		case 30: test_deref_reg_to_ip<X86_REG_R8>(resultsDialog, opcode, address); break;
-		case 31: test_deref_reg_to_ip<X86_REG_R9>(resultsDialog, opcode, address); break;
-		case 32: test_deref_reg_to_ip<X86_REG_R10>(resultsDialog, opcode, address); break;
-		case 33: test_deref_reg_to_ip<X86_REG_R11>(resultsDialog, opcode, address); break;
-		case 34: test_deref_reg_to_ip<X86_REG_R12>(resultsDialog, opcode, address); break;
-		case 35: test_deref_reg_to_ip<X86_REG_R13>(resultsDialog, opcode, address); break;
-		case 36: test_deref_reg_to_ip<X86_REG_R14>(resultsDialog, opcode, address); break;
-		case 37: test_deref_reg_to_ip<X86_REG_R15>(resultsDialog, opcode, address); break;
+		case 22:
+			test_deref_reg_to_ip<X86_REG_RAX>(resultsDialog, opcode, address);
+			break;
+		case 23:
+			test_deref_reg_to_ip<X86_REG_RBX>(resultsDialog, opcode, address);
+			break;
+		case 24:
+			test_deref_reg_to_ip<X86_REG_RCX>(resultsDialog, opcode, address);
+			break;
+		case 25:
+			test_deref_reg_to_ip<X86_REG_RDX>(resultsDialog, opcode, address);
+			break;
+		case 26:
+			test_deref_reg_to_ip<X86_REG_RBP>(resultsDialog, opcode, address);
+			break;
+		case 28:
+			test_deref_reg_to_ip<X86_REG_RSI>(resultsDialog, opcode, address);
+			break;
+		case 29:
+			test_deref_reg_to_ip<X86_REG_RDI>(resultsDialog, opcode, address);
+			break;
+		case 30:
+			test_deref_reg_to_ip<X86_REG_R8>(resultsDialog, opcode, address);
+			break;
+		case 31:
+			test_deref_reg_to_ip<X86_REG_R9>(resultsDialog, opcode, address);
+			break;
+		case 32:
+			test_deref_reg_to_ip<X86_REG_R10>(resultsDialog, opcode, address);
+			break;
+		case 33:
+			test_deref_reg_to_ip<X86_REG_R11>(resultsDialog, opcode, address);
+			break;
+		case 34:
+			test_deref_reg_to_ip<X86_REG_R12>(resultsDialog, opcode, address);
+			break;
+		case 35:
+			test_deref_reg_to_ip<X86_REG_R13>(resultsDialog, opcode, address);
+			break;
+		case 36:
+			test_deref_reg_to_ip<X86_REG_R14>(resultsDialog, opcode, address);
+			break;
+		case 37:
+			test_deref_reg_to_ip<X86_REG_R15>(resultsDialog, opcode, address);
+			break;
 		}
 	}
 #elif defined(EDB_ARM32)
@@ -631,45 +706,45 @@ void run_tests(DialogResults *resultsDialog, int classtype, const OpcodeData &op
 
 }
 
-//------------------------------------------------------------------------------
-// Name: DialogOpcodes
-// Desc:
-//------------------------------------------------------------------------------
-DialogOpcodes::DialogOpcodes(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f)  {
+/**
+ * @brief DialogOpcodes::DialogOpcodes
+ * @param parent
+ * @param f
+ */
+DialogOpcodes::DialogOpcodes(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
 	ui.setupUi(this);
 	ui.tableView->verticalHeader()->hide();
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	filter_model_ = new QSortFilterProxyModel(this);
-	connect(ui.txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+	filterModel_ = new QSortFilterProxyModel(this);
+	connect(ui.txtSearch, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 
-	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
-	connect(btnFind_, &QPushButton::clicked, this, [this]() {
-		btnFind_->setEnabled(false);
+	buttonFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
+	connect(buttonFind_, &QPushButton::clicked, this, [this]() {
+		buttonFind_->setEnabled(false);
 		ui.progressBar->setValue(0);
-		do_find();
+		doFind();
 		ui.progressBar->setValue(100);
-		btnFind_->setEnabled(true);
+		buttonFind_->setEnabled(true);
 	});
 
-	ui.buttonBox->addButton(btnFind_, QDialogButtonBox::ActionRole);
+	ui.buttonBox->addButton(buttonFind_, QDialogButtonBox::ActionRole);
 }
 
-
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogOpcodes::showEvent
+ */
 void DialogOpcodes::showEvent(QShowEvent *) {
-	filter_model_->setFilterKeyColumn(3);
-	filter_model_->setSourceModel(&edb::v1::memory_regions());
-	ui.tableView->setModel(filter_model_);
+	filterModel_->setFilterKeyColumn(3);
+	filterModel_->setSourceModel(&edb::v1::memory_regions());
+	ui.tableView->setModel(filterModel_);
 	ui.progressBar->setValue(0);
 
 	ui.comboBox->clear();
-	
+
 #if defined(EDB_X86) || defined(EDB_X86_64)
-	if(edb::v1::debuggeeIs64Bit()) {
+	if (edb::v1::debuggeeIs64Bit()) {
 		ui.comboBox->addItem("RAX -> RIP", 1);
 		ui.comboBox->addItem("RBX -> RIP", 2);
 		ui.comboBox->addItem("RCX -> RIP", 3);
@@ -736,18 +811,17 @@ void DialogOpcodes::showEvent(QShowEvent *) {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: do_find
-// Desc:
-//------------------------------------------------------------------------------
-void DialogOpcodes::do_find() {
+/**
+ * @brief DialogOpcodes::doFind
+ */
+void DialogOpcodes::doFind() {
 
 	const int classtype = ui.comboBox->itemData(ui.comboBox->currentIndex()).toInt();
 
 	const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
-	const QModelIndexList sel = selModel->selectedRows();
+	const QModelIndexList sel                 = selModel->selectedRows();
 
-	if(sel.size() == 0) {
+	if (sel.size() == 0) {
 		QMessageBox::critical(
 			this,
 			tr("No Region Selected"),
@@ -757,12 +831,12 @@ void DialogOpcodes::do_find() {
 
 	auto resultsDialog = new DialogResults(this);
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
-		for(const QModelIndex &selected_item: sel) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
+		for (const QModelIndex &selected_item : sel) {
 
-			const QModelIndex index = filter_model_->mapToSource(selected_item);
+			const QModelIndex index = filterModel_->mapToSource(selected_item);
 
-			if(auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
+			if (auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
 
 				edb::address_t start_address     = region->start();
 				edb::address_t address           = region->start();
@@ -773,16 +847,16 @@ void DialogOpcodes::do_find() {
 
 				// this will read the rest of the region
 				size_t i = 0;
-				while(start_address < end_address) {
+				while (start_address < end_address) {
 
 					// create a reference to the bsa's data so we can pass it to the testXXXX functions
 					// but only do so if we have read enough bytes to fill our shift buffer
-					if(i >= shift_buffer.size()) {
+					if (i >= shift_buffer.size()) {
 						run_tests(resultsDialog, classtype, shift_buffer, address - shift_buffer.size());
 					}
 
 					uint8_t byte;
-					process->read_bytes(start_address, &byte, 1);
+					process->readBytes(start_address, &byte, 1);
 					util::shl(shift_buffer, byte);
 
 					++start_address;
@@ -793,7 +867,7 @@ void DialogOpcodes::do_find() {
 				}
 
 				// test the stuff at the regions edge
-				for(size_t i = 0; i < shift_buffer.size(); ++i) {
+				for (size_t i = 0; i < shift_buffer.size(); ++i) {
 
 					// create a reference to the bsa's data so we can pass it to the testXXXX functions
 					run_tests(resultsDialog, classtype, shift_buffer, address - shift_buffer.size());
@@ -808,7 +882,7 @@ void DialogOpcodes::do_find() {
 		}
 	}
 
-	if(resultsDialog->resultCount() == 0) {
+	if (resultsDialog->resultCount() == 0) {
 		QMessageBox::information(this, tr("No Opcodes Found"), tr("No opcodes were found in the selected region."));
 		delete resultsDialog;
 	} else {

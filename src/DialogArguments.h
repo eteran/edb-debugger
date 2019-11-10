@@ -19,23 +19,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOGARGUMENTS_20090609_H_
 #define DIALOGARGUMENTS_20090609_H_
 
-#include <QDialog>
 #include "ui_DialogArguments.h"
+#include <QDialog>
 
 class DialogArguments : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogArguments(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogArguments(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogArguments() override = default;
 
 public:
 	QList<QByteArray> arguments() const;
-	void set_arguments(const QList<QByteArray> &args);
+	void setArguments(const QList<QByteArray> &args);
 
 private:
-	 Ui::DialogArguments ui;
+	Ui::DialogArguments ui;
 };
 
 #endif
-

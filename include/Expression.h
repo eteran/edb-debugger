@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef EXPRESSION_20070402_H_
 #define EXPRESSION_20070402_H_
 
+#include "Status.h"
 #include <QString>
 #include <functional>
-#include "Status.h"
 
 struct ExpressionError {
 public:
@@ -42,11 +42,12 @@ public:
 public:
 	ExpressionError() = default;
 
-	explicit ExpressionError(ERROR_MSG type) : error_(type) {
+	explicit ExpressionError(ERROR_MSG type)
+		: error_(type) {
 	}
 
 	const char *what() const noexcept {
-		switch(error_) {
+		switch (error_) {
 		case SYNTAX:
 			return "Syntax Error";
 		case UNBALANCED_PARENS:
@@ -71,25 +72,25 @@ public:
 			return "Unknown Error";
 		}
 	}
+
 private:
 	ERROR_MSG error_ = NONE;
 };
 
-
 template <class T>
 class Expression {
 public:
-	using variable_getter_t = std::function<T(const QString&, bool*, ExpressionError*)>;
-	using memory_reader_t   = std::function<T(T, bool*, ExpressionError*)>;
+	using variable_getter_t = std::function<T(const QString &, bool *, ExpressionError *)>;
+	using memoryReader_t    = std::function<T(T, bool *, ExpressionError *)>;
 
 public:
-	Expression(const QString &s, variable_getter_t vg, memory_reader_t mr);
+	Expression(const QString &s, variable_getter_t vg, memoryReader_t mr);
 	~Expression() = default;
 
 private:
 	struct Token {
-		Token() = default;
-		Token(const Token& other) = default;
+		Token()                   = default;
+		Token(const Token &other) = default;
 
 		enum Operator {
 			NONE,
@@ -151,10 +152,11 @@ public:
 	Result<T, ExpressionError> evaluate_expression() noexcept {
 		try {
 			return eval_internal();
-		} catch(const ExpressionError &e) {
+		} catch (const ExpressionError &e) {
 			return make_unexpected(e);
 		}
 	}
+
 private:
 	void eval_exp(T &result);
 	void eval_exp0(T &result);
@@ -168,19 +170,14 @@ private:
 	void eval_atom(T &result);
 	void get_token();
 
-	static bool is_delim(QChar ch) {
-		return QString("[]!()=+-*/%&|^~<>\t\n\r ").contains(ch);
-	}
-
 private:
-	QString                 expression_;
-	QString::const_iterator expression_ptr_;
-	Token                   token_;
-	variable_getter_t       variable_reader_;
-	memory_reader_t         memory_reader_;
+	QString expression_;
+	QString::const_iterator expressionPtr_;
+	Token token_;
+	variable_getter_t variableReader_;
+	memoryReader_t memoryReader_;
 };
 
 #include "Expression.tcc"
 
 #endif
-

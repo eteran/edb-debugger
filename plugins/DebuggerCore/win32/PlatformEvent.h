@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PLATFORM_EVENT_20121005_H_
 #define PLATFORM_EVENT_20121005_H_
 
-#include <QCoreApplication>
 #include "IDebugEvent.h"
+#include <QCoreApplication>
 
 namespace DebuggerCorePlugin {
 
@@ -29,28 +29,28 @@ class PlatformEvent : public IDebugEvent {
 	friend class DebuggerCore;
 
 public:
-	PlatformEvent();
+	PlatformEvent() = default;
 
 public:
 	PlatformEvent *clone() const override;
 
 public:
-	Message error_description() const override;
+	Message errorDescription() const override;
 	REASON reason() const override;
-	TRAP_REASON trap_reason() const override;
+	TRAP_REASON trapReason() const override;
 	bool exited() const override;
-	bool is_error() const override;
-	bool is_kill() const override;
-	bool is_stop() const override;
-	bool is_trap() const override;
+	bool isError() const override;
+	bool isKill() const override;
+	bool isStop() const override;
+	bool isTrap() const override;
 	bool terminated() const override;
 	bool stopped() const override;
 	edb::pid_t process() const override;
 	edb::tid_t thread() const override;
-	int code() const override;
+	int64_t code() const override;
 
 private:
-	DEBUG_EVENT event;
+	DEBUG_EVENT event_ = {};
 };
 
 }

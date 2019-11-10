@@ -29,23 +29,23 @@ public:
 
 public:
 	// Struct that holds the caller and return addresses.
-	struct stack_frame {
+	struct StackFrame {
 		edb::address_t ret;
 		edb::address_t caller;
 	};
 
 private:
-	void get_call_stack();
+	void getCallStack();
 
 public:
-	stack_frame *operator [](size_t index);
+	StackFrame *operator[](size_t index);
 	size_t size() const;
-	stack_frame *top();
-	stack_frame *bottom();
-	void push(stack_frame frame);
+	StackFrame *top();
+	StackFrame *bottom();
+	void push(StackFrame frame);
 
 private:
-	std::deque<stack_frame> stack_frames_;
+	std::deque<StackFrame> stackFrames_;
 };
 
 #endif

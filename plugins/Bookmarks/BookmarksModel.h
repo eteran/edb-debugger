@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BOOKMARKS_MODEL_20170103_H_
 #define BOOKMARKS_MODEL_20170103_H_
 
+#include "Types.h"
 #include <QAbstractItemModel>
 #include <QVector>
-#include "Types.h"
 
 namespace BookmarksPlugin {
 
@@ -37,26 +37,29 @@ public:
 		};
 
 		edb::address_t address;
-		Type           type;
-		QString        comment;
+		Type type;
+		QString comment;
 	};
 
-	static QString BookmarkTypeToString(Bookmark::Type type) {
-		switch(type) {
-		case Bookmark::Code:  return tr("Code");
-		case Bookmark::Data:  return tr("Data");
-		case Bookmark::Stack: return tr("Stack");
+	static QString bookmarkTypeToString(Bookmark::Type type) {
+		switch (type) {
+		case Bookmark::Code:
+			return tr("Code");
+		case Bookmark::Data:
+			return tr("Data");
+		case Bookmark::Stack:
+			return tr("Stack");
 		}
 
 		return tr("Code");
 	}
 
-	static Bookmark::Type BookmarkStringToType(const QString &type) {
-		if(type == tr("Code")) {
+	static Bookmark::Type bookmarkStringToType(const QString &type) {
+		if (type == tr("Code")) {
 			return Bookmark::Code;
-		} else if(type == tr("Data")) {
+		} else if (type == tr("Data")) {
 			return Bookmark::Data;
-		} else if(type == tr("Stack")) {
+		} else if (type == tr("Stack")) {
 			return Bookmark::Stack;
 		}
 
@@ -64,8 +67,8 @@ public:
 	}
 
 public:
-    explicit BookmarksModel(QObject *parent = nullptr);
-    ~BookmarksModel() override = default;
+	explicit BookmarksModel(QObject *parent = nullptr);
+	~BookmarksModel() override = default;
 
 public:
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -82,9 +85,8 @@ public Q_SLOTS:
 	void setComment(const QModelIndex &index, const QString &comment);
 	void setType(const QModelIndex &index, const QString &type);
 
-
 public:
-	QVector<Bookmark> &bookmarks() { return bookmarks_; }
+	const QVector<Bookmark> &bookmarks() const { return bookmarks_; }
 
 private:
 	QVector<Bookmark> bookmarks_;

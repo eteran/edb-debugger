@@ -30,11 +30,13 @@ class QTextBrowser;
 
 namespace InstructionInspector {
 
+class Disassembler;
+
 class InstructionDialog : public QDialog {
 	Q_OBJECT
-	
+
 public:
-	struct DisassemblyFailure     {};
+	struct DisassemblyFailure {};
 	struct InstructionReadFailure {};
 
 public:
@@ -43,16 +45,16 @@ public:
 
 private Q_SLOTS:
 	void compareDisassemblers();
-	
+
 private:
-	QTreeWidget *             tree          = nullptr;
-	QPushButton *             compareButton = nullptr;
-	QVBoxLayout *             vbox          = nullptr;
-	QTextBrowser *            disassemblies = nullptr;
-	void *                    insn_         = nullptr;
-	void *                    disassembler_ = nullptr;
-	edb::address_t            address;
-	std::vector<std::uint8_t> insnBytes;
+	QTreeWidget *tree_           = nullptr;
+	QPushButton *buttonCompare_  = nullptr;
+	QVBoxLayout *layout_         = nullptr;
+	QTextBrowser *disassemblies_ = nullptr;
+	void *insn_                  = nullptr;
+	Disassembler *disassembler_  = nullptr;
+	edb::address_t address_;
+	std::vector<std::uint8_t> insnBytes_;
 };
 
 class Plugin : public QObject, public IPlugin {
@@ -65,13 +67,13 @@ class Plugin : public QObject, public IPlugin {
 public:
 	explicit Plugin(QObject *parent = nullptr);
 	QMenu *menu(QWidget *parent = nullptr) override;
-	QList<QAction *> cpu_context_menu() override;
+	QList<QAction *> cpuContextMenu() override;
 
 private Q_SLOTS:
 	void showDialog() const;
 
 private:
-	QAction *menuAction;
+	QAction *menuAction_ = nullptr;
 };
 
 }

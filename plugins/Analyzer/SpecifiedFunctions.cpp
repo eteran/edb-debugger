@@ -17,78 +17,83 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "SpecifiedFunctions.h"
-#include "edb.h"
 #include "IAnalyzer.h"
+#include "edb.h"
 
-#include <QStringListModel>
-#include <QSortFilterProxyModel>
 #include <QHeaderView>
-#include <QtDebug>
 #include <QPushButton>
+#include <QSortFilterProxyModel>
+#include <QStringListModel>
+#include <QtDebug>
 
 namespace AnalyzerPlugin {
 
-//------------------------------------------------------------------------------
-// Name: SpecifiedFunctions
-// Desc:
-//------------------------------------------------------------------------------
-SpecifiedFunctions::SpecifiedFunctions(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+/**
+ * @brief SpecifiedFunctions::SpecifiedFunctions
+ * @param parent
+ * @param f
+ */
+SpecifiedFunctions::SpecifiedFunctions(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 
-	model_        = new QStringListModel(this);
-	filter_model_ = new QSortFilterProxyModel(this);
+	model_       = new QStringListModel(this);
+	filterModel_ = new QSortFilterProxyModel(this);
 
-	filter_model_->setFilterKeyColumn(0);
-	filter_model_->setSourceModel(model_);
-	ui.function_list->setModel(filter_model_);
+	filterModel_->setFilterKeyColumn(0);
+	filterModel_->setSourceModel(model_);
+	ui.function_list->setModel(filterModel_);
 
-	connect(ui.filter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+	connect(ui.filter, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 
-	btnRefresh_ = new QPushButton(QIcon::fromTheme("view-refresh"), tr("Refresh"));
-	connect(btnRefresh_, &QPushButton::clicked, this, [this]() {
-		btnRefresh_->setEnabled(false);
-		do_find();
-		btnRefresh_->setEnabled(true);
+	buttonRefresh_ = new QPushButton(QIcon::fromTheme("view-refresh"), tr("Refresh"));
+	connect(buttonRefresh_, &QPushButton::clicked, this, [this]() {
+		buttonRefresh_->setEnabled(false);
+		doFind();
+		buttonRefresh_->setEnabled(true);
 	});
 
-	ui.buttonBox->addButton(btnRefresh_, QDialogButtonBox::ActionRole);
+	ui.buttonBox->addButton(buttonRefresh_, QDialogButtonBox::ActionRole);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_function_list_doubleClicked
-// Desc: follows the found item in the data view
-//------------------------------------------------------------------------------
+/**
+ * @brief SpecifiedFunctions::on_function_list_doubleClicked
+ *
+ * follows the found item in the data view
+ *
+ * @param index
+ */
 void SpecifiedFunctions::on_function_list_doubleClicked(const QModelIndex &index) {
 
 	const QString s = index.data().toString();
-	if(const Result<edb::address_t, QString> addr = edb::v1::string_to_address(s)) {
+	if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(s)) {
 		edb::v1::jump_to_address(*addr);
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: do_find
-// Desc:
-//------------------------------------------------------------------------------
-void SpecifiedFunctions::do_find() {
+/**
+ * @brief SpecifiedFunctions::doFind
+ */
+void SpecifiedFunctions::doFind() {
 
-	IAnalyzer *const analyzer = edb::v1::analyzer();
-	QSet<edb::address_t> functions = analyzer->specified_functions();
+	IAnalyzer *const analyzer      = edb::v1::analyzer();
+	QSet<edb::address_t> functions = analyzer->specifiedFunctions();
+
 	QStringList results;
-	for(edb::address_t address: functions) {
+	for (edb::address_t address : functions) {
 		results << QString("%1").arg(edb::v1::format_pointer(address));
 	}
 	model_->setStringList(results);
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief SpecifiedFunctions::showEvent
+ */
 void SpecifiedFunctions::showEvent(QShowEvent *) {
-	btnRefresh_->setEnabled(false);
-	do_find();
-	btnRefresh_->setEnabled(true);
+	buttonRefresh_->setEnabled(false);
+	doFind();
+	buttonRefresh_->setEnabled(true);
 }
 
 }

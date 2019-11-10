@@ -23,51 +23,55 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Instruction.h"
 #include "edb.h"
 
-//------------------------------------------------------------------------------
-// Name: set_comment
-// Desc:
-//------------------------------------------------------------------------------
-void CommentServer::set_comment(edb::address_t address, const QString &comment) {
-	custom_comments_[address] = comment;
-}
-
-//------------------------------------------------------------------------------
-// Name: clear
-// Desc:
-//------------------------------------------------------------------------------
-void CommentServer::clear() {
-	custom_comments_.clear();
-}
+namespace {
 
 // a call can be anywhere from 2 to 7 bytes long depends on if there is a Mod/RM byte
 // or a SIB byte, etc
 // this is ignoring prefixes, fortunately, no calls have mandatory prefixes
 // TODO(eteran): this is an arch specific concept
-constexpr int CALL_MAX_SIZE = 7;
-constexpr int CALL_MIN_SIZE = 2;
+constexpr int CallMaxSize = 7;
+constexpr int CallMinSize = 2;
 
-//------------------------------------------------------------------------------
-// Name: resolve_function_call
-// Desc:
-//------------------------------------------------------------------------------
-Result<QString, QString> CommentServer::resolve_function_call(edb::address_t address) const {
+}
+
+/**
+ * @brief CommentServer::setComment
+ * @param address
+ * @param comment
+ */
+void CommentServer::setComment(edb::address_t address, const QString &comment) {
+	customComments_[address] = comment;
+}
+
+/**
+ * @brief CommentServer::clear
+ */
+void CommentServer::clear() {
+	customComments_.clear();
+}
+
+/**
+ * @brief CommentServer::resolveFunctionCall
+ * @param address
+ * @return
+ */
+Result<QString, QString> CommentServer::resolveFunctionCall(edb::address_t address) const {
 
 	// ok, we now want to locate the instruction before this one
 	// so we need to look back a few bytes
 
-
 	// TODO(eteran): portability warning, makes assumptions on the size of a call
-	if(IProcess *process = edb::v1::debugger_core->process()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
 
-		uint8_t buffer[edb::Instruction::MAX_SIZE];
+		uint8_t buffer[edb::Instruction::MaxSize];
 
-		if(process->read_bytes(address - CALL_MAX_SIZE, buffer, sizeof(buffer))) {
-			for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
+		if (process->readBytes(address - CallMaxSize, buffer, sizeof(buffer))) {
+			for (int i = (CallMaxSize - CallMinSize); i >= 0; --i) {
 				edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);
-				if(is_call(inst)) {
+				if (is_call(inst)) {
 					const QString symname = edb::v1::find_function_symbol(address);
 
-					if(!symname.isEmpty()) {
+					if (!symname.isEmpty()) {
 						return tr("return to %1 <%2>").arg(edb::v1::format_pointer(address), symname);
 					} else {
 						return tr("return to %1").arg(edb::v1::format_pointer(address));
@@ -80,47 +84,50 @@ Result<QString, QString> CommentServer::resolve_function_call(edb::address_t add
 	return make_unexpected(tr("Failed to resolve function call"));
 }
 
-//------------------------------------------------------------------------------
-// Name: resolve_string
-// Desc:
-//------------------------------------------------------------------------------
-Result<QString, QString> CommentServer::resolve_string(edb::address_t address) const {
+/**
+ * @brief CommentServer::resolveString
+ * @param address
+ * @return
+ */
+Result<QString, QString> CommentServer::resolveString(edb::address_t address) const {
 
-	const int min_string_length = edb::v1::config().min_string_length;
-	constexpr int max_string_length = 256;
+	const int min_string_length   = edb::v1::config().min_string_length;
+	constexpr int MaxStringLength = 256;
 
 	int stringLen;
 	QString temp;
 
-	if(edb::v1::get_ascii_string_at_address(address, temp, min_string_length, max_string_length, stringLen)) {
+	if (edb::v1::get_ascii_string_at_address(address, temp, min_string_length, MaxStringLength, stringLen)) {
 		return tr("ASCII \"%1\"").arg(temp);
-	} else if(edb::v1::get_utf16_string_at_address(address, temp, min_string_length, max_string_length, stringLen)) {
+	} else if (edb::v1::get_utf16_string_at_address(address, temp, min_string_length, MaxStringLength, stringLen)) {
 		return tr("UTF16 \"%1\"").arg(temp);
 	}
 
 	return make_unexpected(tr("Failed to resolve string"));
 }
 
-//------------------------------------------------------------------------------
-// Name: comment
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief CommentServer::comment
+ * @param address
+ * @param size
+ * @return
+ */
 QString CommentServer::comment(edb::address_t address, int size) const {
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
 		// if the view is currently looking at words which are a pointer in size
 		// then see if it points to anything...
-		if(size == static_cast<int>(edb::v1::pointer_size())) {
+		if (size == static_cast<int>(edb::v1::pointer_size())) {
 			edb::address_t value(0);
-			if(process->read_bytes(address, &value, edb::v1::pointer_size())) {
+			if (process->readBytes(address, &value, edb::v1::pointer_size())) {
 
-				auto it = custom_comments_.find(value);
-				if(it != custom_comments_.end()) {
+				auto it = customComments_.find(value);
+				if (it != customComments_.end()) {
 					return it.value();
 				} else {
-					if(Result<QString, QString> ret = resolve_function_call(value)) {
+					if (Result<QString, QString> ret = resolveFunctionCall(value)) {
 						return *ret;
-					} else if(Result<QString, QString> ret = resolve_string(value)) {
+					} else if (Result<QString, QString> ret = resolveString(value)) {
 						return *ret;
 					}
 				}

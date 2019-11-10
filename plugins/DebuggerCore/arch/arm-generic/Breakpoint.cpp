@@ -17,65 +17,66 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Breakpoint.h"
+#include "Configuration.h"
 #include "IDebugger.h"
 #include "IProcess.h"
 #include "edb.h"
-#include "Configuration.h"
 
 namespace DebuggerCorePlugin {
 
 namespace {
-const std::vector<quint8> BreakpointInstructionARM_LE    = { 0xf0, 0x01, 0xf0, 0xe7 }; // udf #0x10
-const std::vector<quint8> BreakpointInstructionThumb_LE  = { 0x01, 0xde };             // udf #1
+const std::vector<quint8> BreakpointInstructionARM_LE   = {0xf0, 0x01, 0xf0, 0xe7}; // udf #0x10
+const std::vector<quint8> BreakpointInstructionThumb_LE = {0x01, 0xde};             // udf #1
 // We have to sometimes use a 32-bit Thumb-2 breakpoint. For explanation how to
 // correctly use it see GDB's thumb_get_next_pcs_raw function and comments
 // around arm_linux_thumb2_le_breakpoint array.
-const std::vector<quint8> BreakpointInstructionThumb2_LE = { 0xf0, 0xf7, 0x00, 0xa0 }; // udf.w #0
+const std::vector<quint8> BreakpointInstructionThumb2_LE = {0xf0, 0xf7, 0x00, 0xa0}; // udf.w #0
 // This one generates SIGILL both in ARM32 and Thumb mode. In ARM23 mode it's decoded as UDF 0xDDE0, while
 // in Thumb it's a sequence `1: UDF 0xF0; B 1b`, which does stop the process even if it lands in the
 // middle (on the second half-word), although the signal still occurs at the first half-word.
-const std::vector<quint8> BreakpointInstructionUniversalThumbARM_LE = { 0xf0, 0xde, 0xfd, 0xe7 };
-const std::vector<quint8> BreakpointInstructionThumbBKPT_LE  = { 0x00, 0xbe }; // bkpt #0
-const std::vector<quint8> BreakpointInstructionARM32BKPT_LE  = { 0x70, 0x00, 0x20, 0xe1 }; // bkpt #0
+const std::vector<quint8> BreakpointInstructionUniversalThumbARM_LE = {0xf0, 0xde, 0xfd, 0xe7};
+const std::vector<quint8> BreakpointInstructionThumbBKPT_LE         = {0x00, 0xbe};             // bkpt #0
+const std::vector<quint8> BreakpointInstructionARM32BKPT_LE         = {0x70, 0x00, 0x20, 0xe1}; // bkpt #0
 }
 
 //------------------------------------------------------------------------------
 // Name: Breakpoint
 // Desc: constructor
 //------------------------------------------------------------------------------
-Breakpoint::Breakpoint(edb::address_t address) : address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false), type_(edb::v1::config().default_breakpoint_type) {
+Breakpoint::Breakpoint(edb::address_t address)
+	: address_(address), type_(edb::v1::config().default_breakpoint_type) {
 
-	if(!enable()) {
-		throw breakpoint_creation_error();
+	if (!enable()) {
+		throw BreakpointCreationError();
 	}
 }
 
-auto Breakpoint::supported_types() -> std::vector<BreakpointType> {
+auto Breakpoint::supportedTypes() -> std::vector<BreakpointType> {
 	std::vector<BreakpointType> types = {
-		BreakpointType{Type{TypeId::Automatic          },QObject::tr("Automatic")},
-		BreakpointType{Type{TypeId::ARM32              },QObject::tr("Always ARM32 UDF")},
-		BreakpointType{Type{TypeId::Thumb2Byte         },QObject::tr("Always Thumb UDF")},
-		BreakpointType{Type{TypeId::Thumb4Byte         },QObject::tr("Always Thumb2 UDF.W")},
-		BreakpointType{Type{TypeId::UniversalThumbARM32},QObject::tr("Universal ARM/Thumb UDF(+B .-2)")},
-		BreakpointType{Type{TypeId::ARM32BKPT          },QObject::tr("ARM32 BKPT (may be slow)")},
-		BreakpointType{Type{TypeId::ThumbBKPT          },QObject::tr("Thumb BKPT (may be slow)")},
+		BreakpointType{Type{TypeId::Automatic}, QObject::tr("Automatic")},
+		BreakpointType{Type{TypeId::ARM32}, QObject::tr("Always ARM32 UDF")},
+		BreakpointType{Type{TypeId::Thumb2Byte}, QObject::tr("Always Thumb UDF")},
+		BreakpointType{Type{TypeId::Thumb4Byte}, QObject::tr("Always Thumb2 UDF.W")},
+		BreakpointType{Type{TypeId::UniversalThumbARM32}, QObject::tr("Universal ARM/Thumb UDF(+B .-2)")},
+		BreakpointType{Type{TypeId::ARM32BKPT}, QObject::tr("ARM32 BKPT (may be slow)")},
+		BreakpointType{Type{TypeId::ThumbBKPT}, QObject::tr("Thumb BKPT (may be slow)")},
 	};
 	return types;
 }
 
-void Breakpoint::set_type(TypeId type) {
+void Breakpoint::setType(TypeId type) {
 	disable();
-	type_=type;
-	if(!enable()) {
-		throw breakpoint_creation_error();
+	type_ = type;
+	if (!enable()) {
+		throw BreakpointCreationError();
 	}
 }
 
-void Breakpoint::set_type(IBreakpoint::TypeId type) {
+void Breakpoint::setType(IBreakpoint::TypeId type) {
 	disable();
-	if(Type{type}>=TypeId::TYPE_COUNT)
-		throw breakpoint_creation_error();
-	set_type(type);
+	if (Type{type} >= TypeId::TYPE_COUNT)
+		throw BreakpointCreationError();
+	setType(type);
 }
 
 //------------------------------------------------------------------------------
@@ -91,37 +92,48 @@ Breakpoint::~Breakpoint() {
 // Desc:
 //------------------------------------------------------------------------------
 bool Breakpoint::enable() {
-	if(!enabled()) {
-		if(IProcess *process = edb::v1::debugger_core->process()) {
+	if (!enabled()) {
+		if (IProcess *process = edb::v1::debugger_core->process()) {
 			std::vector<quint8> prev(4);
-			prev.resize(process->read_bytes(address(), &prev[0], prev.size()));
-			if(prev.size()) {
-				original_bytes_ = prev;
+			prev.resize(process->readBytes(address(), &prev[0], prev.size()));
+			if (prev.size()) {
+				originalBytes_ = prev;
 
-				const std::vector<quint8>* bpBytes=nullptr;
-				switch(TypeId{type_})
-				{
+				const std::vector<quint8> *bpBytes = nullptr;
+				switch (TypeId{type_}) {
 				case TypeId::Automatic:
-					if(edb::v1::debugger_core->cpu_mode()==IDebugger::CPUMode::Thumb) {
-						bpBytes=&BreakpointInstructionThumb_LE;
+					if (edb::v1::debugger_core->cpuMode() == IDebugger::CpuMode::Thumb) {
+						bpBytes = &BreakpointInstructionThumb_LE;
 					} else {
-						bpBytes=&BreakpointInstructionARM_LE;
+						bpBytes = &BreakpointInstructionARM_LE;
 					}
 					break;
-				case TypeId::ARM32:               bpBytes=&BreakpointInstructionARM_LE; break;
-				case TypeId::Thumb2Byte:          bpBytes=&BreakpointInstructionThumb_LE; break;
-				case TypeId::Thumb4Byte:          bpBytes=&BreakpointInstructionThumb2_LE; break;
-				case TypeId::UniversalThumbARM32: bpBytes=&BreakpointInstructionUniversalThumbARM_LE; break;
-				case TypeId::ARM32BKPT:           bpBytes=&BreakpointInstructionARM32BKPT_LE; break;
-				case TypeId::ThumbBKPT:           bpBytes=&BreakpointInstructionThumbBKPT_LE; break;
+				case TypeId::ARM32:
+					bpBytes = &BreakpointInstructionARM_LE;
+					break;
+				case TypeId::Thumb2Byte:
+					bpBytes = &BreakpointInstructionThumb_LE;
+					break;
+				case TypeId::Thumb4Byte:
+					bpBytes = &BreakpointInstructionThumb2_LE;
+					break;
+				case TypeId::UniversalThumbARM32:
+					bpBytes = &BreakpointInstructionUniversalThumbARM_LE;
+					break;
+				case TypeId::ARM32BKPT:
+					bpBytes = &BreakpointInstructionARM32BKPT_LE;
+					break;
+				case TypeId::ThumbBKPT:
+					bpBytes = &BreakpointInstructionThumbBKPT_LE;
+					break;
 				}
 				assert(bpBytes);
-				assert(original_bytes_.size() >= bpBytes->size());
-				original_bytes_.resize(bpBytes->size());
+				assert(originalBytes_.size() >= bpBytes->size());
+				originalBytes_.resize(bpBytes->size());
 
 				// FIXME: we don't check whether this breakpoint will overlap any of the existing breakpoints
 
-				if(process->write_bytes(address(), bpBytes->data(), bpBytes->size())) {
+				if (process->writeBytes(address(), bpBytes->data(), bpBytes->size())) {
 					enabled_ = true;
 					return true;
 				}
@@ -136,9 +148,9 @@ bool Breakpoint::enable() {
 // Desc:
 //------------------------------------------------------------------------------
 bool Breakpoint::disable() {
-	if(enabled()) {
-		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(process->write_bytes(address(), &original_bytes_[0], original_bytes_.size())) {
+	if (enabled()) {
+		if (IProcess *process = edb::v1::debugger_core->process()) {
+			if (process->writeBytes(address(), &originalBytes_[0], originalBytes_.size())) {
 				enabled_ = false;
 				return true;
 			}
@@ -152,26 +164,26 @@ bool Breakpoint::disable() {
 // Desc:
 //------------------------------------------------------------------------------
 void Breakpoint::hit() {
-	++hit_count_;
+	++hitCount_;
 }
 
 //------------------------------------------------------------------------------
-// Name: set_one_time
+// Name: setOneTime
 // Desc:
 //------------------------------------------------------------------------------
-void Breakpoint::set_one_time(bool value) {
-	one_time_ = value;
+void Breakpoint::setOneTime(bool value) {
+	oneTime_ = value;
 }
 
 //------------------------------------------------------------------------------
-// Name: set_internal
+// Name: setInternal
 // Desc:
 //------------------------------------------------------------------------------
-void Breakpoint::set_internal(bool value) {
+void Breakpoint::setInternal(bool value) {
 	internal_ = value;
 }
 
-std::vector<size_t> Breakpoint::possible_rewind_sizes() {
+std::vector<size_t> Breakpoint::possibleRewindSizes() {
 	return {0}; // Even BKPT stops before the instruction, let alone UDF
 }
 

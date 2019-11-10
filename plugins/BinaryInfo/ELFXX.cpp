@@ -17,21 +17,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ELFXX.h"
-#include "libELF/elf_phdr.h"
 #include "ByteShiftArray.h"
 #include "IDebugger.h"
 #include "IProcess.h"
 #include "IRegion.h"
+#include "MemoryRegions.h"
 #include "Util.h"
 #include "edb.h"
+#include "libELF/elf_phdr.h"
 #include "string_hash.h"
-#include "MemoryRegions.h"
 
 #include <QDebug>
-#include <QVector>
 #include <QFile>
-#include <cstring>
+#include <QVector>
 #include <cstdint>
+#include <cstring>
 
 namespace BinaryInfoPlugin {
 
@@ -41,36 +41,37 @@ class ELFBinaryException : public std::exception {
 
 class InvalidArguments : public ELFBinaryException {
 public:
-	const char * what() const noexcept override {
+	const char *what() const noexcept override {
 		return "Invalid Arguments";
 	}
 };
 
 class ReadFailure : public ELFBinaryException {
 public:
-	const char * what() const noexcept override {
+	const char *what() const noexcept override {
 		return "Read Failure";
 	}
 };
 
 class InvalidELF : public ELFBinaryException {
 public:
-	const char * what() const noexcept override {
+	const char *what() const noexcept override {
 		return "Invalid ELF";
 	}
 };
 
 class InvalidArchitecture : public ELFBinaryException {
 public:
-	const char * what() const noexcept override {
+	const char *what() const noexcept override {
 		return "Invalid Architecture";
 	}
 };
 
-template <class elfxx_header>
-ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region) : region_(region) {
+template <class ElfHeader>
+ELFXX<ElfHeader>::ELFXX(const std::shared_ptr<IRegion> &region)
+	: region_(region) {
 
-	using phdr_type = typename elfxx_header::elf_phdr;
+	using phdr_type = typename ElfHeader::elf_phdr;
 
 	if (!region_) {
 		throw InvalidArguments();
@@ -81,34 +82,34 @@ ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region) : region_(reg
 		throw ReadFailure();
 	}
 
-	if(!process->read_bytes(region_->start(), &header_, sizeof(elfxx_header))) {
+	if (!process->readBytes(region_->start(), &header_, sizeof(ElfHeader))) {
 		throw ReadFailure();
 	}
 
-	validate_header();
-		
+	validateHeader();
+
 	headers_.push_back({region_->start(), header_.e_ehsize});
-	headers_.push_back({region_->start() + header_.e_phoff, static_cast<size_t>(header_.e_phentsize * header_.e_phnum) });
+	headers_.push_back({region_->start() + header_.e_phoff, static_cast<size_t>(header_.e_phentsize * header_.e_phnum)});
 
 	auto phdr_size = header_.e_phentsize;
 
 	if (phdr_size < sizeof(phdr_type)) {
-		qDebug()<< QString::number(region_->start(), 16) << "program header size less than expected";
-		base_address_ = region_->start();
+		qDebug() << QString::number(region_->start(), 16) << "program header size less than expected";
+		baseAddress_ = region_->start();
 		return;
 	}
 
 	phdr_type phdr;
 
-	auto phdr_base = region_->start() + header_.e_phoff;
+	auto phdr_base        = region_->start() + header_.e_phoff;
 	edb::address_t lowest = ULLONG_MAX;
 
-	if(header_.e_type == ET_EXEC) {
+	if (header_.e_type == ET_EXEC) {
 
 		// iterate all of the program headers
-		for (quint16 entry = 0; entry < header_.e_phnum; ++entry) {
+		for (uint16_t entry = 0; entry < header_.e_phnum; ++entry) {
 
-			if (!process->read_bytes(phdr_base + (phdr_size * entry), &phdr, sizeof(phdr_type))) {
+			if (!process->readBytes(phdr_base + (phdr_size * entry), &phdr, sizeof(phdr_type))) {
 				qDebug() << "Failed to read program header";
 				break;
 			}
@@ -119,11 +120,11 @@ ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region) : region_(reg
 				break;
 			}
 		}
-	} else if(header_.e_type == ET_DYN) {
+	} else if (header_.e_type == ET_DYN) {
 
 		const QString process_executable = edb::v1::debugger_core->process()->name();
-		for(const std::shared_ptr<IRegion> &r : edb::v1::memory_regions().regions()) {
-			if(r->executable() && r->name() == region->name()) {
+		for (const std::shared_ptr<IRegion> &r : edb::v1::memory_regions().regions()) {
+			if (r->executable() && r->name() == region->name()) {
 				lowest = std::min(lowest, r->start());
 			}
 		}
@@ -131,18 +132,18 @@ ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region) : region_(reg
 
 	if (lowest == ULLONG_MAX) {
 		qDebug() << "binary base address not found. Assuming " << QString::number(region_->start(), 16);
-		base_address_ = region->start();
+		baseAddress_ = region->start();
 	} else {
-		base_address_ = lowest;
+		baseAddress_ = lowest;
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: header_size
-// Desc: returns the number of bytes in this executable's header
-//------------------------------------------------------------------------------
-template <class elfxx_header>
-size_t ELFXX<elfxx_header>::header_size() const {
+template <class ElfHeader>
+/**
+ * @brief ELFXX<ElfHeader>::headerSize
+ * @return the number of bytes in this executable's header
+ */
+size_t ELFXX<ElfHeader>::headerSize() const {
 	size_t size = header_.e_ehsize;
 	// Do the program headers immediately follow the ELF header?
 	if (size == header_.e_phoff) {
@@ -151,53 +152,51 @@ size_t ELFXX<elfxx_header>::header_size() const {
 	return size;
 }
 
-//------------------------------------------------------------------------------
-// Name: headers
-// Desc: returns a list of all headers in this binary
-//------------------------------------------------------------------------------
-template <class elfxx_header>
-std::vector<IBinary::Header> ELFXX<elfxx_header>::headers() const {
+/**
+ * @brief ELFXX<ElfHeader>::headers
+ * @return a list of all headers in this binary
+ */
+template <class ElfHeader>
+std::vector<IBinary::Header> ELFXX<ElfHeader>::headers() const {
 	return headers_;
 }
 
-//------------------------------------------------------------------------------
-// Name: validate_header
-// Desc: ensures that the header that we read was valid
-//------------------------------------------------------------------------------
-template <class elfxx_header>
-void ELFXX<elfxx_header>::validate_header() {
-	if(std::memcmp(header_.e_ident, ELFMAG, SELFMAG) != 0) {
+/**
+ * @brief ELFXX<ElfHeader>::validateHeader
+ *
+ * ensures that the header that we read was valid
+ */
+template <class ElfHeader>
+void ELFXX<ElfHeader>::validateHeader() {
+	if (std::memcmp(header_.e_ident, ELFMAG, SELFMAG) != 0) {
 		throw InvalidELF();
 	}
-	if (header_.e_ident[EI_CLASS] != elfxx_header::ELFCLASS) {
+	if (header_.e_ident[EI_CLASS] != ElfHeader::ELFCLASS) {
 		throw InvalidArchitecture();
 	}
 }
 
-
-//------------------------------------------------------------------------------
-// Name: entry_point
-// Desc: returns the entry point if any of the binary
-//------------------------------------------------------------------------------
-template <class elfxx_header>
-edb::address_t ELFXX<elfxx_header>::entry_point() {
-	return header_.e_entry + base_address_;
+/**
+ * @brief ELFXX<ElfHeader>::entryPoint
+ * @return the entry point if any of the binary
+ */
+template <class ElfHeader>
+edb::address_t ELFXX<ElfHeader>::entryPoint() {
+	return header_.e_entry + baseAddress_;
 }
 
-//------------------------------------------------------------------------------
-// Name: header
-// Desc: returns a copy of the file header or NULL if the region wasn't a valid,
-//       known binary type
-//------------------------------------------------------------------------------
-template <class elfxx_header>
-const void *ELFXX<elfxx_header>::header() const {
+/**
+ * @brief ELFXX<ElfHeader>::header
+ * @return a copy of the file header or nullptr if the region wasn't a valid,
+ * known binary type
+ */
+template <class ElfHeader>
+const void *ELFXX<ElfHeader>::header() const {
 	return &header_;
 }
-
 
 // explicit instantiations
 template class ELFXX<elf32_header>;
 template class ELFXX<elf64_header>;
 
 }
-

@@ -30,18 +30,18 @@ class GraphicsLineItem;
 
 class GraphEdge final : public QGraphicsItemGroup {
 public:
-    GraphEdge(GraphNode *from, GraphNode *to, const QColor &color = Qt::black, QGraphicsItem *parent = nullptr);
-	GraphEdge(const GraphEdge &)            = delete;
-	GraphEdge& operator=(const GraphEdge &) = delete;
+	GraphEdge(GraphNode *from, GraphNode *to, const QColor &color = Qt::black, QGraphicsItem *parent = nullptr);
+	GraphEdge(const GraphEdge &) = delete;
+	GraphEdge &operator=(const GraphEdge &) = delete;
 	~GraphEdge() override;
 
 public:
-    enum { Type = UserType + 3 };
+	enum { Type = UserType + 3 };
 
-    int type() const override {
-        // Enable the use of qgraphicsitem_cast with this item.
-        return Type;
-    }
+	int type() const override {
+		// Enable the use of qgraphicsitem_cast with this item.
+		return Type;
+	}
 
 public:
 	GraphNode *from() const;
@@ -65,11 +65,11 @@ protected:
 	QGraphicsLineItem *createLineSegment(const QLineF &line, const QPen &pen);
 
 protected:
-	GraphNode   *const from_;
-	GraphNode   *const to_;
-	GraphWidget *const graph_;
-	QColor      color_;
-	Agedge_t    *edge_;
+	GraphNode *from_    = nullptr;
+	GraphNode *to_      = nullptr;
+	GraphWidget *graph_ = nullptr;
+	Agedge_t *edge_     = nullptr;
+	QColor color_;
 };
 
 #endif

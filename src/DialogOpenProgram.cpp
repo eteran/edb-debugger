@@ -31,10 +31,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * @param directory
  * @param filter
  */
-DialogOpenProgram::DialogOpenProgram(QWidget *parent, const QString &caption, const QString &directory, const QString &filter) :
-	QFileDialog(parent, caption, directory, filter),
-	argsEdit(new QLineEdit(this)),
-	workDir(new QLineEdit(QDir::currentPath(), this)) {
+DialogOpenProgram::DialogOpenProgram(QWidget *parent, const QString &caption, const QString &directory, const QString &filter)
+	: QFileDialog(parent, caption, directory, filter),
+	  argsEdit_(new QLineEdit(this)),
+	  workDir_(new QLineEdit(QDir::currentPath(), this)) {
 
 	setOptions(QFileDialog::DontUseNativeDialog);
 
@@ -48,14 +48,14 @@ DialogOpenProgram::DialogOpenProgram(QWidget *parent, const QString &caption, co
 		QPushButton *const browseDirButton(new QPushButton(tr("&Browse..."), this));
 
 		const auto argsLabel = new QLabel(tr("Program &arguments:"), this);
-		argsLabel->setBuddy(argsEdit);
+		argsLabel->setBuddy(argsEdit_);
 		layout->addWidget(argsLabel, rowCount, 0);
-		layout->addWidget(argsEdit, rowCount, 1);
+		layout->addWidget(argsEdit_, rowCount, 1);
 
 		const auto workDirLabel = new QLabel(tr("Working &directory:"), this);
-		workDirLabel->setBuddy(workDir);
+		workDirLabel->setBuddy(workDir_);
 		layout->addWidget(workDirLabel, rowCount + 1, 0);
-		layout->addWidget(workDir, rowCount + 1, 1);
+		layout->addWidget(workDir_, rowCount + 1, 1);
 		layout->addWidget(browseDirButton, rowCount + 1, 2);
 
 		connect(browseDirButton, &QPushButton::clicked, this, &DialogOpenProgram::browsePressed);
@@ -68,9 +68,9 @@ DialogOpenProgram::DialogOpenProgram(QWidget *parent, const QString &caption, co
  * @brief DialogOpenProgram::browsePressed
  */
 void DialogOpenProgram::browsePressed() {
-	const QString dir = QFileDialog::getExistingDirectory(this, tr("Choose program working directory"), workDir->text());
+	const QString dir = QFileDialog::getExistingDirectory(this, tr("Choose program working directory"), workDir_->text());
 	if (!dir.isEmpty()) {
-		workDir->setText(dir);
+		workDir_->setText(dir);
 	}
 }
 
@@ -79,7 +79,7 @@ void DialogOpenProgram::browsePressed() {
  * @return
  */
 QList<QByteArray> DialogOpenProgram::arguments() const {
-	const QStringList args = edb::v1::parse_command_line(argsEdit->text());
+	const QStringList args = edb::v1::parse_command_line(argsEdit_->text());
 	QList<QByteArray> ret;
 	for (const QString &arg : args) {
 		ret << arg.toLocal8Bit();
@@ -92,5 +92,5 @@ QList<QByteArray> DialogOpenProgram::arguments() const {
  * @return
  */
 QString DialogOpenProgram::workingDirectory() const {
-	return workDir->text();
+	return workDir_->text();
 }

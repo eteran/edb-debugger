@@ -30,7 +30,7 @@ namespace DebuggerErrorConsolePlugin {
 class DebuggerErrorConsole : public QDialog {
 	Q_OBJECT
 public:
-    explicit DebuggerErrorConsole(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DebuggerErrorConsole(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 };
 
 class Plugin : public QObject, public IPlugin {
@@ -45,14 +45,14 @@ public:
 	~Plugin() override = default;
 
 public:
-	QMenu *menu(QWidget* parent = nullptr) override;
+	QMenu *menu(QWidget *parent = nullptr) override;
 
 private:
-	static void debugMessageIntercept(QtMsgType type, const QMessageLogContext&, const QString &message);
+	static void debugMessageIntercept(QtMsgType type, const QMessageLogContext &, const QString &message);
 
 private:
-	QPlainTextEdit* textWidget_ = nullptr;
-	QMenu* menu_                = nullptr;
+	QPlainTextEdit *textWidget_ = nullptr;
+	QMenu *menu_                = nullptr;
 };
 
 }

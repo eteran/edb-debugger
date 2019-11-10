@@ -23,22 +23,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QTreeView;
 
-class RegisterViewDelegate: public QStyledItemDelegate {
+class RegisterViewDelegate : public QStyledItemDelegate {
 	Q_OBJECT
 
 public:
-    RegisterViewDelegate(QTreeView *view, QWidget *parent);
-	RegisterViewDelegate(const RegisterViewDelegate &)            = delete;
-	RegisterViewDelegate& operator=(const RegisterViewDelegate &) = delete;
+	RegisterViewDelegate(QTreeView *view, QWidget *parent);
+	RegisterViewDelegate(const RegisterViewDelegate &) = delete;
+	RegisterViewDelegate &operator=(const RegisterViewDelegate &) = delete;
 	~RegisterViewDelegate() override                              = default;
 
 public:
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-    QSize sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const override;
+	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+	QSize sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const override;
 
 private:
-    QTreeView *const view_;
+	QTreeView *view_;
 };
 
 #endif
-

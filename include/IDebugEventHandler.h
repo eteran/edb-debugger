@@ -29,7 +29,7 @@ public:
 	virtual ~IDebugEventHandler() = default;
 
 public:
-	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) = 0;
+	virtual edb::EVENT_STATUS handleEvent(const std::shared_ptr<IDebugEvent> &event) = 0;
 };
 
 #endif

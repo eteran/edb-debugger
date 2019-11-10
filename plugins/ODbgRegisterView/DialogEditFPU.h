@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Register.h"
 #include <QDialog>
-#include <QtGlobal>
-#include <QLineEdit>
+
+class QLineEdit;
 
 namespace ODbgRegisterView {
 
@@ -31,9 +31,9 @@ class DialogEditFPU : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogEditFPU(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogEditFPU(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	Register value() const;
-	void set_value(const Register &reg);
+	void setValue(const Register &reg);
 
 private Q_SLOTS:
 	void onHexEdited(const QString &);
@@ -42,13 +42,14 @@ private Q_SLOTS:
 	void updateHexEntry();
 
 protected:
-	bool eventFilter(QObject*, QEvent*) override;
-private:	
-	Register reg;
+	bool eventFilter(QObject *, QEvent *) override;
 
-	edb::value80                         value_;
-	ODbgRegisterView::Float80Edit *const floatEntry;
-	QLineEdit *const                     hexEntry;
+private:
+	Register reg_;
+
+	edb::value80 value_;
+	Float80Edit *floatEntry_ = nullptr;
+	QLineEdit *hexEntry_     = nullptr;
 };
 
 }

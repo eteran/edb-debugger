@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IPLUGIN_20061101_H_
 #define IPLUGIN_20061101_H_
 
-#include <QtPlugin>
 #include <QList>
 #include <QVariantMap>
+#include <QtPlugin>
 
 class QMenu;
 class QAction;
@@ -32,29 +32,29 @@ public:
 
 public:
 	void init() {
-		private_init();
+		privateInit();
 	}
 
 	void fini() {
-		private_fini();
+		privateFini();
 	}
 
 public:
-    virtual QMenu *menu(QWidget *parent = nullptr) = 0;
+	virtual QMenu *menu(QWidget *parent = nullptr) = 0;
 
 public:
 	// optional, overload these to have there contents added to a view's context menu
-	virtual QList<QAction *> cpu_context_menu()      { return {}; }
-	virtual QList<QAction *> register_context_menu() { return {}; }
-	virtual QList<QAction *> stack_context_menu()    { return {}; }
-	virtual QList<QAction *> data_context_menu()     { return {}; }
+	virtual QList<QAction *> cpuContextMenu() { return {}; }
+	virtual QList<QAction *> registerContextMenu() { return {}; }
+	virtual QList<QAction *> stackContextMenu() { return {}; }
+	virtual QList<QAction *> dataContextMenu() { return {}; }
 
 	// optional, overload this to add a page to the options dialog
-    virtual QWidget *options_page() { return nullptr; }
+	virtual QWidget *optionsPage() { return nullptr; }
 
 public:
-	virtual QVariantMap save_state() const          { return {}; }
-	virtual void restore_state(const QVariantMap &) { }
+	virtual QVariantMap saveState() const { return {}; }
+	virtual void restoreState(const QVariantMap &) {}
 
 public:
 	enum ArgumentStatus {
@@ -65,22 +65,22 @@ public:
 
 	// optional, command line argument processing
 	// return a string to add to "--help"
-	virtual QString extra_arguments() const        { return {}; }
+	virtual QString extraArguments() const { return {}; }
 
 	// take actions based on the command line arguments
 	// you *may* remove arguments which are exclusively yours
 	// return ARG_SUCCESS if the normal execution should continue
 	// return ARG_ERROR   if we should show usage and exit
 	// return ARG_EXIT    if you processed the arguments and we should terminate successfully
-	virtual ArgumentStatus parse_arguments(QStringList &) { return ARG_SUCCESS; }
+	virtual ArgumentStatus parseArguments(QStringList &) { return ARG_SUCCESS; }
 
 protected:
 	// optional init, overload this to have edb run it after loading the plugin
-	virtual void private_init() {
+	virtual void privateInit() {
 	}
 
 	// optional fini, overload this to have edb run it before unloading the plugin
-	virtual void private_fini() {
+	virtual void privateFini() {
 	}
 };
 

@@ -33,27 +33,27 @@ class EDB_EXPORT BasicBlock {
 public:
 	using size_type              = size_t;
 	using value_type             = instruction_pointer;
-	using reference              = instruction_pointer&;
-	using const_reference        = const instruction_pointer&;
+	using reference              = instruction_pointer &;
+	using const_reference        = const instruction_pointer &;
 	using iterator               = std::vector<instruction_pointer>::iterator;
 	using const_iterator         = std::vector<instruction_pointer>::const_iterator;
 	using reverse_iterator       = std::reverse_iterator<iterator>;
 	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 public:
-	BasicBlock()                                 = default;
-	BasicBlock(const BasicBlock &other)          = default;
+	BasicBlock()                        = default;
+	BasicBlock(const BasicBlock &other) = default;
 	BasicBlock &operator=(const BasicBlock &rhs) = default;
 	BasicBlock(BasicBlock &&other)               = default;
-	BasicBlock &operator=(BasicBlock &&rhs)      = default;
-	~BasicBlock()                                = default;
+	BasicBlock &operator=(BasicBlock &&rhs) = default;
+	~BasicBlock()                           = default;
 
 public:
 	void push_back(const instruction_pointer &inst);
-	void addRef(edb::address_t refsite, edb::address_t target);
-	
+	void addReference(edb::address_t refsite, edb::address_t target);
+
 public:
-	std::vector<std::pair<edb::address_t, edb::address_t>> refs() const;
+	std::vector<std::pair<edb::address_t, edb::address_t>> references() const;
 
 public:
 	reference operator[](size_type pos);
@@ -90,8 +90,8 @@ public:
 	edb::address_t lastAddress() const;
 
 private:
-	std::vector<instruction_pointer>                       instructions_;
-	std::vector<std::pair<edb::address_t, edb::address_t>> refs_;
+	std::vector<instruction_pointer> instructions_;
+	std::vector<std::pair<edb::address_t, edb::address_t>> references_;
 };
 
 #endif

@@ -35,8 +35,8 @@ struct elf32_rel {
    whoever) gets their act together.  */
 /* The following, at least, is used on Sparc v9, MIPS, and Alpha.  */
 struct elf64_rel {
-	elf64_addr  r_offset; /* Address */
-	elf64_xword r_info;   /* Relocation type and symbol index */
+	elf64_addr r_offset; /* Address */
+	elf64_xword r_info;  /* Relocation type and symbol index */
 };
 
 #endif

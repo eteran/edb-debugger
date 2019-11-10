@@ -25,23 +25,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class NavigationHistory {
 
-    enum LASTOP {
-		LASTOP_NONE = 0, 
-		LASTOP_PREV, 
+	enum LASTOP {
+		LASTOP_NONE = 0,
+		LASTOP_PREV,
 		LASTOP_NEXT
 	};
-	
+
 public:
-    explicit NavigationHistory(int count = 100);
-    void add(edb::address_t address);
-    edb::address_t getNext();
-    edb::address_t getPrev();
+	explicit NavigationHistory(int count = 100);
+	void add(edb::address_t address);
+	edb::address_t getNext();
+	edb::address_t getPrev();
 
 private:
-    QList<edb::address_t> list_;
-    int pos_ = 0;
-    int max_count_;
-    LASTOP lastop_ = LASTOP_NONE;
+	QList<edb::address_t> list_;
+	int pos_ = 0;
+	int maxCount_;
+	LASTOP lastop_ = LASTOP_NONE;
 };
 
 #endif

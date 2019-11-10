@@ -28,10 +28,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace FasLoaderPlugin {
 
+/**
+ * @brief FasLoader::FasLoader
+ * @param parent
+ */
 FasLoader::FasLoader(QObject *parent)
 	: QObject(parent) {
 }
 
+/**
+ * @brief FasLoader::menu
+ * @param parent
+ * @return
+ */
 QMenu *FasLoader::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
@@ -44,11 +53,14 @@ QMenu *FasLoader::menu(QWidget *parent) {
 	return menu_;
 }
 
+/**
+ * @brief FasLoader::load
+ */
 void FasLoader::load() {
 	if (edb::v1::debugger_core) {
-		if (auto process = edb::v1::debugger_core->process()) {
-			auto fileName = process->executable();
-			auto fasName  = fileName;
+		if (IProcess *process = edb::v1::debugger_core->process()) {
+			const QString fileName = process->executable();
+			QString fasName        = fileName;
 			fasName.append(".fas");
 
 			Fas::Core fasCore;
@@ -67,7 +79,7 @@ void FasLoader::load() {
 					symbol->type = 'd';
 				}
 
-				edb::v1::symbol_manager().add_symbol(symbol);
+				edb::v1::symbol_manager().addSymbol(symbol);
 			}
 		}
 	}

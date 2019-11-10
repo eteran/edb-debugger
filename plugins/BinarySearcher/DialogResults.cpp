@@ -9,7 +9,9 @@ namespace BinarySearcherPlugin {
  * @param parent
  * @param f
  */
-DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 }
 
@@ -21,7 +23,7 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
  */
 void DialogResults::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
 	const edb::address_t addr = item->data(Qt::UserRole).toULongLong();
-	switch(static_cast<RegionType>(item->data(Qt::UserRole + 1).toInt())) {
+	switch (static_cast<RegionType>(item->data(Qt::UserRole + 1).toInt())) {
 	case RegionType::Code:
 		edb::v1::jump_to_address(addr);
 		break;
@@ -52,6 +54,5 @@ void DialogResults::addResult(RegionType region, edb::address_t address) {
 int DialogResults::resultCount() const {
 	return ui.listWidget->count();
 }
-
 
 }

@@ -30,12 +30,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDateTime>
 #include <QDebug>
-#include <QStringList>
 #include <QFileInfo>
+#include <QStringList>
 
-#include <Windows.h>
-#include <TlHelp32.h>
 #include <Psapi.h>
+#include <TlHelp32.h>
+#include <Windows.h>
 
 #include <algorithm>
 
@@ -75,13 +75,13 @@ bool set_debug_privilege(HANDLE process, bool set) {
 	bool ok = false;
 
 	//process must have PROCESS_QUERY_INFORMATION
-	if(OpenProcessToken(process, TOKEN_ADJUST_PRIVILEGES, &token)) {
+	if (OpenProcessToken(process, TOKEN_ADJUST_PRIVILEGES, &token)) {
 
 		LUID luid;
-		if(LookupPrivilegeValue(nullptr, SE_DEBUG_NAME, &luid)) {
+		if (LookupPrivilegeValue(nullptr, SE_DEBUG_NAME, &luid)) {
 			TOKEN_PRIVILEGES tp;
-			tp.PrivilegeCount = 1;
-			tp.Privileges[0].Luid = luid;
+			tp.PrivilegeCount           = 1;
+			tp.Privileges[0].Luid       = luid;
 			tp.Privileges[0].Attributes = set ? SE_PRIVILEGE_ENABLED : 0;
 
 			ok = AdjustTokenPrivileges(token, false, &tp, NULL, nullptr, nullptr);
@@ -94,45 +94,43 @@ bool set_debug_privilege(HANDLE process, bool set) {
 
 }
 
-
-//------------------------------------------------------------------------------
-// Name: DebuggerCore
-// Desc: constructor
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::DebuggerCore
+ */
 DebuggerCore::DebuggerCore() {
 	DebugSetProcessKillOnExit(false);
 
 	SYSTEM_INFO sys_info;
 	GetSystemInfo(&sys_info);
-	page_size_ = sys_info.dwPageSize;
+	pageSize_ = sys_info.dwPageSize;
 
 	set_debug_privilege(GetCurrentProcess(), true); // gogo magic powers
 }
 
-//------------------------------------------------------------------------------
-// Name: ~DebuggerCore
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::~DebuggerCore
+ */
 DebuggerCore::~DebuggerCore() {
 	detach();
 	set_debug_privilege(GetCurrentProcess(), false);
 }
 
-//------------------------------------------------------------------------------
-// Name: page_size
-// Desc: returns the size of a page on this system
-//------------------------------------------------------------------------------
-size_t DebuggerCore::page_size() const {
-	return page_size_;
+/**
+ * @brief DebuggerCore::pageSize
+ * @return the size of a page on this system
+ */
+size_t DebuggerCore::pageSize() const {
+	return pageSize_;
 }
 
-//------------------------------------------------------------------------------
-// Name: has_extension
-// Desc:
-//------------------------------------------------------------------------------
-bool DebuggerCore::has_extension(quint64 ext) const {
+/**
+ * @brief DebuggerCore::hasExtension
+ * @param ext
+ * @return
+ */
+bool DebuggerCore::hasExtension(quint64 ext) const {
 #if !defined(EDB_X86_64)
-	switch(ext) {
+	switch (ext) {
 	case edb::string_hash("MMX"):
 		return IsProcessorFeaturePresent(PF_MMX_INSTRUCTIONS_AVAILABLE);
 	case edb::string_hash("XMM"):
@@ -141,7 +139,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 		return false;
 	}
 #else
-	switch(ext) {
+	switch (ext) {
 	case edb::string_hash("MMX"):
 	case edb::string_hash("XMM"):
 		return true;
@@ -151,31 +149,33 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: wait_debug_event
-// Desc: waits for a debug event, secs is a timeout (but is not yet respected)
-//       ok will be set to false if the timeout expires
-//------------------------------------------------------------------------------
-std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
-	if(attached()) {
+/**
+ * waits for a debug event, secs is a timeout (but is not yet respected)
+ *
+ * @brief DebuggerCore::waitDebugEvent
+ * @param msecs
+ * @return null if timeout occured
+ */
+std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(std::chrono::milliseconds msecs) {
+	if (attached()) {
 		DEBUG_EVENT de;
-		while(WaitForDebugEvent(&de, msecs == 0 ? INFINITE : static_cast<DWORD>(msecs))) {
+		while (WaitForDebugEvent(&de, msecs.count() == 0 ? INFINITE : msecs.count())) {
 
 			Q_ASSERT(process_->pid() == de.dwProcessId);
 
-			active_thread_ = de.dwThreadId;
+			activeThread_  = de.dwThreadId;
 			bool propagate = false;
 
-			switch(de.dwDebugEventCode) {
+			switch (de.dwDebugEventCode) {
 			case CREATE_THREAD_DEBUG_EVENT: {
 				auto newThread = std::make_shared<PlatformThread>(this, process_, &de.u.CreateThread);
-				threads_.insert(active_thread_, newThread);
+				threads_.insert(activeThread_, newThread);
 				break;
 			}
 			case EXIT_THREAD_DEBUG_EVENT:
-				threads_.remove(active_thread_);
+				threads_.remove(activeThread_);
 				break;
-			case CREATE_PROCESS_DEBUG_EVENT: {				
+			case CREATE_PROCESS_DEBUG_EVENT: {
 				CloseHandle(de.u.CreateProcessInfo.hFile);
 
 				process_ = std::make_shared<PlatformProcess>(this, de.u.CreateProcessInfo.hProcess);
@@ -185,8 +185,8 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 				thread_info.hThread           = de.u.CreateProcessInfo.hThread;
 				thread_info.lpStartAddress    = de.u.CreateProcessInfo.lpStartAddress;
 				thread_info.lpThreadLocalBase = de.u.CreateProcessInfo.lpThreadLocalBase;
-				auto newThread = std::make_shared<PlatformThread>(this, process_, &thread_info);
-				threads_.insert(active_thread_, newThread);
+				auto newThread                = std::make_shared<PlatformThread>(this, process_, &thread_info);
+				threads_.insert(activeThread_, newThread);
 				break;
 			}
 			case LOAD_DLL_DEBUG_EVENT:
@@ -194,7 +194,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 				break;
 			case EXIT_PROCESS_DEBUG_EVENT:
 				process_->resume(edb::DEBUG_CONTINUE);
-				process_        = nullptr;
+				process_ = nullptr;
 				// handle_event_exited returns DEBUG_STOP, which in turn keeps the debugger from resuming the process
 				// However, this is needed to close all internal handles etc. and finish the debugging session
 				// So we do it manually here
@@ -209,14 +209,14 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 				break;
 			}
 
-			if(auto p = static_cast<PlatformProcess *>(process_.get())) {
+			if (auto p = static_cast<PlatformProcess *>(process_.get())) {
 				p->lastEvent_ = de;
 			}
 
-			if(propagate) {
+			if (propagate) {
 				// normal event
-				auto e = std::make_shared<PlatformEvent>();
-				e->event = de;
+				auto e    = std::make_shared<PlatformEvent>();
+				e->event_ = de;
 				return e;
 			}
 
@@ -226,15 +226,16 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 	return nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: attach
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::attach
+ * @param pid
+ * @return
+ */
 Status DebuggerCore::attach(edb::pid_t pid) {
 
 	detach();
 
-	if(DebugActiveProcess(pid)) {
+	if (DebugActiveProcess(pid)) {
 		process_ = std::make_shared<PlatformProcess>(this, pid);
 		return Status::Ok;
 	}
@@ -242,13 +243,13 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 	return Status("Error DebuggerCore::attach");
 }
 
-//------------------------------------------------------------------------------
-// Name: detach
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::detach
+ * @return
+ */
 Status DebuggerCore::detach() {
-	if(attached()) {
-		clear_breakpoints();
+	if (attached()) {
+		clearBreakpoints();
 		// Make sure exceptions etc. are passed
 		ContinueDebugEvent(process_->pid(), active_thread(), DBG_CONTINUE);
 		DebugActiveProcessStop(process_->pid());
@@ -258,24 +259,28 @@ Status DebuggerCore::detach() {
 	return Status::Ok;
 }
 
-//------------------------------------------------------------------------------
-// Name: kill
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::kill
+ */
 void DebuggerCore::kill() {
-	if(auto p = static_cast<PlatformProcess *>(process_.get())) {
+	if (auto p = static_cast<PlatformProcess *>(process_.get())) {
 		TerminateProcess(p->hProcess_, -1);
 		detach();
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: open
-// Desc:
-// TODO: Don't inherit security descriptors from this process (default values)
-//       Is this even possible?
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::open
+ * @param path
+ * @param cwd
+ * @param args
+ * @param tty
+ * @return
+ */
 Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
+
+	// TODO: Don't inherit security descriptors from this process (default values)
+	//       Is this even possible?
 
 	Q_UNUSED(tty)
 
@@ -286,24 +291,19 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 	detach();
 
 	// default to process's directory
-	QString tcwd;
-	if(cwd.isEmpty()) {
-		tcwd = QFileInfo(path).canonicalPath();
-	} else {
-		tcwd = cwd;
-	}
+	QString tcwd = cwd.isEmpty() ? QFileInfo(path).canonicalPath() : cwd;
 
-	STARTUPINFO         startup_info = { 0 };
-	PROCESS_INFORMATION process_info = { nullptr };
+	STARTUPINFO startup_info         = {};
+	PROCESS_INFORMATION process_info = {};
 
 	const DWORD CREATE_FLAGS = DEBUG_PROCESS | DEBUG_ONLY_THIS_PROCESS | CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE;
 
-    wchar_t *const env_block = GetEnvironmentStringsW();
+	wchar_t *const env_block = GetEnvironmentStringsW();
 
 	// Set up command line
 	QString command_str = '\"' + QFileInfo(path).canonicalPath() + '\"'; // argv[0] = full path (explorer style)
-	if(!args.isEmpty()) {
-		for(QByteArray arg: args) {
+	if (!args.isEmpty()) {
+		for (QByteArray arg : args) {
 			command_str += " ";
 			command_str += arg;
 		}
@@ -311,21 +311,21 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 
 	// CreateProcessW wants a writable copy of the command line :<
 	auto command_path = new wchar_t[command_str.length() + sizeof(wchar_t)];
-    wcscpy_s(command_path, command_str.length() + 1, reinterpret_cast<const wchar_t*>(command_str.utf16()));
+	wcscpy_s(command_path, command_str.length() + 1, reinterpret_cast<const wchar_t *>(command_str.utf16()));
 
-	if(CreateProcessW(
-			reinterpret_cast<const wchar_t*>(path.utf16()), // exe
-	        command_path,    // commandline
-	        nullptr,         // default security attributes
-	        nullptr,         // default thread security too
-	        FALSE,           // inherit handles
+	if (CreateProcessW(
+			reinterpret_cast<const wchar_t *>(path.utf16()), // exe
+			command_path,                                    // commandline
+			nullptr,                                         // default security attributes
+			nullptr,                                         // default thread security too
+			FALSE,                                           // inherit handles
 			CREATE_FLAGS,
-	        env_block,       // environment data
-			reinterpret_cast<const wchar_t*>(tcwd.utf16()), // working directory
+			env_block,                                       // environment data
+			reinterpret_cast<const wchar_t *>(tcwd.utf16()), // working directory
 			&startup_info,
 			&process_info)) {
 
-		active_thread_ = process_info.dwThreadId;
+		activeThread_ = process_info.dwThreadId;
 		CloseHandle(process_info.hThread); // We don't need the thread handle
 		set_debug_privilege(process_info.hProcess, false);
 
@@ -345,45 +345,45 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: create_state
-// Desc:
-//------------------------------------------------------------------------------
-std::unique_ptr<IState> DebuggerCore::create_state() const {
+/**
+ * @brief DebuggerCore::createState
+ * @return
+ */
+std::unique_ptr<IState> DebuggerCore::createState() const {
 	return std::make_unique<PlatformState>();
 }
 
-//------------------------------------------------------------------------------
-// Name: sys_pointer_size
-// Desc: returns the size of a pointer on this arch
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::sys_pointer_size
+ * @return the size of a pointer on this arch
+ */
 int DebuggerCore::sys_pointer_size() const {
 	return sizeof(void *);
 }
 
-//------------------------------------------------------------------------------
-// Name: enumerate_processes
-// Desc:
-//------------------------------------------------------------------------------
-QMap<edb::pid_t, std::shared_ptr<IProcess> > DebuggerCore::enumerate_processes() const {
-	QMap<edb::pid_t, std::shared_ptr<IProcess> > ret;
+/**
+ * @brief DebuggerCore::enumerateProcesses
+ * @return
+ */
+QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerateProcesses() const {
+	QMap<edb::pid_t, std::shared_ptr<IProcess>> ret;
 
 	HANDLE handle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-	if(handle != INVALID_HANDLE_VALUE) {
+	if (handle != INVALID_HANDLE_VALUE) {
 
 		PROCESSENTRY32 lppe;
 
 		std::memset(&lppe, 0, sizeof(lppe));
 		lppe.dwSize = sizeof(lppe);
 
-		if(Process32First(handle, &lppe)) {
+		if (Process32First(handle, &lppe)) {
 			do {
 				// NOTE(eteran): the const_cast is reasonable here.
 				// While we don't want THIS function to mutate the DebuggerCore object
 				// we do want the associated PlatformProcess to be able to trigger
 				// non-const operations in the future, at least hypothetically.
-				auto pi = std::make_shared<PlatformProcess>(const_cast<DebuggerCore*>(this), lppe.th32ProcessID);
-				if(pi->hProcess_ == nullptr) {
+				auto pi = std::make_shared<PlatformProcess>(const_cast<DebuggerCore *>(this), lppe.th32ProcessID);
+				if (pi->hProcess_ == nullptr) {
 					continue;
 				}
 
@@ -391,7 +391,7 @@ QMap<edb::pid_t, std::shared_ptr<IProcess> > DebuggerCore::enumerate_processes()
 
 				std::memset(&lppe, 0, sizeof(lppe));
 				lppe.dwSize = sizeof(lppe);
-			} while(Process32Next(handle, &lppe));
+			} while (Process32Next(handle, &lppe));
 		}
 
 		CloseHandle(handle);
@@ -399,47 +399,46 @@ QMap<edb::pid_t, std::shared_ptr<IProcess> > DebuggerCore::enumerate_processes()
 	return ret;
 }
 
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
-	edb::pid_t parent = 1; // 1??
+/**
+ * @brief DebuggerCore::parentPid
+ * @param pid
+ * @return
+ */
+edb::pid_t DebuggerCore::parentPid(edb::pid_t pid) const {
+	edb::pid_t parent   = 1; // 1??
 	HANDLE hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, pid);
-	if(hProcessSnap != INVALID_HANDLE_VALUE) {
+	if (hProcessSnap != INVALID_HANDLE_VALUE) {
 		PROCESSENTRY32W pe32;
 		pe32.dwSize = sizeof(pe32);
 
-		if(Process32FirstW(hProcessSnap, &pe32)) {
+		if (Process32FirstW(hProcessSnap, &pe32)) {
 			do {
-				if(pid == pe32.th32ProcessID) {
+				if (pid == pe32.th32ProcessID) {
 					parent = pe32.th32ParentProcessID;
 					break;
 				}
-			} while(Process32NextW(hProcessSnap, &pe32));
+			} while (Process32NextW(hProcessSnap, &pe32));
 		}
 		CloseHandle(hProcessSnap);
 	}
 	return parent;
 }
 
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DebuggerCore::exceptions
+ * @return
+ */
 QMap<qlonglong, QString> DebuggerCore::exceptions() const {
 	QMap<qlonglong, QString> exceptions;
 
 	return exceptions;
 }
 
-//------------------------------------------------------------------------------
-// Name: cpu_type
-// Desc:
-//------------------------------------------------------------------------------
-quint64 DebuggerCore::cpu_type() const {
+/**
+ * @brief DebuggerCore::cpuType
+ * @return
+ */
+quint64 DebuggerCore::cpuType() const {
 #ifdef EDB_X86
 	return edb::string_hash("x86");
 #elif defined(EDB_X86_64)
@@ -447,11 +446,11 @@ quint64 DebuggerCore::cpu_type() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QString DebuggerCore::stack_pointer() const {
+/**
+ * @brief DebuggerCore::stackPointer
+ * @return
+ */
+QString DebuggerCore::stackPointer() const {
 #ifdef EDB_X86
 	return "esp";
 #elif defined(EDB_X86_64)
@@ -460,11 +459,11 @@ QString DebuggerCore::stack_pointer() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QString DebuggerCore::frame_pointer() const {
+/**
+ * @brief DebuggerCore::framePointer
+ * @return
+ */
+QString DebuggerCore::framePointer() const {
 #ifdef EDB_X86
 	return "ebp";
 #elif defined(EDB_X86_64)
@@ -473,11 +472,11 @@ QString DebuggerCore::frame_pointer() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QString DebuggerCore::instruction_pointer() const {
+/**
+ * @brief DebuggerCore::instructionPointer
+ * @return
+ */
+QString DebuggerCore::instructionPointer() const {
 #ifdef EDB_X86
 	return "eip";
 #elif defined(EDB_X86_64)
@@ -486,8 +485,20 @@ QString DebuggerCore::instruction_pointer() const {
 #endif
 }
 
-IProcess *DebuggerCore::process() const  {
+/**
+ * @brief DebuggerCore::process
+ * @return
+ */
+IProcess *DebuggerCore::process() const {
 	return process_.get();
+}
+
+/**
+ * @brief DebuggerCore::nopFillByte
+ * @return
+ */
+uint8_t DebuggerCore::nopFillByte() const {
+	return 0x90;
 }
 
 }

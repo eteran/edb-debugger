@@ -28,11 +28,11 @@ class OptionsPage : public QWidget {
 	Q_OBJECT
 
 public:
-    explicit OptionsPage(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit OptionsPage(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~OptionsPage() override = default;
 
 public:
-    void showEvent(QShowEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 
 public Q_SLOTS:
 	void on_instructionsBeforeIP_valueChanged(int i);
@@ -46,4 +46,3 @@ private:
 }
 
 #endif
-

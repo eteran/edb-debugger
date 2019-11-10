@@ -21,23 +21,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCorePlugin {
 
 const std::array<PlatformState::GPR::RegNameVariants, GPR_COUNT> PlatformState::GPR::GPRegNames = {
-    RegNameVariants{"r0", "a1"},
-    RegNameVariants{"r1", "a2"},
-    RegNameVariants{"r2", "a3"},
-    RegNameVariants{"r3", "a4"},
-    RegNameVariants{"r4", "v1"},
-    RegNameVariants{"r5", "v2"},
-    RegNameVariants{"r6", "v3"},
-    RegNameVariants{"r7", "v4"},
-    RegNameVariants{"r8", "v5"},
-    RegNameVariants{"r9", "sb", "v6"},
-    RegNameVariants{"r10", "sl", "v7"},
-    RegNameVariants{"r11", "fp", "v8"},
-    RegNameVariants{"r12", "ip", "v6"},
-    RegNameVariants{"sp", "r13"},
-    RegNameVariants{"lr", "r14"},
-    RegNameVariants{"pc", "r15"}
-};
+	RegNameVariants{"r0", "a1"},
+	RegNameVariants{"r1", "a2"},
+	RegNameVariants{"r2", "a3"},
+	RegNameVariants{"r3", "a4"},
+	RegNameVariants{"r4", "v1"},
+	RegNameVariants{"r5", "v2"},
+	RegNameVariants{"r6", "v3"},
+	RegNameVariants{"r7", "v4"},
+	RegNameVariants{"r8", "v5"},
+	RegNameVariants{"r9", "sb", "v6"},
+	RegNameVariants{"r10", "sl", "v7"},
+	RegNameVariants{"r11", "fp", "v8"},
+	RegNameVariants{"r12", "ip", "v6"},
+	RegNameVariants{"sp", "r13"},
+	RegNameVariants{"lr", "r14"},
+	RegNameVariants{"pc", "r15"}};
 
 /**
  * @brief PlatformState::PlatformState
@@ -57,19 +56,19 @@ std::unique_ptr<IState> PlatformState::clone() const {
 }
 
 /**
- * @brief PlatformState::flags_to_string
+ * @brief PlatformState::flagsToString
  * @return
  */
-QString PlatformState::flags_to_string() const {
-	return flags_to_string(flags_register().valueAsInteger());
+QString PlatformState::flagsToString() const {
+	return flagsToString(flagsRegister().valueAsInteger());
 }
 
 /**
- * @brief PlatformState::flags_to_string
+ * @brief PlatformState::flagsToString
  * @param flags
  * @return
  */
-QString PlatformState::flags_to_string(edb::reg_t flags) const {
+QString PlatformState::flagsToString(edb::reg_t flags) const {
 	return "flags string"; // FIXME: stub
 }
 
@@ -97,7 +96,7 @@ auto PlatformState::findGPR(QString const &name) const -> decltype(gpr.GPRegName
 Register PlatformState::value(const QString &reg) const {
 	const QString name = reg.toLower();
 	if (name == "cpsr") {
-		return flags_register();
+		return flagsRegister();
 	}
 
 	if (vfp.filled && name == "fpscr") {
@@ -106,29 +105,29 @@ Register PlatformState::value(const QString &reg) const {
 
 	const auto gprFoundIt = findGPR(name);
 	if (gprFoundIt != GPR::GPRegNames.end()) {
-		return gp_register(gprFoundIt - GPR::GPRegNames.begin());
+		return gpRegister(gprFoundIt - GPR::GPRegNames.begin());
 	}
 
 	return Register();
 }
 
 /**
- * @brief PlatformState::instruction_pointer_register
+ * @brief PlatformState::instructionPointerRegister
  * @return
  */
-Register PlatformState::instruction_pointer_register() const {
+Register PlatformState::instructionPointerRegister() const {
 #ifdef EDB_ARM32
-	return gp_register(GPR::PC);
+	return gpRegister(GPR::PC);
 #else
 	return Register(); // FIXME: stub
 #endif
 }
 
 /**
- * @brief PlatformState::flags_register
+ * @brief PlatformState::flagsRegister
  * @return
  */
-Register PlatformState::flags_register() const {
+Register PlatformState::flagsRegister() const {
 #ifdef EDB_ARM32
 	if (!gpr.filled)
 		return Register();
@@ -139,35 +138,35 @@ Register PlatformState::flags_register() const {
 }
 
 /**
- * @brief PlatformState::frame_pointer
+ * @brief PlatformState::framePointer
  * @return
  */
-edb::address_t PlatformState::frame_pointer() const {
+edb::address_t PlatformState::framePointer() const {
 	return gpr.GPRegs[GPR::FP];
 }
 
 /**
- * @brief PlatformState::instruction_pointer
+ * @brief PlatformState::instructionPointer
  * @return
  */
-edb::address_t PlatformState::instruction_pointer() const {
+edb::address_t PlatformState::instructionPointer() const {
 	return gpr.GPRegs[GPR::PC];
 }
 
 /**
- * @brief PlatformState::stack_pointer
+ * @brief PlatformState::stackPointer
  * @return
  */
-edb::address_t PlatformState::stack_pointer() const {
+edb::address_t PlatformState::stackPointer() const {
 	return gpr.GPRegs[GPR::SP];
 }
 
 /**
- * @brief PlatformState::debug_register
+ * @brief PlatformState::debugRegister
  * @param n
  * @return
  */
-edb::reg_t PlatformState::debug_register(size_t n) const {
+edb::reg_t PlatformState::debugRegister(size_t n) const {
 	return 0; // FIXME: stub
 }
 
@@ -180,10 +179,10 @@ edb::reg_t PlatformState::flags() const {
 }
 
 /**
- * @brief PlatformState::adjust_stack
+ * @brief PlatformState::adjustStack
  * @param bytes
  */
-void PlatformState::adjust_stack(int bytes) {
+void PlatformState::adjustStack(int bytes) {
 	gpr.GPRegs[GPR::SP] += bytes;
 }
 
@@ -214,47 +213,47 @@ bool PlatformState::GPR::empty() const {
  * @brief PlatformState::GPR::clear
  */
 void PlatformState::GPR::clear() {
-	util::markMemory(this, sizeof(*this));
+	util::mark_memory(this, sizeof(*this));
 	filled = false;
 }
 
 /**
- * @brief PlatformState::set_debug_register
+ * @brief PlatformState::setDebugRegister
  * @param n
  * @param value
  */
-void PlatformState::set_debug_register(size_t n, edb::reg_t value) {
+void PlatformState::setDebugRegister(size_t n, edb::reg_t value) {
 	// FIXME: stub
 }
 
 /**
- * @brief PlatformState::set_flags
+ * @brief PlatformState::setFlags
  * @param flags
  */
-void PlatformState::set_flags(edb::reg_t flags) {
+void PlatformState::setFlags(edb::reg_t flags) {
 	gpr.cpsr = flags;
 }
 
 /**
- * @brief PlatformState::set_instruction_pointer
+ * @brief PlatformState::setInstructionPointer
  * @param value
  */
-void PlatformState::set_instruction_pointer(edb::address_t value) {
+void PlatformState::setInstructionPointer(edb::address_t value) {
 	gpr.GPRegs[GPR::PC] = value;
 }
 
 /**
- * @brief PlatformState::set_register
+ * @brief PlatformState::setRegister
  * @param reg
  */
-void PlatformState::set_register(const Register &reg) {
+void PlatformState::setRegister(const Register &reg) {
 	if (!reg) {
 		return;
 	}
 
 	const QString name = reg.name().toLower();
 	if (name == "cpsr") {
-		set_flags(reg.value<edb::reg_t>());
+		setFlags(reg.value<edb::reg_t>());
 		return;
 	}
 
@@ -273,26 +272,26 @@ void PlatformState::set_register(const Register &reg) {
 }
 
 /**
- * @brief PlatformState::set_register
+ * @brief PlatformState::setRegister
  * @param name
  * @param value
  */
-void PlatformState::set_register(const QString &name, edb::reg_t value) {
+void PlatformState::setRegister(const QString &name, edb::reg_t value) {
 #ifdef EDB_ARM32
 	const QString regName = name.toLower();
-	set_register(make_Register<32>(regName, value, Register::TYPE_GPR));
+	setRegister(make_Register<32>(regName, value, Register::TYPE_GPR));
 	// FIXME: this doesn't take into account any 64-bit registers - possibly FPU data?
 #endif
 }
 
 /**
- * @brief PlatformState::gp_register
+ * @brief PlatformState::gpRegister
  * @param n
  * @return
  */
-Register PlatformState::gp_register(size_t n) const {
+Register PlatformState::gpRegister(size_t n) const {
 #ifdef EDB_ARM32
-	if(n < GPR::GPRegNames.size())
+	if (n < GPR::GPRegNames.size())
 		return make_Register<32>(gpr.GPRegNames[n].front(), gpr.GPRegs[n], Register::TYPE_GPR);
 	return Register();
 #else
@@ -331,7 +330,7 @@ void PlatformState::fillFrom(user_vfp const &regs) {
  * @param regs
  */
 void PlatformState::fillStruct(user_regs &regs) const {
-	util::markMemory(&regs, sizeof(regs));
+	util::mark_memory(&regs, sizeof(regs));
 	if (gpr.filled) {
 		for (unsigned i = 0; i < gpr.GPRegs.size(); ++i) {
 			regs.uregs[i] = gpr.GPRegs[i];
@@ -347,7 +346,7 @@ void PlatformState::fillStruct(user_regs &regs) const {
  * @param regs
  */
 void PlatformState::fillStruct(user_vfp &regs) const {
-	util::markMemory(&regs, sizeof(regs));
+	util::mark_memory(&regs, sizeof(regs));
 	if (vfp.filled) {
 		for (unsigned i = 0; i < vfp.d.size(); ++i) {
 			regs.fpregs[i] = vfp.d[i];

@@ -19,14 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOG_ABOUT_20150802_H_
 #define DIALOG_ABOUT_20150802_H_
 
-#include <QDialog>
 #include "ui_DialogAbout.h"
+#include <QDialog>
 
 class DialogAbout final : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogAbout(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogAbout(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogAbout() override = default;
 
 private:

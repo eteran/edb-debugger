@@ -12,11 +12,12 @@
 
 class RegisterRef {
 public:
-	RegisterRef(const char *name, const void *ptr, std::size_t size) : name_(name), ptr_(ptr), size_(size) {
+	constexpr RegisterRef(const char *name, const void *ptr, std::size_t size)
+		: name_(name), ptr_(ptr), size_(size) {
 	}
 
-	constexpr RegisterRef()                     = default;
-	RegisterRef(const RegisterRef &)            = default;	
+	constexpr RegisterRef()          = default;
+	RegisterRef(const RegisterRef &) = default;
 	RegisterRef &operator=(const RegisterRef &) = default;
 
 public:
@@ -25,9 +26,9 @@ public:
 public:
 	bool operator==(const RegisterRef &rhs) const { return size_ == rhs.size_ && std::memcmp(ptr_, rhs.ptr_, size_) == 0; }
 	bool operator!=(const RegisterRef &rhs) const { return size_ != rhs.size_ || std::memcmp(ptr_, rhs.ptr_, size_) != 0; }
-	
+
 public:
-	bool valid() const { return !!ptr_; }
+	bool valid() const { return ptr_ != nullptr; }
 
 public:
 	// The name of this register.
@@ -39,6 +40,5 @@ public:
 	// The size of the register. 0 means we cannot read it.
 	std::size_t size_ = 0;
 };
-
 
 #endif

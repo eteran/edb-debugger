@@ -35,15 +35,15 @@ public:
 	~DialogFunctions() override = default;
 
 private:
-    void showEvent(QShowEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 
 private:
-	void do_find();
+	void doFind();
 
 private:
 	Ui::DialogFunctions ui;
-	QSortFilterProxyModel *filter_model_;
-	QPushButton *btnFind_;
+	QSortFilterProxyModel *filterModel_ = nullptr;
+	QPushButton *buttonFind_            = nullptr;
 };
 
 }

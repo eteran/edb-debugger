@@ -30,7 +30,7 @@ class DialogProcessProperties : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogProcessProperties(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogProcessProperties(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogProcessProperties() override = default;
 
 public Q_SLOTS:
@@ -52,17 +52,12 @@ private:
 	void updateEnvironmentPage(const QString &filter);
 
 private:
-#if defined(Q_OS_LINUX)
-	static QString file_type(const QString &filename);
-#endif
-
-private:
-    void showEvent(QShowEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 
 private:
 	Ui::DialogProcessProperties ui;
-	ThreadsModel          *threads_model_;
-	QSortFilterProxyModel *threads_filter_;
+	ThreadsModel *threadsModel_           = nullptr;
+	QSortFilterProxyModel *threadsFilter_ = nullptr;
 };
 
 }

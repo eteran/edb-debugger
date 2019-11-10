@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DEBUGGERCORE_20090529_H_
 #define DEBUGGERCORE_20090529_H_
 
-#include <QObject>
 #include "DebuggerCoreBase.h"
 #include <QHash>
+#include <QObject>
 #include <QSet>
 #include <csignal>
 #include <unistd.h>
@@ -42,23 +42,24 @@ class DebuggerCore final : public DebuggerCoreBase {
 	friend class PlatformProcess;
 	friend class PlatformThread;
 
-	CPUMode cpu_mode() const override { return cpu_mode_; }
+	CpuMode cpuMode() const override { return cpuMode_; }
+
 public:
 	DebuggerCore();
 	~DebuggerCore() override;
 
 public:
-	std::size_t pointer_size() const override;
-	size_t page_size() const override;
-	bool has_extension(quint64 ext) const override;
-	std::shared_ptr<IDebugEvent> wait_debug_event(int msecs) override;
+	MeansOfCapture lastMeansOfCapture() const override;
 	Status attach(edb::pid_t pid) override;
 	Status detach() override;
-	void kill() override;
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
-    MeansOfCapture last_means_of_capture() const override;
-	void set_ignored_exceptions(const QList<qlonglong> &exceptions) override;
+	bool hasExtension(quint64 ext) const override;
+	size_t pageSize() const override;
+	std::shared_ptr<IDebugEvent> waitDebugEvent(std::chrono::milliseconds msecs) override;
+	std::size_t pointerSize() const override;
 	uint8_t nopFillByte() const override;
+	void kill() override;
+	void setIgnoredExceptions(const QList<qlonglong> &exceptions) override;
 
 public:
 	QMap<qlonglong, QString> exceptions() const override;
@@ -66,66 +67,66 @@ public:
 	qlonglong exceptionValue(const QString &name) override;
 
 public:
-	edb::pid_t parent_pid(edb::pid_t pid) const override;
+	edb::pid_t parentPid(edb::pid_t pid) const override;
 
 public:
-	std::unique_ptr<IState> create_state() const override;
+	std::unique_ptr<IState> createState() const override;
 
 public:
-	quint64 cpu_type() const override;
+	quint64 cpuType() const override;
 
 private:
-	QMap<edb::pid_t, std::shared_ptr<IProcess>> enumerate_processes() const override;
+	QMap<edb::pid_t, std::shared_ptr<IProcess>> enumerateProcesses() const override;
 
 public:
-	QString stack_pointer() const override;
-	QString frame_pointer() const override;
-	QString instruction_pointer() const override;
-	QString flag_register() const override;
+	QString flagRegister() const override;
+	QString framePointer() const override;
+	QString instructionPointer() const override;
+	QString stackPointer() const override;
 
 public:
 	IProcess *process() const override;
 
 private:
-	Status ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo);
-	Status ptrace_continue(edb::tid_t tid, long status);
-	Status ptrace_step(edb::tid_t tid, long status);
-	Status ptrace_set_options(edb::tid_t tid, long options);
-	Status ptrace_get_event_message(edb::tid_t tid, unsigned long *message);
-	long ptrace_traceme();
+	Status ptraceContinue(edb::tid_t tid, long status);
+	Status ptraceGetEventMessage(edb::tid_t tid, unsigned long *message);
+	Status ptraceGetSigInfo(edb::tid_t tid, siginfo_t *siginfo);
+	Status ptraceSetOptions(edb::tid_t tid, long options);
+	Status ptraceStep(edb::tid_t tid, long status);
+	long ptraceTraceme();
 
 private:
+	Status stopThreads();
+	int attachThread(edb::tid_t tid);
+	long ptraceOptions() const;
+	std::shared_ptr<IDebugEvent> handleEvent(edb::tid_t tid, int status);
+	std::shared_ptr<IDebugEvent> handleThreadCreate(edb::tid_t tid, int status);
+	void detectCpuMode();
+	void handleThreadExit(edb::tid_t tid, int status);
 	void reset();
-	Status stop_threads();
-	std::shared_ptr<IDebugEvent> handle_event(edb::tid_t tid, int status);
-	std::shared_ptr<IDebugEvent> handle_thread_create_event(edb::tid_t tid, int status);
-	void handle_thread_exit(edb::tid_t tid, int status);
-	int attach_thread(edb::tid_t tid);
-    void detectCPUMode();
-    long ptraceOptions() const;
 
 private:
 	using threads_type = QHash<edb::tid_t, std::shared_ptr<PlatformThread>>;
 
 private:
 	// TODO(eteran): a few of these logically belong in PlatformProcess...
-	QList<qlonglong>          ignored_exceptions_;
-	threads_type              threads_;
-	QSet<edb::tid_t>          waited_threads_;
-	edb::tid_t                active_thread_;
+	CpuMode cpuMode_                   = CpuMode::Unknown;
+	MeansOfCapture lastMeansOfCapture_ = MeansOfCapture::NeverCaptured;
+	QList<qlonglong> ignoredExceptions_;
+	QSet<edb::tid_t> waitedThreads_;
+	edb::tid_t activeThread_;
 	std::shared_ptr<IProcess> process_;
-	std::size_t               pointer_size_ = sizeof(void*);
+	threads_type threads_;
+	bool procMemReadBroken_  = true;
+	bool procMemWriteBroken_ = true;
+	std::size_t pointerSize_ = sizeof(void *);
 #if defined(EDB_X86) || defined(EDB_X86_64)
-	const bool                edbIsIn64BitSegment;
-	const bool                osIs64Bit;
-	const edb::seg_reg_t      USER_CS_32;
-	const edb::seg_reg_t      USER_CS_64;
-	const edb::seg_reg_t      USER_SS;
+	const bool edbIsIn64BitSegment_;
+	const bool osIs64Bit_;
+	const edb::seg_reg_t userCodeSegment32_;
+	const edb::seg_reg_t userCodeSegment64_;
+	const edb::seg_reg_t userStackSegment_;
 #endif
-	CPUMode					  cpu_mode_              = CPUMode::Unknown;
-	MeansOfCapture	          lastMeansOfCapture     = MeansOfCapture::NeverCaptured;
-	bool                      proc_mem_write_broken_ = true;
-	bool                      proc_mem_read_broken_  = true;
 };
 
 }

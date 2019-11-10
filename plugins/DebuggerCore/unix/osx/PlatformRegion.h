@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PLATFORM_REGION_20120330_H_
 
 #include "IRegion.h"
-#include <QString>
 #include <QCoreApplication>
+#include <QString>
 
 namespace DebuggerCore {
 
@@ -58,11 +58,10 @@ private:
 	edb::address_t start_;
 	edb::address_t end_;
 	edb::address_t base_;
-	QString        name_;
-	permissions_t  permissions_;
+	QString name_;
+	permissions_t permissions_;
 };
 
 }
 
 #endif
-

@@ -38,7 +38,7 @@ protected:
 	void hideEvent(QHideEvent *) override;
 
 public Q_SLOTS:
-	void populate_table();
+	void populateTable();
 
 private Q_SLOTS:
 	void on_tableWidgetCallStack_itemDoubleClicked(QTableWidgetItem *item);
@@ -46,8 +46,8 @@ private Q_SLOTS:
 
 private:
 	Ui::DialogBacktrace ui;
-	QTableWidget        *table_;
-	QPushButton *btnReturnTo_;
+	QTableWidget *table_;
+	QPushButton *buttonReturnTo_;
 };
 
 }

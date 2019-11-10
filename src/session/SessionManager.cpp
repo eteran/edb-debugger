@@ -23,27 +23,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDateTime>
 #include <QDebug>
 #include <QFile>
-#include <QMessageBox>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
+#include <QMessageBox>
 
-constexpr int SessionFileVersion  = 1;
-const auto SessionFileIdString = QLatin1String("edb-session");
+namespace {
 
-SessionManager& SessionManager::instance() {
+constexpr int SessionFileVersion = 1;
+const auto SessionFileIdString   = QLatin1String("edb-session");
+
+}
+
+/**
+ * @brief SessionManager::instance
+ * @return
+ */
+SessionManager &SessionManager::instance() {
 	static SessionManager inst;
 	return inst;
 }
 
-//------------------------------------------------------------------------------
-// Name: load_session
-// Desc:
-//------------------------------------------------------------------------------
-Result<void, SessionError> SessionManager::load_session(const QString &session_file) {
+/**
+ * @brief SessionManager::loadSession
+ * @param filename
+ * @return
+ */
+Result<void, SessionError> SessionManager::loadSession(const QString &filename) {
 
-	QFile file(session_file);
-	if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+	QFile file(filename);
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		// the checks for open() and exists() are racy, but
 		// this is fine as it affects only whether we show an
 		// error message or not
@@ -57,7 +66,7 @@ Result<void, SessionError> SessionManager::load_session(const QString &session_f
 			return {};
 		} else {
 			SessionError session_error;
-			session_error.err = SessionError::InvalidSessionFile;
+			session_error.err     = SessionError::InvalidSessionFile;
 			session_error.message = tr("Failed to open session file. %1").arg(file.errorString());
 			return make_unexpected(session_error);
 		}
@@ -66,94 +75,97 @@ Result<void, SessionError> SessionManager::load_session(const QString &session_f
 	QByteArray json = file.readAll();
 	QJsonParseError error;
 	auto doc = QJsonDocument::fromJson(json, &error);
-	if(error.error != QJsonParseError::NoError) {
+	if (error.error != QJsonParseError::NoError) {
 		SessionError session_error;
-		session_error.err          = SessionError::UnknownError;
+		session_error.err     = SessionError::UnknownError;
 		session_error.message = tr("An error occured while loading session JSON file. %1").arg(error.errorString());
 		return make_unexpected(session_error);
 	}
 
-	if(!doc.isObject()) {
+	if (!doc.isObject()) {
 		SessionError session_error;
-		session_error.err          = SessionError::NotAnObject;
+		session_error.err     = SessionError::NotAnObject;
 		session_error.message = tr("Session file is invalid. Not an object.");
 		return make_unexpected(session_error);
 	}
 
 	QJsonObject object = doc.object();
-	session_data = object.toVariantMap();
+	sessionData_       = object.toVariantMap();
 
-	QString id  = session_data["id"].toString();
-	QString ts  = session_data["timestamp"].toString();
-	int version = session_data["version"].toInt();
+	QString id  = sessionData_["id"].toString();
+	QString ts  = sessionData_["timestamp"].toString();
+	int version = sessionData_["version"].toInt();
 
 	Q_UNUSED(ts)
 
-	if(id != SessionFileIdString || version > SessionFileVersion) {
+	if (id != SessionFileIdString || version > SessionFileVersion) {
 		SessionError session_error;
-		session_error.err          = SessionError::InvalidSessionFile;
+		session_error.err     = SessionError::InvalidSessionFile;
 		session_error.message = tr("Session file is invalid.");
 		return make_unexpected(session_error);
 	}
 
 	qDebug("Loading session file");
-	load_plugin_data(); //First, load the plugin-data
+	loadPluginData(); //First, load the plugin-data
 	return {};
 }
 
-//------------------------------------------------------------------------------
-// Name: save_session
-// Desc:
-//------------------------------------------------------------------------------
-void SessionManager::save_session(const QString &session_file) {
+/**
+ * @brief SessionManager::saveSession
+ * @param filename
+ */
+void SessionManager::saveSession(const QString &filename) {
 
 	qDebug("Saving session file");
 
 	QVariantMap plugin_data;
 
-	for(QObject *plugin: edb::v1::plugin_list()) {
-		if(auto p = qobject_cast<IPlugin *>(plugin)) {
-			if(const QMetaObject *const meta = plugin->metaObject()) {
-				QString name    = meta->className();
-				QVariantMap data = p->save_state();
+	for (QObject *plugin : edb::v1::plugin_list()) {
+		if (auto p = qobject_cast<IPlugin *>(plugin)) {
+			if (const QMetaObject *const meta = plugin->metaObject()) {
+				QString name     = meta->className();
+				QVariantMap data = p->saveState();
 
-				if(!data.empty()) {
+				if (!data.empty()) {
 					plugin_data[name] = data;
 				}
 			}
 		}
 	}
 
-	session_data["version"]     = SessionFileVersion;
-	session_data["id"]          = SessionFileIdString; // just so we can sanity check things
-	session_data["timestamp"]   = QDateTime::currentDateTimeUtc();
-	session_data["plugin-data"] = plugin_data;
+	sessionData_["version"]     = SessionFileVersion;
+	sessionData_["id"]          = SessionFileIdString; // just so we can sanity check things
+	sessionData_["timestamp"]   = QDateTime::currentDateTimeUtc();
+	sessionData_["plugin-data"] = plugin_data;
 
-	auto object = QJsonObject::fromVariantMap(session_data);
+	auto object = QJsonObject::fromVariantMap(sessionData_);
 	QJsonDocument doc(object);
 
 	QByteArray json = doc.toJson();
-	QFile file(session_file);
+	QFile file(filename);
 
-	if(file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+	if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
 		file.write(json);
 	}
 }
 
-void SessionManager::load_plugin_data() {
+/**
+ * @brief SessionManager::loadPluginData
+ */
+void SessionManager::loadPluginData() {
 
 	qDebug("Loading plugin-data");
 
-	QVariantMap plugin_data = session_data["plugin-data"].toMap();
-	for(auto it = plugin_data.begin(); it != plugin_data.end(); ++it) {
-		for(QObject *plugin: edb::v1::plugin_list()) {
-			if(auto p = qobject_cast<IPlugin *>(plugin)) {
-				if(const QMetaObject *const meta = plugin->metaObject()) {
+	QVariantMap plugin_data = sessionData_["plugin-data"].toMap();
+	for (auto it = plugin_data.begin(); it != plugin_data.end(); ++it) {
+		for (QObject *plugin : edb::v1::plugin_list()) {
+			if (auto p = qobject_cast<IPlugin *>(plugin)) {
+				if (const QMetaObject *const meta = plugin->metaObject()) {
 					QString name     = meta->className();
 					QVariantMap data = it.value().toMap();
 
-					if(name == it.key()) {
-						p->restore_state(data);
+					if (name == it.key()) {
+						p->restoreState(data);
 						break;
 					}
 				}
@@ -163,62 +175,56 @@ void SessionManager::load_plugin_data() {
 }
 
 /**
-* Gets all comments from the session_data
-* @param QVariantList &
-*/
-void SessionManager::get_comments(QVariantList &data) {
-	data = session_data["comments"].toList();
+ * @brief SessionManager::comments
+ * @return all comments from the sessionData_
+ */
+QVariantList SessionManager::comments() const {
+	return sessionData_["comments"].toList();
 }
 
 /**
 * Adds a comment to the session_data
-* @param Comment & (struct in Types.h)
+* @param c (struct in Types.h)
 */
-void SessionManager::add_comment(Comment &c) {
+void SessionManager::addComment(const Comment &c) {
 
-	QVariantList comments_data = session_data["comments"].toList();
+	QVariantList comments_data = sessionData_["comments"].toList();
+
 	QVariantMap comment;
 	comment["address"] = c.address.toHexString();
 	comment["comment"] = c.comment;
 
-	if(!comments_data.isEmpty()) {
-		//Check if we already have an entry with the same address and overwrite it
-		bool found_comment = false;
-		for(auto it = comments_data.begin(); it != comments_data.end(); ++it) {
-			QVariantMap data = it->toMap();
-			if(comment["address"] == data["address"]) {
-				qDebug("Found");
-				*it = comment;
-				found_comment = true;
-				break;
-			}
-		}
+	//Check if we already have an entry with the same address and overwrite it
+	auto it = std::find_if(comments_data.begin(), comments_data.end(), [&comment](QVariant entry) {
+		QVariantMap data = entry.toMap();
+		return data["address"] == comment["address"];
+	});
 
-		if(!found_comment) {
-			//We found no entry with the same address
-			comments_data.push_back(comment);
-		}
+	if (it != comments_data.end()) {
+		*it = comment;
 	} else {
 		comments_data.push_back(comment);
 	}
-	
-	session_data["comments"] = comments_data;
+
+	sessionData_["comments"] = comments_data;
 }
 
 /**
 * Removes a comment from the session_data
-* @param edb::address_t
+* @param address
 */
-void SessionManager::remove_comment(edb::address_t address) {
-	QString hexAddressString = address.toHexString();
-	QVariantList comments_data = session_data["comments"].toList();
+void SessionManager::removeComment(edb::address_t address) {
+	QString hexAddressString   = address.toHexString();
+	QVariantList comments_data = sessionData_["comments"].toList();
 
-	for(auto it = comments_data.begin(); it != comments_data.end(); ++it) {
-		QVariantMap data = it->toMap();
-		if(hexAddressString == data["address"]) {
-			comments_data.erase(it);
-			break;
-		}
+	auto it = std::find_if(comments_data.begin(), comments_data.end(), [&hexAddressString](QVariant entry) {
+		QVariantMap data = entry.toMap();
+		return data["address"] == hexAddressString;
+	});
+
+	if (it != comments_data.end()) {
+		comments_data.erase(it);
 	}
-	session_data["comments"] = comments_data;
+
+	sessionData_["comments"] = comments_data;
 }

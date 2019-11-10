@@ -38,7 +38,7 @@ struct elf64_dyn {
 	elf64_sxword d_tag; /* Dynamic entry type */
 	union {
 		elf64_xword d_val; /* Integer value */
-		elf64_addr  d_ptr; /* Address value */
+		elf64_addr d_ptr;  /* Address value */
 	} d_un;
 };
 
@@ -89,13 +89,13 @@ enum {
 	DT_MIPS_AUX_DYNAMIC           = 0x70000031, /* Address of aux .dynamic.  */
 
 	/* The address of .got.plt in an executable using the new non-PIC ABI.  */
-	DT_MIPS_PLTGOT                = 0x70000032,
+	DT_MIPS_PLTGOT = 0x70000032,
 
 	/* The base of the PLT in an executable using the new non-PIC ABI if that
 	   PLT is writable.  For a non-writable PLT, this is omitted or has a zero
 	   value.  */
-	DT_MIPS_RWPLT                 = 0x70000034,
-	DT_MIPS_NUM                   = 0x35,
+	DT_MIPS_RWPLT = 0x70000034,
+	DT_MIPS_NUM   = 0x35,
 };
 
 /* Legal values for d_tag (dynamic entry type).  */

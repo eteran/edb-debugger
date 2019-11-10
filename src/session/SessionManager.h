@@ -20,12 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SESSIONMANAGER_20170928_H_
 
 #include "SessionError.h"
-#include "Types.h"
 #include "Status.h"
+#include "Types.h"
 
+#include <QCoreApplication>
 #include <QString>
 #include <QVariant>
-#include <QCoreApplication>
 
 class SessionManager {
 	Q_DECLARE_TR_FUNCTIONS(SessionManager)
@@ -35,21 +35,23 @@ private:
 
 public:
 	SessionManager(const SessionManager &) = delete;
-	SessionManager& operator=(const SessionManager &) = delete;
+	SessionManager &operator=(const SessionManager &) = delete;
 
 public:
 	static SessionManager &instance();
-  
+
 public:
-	Result<void, SessionError> load_session(const QString &);
-	void save_session(const QString &);
-	void get_comments(QVariantList &);
-	void add_comment(Comment &);
-	void remove_comment(edb::address_t);
-	
+	Result<void, SessionError> loadSession(const QString &filename);
+	void saveSession(const QString &filename);
+	QVariantList comments() const;
+	void addComment(const Comment &c);
+	void removeComment(edb::address_t address);
+
 private:
-	QVariantMap session_data;
-	void load_plugin_data();
+	void loadPluginData();
+
+private:
+	QVariantMap sessionData_;
 };
 
 #endif

@@ -30,16 +30,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: DialogThreads
 // Desc:
 //------------------------------------------------------------------------------
-DialogThreads::DialogThreads(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogThreads::DialogThreads(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 
-	threads_model_ = new ThreadsModel(this);
-	threads_filter_ = new QSortFilterProxyModel(this);
+	threadsModel_  = new ThreadsModel(this);
+	threadsFilter_ = new QSortFilterProxyModel(this);
 
-	threads_filter_->setSourceModel(threads_model_);
-	threads_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	threadsFilter_->setSourceModel(threadsModel_);
+	threadsFilter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-	ui.thread_table->setModel(threads_filter_);
+	ui.thread_table->setModel(threadsFilter_);
 
 	connect(edb::v1::debugger_ui, SIGNAL(debugEvent()), this, SLOT(updateThreads()));
 	connect(edb::v1::debugger_ui, SIGNAL(detachEvent()), this, SLOT(updateThreads()));
@@ -60,11 +62,11 @@ void DialogThreads::showEvent(QShowEvent *) {
 //------------------------------------------------------------------------------
 void DialogThreads::on_thread_table_doubleClicked(const QModelIndex &index) {
 
-	const QModelIndex internal_index = threads_filter_->mapToSource(index);
-	if(auto item = reinterpret_cast<ThreadsModel::Item *>(internal_index.internalPointer())) {
-		if(std::shared_ptr<IThread> thread = item->thread) {
-			if(IProcess *process = edb::v1::debugger_core->process()) {
-				process->set_current_thread(*thread);
+	const QModelIndex internal_index = threadsFilter_->mapToSource(index);
+	if (auto item = reinterpret_cast<ThreadsModel::Item *>(internal_index.internalPointer())) {
+		if (std::shared_ptr<IThread> thread = item->thread) {
+			if (IProcess *process = edb::v1::debugger_core->process()) {
+				process->setCurrentThread(*thread);
 				updateThreads();
 			}
 		}
@@ -76,17 +78,17 @@ void DialogThreads::on_thread_table_doubleClicked(const QModelIndex &index) {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogThreads::updateThreads() {
-	threads_model_->clear();
+	threadsModel_->clear();
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
-		std::shared_ptr<IThread> current = process->current_thread();
+	if (IProcess *process = edb::v1::debugger_core->process()) {
+		std::shared_ptr<IThread> current = process->currentThread();
 
-		for(std::shared_ptr<IThread> &thread : process->threads()) {
+		for (std::shared_ptr<IThread> &thread : process->threads()) {
 
-			if(thread == current) {
-				threads_model_->addThread(thread, true);
+			if (thread == current) {
+				threadsModel_->addThread(thread, true);
 			} else {
-				threads_model_->addThread(thread, false);
+				threadsModel_->addThread(thread, false);
 			}
 		}
 	}

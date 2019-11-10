@@ -51,7 +51,7 @@ public:
 public:
 	// thread support stuff (optional)
 	QList<edb::tid_t> thread_ids() const override { return threads_.keys(); }
-	edb::tid_t active_thread() const override     { return active_thread_; }
+	edb::tid_t active_thread() const override { return active_thread_; }
 	void set_active_thread(edb::tid_t) override;
 
 public:
@@ -90,19 +90,21 @@ private:
 private:
 	struct thread_info {
 	public:
-		thread_info() : status(0) {
+		thread_info()
+			: status(0) {
 		}
 
-		thread_info(int s) : status(s) {
+		thread_info(int s)
+			: status(s) {
 		}
 
 		int status;
 	};
 
-	typedef QHash<edb::tid_t, thread_info> threadmap_t;
+	using threadmap_t = QHash<edb::tid_t, thread_info>;
 
 	size_t page_size_;
-	threadmap_t    threads_;
+	threadmap_t threads_;
 };
 
 }

@@ -16,9 +16,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "x86Groups.h"
+#include "BitFieldDescription.h"
+#include "FPUValueField.h"
+#include "MultiBitFieldWidget.h"
 #include "ODbgRV_Util.h"
 #include "ODbgRV_x86Common.h"
 #include "QtHelper.h"
+#include "RegisterGroup.h"
+#include "VolatileNameField.h"
+
 #include <QDebug>
 #include <unordered_map>
 
@@ -31,169 +37,206 @@ namespace {
 const BitFieldDescription fpuTagDescription = {
 	7,
 	{
-		"valid",
-		"zero",
-		"special",
-		"empty"
+		tr("valid"),
+		tr("zero"),
+		tr("special"),
+		tr("empty"),
 	},
 	{
 		tr("Tag as used"),
-		"",
-		"",
-		tr("Tag as empty")
+		tr(""),
+		tr(""),
+		tr("Tag as empty"),
 	},
 	[](unsigned a, unsigned b) {
-		return a == 3 || b == 3 ? a == b : true;
-	}
+		return (a == 3 || b == 3) ? (a == b) : true;
+	},
 };
 
 const BitFieldDescription roundControlDescription = {
 	4,
 	{
-		"NEAR",
-		"DOWN",
-		"  UP",
-		"ZERO"
+		tr("NEAR"),
+		tr("DOWN"),
+		tr("  UP"),
+		tr("ZERO"),
 	},
 	{
 		tr("Round to nearest"),
 		tr("Round down"),
 		tr("Round up"),
-		tr("Round toward zero")
-	}
+		tr("Round toward zero"),
+	},
 };
 
 const BitFieldDescription precisionControlDescription = {
 	2,
 	{
-		"24",
-		"??",
-		"53",
-		"64"
+		tr("24"),
+		tr("??"),
+		tr("53"),
+		tr("64"),
 	},
 	{
 		tr("Set 24-bit precision"),
-		"",
+		tr(""),
 		tr("Set 53-bit precision"),
-		tr("Set 64-bit precision")
-	}
+		tr("Set 64-bit precision"),
+	},
 };
 
 const BitFieldDescription debugRWDescription = {
 	5,
 	{
-		"EXEC",
-		"WRITE",
-		"  IO",
-		" R/W"
+		tr("EXEC"),
+		tr("WRITE"),
+		tr("  IO"),
+		tr(" R/W"),
 	},
 	{
 		tr("Break on execution"),
 		tr("Break on data write"),
-		"",
-		tr("Break on data read/write")
-	}
+		tr(""),
+		tr("Break on data read/write"),
+	},
 };
 
 const BitFieldDescription debugLenDescription = {
 	1,
 	{
-		"1",
-		"2",
-		"8",
-		"4"
+		tr("1"),
+		tr("2"),
+		tr("8"),
+		tr("4"),
 	},
 	{
 		tr("Set 1-byte length"),
 		tr("Set 2-byte length"),
 		tr("Set 8-byte length"),
-		tr("Set 4-byte length")
-	}
+		tr("Set 4-byte length"),
+	},
 };
 
+// Checks that FOP is in not in compatibility mode, i.e. is updated only on unmasked exception
+// This function would return false for e.g. Pentium III or Atom, but returns true since Pentium 4.
+// This can be made return false for such CPUs by setting bit 2 in IA32_MISC_ENABLE MSR.
+bool fop_is_compatible() {
+#ifdef __GNUG__
+	char fenv[28];
+	asm volatile("fldz\n"
+				 "fstp %%st(0)\n"
+				 "fstenv %0\n"
+				 : "=m"(fenv)::"%st");
+	std::uint16_t fop;
+	std::memcpy(&fop, fenv + 18, sizeof(fop));
+	return fop == 0;
+#else
+	// TODO(eteran): figure out a way to implement this for other compilers
+	return true;
+#endif
 }
 
-void addRoundingMode(RegisterGroup *group, const QModelIndex &index, int row, int column) {
+void add_rounding_mode(RegisterGroup *group, const QModelIndex &index, int row, int column) {
 	assert(index.isValid());
 	const auto rndValueField = new MultiBitFieldWidget(index, roundControlDescription, group);
 	group->insert(row, column, rndValueField);
 	rndValueField->setToolTip(tr("Rounding mode"));
 }
 
-void addPrecisionMode(RegisterGroup *group, const QModelIndex &index, int row, int column) {
+void add_precision_mode(RegisterGroup *group, const QModelIndex &index, int row, int column) {
 	assert(index.isValid());
 	const auto precValueField = new MultiBitFieldWidget(index, precisionControlDescription, group);
 	group->insert(row, column, precValueField);
 	precValueField->setToolTip(tr("Precision mode: effective mantissa length"));
 }
 
-void addPUOZDI(RegisterGroup *group, const QModelIndex &excRegIndex, const QModelIndex &maskRegIndex, int startRow, int startColumn) {
+void add_puozdi(RegisterGroup *group, const QModelIndex &excRegIndex, const QModelIndex &maskRegIndex, int startRow, int startColumn) {
 
-	static const QString exceptions = "PUOZDI";
+	static const QString exceptions = tr("PUOZDI");
+
 	static const std::unordered_map<char, QString> excNames = {
 		{'P', tr("Precision")},
 		{'U', tr("Underflow")},
 		{'O', tr("Overflow")},
 		{'Z', tr("Zero Divide")},
 		{'D', tr("Denormalized Operand")},
-		{'I', tr("Invalid Operation")}
-	};
+		{'I', tr("Invalid Operation")}};
 
 	for (int exN = 0; exN < exceptions.length(); ++exN) {
 		const QString ex         = exceptions[exN];
-		const auto    exAbbrev   = ex + "E";
-		const auto    maskAbbrev = ex + "M";
-		const auto    excIndex   = VALID_INDEX(findModelRegister(excRegIndex, exAbbrev));
-		const auto    maskIndex  = VALID_INDEX(findModelRegister(maskRegIndex, maskAbbrev));
-		const int     column     = startColumn + exN * 2;
-		const auto    nameField  = new FieldWidget(ex, group);
+		const QString exAbbrev   = ex + "E";
+		const QString maskAbbrev = ex + "M";
+
+		const auto excIndex  = valid_index(find_model_register(excRegIndex, exAbbrev));
+		const auto maskIndex = valid_index(find_model_register(maskRegIndex, maskAbbrev));
+
+		const int column = startColumn + exN * 2;
+
+		const auto nameField = new FieldWidget(ex, group);
 		group->insert(startRow, column, nameField);
-		const auto excValueField = new ValueField(1, getValueIndex(excIndex), group);
+
+		const auto excValueField = new ValueField(1, value_index(excIndex), group);
 		group->insert(startRow + 1, column, excValueField);
-		const auto maskValueField = new ValueField(1, getValueIndex(maskIndex), group);
+
+		const auto maskValueField = new ValueField(1, value_index(maskIndex), group);
 		group->insert(startRow + 2, column, maskValueField);
 
-		const auto excName = excNames.at(ex[0].toLatin1());
+		const QString excName = excNames.at(ex[0].toLatin1());
 		nameField->setToolTip(excName);
 		excValueField->setToolTip(excName + ' ' + tr("Exception") + " (" + exAbbrev + ")");
 		maskValueField->setToolTip(excName + ' ' + tr("Exception Mask") + " (" + maskAbbrev + ")");
 	}
 }
 
-RegisterGroup *createEFL(RegisterViewModelBase::Model *model, QWidget *parent) {
-	const auto catIndex = findModelCategory(model, "General Status");
+}
+
+RegisterGroup *create_eflags(RegisterViewModelBase::Model *model, QWidget *parent) {
+	const auto catIndex = find_model_category(model, tr("General Status"));
 	if (!catIndex.isValid())
 		return nullptr;
-	auto nameIndex = findModelRegister(catIndex, "RFLAGS");
+
+	auto nameIndex = find_model_register(catIndex, tr("RFLAGS"));
 	if (!nameIndex.isValid())
-		nameIndex = findModelRegister(catIndex, "EFLAGS");
+		nameIndex = find_model_register(catIndex, tr("EFLAGS"));
+
 	if (!nameIndex.isValid())
 		return nullptr;
-	const auto group     = new RegisterGroup("EFL", parent);
-	const int   nameWidth = 3;
-	int         column    = 0;
-	group->insert(0, column, new FieldWidget("EFL", group));
-	const auto valueWidth = 8;
-	const auto valueIndex = nameIndex.sibling(nameIndex.row(), MODEL_VALUE_COLUMN);
-	column += nameWidth + 1;
-	group->insert(0, column, new ValueField(valueWidth, valueIndex, [](const QString &v) { return v.right(8); }, group));
-	const auto commentIndex = nameIndex.sibling(nameIndex.row(), MODEL_COMMENT_COLUMN);
-	column += valueWidth + 1;
+
+	const auto group        = new RegisterGroup(tr("EFL"), parent);
+	constexpr int NameWidth = 3;
+	int column              = 0;
+	group->insert(0, column, new FieldWidget(tr("EFL"), group));
+
+	constexpr int ValueWidth = 8;
+	const auto valueIndex    = nameIndex.sibling(nameIndex.row(), ModelValueColumn);
+	column += NameWidth + 1;
+	group->insert(0, column, new ValueField(
+								 ValueWidth, valueIndex, [](const QString &v) {
+									 return v.right(8);
+								 },
+								 group));
+
+	const auto commentIndex = nameIndex.sibling(nameIndex.row(), ModelCommentColumn);
+	column += ValueWidth + 1;
 	group->insert(0, column, new FieldWidget(0, commentIndex, group));
 
 	return group;
 }
 
-RegisterGroup *createExpandedEFL(RegisterViewModelBase::Model *model, QWidget *parent) {
-	const auto catIndex = findModelCategory(model, "General Status");
+RegisterGroup *create_expanded_eflags(RegisterViewModelBase::Model *model, QWidget *parent) {
+	const auto catIndex = find_model_category(model, tr("General Status"));
 	if (!catIndex.isValid())
 		return nullptr;
-	auto regNameIndex = findModelRegister(catIndex, "RFLAGS");
+
+	auto regNameIndex = find_model_register(catIndex, "RFLAGS");
 	if (!regNameIndex.isValid())
-		regNameIndex = findModelRegister(catIndex, "EFLAGS");
+		regNameIndex = find_model_register(catIndex, "EFLAGS");
+
 	if (!regNameIndex.isValid())
 		return nullptr;
+
 	const auto group = new RegisterGroup(tr("Expanded EFL"), parent);
+
 	static const std::unordered_map<char, QString> flagTooltips = {
 		{'C', tr("Carry flag") + " (CF)"},
 		{'P', tr("Parity flag") + " (PF)"},
@@ -205,14 +248,14 @@ RegisterGroup *createExpandedEFL(RegisterViewModelBase::Model *model, QWidget *p
 		{'O', tr("Overflow flag") + " (OF)"},
 	};
 	for (int row = 0, groupRow = 0; row < model->rowCount(regNameIndex); ++row) {
-		const auto flagNameIndex  = model->index(row, MODEL_NAME_COLUMN, regNameIndex);
-		const auto flagValueIndex = model->index(row, MODEL_VALUE_COLUMN, regNameIndex);
+		const auto flagNameIndex  = model->index(row, ModelNameColumn, regNameIndex);
+		const auto flagValueIndex = model->index(row, ModelValueColumn, regNameIndex);
 		const auto flagName       = model->data(flagNameIndex).toString().toUpper();
 		if (flagName.length() != 2 || flagName[1] != 'F')
 			continue;
-		static const int flagNameWidth = 1;
-		static const int valueWidth    = 1;
-		const char       name          = flagName[0].toLatin1();
+		constexpr int FlagNameWidth = 1;
+		constexpr int ValueWidth    = 1;
+		const char name             = flagName[0].toLatin1();
 
 		switch (name) {
 		case 'C':
@@ -225,8 +268,8 @@ RegisterGroup *createExpandedEFL(RegisterViewModelBase::Model *model, QWidget *p
 		case 'O': {
 			const auto nameField = new FieldWidget(QChar(name), group);
 			group->insert(groupRow, 0, nameField);
-			const auto valueField = new ValueField(valueWidth, flagValueIndex, group);
-			group->insert(groupRow, flagNameWidth + 1, valueField);
+			const auto valueField = new ValueField(ValueWidth, flagValueIndex, group);
+			group->insert(groupRow, FlagNameWidth + 1, valueField);
 			++groupRow;
 
 			const auto tooltipStr = flagTooltips.at(name);
@@ -243,30 +286,31 @@ RegisterGroup *createExpandedEFL(RegisterViewModelBase::Model *model, QWidget *p
 	return group;
 }
 
-RegisterGroup *createFPUData(RegisterViewModelBase::Model *model, QWidget *parent) {
+RegisterGroup *create_fpu_data(RegisterViewModelBase::Model *model, QWidget *parent) {
 	using RegisterViewModelBase::Model;
 
-	const auto catIndex = findModelCategory(model, "FPU");
+	const auto catIndex = find_model_category(model, "FPU");
 	if (!catIndex.isValid()) {
 		return nullptr;
 	}
 
-	const auto tagsIndex = findModelRegister(catIndex, FTR_NAME);
+	const auto tagsIndex = find_model_register(catIndex, FtrName);
 	if (!tagsIndex.isValid()) {
 		qWarning() << "Warning: failed to find FTR in the model, refusing to continue making FPUData group";
 		return nullptr;
 	}
 
-	const auto                  group         = new RegisterGroup(tr("FPU Data Registers"), parent);
-	static const int            FPU_REG_COUNT = 8;
-	static const int            nameWidth     = 3;
-	static const int            tagWidth      = 7;
-	const auto                  fsrIndex      = VALID_INDEX(findModelRegister(catIndex, FSR_NAME));
-	const QPersistentModelIndex topIndex      = VALID_INDEX(findModelRegister(fsrIndex, "TOP", MODEL_VALUE_COLUMN));
+	const auto group          = new RegisterGroup(tr("FPU Data Registers"), parent);
+	constexpr int FpuRegCount = 8;
+	constexpr int NameWidth   = 3;
+	constexpr int TagWidth    = 7;
+	const auto fsrIndex       = valid_index(find_model_register(catIndex, FsrName));
 
-	for (int row = 0; row < FPU_REG_COUNT; ++row) {
-		int        column    = 0;
-		const auto nameIndex = model->index(row, MODEL_NAME_COLUMN, catIndex);
+	const QPersistentModelIndex topIndex = valid_index(find_model_register(fsrIndex, tr("TOP"), ModelValueColumn));
+
+	for (int row = 0; row < FpuRegCount; ++row) {
+		int column           = 0;
+		const auto nameIndex = model->index(row, ModelNameColumn, catIndex);
 		{
 			const auto STiFormatter = [row, topIndex]() {
 				const auto topByteArray = topIndex.data(Model::RawValueRole).toByteArray();
@@ -278,38 +322,38 @@ RegisterGroup *createFPUData(RegisterViewModelBase::Model *model, QWidget *paren
 				const auto stI = (row + 8 - top) % 8;
 				return QString("ST%1").arg(stI);
 			};
-			const auto field = new VolatileNameField(nameWidth, STiFormatter, group);
+			const auto field = new VolatileNameField(NameWidth, STiFormatter, group);
 			QObject::connect(model, &RegisterViewModelBase::Model::dataChanged, field, &VolatileNameField::adjustToData);
 			group->insert(row, column, field);
-			column += nameWidth + 1;
+			column += NameWidth + 1;
 		}
 
-		const auto tagValueIndex = VALID_INDEX(model->index(row, MODEL_VALUE_COLUMN, tagsIndex));
+		const auto tagValueIndex = valid_index(model->index(row, ModelValueColumn, tagsIndex));
 		group->insert(row, column, new MultiBitFieldWidget(tagValueIndex, fpuTagDescription, group));
-		column += tagWidth + 1;
-		const auto regValueIndex = nameIndex.sibling(nameIndex.row(), MODEL_VALUE_COLUMN);
-		const int  regValueWidth = regValueIndex.data(Model::FixedLengthRole).toInt();
+		column += TagWidth + 1;
+		const auto regValueIndex = nameIndex.sibling(nameIndex.row(), ModelValueColumn);
+		const int regValueWidth  = regValueIndex.data(Model::FixedLengthRole).toInt();
 		Q_ASSERT(regValueWidth > 0);
-		const auto regCommentIndex = model->index(row, MODEL_COMMENT_COLUMN, catIndex);
+		const auto regCommentIndex = model->index(row, ModelCommentColumn, catIndex);
 		new FPUValueField(regValueWidth, regValueIndex, tagValueIndex, group, new FieldWidget(0, regCommentIndex, group), row, column);
 	}
 
 	return group;
 }
 
-RegisterGroup *createFPUWords(RegisterViewModelBase::Model *model, QWidget *parent) {
-	const auto catIndex = findModelCategory(model, "FPU");
+RegisterGroup *create_fpu_words(RegisterViewModelBase::Model *model, QWidget *parent) {
+	const auto catIndex = find_model_category(model, "FPU");
 	if (!catIndex.isValid())
 		return nullptr;
 	const auto group = new RegisterGroup(tr("FPU Status&&Control Registers"), parent);
-	group->appendNameValueComment(findModelRegister(catIndex, FTR_NAME), tr("FPU Tag Register"), false);
+	group->appendNameValueComment(find_model_register(catIndex, FtrName), tr("FPU Tag Register"), false);
 
 	constexpr int FsrRow = 1;
-	const auto fsrIndex  = findModelRegister(catIndex, FSR_NAME);
+	const auto fsrIndex  = find_model_register(catIndex, FsrName);
 	group->appendNameValueComment(fsrIndex, tr("FPU Status Register"), false);
 
 	constexpr int FcrRow = 2;
-	const auto fcrIndex  = findModelRegister(catIndex, FCR_NAME);
+	const auto fcrIndex  = find_model_register(catIndex, FcrName);
 	group->appendNameValueComment(fcrIndex, tr("FPU Control Register"), false);
 
 	constexpr int wordNameWidth       = 3;
@@ -321,18 +365,18 @@ RegisterGroup *createFPUWords(RegisterViewModelBase::Model *model, QWidget *pare
 	group->insert(FcrRow, condPrecLabelColumn, new FieldWidget("Prec", group));
 
 	constexpr int condPrecValColumn = condPrecLabelColumn + condPrecLabelWidth + 1;
-	constexpr int roundModeWidth    = 4, precModeWidth = 2;
-	constexpr int roundModeColumn   = condPrecValColumn;
-	constexpr int precModeColumn    = roundModeColumn + roundModeWidth + 1;
+	constexpr int roundModeWidth = 4, precModeWidth = 2;
+	constexpr int roundModeColumn = condPrecValColumn;
+	constexpr int precModeColumn  = roundModeColumn + roundModeWidth + 1;
 
 	// This must be inserted before precision&rounding value fields, since they overlap this label
 	group->insert(FcrRow, precModeColumn - 1, new FieldWidget(",", group));
 
 	for (int condN = 3; condN >= 0; --condN) {
 		const auto name           = QString("C%1").arg(condN);
-		const auto condNNameIndex = VALID_INDEX(findModelRegister(fsrIndex, name));
-		const auto condNIndex     = VALID_INDEX(condNNameIndex.sibling(condNNameIndex.row(), MODEL_VALUE_COLUMN));
-		const int  column         = condPrecValColumn + 2 * (3 - condN);
+		const auto condNNameIndex = valid_index(find_model_register(fsrIndex, name));
+		const auto condNIndex     = valid_index(condNNameIndex.sibling(condNNameIndex.row(), ModelValueColumn));
+		const int column          = condPrecValColumn + 2 * (3 - condN);
 		const auto nameField      = new FieldWidget(QString("%1").arg(condN), group);
 		group->insert(FsrRow - 1, column, nameField);
 
@@ -343,8 +387,8 @@ RegisterGroup *createFPUWords(RegisterViewModelBase::Model *model, QWidget *pare
 		valueField->setToolTip(name);
 	}
 
-	addRoundingMode(group, findModelRegister(fcrIndex, "RC", MODEL_VALUE_COLUMN), FcrRow, roundModeColumn);
-	addPrecisionMode(group, findModelRegister(fcrIndex, "PC", MODEL_VALUE_COLUMN), FcrRow, precModeColumn);
+	add_rounding_mode(group, find_model_register(fcrIndex, "RC", ModelValueColumn), FcrRow, roundModeColumn);
+	add_precision_mode(group, find_model_register(fcrIndex, "PC", ModelValueColumn), FcrRow, precModeColumn);
 
 	constexpr int ErrMaskColumn = precModeColumn + precModeWidth + 2;
 	constexpr int ErrLabelWidth = 3;
@@ -360,10 +404,10 @@ RegisterGroup *createFPUWords(RegisterViewModelBase::Model *model, QWidget *pare
 	const auto SFNameField = new FieldWidget("S", group);
 	group->insert(FsrRow - 1, SFColumn, SFNameField);
 
-	const auto ESValueField = new ValueField(1, findModelRegister(fsrIndex, "ES", MODEL_VALUE_COLUMN), group);
+	const auto ESValueField = new ValueField(1, find_model_register(fsrIndex, "ES", ModelValueColumn), group);
 	group->insert(FsrRow, ESColumn, ESValueField);
 
-	const auto SFValueField = new ValueField(1, findModelRegister(fsrIndex, "SF", MODEL_VALUE_COLUMN), group);
+	const auto SFValueField = new ValueField(1, find_model_register(fsrIndex, "SF", ModelValueColumn), group);
 	group->insert(FsrRow, SFColumn, SFValueField);
 
 	{
@@ -379,54 +423,37 @@ RegisterGroup *createFPUWords(RegisterViewModelBase::Model *model, QWidget *pare
 	}
 
 	constexpr int PEPMColumn = SFColumn + 2;
-	addPUOZDI(group, fsrIndex, fcrIndex, FsrRow - 1, PEPMColumn);
+	add_puozdi(group, fsrIndex, fcrIndex, FsrRow - 1, PEPMColumn);
 
 	constexpr int PUOZDIWidth = 6 * 2 - 1;
-	group->insert(FsrRow, PEPMColumn + PUOZDIWidth + 1, new FieldWidget(0, getCommentIndex(fsrIndex), group));
+	group->insert(FsrRow, PEPMColumn + PUOZDIWidth + 1, new FieldWidget(0, comment_index(fsrIndex), group));
 
 	return group;
 }
 
-// Checks that FOP is in not in compatibility mode, i.e. is updated only on unmasked exception
-// This function would return false for e.g. Pentium III or Atom, but returns true since Pentium 4.
-// This can be made return false for such CPUs by setting bit 2 in IA32_MISC_ENABLE MSR.
-bool FOPIsIncompatible() {
-#ifdef __GNUG__
-	char fenv[28];
-	asm volatile("fldz\n"
-	             "fstp %%st(0)\n"
-	             "fstenv %0\n"
-	             : "=m"(fenv)::"%st");
-	std::uint16_t fop;
-	std::memcpy(&fop, fenv + 18, sizeof(fop));
-	return fop == 0;
-#else
-	// TODO(eteran): figure out a way to implement this for other compilers
-	return true;
-#endif
-}
-
-RegisterGroup *createFPULastOp(RegisterViewModelBase::Model *model, QWidget *parent) {
+RegisterGroup *create_fpu_last_op(RegisterViewModelBase::Model *model, QWidget *parent) {
 	using RegisterViewModelBase::Model;
 
-	const auto catIndex = findModelCategory(model, "FPU");
+	const auto catIndex = find_model_category(model, "FPU");
 	if (!catIndex.isValid())
 		return nullptr;
 
-	const auto FIPIndex = findModelRegister(catIndex, "FIP", MODEL_VALUE_COLUMN);
+	const auto FIPIndex = find_model_register(catIndex, "FIP", ModelValueColumn);
 	if (!FIPIndex.isValid())
 		return nullptr;
 
-	const auto FDPIndex = findModelRegister(catIndex, "FDP", MODEL_VALUE_COLUMN);
+	const auto FDPIndex = find_model_register(catIndex, "FDP", ModelValueColumn);
 	if (!FDPIndex.isValid())
 		return nullptr;
 
 	const auto group = new RegisterGroup(tr("FPU Last Operation Registers"), parent);
-	enum { lastInsnRow, lastDataRow, lastOpcodeRow };
-	const QString lastInsnLabel      = "Last insn";
-	const QString lastDataLabel      = "Last data";
-	const QString lastOpcodeLabel    = "Last opcode";
-	const auto    lastInsnLabelField = new FieldWidget(lastInsnLabel, group);
+	enum { lastInsnRow,
+		   lastDataRow,
+		   lastOpcodeRow };
+	const QString lastInsnLabel   = "Last insn";
+	const QString lastDataLabel   = "Last data";
+	const QString lastOpcodeLabel = "Last opcode";
+	const auto lastInsnLabelField = new FieldWidget(lastInsnLabel, group);
 	group->insert(lastInsnRow, 0, lastInsnLabelField);
 	const auto lastDataLabelField = new FieldWidget(lastDataLabel, group);
 	group->insert(lastDataRow, 0, lastDataLabelField);
@@ -449,9 +476,9 @@ RegisterGroup *createFPULastOp(RegisterViewModelBase::Model *model, QWidget *par
 		group->insert(lastInsnRow, segColumn + segWidth, new FieldWidget(":", group));
 		group->insert(lastDataRow, segColumn + segWidth, new FieldWidget(":", group));
 
-		const auto FISField = new ValueField(segWidth, findModelRegister(catIndex, "FIS", MODEL_VALUE_COLUMN), group);
+		const auto FISField = new ValueField(segWidth, find_model_register(catIndex, "FIS", ModelValueColumn), group);
 		group->insert(lastInsnRow, segColumn, FISField);
-		const auto FDSField = new ValueField(segWidth, findModelRegister(catIndex, "FDS", MODEL_VALUE_COLUMN), group);
+		const auto FDSField = new ValueField(segWidth, find_model_register(catIndex, "FDS", ModelValueColumn), group);
 		group->insert(lastDataRow, segColumn, FDSField);
 
 		FISField->setToolTip(tr("Last FPU instruction selector"));
@@ -469,10 +496,10 @@ RegisterGroup *createFPULastOp(RegisterViewModelBase::Model *model, QWidget *par
 	FIPValueField->setToolTip(tr("Last FPU instruction offset"));
 	FDPValueField->setToolTip(tr("Last FPU memory operand offset"));
 
-	QPersistentModelIndex const FOPIndex = findModelRegister(catIndex, "FOP", MODEL_VALUE_COLUMN);
-	QPersistentModelIndex const FSRIndex = findModelRegister(catIndex, FSR_NAME, MODEL_VALUE_COLUMN);
-	QPersistentModelIndex const FCRIndex = findModelRegister(catIndex, FCR_NAME, MODEL_VALUE_COLUMN);
-	bool fopRarelyUpdated = FOPIsIncompatible();
+	QPersistentModelIndex const FOPIndex = find_model_register(catIndex, "FOP", ModelValueColumn);
+	QPersistentModelIndex const FSRIndex = find_model_register(catIndex, FsrName, ModelValueColumn);
+	QPersistentModelIndex const FCRIndex = find_model_register(catIndex, FcrName, ModelValueColumn);
+	bool fopRarelyUpdated                = fop_is_compatible();
 
 	const auto FOPFormatter = [FOPIndex, FSRIndex, FCRIndex, FIPIndex, fopRarelyUpdated](const QString &str) -> QString {
 		if (str.isEmpty() || str[0] == '?')
@@ -492,7 +519,7 @@ RegisterGroup *createFPULastOp(RegisterViewModelBase::Model *model, QWidget *par
 		edb::value16 fsr(0);
 		std::memcpy(&fsr, rawFSR.constData(), rawFSR.size());
 
-		const auto   rawFOP = FOPIndex.data(Model::RawValueRole).toByteArray();
+		const auto rawFOP = FOPIndex.data(Model::RawValueRole).toByteArray();
 		edb::value16 fop(0);
 		assert(rawFOP.size() <= long(sizeof(edb::value16)));
 		if (rawFOP.isEmpty())
@@ -526,19 +553,19 @@ RegisterGroup *createFPULastOp(RegisterViewModelBase::Model *model, QWidget *par
 	return group;
 }
 
-RegisterGroup *createDebugGroup(RegisterViewModelBase::Model *model, QWidget *parent) {
+RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *parent) {
 	using RegisterViewModelBase::Model;
 
-	const auto catIndex = findModelCategory(model, "Debug");
+	const auto catIndex = find_model_category(model, "Debug");
 	if (!catIndex.isValid())
 		return nullptr;
 
 	const auto group = new RegisterGroup(tr("Debug Registers"), parent);
 
-	const auto dr6Index   = VALID_INDEX(findModelRegister(catIndex, "DR6"));
-	const auto dr7Index   = VALID_INDEX(findModelRegister(catIndex, "DR7"));
+	const auto dr6Index   = valid_index(find_model_register(catIndex, "DR6"));
+	const auto dr7Index   = valid_index(find_model_register(catIndex, "DR7"));
 	const auto nameWidth  = 3;
-	const auto valueWidth = getValueIndex(dr6Index).data(Model::FixedLengthRole).toInt();
+	const auto valueWidth = value_index(dr6Index).data(Model::FixedLengthRole).toInt();
 	assert(valueWidth > 0);
 
 	const auto bitsSpacing   = 1;
@@ -548,7 +575,7 @@ RegisterGroup *createDebugGroup(RegisterViewModelBase::Model *model, QWidget *pa
 	const auto typeTooltip   = tr("Breakpoint condition");
 	const auto lenTooltip    = tr("Data breakpoint length");
 	const auto lenDecodedStr = tr(" (bytes count from %1)");
-	int row = 0;
+	int row                  = 0;
 
 	{
 		int column = nameWidth + 1 + valueWidth + 2;
@@ -583,8 +610,8 @@ RegisterGroup *createDebugGroup(RegisterViewModelBase::Model *model, QWidget *pa
 
 	for (int drI = 0; drI < 4; ++drI, ++row) {
 		const auto name          = QString("DR%1").arg(drI);
-		const auto DRiValueIndex = VALID_INDEX(findModelRegister(catIndex, name, MODEL_VALUE_COLUMN));
-		int column = 0;
+		const auto DRiValueIndex = valid_index(find_model_register(catIndex, name, ModelValueColumn));
+		int column               = 0;
 
 		group->insert(row, column, new FieldWidget(name, group));
 		column += nameWidth + 1;
@@ -592,7 +619,7 @@ RegisterGroup *createDebugGroup(RegisterViewModelBase::Model *model, QWidget *pa
 		column += valueWidth + 2;
 		{
 			const auto BiName       = QString("B%1").arg(drI);
-			const auto BiIndex      = VALID_INDEX(findModelRegister(dr6Index, BiName, MODEL_VALUE_COLUMN));
+			const auto BiIndex      = valid_index(find_model_register(dr6Index, BiName, ModelValueColumn));
 			const auto BiValueField = new ValueField(1, BiIndex, group);
 			BiValueField->setToolTip(BTooltip + " (" + BiName + ")");
 			group->insert(row, column, BiValueField);
@@ -600,7 +627,7 @@ RegisterGroup *createDebugGroup(RegisterViewModelBase::Model *model, QWidget *pa
 		}
 		{
 			const auto LiName       = QString("L%1").arg(drI);
-			const auto LiIndex      = VALID_INDEX(findModelRegister(dr7Index, LiName, MODEL_VALUE_COLUMN));
+			const auto LiIndex      = valid_index(find_model_register(dr7Index, LiName, ModelValueColumn));
 			const auto LiValueField = new ValueField(1, LiIndex, group);
 			LiValueField->setToolTip(LTooltip + " (" + LiName + ")");
 			group->insert(row, column, LiValueField);
@@ -608,25 +635,25 @@ RegisterGroup *createDebugGroup(RegisterViewModelBase::Model *model, QWidget *pa
 		}
 		{
 			const auto GiName       = QString("G%1").arg(drI);
-			const auto GiIndex      = VALID_INDEX(findModelRegister(dr7Index, GiName, MODEL_VALUE_COLUMN));
+			const auto GiIndex      = valid_index(find_model_register(dr7Index, GiName, ModelValueColumn));
 			const auto GiValueField = new ValueField(1, GiIndex, group);
 			GiValueField->setToolTip(GTooltip + " (" + GiName + ")");
 			group->insert(row, column, GiValueField);
 			column += bitsSpacing + 1;
 		}
 		{
-			const auto                  RWiName       = QString("R/W%1").arg(drI);
-			const QPersistentModelIndex RWiIndex      = VALID_INDEX(findModelRegister(dr7Index, RWiName, MODEL_VALUE_COLUMN));
-			const auto                  width         = 5;
-			const auto                  RWiValueField = new MultiBitFieldWidget(RWiIndex, debugRWDescription, group);
+			const auto RWiName                   = QString("R/W%1").arg(drI);
+			const QPersistentModelIndex RWiIndex = valid_index(find_model_register(dr7Index, RWiName, ModelValueColumn));
+			const auto width                     = 5;
+			const auto RWiValueField             = new MultiBitFieldWidget(RWiIndex, debugRWDescription, group);
 			RWiValueField->setToolTip(typeTooltip + " (" + RWiName + ")");
 			group->insert(row, column, RWiValueField);
 			column += bitsSpacing + width;
 		}
 		{
-			const auto                  LENiName       = QString("LEN%1").arg(drI);
-			const QPersistentModelIndex LENiIndex      = VALID_INDEX(findModelRegister(dr7Index, LENiName, MODEL_VALUE_COLUMN));
-			const auto                  LENiValueField = new MultiBitFieldWidget(LENiIndex, debugLenDescription, group);
+			const auto LENiName                   = QString("LEN%1").arg(drI);
+			const QPersistentModelIndex LENiIndex = valid_index(find_model_register(dr7Index, LENiName, ModelValueColumn));
+			const auto LENiValueField             = new MultiBitFieldWidget(LENiIndex, debugLenDescription, group);
 			LENiValueField->setToolTip(lenTooltip + lenDecodedStr.arg(LENiName));
 			group->insert(row, column, LENiValueField);
 		}
@@ -636,16 +663,16 @@ RegisterGroup *createDebugGroup(RegisterViewModelBase::Model *model, QWidget *pa
 		int column = 0;
 		group->insert(row, column, new FieldWidget("DR6", group));
 		column += nameWidth + 1;
-		group->insert(row, column, new ValueField(valueWidth, getValueIndex(dr6Index), group));
+		group->insert(row, column, new ValueField(valueWidth, value_index(dr6Index), group));
 		column += valueWidth + 2;
-		const QString bsName      = "BS";
-		const auto    bsWidth     = bsName.length();
-		const auto    BSNameField = new FieldWidget(bsName, group);
-		const auto    BSTooltip   = tr("Single Step") + " (BS)";
+		const QString bsName   = "BS";
+		const auto bsWidth     = bsName.length();
+		const auto BSNameField = new FieldWidget(bsName, group);
+		const auto BSTooltip   = tr("Single Step") + " (BS)";
 		BSNameField->setToolTip(BSTooltip);
 		group->insert(row, column, BSNameField);
 		column += bsWidth + 1;
-		const auto bsIndex      = findModelRegister(dr6Index, bsName, MODEL_VALUE_COLUMN);
+		const auto bsIndex      = find_model_register(dr6Index, bsName, ModelValueColumn);
 		const auto BSValueField = new ValueField(1, bsIndex, group);
 		BSValueField->setToolTip(BSTooltip);
 		group->insert(row, column, BSValueField);
@@ -657,17 +684,17 @@ RegisterGroup *createDebugGroup(RegisterViewModelBase::Model *model, QWidget *pa
 		int column = 0;
 		group->insert(row, column, new FieldWidget("DR7", group));
 		column += nameWidth + 1;
-		group->insert(row, column, new ValueField(valueWidth, getValueIndex(dr7Index), group));
+		group->insert(row, column, new ValueField(valueWidth, value_index(dr7Index), group));
 		column += valueWidth + 2;
 		{
-			const QString leName      = "LE";
-			const auto    leWidth     = leName.length();
-			const auto    LENameField = new FieldWidget(leName, group);
-			const auto    LETooltip   = tr("Local Exact Breakpoint Enable");
+			const QString leName   = "LE";
+			const auto leWidth     = leName.length();
+			const auto LENameField = new FieldWidget(leName, group);
+			const auto LETooltip   = tr("Local Exact Breakpoint Enable");
 			LENameField->setToolTip(LETooltip);
 			group->insert(row, column, LENameField);
 			column += leWidth + 1;
-			const auto leIndex      = findModelRegister(dr7Index, leName, MODEL_VALUE_COLUMN);
+			const auto leIndex      = find_model_register(dr7Index, leName, ModelValueColumn);
 			const auto leValueWidth = 1;
 			const auto LEValueField = new ValueField(leValueWidth, leIndex, group);
 			LEValueField->setToolTip(LETooltip);
@@ -675,14 +702,14 @@ RegisterGroup *createDebugGroup(RegisterViewModelBase::Model *model, QWidget *pa
 			column += leValueWidth + 1;
 		}
 		{
-			const QString geName      = "GE";
-			const auto    geWidth     = geName.length();
-			const auto    GENameField = new FieldWidget(geName, group);
-			const auto    GETooltip   = tr("Global Exact Breakpoint Enable");
+			const QString geName   = "GE";
+			const auto geWidth     = geName.length();
+			const auto GENameField = new FieldWidget(geName, group);
+			const auto GETooltip   = tr("Global Exact Breakpoint Enable");
 			GENameField->setToolTip(GETooltip);
 			group->insert(row, column, GENameField);
 			column += geWidth + 1;
-			const auto geIndex      = findModelRegister(dr7Index, geName, MODEL_VALUE_COLUMN);
+			const auto geIndex      = find_model_register(dr7Index, geName, ModelValueColumn);
 			const auto geValueWidth = 1;
 			const auto GEValueField = new ValueField(geValueWidth, geIndex, group);
 			GEValueField->setToolTip(GETooltip);
@@ -694,23 +721,23 @@ RegisterGroup *createDebugGroup(RegisterViewModelBase::Model *model, QWidget *pa
 	return group;
 }
 
-RegisterGroup *createMXCSR(RegisterViewModelBase::Model *model, QWidget *parent) {
+RegisterGroup *create_mxcsr(RegisterViewModelBase::Model *model, QWidget *parent) {
 	using namespace RegisterViewModelBase;
 
-	const auto catIndex = findModelCategory(model, "SSE");
+	const auto catIndex = find_model_category(model, "SSE");
 	if (!catIndex.isValid())
 		return nullptr;
-	const auto   group     = new RegisterGroup("MXCSR", parent);
+	const auto group        = new RegisterGroup("MXCSR", parent);
 	const QString mxcsrName = "MXCSR";
 
-	int column = 0;
+	int column         = 0;
 	const int mxcsrRow = 1, fzRow = mxcsrRow, dazRow = mxcsrRow, excRow = mxcsrRow;
-	const int rndRow = fzRow + 1;
+	const int rndRow  = fzRow + 1;
 	const int maskRow = rndRow;
 
 	group->insert(mxcsrRow, column, new FieldWidget(mxcsrName, group));
 	column += mxcsrName.length() + 1;
-	const auto mxcsrIndex      = findModelRegister(catIndex, "MXCSR", MODEL_VALUE_COLUMN);
+	const auto mxcsrIndex      = find_model_register(catIndex, "MXCSR", ModelValueColumn);
 	const auto mxcsrValueWidth = mxcsrIndex.data(Model::FixedLengthRole).toInt();
 	assert(mxcsrValueWidth > 0);
 	group->insert(mxcsrRow, column, new ValueField(mxcsrValueWidth, mxcsrIndex, group));
@@ -719,11 +746,11 @@ RegisterGroup *createMXCSR(RegisterViewModelBase::Model *model, QWidget *parent)
 	// Also FZ value is one char away from DAZ name, which is also no good.
 	// Maybe following OllyDbg example here isn't a good idea.
 	const QString fzName = "FZ", dazName = "DZ";
-	const auto    fzColumn    = column;
-	const auto    fzNameField = new FieldWidget(fzName, group);
+	const auto fzColumn    = column;
+	const auto fzNameField = new FieldWidget(fzName, group);
 	group->insert(fzRow, fzColumn, fzNameField);
 	column += fzName.length() + 1;
-	const auto fzIndex      = findModelRegister(mxcsrIndex, "FZ", MODEL_VALUE_COLUMN);
+	const auto fzIndex      = find_model_register(mxcsrIndex, "FZ", ModelValueColumn);
 	const auto fzValueWidth = 1;
 	const auto fzValueField = new ValueField(fzValueWidth, fzIndex, group);
 	group->insert(fzRow, column, fzValueField);
@@ -731,7 +758,7 @@ RegisterGroup *createMXCSR(RegisterViewModelBase::Model *model, QWidget *parent)
 	const auto dazNameField = new FieldWidget(dazName, group);
 	group->insert(dazRow, column, dazNameField);
 	column += dazName.length() + 1;
-	const auto dazIndex      = findModelRegister(mxcsrIndex, "DAZ", MODEL_VALUE_COLUMN);
+	const auto dazIndex      = find_model_register(mxcsrIndex, "DAZ", ModelValueColumn);
 	const auto dazValueWidth = 1;
 	const auto dazValueField = new ValueField(dazValueWidth, dazIndex, group);
 	group->insert(dazRow, column, dazValueField);
@@ -741,20 +768,20 @@ RegisterGroup *createMXCSR(RegisterViewModelBase::Model *model, QWidget *parent)
 	const QString maskName = "Mask";
 	group->insert(maskRow, column, new FieldWidget(maskName, group));
 	column += maskName.length() + 1;
-	addPUOZDI(group, mxcsrIndex, mxcsrIndex, excRow - 1, column);
-	const auto    rndNameColumn = fzColumn;
-	const QString rndName       = "Rnd";
+	add_puozdi(group, mxcsrIndex, mxcsrIndex, excRow - 1, column);
+	const auto rndNameColumn = fzColumn;
+	const QString rndName    = "Rnd";
 	group->insert(rndRow, rndNameColumn, new FieldWidget(rndName, group));
 	const auto rndColumn = rndNameColumn + rndName.length() + 1;
-	addRoundingMode(group, findModelRegister(mxcsrIndex, "RC", MODEL_VALUE_COLUMN), rndRow, rndColumn);
+	add_rounding_mode(group, find_model_register(mxcsrIndex, "RC", ModelValueColumn), rndRow, rndColumn);
 
 	{
-		const auto fzTooltip = tr("Flush Denormals To Zero") + " (FTZ)";
+		const auto fzTooltip = tr("Flush Denormals To Zero (FTZ)");
 		fzNameField->setToolTip(fzTooltip);
 		fzValueField->setToolTip(fzTooltip);
 	}
 	{
-		const auto dazTooltip = tr("Denormals Are Zeros") + " (DAZ)";
+		const auto dazTooltip = tr("Denormals Are Zeros (DAZ)");
 		dazNameField->setToolTip(dazTooltip);
 		dazValueField->setToolTip(dazTooltip);
 	}

@@ -22,11 +22,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 
 #include <QDialog>
-#include <QVBoxLayout>
+#include <QDialogButtonBox>
 #include <QLabel>
 #include <QLineEdit>
-#include <QDialogButtonBox>
 #include <QPalette>
+#include <QVBoxLayout>
 
 class QString;
 
@@ -38,18 +38,18 @@ public:
 
 public:
 	edb::address_t getAddress();
-	
+
 private Q_SLOTS:
-	void on_text_changed(const QString& text);
-	
+	void on_text_changed(const QString &text);
+
 private:
-	QVBoxLayout      *layout_;
-	QLabel           *label_text_;
-	QLabel           *label_error_;
-	QLineEdit        *expression_;
-	QDialogButtonBox *button_box_;
-	QPalette         palette_error_;
-	edb::address_t   last_address_;
+	QVBoxLayout *layout_         = nullptr;
+	QLabel *labelText_           = nullptr;
+	QLabel *labelError_          = nullptr;
+	QLineEdit *expression_       = nullptr;
+	QDialogButtonBox *buttonBox_ = nullptr;
+	QPalette paletteError_;
+	edb::address_t lastAddress_;
 };
 
 #endif

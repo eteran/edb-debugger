@@ -21,7 +21,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
-QTextCharFormat createRule(const QBrush &foreground, const QBrush &background, int weight, bool italic, bool underline) {
+/**
+ * @brief create_rule
+ * @param foreground
+ * @param background
+ * @param weight
+ * @param italic
+ * @param underline
+ * @return
+ */
+QTextCharFormat create_rule(const QBrush &foreground, const QBrush &background, int weight, bool italic, bool underline) {
 	QTextCharFormat format;
 	format.setForeground(foreground);
 	format.setBackground(background);
@@ -33,38 +42,42 @@ QTextCharFormat createRule(const QBrush &foreground, const QBrush &background, i
 
 }
 
-//------------------------------------------------------------------------------
-// Name: SyntaxHighlighter
-// Desc:
-//------------------------------------------------------------------------------
-SyntaxHighlighter::SyntaxHighlighter(QObject *parent) : QObject(parent) {
-	create_rules();
+/**
+ * @brief SyntaxHighlighter::SyntaxHighlighter
+ * @param parent
+ */
+SyntaxHighlighter::SyntaxHighlighter(QObject *parent)
+	: QObject(parent) {
+
+	createRules();
 }
 
-//------------------------------------------------------------------------------
-// Name: HighlightingRule::HighlightingRule
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief SyntaxHighlighter::HighlightingRule::HighlightingRule
+ */
 SyntaxHighlighter::HighlightingRule::HighlightingRule() {
-
 }
 
-//------------------------------------------------------------------------------
-// Name: HighlightingRule::HighlightingRule
-// Desc:
-//------------------------------------------------------------------------------
-SyntaxHighlighter::HighlightingRule::HighlightingRule(const QString &regex, const QBrush &foreground, const QBrush &background, int weight, bool italic, bool underline) : pattern(regex) {
+/**
+ * @brief SyntaxHighlighter::HighlightingRule::HighlightingRule
+ * @param regex
+ * @param foreground
+ * @param background
+ * @param weight
+ * @param italic
+ * @param underline
+ */
+SyntaxHighlighter::HighlightingRule::HighlightingRule(const QString &regex, const QBrush &foreground, const QBrush &background, int weight, bool italic, bool underline)
+	: pattern(regex) {
 
 	pattern.setCaseSensitivity(Qt::CaseInsensitive);
-	format = createRule(foreground, background, weight, italic, underline);
-
+	format = create_rule(foreground, background, weight, italic, underline);
 }
 
-//------------------------------------------------------------------------------
-// Name: create_rules
-// Desc:
-//------------------------------------------------------------------------------
-void SyntaxHighlighter::create_rules() {
+/**
+ * @brief SyntaxHighlighter::createRules
+ */
+void SyntaxHighlighter::createRules() {
 
 	// TODO: make these rules be implemented in a portable way
 	// right now things are very much hard coded
@@ -81,8 +94,7 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.brackets.background", "transparent").toString()),
 		settings.value("theme.brackets.weight", QFont::Normal).toInt(),
 		settings.value("theme.brackets.italic", false).toBool(),
-		settings.value("theme.brackets.underline", false).toBool()
-		));
+		settings.value("theme.brackets.underline", false).toBool()));
 
 	// expression brackets
 	rules_.emplace_back(HighlightingRule(
@@ -91,8 +103,7 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.brackets.background", "transparent").toString()),
 		settings.value("theme.brackets.weight", QFont::Normal).toInt(),
 		settings.value("theme.brackets.italic", false).toBool(),
-		settings.value("theme.brackets.underline", false).toBool()
-		));
+		settings.value("theme.brackets.underline", false).toBool()));
 
 	// math operators
 	rules_.emplace_back(HighlightingRule(
@@ -101,8 +112,7 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.operator.background", "transparent").toString()),
 		settings.value("theme.operator.weight", QFont::Normal).toInt(),
 		settings.value("theme.operator.italic", false).toBool(),
-		settings.value("theme.operator.underline", false).toBool()
-		));
+		settings.value("theme.operator.underline", false).toBool()));
 
 	// registers
 	// TODO: support ST(N)
@@ -112,7 +122,7 @@ void SyntaxHighlighter::create_rules() {
 #elif defined EDB_ARM32
 		"\\b(?:r(?:[0-9]|1[0-5])|sb|sl|fp|ip|sp|lr|pc|[sd][0-9]|[sdf](?:[12][0-9]|3[01])|q(?:[0-9]|1[0-5]))\\b",
 #elif defined EDB_ARM64
-		"\\b(?:[xw](?:[12]?[0-9]|3[01]))\\b"/* FIXME: stub, only GPRs here */,
+		"\\b(?:[xw](?:[12]?[0-9]|3[01]))\\b" /* FIXME: stub, only GPRs here */,
 #else
 #error "What string should be here?"
 #endif
@@ -120,8 +130,7 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.register.background", "transparent").toString()),
 		settings.value("theme.register.weight", QFont::Bold).toInt(),
 		settings.value("theme.register.italic", false).toBool(),
-		settings.value("theme.register.underline", false).toBool()
-		));
+		settings.value("theme.register.underline", false).toBool()));
 
 	// constants
 	rules_.emplace_back(HighlightingRule(
@@ -133,8 +142,7 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.constant.background", "transparent").toString()),
 		settings.value("theme.constant.weight", QFont::Normal).toInt(),
 		settings.value("theme.constant.italic", false).toBool(),
-		settings.value("theme.constant.underline", false).toBool()
-		));
+		settings.value("theme.constant.underline", false).toBool()));
 
 #if defined EDB_X86 || defined EDB_X86_64
 	// pointer modifiers
@@ -144,8 +152,7 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.ptr.background", "transparent").toString()),
 		settings.value("theme.ptr.weight", QFont::Normal).toInt(),
 		settings.value("theme.ptr.italic", false).toBool(),
-		settings.value("theme.ptr.underline", false).toBool()
-		));
+		settings.value("theme.ptr.underline", false).toBool()));
 
 	// prefix
 	rules_.emplace_back(HighlightingRule(
@@ -154,10 +161,8 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.prefix.background", "transparent").toString()),
 		settings.value("theme.prefix.weight", QFont::Bold).toInt(),
 		settings.value("theme.prefix.italic", false).toBool(),
-		settings.value("theme.prefix.underline", false).toBool()
-		));
+		settings.value("theme.prefix.underline", false).toBool()));
 #endif
-
 
 	// flow control
 	rules_.emplace_back(HighlightingRule(
@@ -174,9 +179,7 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.flow_ctrl.background", "yellow").toString()),
 		settings.value("theme.flow_ctrl.weight", QFont::Normal).toInt(),
 		settings.value("theme.flow_ctrl.italic", false).toBool(),
-		settings.value("theme.flow_ctrl.underline", false).toBool()
-		));
-
+		settings.value("theme.flow_ctrl.underline", false).toBool()));
 
 	// function call
 	rules_.emplace_back(HighlightingRule(
@@ -191,8 +194,7 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.function.background", "yellow").toString()),
 		settings.value("theme.function.weight", QFont::Normal).toInt(),
 		settings.value("theme.function.italic", false).toBool(),
-		settings.value("theme.function.underline", false).toBool()
-		));
+		settings.value("theme.function.underline", false).toBool()));
 
 #if defined EDB_X86 || defined EDB_X86_64
 	// FIXME(ARM): this is stubbed out
@@ -204,8 +206,7 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.stack.background", "transparent").toString()),
 		settings.value("theme.stack.weight", QFont::Normal).toInt(),
 		settings.value("theme.stack.italic", false).toBool(),
-		settings.value("theme.stack.underline", false).toBool()
-		));
+		settings.value("theme.stack.underline", false).toBool()));
 
 	// comparison
 	rules_.emplace_back(HighlightingRule(
@@ -214,9 +215,7 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.comparison.background", "transparent").toString()),
 		settings.value("theme.comparison.weight", QFont::Normal).toInt(),
 		settings.value("theme.comparison.italic", false).toBool(),
-		settings.value("theme.comparison.underline", false).toBool()
-		));
-
+		settings.value("theme.comparison.underline", false).toBool()));
 
 	// data transfer
 	rules_.emplace_back(HighlightingRule(
@@ -225,8 +224,7 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.data_xfer.background", "transparent").toString()),
 		settings.value("theme.data_xfer.weight", QFont::Normal).toInt(),
 		settings.value("theme.data_xfer.italic", false).toBool(),
-		settings.value("theme.data_xfer.underline", false).toBool()
-		));
+		settings.value("theme.data_xfer.underline", false).toBool()));
 
 	// arithmetic
 	rules_.emplace_back(HighlightingRule(
@@ -235,8 +233,7 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.arithmetic.background", "transparent").toString()),
 		settings.value("theme.arithmetic.weight", QFont::Normal).toInt(),
 		settings.value("theme.arithmetic.italic", false).toBool(),
-		settings.value("theme.arithmetic.underline", false).toBool()
-		));
+		settings.value("theme.arithmetic.underline", false).toBool()));
 
 	// logic
 	rules_.emplace_back(HighlightingRule(
@@ -245,8 +242,7 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.logic.background", "transparent").toString()),
 		settings.value("theme.logic.weight", QFont::Normal).toInt(),
 		settings.value("theme.logic.italic", false).toBool(),
-		settings.value("theme.logic.underline", false).toBool()
-		));
+		settings.value("theme.logic.underline", false).toBool()));
 
 	// shift
 	rules_.emplace_back(HighlightingRule(
@@ -255,8 +251,7 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.shift.background", "transparent").toString()),
 		settings.value("theme.shift.weight", QFont::Normal).toInt(),
 		settings.value("theme.shift.italic", false).toBool(),
-		settings.value("theme.shift.underline", false).toBool()
-		));
+		settings.value("theme.shift.underline", false).toBool()));
 
 	// system
 	rules_.emplace_back(HighlightingRule(
@@ -265,8 +260,7 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.system.background", "transparent").toString()),
 		settings.value("theme.system.weight", QFont::Bold).toInt(),
 		settings.value("theme.system.italic", false).toBool(),
-		settings.value("theme.system.underline", false).toBool()
-		));
+		settings.value("theme.system.underline", false).toBool()));
 #endif
 
 	// data bytes
@@ -276,21 +270,21 @@ void SyntaxHighlighter::create_rules() {
 		QColor(settings.value("theme.data.background", "transparent").toString()),
 		settings.value("theme.data.weight", QFont::Normal).toInt(),
 		settings.value("theme.data.italic", false).toBool(),
-		settings.value("theme.data.underline", false).toBool()
-		));
+		settings.value("theme.data.underline", false).toBool()));
 }
 
-//------------------------------------------------------------------------------
-// Name: highlightBlock
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief SyntaxHighlighter::highlightBlock
+ * @param text
+ * @return
+ */
 QVector<QTextLayout::FormatRange> SyntaxHighlighter::highlightBlock(const QString &text) {
 
 	QVector<QTextLayout::FormatRange> ranges;
 
-	for(const HighlightingRule &rule : rules_) {
+	for (const HighlightingRule &rule : rules_) {
 		int index = rule.pattern.indexIn(text);
-		while(index >= 0) {
+		while (index >= 0) {
 			const int length = rule.pattern.matchedLength();
 
 			QTextLayout::FormatRange range;

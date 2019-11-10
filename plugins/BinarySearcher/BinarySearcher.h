@@ -39,11 +39,11 @@ public:
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
-	QList<QAction *> stack_context_menu() override;
+	QList<QAction *> stackContextMenu() override;
 
 public Q_SLOTS:
-	void show_menu();
-	void mnuStackFindASCII();
+	void showMenu();
+	void mnuStackFindAscii();
 
 private:
 	QMenu *menu_ = nullptr;

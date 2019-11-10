@@ -17,19 +17,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ELFXX.h"
+#include "IDebugger.h"
 #include "edb.h"
 #include "string_hash.h"
-#include "IDebugger.h"
 
 namespace BinaryInfoPlugin {
 
-//------------------------------------------------------------------------------
-// Name: native
-// Desc: returns true if this binary is native to the arch edb was built for
-//------------------------------------------------------------------------------
-template<>
+/**
+ * @brief ELF64::native
+ * @return true if this binary is native to the arch edb was built for
+ */
+template <>
 bool ELF64::native() const {
-	return edb::v1::debugger_core->cpu_type() == edb::string_hash("x86-64");
+#if defined EDB_X86 || defined EDB_X86_64
+	return edb::v1::debugger_core->cpuType() == edb::string_hash("x86-64");
+#elif defined EDB_ARM32 || defined EDB_ARM64
+	return edb::v1::debugger_core->cpuType() == edb::string_hash("AArch64");
+#else
+#error "Unsupported Architecture"
+#endif
 }
 
 }

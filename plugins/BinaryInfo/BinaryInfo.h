@@ -38,13 +38,13 @@ public:
 	explicit BinaryInfo(QObject *parent = nullptr);
 
 private:
-	void private_init() override;
-	QWidget* options_page() override;
+	void privateInit() override;
+	QWidget *optionsPage() override;
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
-	QString extra_arguments() const override;
-	ArgumentStatus parse_arguments(QStringList &args) override;
+	QString extraArguments() const override;
+	ArgumentStatus parseArguments(QStringList &args) override;
 
 public:
 	bool generateSymbolFile(const QString &filename, const QString &symbol_file) override;

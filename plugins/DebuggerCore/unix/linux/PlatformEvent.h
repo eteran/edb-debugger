@@ -34,35 +34,35 @@ public:
 	PlatformEvent() = default;
 
 private:
-	PlatformEvent(const PlatformEvent &)            = default;
-	PlatformEvent& operator=(const PlatformEvent &) = default;
+	PlatformEvent(const PlatformEvent &) = default;
+	PlatformEvent &operator=(const PlatformEvent &) = default;
 
 public:
 	IDebugEvent *clone() const override;
 
 public:
-	Message error_description() const override;
+	Message errorDescription() const override;
 	REASON reason() const override;
-	TRAP_REASON trap_reason() const override;
+	TRAP_REASON trapReason() const override;
 	bool exited() const override;
-	bool is_error() const override;
-	bool is_kill() const override;
-	bool is_stop() const override;
-	bool is_trap() const override;
+	bool isError() const override;
+	bool isKill() const override;
+	bool isStop() const override;
+	bool isTrap() const override;
 	bool stopped() const override;
 	bool terminated() const override;
 	edb::pid_t process() const override;
 	edb::tid_t thread() const override;
-	int code() const override;
+	int64_t code() const override;
 
 private:
 	static IDebugEvent::Message createUnexpectedSignalMessage(const QString &name, int number);
 
 private:
-	siginfo_t  siginfo_ = {};
-	edb::pid_t pid_     = 0;
-	edb::tid_t tid_     = 0;
-	int        status_  = 0;
+	siginfo_t siginfo_ = {};
+	edb::pid_t pid_    = 0;
+	edb::tid_t tid_    = 0;
+	int status_        = 0;
 };
 
 }

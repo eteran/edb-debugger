@@ -53,9 +53,9 @@ struct elf_model<64> {
 	using elf_versym  = elf64_versym;
 
 	// structures
-	using elf_auxv_t  = elf64_auxv_t;
-	using elf_dyn     = elf64_dyn;
-	using elf_header  = elf64_header;
+	using elf_auxv_t = elf64_auxv_t;
+	using elf_dyn    = elf64_dyn;
+	using elf_header = elf64_header;
 #if 0
 	using elf_lib	  =  elf64_lib;
 #endif
@@ -87,9 +87,9 @@ struct elf_model<32> {
 	using elf_versym  = elf32_versym;
 
 	// structures
-	using elf_auxv_t  = elf32_auxv_t;
-	using elf_dyn     = elf32_dyn;
-	using elf_header  = elf32_header;
+	using elf_auxv_t = elf32_auxv_t;
+	using elf_dyn    = elf32_dyn;
+	using elf_header = elf32_header;
 #if 0
 	using elf_lib	  =  elf32_lib;
 #endif

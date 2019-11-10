@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOG_HEADER_20190403_H_
 #define DIALOG_HEADER_20190403_H_
 
-#include "Types.h"
 #include "IRegion.h"
+#include "Types.h"
 #include "ui_DialogHeader.h"
 #include <QDialog>
 #include <memory>
@@ -39,7 +39,7 @@ public:
 	~DialogHeader() override = default;
 
 private:
-	 Ui::DialogHeader ui;
+	Ui::DialogHeader ui;
 };
 
 }

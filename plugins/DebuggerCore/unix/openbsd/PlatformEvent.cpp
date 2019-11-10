@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstring>
 #include <fcntl.h>
 #include <kvm.h>
+#include <signal.h> // for the SIG* definitions
 #include <sys/exec.h>
 #include <sys/mman.h>
 #include <sys/param.h>
@@ -34,14 +35,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>
 #include <uvm/uvm.h>
 #include <uvm/uvm_amap.h>
-#include <signal.h> // for the SIG* definitions
 
 namespace DebuggerCore {
 
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-PlatformEvent::PlatformEvent() : status(0), pid(-1), tid(-1), fault_address_(0), fault_code_(0) {
+PlatformEvent::PlatformEvent()
+	: status(0), pid(-1), tid(-1), fault_address_(0), fault_code_(0) {
 }
 
 //------------------------------------------------------------------------------
@@ -59,37 +60,34 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 
 	auto fault_address = reinterpret_cast<edb::address_t>(fault_address_);
 
-	switch(code()) {
+	switch (code()) {
 	case SIGSEGV:
 		return Message(
 			tr("Illegal Access Fault"),
 			tr(
 				"<p>The debugged application encountered a segmentation fault.<br />The address <strong>0x%1</strong> could not be accessed.</p>"
-				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>").arg(edb::v1::format_pointer(fault_address))
-			);
+				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
+				.arg(edb::v1::format_pointer(fault_address)));
 	case SIGILL:
 		return Message(
 			tr("Illegal Instruction Fault"),
 			tr(
 				"<p>The debugged application attempted to execute an illegal instruction.</p>"
-				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
-			);
+				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"));
 	case SIGFPE:
-		switch(fault_code_) {
+		switch (fault_code_) {
 		case FPE_INTDIV:
-		return Message(
-			tr("Divide By Zero"),
-			tr(
-				"<p>The debugged application tried to divide an integer value by an integer divisor of zero.</p>"
-				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
-			);
+			return Message(
+				tr("Divide By Zero"),
+				tr(
+					"<p>The debugged application tried to divide an integer value by an integer divisor of zero.</p>"
+					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"));
 		default:
 			return Message(
 				tr("Floating Point Exception"),
 				tr(
 					"<p>The debugged application encountered a floating-point exception.</p>"
-					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
-				);
+					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"));
 		}
 
 	case SIGABRT:
@@ -97,31 +95,27 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 			tr("Application Aborted"),
 			tr(
 				"<p>The debugged application has aborted.</p>"
-				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
-			);
+				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"));
 	case SIGBUS:
 		return Message(
 			tr("Bus Error"),
 			tr(
 				"<p>The debugged application tried to read or write data that is misaligned.</p>"
-				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
-			);
+				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"));
 #ifdef SIGSTKFLT
 	case SIGSTKFLT:
 		return Message(
 			tr("Stack Fault"),
 			tr(
 				"<p>The debugged application encountered a stack fault.</p>"
-				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
-			);
+				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"));
 #endif
 	case SIGPIPE:
 		return Message(
 			tr("Broken Pipe Fault"),
 			tr(
 				"<p>The debugged application encountered a broken pipe fault.</p>"
-				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
-			);
+				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"));
 	default:
 		return Message();
 	}
@@ -130,14 +124,14 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-IDebugEvent::REASON PlatformEvent:: reason() const {
+IDebugEvent::REASON PlatformEvent::reason() const {
 	// this basically converts our value into a 'switchable' value for convenience
 
-	if(stopped()) {
+	if (stopped()) {
 		return EVENT_STOPPED;
-	} else if(terminated()) {
+	} else if (terminated()) {
 		return EVENT_TERMINATED;
-	} else if(exited()) {
+	} else if (exited()) {
 		return EVENT_EXITED;
 	} else {
 		return EVENT_UNKNOWN;
@@ -148,9 +142,11 @@ IDebugEvent::REASON PlatformEvent:: reason() const {
 // Name:
 //------------------------------------------------------------------------------
 IDebugEvent::TRAP_REASON PlatformEvent::trap_reason() const {
-	switch(fault_code_) {
-	case TRAP_TRACE: return TRAP_STEPPING;
-	default:         return TRAP_BREAKPOINT;
+	switch (fault_code_) {
+	case TRAP_TRACE:
+		return TRAP_STEPPING;
+	default:
+		return TRAP_BREAKPOINT;
 	}
 }
 
@@ -165,8 +161,8 @@ bool PlatformEvent::exited() const {
 // Name:
 //------------------------------------------------------------------------------
 bool PlatformEvent::is_error() const {
-	if(stopped()) {
-		switch(code()) {
+	if (stopped()) {
+		switch (code()) {
 		case SIGTRAP:
 		case SIGSTOP:
 			return false;
@@ -240,16 +236,16 @@ edb::tid_t PlatformEvent::thread() const {
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-int PlatformEvent::code() const {
-	if(stopped()) {
+int64_t PlatformEvent::code() const {
+	if (stopped()) {
 		return WSTOPSIG(status);
 	}
 
-	if(terminated()) {
+	if (terminated()) {
 		return WTERMSIG(status);
 	}
 
-	if(exited()) {
+	if (exited()) {
 		return WEXITSTATUS(status);
 	}
 

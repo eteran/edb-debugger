@@ -34,7 +34,7 @@ class DialogSymbolViewer : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogSymbolViewer(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogSymbolViewer(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogSymbolViewer() override = default;
 
 public Q_SLOTS:
@@ -48,16 +48,16 @@ private Q_SLOTS:
 	void mnuFollowInCPU();
 
 private:
-    void showEvent(QShowEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 
 private:
-	void do_find();
+	void doFind();
 
 private:
-	 Ui::DialogSymbolViewer ui;
-	 QStringListModel *model_;
-	 QSortFilterProxyModel *filter_model_;
-	 QPushButton *btnRefresh_;
+	Ui::DialogSymbolViewer ui;
+	QStringListModel *model_            = nullptr;
+	QSortFilterProxyModel *filterModel_ = nullptr;
+	QPushButton *buttonRefresh_         = nullptr;
 };
 
 }

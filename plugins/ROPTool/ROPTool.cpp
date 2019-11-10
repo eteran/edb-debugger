@@ -17,50 +17,50 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ROPTool.h"
-#include "edb.h"
 #include "DialogROPTool.h"
+#include "edb.h"
 #include <QMenu>
 
 namespace ROPToolPlugin {
 
-//------------------------------------------------------------------------------
-// Name: ROPTool
-// Desc:
-//------------------------------------------------------------------------------
-ROPTool::ROPTool(QObject *parent) : QObject(parent) {
+/**
+ * @brief ROPTool::ROPTool
+ * @param parent
+ */
+ROPTool::ROPTool(QObject *parent)
+	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: ~ROPTool
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ROPTool::~ROPTool
+ */
 ROPTool::~ROPTool() {
 	delete dialog_;
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ROPTool::menu
+ * @param parent
+ * @return
+ */
 QMenu *ROPTool::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("ROPTool"), parent);
-		menu_->addAction(tr("&ROP Tool"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+Alt+R")));
+		menu_->addAction(tr("&ROP Tool"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+Alt+R")));
 	}
 
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: show_menu
-// Desc:
-//------------------------------------------------------------------------------
-void ROPTool::show_menu() {
+/**
+ * @brief ROPTool::showMenu
+ */
+void ROPTool::showMenu() {
 
-	if(!dialog_) {
+	if (!dialog_) {
 		dialog_ = new DialogROPTool(edb::v1::debugger_ui);
 	}
 

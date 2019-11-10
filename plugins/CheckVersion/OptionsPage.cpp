@@ -21,18 +21,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace CheckVersionPlugin {
 
-//------------------------------------------------------------------------------
-// Name: OptionsPage
-// Desc:
-//------------------------------------------------------------------------------
-OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f) {
+/**
+ * @brief OptionsPage::OptionsPage
+ * @param parent
+ * @param f
+ */
+OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
+	: QWidget(parent, f) {
+
 	ui.setupUi(this);
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief OptionsPage::showEvent
+ * @param event
+ */
 void OptionsPage::showEvent(QShowEvent *event) {
 	Q_UNUSED(event)
 
@@ -40,10 +43,10 @@ void OptionsPage::showEvent(QShowEvent *event) {
 	ui.checkBox->setChecked(settings.value("CheckVersion/check_on_start.enabled", true).toBool());
 }
 
-//------------------------------------------------------------------------------
-// Name: on_checkBox_toggled
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief OptionsPage::on_checkBox_toggled
+ * @param checked
+ */
 void OptionsPage::on_checkBox_toggled(bool checked) {
 	Q_UNUSED(checked)
 

@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "FieldWidget.h"
 #include "RegisterViewModelBase.h"
+
 #include <functional>
 
 class QAction;
@@ -31,25 +32,25 @@ class ValueField : public FieldWidget {
 	Q_OBJECT
 
 private:
-	bool                            selected_ = false;
-	bool                            hovered_  = false;
-	std::function<QString(QString)> valueFormatter;
+	bool selected_ = false;
+	bool hovered_  = false;
+	std::function<QString(QString)> valueFormatter_;
 
 	// For GPR
-	QAction *setToZeroAction = nullptr;
-	QAction *setToOneAction  = nullptr;
+	QAction *setToZeroAction_ = nullptr;
+	QAction *setToOneAction_  = nullptr;
 
 protected:
-	QList<QAction *> menuItems;
+	QList<QAction *> menuItems_;
 
 private:
-	void   init();
+	void init();
 	QColor fgColorForChangedField() const;
 	void editNormalReg(const QModelIndex &indexToEdit, const QModelIndex &clickedIndex) const;
 
 protected:
 	RegisterViewModelBase::Model *model() const;
-	bool                          changed() const;
+	bool changed() const;
 
 	void enterEvent(QEvent *) override;
 	void leaveEvent(QEvent *) override;
@@ -60,8 +61,8 @@ protected:
 	ValueField *bestNeighbor(const std::function<bool(const QPoint &neighborPos, const ValueField *curResult, const QPoint &selfPos)> &firstIsBetter) const;
 
 public:
-	ValueField(int fieldWidth, const QModelIndex &index, const std::function<QString(const QString &)> &valueFormatter, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	ValueField(int fieldWidth, const QModelIndex &index, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	ValueField(int fieldWidth, const QModelIndex &index_, const std::function<QString(const QString &)> &valueFormatter_, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	ValueField(int fieldWidth, const QModelIndex &index_, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	ValueField *up() const;
 	ValueField *down() const;
 	ValueField *left() const;
@@ -69,25 +70,25 @@ public:
 
 	bool isSelected() const;
 	void showMenu(const QPoint &position);
-	QString     text() const override;
+	QString text() const override;
 	QModelIndex regIndex() const;
 
 public Q_SLOTS:
-	void         defaultAction();
+	void defaultAction();
 #if defined EDB_X86 || defined EDB_X86_64
-	void         pushFPUStack();
-	void         popFPUStack();
+	void pushFPUStack();
+	void popFPUStack();
 #endif
-	void         adjustToData() override;
-	void         select();
-	void         unselect();
+	void adjustToData() override;
+	void select();
+	void unselect();
 	virtual void updatePalette();
-	void         copyToClipboard() const;
-	void         setZero();
-	void         setToOne();
-	void         increment();
-	void         decrement();
-	void         invert();
+	void copyToClipboard() const;
+	void setZero();
+	void setToOne();
+	void increment();
+	void decrement();
+	void invert();
 
 Q_SIGNALS:
 	void selected();

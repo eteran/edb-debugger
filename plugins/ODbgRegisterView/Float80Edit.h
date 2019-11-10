@@ -27,7 +27,7 @@ class Float80Edit : public QLineEdit {
 	Q_OBJECT
 
 public:
-    explicit Float80Edit(QWidget *parent = nullptr);
+	explicit Float80Edit(QWidget *parent = nullptr);
 	void setValue(edb::value80 input);
 
 public:

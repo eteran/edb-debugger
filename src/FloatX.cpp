@@ -30,13 +30,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <gdtoa-desktop.h>
 #endif
 
-template <typename T>
+namespace {
+
+template <class T>
 struct SpecialValues;
 
 template <>
 struct SpecialValues<double> {
-	static constexpr std::array<std::uint8_t, 8> positiveInf {{0, 0, 0, 0, 0, 0, 0xf0, 0x7f}};
-	static constexpr std::array<std::uint8_t, 8> negativeInf {{0, 0, 0, 0, 0, 0, 0xf0, 0xff}};
+	static constexpr std::array<std::uint8_t, 8> positiveInf{{0, 0, 0, 0, 0, 0, 0xf0, 0x7f}};
+	static constexpr std::array<std::uint8_t, 8> negativeInf{{0, 0, 0, 0, 0, 0, 0xf0, 0xff}};
 	static constexpr std::array<std::uint8_t, 8> positiveSNaN{{0, 0, 0, 0, 0, 0, 0xfc, 0x7f}};
 	static constexpr std::array<std::uint8_t, 8> negativeSNaN{{0, 0, 0, 0, 0, 0, 0xfc, 0xff}};
 	static constexpr std::array<std::uint8_t, 8> positiveQNaN{{0, 0, 0, 0, 0, 0, 0xf8, 0x7f}};
@@ -45,8 +47,8 @@ struct SpecialValues<double> {
 
 template <>
 struct SpecialValues<float> {
-	static constexpr std::array<std::uint8_t, 4> positiveInf {{0, 0, 0x80, 0x7f}};
-	static constexpr std::array<std::uint8_t, 4> negativeInf {{0, 0, 0x80, 0xff}};
+	static constexpr std::array<std::uint8_t, 4> positiveInf{{0, 0, 0x80, 0x7f}};
+	static constexpr std::array<std::uint8_t, 4> negativeInf{{0, 0, 0x80, 0xff}};
 	static constexpr std::array<std::uint8_t, 4> positiveSNaN{{0, 0, 0xe0, 0x7f}};
 	static constexpr std::array<std::uint8_t, 4> negativeSNaN{{0, 0, 0xe0, 0xff}};
 	static constexpr std::array<std::uint8_t, 4> positiveQNaN{{0, 0, 0xc0, 0x7f}};
@@ -58,12 +60,11 @@ struct SpecialValues<float> {
 template <>
 struct SpecialValues<long double> {
 
-	static_assert(std::numeric_limits<long double>::digits == 64 &&
-	              std::numeric_limits<long double>::max_exponent == 16384,
-	              "Expected to have x87 80-bit long double");
+	static_assert(std::numeric_limits<long double>::digits == 64 && std::numeric_limits<long double>::max_exponent == 16384,
+				  "Expected to have x87 80-bit long double");
 
-	static constexpr std::array<std::uint8_t, 16> positiveInf {{0, 0, 0, 0, 0, 0, 0, 0x80, 0xff, 0x7f, 0, 0, 0, 0, 0, 0}};
-	static constexpr std::array<std::uint8_t, 16> negativeInf {{0, 0, 0, 0, 0, 0, 0, 0x80, 0xff, 0xff, 0, 0, 0, 0, 0, 0}};
+	static constexpr std::array<std::uint8_t, 16> positiveInf{{0, 0, 0, 0, 0, 0, 0, 0x80, 0xff, 0x7f, 0, 0, 0, 0, 0, 0}};
+	static constexpr std::array<std::uint8_t, 16> negativeInf{{0, 0, 0, 0, 0, 0, 0, 0x80, 0xff, 0xff, 0, 0, 0, 0, 0, 0}};
 	static constexpr std::array<std::uint8_t, 16> positiveSNaN{{0, 0, 0, 0, 0, 0, 0, 0x90, 0xff, 0x7f, 0, 0, 0, 0, 0, 0}};
 	static constexpr std::array<std::uint8_t, 16> negativeSNaN{{0, 0, 0, 0, 0, 0, 0, 0x90, 0xff, 0xff, 0, 0, 0, 0, 0, 0}};
 	static constexpr std::array<std::uint8_t, 16> positiveQNaN{{0, 0, 0, 0, 0, 0, 0, 0xc0, 0xff, 0x7f, 0, 0, 0, 0, 0, 0}};
@@ -97,50 +98,21 @@ constexpr std::array<std::uint8_t, 16> SpecialValues<long double>::negativeQNaN;
 #endif
 #endif
 
-template <typename Float>
-Float readFloat(const QString &strInput, bool &ok) {
-
-	ok = false;
-	const QString str(strInput.toLower().trimmed());
-	if (const auto value = util::fullStringToFloat<Float>(str.toStdString())) {
-		ok = true;
-		return *value;
-	}
-
-	// OK, so either it is invalid/unfinished, or it's some special value
-	// We still do want the user to be able to enter common special values
-	Float value;
-	if (str == "+snan" || str == "snan") {
-		std::memcpy(&value, &SpecialValues<Float>::positiveSNaN, sizeof(value));
-	} else if (str == "-snan") {
-		std::memcpy(&value, &SpecialValues<Float>::negativeSNaN, sizeof(value));
-	} else if (str == "+qnan" || str == "qnan" || str == "nan") {
-		std::memcpy(&value, &SpecialValues<Float>::positiveQNaN, sizeof(value));
-	} else if (str == "-qnan") {
-		std::memcpy(&value, &SpecialValues<Float>::negativeQNaN, sizeof(value));
-	} else if (str == "+inf" || str == "inf") {
-		std::memcpy(&value, &SpecialValues<Float>::positiveInf, sizeof(value));
-	} else if (str == "-inf") {
-		std::memcpy(&value, &SpecialValues<Float>::negativeInf, sizeof(value));
-	} else {
-		return 0;
-	}
-
-	ok = true;
-	return value;
+float toFloatValue(edb::value32 value) {
+	float result;
+	std::memcpy(&result, &value, sizeof(result));
+	return result;
 }
 
-template EDB_EXPORT float readFloat<float>(const QString& strInput, bool& ok);
-template EDB_EXPORT double readFloat<double>(const QString& strInput, bool& ok);
+double toFloatValue(edb::value64 value) {
+	double result;
+	std::memcpy(&result, &value, sizeof(result));
+	return result;
+}
 
-
-#ifndef _MSC_VER
-#if defined(EDB_X86) || defined(EDB_X86_64)
-template long double readFloat<long double>(const QString& strInput,bool& ok);
-#endif
-#endif
-
-namespace {
+long double toFloatValue(edb::value80 value) {
+	return value.toFloatValue();
+}
 
 template <unsigned mantissaLength, typename FloatHolder>
 FloatValueClass ieeeClassify(FloatHolder value) {
@@ -149,8 +121,8 @@ FloatValueClass ieeeClassify(FloatHolder value) {
 	constexpr auto expMax    = (1u << expLength) - 1;
 	constexpr auto QNaN_mask = 1ull << (mantissaLength - 1);
 
-	const auto mantissa  = value & ((1ull << mantissaLength) - 1);
-	const auto exponent  = (value >> mantissaLength) & expMax;
+	const auto mantissa = value & ((1ull << mantissaLength) - 1);
+	const auto exponent = (value >> mantissaLength) & expMax;
 
 	if (exponent == expMax) {
 		if (mantissa == 0u) {
@@ -171,129 +143,22 @@ FloatValueClass ieeeClassify(FloatHolder value) {
 	}
 }
 
-}
-
-FloatValueClass floatType(edb::value32 value) {
-	return ieeeClassify<23>(value);
-}
-
-FloatValueClass floatType(edb::value64 value) {
-	return ieeeClassify<52>(value);
-}
-
-FloatValueClass floatType(edb::value80 value) {
-	constexpr auto mantissaLength = 64;
-	constexpr auto expLength      = 8 * sizeof(value) - mantissaLength - 1;
-	constexpr auto integerBitOnly = 1ull << (mantissaLength - 1);
-	constexpr auto QNaN_mask      = 3ull << (mantissaLength - 2);
-	constexpr auto expMax         = (1u << expLength) - 1;
-
-	const auto exponent      = value.exponent();
-	const auto mantissa      = value.mantissa();
-	const bool integerBitSet = mantissa & integerBitOnly;
-
-	// This is almost as ieeeClassify, but also takes integer bit (not present in
-	// IEEE754 format) into account to detect unsupported values
-	if (exponent == expMax) {
-		if (mantissa == integerBitOnly) {
-			return FloatValueClass::Infinity; // |S|11..11|1.000..0|
-		} else if ((mantissa & QNaN_mask) == QNaN_mask) {
-			return FloatValueClass::QNaN; // |S|11..11|1.1XX..X|
-		} else if ((mantissa & QNaN_mask) == integerBitOnly) {
-			return FloatValueClass::SNaN; // |S|11..11|1.0XX..X|
-		} else {
-			return FloatValueClass::Unsupported; // all exp bits set, but integer bit reset - pseudo-NaN/Inf
-		}
-	} else if (exponent == 0u) {
-		if (mantissa == 0u) {
-			return FloatValueClass::Zero; // |S|00..00|00..00|
-		} else {
-			if (!integerBitSet) {
-				return FloatValueClass::Denormal; // |S|00..00|0.XXXX..X|
-			} else {
-				return FloatValueClass::PseudoDenormal; // |S|00..00|1.XXXX..X|
-			}
-		}
-	} else {
-		if (integerBitSet) {
-			return FloatValueClass::Normal;
-		} else {
-			return FloatValueClass::Unsupported; // integer bit reset but exp is as if normal - unnormal
-		}
-	}
-}
-
-template <typename Float>
-QValidator::State FloatXValidator<Float>::validate(QString &input, int &) const {
-
-	if (input.isEmpty()) {
-		return QValidator::Intermediate;
-	}
-
-	// The input may be in hex format. std::istream doesn't support extraction
-	// of hexfloat, but std::strto[f,d,ld] do. (see wg21.link/lwg2381)
-	if (const auto v = util::fullStringToFloat<Float>(input.toStdString())) {
-		return QValidator::Acceptable;
-	}
-
-	// OK, so we failed to read it or it is unfinished. Let's check whether it's intermediate or invalid.
-	QRegExp basicFormat("[+-]?[0-9]*\\.?[0-9]*(e([+-]?[0-9]*)?)?");
-	QRegExp specialFormat("[+-]?[sq]?nan|[+-]?inf", Qt::CaseInsensitive);
-	QRegExp hexfloatFormat("[+-]?0x[0-9a-f]*\\.?[0-9a-f]*(p([+-]?[0-9]*)?)?", Qt::CaseInsensitive);
-	QRegExp specialFormatUnfinished("[+-]?[sq]?(n(an?)?)?|[+-]?(i(nf?)?)?", Qt::CaseInsensitive);
-
-	if (hexfloatFormat.exactMatch(input)) {
-		return QValidator::Intermediate;
-	}
-
-	if (basicFormat.exactMatch(input)) {
-		return QValidator::Intermediate;
-	}
-
-	if (specialFormat.exactMatch(input)) {
-		return QValidator::Acceptable;
-	}
-
-	if (specialFormatUnfinished.exactMatch(input)) {
-		return QValidator::Intermediate;
-	}
-
-	// All possible options are exhausted, so consider the input invalid
-	return QValidator::Invalid;
-}
-
-template QValidator::State FloatXValidator<float>::validate(QString &input, int &) const;
-template QValidator::State FloatXValidator<double>::validate(QString &input, int &) const;
-template QValidator::State FloatXValidator<long double>::validate(QString &input, int &) const;
-
-float toFloatValue(edb::value32 value) {
-	float result;
-	std::memcpy(&result, &value, sizeof(result));
-	return result;
-}
-
-double toFloatValue(edb::value64 value) {
-	double result;
-	std::memcpy(&result, &value, sizeof(result));
-	return result;
-}
-
-long double toFloatValue(edb::value80 value) {
-	return value.toFloatValue();
-}
-
+#ifdef HAVE_GDTOA
 /*
- *   gdtoa_g_?fmt functions do generally a good job at formatting the numbers in
+ * gdtoa_g_?fmt functions do generally a good job at formatting the numbers in
  * a form close to that specified in ECMAScript specification (actually the
  * spec even references this implementation in 7.1.12.1/note3). There are two
  * issues though with the function, one small and one bigger.
- *   The small issue is that this function prints numbers x such that 1e-5<|x|<1
+ *
+ * The small issue is that this function prints numbers x such that 1e-5<|x|<1
  * without leading zeros (contrary to the spec). It's easy to fix up, and it's
  * the first thing the following function does.
- *   The bigger issue is that the specification prescribes to print large numbers
+ *
+ * The bigger issue is that the specification prescribes to print large numbers
  * smaller than 1e21 in fixed-point format, and append zeros(!) instead of
  * actual digits present in the closest representable integer to the base part.
- *   This can be quite a problem for our users, because it can give a false sense
+ *
+ * This can be quite a problem for our users, because it can give a false sense
  * of precision. E.g., consider the number 1.2345678912345678e20. Closest
  * representable IEEE 754 binary64 number is 123456789123456778240. Next
  * representable is 123456789123456794624. Yet gdtoa_g_dfmt (following
@@ -301,12 +166,14 @@ long double toFloatValue(edb::value80 value) {
  * trailing zeros, misleads the user into thinking that all the digits are
  * significant (the user may think that e.g. 123456789123456781000 or even
  * 123456789123456780001 are representable too).
- *   The following function tries to ensure that such situations never occur: it
+ *
+ * The following function tries to ensure that such situations never occur: it
  * takes numeric_limits::digits10 digits as the maximum length of integers (or
  * maximum value of exponent+1 for fractions) for fixed-point format, and if the
  * number formatted into 'buffer' is larger than that, it converts the result
  * into exponential format, removing any trailing zeros.
- *   Note that in principle, we could use gdtoa_gdtoa directly and format the
+ *
+ * Note that in principle, we could use gdtoa_gdtoa directly and format the
  * number ourselves. But this would result in even more logic to 1) prepare
  * arguments, 2) actually do the formatting; total of both might be just as
  * convoluted as the current post-processing logic.
@@ -314,8 +181,8 @@ long double toFloatValue(edb::value80 value) {
 const char *fixup_g_Yfmt(char *buffer, int digits10) {
 
 	const size_t len = std::strlen(buffer);
-	const char x0 = buffer[0];
-	const char x1 = buffer[1];
+	const char x0    = buffer[0];
+	const char x1    = buffer[1];
 
 	if (x0 == '.' || (x0 == '-' && x1 == '.')) {
 		// ".235" or "-.235" forms are unreadable, so insert leading zero
@@ -395,11 +262,149 @@ const char *fixup_g_Yfmt(char *buffer, int digits10) {
 
 	return buffer;
 }
+#endif
+
+}
+
+template <class Float>
+Float read_float(const QString &strInput, bool &ok) {
+
+	ok = false;
+	const QString str(strInput.toLower().trimmed());
+	if (const auto value = util::full_string_to_float<Float>(str.toStdString())) {
+		ok = true;
+		return *value;
+	}
+
+	// OK, so either it is invalid/unfinished, or it's some special value
+	// We still do want the user to be able to enter common special values
+	Float value;
+	if (str == "+snan" || str == "snan") {
+		std::memcpy(&value, &SpecialValues<Float>::positiveSNaN, sizeof(value));
+	} else if (str == "-snan") {
+		std::memcpy(&value, &SpecialValues<Float>::negativeSNaN, sizeof(value));
+	} else if (str == "+qnan" || str == "qnan" || str == "nan") {
+		std::memcpy(&value, &SpecialValues<Float>::positiveQNaN, sizeof(value));
+	} else if (str == "-qnan") {
+		std::memcpy(&value, &SpecialValues<Float>::negativeQNaN, sizeof(value));
+	} else if (str == "+inf" || str == "inf") {
+		std::memcpy(&value, &SpecialValues<Float>::positiveInf, sizeof(value));
+	} else if (str == "-inf") {
+		std::memcpy(&value, &SpecialValues<Float>::negativeInf, sizeof(value));
+	} else {
+		return 0;
+	}
+
+	ok = true;
+	return value;
+}
+
+template EDB_EXPORT float read_float<float>(const QString &strInput, bool &ok);
+template EDB_EXPORT double read_float<double>(const QString &strInput, bool &ok);
+
+#ifndef _MSC_VER
+#if defined(EDB_X86) || defined(EDB_X86_64)
+template long double read_float<long double>(const QString &strInput, bool &ok);
+#endif
+#endif
+
+FloatValueClass floatType(edb::value32 value) {
+	return ieeeClassify<23>(value);
+}
+
+FloatValueClass floatType(edb::value64 value) {
+	return ieeeClassify<52>(value);
+}
+
+FloatValueClass floatType(edb::value80 value) {
+	constexpr auto mantissaLength = 64;
+	constexpr auto expLength      = 8 * sizeof(value) - mantissaLength - 1;
+	constexpr auto integerBitOnly = 1ull << (mantissaLength - 1);
+	constexpr auto QNaN_mask      = 3ull << (mantissaLength - 2);
+	constexpr auto expMax         = (1u << expLength) - 1;
+
+	const auto exponent      = value.exponent();
+	const auto mantissa      = value.mantissa();
+	const bool integerBitSet = mantissa & integerBitOnly;
+
+	// This is almost as ieeeClassify, but also takes integer bit (not present in
+	// IEEE754 format) into account to detect unsupported values
+	if (exponent == expMax) {
+		if (mantissa == integerBitOnly) {
+			return FloatValueClass::Infinity; // |S|11..11|1.000..0|
+		} else if ((mantissa & QNaN_mask) == QNaN_mask) {
+			return FloatValueClass::QNaN; // |S|11..11|1.1XX..X|
+		} else if ((mantissa & QNaN_mask) == integerBitOnly) {
+			return FloatValueClass::SNaN; // |S|11..11|1.0XX..X|
+		} else {
+			return FloatValueClass::Unsupported; // all exp bits set, but integer bit reset - pseudo-NaN/Inf
+		}
+	} else if (exponent == 0u) {
+		if (mantissa == 0u) {
+			return FloatValueClass::Zero; // |S|00..00|00..00|
+		} else {
+			if (!integerBitSet) {
+				return FloatValueClass::Denormal; // |S|00..00|0.XXXX..X|
+			} else {
+				return FloatValueClass::PseudoDenormal; // |S|00..00|1.XXXX..X|
+			}
+		}
+	} else {
+		if (integerBitSet) {
+			return FloatValueClass::Normal;
+		} else {
+			return FloatValueClass::Unsupported; // integer bit reset but exp is as if normal - unnormal
+		}
+	}
+}
 
 template <typename Float>
-EDB_EXPORT QString formatFloat(Float value) {
+QValidator::State FloatXValidator<Float>::validate(QString &input, int &) const {
 
-	const auto type = floatType(value);
+	if (input.isEmpty()) {
+		return QValidator::Intermediate;
+	}
+
+	// The input may be in hex format. std::istream doesn't support extraction
+	// of hexfloat, but std::strto[f,d,ld] do. (see wg21.link/lwg2381)
+	if (const auto v = util::full_string_to_float<Float>(input.toStdString())) {
+		return QValidator::Acceptable;
+	}
+
+	// OK, so we failed to read it or it is unfinished. Let's check whether it's intermediate or invalid.
+	QRegExp basicFormat("[+-]?[0-9]*\\.?[0-9]*(e([+-]?[0-9]*)?)?");
+	QRegExp specialFormat("[+-]?[sq]?nan|[+-]?inf", Qt::CaseInsensitive);
+	QRegExp hexfloatFormat("[+-]?0x[0-9a-f]*\\.?[0-9a-f]*(p([+-]?[0-9]*)?)?", Qt::CaseInsensitive);
+	QRegExp specialFormatUnfinished("[+-]?[sq]?(n(an?)?)?|[+-]?(i(nf?)?)?", Qt::CaseInsensitive);
+
+	if (hexfloatFormat.exactMatch(input)) {
+		return QValidator::Intermediate;
+	}
+
+	if (basicFormat.exactMatch(input)) {
+		return QValidator::Intermediate;
+	}
+
+	if (specialFormat.exactMatch(input)) {
+		return QValidator::Acceptable;
+	}
+
+	if (specialFormatUnfinished.exactMatch(input)) {
+		return QValidator::Intermediate;
+	}
+
+	// All possible options are exhausted, so consider the input invalid
+	return QValidator::Invalid;
+}
+
+template QValidator::State FloatXValidator<float>::validate(QString &input, int &) const;
+template QValidator::State FloatXValidator<double>::validate(QString &input, int &) const;
+template QValidator::State FloatXValidator<long double>::validate(QString &input, int &) const;
+
+template <typename Float>
+EDB_EXPORT QString format_float(Float value) {
+
+	const auto type    = floatType(value);
 	QString specialStr = "???? ";
 
 	switch (type) {
@@ -508,6 +513,6 @@ EDB_EXPORT QString formatFloat(Float value) {
 	return specialStr + hexStr;
 }
 
-template EDB_EXPORT QString formatFloat<edb::value32>(edb::value32);
-template EDB_EXPORT QString formatFloat<edb::value64>(edb::value64);
-template EDB_EXPORT QString formatFloat<edb::value80>(edb::value80);
+template EDB_EXPORT QString format_float<edb::value32>(edb::value32);
+template EDB_EXPORT QString format_float<edb::value64>(edb::value64);
+template EDB_EXPORT QString format_float<edb::value80>(edb::value80);

@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef HARDWAREBREAKPOINTS_20080228_H_
 #define HARDWAREBREAKPOINTS_20080228_H_
 
-#include "IPlugin.h"
 #include "IDebugEventHandler.h"
+#include "IPlugin.h"
 #include "libHardwareBreakpoints.h"
 
 class QDialog;
@@ -43,18 +43,18 @@ public:
 	HardwareBreakpoints(QObject *parent = nullptr);
 
 protected:
-	void private_init() override;
-	void private_fini() override;
+	void privateInit() override;
+	void privateFini() override;
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
-	edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) override;
-	QList<QAction *> cpu_context_menu() override;
-	QList<QAction *> stack_context_menu() override;
-	QList<QAction *> data_context_menu() override;
+	edb::EVENT_STATUS handleEvent(const std::shared_ptr<IDebugEvent> &event) override;
+	QList<QAction *> cpuContextMenu() override;
+	QList<QAction *> stackContextMenu() override;
+	QList<QAction *> dataContextMenu() override;
 
 public Q_SLOTS:
-	void show_menu();
+	void showMenu();
 
 private:
 	void setupBreakpoints();
@@ -69,34 +69,34 @@ private:
 	void setCPUReadWriteBP(int index, bool inUse);
 	void setCPUWriteBP(int index, bool inUse);
 
-	void set_exec(int index);
-	void set_write(int index);
-	void set_access(int index);
+	void setExec(int index);
+	void setWrite(int index);
+	void setAccess(int index);
 
 private Q_SLOTS:
-	void set_write1();
-	void set_write2();
-	void set_write3();
-	void set_write4();
+	void setWrite1();
+	void setWrite2();
+	void setWrite3();
+	void setWrite4();
 
-	void set_access1();
-	void set_access2();
-	void set_access3();
-	void set_access4();
+	void setAccess1();
+	void setAccess2();
+	void setAccess3();
+	void setAccess4();
 
-	void set_exec1();
-	void set_exec2();
-	void set_exec3();
-	void set_exec4();
+	void setExec1();
+	void setExec2();
+	void setExec3();
+	void setExec4();
 
 private:
 	QMenu *menu_              = nullptr;
 	QPointer<QDialog> dialog_ = nullptr;
 
-	QLineEdit *addresses_[4];
-	QCheckBox *enabled_[4];
-	QComboBox *types_[4];
-	QComboBox *sizes_[4];
+	QLineEdit *addresses_[4] = {};
+	QCheckBox *enabled_[4]   = {};
+	QComboBox *types_[4]     = {};
+	QComboBox *sizes_[4]     = {};
 };
 
 }

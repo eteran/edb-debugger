@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PROTOTYPE_20070320_H_
 #define PROTOTYPE_20070320_H_
 
-#include <vector>
 #include <QString>
+#include <vector>
 
 namespace edb {
 
@@ -30,13 +30,12 @@ struct Argument {
 };
 
 struct Prototype {
-	QString               name;
-	QString               type;
-	bool                  noreturn;
+	QString name;
+	QString type;
+	bool noreturn;
 	std::vector<Argument> arguments;
 };
 
 }
 
 #endif
-

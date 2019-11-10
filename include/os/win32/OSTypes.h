@@ -26,9 +26,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <Windows.h>
 
 namespace edb {
-	typedef DWORD pid_t;
-    typedef DWORD uid_t; // TODO(eteran): I think this needs to be an SID to make any sense
-	typedef DWORD tid_t;
+using pid_t = DWORD;
+using uid_t = DWORD; // TODO(eteran): I think this needs to be an SID to make any sense
+using tid_t = DWORD;
 }
 
 #endif

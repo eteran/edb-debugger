@@ -17,62 +17,66 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "BinarySearcher.h"
-#include "edb.h"
-#include "DialogASCIIString.h"
+#include "DialogAsciiString.h"
 #include "DialogBinaryString.h"
+#include "edb.h"
 #include <QMenu>
 
 namespace BinarySearcherPlugin {
 
-BinarySearcher::BinarySearcher(QObject *parent) : QObject(parent) {
+/**
+ * @brief BinarySearcher::BinarySearcher
+ * @param parent
+ */
+BinarySearcher::BinarySearcher(QObject *parent)
+	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief BinarySearcher::menu
+ * @param parent
+ * @return
+ */
 QMenu *BinarySearcher::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("BinarySearcher"), parent);
-		menu_->addAction(tr("&Binary String Search"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+F")));
+		menu_->addAction(tr("&Binary String Search"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+F")));
 	}
 
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: stack_context_menu
-// Desc:
-//------------------------------------------------------------------------------
-QList<QAction *> BinarySearcher::stack_context_menu() {
+/**
+ * @brief BinarySearcher::stackContextMenu
+ * @return
+ */
+QList<QAction *> BinarySearcher::stackContextMenu() {
 
 	QList<QAction *> ret;
 
 	auto action_find = new QAction(tr("&Find ASCII String"), this);
-	connect(action_find, &QAction::triggered, this, &BinarySearcher::mnuStackFindASCII);
+	connect(action_find, &QAction::triggered, this, &BinarySearcher::mnuStackFindAscii);
 	ret << action_find;
 
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: show_menu
-// Desc:
-//------------------------------------------------------------------------------
-void BinarySearcher::show_menu() {
+/**
+ * @brief BinarySearcher::showMenu
+ */
+void BinarySearcher::showMenu() {
 	static auto dialog = new DialogBinaryString(edb::v1::debugger_ui);
 	dialog->show();
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuStackFindASCII
-// Desc:
-//------------------------------------------------------------------------------
-void BinarySearcher::mnuStackFindASCII() {
-	static auto dialog = new DialogASCIIString(edb::v1::debugger_ui);
+/**
+ * @brief BinarySearcher::mnuStackFindAscii
+ */
+void BinarySearcher::mnuStackFindAscii() {
+	static auto dialog = new DialogAsciiString(edb::v1::debugger_ui);
 	dialog->show();
 }
 

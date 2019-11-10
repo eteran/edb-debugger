@@ -31,7 +31,7 @@ class DialogInputValue : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogInputValue(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogInputValue(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogInputValue() override = default;
 
 public Q_SLOTS:
@@ -41,12 +41,12 @@ public Q_SLOTS:
 
 public:
 	edb::reg_t value() const;
-	void set_value(Register &reg);
+	void setValue(Register &reg);
 
 private:
 	Ui::DialogInputValue ui;
-	edb::reg_t mask;
-	std::size_t valueLength;
+	edb::reg_t mask_         = -1ll;
+	std::size_t valueLength_ = sizeof(std::uint64_t);
 };
 
 #endif

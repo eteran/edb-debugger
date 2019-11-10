@@ -20,46 +20,50 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogBacktrace.h"
 #include "edb.h"
 
-#include <QMenu>
 #include <QKeySequence>
+#include <QMenu>
 
 namespace BacktracePlugin {
 
-//------------------------------------------------------------------------------
-// Name: Backtrace
-// Desc:
-//------------------------------------------------------------------------------
-Backtrace::Backtrace(QObject *parent) : QObject(parent) {
+/**
+ * @brief Backtrace::Backtrace
+ * @param parent
+ */
+Backtrace::Backtrace(QObject *parent)
+	: QObject(parent) {
 }
 
+/**
+ * @brief Backtrace::~Backtrace
+ */
 Backtrace::~Backtrace() {
 	delete dialog_;
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc: Creates the menu entry.
-//------------------------------------------------------------------------------
+/**
+ * @brief Backtrace::menu
+ * @param parent
+ * @return
+ */
 QMenu *Backtrace::menu(QWidget *parent) {
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 
 		//So it will appear as Plugins > Call Stack > Backtrace in the menu.
 		menu_ = new QMenu(tr("Call Stack"), parent);
 
 		//Ctrl + K shortcut, reminiscent of OllyDbg
-		menu_->addAction(tr("Backtrace"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+K")));
+		menu_->addAction(tr("Backtrace"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+K")));
 	}
 
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: show_menu
-// Desc: Shows the window for the plugin
-//------------------------------------------------------------------------------
-void Backtrace::show_menu() {
+/**
+ * @brief Backtrace::showMenu
+ */
+void Backtrace::showMenu() {
 	if (!dialog_) {
 		dialog_ = new DialogBacktrace(edb::v1::debugger_ui);
 	}

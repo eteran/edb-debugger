@@ -27,21 +27,21 @@ class QSortFilterProxyModel;
 
 namespace HeapAnalyzerPlugin {
 
-class Result;
+struct Result;
 class ResultViewModel;
 
 class DialogHeap : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogHeap(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogHeap(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogHeap() override = default;
 
 public Q_SLOTS:
-	void on_tableView_doubleClicked(const QModelIndex & index);
+	void on_tableView_doubleClicked(const QModelIndex &index);
 
 private:
-    void showEvent(QShowEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 
 private:
 	void detectPointers();
@@ -50,18 +50,18 @@ private:
 	QMap<edb::address_t, const Result *> createResultMap() const;
 
 private:
-	template<class Addr>
+	template <class Addr>
 	void collectBlocks(edb::address_t start_address, edb::address_t end_address);
 
-	template<class Addr>
-	void do_find();
+	template <class Addr>
+	void doFind();
 
 private:
-	 Ui::DialogHeap ui;
-	 ResultViewModel *model_;
-	 QSortFilterProxyModel *filter_model_;
-	 QPushButton *btnAnalyze_;
-	 QPushButton *btnGraph_;
+	Ui::DialogHeap ui;
+	ResultViewModel *model_             = nullptr;
+	QSortFilterProxyModel *filterModel_ = nullptr;
+	QPushButton *buttonAnalyze_         = nullptr;
+	QPushButton *buttonGraph_           = nullptr;
 };
 
 }

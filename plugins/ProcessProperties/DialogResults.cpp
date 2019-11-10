@@ -10,18 +10,19 @@ namespace ProcessPropertiesPlugin {
  * @param parent
  * @param f
  */
-DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
 	ui.setupUi(this);
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	model_        = new ResultsModel(this);
-	filter_model_ = new QSortFilterProxyModel(this);
+	model_       = new ResultsModel(this);
+	filterModel_ = new QSortFilterProxyModel(this);
 
-	filter_model_->setFilterKeyColumn(2);
-	filter_model_->setSourceModel(model_);
-	ui.tableView->setModel(filter_model_);
+	filterModel_->setFilterKeyColumn(2);
+	filterModel_->setSourceModel(model_);
+	ui.tableView->setModel(filterModel_);
 
-	connect(ui.textFilter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+	connect(ui.textFilter, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 }
 
 /**
@@ -32,20 +33,18 @@ void DialogResults::addResult(const Result &result) {
 	model_->addResult(result);
 }
 
-
 /**
  * @brief DialogResults::on_tableView_doubleClicked
  * @param index
  */
 void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
-	if(index.isValid()) {
-		const QModelIndex realIndex = filter_model_->mapToSource(index);
-		if(realIndex.isValid()) {
-			if(auto item = static_cast<Result *>(realIndex.internalPointer())) {
+	if (index.isValid()) {
+		const QModelIndex realIndex = filterModel_->mapToSource(index);
+		if (realIndex.isValid()) {
+			if (auto item = static_cast<Result *>(realIndex.internalPointer())) {
 				edb::v1::dump_data(item->address, false);
 			}
 		}
-
 	}
 }
 

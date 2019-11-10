@@ -28,18 +28,18 @@ class DialogOpenProgram : public QFileDialog {
 	Q_OBJECT
 
 public:
-	DialogOpenProgram(QWidget* parent = nullptr, const QString &caption = QString(), const QString &directory = QString(), const QString &filter = QString());
-	
-public:				  
+	explicit DialogOpenProgram(QWidget *parent = nullptr, const QString &caption = QString(), const QString &directory = QString(), const QString &filter = QString());
+
+public:
 	QList<QByteArray> arguments() const;
 	QString workingDirectory() const;
-	
+
 private Q_SLOTS:
 	void browsePressed();
-	
+
 private:
-	QLineEdit *argsEdit;
-	QLineEdit *workDir;
+	QLineEdit *argsEdit_;
+	QLineEdit *workDir_;
 };
 
 #endif

@@ -9,19 +9,6 @@
 #include <limits>
 #include <type_traits>
 
-template <class Float>
-Float EDB_EXPORT readFloat(const QString& strInput, bool& ok);
-
-template <class Float>
-class EDB_EXPORT FloatXValidator : public QValidator {
-public:
-    explicit FloatXValidator(QObject* parent = nullptr) : QValidator(parent) {}
-	QValidator::State validate(QString& input, int&) const override;
-};
-
-template <class Float>
-EDB_EXPORT QString formatFloat(Float value);
-
 // Only class, nothing about sign
 enum class FloatValueClass {
 	Zero,
@@ -33,6 +20,21 @@ enum class FloatValueClass {
 	SNaN,
 	Unsupported
 };
+
+template <class Float>
+Float EDB_EXPORT read_float(const QString &strInput, bool &ok);
+
+template <class Float>
+class EDB_EXPORT FloatXValidator : public QValidator {
+public:
+	explicit FloatXValidator(QObject *parent = nullptr)
+		: QValidator(parent) {}
+
+	QValidator::State validate(QString &input, int &) const override;
+};
+
+template <class Float>
+EDB_EXPORT QString format_float(Float value);
 
 EDB_EXPORT FloatValueClass floatType(edb::value32 value);
 EDB_EXPORT FloatValueClass floatType(edb::value64 value);
@@ -50,7 +52,7 @@ constexpr int maxPrintedLength() {
 	constexpr int decimalPointChars = !isInteger;
 	constexpr int expSymbol         = !isInteger; // 'e' for floating-point value in scientific format
 	const int expMaxWidth           = isInteger ? 0 : std::ceil(std::log10(Limits::max_exponent10));
-	const int maxWidth  		    = signChars + mantissaChars + decimalPointChars + expSymbol + expSignChars + expMaxWidth;
+	const int maxWidth              = signChars + mantissaChars + decimalPointChars + expSymbol + expSignChars + expMaxWidth;
 
 	return maxWidth;
 }

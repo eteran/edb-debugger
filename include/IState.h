@@ -33,28 +33,28 @@ public:
 	virtual std::unique_ptr<IState> clone() const = 0;
 
 public:
-	virtual QString flags_to_string() const = 0;
-	virtual QString flags_to_string(edb::reg_t flags) const = 0;
-	virtual Register value(const QString &reg) const = 0;
-	virtual Register instruction_pointer_register() const = 0;
-	virtual Register flags_register() const = 0;
-	virtual edb::address_t frame_pointer() const = 0;
-	virtual edb::address_t instruction_pointer() const = 0;
-	virtual edb::address_t stack_pointer() const = 0;
-	virtual edb::reg_t debug_register(size_t n) const = 0;
-	virtual edb::reg_t flags() const = 0;
-	virtual void adjust_stack(int bytes) = 0;
-	virtual void clear() = 0;
-	virtual bool empty() const = 0;
-	virtual void set_debug_register(size_t n, edb::reg_t value) = 0;
-	virtual void set_flags(edb::reg_t flags) = 0;
-	virtual void set_instruction_pointer(edb::address_t value) = 0;
-	virtual void set_register(const QString &name, edb::reg_t value) = 0;
-	virtual void set_register(const Register &reg) = 0;
+	virtual QString flagsToString() const                           = 0;
+	virtual QString flagsToString(edb::reg_t flags) const           = 0;
+	virtual Register value(const QString &reg) const                = 0;
+	virtual Register instructionPointerRegister() const             = 0;
+	virtual Register flagsRegister() const                          = 0;
+	virtual edb::address_t framePointer() const                     = 0;
+	virtual edb::address_t instructionPointer() const               = 0;
+	virtual edb::address_t stackPointer() const                     = 0;
+	virtual edb::reg_t debugRegister(size_t n) const                = 0;
+	virtual edb::reg_t flags() const                                = 0;
+	virtual void adjustStack(int bytes)                             = 0;
+	virtual void clear()                                            = 0;
+	virtual bool empty() const                                      = 0;
+	virtual void setDebugRegister(size_t n, edb::reg_t value)       = 0;
+	virtual void setFlags(edb::reg_t flags)                         = 0;
+	virtual void setInstructionPointer(edb::address_t value)        = 0;
+	virtual void setRegister(const QString &name, edb::reg_t value) = 0;
+	virtual void setRegister(const Register &reg)                   = 0;
 
 public:
 	// GP
-	virtual Register gp_register(size_t n) const = 0;
+	virtual Register gpRegister(size_t n) const = 0;
 
 public:
 	// This is a more generic means to request architecture
@@ -62,18 +62,18 @@ public:
 	// edb::string_hash, for example:
 	// edb::string_hash("mmx"), string_hash("xmm"), and string_hash("ymm")
 	// This will allow this interface to be much more platform independent
-	virtual Register arch_register(uint64_t type, size_t n) const = 0;
+	virtual Register archRegister(uint64_t type, size_t n) const = 0;
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 public:
 	// FPU
-	virtual int fpu_stack_pointer() const = 0;
-	virtual bool fpu_register_is_empty(std::size_t n) const = 0;
-	virtual edb::value80 fpu_register(size_t n) const = 0;
-	virtual QString fpu_register_tag_string(std::size_t n) const = 0;
-	virtual edb::value16 fpu_control_word() const = 0;
-	virtual edb::value16 fpu_status_word() const = 0;
-	virtual edb::value16 fpu_tag_word() const = 0;
+	virtual int fpuStackPointer() const                       = 0;
+	virtual bool fpuRegisterIsEmpty(std::size_t n) const      = 0;
+	virtual edb::value80 fpuRegister(size_t n) const          = 0;
+	virtual QString fpuRegisterTagString(std::size_t n) const = 0;
+	virtual edb::value16 fpuControlWord() const               = 0;
+	virtual edb::value16 fpuStatusWord() const                = 0;
+	virtual edb::value16 fpuTagWord() const                   = 0;
 #endif
 };
 

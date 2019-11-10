@@ -24,46 +24,47 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ProcessPropertiesPlugin {
 
-//------------------------------------------------------------------------------
-// Name: ProcessProperties
-// Desc:
-//------------------------------------------------------------------------------
-ProcessProperties::ProcessProperties(QObject *parent) : QObject(parent) {
+/**
+ * @brief ProcessProperties::ProcessProperties
+ * @param parent
+ */
+ProcessProperties::ProcessProperties(QObject *parent)
+	: QObject(parent) {
+
 	dialog_ = new DialogProcessProperties(edb::v1::debugger_ui);
 }
 
-//------------------------------------------------------------------------------
-// Name: ~ProcessProperties
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ProcessProperties::~ProcessProperties
+ */
 ProcessProperties::~ProcessProperties() {
 #if 0
 	delete dialog_;
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief ProcessProperties::menu
+ * @param parent
+ * @return
+ */
 QMenu *ProcessProperties::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("Process Properties"), parent);
-		menu_->addAction(tr("&Process Properties"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+P")));
+		menu_->addAction(tr("&Process Properties"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+P")));
 		menu_->addAction(tr("Process &Strings"), dialog_, SLOT(on_btnStrings_clicked()), QKeySequence(tr("Ctrl+S")));
 	}
 
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: show_menu
-// Desc:
-//------------------------------------------------------------------------------
-void ProcessProperties::show_menu() {
+/**
+ * @brief ProcessProperties::showMenu
+ */
+void ProcessProperties::showMenu() {
 	dialog_->show();
 }
 

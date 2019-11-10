@@ -20,10 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Register.h"
 #include <QDialog>
-#include <QLabel>
 #include <array>
 #include <cstddef>
 #include <cstdint>
+
+class QLabel;
 
 namespace ODbgRegisterView {
 
@@ -33,11 +34,11 @@ class DialogEditGPR : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogEditGPR(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogEditGPR(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
 public:
 	Register value() const;
-	void set_value(const Register &reg);
+	void setValue(const Register &reg);
 
 private Q_SLOTS:
 	void onTextEdited(const QString &);
@@ -73,24 +74,25 @@ private:
 	};
 
 protected:
-	bool eventFilter(QObject*, QEvent*) override;
+	bool eventFilter(QObject *, QEvent *) override;
+
 private:
 	void updateAllEntriesExcept(GPREdit *notUpdated);
 	void hideColumn(Column col);
 	void hideRow(Row row);
-	void     setupEntriesAndLabels();
-	void     resetLayout();
+	void setupEntriesAndLabels();
+	void resetLayout();
 	QLabel *&columnLabel(Column col);
 	QLabel *&rowLabel(Row row);
 	GPREdit *&entry(Row row, Column col);
 	void setupFocus();
 
 private:
-	std::array<QLabel *, ENTRY_COLS + ENTRY_ROWS>                   labels  = {{nullptr}};
-	std::array<GPREdit *, FULL_LENGTH_ROWS *ENTRY_COLS + CHAR_COLS> entries = {{nullptr}};
+	std::array<QLabel *, ENTRY_COLS + ENTRY_ROWS> labels_                    = {{nullptr}};
+	std::array<GPREdit *, FULL_LENGTH_ROWS *ENTRY_COLS + CHAR_COLS> entries_ = {{nullptr}};
 	std::uint64_t value_;
-	std::size_t   bitSize_ = 0;
-	Register      reg;
+	std::size_t bitSize_ = 0;
+	Register reg_;
 };
 
 }

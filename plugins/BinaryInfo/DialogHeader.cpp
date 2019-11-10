@@ -1,9 +1,9 @@
 
 #include "DialogHeader.h"
-#include "edb.h"
 #include "ELFXX.h"
 #include "PE32.h"
 #include "QtHelper.h"
+#include "edb.h"
 
 namespace BinaryInfoPlugin {
 namespace {
@@ -17,11 +17,10 @@ QTreeWidgetItem *create_elf_magic(const Header *header) {
 
 	item->setText(0, tr("Magic"));
 	item->setText(1, QString("0x%1, %2, %3, %4")
-		.arg(header->e_ident[EI_MAG0], 0, 16)
-		.arg(static_cast<char>(header->e_ident[EI_MAG1]))
-		.arg(static_cast<char>(header->e_ident[EI_MAG2]))
-		.arg(static_cast<char>(header->e_ident[EI_MAG3]))
-	);
+						 .arg(header->e_ident[EI_MAG0], 0, 16)
+						 .arg(static_cast<char>(header->e_ident[EI_MAG1]))
+						 .arg(static_cast<char>(header->e_ident[EI_MAG2]))
+						 .arg(static_cast<char>(header->e_ident[EI_MAG3])));
 
 	return item;
 }
@@ -32,7 +31,7 @@ QTreeWidgetItem *create_elf_class(const Header *header) {
 	auto item = new QTreeWidgetItem;
 
 	item->setText(0, tr("Class"));
-	switch(header->e_ident[EI_CLASS]) {
+	switch (header->e_ident[EI_CLASS]) {
 	case ELFCLASS32:
 		item->setText(1, tr("32-bit"));
 		break;
@@ -52,7 +51,7 @@ QTreeWidgetItem *create_elf_data(const Header *header) {
 	auto item = new QTreeWidgetItem;
 
 	item->setText(0, tr("Data"));
-	switch(header->e_ident[EI_DATA]) {
+	switch (header->e_ident[EI_DATA]) {
 	case ELFDATA2LSB:
 		item->setText(1, tr("2's complement, little endian"));
 		break;
@@ -72,7 +71,7 @@ QTreeWidgetItem *create_elf_version(const Header *header) {
 	auto item = new QTreeWidgetItem;
 
 	item->setText(0, tr("Version"));
-	switch(header->e_ident[EI_VERSION]) {
+	switch (header->e_ident[EI_VERSION]) {
 	case EV_CURRENT:
 		item->setText(1, tr("Current"));
 		break;
@@ -89,9 +88,9 @@ QTreeWidgetItem *create_elf_abi(const Header *header) {
 	auto item = new QTreeWidgetItem;
 
 	item->setText(0, tr("ABI"));
-	switch(header->e_ident[EI_OSABI]) {
+	switch (header->e_ident[EI_OSABI]) {
 	case ELFOSABI_SYSV:
-	//case ELFOSABI_NONE: // alias
+		//case ELFOSABI_NONE: // alias
 		item->setText(1, tr("UNIX System V ABI"));
 		break;
 	case ELFOSABI_HPUX:
@@ -101,7 +100,7 @@ QTreeWidgetItem *create_elf_abi(const Header *header) {
 		item->setText(1, tr("NetBSD"));
 		break;
 	case ELFOSABI_GNU:
-	// case ELFOSABI_LINUX: // alias
+		// case ELFOSABI_LINUX: // alias
 		item->setText(1, tr("GNU/Linux"));
 		break;
 	case ELFOSABI_SOLARIS:
@@ -159,7 +158,7 @@ QTreeWidgetItem *create_elf_type(const Header *header) {
 
 	item->setText(0, tr("Type"));
 
-	switch(header->e_type) {
+	switch (header->e_type) {
 	case ET_NONE:
 		item->setText(1, tr("No file type"));
 		break;
@@ -189,7 +188,7 @@ QTreeWidgetItem *create_elf_machine(const Header *header) {
 
 	item->setText(0, tr("Machine"));
 
-	switch(header->e_machine) {
+	switch (header->e_machine) {
 	case EM_NONE:
 		item->setText(1, tr("No machine"));
 		break;
@@ -443,12 +442,13 @@ QTreeWidgetItem *create_elf_entry_point(const Header *header) {
 
 }
 
-DialogHeader::DialogHeader(const std::shared_ptr<IRegion> &region, QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogHeader::DialogHeader(const std::shared_ptr<IRegion> &region, QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
 	ui.setupUi(this);
 
-	if(std::unique_ptr<IBinary> binary_info = edb::v1::get_binary_info(region)) {
+	if (std::unique_ptr<IBinary> binary_info = edb::v1::get_binary_info(region)) {
 
-		if(auto elf32 = dynamic_cast<ELF32 *>(binary_info.get())) {
+		if (auto elf32 = dynamic_cast<ELF32 *>(binary_info.get())) {
 
 			auto header = reinterpret_cast<const elf32_header *>(elf32->header());
 
@@ -469,7 +469,7 @@ DialogHeader::DialogHeader(const std::shared_ptr<IRegion> &region, QWidget *pare
 			ui.treeWidget->insertTopLevelItem(0, root);
 		}
 
-		if(auto elf64 = dynamic_cast<ELF64 *>(binary_info.get())) {
+		if (auto elf64 = dynamic_cast<ELF64 *>(binary_info.get())) {
 
 			auto header = reinterpret_cast<const elf64_header *>(elf64->header());
 
@@ -490,11 +490,11 @@ DialogHeader::DialogHeader(const std::shared_ptr<IRegion> &region, QWidget *pare
 			ui.treeWidget->insertTopLevelItem(0, root);
 		}
 
-		if(auto pe32 = dynamic_cast<PE32 *>(binary_info.get())) {
+		if (auto pe32 = dynamic_cast<PE32 *>(binary_info.get())) {
 			Q_UNUSED(pe32)
-		#if 0
+#if 0
 			auto header = reinterpret_cast<const pe32_header *>(pe32->header());
-		#endif
+#endif
 			auto root = new QTreeWidgetItem;
 			root->setText(0, tr("PE32"));
 			ui.treeWidget->insertTopLevelItem(0, root);

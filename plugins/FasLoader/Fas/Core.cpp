@@ -205,9 +205,9 @@ std::string Core::cstr2string(const Symbol &fasSymbol) {
 
 std::string Core::pascal2string(const Fas::Symbol &fasSymbol) {
 
-	auto    offset = header_.offsetOfPreprocessedSource + fasSymbol.preprocessed;
+	auto offset = header_.offsetOfPreprocessedSource + fasSymbol.preprocessed;
 	uint8_t len;
-	char    pascal[64];
+	char pascal[64];
 
 	ifs_.seekg(offset);
 

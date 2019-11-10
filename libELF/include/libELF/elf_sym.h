@@ -27,21 +27,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Symbol table entry.
 
 struct elf32_sym {
-	elf32_word    st_name;  // Symbol name (string tbl index)
-	elf32_addr    st_value; // Symbol value
-	elf32_word    st_size;  // Symbol size
-	uint8_t       st_info;  // Symbol type and binding
-	uint8_t       st_other; // Symbol visibility
+	elf32_word st_name;     // Symbol name (string tbl index)
+	elf32_addr st_value;    // Symbol value
+	elf32_word st_size;     // Symbol size
+	uint8_t st_info;        // Symbol type and binding
+	uint8_t st_other;       // Symbol visibility
 	elf32_section st_shndx; // Section index
 };
 
 struct elf64_sym {
-	elf64_word    st_name;  // Symbol name (string tbl index)
-	uint8_t       st_info;  // Symbol type and binding
-	uint8_t       st_other; // Symbol visibility
+	elf64_word st_name;     // Symbol name (string tbl index)
+	uint8_t st_info;        // Symbol type and binding
+	uint8_t st_other;       // Symbol visibility
 	elf64_section st_shndx; // Section index
-	elf64_addr    st_value; // Symbol value
-	elf64_xword   st_size;  // Symbol size
+	elf64_addr st_value;    // Symbol value
+	elf64_xword st_size;    // Symbol size
 };
 
 #endif

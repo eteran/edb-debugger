@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PLATFORM_STATE_20170806_H_
 
 #include "IState.h"
-#include "Types.h"
 #include "PrStatus.h"
+#include "Types.h"
 #include "edb.h"
 #include <cstddef>
 #include <sys/user.h>
@@ -30,16 +30,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCorePlugin {
 
 using std::size_t;
-static constexpr size_t GPR_COUNT=16;
-static constexpr size_t VFPR_COUNT=32;
+static constexpr size_t GPR_COUNT  = 16;
+static constexpr size_t VFPR_COUNT = 32;
 
-struct user_vfp
-{
+struct user_vfp {
 	unsigned long long fpregs[32];
 	unsigned long fpscr;
 };
 
 class PlatformState final : public IState {
+	Q_DECLARE_TR_FUNCTIONS(PlatformThread)
 	friend class DebuggerCore;
 	friend class PlatformThread;
 
@@ -49,28 +49,27 @@ public:
 public:
 	std::unique_ptr<IState> clone() const override;
 
-	QString flags_to_string() const override;
-	QString flags_to_string(edb::reg_t flags) const override;
+	QString flagsToString() const override;
+	QString flagsToString(edb::reg_t flags) const override;
 	Register value(const QString &reg) const override;
-	Register instruction_pointer_register() const override;
-	Register flags_register() const override;
-	edb::address_t frame_pointer() const override;
-	edb::address_t instruction_pointer() const override;
-	edb::address_t stack_pointer() const override;
-	edb::reg_t debug_register(size_t n) const override;
+	Register instructionPointerRegister() const override;
+	Register flagsRegister() const override;
+	edb::address_t framePointer() const override;
+	edb::address_t instructionPointer() const override;
+	edb::address_t stackPointer() const override;
+	edb::reg_t debugRegister(size_t n) const override;
 	edb::reg_t flags() const override;
-	void adjust_stack(int bytes) override;
+	void adjustStack(int bytes) override;
 	void clear() override;
 	bool empty() const override;
-	void set_debug_register(size_t n, edb::reg_t value) override;
-	void set_flags(edb::reg_t flags) override;
-	void set_instruction_pointer(edb::address_t value) override;
-	void set_register(const Register &reg) override;
-	void set_register(const QString &name, edb::reg_t value) override;
-	Register gp_register(size_t n) const override;
+	void setDebugRegister(size_t n, edb::reg_t value) override;
+	void setFlags(edb::reg_t flags) override;
+	void setInstructionPointer(edb::address_t value) override;
+	void setRegister(const Register &reg) override;
+	void setRegister(const QString &name, edb::reg_t value) override;
+	Register gpRegister(size_t n) const override;
 
-
-	Register arch_register(uint64_t type, size_t n) const override{
+	Register archRegister(uint64_t type, size_t n) const override {
 		return Register();
 	}
 
@@ -78,23 +77,25 @@ public:
 	void fillFrom(const user_vfp &regs);
 	void fillStruct(user_regs &regs) const;
 	void fillStruct(user_vfp &regs) const;
+
 private:
 	struct GPR {
 		enum NamedGPRIndex : size_t {
-			SB=9,  // historical name, but still printed by modern disassemblers
-			SL=10, // historical name, but still printed by modern disassemblers
-			FP=11, // conventionally, but much like rBP on x86
-			IP=12, // conventionally, intra-procedure scratch register
-			SP=13,
-			LR=14,
-			PC=15,
+			SB = 9,  // historical name, but still printed by modern disassemblers
+			SL = 10, // historical name, but still printed by modern disassemblers
+			FP = 11, // conventionally, but much like rBP on x86
+			IP = 12, // conventionally, intra-procedure scratch register
+			SP = 13,
+			LR = 14,
+			PC = 15,
 		};
-		using RegNameVariants=std::vector<const char *>;
+		using RegNameVariants = std::vector<const char *>;
 		static const std::array<RegNameVariants, GPR_COUNT> GPRegNames;
 
-		bool filled=false;
+		bool filled = false;
 		std::array<edb::reg_t, GPR_COUNT> GPRegs;
 		edb::reg_t cpsr;
+
 	public:
 		void clear();
 		bool empty() const;
@@ -102,8 +103,9 @@ private:
 	struct VFP {
 		std::array<edb::value64, VFPR_COUNT> d;
 		edb::value32 fpscr;
-		bool filled=false;
+		bool filled = false;
 	} vfp;
+
 private:
 	auto findGPR(const QString &name) const -> decltype(gpr.GPRegNames.begin());
 };

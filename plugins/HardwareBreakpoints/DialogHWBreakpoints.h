@@ -31,11 +31,11 @@ private:
 	friend class HardwareBreakpoints;
 
 public:
-    explicit DialogHWBreakpoints(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogHWBreakpoints(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogHWBreakpoints() override = default;
 
 private:
-    void showEvent(QShowEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 
 private Q_SLOTS:
 	void type1IndexChanged(int index);

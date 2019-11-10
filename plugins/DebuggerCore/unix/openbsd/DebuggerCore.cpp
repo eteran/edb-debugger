@@ -46,8 +46,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <uvm/uvm.h>
 
 #define __need_process
-#include <sys/sysctl.h>
 #include <sys/proc.h>
+#include <sys/sysctl.h>
 
 namespace DebuggerCore {
 
@@ -58,9 +58,9 @@ void SET_OK(bool &ok, long value) {
 }
 
 int resume_code(int status) {
-	if(WIFSIGNALED(status)) {
+	if (WIFSIGNALED(status)) {
 		return WTERMSIG(status);
-	} else if(WIFSTOPPED(status)) {
+	} else if (WIFSTOPPED(status)) {
 		return WSTOPSIG(status);
 	}
 	return 0;
@@ -101,8 +101,8 @@ ssize_t load_vmmap_entries(kvm_t *kd, u_long kptr, struct vm_map_entry **rptr, s
 	 * We save the kernel pointers in {left,right}_kptr, so we have them
 	 * available to download children.
 	 */
-	left_kptr = (u_long) RB_LEFT(entry, daddrs.addr_entry);
-	right_kptr = (u_long) RB_RIGHT(entry, daddrs.addr_entry);
+	left_kptr                         = (u_long)RB_LEFT(entry, daddrs.addr_entry);
+	right_kptr                        = (u_long)RB_RIGHT(entry, daddrs.addr_entry);
 	RB_LEFT(entry, daddrs.addr_entry) = RB_RIGHT(entry, daddrs.addr_entry) = NULL;
 	/* Fill in parent pointer. */
 	RB_PARENT(entry, daddrs.addr_entry) = parent;
@@ -201,13 +201,13 @@ DebuggerCore::~DebuggerCore() {
 //      it will return false if an error or timeout occurs
 //------------------------------------------------------------------------------
 std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
-	if(attached()) {
+	if (attached()) {
 		int status;
 		bool timeout;
 
 		const edb::tid_t tid = native::waitpid_timeout(pid(), &status, 0, msecs, &timeout);
-		if(!timeout) {
-			if(tid > 0) {
+		if (!timeout) {
+			if (tid > 0) {
 
 				// normal event
 				auto e = std::make_shared<PlatformEvent>();
@@ -217,7 +217,7 @@ std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 				e->status = status;
 
 				char errbuf[_POSIX2_LINE_MAX];
-				if(kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
+				if (kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
 					int rc;
 					struct kinfo_proc *const kiproc = kvm_getprocs(kd, KERN_PROC_PID, pid(), sizeof(struct kinfo_proc), &rc);
 
@@ -236,7 +236,6 @@ std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 					e->fault_address_ = 0;
 				}
 
-
 				active_thread_       = tid;
 				threads_[tid].status = status;
 				return e;
@@ -254,8 +253,8 @@ long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 
 	Q_ASSERT(ok);
 
-	errno = 0;
-	const long v = ptrace(PT_READ_D, pid(), reinterpret_cast<char*>(address), 0);
+	errno        = 0;
+	const long v = ptrace(PT_READ_D, pid(), reinterpret_cast<char *>(address), 0);
 	SET_OK(*ok, v);
 	return v;
 }
@@ -265,7 +264,7 @@ long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::write_data(edb::address_t address, long value) {
-	return ptrace(PT_WRITE_D, pid(), reinterpret_cast<char*>(address), value) != -1;
+	return ptrace(PT_WRITE_D, pid(), reinterpret_cast<char *>(address), value) != -1;
 }
 
 //------------------------------------------------------------------------------
@@ -276,7 +275,7 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 	detach();
 
 	const long ret = ptrace(PT_ATTACH, pid, 0, 0);
-	if(ret == 0) {
+	if (ret == 0) {
 		pid_           = pid;
 		active_thread_ = pid;
 		threads_.clear();
@@ -293,7 +292,7 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::detach() {
-	if(attached()) {
+	if (attached()) {
 
 		// TODO: do i need to stop each thread first, and wait for them?
 
@@ -309,7 +308,7 @@ void DebuggerCore::detach() {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::kill() {
-	if(attached()) {
+	if (attached()) {
 		clear_breakpoints();
 		ptrace(PT_KILL, pid(), 0, 0);
 		native::waitpid(pid(), 0, WAIT_ANY);
@@ -323,8 +322,8 @@ void DebuggerCore::kill() {
 // Desc: stops *all* threads of a process
 //------------------------------------------------------------------------------
 void DebuggerCore::pause() {
-	if(attached()) {
-		for(auto it = threads_.begin(); it != threads_.end(); ++it) {
+	if (attached()) {
+		for (auto it = threads_.begin(); it != threads_.end(); ++it) {
 			::kill(it.key(), SIGSTOP);
 		}
 	}
@@ -337,10 +336,10 @@ void DebuggerCore::pause() {
 void DebuggerCore::resume(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 
-	if(attached()) {
-		if(status != edb::DEBUG_STOP) {
+	if (attached()) {
+		if (status != edb::DEBUG_STOP) {
 			const edb::tid_t tid = active_thread();
-			const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(threads_[tid].status) : 0;
+			const int code       = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(threads_[tid].status) : 0;
 			ptrace(PT_CONTINUE, tid, reinterpret_cast<caddr_t>(1), code);
 		}
 	}
@@ -353,10 +352,10 @@ void DebuggerCore::resume(edb::EVENT_STATUS status) {
 void DebuggerCore::step(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 
-	if(attached()) {
-		if(status != edb::DEBUG_STOP) {
+	if (attached()) {
+		if (status != edb::DEBUG_STOP) {
 			const edb::tid_t tid = active_thread();
-			const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(threads_[tid].status) : 0;
+			const int code       = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(threads_[tid].status) : 0;
 			ptrace(PT_STEP, tid, reinterpret_cast<caddr_t>(1), code);
 		}
 	}
@@ -373,14 +372,14 @@ void DebuggerCore::get_state(State *state) {
 	// TODO: assert that we are paused
 	auto state_impl = static_cast<PlatformState *>(state->impl_);
 
-	if(attached()) {
-		if(ptrace(PT_GETREGS, active_thread(), reinterpret_cast<char*>(&state_impl->regs_), 0) != -1) {
+	if (attached()) {
+		if (ptrace(PT_GETREGS, active_thread(), reinterpret_cast<char *>(&state_impl->regs_), 0) != -1) {
 			// TODO
 			state_impl->gs_base = 0;
 			state_impl->fs_base = 0;
 		}
 
-		if(ptrace(PT_GETFPREGS, active_thread(), reinterpret_cast<char*>(&state_impl->fpregs_), 0) != -1) {
+		if (ptrace(PT_GETFPREGS, active_thread(), reinterpret_cast<char *>(&state_impl->fpregs_), 0) != -1) {
 		}
 
 		// TODO: Debug Registers
@@ -399,8 +398,8 @@ void DebuggerCore::set_state(const State &state) {
 	// TODO: assert that we are paused
 	auto state_impl = static_cast<PlatformState *>(state.impl_);
 
-	if(attached()) {
-		ptrace(PT_SETREGS, active_thread(), reinterpret_cast<char*>(&state_impl->regs_), 0);
+	if (attached()) {
+		ptrace(PT_SETREGS, active_thread(), reinterpret_cast<char *>(&state_impl->regs_), 0);
 
 		// TODO: FPU
 		// TODO: Debug Registers
@@ -415,7 +414,7 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 	detach();
 	pid_t pid;
 
-	switch(pid = fork()) {
+	switch (pid = fork()) {
 	case 0:
 		// we are in the child now...
 
@@ -423,7 +422,7 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 		ptrace(PT_TRACE_ME, 0, 0, 0);
 
 		// redirect it's I/O
-		if(!tty.isEmpty()) {
+		if (!tty.isEmpty()) {
 			FILE *const std_out = freopen(qPrintable(tty), "r+b", stdout);
 			FILE *const std_in  = freopen(qPrintable(tty), "r+b", stdin);
 			FILE *const std_err = freopen(qPrintable(tty), "r+b", stderr);
@@ -449,12 +448,12 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 			threads_.clear();
 
 			int status;
-			if(native::waitpid(pid, &status, 0) == -1) {
+			if (native::waitpid(pid, &status, 0) == -1) {
 				return false;
 			}
 
 			// the very first event should be a STOP of type SIGTRAP
-			if(!WIFSTOPPED(status) || WSTOPSIG(status) != SIGTRAP) {
+			if (!WIFSTOPPED(status) || WSTOPSIG(status) != SIGTRAP) {
 				detach();
 				return false;
 			}
@@ -465,7 +464,7 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 			active_thread_       = pid;
 			threads_[pid].status = status;
 			return true;
-		} while(0);
+		} while (0);
 		break;
 	}
 }
@@ -478,7 +477,6 @@ void DebuggerCore::set_active_thread(edb::tid_t tid) {
 	Q_ASSERT(threads_.contains(tid));
 	active_thread_ = tid;
 }
-
 
 //------------------------------------------------------------------------------
 // Name: create_state
@@ -498,9 +496,9 @@ QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
 	char ebuffer[_POSIX2_LINE_MAX];
 	int numprocs;
 
-	if(kvm_t *const kaccess = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, ebuffer)) {
-		if(struct kinfo_proc *const kprocaccess = kvm_getprocs(kaccess, KERN_PROC_ALL, 0, sizeof *kprocaccess, &numprocs)) {
-			for(int i = 0; i < numprocs; ++i) {
+	if (kvm_t *const kaccess = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, ebuffer)) {
+		if (struct kinfo_proc *const kprocaccess = kvm_getprocs(kaccess, KERN_PROC_ALL, 0, sizeof *kprocaccess, &numprocs)) {
+			for (int i = 0; i < numprocs; ++i) {
 				ProcessInfo procInfo;
 				procInfo.pid  = kprocaccess[i].p_pid;
 				procInfo.uid  = kprocaccess[i].p_uid;
@@ -525,10 +523,10 @@ QString DebuggerCore::process_exe(edb::pid_t pid) const {
 	QString ret;
 
 	char errbuf[_POSIX2_LINE_MAX];
-	if(kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
+	if (kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
 		char p_comm[KI_MAXCOMLEN] = "";
 		int rc;
-		if(struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid, sizeof(struct kinfo_proc), &rc)) {
+		if (struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid, sizeof(struct kinfo_proc), &rc)) {
 			memcpy(p_comm, proc->p_comm, sizeof(p_comm));
 		}
 
@@ -555,10 +553,10 @@ QString DebuggerCore::process_cwd(edb::pid_t pid) const {
 edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 	edb::pid_t ret = 0;
 	char errbuf[_POSIX2_LINE_MAX];
-	if(kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
+	if (kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
 		int rc;
 		struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid, sizeof *proc, &rc);
-		ret = proc->p_ppid;
+		ret                           = proc->p_ppid;
 		kvm_close(kd);
 	}
 	return ret;
@@ -572,16 +570,15 @@ QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 
 	QList<std::shared_ptr<IRegion>> regions;
 
-	if(pid_ != 0) {
+	if (pid_ != 0) {
 
 		char err_buf[_POSIX2_LINE_MAX];
-		if(kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, err_buf)) {
+		if (kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, err_buf)) {
 			int rc;
 			struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid_, sizeof *proc, &rc);
 			Q_ASSERT(proc);
 
 			struct vmspace vmsp;
-
 
 			kvm_read(kd, proc->p_vmspace, &vmsp, sizeof vmsp);
 
@@ -593,34 +590,34 @@ QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 
 			struct vm_map_entry *e;
 			RB_FOREACH(e, uvm_map_addr, &root) {
-				const edb::address_t start               = e->start;
-				const edb::address_t end                 = e->end;
-				const edb::address_t base                = e->offset;
-				const QString name                       = QString();
+				const edb::address_t start = e->start;
+				const edb::address_t end   = e->end;
+				const edb::address_t base  = e->offset;
+				const QString name         = QString();
 				const IRegion::permissions_t permissions =
-					((e->protection & VM_PROT_READ)    ? PROT_READ  : 0) |
-					((e->protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
-					((e->protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
+					((e->protection & VM_PROT_READ) ? PROT_READ : 0) |
+					((e->protection & VM_PROT_WRITE) ? PROT_WRITE : 0) |
+					((e->protection & VM_PROT_EXECUTE) ? PROT_EXEC : 0);
 
 				regions.push_back(std::make_shared<PlatformRegion>(start, end, base, name, permissions));
 			}
 
-do_unload:
+		do_unload:
 			unload_vmmap_entries(RB_ROOT(&root));
 #else
 			struct vm_map_entry e;
-			if(vmsp.vm_map.header.next != 0) {
+			if (vmsp.vm_map.header.next != 0) {
 				kvm_read(kd, (u_long)vmsp.vm_map.header.next, &e, sizeof(e));
-				while(e.next != vmsp.vm_map.header.next) {
+				while (e.next != vmsp.vm_map.header.next) {
 
-					const edb::address_t start               = e.start;
-					const edb::address_t end                 = e.end;
-					const edb::address_t base                = e.offset;
-					const QString name                       = QString();
+					const edb::address_t start = e.start;
+					const edb::address_t end   = e.end;
+					const edb::address_t base  = e.offset;
+					const QString name         = QString();
 					const IRegion::permissions_t permissions =
-						((e.protection & VM_PROT_READ)    ? PROT_READ  : 0) |
-						((e.protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
-						((e.protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
+						((e.protection & VM_PROT_READ) ? PROT_READ : 0) |
+						((e.protection & VM_PROT_WRITE) ? PROT_WRITE : 0) |
+						((e.protection & VM_PROT_EXECUTE) ? PROT_EXEC : 0);
 
 					regions.push_back(std::make_shared<PlatformRegion>(start, end, base, name, permissions));
 					kvm_read(kd, (u_long)e.next, &e, sizeof(e));
@@ -643,22 +640,21 @@ do_unload:
 //------------------------------------------------------------------------------
 QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
 	QList<QByteArray> ret;
-	if(pid != 0) {
+	if (pid != 0) {
 
 		// TODO: assert attached!
 		char errbuf[_POSIX2_LINE_MAX];
-		if(kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
+		if (kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
 			int rc;
-			if(struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, sizeof *proc, pid, &rc)) {
+			if (struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, sizeof *proc, pid, &rc)) {
 				char **argv = kvm_getargv(kd, proc, 0);
-				char **p = argv;
-				while(*p) {
+				char **p    = argv;
+				while (*p) {
 					ret << *p++;
 				}
 			}
 			kvm_close(kd);
 		}
-
 	}
 	return ret;
 }
@@ -686,9 +682,9 @@ edb::address_t DebuggerCore::process_data_address() const {
 // Desc:
 //------------------------------------------------------------------------------
 QList<Module> DebuggerCore::loaded_modules() const {
-    QList<Module> modules;
+	QList<Module> modules;
 	qDebug() << "TODO: implement DebuggerCore::loaded_modules";
-    return modules;
+	return modules;
 }
 
 //------------------------------------------------------------------------------

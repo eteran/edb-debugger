@@ -42,17 +42,17 @@ class GraphNode final : public QGraphicsItem {
 
 public:
 	GraphNode(GraphWidget *graph, const QString &text, const QColor &color = Qt::white);
-	GraphNode(const GraphNode &)            = delete;
-	GraphNode& operator=(const GraphNode &) = delete;
+	GraphNode(const GraphNode &) = delete;
+	GraphNode &operator=(const GraphNode &) = delete;
 	~GraphNode() override;
 
 public:
-    enum { Type = UserType + 2 };
+	enum { Type = UserType + 2 };
 
-    int type() const override{
-        // Enable the use of qgraphicsitem_cast with this item.
-        return Type;
-    }
+	int type() const override {
+		// Enable the use of qgraphicsitem_cast with this item.
+		return Type;
+	}
 
 public:
 	void setFont(const QFont &font);
@@ -73,11 +73,11 @@ private:
 	void drawLabel(const QString &text);
 
 protected:
-	QPicture          picture_;
-	QColor            color_;
-	GraphWidget *     graph_;
+	QPicture picture_;
+	QColor color_;
+	GraphWidget *graph_ = nullptr;
 	QSet<GraphEdge *> edges_;
-	Agnode_t         *node_;
+	Agnode_t *node_ = nullptr;
 };
 
 #endif

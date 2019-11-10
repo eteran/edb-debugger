@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BOOKMARKS_20061122_H_
 #define BOOKMARKS_20061122_H_
 
+#include "BookmarksModel.h"
 #include "IPlugin.h"
 #include "Types.h"
-#include "BookmarksModel.h"
 #include <QVariantList>
 
 namespace BookmarksPlugin {
@@ -40,18 +40,18 @@ public:
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
-	QList<QAction *> cpu_context_menu() override;
+	QList<QAction *> cpuContextMenu() override;
 
 public:
-	QVariantMap save_state() const override;
-	void restore_state(const QVariantMap &) override;
-
-public Q_SLOTS:
-	void add_bookmark_menu();
+	QVariantMap saveState() const override;
+	void restoreState(const QVariantMap &) override;
 
 private:
-	QMenu *          menu_            = nullptr;
-	BookmarkWidget * bookmark_widget_ = nullptr;
+	void addBookmarkMenu();
+
+private:
+	QMenu *menu_                    = nullptr;
+	BookmarkWidget *bookmarkWidget_ = nullptr;
 };
 
 }

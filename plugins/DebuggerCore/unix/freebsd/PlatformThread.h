@@ -19,10 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PLATFORM_THREAD_20181225_H_
 #define PLATFORM_THREAD_20181225_H_
 
-#include "IThread.h"
 #include "IBreakpoint.h"
-#include <memory>
+#include "IThread.h"
 #include <QCoreApplication>
+#include <memory>
 
 class IProcess;
 
@@ -57,10 +57,10 @@ public:
 	bool isPaused() const override;
 
 private:
-	DebuggerCore *const       core_;
+	DebuggerCore *core_ = nullptr;
 	std::shared_ptr<IProcess> process_;
-	edb::tid_t                tid_;
-	int                       status_ = 0;
+	edb::tid_t tid_;
+	int status_ = 0;
 };
 
 }

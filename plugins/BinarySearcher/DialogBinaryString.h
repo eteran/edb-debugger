@@ -34,11 +34,11 @@ public:
 	~DialogBinaryString() override = default;
 
 private:
-	void do_find();
+	void doFind();
 
 private:
-	 Ui::DialogBinaryString ui;
-	 QPushButton *btnFind_;
+	Ui::DialogBinaryString ui;
+	QPushButton *buttonFind_ = nullptr;
 };
 
 }

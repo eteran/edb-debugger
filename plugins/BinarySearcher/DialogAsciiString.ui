@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>BinarySearcherPlugin::DialogASCIIString</class>
- <widget class="QDialog" name="BinarySearcherPlugin::DialogASCIIString">
+ <class>BinarySearcherPlugin::DialogAsciiString</class>
+ <widget class="QDialog" name="BinarySearcherPlugin::DialogAsciiString">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -22,7 +22,7 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QLineEdit" name="txtASCII">
+    <widget class="QLineEdit" name="txtAscii">
      <property name="clearButtonEnabled">
       <bool>true</bool>
      </property>
@@ -54,7 +54,7 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>txtASCII</tabstop>
+  <tabstop>txtAscii</tabstop>
   <tabstop>chkCaseSensitive</tabstop>
  </tabstops>
  <resources/>
@@ -62,7 +62,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>BinarySearcherPlugin::DialogASCIIString</receiver>
+   <receiver>BinarySearcherPlugin::DialogAsciiString</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -78,7 +78,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>BinarySearcherPlugin::DialogASCIIString</receiver>
+   <receiver>BinarySearcherPlugin::DialogAsciiString</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

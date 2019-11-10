@@ -23,7 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: DialogArguments
 // Desc:
 //------------------------------------------------------------------------------
-DialogArguments::DialogArguments(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogArguments::DialogArguments(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
 	ui.setupUi(this);
 }
 
@@ -33,7 +34,7 @@ DialogArguments::DialogArguments(QWidget *parent, Qt::WindowFlags f) : QDialog(p
 //------------------------------------------------------------------------------
 QList<QByteArray> DialogArguments::arguments() const {
 	QList<QByteArray> ret;
-	for(int i = 0; i < ui.listWidget->count(); ++i) {
+	for (int i = 0; i < ui.listWidget->count(); ++i) {
 		ret << ui.listWidget->item(i)->text().toUtf8();
 	}
 	return ret;
@@ -43,11 +44,11 @@ QList<QByteArray> DialogArguments::arguments() const {
 // Name: set_arguments
 // Desc:
 //------------------------------------------------------------------------------
-void DialogArguments::set_arguments(const QList<QByteArray> &args) {
+void DialogArguments::setArguments(const QList<QByteArray> &args) {
 	ui.listWidget->clear();
 
 	QStringList l;
-	for(const QByteArray &ba: args) {
+	for (const QByteArray &ba : args) {
 		l << QString::fromUtf8(ba.constData());
 	}
 

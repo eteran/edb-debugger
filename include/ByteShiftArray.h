@@ -26,8 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class EDB_EXPORT ByteShiftArray {
 public:
 	explicit ByteShiftArray(int size);
-	ByteShiftArray(const ByteShiftArray &)            = delete;
-	ByteShiftArray& operator=(const ByteShiftArray &) = delete;
+	ByteShiftArray(const ByteShiftArray &) = delete;
+	ByteShiftArray &operator=(const ByteShiftArray &) = delete;
 
 public:
 	ByteShiftArray &shl();
@@ -36,20 +36,19 @@ public:
 	void swap(ByteShiftArray &other);
 
 public:
-	ByteShiftArray &operator<<(quint8 x);
+	ByteShiftArray &operator<<(uint8_t x);
 
 public:
 	int size() const;
 
 public:
-	quint8 &operator[](std::size_t i);
-	quint8 operator[](std::size_t i) const;
-	const quint8 *data() const;
+	uint8_t &operator[](std::size_t i);
+	uint8_t operator[](std::size_t i) const;
+	const uint8_t *data() const;
 
 private:
-	QVector<quint8> data_;
-	int             max_size_;
+	QVector<uint8_t> data_;
+	int maxSize_;
 };
 
 #endif
-

@@ -22,12 +22,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "RegisterViewModelBase.h"
 #include "Util.h"
 #include <QDialog>
-#include <QDialogButtonBox>
-#include <QLabel>
 #include <array>
 #include <cstddef>
 #include <cstdint>
 
+class QLabel;
+class QDialogButtonBox;
 class QHBoxLayout;
 class QLongValidator;
 class QRadioButton;
@@ -43,7 +43,7 @@ class DialogEditSIMDRegister : public QDialog {
 	Q_OBJECT
 
 private:
-	static constexpr int numBytes = 256 / 8;
+	static constexpr int NumBytes = 256 / 8;
 
 	enum EntriesRows {
 		BYTE_INDICES_ROW,
@@ -64,18 +64,18 @@ private:
 		YMM_FIRST_COL = ENTRIES_FIRST_COL,
 		XMM_FIRST_COL = YMM_FIRST_COL + 16,
 		MMX_FIRST_COL = XMM_FIRST_COL + 8,
-		TOTAL_COLS = MMX_FIRST_COL + 8
+		TOTAL_COLS    = MMX_FIRST_COL + 8
 	};
 
-
 public:
-    explicit DialogEditSIMDRegister(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	void set_value(const Register &value);
+	explicit DialogEditSIMDRegister(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	void setValue(const Register &value);
 	void set_current_element(RegisterViewModelBase::Model::ElementSize size, NumberDisplayMode format, int elementIndex);
 	Register value() const;
 
 protected:
-	bool eventFilter(QObject*, QEvent*) override;
+	bool eventFilter(QObject *, QEvent *) override;
+
 private:
 	template <std::size_t numEntries>
 	void setupEntries(const QString &label, std::array<NumberEdit *, numEntries> &entries, int row, const char *slot, int naturalWidthInChars);
@@ -92,18 +92,18 @@ private:
 
 private:
 	template <typename Integer>
-	void onIntegerEdited(QObject *sender, const std::array<NumberEdit *, numBytes / sizeof(Integer)> &elements);
+	void onIntegerEdited(QObject *sender, const std::array<NumberEdit *, NumBytes / sizeof(Integer)> &elements);
 
 	template <typename Float>
-	void onFloatEdited(QObject *sender, const std::array<NumberEdit *, numBytes / sizeof(Float)> &elements);
+	void onFloatEdited(QObject *sender, const std::array<NumberEdit *, NumBytes / sizeof(Float)> &elements);
 
 	template <typename T>
-	void updateIntegralEntries(const std::array<NumberEdit *, numBytes / sizeof(T)> &entries, NumberEdit *notUpdated);
+	void updateIntegralEntries(const std::array<NumberEdit *, NumBytes / sizeof(T)> &entries, NumberEdit *notUpdated);
 
 	template <typename T>
-	void updateFloatEntries(const std::array<NumberEdit *, numBytes / sizeof(T)> &entries, NumberEdit *notUpdated);
+	void updateFloatEntries(const std::array<NumberEdit *, NumBytes / sizeof(T)> &entries, NumberEdit *notUpdated);
 
-private Q_SLOTS	:
+private Q_SLOTS:
 	void onByteEdited();
 	void onWordEdited();
 	void onDwordEdited();
@@ -115,40 +115,40 @@ private Q_SLOTS	:
 	void onUnsignedToggled(bool checked);
 
 private:
-	QHBoxLayout *     hexSignOKCancelLayout;
-	QDialogButtonBox *okCancel;
-	QRadioButton *    radioHex;
-	QRadioButton *    radioSigned;
-	QRadioButton *    radioUnsigned;
-	std::array<NumberEdit *, numBytes / 8> floats64;
-	std::array<NumberEdit *, numBytes / 4> floats32;
-	std::array<NumberEdit *, numBytes / 8> qwords;
-	std::array<NumberEdit *, numBytes / 4> dwords;
-	std::array<NumberEdit *, numBytes / 2> words;
-	std::array<NumberEdit *, numBytes>     bytes;
-	std::array<QLabel *, numBytes>         columnLabels;
+	QHBoxLayout *hexSignOKCancelLayout_;
+	QDialogButtonBox *okCancel_;
+	QRadioButton *radioHex_;
+	QRadioButton *radioSigned_;
+	QRadioButton *radioUnsigned_;
+	std::array<NumberEdit *, NumBytes / 8> floats64_;
+	std::array<NumberEdit *, NumBytes / 4> floats32_;
+	std::array<NumberEdit *, NumBytes / 8> qwords_;
+	std::array<NumberEdit *, NumBytes / 4> dwords_;
+	std::array<NumberEdit *, NumBytes / 2> words_;
+	std::array<NumberEdit *, NumBytes> bytes_;
+	std::array<QLabel *, NumBytes> columnLabels_;
 
-	QRegExpValidator *byteHexValidator;
-	QRegExpValidator *wordHexValidator;
-	QRegExpValidator *dwordHexValidator;
-	QRegExpValidator *qwordHexValidator;
+	QRegExpValidator *byteHexValidator_;
+	QRegExpValidator *wordHexValidator_;
+	QRegExpValidator *dwordHexValidator_;
+	QRegExpValidator *qwordHexValidator_;
 
-	QLongValidator *byteSignedValidator;
-	QLongValidator *wordSignedValidator;
-	QLongValidator *dwordSignedValidator;
-	QLongValidator *qwordSignedValidator;
+	QLongValidator *byteSignedValidator_;
+	QLongValidator *wordSignedValidator_;
+	QLongValidator *dwordSignedValidator_;
+	QLongValidator *qwordSignedValidator_;
 
-	QULongValidator *byteUnsignedValidator;
-	QULongValidator *wordUnsignedValidator;
-	QULongValidator *dwordUnsignedValidator;
-	QULongValidator *qwordUnsignedValidator;
+	QULongValidator *byteUnsignedValidator_;
+	QULongValidator *wordUnsignedValidator_;
+	QULongValidator *dwordUnsignedValidator_;
+	QULongValidator *qwordUnsignedValidator_;
 
-	QValidator *float32Validator;
-	QValidator *float64Validator;
+	QValidator *float32Validator_;
+	QValidator *float64Validator_;
 
-	NumberDisplayMode intMode;
-	std::array<std::uint8_t, numBytes> value_;
-	Register reg;
+	NumberDisplayMode intMode_;
+	std::array<std::uint8_t, NumBytes> value_;
+	Register reg_;
 };
 
 }

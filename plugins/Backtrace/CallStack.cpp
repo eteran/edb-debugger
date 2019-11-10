@@ -28,29 +28,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 
 // TODO: This may be specific to x86... Maybe abstract this in the future.
+
+/**
+ * @brief CallStack::CallStack
+ */
 CallStack::CallStack() {
-	get_call_stack();
+	getCallStack();
 }
 
-//------------------------------------------------------------------------------
-// Name: get_call_stack
-// Desc: Gets the state of the call stack at the time the object is created.
-//------------------------------------------------------------------------------
-void CallStack::get_call_stack() {
+/**
+ * @brief CallStack::get_call_stack
+ *
+ * Gets the state of the call stack at the time the object is created.
+ */
+void CallStack::getCallStack() {
 	/*
 	 * Is rbp a pointer somewhere in the stack?
 	 * Is the value below rbp a ret addr?
 	 * Are we still scanning within the stack region?
 	 */
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(std::shared_ptr<IThread> thread = process->current_thread()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
+		if (std::shared_ptr<IThread> thread = process->currentThread()) {
 
 			// Get the frame & stack pointers.
 			State state;
-			thread->get_state(&state);
-			edb::address_t rbp = state.frame_pointer();
-			edb::address_t rsp = state.stack_pointer();
+			thread->getState(&state);
+			const edb::address_t rbp = state.framePointer();
+			const edb::address_t rsp = state.stackPointer();
 
 			// Check the alignment.  rbp and rsp should be aligned to the stack.
 			if (rbp % edb::v1::pointer_size() != 0 || rsp % edb::v1::pointer_size() != 0) {
@@ -62,18 +67,18 @@ void CallStack::get_call_stack() {
 			// If not, then it's being used as a GPR, and we don't have enough info.
 			// This assumes the stack pointer is always pointing somewhere in the stack.
 			edb::v1::memory_regions().sync();
-			std::shared_ptr<IRegion> region_rsp = edb::v1::memory_regions().find_region(rsp);
-			std::shared_ptr<IRegion> region_rbp = edb::v1::memory_regions().find_region(rbp);
+			std::shared_ptr<IRegion> region_rsp = edb::v1::memory_regions().findRegion(rsp);
+			std::shared_ptr<IRegion> region_rbp = edb::v1::memory_regions().findRegion(rbp);
 			if (!region_rsp || !region_rbp || (region_rbp != region_rsp)) {
 				return;
 			}
 
 			// But if we're good, then scan from rbp downward and look for return addresses.
 			// Code is largely from CommentServer.cpp.  Makes assumption of size of call.
-			constexpr uint8_t CALL_MIN_SIZE = 2;
-			constexpr uint8_t CALL_MAX_SIZE = 7;
+			constexpr uint8_t CallMinSize = 2;
+			constexpr uint8_t CallMaxSize = 7;
 
-			uint8_t buffer[edb::Instruction::MAX_SIZE];
+			uint8_t buffer[edb::Instruction::MaxSize];
 			for (edb::address_t addr = rbp; region_rbp->contains(addr); addr += edb::v1::pointer_size()) {
 
 				// Get the stack value so that we can see if it's a pointer
@@ -81,16 +86,16 @@ void CallStack::get_call_stack() {
 				ExpressionError err;
 				edb::address_t possible_ret = edb::v1::get_value(addr, &ok, &err);
 
-				if(process->read_bytes(possible_ret - CALL_MAX_SIZE, buffer, sizeof(buffer))) {	// 0xfffff... if not a ptr.
-					for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
+				if (process->readBytes(possible_ret - CallMaxSize, buffer, sizeof(buffer))) { // 0xfffff... if not a ptr.
+					for (int i = (CallMaxSize - CallMinSize); i >= 0; --i) {
 						edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);
 
 						// If it's a call, then make a frame
-						if(is_call(inst)) {
-							stack_frame frame;
+						if (is_call(inst)) {
+							StackFrame frame;
 							frame.ret    = possible_ret;
-							frame.caller = possible_ret - CALL_MAX_SIZE + i;
-							stack_frames_.push_back(frame);
+							frame.caller = possible_ret - CallMaxSize + i;
+							stackFrames_.push_back(frame);
 							break;
 						}
 					}
@@ -100,56 +105,63 @@ void CallStack::get_call_stack() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: []
-// Desc: Provides array-like access to the stack_frames_
-//------------------------------------------------------------------------------
-CallStack::stack_frame *CallStack::operator[](size_t index) {
+/**
+ * @brief CallStack::operator []
+ *
+ * Provides array-like access to the stack_frames_
+ *
+ * @param index
+ * @return
+ */
+CallStack::StackFrame *CallStack::operator[](size_t index) {
 	if (index > size()) {
 		return nullptr;
 	}
 
-	return &stack_frames_[index];
+	return &stackFrames_[index];
 }
 
-//------------------------------------------------------------------------------
-// Name: size
-// Desc: Returns the number of frames in the call stack.
-//------------------------------------------------------------------------------
+/**
+ * @brief CallStack::size
+ * @return the number of frames in the call stack.
+ */
 size_t CallStack::size() const {
-	return stack_frames_.size();
+	return stackFrames_.size();
 }
 
-//------------------------------------------------------------------------------
-// Name: top
-// Desc: Returns a pointer to the frame at the top of the call stack or null if
-//       there are no frames on the stack
-//------------------------------------------------------------------------------
-CallStack::stack_frame *CallStack::top() {
+/**
+ * @brief CallStack::top
+ * @return a pointer to the frame at the top of the call stack or nullptr
+ * if there are no frames on the stack
+ */
+CallStack::StackFrame *CallStack::top() {
 	if (!size()) {
 		return nullptr;
 	}
 
-	return &stack_frames_.front();
+	return &stackFrames_.front();
 }
 
-//------------------------------------------------------------------------------
-// Name: bottom
-// Desc: Returns a pointer to the frame at the bottom of the call stack or null if
-//			there are no frames on the stack
-//------------------------------------------------------------------------------
-CallStack::stack_frame *CallStack::bottom() {
+/**
+ * @brief CallStack::bottom
+ * @return a pointer to the frame at the bottom of the call stack or nullptr
+ * if there are no frames on the stack
+ */
+CallStack::StackFrame *CallStack::bottom() {
 	if (!size()) {
 		return nullptr;
 	}
 
-	return &stack_frames_.back();
+	return &stackFrames_.back();
 }
 
-//------------------------------------------------------------------------------
-// Name: push
-// Desc: Pushes a stack frame onto the top of the call stack.
-//------------------------------------------------------------------------------
-void CallStack::push(stack_frame frame) {
-	stack_frames_.push_front(frame);
+/**
+ * @brief CallStack::push
+ *
+ * Pushes a stack frame onto the top of the call stack.
+ *
+ * @param frame
+ */
+void CallStack::push(StackFrame frame) {
+	stackFrames_.push_front(frame);
 }

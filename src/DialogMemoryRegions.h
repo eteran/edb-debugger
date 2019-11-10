@@ -33,34 +33,34 @@ class QModelIndex;
 class DialogMemoryRegions : public QDialog {
 	Q_OBJECT
 public:
-    explicit DialogMemoryRegions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogMemoryRegions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogMemoryRegions() override = default;
 
 private:
-    void showEvent(QShowEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 
 private Q_SLOTS:
 	void on_regions_table_customContextMenuRequested(const QPoint &pos);
 	void on_regions_table_doubleClicked(const QModelIndex &index);
-	void set_access_none();
-	void set_access_r();
-	void set_access_w();
-	void set_access_x();
-	void set_access_rw();
-	void set_access_rx();
-	void set_access_wx();
-	void set_access_rwx();
-	void view_in_cpu();
-	void view_in_stack();
-	void view_in_dump();
+	void setAccessNone();
+	void setAccessR();
+	void setAccessW();
+	void setAccessX();
+	void setAccessRW();
+	void setAccessRX();
+	void setAccessWX();
+	void setAccessRWX();
+	void viewInCpu();
+	void viewInStack();
+	void viewInDump();
 
 private:
-	std::shared_ptr<IRegion> selected_region() const;
-	void set_permissions(bool read, bool write, bool execute);
+	std::shared_ptr<IRegion> selectedRegion() const;
+	void setPermissions(bool read, bool write, bool execute);
 
 private:
 	Ui::DialogMemoryRegions ui;
-	QSortFilterProxyModel * filter_model_;
+	QSortFilterProxyModel *filterModel_ = nullptr;
 };
 
 #endif

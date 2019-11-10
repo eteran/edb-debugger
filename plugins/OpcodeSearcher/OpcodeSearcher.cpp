@@ -23,44 +23,44 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace OpcodeSearcherPlugin {
 
-//------------------------------------------------------------------------------
-// Name: OpcodeSearcher
-// Desc:
-//------------------------------------------------------------------------------
-OpcodeSearcher::OpcodeSearcher(QObject *parent) : QObject(parent) {
+/**
+ * @brief OpcodeSearcher::OpcodeSearcher
+ * @param parent
+ */
+OpcodeSearcher::OpcodeSearcher(QObject *parent)
+	: QObject(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: ~OpcodeSearcher
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief OpcodeSearcher::~OpcodeSearcher
+ */
 OpcodeSearcher::~OpcodeSearcher() {
 	delete dialog_;
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief OpcodeSearcher::menu
+ * @param parent
+ * @return
+ */
 QMenu *OpcodeSearcher::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("OpcodeSearcher"), parent);
-		menu_->addAction(tr("&Opcode Search"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+O")));
+		menu_->addAction(tr("&Opcode Search"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+O")));
 	}
 
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: show_menu
-// Desc:
-//------------------------------------------------------------------------------
-void OpcodeSearcher::show_menu() {
+/**
+ * @brief OpcodeSearcher::showMenu
+ */
+void OpcodeSearcher::showMenu() {
 
-	if(!dialog_) {
+	if (!dialog_) {
 		dialog_ = new DialogOpcodes(edb::v1::debugger_ui);
 	}
 

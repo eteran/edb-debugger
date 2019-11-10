@@ -37,7 +37,7 @@ struct elf32_auxv_t {
 	uint32_t a_type; /* Entry type */
 	union {
 		uint32_t a_val; /* Integer value */
-		                /*
+						/*
 		                We use to have pointer elements added here.  We cannot do that,
 		                though, since it does not work when using 32-bit definitions
 		                on 64-bit platforms and vice versa.
@@ -49,7 +49,7 @@ struct elf64_auxv_t {
 	uint64_t a_type; /* Entry type */
 	union {
 		uint64_t a_val; /* Integer value */
-		                /*
+						/*
 		                We use to have pointer elements added here.  We cannot do that,
 		                though, since it does not work when using 32-bit definitions
 		                on 64-bit platforms and vice versa.
