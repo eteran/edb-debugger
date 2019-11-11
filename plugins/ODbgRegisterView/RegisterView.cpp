@@ -166,7 +166,7 @@ void ODBRegView::settingsUpdated() {
 
 ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 	: QScrollArea(parent),
-      dialogEditGpr_(new DialogEditGPR(this)),
+	  dialogEditGpr_(new DialogEditGPR(this)),
 	  dialogEditSIMDReg_(new DialogEditSIMDRegister(this)),
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	  dialogEditFpu_(new DialogEditFPU(this))
@@ -242,7 +242,7 @@ void ODBRegView::copyRegisterToClipboard() const {
 }
 
 DialogEditGPR *ODBRegView::gprEditDialog() const {
-    return dialogEditGpr_;
+	return dialogEditGpr_;
 }
 
 DialogEditSIMDRegister *ODBRegView::simdEditDialog() const {

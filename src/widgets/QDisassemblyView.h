@@ -185,7 +185,8 @@ private:
 private:
 	struct JumpArrow {
 
-		int src_line;
+		int sourceLine;
+
 		edb::address_t target;
 
 		// if target is visible in viewport

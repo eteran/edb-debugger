@@ -1249,7 +1249,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 				if (region()->contains(target)) { // make sure jmp target is in current memory region
 
 					JumpArrow jump_arrow;
-					jump_arrow.src_line                  = line;
+					jump_arrow.sourceLine                = line;
 					jump_arrow.target                    = target;
 					jump_arrow.destInViewport            = false;
 					jump_arrow.destInMiddleOfInstruction = false;
@@ -1276,7 +1276,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 					}
 
 					// if jmp target not in viewpoint, its value should be near INT_MAX
-					jump_arrow.distance         = std::abs(jump_arrow.destLine - jump_arrow.src_line);
+					jump_arrow.distance         = std::abs(jump_arrow.destLine - jump_arrow.sourceLine);
 					jump_arrow.horizontalLength = -1; // will be recalculate back below
 
 					jump_arrow_vec.push_back(jump_arrow);
@@ -1316,15 +1316,15 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 	for (size_t jump_arrow_idx = 0; jump_arrow_idx < jump_arrow_vec.size(); jump_arrow_idx++) {
 
 		JumpArrow &jump_arrow = jump_arrow_vec[jump_arrow_idx];
-		bool is_dst_upward    = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
+		bool is_dst_upward    = jump_arrow.target < instructions_[jump_arrow.sourceLine].rva();
 		int jump_arrow_dst    = jump_arrow.destInViewport ? jump_arrow.destLine * ctx->lineHeight : (is_dst_upward ? 0 : viewport()->height());
 
 		int size_block     = fontWidth_ * 2;
 		int start_at_block = size_block;
 		int badge_line     = -1;
 
-		if (ctx->lineBadgeWidth.find(jump_arrow.src_line) != ctx->lineBadgeWidth.end()) {
-			badge_line = jump_arrow.src_line;
+		if (ctx->lineBadgeWidth.find(jump_arrow.sourceLine) != ctx->lineBadgeWidth.end()) {
+			badge_line = jump_arrow.sourceLine;
 		} else if (ctx->lineBadgeWidth.find(jump_arrow.destLine) != ctx->lineBadgeWidth.end()) {
 			badge_line = jump_arrow.destLine;
 		}
@@ -1333,7 +1333,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		for (const auto &each_badge : ctx->lineBadgeWidth) {
 
 			bool is_overlap_with_badge = isLineOverlap(
-				jump_arrow.src_line * ctx->lineHeight + 1,
+				jump_arrow.sourceLine * ctx->lineHeight + 1,
 				jump_arrow_dst - 1,
 				each_badge.first * ctx->lineHeight,
 				(each_badge.first + 1) * ctx->lineHeight,
@@ -1359,13 +1359,13 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 
 				const JumpArrow &jump_arrow_prev = jump_arrow_vec[jump_arrow_prev_idx];
 
-				bool is_dst_upward_prev = jump_arrow_prev.target < instructions_[jump_arrow_prev.src_line].rva();
+				bool is_dst_upward_prev = jump_arrow_prev.target < instructions_[jump_arrow_prev.sourceLine].rva();
 				int jump_arrow_prev_dst = jump_arrow_prev.destInViewport ? jump_arrow_prev.destLine * ctx->lineHeight : (is_dst_upward_prev ? 0 : viewport()->height());
 
 				bool jumps_overlap = isLineOverlap(
-					jump_arrow.src_line * ctx->lineHeight,
+					jump_arrow.sourceLine * ctx->lineHeight,
 					jump_arrow_dst,
-					jump_arrow_prev.src_line * ctx->lineHeight,
+					jump_arrow_prev.sourceLine * ctx->lineHeight,
 					jump_arrow_prev_dst,
 					false);
 
@@ -1395,14 +1395,14 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 
 	for (const JumpArrow &jump_arrow : jump_arrow_vec) {
 
-		bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
+		bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.sourceLine].rva();
 
 		// horizontal line
 		int end_x   = ctx->l1 - 3;
 		int start_x = end_x - jump_arrow.horizontalLength;
 
 		// vertical line
-		int src_y = jump_arrow.src_line * ctx->lineHeight + (fontHeight_ / 2);
+		int src_y = jump_arrow.sourceLine * ctx->lineHeight + (fontHeight_ / 2);
 		int dst_y;
 
 		if (jump_arrow.destInMiddleOfInstruction) {
@@ -1415,12 +1415,12 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		double arrow_width = 1.0;
 		auto arrow_style   = Qt::DashLine;
 
-		if (ctx->selectedLines == jump_arrow.src_line || ctx->selectedLines == jump_arrow.destLine) {
+		if (ctx->selectedLines == jump_arrow.sourceLine || ctx->selectedLines == jump_arrow.destLine) {
 			arrow_width = 2.0; // enlarge arrow width
 		}
 
-		bool conditional_jmp   = is_conditional_jump(instructions_[jump_arrow.src_line]);
-		bool unconditional_jmp = is_unconditional_jump(instructions_[jump_arrow.src_line]);
+		bool conditional_jmp   = is_conditional_jump(instructions_[jump_arrow.sourceLine]);
+		bool unconditional_jmp = is_unconditional_jump(instructions_[jump_arrow.sourceLine]);
 
 		// if direct jmp, then draw in solid line
 		if (unconditional_jmp) {
@@ -1428,7 +1428,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		}
 
 		// if direct jmp (src) is selected, then draw arrow in red
-		if (unconditional_jmp && ctx->selectedLines == jump_arrow.src_line) {
+		if (unconditional_jmp && ctx->selectedLines == jump_arrow.sourceLine) {
 			arrow_color = takenJumpColor_;
 		}
 
@@ -1440,9 +1440,9 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		}
 
 		// if current conditional jump is taken, then draw arrow in red
-		if (showAddresses_[jump_arrow.src_line] == currentAddress_) { // if eip
+		if (showAddresses_[jump_arrow.sourceLine] == currentAddress_) { // if eip
 			if (conditional_jmp) {
-				if (edb::v1::arch_processor().isExecuted(instructions_[jump_arrow.src_line], state)) {
+				if (edb::v1::arch_processor().isExecuted(instructions_[jump_arrow.sourceLine], state)) {
 					arrow_color = takenJumpColor_;
 				}
 			}
@@ -1458,8 +1458,8 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		int src_reg_badge_width = 0;
 		int dst_reg_badge_width = 0;
 
-		if (ctx->lineBadgeWidth.find(jump_arrow.src_line) != ctx->lineBadgeWidth.end()) {
-			src_reg_badge_width = ctx->lineBadgeWidth.at(jump_arrow.src_line);
+		if (ctx->lineBadgeWidth.find(jump_arrow.sourceLine) != ctx->lineBadgeWidth.end()) {
+			src_reg_badge_width = ctx->lineBadgeWidth.at(jump_arrow.sourceLine);
 		} else if (ctx->lineBadgeWidth.find(jump_arrow.destLine) != ctx->lineBadgeWidth.end()) {
 			dst_reg_badge_width = ctx->lineBadgeWidth.at(jump_arrow.destLine);
 		}
