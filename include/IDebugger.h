@@ -47,11 +47,11 @@ public:
 public:
 	enum class CpuMode {
 		Unknown,
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 		x86_16,
 		x86_32,
 		x86_64,
-#elif defined EDB_ARM32 || defined EDB_ARM64
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
 		ARM32,
 		Thumb,
 		ARM64,

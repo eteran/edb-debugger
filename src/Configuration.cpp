@@ -190,11 +190,11 @@ void Configuration::readSettings() {
 	}
 
 	// Init capstone to some default settings
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	CapstoneEDB::init(EDB_IS_64_BIT ? CapstoneEDB::Architecture::ARCH_AMD64 : CapstoneEDB::Architecture::ARCH_X86);
-#elif defined EDB_ARM32
+#elif defined(EDB_ARM32)
 	CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32_ARM);
-#elif defined EDB_ARM64
+#elif defined(EDB_ARM64)
 	CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM64);
 #else
 #error "How to initialize Capstone?"

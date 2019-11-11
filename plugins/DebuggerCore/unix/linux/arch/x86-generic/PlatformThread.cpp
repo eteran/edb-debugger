@@ -299,7 +299,7 @@ void PlatformThread::setState(const State &state) {
  * @return
  */
 edb::address_t PlatformThread::instructionPointer() const {
-#if defined EDB_X86
+#if defined(EDB_X86)
 	return ptrace(PTRACE_PEEKUSER, tid_, offsetof(UserRegsStructX86, eip), 0);
 #elif defined(EDB_X86_64)
 	// NOTE(eteran): even when we debug a 32-bit app on a 64-bit debugger,

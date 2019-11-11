@@ -1254,7 +1254,7 @@ public:
 			CS_ARCH_X86
 #elif defined(EDB_ARM32)
 			CS_ARCH_ARM
-#elif defined EDB_ARM64
+#elif defined(EDB_ARM64)
 			CS_ARCH_ARM64
 #else
 #error "What to pass to capstone?"
@@ -1336,7 +1336,7 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 	const cs_mode mode =
 #if defined(EDB_X86) || defined(EDB_X86_64)
 		edb::v1::debuggeeIs32Bit() ? CS_MODE_32 : CS_MODE_64
-#elif defined(EDB_ARM32) || defined EDB_ARM64
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
 		// FIXME(ARM): we also have possible values:
 		//	* CS_MODE_ARM,
 		//	* CS_MODE_THUMB,

@@ -102,7 +102,7 @@ struct UserRegsStructX86_64 {
 	uint64_t gs;
 };
 
-#elif defined EDB_X86_64
+#elif defined(EDB_X86_64)
 
 using UserRegsStructX86_64   = user_regs_struct;
 using UserFPRegsStructX86_64 = user_fpregs_struct;

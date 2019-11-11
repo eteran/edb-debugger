@@ -117,11 +117,11 @@ void SyntaxHighlighter::createRules() {
 	// registers
 	// TODO: support ST(N)
 	rules_.emplace_back(HighlightingRule(
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 		"\\b(?:(?:(?:e|r)?(?:ax|bx|cx|dx|bp|sp|si|di|ip))|(?:[abcd](?:l|h))|(?:sp|bp|si|di)l|(?:[cdefgs]s)|[xyz]?mm(?:[0-9]|[12][0-9]|3[01])|r(?:8|9|(?:1[0-5]))[dwb]?)\\b",
-#elif defined EDB_ARM32
+#elif defined(EDB_ARM32)
 		"\\b(?:r(?:[0-9]|1[0-5])|sb|sl|fp|ip|sp|lr|pc|[sd][0-9]|[sdf](?:[12][0-9]|3[01])|q(?:[0-9]|1[0-5]))\\b",
-#elif defined EDB_ARM64
+#elif defined(EDB_ARM64)
 		"\\b(?:[xw](?:[12]?[0-9]|3[01]))\\b" /* FIXME: stub, only GPRs here */,
 #else
 #error "What string should be here?"
@@ -134,7 +134,7 @@ void SyntaxHighlighter::createRules() {
 
 	// constants
 	rules_.emplace_back(HighlightingRule(
-#if defined EDB_ARM32 || defined EDB_ARM64
+#if defined(EDB_ARM32) || defined(EDB_ARM64)
 		"#?" /* concatenated with general number pattern */
 #endif
 		"\\b(?:(?:0[0-7]*)|(?:0(?:x|X)[0-9a-fA-F]+)|(?:[1-9][0-9]*))\\b",
@@ -144,7 +144,7 @@ void SyntaxHighlighter::createRules() {
 		settings.value("theme.constant.italic", false).toBool(),
 		settings.value("theme.constant.underline", false).toBool()));
 
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	// pointer modifiers
 	rules_.emplace_back(HighlightingRule(
 		"\\b(?:t?byte|(?:[xyz]mm|[qdf]?)word)(?: ptr)?\\b",
@@ -166,9 +166,9 @@ void SyntaxHighlighter::createRules() {
 
 	// flow control
 	rules_.emplace_back(HighlightingRule(
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 		"\\b(?:l?jmp[bswlqt]?|loopn?[ez]|(?:jn?(?:a|ae|b|be|c|e|g|ge|l|le|o|p|s|z)|j(?:pe|po|cxz|ecxz)))\\b",
-#elif defined EDB_ARM32 || defined EDB_ARM64
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
 		/* FIXME(ARM): there are also instructions like `add pc, pc, #5`, which
 		 *             should also be considered flow control */
 		"\\b(?:b(?:x|xj)?(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le)?)\\b",
@@ -183,9 +183,9 @@ void SyntaxHighlighter::createRules() {
 
 	// function call
 	rules_.emplace_back(HighlightingRule(
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 		"\\b(?:call|ret[nf]?)[bswlqt]?\\b",
-#elif defined EDB_ARM32 || defined EDB_ARM64
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
 		"\\b(?:b(?:l|lx)(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le)?)\\b",
 #else
 #error "What string should be here?"
@@ -196,7 +196,7 @@ void SyntaxHighlighter::createRules() {
 		settings.value("theme.function.italic", false).toBool(),
 		settings.value("theme.function.underline", false).toBool()));
 
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	// FIXME(ARM): this is stubbed out
 
 	// stack operations

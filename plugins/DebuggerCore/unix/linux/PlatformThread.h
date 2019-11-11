@@ -79,7 +79,7 @@ private:
 	edb::tid_t tid_;
 	int status_ = 0;
 
-#if defined EDB_ARM32 || defined EDB_ARM64
+#if defined(EDB_ARM32) || defined(EDB_ARM64)
 private:
 	Status doStep(edb::tid_t tid, long status);
 	std::shared_ptr<IBreakpoint> singleStepBreakpoint;

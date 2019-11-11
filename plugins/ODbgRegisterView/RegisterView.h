@@ -38,7 +38,7 @@ class ODBRegView : public QScrollArea {
 
 public:
 	enum RegisterGroupType : int {
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 		GPR,
 		rIP,
 		ExpandedEFL,
@@ -52,7 +52,7 @@ public:
 		SSEData,
 		AVXData,
 		MXCSR,
-#elif defined EDB_ARM32
+#elif defined(EDB_ARM32)
 		GPR,
 		CPSR,
 		ExpandedCPSR,
@@ -62,15 +62,6 @@ public:
 #endif
 		NUM_GROUPS
 	};
-
-private:
-	std::vector<RegisterGroupType> visibleGroupTypes_;
-	QList<QAction *> menuItems_;
-	DialogEditGPR *dialogEditGpr;
-	DialogEditSIMDRegister *dialogEditSIMDReg_;
-	DialogEditFPU *dialogEditFpu_;
-
-	RegisterGroup *makeGroup(RegisterGroupType type);
 
 public:
 	explicit ODBRegView(const QString &settings, QWidget *parent = nullptr);
@@ -84,6 +75,9 @@ public:
 	DialogEditSIMDRegister *simdEditDialog() const;
 	DialogEditFPU *fpuEditDialog() const;
 	void selectAField();
+
+private:
+	RegisterGroup *makeGroup(RegisterGroupType type);
 
 private:
 	ValueField *selectedField() const;
@@ -105,6 +99,11 @@ private Q_SLOTS:
 private:
 	RegisterViewModelBase::Model *model_ = nullptr;
 	QList<RegisterGroup *> groups_;
+	std::vector<RegisterGroupType> visibleGroupTypes_;
+	QList<QAction *> menuItems_;
+	DialogEditGPR *dialogEditGpr_;
+	DialogEditSIMDRegister *dialogEditSIMDReg_;
+	DialogEditFPU *dialogEditFpu_;
 };
 
 }

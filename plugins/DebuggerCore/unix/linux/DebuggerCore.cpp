@@ -591,7 +591,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int statu
 		}
 	}
 
-#if defined EDB_ARM32
+#if defined(EDB_ARM32)
 	if (it != threads_.end()) {
 		const auto &thread = *it;
 		if (thread->singleStepBreakpoint) {
@@ -1067,15 +1067,15 @@ edb::pid_t DebuggerCore::parentPid(edb::pid_t pid) const {
  * @return edb's native CPU type
  */
 quint64 DebuggerCore::cpuType() const {
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	if (EDB_IS_32_BIT) {
 		return edb::string_hash("x86");
 	} else {
 		return edb::string_hash("x86-64");
 	}
-#elif defined EDB_ARM32
+#elif defined(EDB_ARM32)
 	return edb::string_hash("arm");
-#elif defined EDB_ARM64
+#elif defined(EDB_ARM64)
 	return edb::string_hash("AArch64");
 #else
 #error "Unsupported Architecture"
@@ -1087,13 +1087,13 @@ quint64 DebuggerCore::cpuType() const {
  * @return
  */
 QString DebuggerCore::stackPointer() const {
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	if (edb::v1::debuggeeIs32Bit()) {
 		return "esp";
 	} else {
 		return "rsp";
 	}
-#elif defined EDB_ARM32 || defined EDB_ARM64
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
 	return "sp";
 #else
 #error "Unsupported Architecture"
@@ -1105,13 +1105,13 @@ QString DebuggerCore::stackPointer() const {
  * @return
  */
 QString DebuggerCore::framePointer() const {
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	if (edb::v1::debuggeeIs32Bit()) {
 		return "ebp";
 	} else {
 		return "rbp";
 	}
-#elif defined EDB_ARM32 || defined EDB_ARM64
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
 	return "fp";
 #else
 #error "Unsupported Architecture"
@@ -1123,13 +1123,13 @@ QString DebuggerCore::framePointer() const {
  * @return
  */
 QString DebuggerCore::instructionPointer() const {
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	if (edb::v1::debuggeeIs32Bit()) {
 		return "eip";
 	} else {
 		return "rip";
 	}
-#elif defined EDB_ARM32 || defined EDB_ARM64
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
 	return "pc";
 #else
 #error "Unsupported Architecture"
@@ -1141,13 +1141,13 @@ QString DebuggerCore::instructionPointer() const {
  * @return the name of the flag register
  */
 QString DebuggerCore::flagRegister() const {
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	if (edb::v1::debuggeeIs32Bit()) {
 		return "eflags";
 	} else {
 		return "rflags";
 	}
-#elif defined EDB_ARM32 || defined EDB_ARM64
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
 	return "cpsr";
 #else
 #error "Unsupported Architecture"
@@ -1201,9 +1201,9 @@ qlonglong DebuggerCore::exceptionValue(const QString &name) {
  * @return
  */
 uint8_t DebuggerCore::nopFillByte() const {
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	return 0x90;
-#elif defined EDB_ARM32 || defined EDB_ARM64
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
 	// TODO(eteran): does this concept even make sense for a multi-byte instruction encoding?
 	return 0x00;
 #else

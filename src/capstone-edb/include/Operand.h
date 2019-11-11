@@ -17,9 +17,9 @@ class Operand {
 	friend class Formatter;
 	friend class Instruction;
 
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	using op_type = cs_x86_op;
-#elif defined EDB_ARM32 || defined EDB_ARM64
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
 	using op_type = cs_arm_op;
 #endif
 

@@ -6,7 +6,7 @@
 
 namespace ODbgRegisterView {
 
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 class FPUValueField final : public ValueField {
 	Q_OBJECT
 

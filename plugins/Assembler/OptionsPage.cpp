@@ -39,11 +39,11 @@ OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
 
 	ui.assemblerName->clear();
 
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	const QLatin1String targetArch("x86");
-#elif defined EDB_ARM32
+#elif defined(EDB_ARM32)
 	const QLatin1String targetArch("arm");
-#elif defined EDB_ARM64
+#elif defined(EDB_ARM64)
 	const QLatin1String targetArch("aarch64");
 #endif
 

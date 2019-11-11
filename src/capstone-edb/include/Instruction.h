@@ -47,9 +47,9 @@ class EDB_EXPORT Instruction {
 	friend class Operand;
 
 public:
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	static constexpr std::size_t MaxSize = 15;
-#elif defined EDB_ARM32 || defined EDB_ARM64
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
 	static constexpr std::size_t MaxSize = 4;
 #endif
 
@@ -73,9 +73,9 @@ public:
 public:
 	int operation() const { return insn_ ? insn_->id : 0; }
 	std::size_t operandCount() const {
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 		return insn_ ? insn_->detail->x86.op_count : 0;
-#elif defined EDB_ARM32 || defined EDB_ARM64
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
 		return insn_ ? insn_->detail->arm.op_count : 0;
 #else
 #error "What to return here?"
@@ -104,7 +104,7 @@ public:
 
 public:
 	enum ConditionCode : uint8_t {
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 		CC_UNCONDITIONAL = 0x10, // value must be higher than 0xF
 		CC_CXZ,
 		CC_ECXZ,
@@ -137,7 +137,7 @@ public:
 		CC_GE  = CC_NL,
 		CC_NLE = CC_LE | 1,
 		CC_G   = CC_NLE
-#elif defined EDB_ARM32
+#elif defined(EDB_ARM32)
 		CC_EQ = 0,
 		CC_NE,
 		CC_HS,
