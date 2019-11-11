@@ -20,10 +20,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DEBUGGERMAIN_20090811_H_
 
 #include "DataViewInfo.h"
-#include "Debugger.h"
 #include "IDebugEventHandler.h"
 #include "OSTypes.h"
 #include "QHexView"
+
+#include <QMainWindow>
+#include <QProcess>
+#include <QVector>
+
+#include <memory>
+
+#include "ui_Debugger.h"
 
 template <class T, class E>
 class Result;
@@ -44,14 +51,6 @@ class QDragEnterEvent;
 class QDropEvent;
 class QLabel;
 
-#include <QMainWindow>
-#include <QProcess>
-#include <QVector>
-
-#include <memory>
-
-#include "ui_Debugger.h"
-
 class Debugger : public QMainWindow, public IDebugEventHandler {
 	Q_OBJECT
 public:
@@ -61,11 +60,10 @@ public:
 	~Debugger() override;
 
 private:
-	enum ResumeFlag {
+	enum class ResumeFlag {
 		None   = 0,
 		Forced = 1,
 	};
-	Q_DECLARE_FLAGS(ResumeFlags, ResumeFlag)
 
 	enum DebugMode {
 		Step,
@@ -116,15 +114,16 @@ Q_SIGNALS:
 
 public Q_SLOTS:
 	// the autoconnected slots
-	void on_action_Help_triggered();
 	void on_actionAbout_QT_triggered();
 	void on_actionApplication_Arguments_triggered();
 	void on_actionApplication_Working_Directory_triggered();
 	void on_actionRun_Until_Return_triggered();
+	void on_actionStep_Out_triggered();
 	void on_action_About_triggered();
 	void on_action_Attach_triggered();
 	void on_action_Configure_Debugger_triggered();
 	void on_action_Detach_triggered();
+	void on_action_Help_triggered();
 	void on_action_Kill_triggered();
 	void on_action_Memory_Regions_triggered();
 	void on_action_Open_triggered();
@@ -137,20 +136,9 @@ public Q_SLOTS:
 	void on_action_Step_Into_triggered();
 	void on_action_Step_Over_Pass_Signal_To_Application_triggered();
 	void on_action_Step_Over_triggered();
-	void on_actionStep_Out_triggered();
 	void on_action_Threads_triggered();
 	void on_cpuView_breakPointToggled(edb::address_t);
 	void on_cpuView_customContextMenuRequested(const QPoint &);
-
-	//Flag-toggling slots for right-click --> toggle flag
-public Q_SLOTS:
-	void toggle_flag_carry();
-	void toggle_flag_parity();
-	void toggle_flag_auxiliary();
-	void toggle_flag_zero();
-	void toggle_flag_sign();
-	void toggle_flag_direction();
-	void toggle_flag_overflow();
 
 private:
 	void toggleFlag(int);
@@ -183,8 +171,8 @@ private Q_SLOTS:
 private Q_SLOTS:
 	// the manually connected Register slots
 	QList<QAction *> currentRegisterContextMenuItems() const;
-	void mnuRegisterFollowInDump() { follow_register_in_dump(false); }
-	void mnuRegisterFollowInDumpNewTab() { follow_register_in_dump(true); }
+	void mnuRegisterFollowInDump() { followRegisterInDump(false); }
+	void mnuRegisterFollowInDumpNewTab() { followRegisterInDump(true); }
 	void mnuRegisterFollowInStack();
 
 private Q_SLOTS:
@@ -222,82 +210,84 @@ private Q_SLOTS:
 
 private:
 	void closeEvent(QCloseEvent *event) override;
-	void showEvent(QShowEvent *event) override;
 	void dragEnterEvent(QDragEnterEvent *event) override;
 	void dropEvent(QDropEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 
 public:
 	edb::EVENT_STATUS handleEvent(const std::shared_ptr<IDebugEvent> &event) override;
 
 private:
-	std::shared_ptr<IRegion> update_cpu_view(const State &state);
-	QString create_tty();
-	QString session_filename() const;
-	bool breakpoint_condition_true(const QString &condition);
-	bool common_open(const QString &s, const QList<QByteArray> &args);
-	edb::EVENT_STATUS handle_event_exited(const std::shared_ptr<IDebugEvent> &event);
-	edb::EVENT_STATUS handle_event_stopped(const std::shared_ptr<IDebugEvent> &event);
-	edb::EVENT_STATUS handle_event_terminated(const std::shared_ptr<IDebugEvent> &event);
-	edb::EVENT_STATUS handle_trap(const std::shared_ptr<IDebugEvent> &event);
-	edb::EVENT_STATUS resume_status(bool pass_exception);
-	Result<edb::address_t, QString> get_goto_expression();
-	Result<edb::reg_t, QString> get_follow_register() const;
-	void apply_default_fonts();
-	void apply_default_show_separator();
-	void cleanup_debugger();
-	void cpu_fill(uint8_t byte);
-	void create_data_tab();
-	void delete_data_tab();
-	void detach_from_process(DetachAction kill);
-	void do_jump_to_address(edb::address_t address, const std::shared_ptr<IRegion> &r, bool scroll_to);
-	void finish_plugin_setup();
-	void follow_register_in_dump(bool tabbed);
-	void load_session(const QString &session_file);
-	void resume_execution(ExceptionResume pass_exception, DebugMode mode, ResumeFlags flags);
-	void save_session(const QString &session_file);
-	void set_debugger_caption(const QString &appname);
-	void set_initial_breakpoint(const QString &s);
-	void set_initial_debugger_state();
-	void setup_stack_view();
-	void setup_tab_buttons();
-	void setup_ui();
-	void test_native_binary();
-	void setup_data_views();
-	void update_data_views();
-	void update_disassembly(edb::address_t address, const std::shared_ptr<IRegion> &r);
-	void update_menu_state(GuiState state);
-	void update_stack_view(const State &state);
-	void update_tab_caption(const std::shared_ptr<QHexView> &view, edb::address_t start, edb::address_t end);
-	QAction *createAction(const QString &text, const QKeySequence &keySequence, void (Debugger::*slotPtr)());
+	QString createTty();
+	QString sessionFilename() const;
+	Result<edb::address_t, QString> getGotoExpression();
+	Result<edb::reg_t, QString> getFollowRegister() const;
+	bool commonOpen(const QString &s, const QList<QByteArray> &args);
+	bool isBreakpointConditionTrue(const QString &condition);
+	edb::EVENT_STATUS handleEventExited(const std::shared_ptr<IDebugEvent> &event);
+	edb::EVENT_STATUS handleEventStopped(const std::shared_ptr<IDebugEvent> &event);
+	edb::EVENT_STATUS handleEventTerminated(const std::shared_ptr<IDebugEvent> &event);
+	edb::EVENT_STATUS handleTrap(const std::shared_ptr<IDebugEvent> &event);
+	edb::EVENT_STATUS resumeStatus(bool pass_exception);
+	std::shared_ptr<IRegion> updateCpuView(const State &state);
+	void applyDefaultFonts();
+	void applyDefaultShowSeparator();
 	void attachComplete();
+	void cleanupDebugger();
+	void cpuFill(uint8_t byte);
+	void createDataTab();
+	void deleteDataTab();
+	void detachFromProcess(DetachAction kill);
+	void doJumpToAddress(edb::address_t address, const std::shared_ptr<IRegion> &r, bool scroll_to);
+	void finishPluginSetup();
+	void followRegisterInDump(bool tabbed);
+	void loadSession(const QString &session_file);
+	void resumeExecution(ExceptionResume pass_exception, DebugMode mode, ResumeFlag flags);
+	void saveSession(const QString &session_file);
+	void setDebuggerCaption(const QString &appname);
+	void setInitialBreakpoint(const QString &s);
+	void setInitialDebuggerState();
+	void setupDataViews();
+	void setupStackView();
+	void setupTabButtons();
+	void setupUi();
+	void testNativeBinary();
+	void updateDataViews();
+	void updateDisassembly(edb::address_t address, const std::shared_ptr<IRegion> &r);
+	void updateMenuState(GuiState state);
+	void updateStackView(const State &state);
+	void updateTabCaption(const std::shared_ptr<QHexView> &view, edb::address_t start, edb::address_t end);
 
 private:
 	template <class F>
-	void follow_memory(edb::address_t address, F follow_func);
-
-	template <class T>
-	Result<edb::address_t, QString> get_follow_address(const T &hexview);
+	QAction *createAction(const QString &text, const QKeySequence &keySequence, F slotPtr);
 
 	template <class F>
-	QList<QAction *> get_plugin_context_menu_items(const F &f) const;
+	void followMemory(edb::address_t address, F follow_func);
+
+	template <class Ptr>
+	Result<edb::address_t, QString> getFollowAddress(const Ptr &hexview);
+
+	template <class F>
+	QList<QAction *> getPluginContextMenuItems(const F &f) const;
 
 	template <class F, class T>
-	void add_plugin_context_menu(const T &menu, const F &f);
+	void addPluginContextMenu(const T &menu, const F &f);
 
-	template <class T>
-	void follow_in_cpu(const T &hexview);
+	template <class Ptr>
+	void followInCpu(const Ptr &hexview);
 
-	template <class T>
-	void follow_in_dump(const T &hexview);
+	template <class Ptr>
+	void followInDump(const Ptr &hexview);
 
-	template <class T>
-	void follow_in_stack(const T &hexview);
+	template <class Ptr>
+	void followInStack(const Ptr &hexview);
 
-	template <class T>
-	void modify_bytes(const T &hexview);
+	template <class Ptr>
+	void modifyBytes(const Ptr &hexview);
 
 	template <class F1, class F2>
-	void step_over(F1 run_func, F2 step_func);
+	void stepOver(F1 run_func, F2 step_func);
 
 public:
 	Ui::Debugger ui;

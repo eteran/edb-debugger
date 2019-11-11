@@ -166,7 +166,7 @@ QDisassemblyView::QDisassemblyView(QWidget *parent)
 	QSettings settings;
 	settings.beginGroup("Theme");
 
-	takenJumpColor_         = QColor(settings.value("theme.taken_jump.foreground", "gray").toString());
+    takenJumpColor_         = QColor(settings.value("theme.taken_jump.foreground", "red").toString());
 	fillingBytesColor_      = QColor(settings.value("theme.filling.foreground", "gray").toString());
 	addressForegroundColor_ = QColor(settings.value("theme.address.foreground", "red").toString());
 	badgeBackgroundColor_   = QColor(settings.value("theme.badge.background", "blue").toString());
