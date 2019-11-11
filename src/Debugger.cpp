@@ -1925,16 +1925,16 @@ void Debugger::mnuCPUEditComment() {
 		tr("Edit Comment"),
 		tr("Comment:"),
 		QLineEdit::Normal,
-		ui.cpuView->get_comment(address),
+		ui.cpuView->getComment(address),
 		&got_text);
 
 	//If we got a comment, add it.
 	if (got_text && !comment.isEmpty()) {
-		ui.cpuView->add_comment(address, comment);
+		ui.cpuView->addComment(address, comment);
 	} else if (got_text && comment.isEmpty()) {
 		//If the user backspaced the comment, remove the comment since
 		//there's no need for a null string to take space in the hash.
-		ui.cpuView->remove_comment(address);
+		ui.cpuView->removeComment(address);
 	} else {
 		//The only other real case is that we didn't got_text.  No change.
 		return;
@@ -1949,7 +1949,7 @@ void Debugger::mnuCPUEditComment() {
 //------------------------------------------------------------------------------
 void Debugger::mnuCPURemoveComment() {
 	const edb::address_t address = ui.cpuView->selectedAddress();
-	ui.cpuView->remove_comment(address);
+	ui.cpuView->removeComment(address);
 	refreshUi();
 }
 
@@ -2746,7 +2746,7 @@ void Debugger::cleanupDebugger() {
 
 	timer_->stop();
 
-	ui.cpuView->clear_comments();
+	ui.cpuView->clearComments();
 	edb::v1::memory_regions().clear();
 	edb::v1::symbol_manager().clear();
 	edb::v1::arch_processor().reset();

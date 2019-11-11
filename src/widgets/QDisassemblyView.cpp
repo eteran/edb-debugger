@@ -166,7 +166,7 @@ QDisassemblyView::QDisassemblyView(QWidget *parent)
 	QSettings settings;
 	settings.beginGroup("Theme");
 
-    takenJumpColor_         = QColor(settings.value("theme.taken_jump.foreground", "red").toString());
+	takenJumpColor_         = QColor(settings.value("theme.taken_jump.foreground", "red").toString());
 	fillingBytesColor_      = QColor(settings.value("theme.filling.foreground", "gray").toString());
 	addressForegroundColor_ = QColor(settings.value("theme.address.foreground", "red").toString());
 	badgeBackgroundColor_   = QColor(settings.value("theme.badge.background", "blue").toString());
@@ -178,7 +178,7 @@ QDisassemblyView::QDisassemblyView(QWidget *parent)
 	setMouseTracking(true);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
-	connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, &QDisassemblyView::scrollbar_action_triggered);
+	connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, &QDisassemblyView::scrollbarActionTriggered);
 }
 
 //------------------------------------------------------------------------------
@@ -211,7 +211,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 				return;
 			}
 
-			const edb::address_t next_address = addressOffset_ + following_instructions(current_offset, 1);
+			const edb::address_t next_address = addressOffset_ + followingInstructions(current_offset, 1);
 			if (!addressShown(next_address)) {
 				scrollTo(showAddresses_.size() > 1 ? showAddresses_[showAddresses_.size() / 3] : next_address);
 			}
@@ -230,7 +230,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 				return;
 			}
 
-			const edb::address_t new_address = addressOffset_ + previous_instructions(current_offset, 1);
+			const edb::address_t new_address = addressOffset_ + previousInstructions(current_offset, 1);
 			if (!addressShown(new_address)) {
 				scrollTo(new_address);
 			}
@@ -239,9 +239,9 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 	} else if (event->matches(QKeySequence::MoveToNextPage) || event->matches(QKeySequence::MoveToPreviousPage)) {
 		const int selectedLine = getSelectedLineNumber();
 		if (event->matches(QKeySequence::MoveToNextPage)) {
-			scrollbar_action_triggered(QAbstractSlider::SliderPageStepAdd);
+			scrollbarActionTriggered(QAbstractSlider::SliderPageStepAdd);
 		} else {
-			scrollbar_action_triggered(QAbstractSlider::SliderPageStepSub);
+			scrollbarActionTriggered(QAbstractSlider::SliderPageStepSub);
 		}
 		updateDisassembly(instructions_.size());
 
@@ -274,7 +274,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 // Note: <current_address> is a 0 based value relative to the begining of the
 //       current region, not an absolute address within the program
 //------------------------------------------------------------------------------
-int QDisassemblyView::previous_instruction(IAnalyzer *analyzer, int current_address) {
+int QDisassemblyView::previousInstruction(IAnalyzer *analyzer, int current_address) {
 
 	// If we have an analyzer, and the current address is within a function
 	// then first we find the begining of that function.
@@ -336,7 +336,7 @@ int QDisassemblyView::previous_instruction(IAnalyzer *analyzer, int current_addr
 
 			uint8_t buf[edb::Instruction::MaxSize];
 			int size               = sizeof(buf);
-			Result<int, QString> n = get_instruction_size(prev_address, buf, &size);
+			Result<int, QString> n = getInstructionSize(prev_address, buf, &size);
 			if (n && *n == i) {
 				return current_address - i;
 			}
@@ -354,18 +354,18 @@ int QDisassemblyView::previous_instruction(IAnalyzer *analyzer, int current_addr
 // Note: <current_address> is a 0 based value relative to the begining of the
 //       current region, not an absolute address within the program
 //------------------------------------------------------------------------------
-int QDisassemblyView::previous_instructions(int current_address, int count) {
+int QDisassemblyView::previousInstructions(int current_address, int count) {
 
 	IAnalyzer *const analyzer = edb::v1::analyzer();
 
 	for (int i = 0; i < count; ++i) {
-		current_address = previous_instruction(analyzer, current_address);
+		current_address = previousInstruction(analyzer, current_address);
 	}
 
 	return current_address;
 }
 
-int QDisassemblyView::following_instruction(int current_address) {
+int QDisassemblyView::followingInstruction(int current_address) {
 	uint8_t buf[edb::Instruction::MaxSize + 1];
 
 	// do the longest read we can while still not passing the region end
@@ -388,10 +388,10 @@ int QDisassemblyView::following_instruction(int current_address) {
 // Note: <current_address> is a 0 based value relative to the begining of the
 //       current region, not an absolute address within the program
 //------------------------------------------------------------------------------
-int QDisassemblyView::following_instructions(int current_address, int count) {
+int QDisassemblyView::followingInstructions(int current_address, int count) {
 
 	for (int i = 0; i < count; ++i) {
-		current_address = following_instruction(current_address);
+		current_address = followingInstruction(current_address);
 	}
 
 	return current_address;
@@ -419,12 +419,12 @@ void QDisassemblyView::wheelEvent(QWheelEvent *e) {
 	if (e->delta() > 0) {
 		// scroll up
 		int address = verticalScrollBar()->value();
-		address     = previous_instructions(address, abs_scroll_count);
+		address     = previousInstructions(address, abs_scroll_count);
 		verticalScrollBar()->setValue(address);
 	} else {
 		// scroll down
 		int address = verticalScrollBar()->value();
-		address     = following_instructions(address, abs_scroll_count);
+		address     = followingInstructions(address, abs_scroll_count);
 		verticalScrollBar()->setValue(address);
 	}
 }
@@ -433,7 +433,7 @@ void QDisassemblyView::wheelEvent(QWheelEvent *e) {
 // Name: scrollbar_action_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void QDisassemblyView::scrollbar_action_triggered(int action) {
+void QDisassemblyView::scrollbarActionTriggered(int action) {
 
 	if (QApplication::keyboardModifiers() & Qt::ControlModifier) {
 		return;
@@ -442,22 +442,22 @@ void QDisassemblyView::scrollbar_action_triggered(int action) {
 	switch (action) {
 	case QAbstractSlider::SliderSingleStepSub: {
 		int address = verticalScrollBar()->value();
-		address     = previous_instructions(address, 1);
+		address     = previousInstructions(address, 1);
 		verticalScrollBar()->setSliderPosition(address);
 	} break;
 	case QAbstractSlider::SliderPageStepSub: {
 		int address = verticalScrollBar()->value();
-		address     = previous_instructions(address, verticalScrollBar()->pageStep());
+		address     = previousInstructions(address, verticalScrollBar()->pageStep());
 		verticalScrollBar()->setSliderPosition(address);
 	} break;
 	case QAbstractSlider::SliderSingleStepAdd: {
 		int address = verticalScrollBar()->value();
-		address     = following_instructions(address, 1);
+		address     = followingInstructions(address, 1);
 		verticalScrollBar()->setSliderPosition(address);
 	} break;
 	case QAbstractSlider::SliderPageStepAdd: {
 		int address = verticalScrollBar()->value();
-		address     = following_instructions(address, verticalScrollBar()->pageStep());
+		address     = followingInstructions(address, verticalScrollBar()->pageStep());
 		verticalScrollBar()->setSliderPosition(address);
 	} break;
 
@@ -495,7 +495,7 @@ QString QDisassemblyView::formatAddress(edb::address_t address) const {
 //------------------------------------------------------------------------------
 void QDisassemblyView::update() {
 	viewport()->update();
-	Q_EMIT signal_updated();
+	Q_EMIT signalUpdated();
 }
 
 //------------------------------------------------------------------------------
@@ -536,7 +536,7 @@ void QDisassemblyView::setRegion(const std::shared_ptr<IRegion> &r) {
 		updateScrollbars();
 		Q_EMIT regionChanged();
 
-		if (line2_ != 0 && line2_ < auto_line2()) {
+		if (line2_ != 0 && line2_ < autoLine2()) {
 			line2_ = 0;
 		}
 	}
@@ -700,8 +700,8 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 // Desc: A helper function for painting a rectangle representing a background
 // color of one or more lines in the disassembly view.
 //------------------------------------------------------------------------------
-void QDisassemblyView::paint_line_bg(QPainter &painter, QBrush brush, int line, int num_lines) {
-	const auto lh = line_height();
+void QDisassemblyView::paintLineBg(QPainter &painter, QBrush brush, int line, int num_lines) {
+	const auto lh = lineHeight();
 	painter.fillRect(0, lh * line, width(), lh * num_lines, brush);
 }
 
@@ -710,7 +710,7 @@ void QDisassemblyView::paint_line_bg(QPainter &painter, QBrush brush, int line, 
 // Desc: A helper function which sets line to the line on which addr appears,
 // or returns false if that line does not appear to exist.
 //------------------------------------------------------------------------------
-boost::optional<unsigned int> QDisassemblyView::get_line_of_address(edb::address_t addr) const {
+boost::optional<unsigned int> QDisassemblyView::getLineOfAddress(edb::address_t addr) const {
 
 	if (!showAddresses_.isEmpty()) {
 		if (addr >= showAddresses_[0] && addr <= showAddresses_[showAddresses_.size() - 1]) {
@@ -809,7 +809,7 @@ void QDisassemblyView::drawHeaderAndBackground(QPainter &painter, const DrawingC
 		while (line < ctx->lines_to_render && header_end_address > showAddresses_[line]) {
 			line++;
 		}
-		paint_line_bg(painter, QBrush(Qt::lightGray), 0, line);
+		paintLineBg(painter, QBrush(Qt::lightGray), 0, line);
 	}
 
 	line += 1;
@@ -817,14 +817,14 @@ void QDisassemblyView::drawHeaderAndBackground(QPainter &painter, const DrawingC
 		const QBrush alternated_base_color = palette().alternateBase();
 		if (alternated_base_color != palette().base()) {
 			while (line < ctx->lines_to_render) {
-				paint_line_bg(painter, alternated_base_color, line);
+				paintLineBg(painter, alternated_base_color, line);
 				line += 2;
 			}
 		}
 	}
 
 	if (ctx->selected_line < ctx->lines_to_render) {
-		paint_line_bg(painter, palette().color(ctx->group, QPalette::Highlight), ctx->selected_line);
+		paintLineBg(painter, palette().color(ctx->group, QPalette::Highlight), ctx->selected_line);
 	}
 
 	painter.restore();
@@ -854,7 +854,7 @@ void QDisassemblyView::drawRegiserBadges(QPainter &painter, DrawingContext *ctx)
 					// Does addr appear here?
 					edb::address_t addr = reg.valueAsAddress();
 
-					if (boost::optional<unsigned int> line = get_line_of_address(addr)) {
+					if (boost::optional<unsigned int> line = getLineOfAddress(addr)) {
 						if (!badge_labels[*line].isEmpty()) {
 							badge_labels[*line].append(", ");
 						}
@@ -863,7 +863,7 @@ void QDisassemblyView::drawRegiserBadges(QPainter &painter, DrawingContext *ctx)
 
 					// what about [addr]?
 					if (process->readBytes(addr, &addr, edb::v1::pointer_size())) {
-						if (boost::optional<unsigned int> line = get_line_of_address(addr)) {
+						if (boost::optional<unsigned int> line = getLineOfAddress(addr)) {
 							if (!badge_labels[*line].isEmpty()) {
 								badge_labels[*line].append(", ");
 							}
@@ -925,7 +925,7 @@ void QDisassemblyView::drawSymbolNames(QPainter &painter, const DrawingContext *
 	painter.save();
 
 	painter.setPen(palette().color(ctx->group, QPalette::Text));
-	const int x     = ctx->l1 + auto_line2();
+	const int x     = ctx->l1 + autoLine2();
 	const int width = ctx->l2 - x;
 	if (width > 0) {
 		for (int line = 0; line < ctx->lines_to_render; line++) {
@@ -1589,7 +1589,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 	QPainter painter(viewport());
 
-	const int line_height = this->line_height();
+	const int line_height = this->lineHeight();
 	int lines_to_render   = viewport()->height() / line_height;
 
 	// Possibly render another instruction just outside the viewport
@@ -1683,7 +1683,7 @@ void QDisassemblyView::setFont(const QFont &f) {
 void QDisassemblyView::resizeEvent(QResizeEvent *) {
 	updateScrollbars();
 
-	const int line_height     = this->line_height();
+	const int line_height     = this->lineHeight();
 	const int lines_to_render = 1 + (viewport()->height() / line_height);
 
 	instructionBuffer_.resize(edb::Instruction::MaxSize * lines_to_render);
@@ -1697,7 +1697,7 @@ void QDisassemblyView::resizeEvent(QResizeEvent *) {
 // Name: line_height
 // Desc:
 //------------------------------------------------------------------------------
-int QDisassemblyView::line_height() const {
+int QDisassemblyView::lineHeight() const {
 	return std::max({fontHeight_, iconHeight_});
 }
 
@@ -1708,7 +1708,7 @@ int QDisassemblyView::line_height() const {
 void QDisassemblyView::updateScrollbars() {
 	if (region_) {
 		const int total_lines    = region_->size();
-		const int viewable_lines = viewport()->height() / line_height();
+		const int viewable_lines = viewport()->height() / lineHeight();
 		const int scroll_max     = (total_lines > viewable_lines) ? total_lines - 1 : 0;
 
 		verticalScrollBar()->setMaximum(scroll_max);
@@ -1748,8 +1748,8 @@ int QDisassemblyView::line1() const {
 // Name: auto_line2
 // Desc:
 //------------------------------------------------------------------------------
-int QDisassemblyView::auto_line2() const {
-	const int elements = address_length();
+int QDisassemblyView::autoLine2() const {
+	const int elements = addressLength();
 	return (elements * fontWidth_) + (fontWidth_ / 2) + iconWidth_ + 1;
 }
 
@@ -1759,7 +1759,7 @@ int QDisassemblyView::auto_line2() const {
 //------------------------------------------------------------------------------
 int QDisassemblyView::line2() const {
 	if (line2_ == 0) {
-		return line1() + auto_line2();
+		return line1() + autoLine2();
 	} else {
 		return line2_;
 	}
@@ -1793,7 +1793,7 @@ int QDisassemblyView::line4() const {
 // Name: address_length
 // Desc:
 //------------------------------------------------------------------------------
-int QDisassemblyView::address_length() const {
+int QDisassemblyView::addressLength() const {
 	const int address_len = edb::v1::pointer_size() * CHAR_BIT / 4;
 	return address_len + (showAddressSeparator_ ? 1 : 0);
 }
@@ -1806,7 +1806,7 @@ edb::address_t QDisassemblyView::addressFromPoint(const QPoint &pos) const {
 
 	Q_ASSERT(region_);
 
-	const edb::address_t address = address_from_coord(pos.x(), pos.y()) + addressOffset_;
+	const edb::address_t address = addressFromCoord(pos.x(), pos.y()) + addressOffset_;
 	if (address >= region_->end()) {
 		return 0;
 	}
@@ -1817,7 +1817,7 @@ edb::address_t QDisassemblyView::addressFromPoint(const QPoint &pos) const {
 // Name: get_instruction_size
 // Desc:
 //------------------------------------------------------------------------------
-Result<int, QString> QDisassemblyView::get_instruction_size(edb::address_t address, uint8_t *buf, int *size) const {
+Result<int, QString> QDisassemblyView::getInstructionSize(edb::address_t address, uint8_t *buf, int *size) const {
 
 	Q_ASSERT(buf);
 	Q_ASSERT(size);
@@ -1837,7 +1837,7 @@ Result<int, QString> QDisassemblyView::get_instruction_size(edb::address_t addre
 // Name: get_instruction_size
 // Desc:
 //------------------------------------------------------------------------------
-Result<int, QString> QDisassemblyView::get_instruction_size(edb::address_t address) const {
+Result<int, QString> QDisassemblyView::getInstructionSize(edb::address_t address) const {
 
 	Q_ASSERT(region_);
 
@@ -1854,23 +1854,23 @@ Result<int, QString> QDisassemblyView::get_instruction_size(edb::address_t addre
 		}
 	}
 
-	return get_instruction_size(address, buf, &buf_size);
+	return getInstructionSize(address, buf, &buf_size);
 }
 
 //------------------------------------------------------------------------------
 // Name: address_from_coord
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t QDisassemblyView::address_from_coord(int x, int y) const {
+edb::address_t QDisassemblyView::addressFromCoord(int x, int y) const {
 	Q_UNUSED(x)
 
-	const int line         = y / line_height();
+	const int line         = y / lineHeight();
 	edb::address_t address = verticalScrollBar()->value();
 
 	// add up all the instructions sizes up to the line we want
 	for (int i = 0; i < line; ++i) {
 
-		Result<int, QString> size = get_instruction_size(addressOffset_ + address);
+		Result<int, QString> size = getInstructionSize(addressOffset_ + address);
 		if (size) {
 			address += (*size != 0) ? *size : 1;
 		} else {
@@ -2067,7 +2067,7 @@ void QDisassemblyView::setSelectedAddress(edb::address_t address) {
 
 	if (region_) {
 		history_.add(address);
-		const Result<int, QString> size = get_instruction_size(address);
+		const Result<int, QString> size = getInstructionSize(address);
 
 		if (size) {
 			selectedInstructionAddress_ = address;
@@ -2101,7 +2101,7 @@ std::shared_ptr<IRegion> QDisassemblyView::region() const {
 // Name: add_comment
 // Desc: Adds a comment to the comment hash.
 //------------------------------------------------------------------------------
-void QDisassemblyView::add_comment(edb::address_t address, QString comment) {
+void QDisassemblyView::addComment(edb::address_t address, QString comment) {
 	qDebug("Insert Comment");
 	Comment temp_comment = {
 		address,
@@ -2114,7 +2114,7 @@ void QDisassemblyView::add_comment(edb::address_t address, QString comment) {
 // Name: remove_comment
 // Desc: Removes a comment from the comment hash and returns the number of comments removed.
 //------------------------------------------------------------------------------
-int QDisassemblyView::remove_comment(edb::address_t address) {
+int QDisassemblyView::removeComment(edb::address_t address) {
 	SessionManager::instance().removeComment(address);
 	return comments_.remove(address);
 }
@@ -2123,7 +2123,7 @@ int QDisassemblyView::remove_comment(edb::address_t address) {
 // Name: get_comment
 // Desc: Returns a comment assigned for an address or a blank string if there is none.
 //------------------------------------------------------------------------------
-QString QDisassemblyView::get_comment(edb::address_t address) {
+QString QDisassemblyView::getComment(edb::address_t address) {
 	return comments_.value(address, QString(""));
 }
 
@@ -2131,7 +2131,7 @@ QString QDisassemblyView::get_comment(edb::address_t address) {
 // Name: clear_comments
 // Desc: Clears all comments in the comment hash.
 //------------------------------------------------------------------------------
-void QDisassemblyView::clear_comments() {
+void QDisassemblyView::clearComments() {
 	comments_.clear();
 }
 
