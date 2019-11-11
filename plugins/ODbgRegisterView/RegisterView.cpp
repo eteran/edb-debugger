@@ -31,11 +31,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "VolatileNameField.h"
 #include "edb.h"
 
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 #include "DialogEditFPU.h"
 #include "ODbgRV_x86Common.h"
 #include "x86Groups.h"
-#elif defined EDB_ARM32
+#elif defined(EDB_ARM32)
 #include "armGroups.h"
 #endif
 
@@ -63,7 +63,7 @@ namespace {
 // TODO: "Undo" action, which returns to the state after last stopping of debuggee (visible only if register has been modified by the user)
 
 constexpr auto RegisterGroupTypeNames = util::make_array<const char *>(
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	"GPR",
 	"rIP",
 	"ExpandedEFL",
@@ -77,7 +77,7 @@ constexpr auto RegisterGroupTypeNames = util::make_array<const char *>(
 	"SSEData",
 	"AVXData",
 	"MXCSR"
-#elif defined EDB_ARM32
+#elif defined(EDB_ARM32)
 	"GPR",
 	"CPSR",
 	"ExpandedCPSR",
@@ -166,9 +166,9 @@ void ODBRegView::settingsUpdated() {
 
 ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 	: QScrollArea(parent),
-	  dialogEditGpr(new DialogEditGPR(this)),
+      dialogEditGpr_(new DialogEditGPR(this)),
 	  dialogEditSIMDReg_(new DialogEditSIMDRegister(this)),
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	  dialogEditFpu_(new DialogEditFPU(this))
 #else
 	  dialogEditFpu_(nullptr)
@@ -198,7 +198,7 @@ ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 	const auto groupListV = settings.value(SETTINGS_GROUPS_ARRAY_NODE);
 	if (settings.group().isEmpty() || !groupListV.isValid()) {
 		visibleGroupTypes_ = {
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 			RegisterGroupType::GPR,
 			RegisterGroupType::rIP,
 			RegisterGroupType::ExpandedEFL,
@@ -212,7 +212,7 @@ ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 			RegisterGroupType::SSEData,
 			RegisterGroupType::AVXData,
 			RegisterGroupType::MXCSR,
-#elif defined EDB_ARM32
+#elif defined(EDB_ARM32)
 			RegisterGroupType::GPR,
 			RegisterGroupType::CPSR,
 			RegisterGroupType::ExpandedCPSR,
@@ -242,7 +242,7 @@ void ODBRegView::copyRegisterToClipboard() const {
 }
 
 DialogEditGPR *ODBRegView::gprEditDialog() const {
-	return dialogEditGpr;
+    return dialogEditGpr_;
 }
 
 DialogEditSIMDRegister *ODBRegView::simdEditDialog() const {
@@ -370,7 +370,7 @@ RegisterGroup *ODBRegView::makeGroup(RegisterGroupType type) {
 			nameValCommentIndices.emplace_back(model_->index(row, ModelNameColumn, catIndex));
 		break;
 	}
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	case RegisterGroupType::EFL:
 		return create_eflags(model_, widget());
 	case RegisterGroupType::ExpandedEFL:
@@ -409,7 +409,7 @@ RegisterGroup *ODBRegView::makeGroup(RegisterGroupType type) {
 		nameValCommentIndices.emplace_back(find_model_register(catIndex, "EIP"));
 		break;
 	}
-#elif defined EDB_ARM32
+#elif defined(EDB_ARM32)
 	case RegisterGroupType::CPSR:
 		return createCPSR(model_, widget());
 	case RegisterGroupType::ExpandedCPSR:
@@ -475,7 +475,7 @@ void ODBRegView::modelReset() {
 			groups_.push_back(group);
 			if (!group)
 				continue;
-#if defined EDB_X86 || defined EDB_X86_64
+#if defined(EDB_X86) || defined(EDB_X86_64)
 			if (groupType == RegisterGroupType::Segment || groupType == RegisterGroupType::ExpandedEFL) {
 				flagsAndSegments->addWidget(group);
 				if (!flagsAndSegsInserted) {
