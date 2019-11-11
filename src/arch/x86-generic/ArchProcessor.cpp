@@ -139,7 +139,7 @@ using ZMMWord = edb::value512;
 
 template <typename T>
 std::string register_name(const T &val) {
-	return edb::v1::formatter().register_name(val);
+	return edb::v1::formatter().registerName(val);
 }
 
 template <typename T>
@@ -473,7 +473,7 @@ static const QLatin1String jumpConditionMnemonics[] = {
 //------------------------------------------------------------------------------
 void analyze_cmov(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
-	const bool taken = is_jcc_taken(state, inst.condition_code());
+	const bool taken = is_jcc_taken(state, inst.conditionCode());
 
 	if (taken) {
 		ret << ArchProcessor::tr("move performed");
@@ -491,7 +491,7 @@ void analyze_jump(const State &state, const edb::Instruction &inst, QStringList 
 	bool taken = false;
 
 	if (is_conditional_jump(inst)) {
-		taken = is_jcc_taken(state, inst.condition_code());
+		taken = is_jcc_taken(state, inst.conditionCode());
 	}
 
 	if (taken) {
@@ -535,7 +535,7 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 			bool ok;
 			const edb::address_t effective_address = edb::v1::arch_processor().getEffectiveAddress(inst, operand, state, ok);
 			if (!ok) return;
-			const auto temp_operand = QString::fromStdString(edb::v1::formatter().to_string(operand));
+			const auto temp_operand = QString::fromStdString(edb::v1::formatter().toString(operand));
 
 			if (is_immediate(operand)) {
 				int offset;
@@ -644,13 +644,13 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 
 	if (IProcess *process = edb::v1::debugger_core->process()) {
 
-		for (std::size_t j = 0; j < inst.operand_count(); ++j) {
+		for (std::size_t j = 0; j < inst.operandCount(); ++j) {
 
 			const auto operand = inst[j];
 
 			if (operand) {
 
-				QString temp_operand = QString::fromStdString(edb::v1::formatter().to_string(operand));
+				QString temp_operand = QString::fromStdString(edb::v1::formatter().toString(operand));
 
 				if (is_immediate(operand)) {
 #if 0
@@ -660,7 +660,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 					ret << QString("%1 = %2").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
 #endif
 				} else if (is_register(operand)) {
-					Register reg = state[QString::fromStdString(edb::v1::formatter().to_string(operand))];
+					Register reg = state[QString::fromStdString(edb::v1::formatter().toString(operand))];
 					QString valueString;
 					if (!reg)
 						valueString = ArchProcessor::tr("(Error: obtained invalid register value from State)");
@@ -1232,7 +1232,7 @@ Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::In
 
 	if (op) {
 		if (is_register(op)) {
-			ret = state[QString::fromStdString(edb::v1::formatter().to_string(op))].valueAsAddress();
+			ret = state[QString::fromStdString(edb::v1::formatter().toString(op))].valueAsAddress();
 		} else if (is_expression(op)) {
 			const Register baseR  = state[QString::fromStdString(register_name(op->mem.base))];
 			const Register indexR = state[QString::fromStdString(register_name(op->mem.index))];
@@ -1257,7 +1257,7 @@ Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::In
 
 			// This only makes sense for x86_64, but doesn't hurt on x86
 			if (op->mem.base == X86_REG_RIP) {
-				base += inst.byte_size();
+				base += inst.byteSize();
 			}
 
 			ret = base + index * op->mem.scale + op->mem.disp;
@@ -1545,7 +1545,7 @@ bool ArchProcessor::isFilling(const edb::Instruction &inst) const {
 
 		case X86_INS_LEA:
 
-			Q_ASSERT(inst.operand_count() >= 2);
+			Q_ASSERT(inst.operandCount() >= 2);
 
 			if (is_register(inst[0]) && is_expression(inst[1])) {
 
@@ -1571,7 +1571,7 @@ bool ArchProcessor::isFilling(const edb::Instruction &inst) const {
 
 		case X86_INS_MOV:
 
-			Q_ASSERT(inst.operand_count() >= 2);
+			Q_ASSERT(inst.operandCount() >= 2);
 
 			if (is_register(inst[0]) && is_register(inst[1])) {
 				ret = (inst[0]->reg == inst[1]->reg);
@@ -1584,11 +1584,11 @@ bool ArchProcessor::isFilling(const edb::Instruction &inst) const {
 
 		if (!ret) {
 			if (edb::v1::config().zeros_are_filling) {
-				ret = (QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.byte_size()) == QByteArray::fromRawData("\x00\x00", 2));
+				ret = (QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.byteSize()) == QByteArray::fromRawData("\x00\x00", 2));
 			}
 		}
 	} else {
-		ret = (inst.byte_size() == 1 && inst.bytes()[0] == 0x00);
+		ret = (inst.byteSize() == 1 && inst.bytes()[0] == 0x00);
 	}
 
 	return ret;
@@ -1606,5 +1606,5 @@ RegisterViewModelBase::Model &ArchProcessor::registerViewModel() const {
 }
 
 bool ArchProcessor::isExecuted(const edb::Instruction &inst, const State &state) const {
-	return is_jcc_taken(state, inst.condition_code());
+	return is_jcc_taken(state, inst.conditionCode());
 }

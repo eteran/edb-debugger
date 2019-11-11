@@ -91,7 +91,7 @@ bool apriori_not_simd(const Instruction &insn, const Operand &operand) {
  * @return
  */
 bool KxRegisterPresent(const Instruction &insn) {
-	const size_t operandCount = insn.operand_count();
+	const size_t operandCount = insn.operandCount();
 
 	for (std::size_t i = 0; i < operandCount; ++i) {
 		const auto op = insn[i];
@@ -115,7 +115,7 @@ std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, co
 		assert(!apriori_not_simd(insn, operand));
 
 	size_t number             = operand.index();
-	const size_t operandCount = insn.operand_count();
+	const size_t operandCount = insn.operandCount();
 
 	// normalized number is according to Intel order
 	if (activeFormatter.options().syntax == Formatter::SyntaxAtt) {
@@ -292,7 +292,7 @@ Instruction::Instruction(const void *first, const void *last, uint64_t rva) noex
 Operand Instruction::operator[](size_t n) const {
 	if (!valid())
 		return Operand();
-	if (n > operand_count())
+	if (n > operandCount())
 		return Operand();
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
@@ -307,7 +307,7 @@ Operand Instruction::operator[](size_t n) const {
 Operand Instruction::operand(size_t n) const {
 	if (!valid())
 		return Operand();
-	if (n > operand_count())
+	if (n > operandCount())
 		return Operand();
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
@@ -319,7 +319,7 @@ Operand Instruction::operand(size_t n) const {
 #endif
 }
 
-Instruction::ConditionCode Instruction::condition_code() const {
+Instruction::ConditionCode Instruction::conditionCode() const {
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	switch (operation()) {
@@ -421,7 +421,7 @@ QString Formatter::adjustInstructionText(const Instruction &insn) const {
 		operands.replace(ripRel, "rel 0x" + QString::number(insn->detail->x86.disp + insn->address + insn->size, 16));
 	}
 
-	if (insn.operand_count() == 2 && insn->id != X86_INS_MOVZX && insn->id != X86_INS_MOVSX &&
+	if (insn.operandCount() == 2 && insn->id != X86_INS_MOVZX && insn->id != X86_INS_MOVSX &&
 		((insn[0]->type == X86_OP_REG && insn[1]->type == X86_OP_MEM) || (insn[1]->type == X86_OP_REG && insn[0]->type == X86_OP_MEM))) {
 		operands.replace(QRegExp("(\\b.?(mm)?word|byte)\\b( ptr)? "), "");
 	}
@@ -448,7 +448,7 @@ void Formatter::setOptions(const Formatter::FormatOptions &options) {
 	activeFormatter = *this;
 }
 
-std::string Formatter::to_string(const Instruction &insn) const {
+std::string Formatter::toString(const Instruction &insn) const {
 
 	enum {
 		Tab1Size = 8,
@@ -476,7 +476,7 @@ std::string Formatter::to_string(const Instruction &insn) const {
 		const auto pad = pos < Tab1Size ? Tab1Size - pos : pos < Tab2Size ? Tab2Size - pos : 1;
 		space          = std::string(pad, ' ');
 	}
-	if (insn.operand_count() > 0) // prevent addition of trailing whitespace
+	if (insn.operandCount() > 0) // prevent addition of trailing whitespace
 	{
 		s << space << adjustInstructionText(insn).toStdString();
 	} else if (insn->op_str[0] != 0) {
@@ -503,7 +503,7 @@ void Formatter::checkCapitalize(std::string &str, bool canContainHex) const {
 	}
 }
 
-std::string Formatter::to_string(const Operand &operand) const {
+std::string Formatter::toString(const Operand &operand) const {
 	if (!operand)
 		return "(bad)";
 
@@ -511,14 +511,14 @@ std::string Formatter::to_string(const Operand &operand) const {
 
 	const Instruction &insn = *operand.owner();
 
-	const std::size_t totalOperands       = insn.operand_count();
+	const std::size_t totalOperands       = insn.operandCount();
 	const std::size_t numberInInstruction = operand.index();
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	if (operand->type == X86_OP_REG) {
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
 	if (operand->type == ARM_OP_REG) {
 #endif
-		str = register_name(operand->reg);
+		str = registerName(operand->reg);
 	} else if (totalOperands == 1) {
 		str = insn->op_str;
 	} else {
@@ -541,7 +541,7 @@ std::string Formatter::to_string(const Operand &operand) const {
 	return str;
 }
 
-std::string Formatter::register_name(unsigned int reg) const {
+std::string Formatter::registerName(unsigned int reg) const {
 	assert(capstoneInitialized);
 	const char *raw = cs_reg_name(csh, reg);
 	if (!raw)
@@ -898,7 +898,7 @@ bool is_SIMD_PD(const Operand &operand) {
 	case X86_INS_VPERMILPD: // third operand is control (can be [xyz]mm register or imm8)
 		return number != 2;
 	case X86_INS_VPERMPD: // if third operand is not imm8, then second is indices (always in VPERMPS)
-		assert(insn.operand_count() == 3);
+		assert(insn.operandCount() == 3);
 		if (insn[2]->type != X86_OP_IMM)
 			return number != 1;
 		else

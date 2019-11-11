@@ -143,8 +143,8 @@ void DialogAssembler::setAddress(edb::address_t address) {
 	if (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 		edb::Instruction inst(buffer, buffer + size, address);
 		if (inst) {
-			ui.assembly->setEditText(fixupSyntax(edb::v1::formatter().to_string(inst).c_str()).simplified());
-			instructionSize_ = inst.byte_size();
+			ui.assembly->setEditText(fixupSyntax(edb::v1::formatter().toString(inst).c_str()).simplified());
+			instructionSize_ = inst.byteSize();
 		}
 	}
 }

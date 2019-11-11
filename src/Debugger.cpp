@@ -326,7 +326,7 @@ public:
 					return pass_back_to_debugger();
 				}
 
-				address += inst.byte_size();
+				address += inst.byteSize();
 			}
 
 			//If we end up out here, we've got bigger problems. Pass it back to the debugger.
@@ -1341,7 +1341,7 @@ void Debugger::stepOver(F1 run_func, F2 step_func) {
 
 					// add a temporary breakpoint at the instruction just
 					// after the call
-					if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(ip + inst.byte_size())) {
+					if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(ip + inst.byteSize())) {
 						bp->setInternal(true);
 						bp->setOneTime(true);
 						bp->tag = stepover_bp_tag;
@@ -1718,7 +1718,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 					}
 					*/
 				} else {
-					for (std::size_t i = 0; i < inst.operand_count(); ++i) {
+					for (std::size_t i = 0; i < inst.operandCount(); ++i) {
 						if (is_immediate(inst[i])) {
 							menu.addAction(followConstantInDumpAction_);
 							menu.addAction(followConstantInStackAction_);

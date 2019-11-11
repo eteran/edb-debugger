@@ -1443,7 +1443,7 @@ QString disassemble_address(address_t address) {
 	if (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 		edb::Instruction inst(buffer, buffer + size, address);
 		if (inst) {
-			return QString::fromStdString(g_Formatter.to_string(inst));
+			return QString::fromStdString(g_Formatter.toString(inst));
 		}
 	}
 

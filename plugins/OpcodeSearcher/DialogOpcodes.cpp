@@ -57,11 +57,11 @@ void add_result(DialogResults *resultsDialog, const InstructionList &instruction
 		auto it                       = instructions.begin();
 		const edb::Instruction *inst1 = *it++;
 
-		auto instruction_string = QString::fromStdString(edb::v1::formatter().to_string(*inst1));
+		auto instruction_string = QString::fromStdString(edb::v1::formatter().toString(*inst1));
 
 		for (; it != instructions.end(); ++it) {
 			const edb::Instruction *inst = *it;
-			instruction_string.append(QString("; %1").arg(QString::fromStdString(edb::v1::formatter().to_string(*inst))));
+			instruction_string.append(QString("; %1").arg(QString::fromStdString(edb::v1::formatter().toString(*inst))));
 		}
 
 		resultsDialog->addResult({rva, instruction_string});
@@ -134,7 +134,7 @@ void test_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 				if (is_register(op1)) {
 					if (op1->reg == Register) {
 
-						p += inst.byte_size();
+						p += inst.byteSize();
 						edb::Instruction inst2(p, last, 0);
 						if (inst2) {
 							const auto op2 = inst2[0];
@@ -216,7 +216,7 @@ void test_esp_add_0(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 			case X86_INS_POP:
 				if (is_register(op1)) {
 
-					p += inst.byte_size();
+					p += inst.byteSize();
 					edb::Instruction inst2(p, last, 0);
 					if (inst2) {
 						const auto op2 = inst2[0];
@@ -276,7 +276,7 @@ void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 			case X86_INS_POP:
 
 				if (!is_register(op1) || op1->reg != StackRegister) {
-					p += inst.byte_size();
+					p += inst.byteSize();
 					edb::Instruction inst2(p, last, 0);
 					if (inst2) {
 						if (is_ret(inst2)) {
@@ -292,7 +292,7 @@ void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 					if (is_expression(op2)) {
 
 						if (op2->imm == -static_cast<int>(sizeof(edb::reg_t))) {
-							p += inst.byte_size();
+							p += inst.byteSize();
 							edb::Instruction inst2(p, last, 0);
 							if (inst2) {
 								if (is_ret(inst2)) {
@@ -310,7 +310,7 @@ void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 					if (is_expression(op2)) {
 
 						if (op2->imm == sizeof(edb::reg_t)) {
-							p += inst.byte_size();
+							p += inst.byteSize();
 							edb::Instruction inst2(p, last, 0);
 							if (inst2) {
 								if (is_ret(inst2)) {
@@ -361,7 +361,7 @@ void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, ed
 			case X86_INS_POP:
 
 				if (!is_register(op1) || op1->reg != StackRegister) {
-					p += inst.byte_size();
+					p += inst.byteSize();
 					edb::Instruction inst2(p, last, 0);
 					if (inst2) {
 						const auto op2 = inst2[0];
@@ -369,7 +369,7 @@ void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, ed
 						case X86_INS_POP:
 
 							if (!is_register(op2) || op2->reg != StackRegister) {
-								p += inst2.byte_size();
+								p += inst2.byteSize();
 								edb::Instruction inst3(p, last, 0);
 								if (inst3) {
 									if (is_ret(inst3)) {
@@ -391,7 +391,7 @@ void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, ed
 					if (is_expression(op2)) {
 
 						if (op2->imm == -static_cast<int>(sizeof(edb::reg_t) * 2)) {
-							p += inst.byte_size();
+							p += inst.byteSize();
 							edb::Instruction inst2(p, last, 0);
 							if (inst2) {
 								if (is_ret(inst2)) {
@@ -410,7 +410,7 @@ void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, ed
 					if (is_expression(op2)) {
 
 						if (op2->imm == (sizeof(edb::reg_t) * 2)) {
-							p += inst.byte_size();
+							p += inst.byteSize();
 							edb::Instruction inst2(p, last, 0);
 							if (inst2) {
 								if (is_ret(inst2)) {
@@ -465,7 +465,7 @@ void test_esp_sub_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 					if (is_expression(op2)) {
 
 						if (op2->imm == static_cast<int>(sizeof(edb::reg_t))) {
-							p += inst.byte_size();
+							p += inst.byteSize();
 							edb::Instruction inst2(p, last, 0);
 							if (inst2) {
 								if (is_ret(inst2)) {
@@ -484,7 +484,7 @@ void test_esp_sub_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 					if (is_expression(op2)) {
 
 						if (op2->imm == -static_cast<int>(sizeof(edb::reg_t))) {
-							p += inst.byte_size();
+							p += inst.byteSize();
 							edb::Instruction inst2(p, last, 0);
 							if (inst2) {
 								if (is_ret(inst2)) {

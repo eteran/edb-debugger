@@ -118,7 +118,7 @@ void DialogReferences::doFind() {
 							switch (inst.operation()) {
 							case X86_INS_MOV:
 								// instructions of the form: mov [ADDR], 0xNNNNNNNN
-								Q_ASSERT(inst.operand_count() == 2);
+								Q_ASSERT(inst.operandCount() == 2);
 
 								if (is_expression(inst[0])) {
 									if (is_immediate(inst[1]) && static_cast<edb::address_t>(inst[1]->imm) == address) {
@@ -132,7 +132,7 @@ void DialogReferences::doFind() {
 								break;
 							case X86_INS_PUSH:
 								// instructions of the form: push 0xNNNNNNNN
-								Q_ASSERT(inst.operand_count() == 1);
+								Q_ASSERT(inst.operandCount() == 1);
 
 								if (is_immediate(inst[0]) && static_cast<edb::address_t>(inst[0]->imm) == address) {
 									auto item = new QListWidgetItem(edb::v1::format_pointer(addr));

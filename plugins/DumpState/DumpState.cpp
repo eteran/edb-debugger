@@ -154,11 +154,11 @@ void DumpState::dumpCode(const State &state) {
 		if (const int size = edb::v1::get_instruction_bytes(address, buf)) {
 			edb::Instruction inst(buf, buf + size, address);
 			if (inst) {
-				std::cout << ((address == ip) ? "> " : "  ") << hex_string(address) << ": " << edb::v1::formatter().to_string(inst) << "\n";
+				std::cout << ((address == ip) ? "> " : "  ") << hex_string(address) << ": " << edb::v1::formatter().toString(inst) << "\n";
 			} else {
 				break;
 			}
-			address += inst.byte_size();
+			address += inst.byteSize();
 		} else {
 			break;
 		}

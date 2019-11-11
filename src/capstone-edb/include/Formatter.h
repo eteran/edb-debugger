@@ -31,9 +31,9 @@ public:
 	};
 
 public:
-	std::string to_string(const Instruction &) const;
-	std::string to_string(const Operand &) const;
-	std::string register_name(unsigned int) const;
+	std::string toString(const Instruction &insn) const;
+	std::string toString(const Operand &operand) const;
+	std::string registerName(unsigned int reg) const;
 
 	FormatOptions options() const {
 		return options_;

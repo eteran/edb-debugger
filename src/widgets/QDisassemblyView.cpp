@@ -121,7 +121,7 @@ bool near_line(int x, int linex) {
 //------------------------------------------------------------------------------
 int instruction_size(const uint8_t *buffer, std::size_t size) {
 	edb::Instruction inst(buffer, buffer + size, 0);
-	return inst.byte_size();
+	return inst.byteSize();
 }
 
 //------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ int instruction_size(const uint8_t *buffer, std::size_t size) {
 // Desc:
 //------------------------------------------------------------------------------
 QString format_instruction_bytes(const edb::Instruction &inst) {
-	auto bytes = QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.byte_size());
+	auto bytes = QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.byteSize());
 	return edb::v1::format_bytes(bytes);
 }
 
@@ -310,11 +310,11 @@ int QDisassemblyView::previousInstruction(IAnalyzer *analyzer, int current_addre
 
 						// if the NEXT address would be our target, then
 						// we are at the previous instruction!
-						if (function_start + inst.byte_size() >= current_address + addressOffset_) {
+						if (function_start + inst.byteSize() >= current_address + addressOffset_) {
 							break;
 						}
 
-						function_start += inst.byte_size();
+						function_start += inst.byteSize();
 					} else {
 						break;
 					}
@@ -379,7 +379,7 @@ int QDisassemblyView::followingInstruction(int current_address) {
 		return current_address + 1;
 	} else {
 		const edb::Instruction inst(buf, buf + buf_size, current_address);
-		return current_address + inst.byte_size();
+		return current_address + inst.byteSize();
 	}
 }
 
@@ -572,10 +572,10 @@ void QDisassemblyView::scrollTo(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 QString QDisassemblyView::instructionString(const edb::Instruction &inst) const {
-	QString opcode = QString::fromStdString(edb::v1::formatter().to_string(inst));
+	QString opcode = QString::fromStdString(edb::v1::formatter().toString(inst));
 
 	if (is_call(inst) || is_jump(inst)) {
-		if (inst.operand_count() == 1) {
+		if (inst.operandCount() == 1) {
 			const auto oper = inst[0];
 			if (is_immediate(oper)) {
 
@@ -588,7 +588,7 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
 				const bool prefixed             = showLocalModuleNames || !target_is_local(target, inst.rva());
 				QString sym                     = edb::v1::symbol_manager().findAddressName(target, prefixed);
 
-				if (sym.isEmpty() && target == inst.byte_size() + inst.rva()) {
+				if (sym.isEmpty() && target == inst.byteSize() + inst.rva()) {
 					sym = showSymbolicAddresses ? tr("<next instruction>") : tr("next instruction");
 				} else if (sym.isEmpty() && target == inst.rva()) {
 					sym = showSymbolicAddresses ? tr("$") : tr("current instruction");
@@ -760,7 +760,7 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 		showAddresses_.push_back(address);
 
 		if (instructions_[line].valid()) {
-			offset += instructions_[line].byte_size();
+			offset += instructions_[line].byteSize();
 		} else {
 			++offset;
 		}
@@ -1135,7 +1135,7 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 
 				// find the end and draw the other corner
 				for (end_line = start_line; end_line < ctx->lines_to_render; end_line++) {
-					auto adjusted_end_addr = showAddresses_[end_line] + instructions_[end_line].byte_size() - 1;
+					auto adjusted_end_addr = showAddresses_[end_line] + instructions_[end_line].byteSize() - 1;
 					if (adjusted_end_addr == end_addr) {
 						auto y = end_line * ctx->line_height;
 						// half of a vertical
@@ -1195,7 +1195,7 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 		auto &&inst        = instructions_[line];
 		if (annotation.isEmpty() && inst && !is_jump(inst) && !is_call(inst)) {
 			// draw ascii representations of immediate constants
-			size_t op_count = inst.operand_count();
+			size_t op_count = inst.operandCount();
 			for (size_t op_idx = 0; op_idx < op_count; op_idx++) {
 				auto oper                    = inst[op_idx];
 				edb::address_t ascii_address = 0;
@@ -1206,7 +1206,7 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 					oper->mem.index == X86_REG_INVALID &&
 					oper->mem.disp != 0) {
 					if (oper->mem.base == X86_REG_RIP) {
-						ascii_address += address + inst.byte_size() + oper->mem.disp;
+						ascii_address += address + inst.byteSize() + oper->mem.disp;
 					} else if (oper->mem.base == X86_REG_INVALID && oper->mem.disp > 0) {
 						ascii_address = oper->mem.disp;
 					}
