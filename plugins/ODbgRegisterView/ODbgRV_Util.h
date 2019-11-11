@@ -81,12 +81,6 @@ inline QAction *new_action_separator(QObject *parent) {
 	return sep;
 }
 
-inline QAction *new_action(const QString &text, QObject *parent, QObject *signalReceiver, const char *slot) {
-	const auto action = new QAction(text, parent);
-	QObject::connect(action, SIGNAL(triggered()), signalReceiver, slot);
-	return action;
-}
-
 template <class Func>
 inline QAction *new_action(const QString &text, QObject *parent, Func func) {
 	const auto action = new QAction(text, parent);

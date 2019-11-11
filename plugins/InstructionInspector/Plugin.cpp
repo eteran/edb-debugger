@@ -1302,7 +1302,9 @@ public:
 Plugin::Plugin(QObject *parent)
 	: QObject(parent), menuAction_(new QAction("Inspect instruction (Capstone info)", this)) {
 
-	connect(menuAction_, SIGNAL(triggered(bool)), this, SLOT(showDialog()));
+	connect(menuAction_, &QAction::triggered, this, [this](bool) {
+		showDialog();
+	});
 }
 
 /**
@@ -1365,7 +1367,9 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 		buttonCompare_ = new QPushButton("Compare disassemblers");
 		layout_->addWidget(buttonCompare_);
 
-		connect(buttonCompare_, SIGNAL(clicked(bool)), this, SLOT(compareDisassemblers()));
+		connect(buttonCompare_, &QPushButton::clicked, this, [this](bool) {
+			compareDisassemblers();
+		});
 
 		tree_->setUniformRowHeights(true);
 		tree_->setColumnCount(2);

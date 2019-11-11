@@ -176,7 +176,10 @@ QMenu *Plugin::menu(QWidget *parent) {
 		menu_ = new QMenu(tr("OllyDbg-like Register View"), parent);
 		{
 			const auto newRegisterView = new QAction(tr("New Register View"), menu_);
-			connect(newRegisterView, SIGNAL(triggered()), this, SLOT(createRegisterView()));
+			connect(newRegisterView, &QAction::triggered, this, [this](bool) {
+				createRegisterView();
+			});
+
 			menu_->addAction(newRegisterView);
 		}
 		// FIXME: setChecked calls currently don't really work, since at this stage mainWindow hasn't yet restored its state

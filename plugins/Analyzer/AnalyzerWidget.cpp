@@ -57,7 +57,9 @@ AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f)
 
 	if (auto scroll_area = qobject_cast<QAbstractScrollArea *>(edb::v1::disassembly_widget())) {
 		if (QScrollBar *scrollbar = scroll_area->verticalScrollBar()) {
-			connect(scrollbar, SIGNAL(valueChanged(int)), this, SLOT(update()));
+			connect(scrollbar, &QScrollBar::valueChanged, this, [this](int) {
+				update();
+			});
 		}
 	}
 }

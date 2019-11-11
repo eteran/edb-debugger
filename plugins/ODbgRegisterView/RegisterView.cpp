@@ -188,7 +188,9 @@ ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 		const auto sep = new QAction(this);
 		sep->setSeparator(true);
 		menuItems_.push_back(sep);
-		menuItems_.push_back(new_action(tr("Copy all registers"), this, this, SLOT(copyAllRegisters())));
+		menuItems_.push_back(new_action(tr("Copy all registers"), this, [this](bool) {
+			copyAllRegisters();
+		}));
 	}
 
 	QSettings settings;
@@ -334,11 +336,17 @@ RegisterGroup *createSIMDGroup(RegisterViewModelBase::Model *model, QWidget *par
 				return nullptr; // don't want empty groups
 			break;
 		}
+
 		group->insert(row, 0, new FieldWidget(name, group));
 		new SIMDValueManager(row, nameIndex, group);
 	}
 	// This signal must be handled by group _after_ all `SIMDValueManager`s handle their connection to this signal
-	QObject::connect(model, SIGNAL(SIMDDisplayFormatChanged()), group, SLOT(adjustWidth()), Qt::QueuedConnection);
+	QObject::connect(
+		model, &RegisterViewModelBase::Model::SIMDDisplayFormatChanged, group, [group]() {
+			group->adjustWidth();
+		},
+		Qt::QueuedConnection);
+
 	return group;
 }
 

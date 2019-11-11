@@ -38,18 +38,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-template <std::size_t numEntries>
-void DialogEditSIMDRegister::setupEntries(const QString &label, std::array<NumberEdit *, numEntries> &entries, int row, const char *slot, int naturalWidthInChars) {
+template <std::size_t NumEntries, class Func>
+void DialogEditSIMDRegister::setupEntries(const QString &label, std::array<NumberEdit *, NumEntries> &entries, int row, Func slot, int naturalWidthInChars) {
 
 	auto contentsGrid = qobject_cast<QGridLayout *>(layout());
 
 	contentsGrid->addWidget(new QLabel(label, this), row, ENTRIES_FIRST_COL - 1);
-	for (std::size_t entryIndex = 0; entryIndex < numEntries; ++entryIndex) {
+	for (std::size_t entryIndex = 0; entryIndex < NumEntries; ++entryIndex) {
 		auto &entry             = entries[entryIndex];
-		const int bytesPerEntry = NumBytes / numEntries;
-		entry                   = new NumberEdit(ENTRIES_FIRST_COL + bytesPerEntry * (numEntries - 1 - entryIndex), bytesPerEntry, this);
+		const int bytesPerEntry = NumBytes / NumEntries;
+		entry                   = new NumberEdit(ENTRIES_FIRST_COL + bytesPerEntry * (NumEntries - 1 - entryIndex), bytesPerEntry, this);
 		entry->setNaturalWidthInChars(naturalWidthInChars);
-		connect(entry, SIGNAL(textEdited(const QString &)), this, slot);
+		connect(entry, &NumberEdit::textEdited, this, slot);
 		entry->installEventFilter(this);
 	}
 }
@@ -82,12 +82,38 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget *parent, Qt::WindowFlags 
 		allContentsGrid->addWidget(columnLabels_[byteIndex], BYTE_INDICES_ROW, ENTRIES_FIRST_COL + NumBytes - 1 - byteIndex);
 	}
 
-	setupEntries(tr("Byte"), bytes_, BYTES_ROW, SLOT(onByteEdited()), 4);
-	setupEntries(tr("Word"), words_, WORDS_ROW, SLOT(onWordEdited()), 6);
-	setupEntries(tr("Doubleword"), dwords_, DWORDS_ROW, SLOT(onDwordEdited()), 11);
-	setupEntries(tr("Quadword"), qwords_, QWORDS_ROW, SLOT(onQwordEdited()), 21);
-	setupEntries(tr("float32"), floats32_, FLOATS32_ROW, SLOT(onFloat32Edited()), 14);
-	setupEntries(tr("float64"), floats64_, FLOATS64_ROW, SLOT(onFloat64Edited()), 24);
+	setupEntries(
+		tr("Byte"), bytes_, BYTES_ROW, [this]() {
+			onByteEdited();
+		},
+		4);
+
+	setupEntries(
+		tr("Word"), words_, WORDS_ROW, [this]() {
+			onWordEdited();
+		},
+		6);
+
+	setupEntries(
+		tr("Doubleword"), dwords_, DWORDS_ROW, [this]() {
+			onDwordEdited();
+		},
+		11);
+	setupEntries(
+		tr("Quadword"), qwords_, QWORDS_ROW, [this]() {
+			onQwordEdited();
+		},
+		21);
+	setupEntries(
+		tr("float32"), floats32_, FLOATS32_ROW, [this]() {
+			onFloat32Edited();
+		},
+		14);
+	setupEntries(
+		tr("float64"), floats64_, FLOATS64_ROW, [this]() {
+			onFloat64Edited();
+		},
+		24);
 
 	for (const auto &entry : floats32_) {
 		entry->setValidator(float32Validator_);

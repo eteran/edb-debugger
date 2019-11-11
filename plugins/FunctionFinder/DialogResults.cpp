@@ -100,7 +100,7 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 
 								if (is_unconditional_jump(inst)) {
 
-									Q_ASSERT(inst.operand_count() >= 1);
+									Q_ASSERT(inst.operandCount() >= 1);
 									const auto op = inst[0];
 
 									// TODO: we need some heuristic for detecting when this is
@@ -116,7 +116,7 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 									}
 								} else if (is_conditional_jump(inst)) {
 
-									Q_ASSERT(inst.operand_count() == 1);
+									Q_ASSERT(inst.operandCount() == 1);
 									const auto op = inst[0];
 
 									if (is_immediate(op)) {
@@ -128,7 +128,7 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 											new GraphEdge(from.value(), to_taken.value(), Qt::green);
 										}
 
-										auto to_skipped = nodes.find(inst.rva() + inst.byte_size());
+										auto to_skipped = nodes.find(inst.rva() + inst.byteSize());
 										if (to_taken != nodes.end() && from != nodes.end()) {
 											new GraphEdge(from.value(), to_skipped.value(), Qt::red);
 										}

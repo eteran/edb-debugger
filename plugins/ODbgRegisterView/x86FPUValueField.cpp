@@ -42,10 +42,14 @@ FPUValueField::FPUValueField(int fieldWidth, const QModelIndex &regValueIndex, c
 	Q_ASSERT(group);
 	Q_ASSERT(commentWidget);
 	showAsRawActionIndex = menuItems_.size();
-	menuItems_.push_back(new_action(tr("View FPU as raw values"), this, this, SLOT(showFPUAsRaw())));
+	menuItems_.push_back(new_action(tr("View FPU as raw values"), this, [this](bool) {
+		showFPUAsRaw();
+	}));
 
 	showAsFloatActionIndex = menuItems_.size();
-	menuItems_.push_back(new_action(tr("View FPU as floats"), this, this, SLOT(showFPUAsFloat())));
+	menuItems_.push_back(new_action(tr("View FPU as floats"), this, [this](bool) {
+		showFPUAsFloat();
+	}));
 
 	group->insert(row, column, this);
 	group->insert(commentWidget);

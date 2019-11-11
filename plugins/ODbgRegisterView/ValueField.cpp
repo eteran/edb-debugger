@@ -65,36 +65,67 @@ ValueField::ValueField(int fieldWidth, const QModelIndex &index, const std::func
 	using namespace RegisterViewModelBase;
 
 	if (index.data(Model::IsNormalRegisterRole).toBool() || index.data(Model::IsSIMDElementRole).toBool()) {
-		menuItems_.push_back(new_action(trUtf8("&Modify…"), this, this, SLOT(defaultAction())));
+		menuItems_.push_back(new_action(trUtf8("&Modify…"), this, [this](bool) {
+			defaultAction();
+		}));
+
 		menuItems_.back()->setShortcut(QKeySequence(Qt::Key_Enter));
 	} else if (index.data(Model::IsBitFieldRole).toBool() && index.data(Model::BitFieldLengthRole).toInt() == 1) {
-		menuItems_.push_back(new_action(tr("&Toggle"), this, this, SLOT(defaultAction())));
+		menuItems_.push_back(new_action(tr("&Toggle"), this, [this](bool) {
+			defaultAction();
+		}));
+
 		menuItems_.back()->setShortcut(QKeySequence(Qt::Key_Enter));
 	}
 
-	menuItems_.push_back(new_action(tr("&Copy to clipboard"), this, this, SLOT(copyToClipboard())));
+	menuItems_.push_back(new_action(tr("&Copy to clipboard"), this, [this](bool) {
+		copyToClipboard();
+	}));
+
 	menuItems_.back()->setShortcut(CopyFieldShortcut);
 
 #if defined EDB_X86 || defined EDB_X86_64
 	if (index.sibling(index.row(), ModelNameColumn).data().toString() == FsrName) {
-		menuItems_.push_back(new_action(tr("P&ush FPU stack"), this, this, SLOT(pushFPUStack())));
-		menuItems_.push_back(new_action(tr("P&op FPU stack"), this, this, SLOT(popFPUStack())));
+		menuItems_.push_back(new_action(tr("P&ush FPU stack"), this, [this](bool) {
+			pushFPUStack();
+		}));
+
+		menuItems_.push_back(new_action(tr("P&op FPU stack"), this, [this](bool) {
+			popFPUStack();
+		}));
 	}
 #endif
 
 	if (index.parent().data().toString() == GprCategoryName) {
 		// These should be above others, so prepending instead of appending
-		menuItems_.push_front(new_action(tr("In&vert"), this, this, SLOT(invert())));
+		menuItems_.push_front(new_action(tr("In&vert"), this, [this](bool) {
+			invert();
+		}));
 
-		menuItems_.push_front(setToOneAction_ = new_action(tr("Set to &1"), this, this, SLOT(setToOne())));
+		setToOneAction_ = new_action(tr("Set to &1"), this, [this](bool) {
+			setToOne();
+		});
 
-		menuItems_.push_front(setToZeroAction_ = new_action(tr("&Zero"), this, this, SLOT(setZero())));
+		menuItems_.push_front(setToOneAction_);
+
+		setToZeroAction_ = new_action(tr("&Zero"), this, [this](bool) {
+			setZero();
+		});
+
+		menuItems_.push_front(setToZeroAction_);
+
 		menuItems_.front()->setShortcut(QKeySequence(SetToZeroKey));
 
-		menuItems_.push_front(new_action(tr("&Decrement"), this, this, SLOT(decrement())));
+		menuItems_.push_front(new_action(tr("&Decrement"), this, [this](bool) {
+			decrement();
+		}));
+
 		menuItems_.front()->setShortcut(QKeySequence(DecrementKey));
 
-		menuItems_.push_front(new_action(tr("&Increment"), this, this, SLOT(increment())));
+		menuItems_.push_front(new_action(tr("&Increment"), this, [this](bool) {
+			increment();
+		}));
+
 		menuItems_.front()->setShortcut(QKeySequence(IncrementKey));
 	}
 }

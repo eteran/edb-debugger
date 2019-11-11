@@ -77,8 +77,8 @@ protected:
 	bool eventFilter(QObject *, QEvent *) override;
 
 private:
-	template <std::size_t numEntries>
-	void setupEntries(const QString &label, std::array<NumberEdit *, numEntries> &entries, int row, const char *slot, int naturalWidthInChars);
+	template <std::size_t NumEntries, class Func>
+	void setupEntries(const QString &label, std::array<NumberEdit *, NumEntries> &entries, int row, Func slot, int naturalWidthInChars);
 
 	std::uint64_t readInteger(const NumberEdit *edit) const;
 

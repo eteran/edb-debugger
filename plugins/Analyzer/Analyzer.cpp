@@ -468,7 +468,7 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 								const edb::address_t ea = op->imm;
 
 								// skip over ones which are: "call <label>; label:"
-								if (ea != address + inst->byte_size()) {
+								if (ea != address + inst->byteSize()) {
 									known_functions.push(ea);
 
 									if (!will_return(ea)) {
@@ -490,7 +490,7 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 
 						} else if (is_unconditional_jump(*inst)) {
 
-							Q_ASSERT(inst->operand_count() >= 1);
+							Q_ASSERT(inst->operandCount() >= 1);
 							const edb::Operand op = inst->operand(0);
 
 							// TODO(eteran): we need some heuristic for detecting when this is
@@ -511,7 +511,7 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 							break;
 						} else if (is_conditional_jump(*inst)) {
 
-							Q_ASSERT(inst->operand_count() == 1);
+							Q_ASSERT(inst->operandCount() == 1);
 							const edb::Operand op = inst->operand(0);
 
 							if (is_immediate(op)) {
@@ -519,7 +519,7 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 								const edb::address_t ea = op->imm;
 
 								blocks.push(ea);
-								blocks.push(address + inst->byte_size());
+								blocks.push(address + inst->byteSize());
 
 								block.addReference(address, ea);
 							}
@@ -528,7 +528,7 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 							break;
 						}
 
-						address += inst->byte_size();
+						address += inst->byteSize();
 					}
 
 					if (!block.empty()) {
@@ -584,7 +584,7 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 						const edb::address_t ea = op->imm;
 
 						// skip over ones which are: "call <label>; label:"
-						if (ea != addr + inst.byte_size()) {
+						if (ea != addr + inst.byteSize()) {
 
 							if (!data->knownFunctions.contains(ea)) {
 								fuzzy_functions[ea]++;

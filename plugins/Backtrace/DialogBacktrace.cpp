@@ -139,7 +139,7 @@ DialogBacktrace::DialogBacktrace(QWidget *parent, Qt::WindowFlags f)
 void DialogBacktrace::showEvent(QShowEvent *) {
 
 	// Sync with the Debugger UI.
-	connect(edb::v1::debugger_ui, SIGNAL(gui_updated()), this, SLOT(populateTable()));
+	connect(edb::v1::debugger_ui, SIGNAL(uiUpdated()), this, SLOT(populateTable()));
 
 	// Populate the tabel with our call stack info.
 	populateTable();
@@ -228,7 +228,7 @@ void DialogBacktrace::populateTable() {
  *
  */
 void DialogBacktrace::hideEvent(QHideEvent *) {
-	disconnect(edb::v1::debugger_ui, SIGNAL(gui_updated()), this, SLOT(populateTable()));
+	disconnect(edb::v1::debugger_ui, SIGNAL(uiUpdated()), this, SLOT(populateTable()));
 }
 
 /**

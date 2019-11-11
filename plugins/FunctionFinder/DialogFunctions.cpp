@@ -84,7 +84,7 @@ void DialogFunctions::doFind() {
 
 		auto analyzer_object = dynamic_cast<QObject *>(analyzer);
 		if (analyzer_object) {
-			connect(analyzer_object, SIGNAL(update_progress(int)), ui.progressBar, SLOT(setValue(int)));
+			connect(analyzer_object, SIGNAL(updateProgress(int)), ui.progressBar, SLOT(setValue(int)));
 		}
 
 		auto resultsDialog = new DialogResults(this);
@@ -113,7 +113,7 @@ void DialogFunctions::doFind() {
 		}
 
 		if (analyzer_object) {
-			disconnect(analyzer_object, SIGNAL(update_progress(int)), ui.progressBar, SLOT(setValue(int)));
+			disconnect(analyzer_object, SIGNAL(updateProgress(int)), ui.progressBar, SLOT(setValue(int)));
 		}
 	}
 }

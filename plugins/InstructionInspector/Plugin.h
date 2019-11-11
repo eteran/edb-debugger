@@ -69,7 +69,7 @@ public:
 	QMenu *menu(QWidget *parent = nullptr) override;
 	QList<QAction *> cpuContextMenu() override;
 
-private Q_SLOTS:
+private:
 	void showDialog() const;
 
 private:
