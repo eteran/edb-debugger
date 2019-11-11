@@ -76,9 +76,9 @@ QVariant ResultsModel::data(const QModelIndex &index, int role) const {
 	if (role == Qt::DisplayRole) {
 		switch (index.column()) {
 		case 0:
-			return edb::v1::format_pointer(result.start_address);
+			return edb::v1::format_pointer(result.startAddress);
 		case 1:
-			return edb::v1::format_pointer(result.end_address);
+			return edb::v1::format_pointer(result.endAddress);
 		case 2:
 			return static_cast<quint64>(result.size);
 		case 3:
@@ -171,10 +171,10 @@ void ResultsModel::sort(int column, Qt::SortOrder order) {
 	if (order == Qt::AscendingOrder) {
 		switch (column) {
 		case 0:
-			std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.start_address < s2.start_address; });
+			std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.startAddress < s2.startAddress; });
 			break;
 		case 1:
-			std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.end_address < s2.end_address; });
+			std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.endAddress < s2.endAddress; });
 			break;
 		case 2:
 			std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.size < s2.size; });
@@ -192,10 +192,10 @@ void ResultsModel::sort(int column, Qt::SortOrder order) {
 	} else {
 		switch (column) {
 		case 0:
-			std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.start_address > s2.start_address; });
+			std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.startAddress > s2.startAddress; });
 			break;
 		case 1:
-			std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.end_address > s2.end_address; });
+			std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.endAddress > s2.endAddress; });
 			break;
 		case 2:
 			std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.size > s2.size; });

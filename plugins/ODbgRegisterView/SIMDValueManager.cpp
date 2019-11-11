@@ -17,18 +17,18 @@ SIMDValueManager::SIMDValueManager(int lineInGroup, const QModelIndex &nameIndex
 
 void SIMDValueManager::fillGroupMenu() {
 	const auto group = this->group();
-	group->menuItems.push_back(new_action_separator(this));
-	group->menuItems.push_back(menuItems_[VIEW_AS_BYTES]);
-	group->menuItems.push_back(menuItems_[VIEW_AS_WORDS]);
-	group->menuItems.push_back(menuItems_[VIEW_AS_DWORDS]);
-	group->menuItems.push_back(menuItems_[VIEW_AS_QWORDS]);
-	group->menuItems.push_back(new_action_separator(this));
-	group->menuItems.push_back(menuItems_[VIEW_AS_FLOAT32]);
-	group->menuItems.push_back(menuItems_[VIEW_AS_FLOAT64]);
-	group->menuItems.push_back(new_action_separator(this));
-	group->menuItems.push_back(menuItems_[VIEW_INT_AS_HEX]);
-	group->menuItems.push_back(menuItems_[VIEW_INT_AS_SIGNED]);
-	group->menuItems.push_back(menuItems_[VIEW_INT_AS_UNSIGNED]);
+	group->menuItems_.push_back(new_action_separator(this));
+	group->menuItems_.push_back(menuItems_[VIEW_AS_BYTES]);
+	group->menuItems_.push_back(menuItems_[VIEW_AS_WORDS]);
+	group->menuItems_.push_back(menuItems_[VIEW_AS_DWORDS]);
+	group->menuItems_.push_back(menuItems_[VIEW_AS_QWORDS]);
+	group->menuItems_.push_back(new_action_separator(this));
+	group->menuItems_.push_back(menuItems_[VIEW_AS_FLOAT32]);
+	group->menuItems_.push_back(menuItems_[VIEW_AS_FLOAT64]);
+	group->menuItems_.push_back(new_action_separator(this));
+	group->menuItems_.push_back(menuItems_[VIEW_INT_AS_HEX]);
+	group->menuItems_.push_back(menuItems_[VIEW_INT_AS_SIGNED]);
+	group->menuItems_.push_back(menuItems_[VIEW_INT_AS_UNSIGNED]);
 }
 
 auto SIMDValueManager::model() const -> Model * {
@@ -69,28 +69,28 @@ void SIMDValueManager::setupMenu() {
 	// Setup menu if we're the first value field creator
 	if (group->valueFields().isEmpty()) {
 
-		menuItems_.push_back(new_action(tr("View %1 as bytes").arg(group->name), group, [this]() {
+		menuItems_.push_back(new_action(tr("View %1 as bytes").arg(group->name_), group, [this]() {
 			showAsInt(Model::ElementSize::BYTE);
 		}));
 
-		menuItems_.push_back(new_action(tr("View %1 as words").arg(group->name), group, [this]() {
+		menuItems_.push_back(new_action(tr("View %1 as words").arg(group->name_), group, [this]() {
 			showAsInt(Model::ElementSize::WORD);
 		}));
 
-		menuItems_.push_back(new_action(tr("View %1 as doublewords").arg(group->name), group, [this]() {
+		menuItems_.push_back(new_action(tr("View %1 as doublewords").arg(group->name_), group, [this]() {
 			showAsInt(Model::ElementSize::DWORD);
 		}));
 
-		menuItems_.push_back(new_action(tr("View %1 as quadwords").arg(group->name), group, [this]() {
+		menuItems_.push_back(new_action(tr("View %1 as quadwords").arg(group->name_), group, [this]() {
 			showAsInt(Model::ElementSize::QWORD);
 		}));
 
 		if (util::contains(validFormats, NumberDisplayMode::Float)) {
-			menuItems_.push_back(new_action(tr("View %1 as 32-bit floats").arg(group->name), group, [this]() {
+			menuItems_.push_back(new_action(tr("View %1 as 32-bit floats").arg(group->name_), group, [this]() {
 				showAsFloat(Model::ElementSize::DWORD);
 			}));
 
-			menuItems_.push_back(new_action(tr("View %1 as 64-bit floats").arg(group->name), group, [this]() {
+			menuItems_.push_back(new_action(tr("View %1 as 64-bit floats").arg(group->name_), group, [this]() {
 				showAsFloat(Model::ElementSize::QWORD);
 			}));
 		} else {
@@ -99,15 +99,15 @@ void SIMDValueManager::setupMenu() {
 			menuItems_.push_back(new_action_separator(this));
 		}
 
-		menuItems_.push_back(new_action(tr("View %1 integers as hex").arg(group->name), group, [this]() {
+		menuItems_.push_back(new_action(tr("View %1 integers as hex").arg(group->name_), group, [this]() {
 			setIntFormat(NumberDisplayMode::Hex);
 		}));
 
-		menuItems_.push_back(new_action(tr("View %1 integers as signed").arg(group->name), group, [this]() {
+		menuItems_.push_back(new_action(tr("View %1 integers as signed").arg(group->name_), group, [this]() {
 			setIntFormat(NumberDisplayMode::Signed);
 		}));
 
-		menuItems_.push_back(new_action(tr("View %1 integers as unsigned").arg(group->name), group, [this]() {
+		menuItems_.push_back(new_action(tr("View %1 integers as unsigned").arg(group->name_), group, [this]() {
 			setIntFormat(NumberDisplayMode::Unsigned);
 		}));
 

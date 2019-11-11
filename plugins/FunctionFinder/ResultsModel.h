@@ -27,11 +27,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace FunctionFinderPlugin {
 
 struct Result {
-	edb::address_t start_address = 0;
-	edb::address_t end_address   = 0;
-	size_t size                  = 0;
-	int score                    = 0;
-	Function::Type type          = Function::Type::Standard;
+	edb::address_t startAddress = 0;
+	edb::address_t endAddress   = 0;
+	size_t size                 = 0;
+	int score                   = 0;
+	Function::Type type         = Function::Type::Standard;
 	QString symbol;
 };
 

@@ -24,7 +24,7 @@ struct Symbol {
 
 	uint8_t sizeOfData;
 	ValueTypes typeOfValue;
-	uint32_t extendedSIB;
+	uint32_t extendedSib;
 	uint16_t numberOfPassDefined;
 	uint16_t numberOfPassUsed;
 

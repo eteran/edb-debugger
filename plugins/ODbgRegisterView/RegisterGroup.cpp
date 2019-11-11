@@ -9,12 +9,12 @@
 namespace ODbgRegisterView {
 
 RegisterGroup::RegisterGroup(const QString &name, QWidget *parent, Qt::WindowFlags f)
-	: QWidget(parent, f), name(name) {
+	: QWidget(parent, f), name_(name) {
 
 	setObjectName("RegisterGroup_" + name);
 	{
-		menuItems.push_back(new_action_separator(this));
-		menuItems.push_back(new_action(tr("Hide %1", "register group").arg(name), this, [this]() {
+		menuItems_.push_back(new_action_separator(this));
+		menuItems_.push_back(new_action(tr("Hide %1", "register group").arg(name), this, [this]() {
 			hide();
 			regView()->groupHidden(this);
 		}));
@@ -35,12 +35,12 @@ void RegisterGroup::adjustWidth() {
 }
 
 void RegisterGroup::showMenu(const QPoint &position, const QList<QAction *> &additionalItems) const {
-	return regView()->showMenu(position, additionalItems + menuItems);
+	return regView()->showMenu(position, additionalItems + menuItems_);
 }
 
 void RegisterGroup::mousePressEvent(QMouseEvent *event) {
 	if (event->button() == Qt::RightButton)
-		showMenu(event->globalPos(), menuItems);
+		showMenu(event->globalPos(), menuItems_);
 	else
 		event->ignore();
 }

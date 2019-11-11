@@ -68,7 +68,7 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 			const QModelIndex index = filterModel_->mapToSource(sel[0]);
 
 			if (auto item = static_cast<Result *>(index.internalPointer())) {
-				const edb::address_t addr = item->start_address;
+				const edb::address_t addr = item->startAddress;
 
 				if (IAnalyzer *const analyzer = edb::v1::analyzer()) {
 					const IAnalyzer::FunctionMap &functions = analyzer->functions();
@@ -165,7 +165,7 @@ void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
 	if (index.isValid()) {
 		const QModelIndex realIndex = filterModel_->mapToSource(index);
 		if (auto item = static_cast<Result *>(realIndex.internalPointer())) {
-			edb::v1::jump_to_address(item->start_address);
+			edb::v1::jump_to_address(item->startAddress);
 		}
 	}
 }
@@ -179,11 +179,11 @@ void DialogResults::addResult(const Function &function) {
 	Result result;
 
 	// entry point
-	result.start_address = function.entryAddress();
+	result.startAddress = function.entryAddress();
 
 	// upper bound of the function
-	result.end_address = function.endAddress();
-	result.size        = function.endAddress() - function.entryAddress() + 1;
+	result.endAddress = function.endAddress();
+	result.size       = function.endAddress() - function.entryAddress() + 1;
 
 	// reference count
 	result.score = function.referenceCount();

@@ -15,15 +15,8 @@ class RegisterGroup : public QWidget {
 	Q_OBJECT
 	friend SIMDValueManager;
 
-private:
-	QList<QAction *> menuItems;
-	QString name;
-
-	int lineAfterLastField() const;
-	ODBRegView *regView() const;
-
 public:
-	explicit RegisterGroup(const QString &name, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit RegisterGroup(const QString &name_, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	QList<FieldWidget *> fields() const;
 	QList<ValueField *> valueFields() const;
 	void setIndices(const QList<QModelIndex> &indices);
@@ -35,11 +28,19 @@ public:
 	void showMenu(const QPoint &position, const QList<QAction *> &additionalItems = {}) const;
 	QMargins getFieldMargins() const;
 
+public Q_SLOTS:
+	void adjustWidth();
+
 protected:
 	void mousePressEvent(QMouseEvent *event) override;
 
-public Q_SLOTS:
-	void adjustWidth();
+private:
+	int lineAfterLastField() const;
+	ODBRegView *regView() const;
+
+private:
+	QList<QAction *> menuItems_;
+	QString name_;
 };
 
 }

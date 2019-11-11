@@ -61,19 +61,19 @@ template <class MallocChunkPtr>
 struct malloc_chunk {
 	using ULong = MallocChunkPtr; // ulong has the same size
 
-	ULong prev_size; /* Size of previous chunk (if free).  */
-	ULong size;      /* Size in bytes, including overhead. */
+	ULong prevSize; /* Size of previous chunk (if free).  */
+	ULong size;     /* Size in bytes, including overhead. */
 
 	MallocChunkPtr fd; /* double links -- used only if free. */
 	MallocChunkPtr bk;
 
-	edb::address_t chunk_size() const { return edb::address_t::fromZeroExtended(size & ~(SizeBits)); }
-	bool prev_inuse() const { return size & PreviousInUse; }
+	edb::address_t chunkSize() const { return edb::address_t::fromZeroExtended(size & ~(SizeBits)); }
+	bool prevInUse() const { return size & PreviousInUse; }
 };
 
 template <class Addr>
 edb::address_t next_chunk(edb::address_t p, const malloc_chunk<Addr> &c) {
-	return p + c.chunk_size();
+	return p + c.chunkSize();
 }
 
 /**
@@ -375,7 +375,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 
 				// is this the last chunk (if so, it's the 'top')
 				if (nextChunkAddress == end_address) {
-					model_->addResult({currentChunkAddress, currentChunk.chunk_size(), Result::Top, Result::Unknown, {}, {}});
+					model_->addResult({currentChunkAddress, currentChunk.chunkSize(), Result::Top, Result::Unknown, {}, {}});
 				} else {
 
 					// make sure we aren't following a broken heap...
@@ -399,7 +399,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 							block_start(currentChunkAddress),
 							asciiData,
 							min_string_length,
-							currentChunk.chunk_size(),
+							currentChunk.chunkSize(),
 							asciisz)) {
 
 						data      = asciiData;
@@ -408,7 +408,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 								   block_start(currentChunkAddress),
 								   utf16Data,
 								   min_string_length,
-								   currentChunk.chunk_size(),
+								   currentChunk.chunkSize(),
 								   utf16sz)) {
 						data      = utf16Data;
 						data_type = Result::Utf16;
@@ -435,13 +435,13 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 					// TODO(eteran): should this be unsigned int? Or should it be sizeof(value32)/sizeof(value64)?
 					const Result r{
 						currentChunkAddress,
-						currentChunk.chunk_size() + sizeof(unsigned int),
-						nextChunk.prev_inuse() ? Result::Busy : Result::Free,
+						currentChunk.chunkSize() + sizeof(unsigned int),
+						nextChunk.prevInUse() ? Result::Busy : Result::Free,
 						data_type,
 						data,
 						{}};
 
-					if (nextChunk.prev_inuse()) {
+					if (nextChunk.prevInUse()) {
 						++busyBlocks;
 					} else {
 						++freeBlocks;

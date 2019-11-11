@@ -51,11 +51,11 @@ private:
 		int l2;
 		int l3;
 		int l4;
-		int lines_to_render;
-		int selected_line;
-		int line_height;
+		int linesToRender;
+		int selectedLines;
+		int lineHeight;
 		QPalette::ColorGroup group;
-		std::map<int, int> line_badge_width; // for jmp drawing
+		std::map<int, int> lineBadgeWidth; // for jmp drawing
 	};
 
 public:
@@ -189,19 +189,19 @@ private:
 		edb::address_t target;
 
 		// if target is visible in viewport
-		bool dst_in_viewport;
+		bool destInViewport;
 
 		// only valid is dst_in_viewport is true
-		bool dst_in_middle_of_instruction;
+		bool destInMiddleOfInstruction;
 
 		// if dst_in_viewport is false, then this param is ignored
-		int dst_line;
+		int destLine;
 
 		// if dst_in_viewport is false, then the value here should be near INT_MAX
 		size_t distance;
 
 		// length of arrow horizontal
-		int horizontal_length;
+		int horizontalLength;
 	};
 };
 
