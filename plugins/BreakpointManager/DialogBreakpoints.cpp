@@ -113,7 +113,7 @@ void DialogBreakpoints::on_btnAdd_clicked() {
 	if (ok && !text.isEmpty()) {
 		Expression<edb::address_t> expr(text, edb::v1::get_variable, edb::v1::get_value);
 
-		const Result<edb::address_t, ExpressionError> address = expr.evaluate_expression();
+		const Result<edb::address_t, ExpressionError> address = expr.evaluate();
 		if (address) {
 			edb::v1::create_breakpoint(*address);
 			updateList();

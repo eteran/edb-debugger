@@ -80,7 +80,7 @@ void ExpressionDialog::on_text_changed(const QString &text) {
 	} else {
 		Expression<edb::address_t> expr(text, edb::v1::get_variable, edb::v1::get_value);
 
-		Result<edb::address_t, ExpressionError> address = expr.evaluate_expression();
+		Result<edb::address_t, ExpressionError> address = expr.evaluate();
 		if (address) {
 			labelError_->clear();
 			retval       = true;

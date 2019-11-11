@@ -469,7 +469,7 @@ bool eval_expression(const QString &expression, address_t *value) {
 
 	Expression<address_t> expr(expression, get_variable, get_value);
 
-	const Result<edb::address_t, ExpressionError> address = expr.evaluate_expression();
+	const Result<edb::address_t, ExpressionError> address = expr.evaluate();
 	if (address) {
 		*value = *address;
 		return true;
@@ -763,7 +763,7 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 				return sym->address;
 			}
 
-			*err = ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
+			*err = ExpressionError(ExpressionError::UnknownVariable);
 			return 0;
 		}
 
@@ -777,14 +777,14 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 		}
 
 		if (reg.bitSize() > 8 * sizeof(edb::address_t)) {
-			*err = ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
+			*err = ExpressionError(ExpressionError::UnknownVariable);
 			return 0;
 		}
 
 		return reg.valueAsAddress();
 	}
 
-	*err = ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
+	*err = ExpressionError(ExpressionError::UnknownVariable);
 	return 0;
 }
 
@@ -805,7 +805,7 @@ address_t get_value(address_t address, bool *ok, ExpressionError *err) {
 		*ok = process->readBytes(address, &ret, pointer_size());
 
 		if (!*ok) {
-			*err = ExpressionError(ExpressionError::CANNOT_READ_MEMORY);
+			*err = ExpressionError(ExpressionError::CannotReadMemory);
 		}
 	}
 
@@ -1527,7 +1527,7 @@ boost::optional<edb::address_t> eval_expression(const QString &expression) {
 
 	Expression<address_t> expr(expression, v1::get_variable, v1::get_value);
 
-	const Result<edb::address_t, ExpressionError> address = expr.evaluate_expression();
+	const Result<edb::address_t, ExpressionError> address = expr.evaluate();
 	if (address) {
 		return *address;
 	} else {

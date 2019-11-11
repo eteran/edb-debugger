@@ -25,48 +25,48 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 struct ExpressionError {
 public:
-	enum ERROR_MSG {
-		NONE,
-		SYNTAX,
-		UNBALANCED_PARENS,
-		UNBALANCED_BRACES,
-		DIVIDE_BY_ZERO,
-		INVALID_NUMBER,
-		UNKNOWN_VARIABLE,
-		CANNOT_READ_MEMORY,
-		UNEXPECTED_OPERATOR,
-		UNEXPECTED_NUMBER,
-		VARIABLE_LARGER_THAN_ADDRESS
+	enum ErrorMessage {
+		None,
+		Syntax,
+		UnbalancedParens,
+		UnbalancedBraces,
+		DivideByZero,
+		InvalidNumber,
+		UnknownVariable,
+		CannotReadMemory,
+		UnexpectedOperator,
+		UnexpectedNumber,
+		VariableLargerThanAddress
 	};
 
 public:
 	ExpressionError() = default;
 
-	explicit ExpressionError(ERROR_MSG type)
+	explicit ExpressionError(ErrorMessage type)
 		: error_(type) {
 	}
 
 	const char *what() const noexcept {
 		switch (error_) {
-		case SYNTAX:
+		case Syntax:
 			return "Syntax Error";
-		case UNBALANCED_PARENS:
+		case UnbalancedParens:
 			return "Unbalanced Parenthesis";
-		case DIVIDE_BY_ZERO:
+		case DivideByZero:
 			return "Divide By Zero";
-		case INVALID_NUMBER:
+		case InvalidNumber:
 			return "Invalid Numerical Constant";
-		case UNKNOWN_VARIABLE:
+		case UnknownVariable:
 			return "Unknown Variable";
-		case UNBALANCED_BRACES:
+		case UnbalancedBraces:
 			return "Unbalanced Braces";
-		case CANNOT_READ_MEMORY:
+		case CannotReadMemory:
 			return "Cannot Read Memory At the Effective Address";
-		case UNEXPECTED_OPERATOR:
+		case UnexpectedOperator:
 			return "Unexpected Operator";
-		case UNEXPECTED_NUMBER:
+		case UnexpectedNumber:
 			return "Unexpected Numerical Constant";
-		case VARIABLE_LARGER_THAN_ADDRESS:
+		case VariableLargerThanAddress:
 			return "Variable Does Not Fit Into An Address. Is it an FPU Register?";
 		default:
 			return "Unknown Error";
@@ -74,7 +74,7 @@ public:
 	}
 
 private:
-	ERROR_MSG error_ = NONE;
+	ErrorMessage error_ = None;
 };
 
 template <class T>
@@ -139,36 +139,36 @@ private:
 	};
 
 private:
-	T eval_internal() {
+	T evalInternal() {
 		T result;
 
-		get_token();
-		eval_exp(result);
+		getToken();
+		evalExp(result);
 
 		return result;
 	}
 
 public:
-	Result<T, ExpressionError> evaluate_expression() noexcept {
+	Result<T, ExpressionError> evaluate() noexcept {
 		try {
-			return eval_internal();
+			return evalInternal();
 		} catch (const ExpressionError &e) {
 			return make_unexpected(e);
 		}
 	}
 
 private:
-	void eval_exp(T &result);
-	void eval_exp0(T &result);
-	void eval_exp1(T &result);
-	void eval_exp2(T &result);
-	void eval_exp3(T &result);
-	void eval_exp4(T &result);
-	void eval_exp5(T &result);
-	void eval_exp6(T &result);
-	void eval_exp7(T &result);
-	void eval_atom(T &result);
-	void get_token();
+	void evalExp(T &result);
+	void evalExp0(T &result);
+	void evalExp1(T &result);
+	void evalExp2(T &result);
+	void evalExp3(T &result);
+	void evalExp4(T &result);
+	void evalExp5(T &result);
+	void evalExp6(T &result);
+	void evalExp7(T &result);
+	void evalAtom(T &result);
+	void getToken();
 
 private:
 	QString expression_;

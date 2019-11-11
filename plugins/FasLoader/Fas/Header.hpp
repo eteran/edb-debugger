@@ -7,8 +7,8 @@ namespace Fas {
 #pragma pack(push, 1)
 struct Header {
 	uint32_t signature;
-	uint8_t  major;
-	uint8_t  minor;
+	uint8_t major;
+	uint8_t minor;
 	uint16_t lengthOfHeader;
 	uint32_t offsetOfInputFileName;  // base = strings table
 	uint32_t offsetOfOutputFileName; // base = strings table

@@ -6,9 +6,9 @@
 namespace Fas {
 
 struct PluginSymbol {
-	uint64_t    value;
+	uint64_t value;
 	std::string name;
-	uint8_t     size;
+	uint8_t size;
 };
 
 }

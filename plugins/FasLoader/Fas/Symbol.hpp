@@ -22,11 +22,11 @@ struct Symbol {
 
 	uint16_t flags;
 
-	uint8_t    sizeOfData;
+	uint8_t sizeOfData;
 	ValueTypes typeOfValue;
-	uint32_t   extendedSIB;
-	uint16_t   numberOfPassDefined;
-	uint16_t   numberOfPassUsed;
+	uint32_t extendedSIB;
+	uint16_t numberOfPassDefined;
+	uint16_t numberOfPassUsed;
 
 	uint32_t section : 31;
 	uint32_t sectionSign : 1;
