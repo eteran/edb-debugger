@@ -1096,7 +1096,7 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 	IAnalyzer *const analyzer = edb::v1::analyzer();
 	const int x               = ctx->l3 + fontWidth_;
 	if (analyzer && ctx->l4 - x > fontWidth_ / 2) {
-		painter.setPen(QPen(palette().shadow().color(), 2));
+		painter.setPen(QPen(palette().color(ctx->group, QPalette::WindowText), 2));
 		int next_line = 0;
 
 		if (ctx->linesToRender != 0 && !showAddresses_.isEmpty()) {
@@ -1342,7 +1342,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			if (is_overlap_with_badge) {
 				badge_line = each_badge.first;
 				break;
-			};
+			}
 		}
 
 		if (badge_line != -1) {
@@ -1531,15 +1531,14 @@ void QDisassemblyView::drawDisassembly(QPainter &painter, const DrawingContext *
 
 	painter.save();
 
+	painter.setPen(palette().color(ctx->group, QPalette::Text));
 	for (int line = 0; line < ctx->linesToRender; line++) {
-
-		// we set the pen here to sensible defaults for the case where it doesn't get overridden by
-		// syntax highlighting
 		if (ctx->selectedLines == line) {
+			QPen prevPen = painter.pen();
 			painter.setPen(palette().color(ctx->group, QPalette::HighlightedText));
 			drawInstruction(painter, instructions_[line], ctx, line * ctx->lineHeight, true);
+			painter.setPen(prevPen);
 		} else {
-			painter.setPen(palette().color(ctx->group, QPalette::Text));
 			drawInstruction(painter, instructions_[line], ctx, line * ctx->lineHeight, false);
 		}
 	}
@@ -1555,7 +1554,7 @@ void QDisassemblyView::drawDividers(QPainter &painter, const DrawingContext *ctx
 
 	painter.save();
 
-	const QPen divider_pen = palette().shadow().color();
+	const QPen divider_pen = palette().color(ctx->group, QPalette::WindowText);
 	painter.setPen(divider_pen);
 
 	if (edb::v1::config().show_jump_arrow || edb::v1::config().show_register_badges) {
