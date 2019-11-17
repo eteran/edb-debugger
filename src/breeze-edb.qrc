@@ -1,0 +1,35 @@
+<RCC>
+	<qresource prefix="/icons/breeze-edb">
+		<file alias="index.theme">icons/breeze-edb/index.theme</file>
+		<file alias="16x16/tab-new.png">icons/breeze-edb/16x16/tab-new.png</file>
+		<file alias="16x16/tab-close.png">icons/breeze-edb/16x16/tab-close.png</file>
+		<file alias="16x16/application-exit.svg">icons/breeze-edb/16x16/application-exit.svg</file>
+		<file alias="16x16/code-context.svg">icons/breeze-edb/16x16/code-context.svg</file>
+		<file alias="16x16/configure.svg">icons/breeze-edb/16x16/configure.svg</file>
+		<file alias="16x16/dialog-close.svg">icons/breeze-edb/16x16/dialog-close.svg</file>
+		<file alias="16x16/document-export.svg">icons/breeze-edb/16x16/document-export.svg</file>
+		<file alias="16x16/document-import.svg">icons/breeze-edb/16x16/document-import.svg</file>
+		<file alias="16x16/document-open-recent.svg">icons/breeze-edb/16x16/document-open-recent.svg</file>
+		<file alias="16x16/document-open.svg">icons/breeze-edb/16x16/document-open.svg</file>
+		<file alias="16x16/edit-clear-list.svg">icons/breeze-edb/16x16/edit-clear-list.svg</file>
+		<file alias="16x16/edit-find.svg">icons/breeze-edb/16x16/edit-find.svg</file>
+		<file alias="16x16/edit-undo.svg">icons/breeze-edb/16x16/edit-undo.svg</file>
+		<file alias="16x16/help-about.svg">icons/breeze-edb/16x16/help-about.svg</file>
+		<file alias="16x16/help-contents.svg">icons/breeze-edb/16x16/help-contents.svg</file>
+		<file alias="16x16/list-add.svg">icons/breeze-edb/16x16/list-add.svg</file>
+		<file alias="16x16/list-remove.svg">icons/breeze-edb/16x16/list-remove.svg</file>
+		<file alias="16x16/view-refresh.svg">icons/breeze-edb/16x16/view-refresh.svg</file>
+		<file alias="16x16/view-restore.svg">icons/breeze-edb/16x16/view-restore.svg</file>
+		<file alias="24x24/distribute-graph.svg">icons/breeze-edb/24x24/distribute-graph.svg</file>
+		<file alias="64x64/debug-close.png">icons/breeze-edb/64x64/debug-close.png</file>
+		<file alias="64x64/debug-kill.png">icons/breeze-edb/64x64/debug-kill.png</file>
+		<file alias="64x64/debug-pause.png">icons/breeze-edb/64x64/debug-pause.png</file>
+		<file alias="64x64/debug-restart.png">icons/breeze-edb/64x64/debug-restart.png</file>
+		<file alias="64x64/debug-run.png">icons/breeze-edb/64x64/debug-run.png</file>
+		<file alias="64x64/debug-step-into.png">icons/breeze-edb/64x64/debug-step-into.png</file>
+		<file alias="64x64/debug-step-out.png">icons/breeze-edb/64x64/debug-step-out.png</file>
+		<file alias="64x64/debug-step-over.png">icons/breeze-edb/64x64/debug-step-over.png</file>
+		<file alias="64x64/memory-slot.png">icons/breeze-edb/64x64/memory-slot.png</file>
+		<file alias="64x64/plugin.png">icons/breeze-edb/64x64/plugin.png</file>
+	</qresource>
+</RCC>

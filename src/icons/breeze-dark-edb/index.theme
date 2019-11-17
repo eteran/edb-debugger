@@ -1,0 +1,11 @@
+[Icon Theme]
+Name=Breeze Dark edb
+Comment=Breeze Dark Icon Theme for edb
+Inherits=breeze-edb
+Directories=16x16,32x32
+ 
+[16x16]
+Size=16
+
+[32x32]
+Size=32

@@ -1166,10 +1166,11 @@ void Debugger::applyDefaultFonts() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: setup_tab_buttons
-// Desc: creates the add/remove tab buttons in the data view
-//------------------------------------------------------------------------------
+/**
+ * creates the add/remove tab buttons in the data view
+ *
+ * @brief Debugger::setupTabButtons
+ */
 void Debugger::setupTabButtons() {
 	// add the corner widgets to the data view
 	tabCreate_ = new QToolButton(ui.tabWidget);
@@ -1177,8 +1178,8 @@ void Debugger::setupTabButtons() {
 
 	tabCreate_->setToolButtonStyle(Qt::ToolButtonIconOnly);
 	tabDelete_->setToolButtonStyle(Qt::ToolButtonIconOnly);
-	tabCreate_->setIcon(QIcon(":/debugger/images/edb16-addtab.png"));
-	tabDelete_->setIcon(QIcon(":/debugger/images/edb16-deltab.png"));
+	tabCreate_->setIcon(QIcon::fromTheme("tab-new"));
+	tabDelete_->setIcon(QIcon::fromTheme("tab-close"));
 	tabCreate_->setAutoRaise(true);
 	tabDelete_->setAutoRaise(true);
 	tabCreate_->setEnabled(false);
@@ -1191,10 +1192,10 @@ void Debugger::setupTabButtons() {
 	connect(tabDelete_, &QToolButton::clicked, this, &Debugger::mnuDumpDeleteTab);
 }
 
-//------------------------------------------------------------------------------
-// Name: active_register
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Debugger::activeRegister
+ * @return
+ */
 Register Debugger::activeRegister() const {
 	const auto &model = edb::v1::arch_processor().registerViewModel();
 	const auto index  = model.activeIndex();

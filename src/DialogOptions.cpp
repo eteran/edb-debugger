@@ -84,7 +84,7 @@ void DialogOptions::addOptionsPage(QWidget *page) {
 		layout->addWidget(toolbox_, 0, 0, 1, 1);
 	}
 
-	toolbox_->addItem(page, QIcon(":/debugger/images/places/64/icons8-plugin.png"), page->windowTitle());
+	toolbox_->addItem(page, QIcon::fromTheme("plugin"), page->windowTitle());
 }
 
 //------------------------------------------------------------------------------

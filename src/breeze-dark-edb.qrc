@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icons/breeze-dark-edb">
+        <file alias="index.theme">icons/breeze-dark-edb/index.theme</file>
+    </qresource>
+</RCC>

@@ -245,5 +245,12 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	// Light/Dark icons on all platforms
+	if (qApp->palette().window().color().lightnessF() >= 0.5) {
+		QIcon::setThemeName(QLatin1String("breeze-edb"));
+	} else {
+		QIcon::setThemeName(QLatin1String("breeze-dark-edb"));
+	}
+
 	return start_debugger(attach_pid, run_app, run_args);
 }

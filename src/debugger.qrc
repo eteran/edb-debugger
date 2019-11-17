@@ -1,32 +1,11 @@
 <RCC>
     <qresource prefix="/debugger">
-        <file>images/edb16-action-add.png</file>
-        <file>images/edb16-action-arrow-up.png</file>
-        <file>images/edb16-action-arrow-down.png</file>
-        <file>images/edb16-action-remove.png</file>
-        <file>images/edb14-arrow.png</file>
-        <file>images/edb14-breakpoint.png</file>
-        <file>images/edb16-addtab.png</file>
-        <file>images/edb16-deltab.png</file>
-        <file>images/edb22-action-break.png</file>
         <file>images/edb100-logo.png</file>
         <file>images/edb48-logo.png</file>
-        <file>images/edb16-edit-clean.png</file>
         <file>xml/functions.xml</file>
         <file>xml/syscalls.xml</file>
-        <file>images/arrow-up.svg</file>
         <file>images/arrow-right.svg</file>
         <file>images/arrow-right-red.svg</file>
         <file>images/breakpoint.svg</file>
-        <file>images/actions/64/icons8-step-into.png</file>
-        <file>images/actions/64/icons8-step-out.png</file>
-        <file>images/actions/64/icons8-step-over.png</file>
-        <file>images/actions/64/icons8-pause-button.png</file>
-        <file>images/actions/64/icons8-circled-play.png</file>
-        <file>images/actions/64/icons8-restart.png</file>
-        <file>images/places/64/icons8-memory-slot.png</file>
-        <file>images/actions/64/icons8-thriller.png</file>
-        <file>images/actions/64/icons8-close-program.png</file>
-        <file>images/places/64/icons8-plugin.png</file>
     </qresource>
 </RCC>

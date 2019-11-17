@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>30</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_help">
@@ -198,8 +198,7 @@
   </action>
   <action name="action_Memory_Regions">
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/places/64/icons8-memory-slot.png</normaloff>:/debugger/images/places/64/icons8-memory-slot.png</iconset>
+    <iconset theme="memory-slot"/>
    </property>
    <property name="text">
     <string>&amp;Memory Regions</string>
@@ -221,8 +220,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/actions/64/icons8-circled-play.png</normaloff>:/debugger/images/actions/64/icons8-circled-play.png</iconset>
+    <iconset theme="debug-run"/>
    </property>
    <property name="text">
     <string>&amp;Run</string>
@@ -236,8 +234,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/actions/64/icons8-pause-button.png</normaloff>:/debugger/images/actions/64/icons8-pause-button.png</iconset>
+    <iconset theme="debug-pause"/>
    </property>
    <property name="text">
     <string>&amp;Pause</string>
@@ -251,8 +248,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/actions/64/icons8-restart.png</normaloff>:/debugger/images/actions/64/icons8-restart.png</iconset>
+    <iconset theme="debug-restart"/>
    </property>
    <property name="text">
     <string>R&amp;estart</string>
@@ -280,8 +276,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/actions/64/icons8-step-into.png</normaloff>:/debugger/images/actions/64/icons8-step-into.png</iconset>
+    <iconset theme="debug-step-into"/>
    </property>
    <property name="text">
     <string>&amp;Step Into</string>
@@ -295,8 +290,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/actions/64/icons8-step-over.png</normaloff>:/debugger/images/actions/64/icons8-step-over.png</iconset>
+    <iconset theme="debug-step-over"/>
    </property>
    <property name="text">
     <string>Step &amp;Over</string>
@@ -340,7 +334,7 @@
   </action>
   <action name="actionAbout_QT">
    <property name="text">
-    <string>About &amp;QT</string>
+    <string>About &amp;Qt</string>
    </property>
    <property name="toolTip">
     <string>About Qt</string>
@@ -372,8 +366,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/actions/64/icons8-step-into.png</normaloff>:/debugger/images/actions/64/icons8-step-into.png</iconset>
+    <iconset theme="debug-step-into"/>
    </property>
    <property name="text">
     <string>Step &amp;Into (Pass Signal To Application)</string>
@@ -387,8 +380,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/actions/64/icons8-step-over.png</normaloff>:/debugger/images/actions/64/icons8-step-over.png</iconset>
+    <iconset theme="debug-step-over"/>
    </property>
    <property name="text">
     <string>Step O&amp;ver (Pass Signal To Application)</string>
@@ -402,8 +394,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/actions/64/icons8-circled-play.png</normaloff>:/debugger/images/actions/64/icons8-circled-play.png</iconset>
+    <iconset theme="debug-run"/>
    </property>
    <property name="text">
     <string>Ru&amp;n (Pass Signal To Application)</string>
@@ -431,8 +422,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/actions/64/icons8-close-program.png</normaloff>:/debugger/images/actions/64/icons8-close-program.png</iconset>
+    <iconset theme="debug-close"/>
    </property>
    <property name="text">
     <string>&amp;Kill</string>
@@ -440,8 +430,7 @@
   </action>
   <action name="action_Plugins">
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/places/64/icons8-plugin.png</normaloff>:/debugger/images/places/64/icons8-plugin.png</iconset>
+    <iconset theme="plugin"/>
    </property>
    <property name="text">
     <string>&amp;Plugins</string>
@@ -460,8 +449,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/actions/64/icons8-step-out.png</normaloff>:/debugger/images/actions/64/icons8-step-out.png</iconset>
+    <iconset theme="debug-step-out"/>
    </property>
    <property name="text">
     <string>Step &amp;Out</string>
@@ -484,9 +472,7 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="debugger.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>actionE_xit</sender>

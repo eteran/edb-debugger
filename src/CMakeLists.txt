@@ -92,7 +92,8 @@ set(edb_SRCS
 	debugger.qrc
 	edb.cpp
 	main.cpp
-
+	breeze-edb.qrc
+	breeze-dark-edb.qrc
 	capstone-edb/Inspection.cpp
 	capstone-edb/Instruction.cpp
 	capstone-edb/include/Formatter.h
