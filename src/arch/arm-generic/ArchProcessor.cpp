@@ -424,5 +424,5 @@ void ArchProcessor::justAttached() {
 }
 
 bool ArchProcessor::isExecuted(const edb::Instruction &inst, const State &state) const {
-	return is_jcc_taken(state.flags(), inst.condition_code());
+	return is_jcc_taken(state.flags(), inst.conditionCode());
 }
