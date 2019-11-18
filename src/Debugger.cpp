@@ -382,7 +382,16 @@ Debugger::Debugger(QWidget *parent)
 	setAddressLabelAction_       = createAction(tr("Set &Label..."), QKeySequence(tr(":")), &Debugger::mnuCPULabelAddress);
 	followConstantInDumpAction_  = createAction(tr("Follow Constant In &Dump"), QKeySequence(), &Debugger::mnuCPUFollowInDump);
 	followConstantInStackAction_ = createAction(tr("Follow Constant In &Stack"), QKeySequence(), &Debugger::mnuCPUFollowInStack);
-	followAction_                = createAction(tr("&Follow"), QKeySequence(tr("Return")), &Debugger::mnuCPUFollow);
+
+	followAction_ = createAction(tr("&Follow"), QKeySequence(tr("Return")), [this]() {
+		QWidget *const widget = QApplication::focusWidget();
+		if (qobject_cast<QDisassemblyView *>(widget)) {
+			mnuCPUFollow();
+		} else {
+			QKeyEvent *event = new QKeyEvent(QEvent::KeyPress, Qt::Key_Enter, Qt::NoModifier);
+			QCoreApplication::postEvent(widget, event);
+		}
+	});
 
 	// these get updated when we attach/run a new process, so it's OK to hard code them here
 #if defined(EDB_X86_64)
