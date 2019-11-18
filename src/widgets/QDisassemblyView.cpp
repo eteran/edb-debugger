@@ -1039,20 +1039,6 @@ void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingCont
 	const auto metrics    = painter.fontMetrics();
 
 	auto painter_lambda = [&](const edb::Instruction &inst, int line) {
-		// for relative jumps draw the jump direction indicators
-		if (is_jump(inst) && is_immediate(inst[0])) {
-			const edb::address_t target = inst[0]->imm;
-
-			if (target != inst.rva()) {
-				painter.drawText(
-					ctx->l3,
-					line * ctx->lineHeight,
-					ctx->l4 - ctx->l3,
-					ctx->lineHeight,
-					Qt::AlignVCenter,
-					QString((target > inst.rva()) ? QChar(0x2304) : QChar(0x2303)));
-			}
-		}
 		const QString byte_buffer = format_instruction_bytes(
 			inst,
 			bytes_width,
@@ -1138,6 +1124,7 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 					auto adjusted_end_addr = showAddresses_[end_line] + instructions_[end_line].byteSize() - 1;
 					if (adjusted_end_addr == end_addr) {
 						auto y = end_line * ctx->lineHeight;
+
 						// half of a vertical
 						painter.drawLine(
 							x,
@@ -1151,6 +1138,7 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 							y + ctx->lineHeight / 2,
 							ctx->l3 + (fontWidth_ / 2) + fontWidth_,
 							y + ctx->lineHeight / 2);
+
 						next_line = end_line;
 						break;
 					}
@@ -1162,7 +1150,9 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 				}
 
 				// draw the straight line between them
-				painter.drawLine(x, start_line * ctx->lineHeight, x, end_line * ctx->lineHeight);
+				if (start_line != end_line) {
+					painter.drawLine(x, start_line * ctx->lineHeight, x, end_line * ctx->lineHeight);
+				}
 				return true;
 			});
 		}
