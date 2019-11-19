@@ -1,6 +1,6 @@
 
-#ifndef REGISTER_GROUP_H_
-#define REGISTER_GROUP_H_
+#ifndef REGISTER_GROUP_H_20191119_
+#define REGISTER_GROUP_H_20191119_
 
 #include <QWidget>
 

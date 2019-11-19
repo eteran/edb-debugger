@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PLATFORM_THREAD_20151013_H_
-#define PLATFORM_THREAD_20151013_H_
+#ifndef PLATFORM_THREAD_H_20151013_
+#define PLATFORM_THREAD_H_20151013_
 
 #include "IBreakpoint.h"
 #include "IThread.h"

@@ -1,6 +1,6 @@
 
-#ifndef BITFIELD_DESCRIPTION_H_
-#define BITFIELD_DESCRIPTION_H_
+#ifndef BITFIELD_DESCRIPTION_H_20191119_
+#define BITFIELD_DESCRIPTION_H_20191119_
 
 #include <functional>
 #include <vector>

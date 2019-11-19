@@ -1,6 +1,6 @@
 
-#ifndef FORMATTER_H_
-#define FORMATTER_H_
+#ifndef FORMATTER_H_20191119_
+#define FORMATTER_H_20191119_
 
 #include "API.h"
 #include <string>

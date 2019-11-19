@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BACKTRACE_H
-#define BACKTRACE_H
+#ifndef BACKTRACE_H_20191119_
+#define BACKTRACE_H_20191119_
 
 #include "IPlugin.h"
 

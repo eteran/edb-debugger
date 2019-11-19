@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ARCHTYPES_20071127_H_
-#define ARCHTYPES_20071127_H_
+#ifndef ARCH_TYPES_H_20071127_
+#define ARCH_TYPES_H_20071127_
 
 #include "Instruction.h"
 #include "Types.h"

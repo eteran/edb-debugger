@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_ABOUT_20150802_H_
-#define DIALOG_ABOUT_20150802_H_
+#ifndef DIALOG_ABOUT_H_20150802_
+#define DIALOG_ABOUT_H_20150802_
 
 #include "ui_DialogAbout.h"
 #include <QDialog>

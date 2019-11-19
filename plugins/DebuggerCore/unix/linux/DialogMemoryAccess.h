@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_MEMORY_ACCESS_20160930_H_
-#define DIALOG_MEMORY_ACCESS_20160930_H_
+#ifndef DIALOG_MEMORY_ACCESS_H_20160930_
+#define DIALOG_MEMORY_ACCESS_H_20160930_
 
 #include "ui_DialogMemoryAccess.h"
 #include <QDialog>

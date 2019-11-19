@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef VALUE_FIELD_H_20170818
-#define VALUE_FIELD_H_20170818
+#ifndef VALUE_FIELD_H_20170818_
+#define VALUE_FIELD_H_20170818_
 
 #include "FieldWidget.h"
 #include "RegisterViewModelBase.h"

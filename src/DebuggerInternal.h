@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DEBUGGER_INTERNAL_20100301_H_
-#define DEBUGGER_INTERNAL_20100301_H_
+#ifndef DEBUGGER_INTERNAL_H_20100301_
+#define DEBUGGER_INTERNAL_H_20100301_
 
 class QString;
 class QObject;

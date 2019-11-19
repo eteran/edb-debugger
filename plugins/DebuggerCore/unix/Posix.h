@@ -1,6 +1,6 @@
 
-#ifndef POSIX_20181211_H_
-#define POSIX_20181211_H_
+#ifndef POSIX_H_20181211_
+#define POSIX_H_20181211_
 
 #include "OSTypes.h"
 #include <chrono>

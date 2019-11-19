@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPCODES_RESULTS_MODEL_H_
-#define OPCODES_RESULTS_MODEL_H_
+#ifndef OPCODES_RESULTS_MODEL_H_20191119_
+#define OPCODES_RESULTS_MODEL_H_20191119_
 
 #include "Function.h"
 #include "Types.h"

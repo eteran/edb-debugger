@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef VOLATILE_NAME_FIELD_H_20151031
-#define VOLATILE_NAME_FIELD_H_20151031
+#ifndef VOLATILE_NAME_FIELD_H_20151031_
+#define VOLATILE_NAME_FIELD_H_20151031_
 
 #include "FieldWidget.h"
 #include <QString>

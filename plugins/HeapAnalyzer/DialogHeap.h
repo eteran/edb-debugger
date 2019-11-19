@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOGHEAP_20061101_H_
-#define DIALOGHEAP_20061101_H_
+#ifndef DIALOG_HEAP_H_20061101_
+#define DIALOG_HEAP_H_20061101_
 
 #include "Types.h"
 #include "ui_DialogHeap.h"

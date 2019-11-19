@@ -15,8 +15,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef ROPTOOL_20100817_H_
-#define ROPTOOL_20100817_H_
+#ifndef PROCESS_PROPERTIES_H_20100817_
+#define PROCESS_PROPERTIES_H_20100817_
 
 #include "IPlugin.h"
 

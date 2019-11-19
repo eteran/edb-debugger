@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef UTIL_20061126_H_
-#define UTIL_20061126_H_
+#ifndef UTIL_H_20061126_
+#define UTIL_H_20061126_
 
 #include "FloatX.h"
 #include <QString>

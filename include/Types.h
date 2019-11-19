@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TYPES_20071127_H_
-#define TYPES_20071127_H_
+#ifndef TYPES_H_20071127_
+#define TYPES_H_20071127_
 
 #include "Value.h"
 #include <QString>

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef HEAPANALYZER_20060430_H_
-#define HEAPANALYZER_20060430_H_
+#ifndef HEAP_ANALYZER_H_20060430_
+#define HEAP_ANALYZER_H_20060430_
 
 #include "IPlugin.h"
 

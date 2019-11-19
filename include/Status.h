@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef STATUS_20160803_H_
-#define STATUS_20160803_H_
+#ifndef STATUS_H_20160803_
+#define STATUS_H_20160803_
 
 #include "API.h"
 #include <QString>

@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_OPEN_PROGRAM_H_20151117
-#define DIALOG_OPEN_PROGRAM_H_20151117
+#ifndef DIALOG_OPEN_PROGRAM_H_20151117_
+#define DIALOG_OPEN_PROGRAM_H_20151117_
 
 #include <QFileDialog>
 #include <QList>

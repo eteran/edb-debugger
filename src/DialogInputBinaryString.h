@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_INPUT_BINARY_STRING_20061127_H_
-#define DIALOG_INPUT_BINARY_STRING_20061127_H_
+#ifndef DIALOG_INPUT_BINARY_STRING_H_20061127_
+#define DIALOG_INPUT_BINARY_STRING_H_20061127_
 
 #include <QDialog>
 

@@ -19,8 +19,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ELF_BINARY_20121007_H_
-#define ELF_BINARY_20121007_H_
+#ifndef ELF_BINARY_H_20121007_
+#define ELF_BINARY_H_20121007_
 
 #include "elf_auxv.h"
 #include "elf_dyn.h"

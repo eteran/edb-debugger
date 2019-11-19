@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ERRNO_NAMES_LINUX_H_20160514
-#define ERRNO_NAMES_LINUX_H_20160514
+#ifndef ERRNO_NAMES_LINUX_H_20160514_
+#define ERRNO_NAMES_LINUX_H_20160514_
 
 #include <array>
 

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DATAVIEWINFO_20100101_H_
-#define DATAVIEWINFO_20100101_H_
+#ifndef DATA_VIEW_INFO_H_20100101_
+#define DATA_VIEW_INFO_H_20100101_
 
 #include <QtGlobal>
 #include <memory>

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef REGISTER_VIEW_DELEGATE_20070519_H_
-#define REGISTER_VIEW_DELEGATE_20070519_H_
+#ifndef REGISTER_VIEW_DELEGATE_H_20070519_
+#define REGISTER_VIEW_DELEGATE_H_20070519_
 
 #include <QStyledItemDelegate>
 

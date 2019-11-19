@@ -1,6 +1,6 @@
 
-#ifndef OPERAND_H_
-#define OPERAND_H_
+#ifndef OPERAND_H_20191119_
+#define OPERAND_H_20191119_
 
 #include <capstone/capstone.h>
 

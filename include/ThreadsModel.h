@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef threadsModel_H_
-#define threadsModel_H_
+#ifndef THREADS_MODEL_H_20191119_
+#define THREADS_MODEL_H_20191119_
 
 #include "API.h"
 #include <QAbstractItemModel>

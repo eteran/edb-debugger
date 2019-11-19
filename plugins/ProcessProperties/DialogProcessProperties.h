@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_PROCESS_PROPERTIES_20120817_H_
-#define DIALOG_PROCESS_PROPERTIES_20120817_H_
+#ifndef DIALOG_PROCESS_PROPERTIES_H_20120817_
+#define DIALOG_PROCESS_PROPERTIES_H_20120817_
 
 #include "ThreadsModel.h"
 #include "ui_DialogProcessProperties.h"

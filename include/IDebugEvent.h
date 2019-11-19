@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IDEBUGEVENT_20121005_H_
-#define IDEBUGEVENT_20121005_H_
+#ifndef IDEBUGEVENT_H_20121005_
+#define IDEBUGEVENT_H_20121005_
 
 #include "OSTypes.h"
 #include <QString>

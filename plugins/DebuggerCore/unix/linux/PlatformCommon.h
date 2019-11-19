@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PLATFORM_COMMON_20151011_H_
-#define PLATFORM_COMMON_20151011_H_
+#ifndef PLATFORM_COMMON_H_20151011_
+#define PLATFORM_COMMON_H_20151011_
 
 #include "OSTypes.h"
 #include "edb.h"

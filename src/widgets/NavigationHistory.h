@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef NAVIGATIONHISTORY_H_
-#define NAVIGATIONHISTORY_H_
+#ifndef NAVIGATION_HISTORY_H_20191119_
+#define NAVIGATION_HISTORY_H_20191119_
 
 #include "edb.h"
 

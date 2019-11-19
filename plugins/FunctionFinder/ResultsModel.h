@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ResultsModel_20070419_H_
-#define ResultsModel_20070419_H_
+#ifndef RESULTS_MODEL_H_20070419_
+#define RESULTS_MODEL_H_20070419_
 
 #include "Function.h"
 #include "Types.h"

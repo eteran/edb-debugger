@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef EXPRESSION_20070402_H_
-#define EXPRESSION_20070402_H_
+#ifndef EXPRESSION_H_20070402_
+#define EXPRESSION_H_20070402_
 
 #include "Status.h"
 #include <QString>

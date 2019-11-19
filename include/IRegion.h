@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IREGION_20120709_H_
-#define IREGION_20120709_H_
+#ifndef IREGION_H_20120709_
+#define IREGION_H_20120709_
 
 #include "Types.h"
 #include <memory>

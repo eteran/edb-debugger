@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOGOPCODES_20061101_H_
-#define DIALOGOPCODES_20061101_H_
+#ifndef DIALOG_OPCODES_H_20061101_
+#define DIALOG_OPCODES_H_20061101_
 
 #include "ui_DialogOpcodes.h"
 #include <QDialog>

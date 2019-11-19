@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPTIONS_PAGE_20151113_H
-#define OPTIONS_PAGE_20151113_H
+#ifndef OPTIONS_PAGE_H_20151113_
+#define OPTIONS_PAGE_H_20151113_
 
 #include "ui_OptionsPage.h"
 #include <QWidget>

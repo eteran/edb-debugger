@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef X86BREAKPOINT_20060720_H_
-#define X86BREAKPOINT_20060720_H_
+#ifndef X86_BREAKPOINT_H_20060720_
+#define X86_BREAKPOINT_H_20060720_
 
 #include "IBreakpoint.h"
 #include "Util.h"

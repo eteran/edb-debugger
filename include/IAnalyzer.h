@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IANALYZER_20080630_H_
-#define IANALYZER_20080630_H_
+#ifndef IANALYZER_H_20080630_
+#define IANALYZER_H_20080630_
 
 #include "Function.h"
 #include "Types.h"

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ANALYZER_20080630_H_
-#define ANALYZER_20080630_H_
+#ifndef ANALYZER_H_20080630_
+#define ANALYZER_H_20080630_
 
 #include "BasicBlock.h"
 #include "IAnalyzer.h"

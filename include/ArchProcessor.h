@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ARCHPROCESSOR_20070312_H_
-#define ARCHPROCESSOR_20070312_H_
+#ifndef ARCH_PROCESSOR_H_20070312_
+#define ARCH_PROCESSOR_H_20070312_
 
 #include "API.h"
 #include "RegisterViewModelBase.h"

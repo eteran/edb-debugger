@@ -1,6 +1,6 @@
 
-#ifndef SIMD_VALUE_MANAGER_H_
-#define SIMD_VALUE_MANAGER_H_
+#ifndef SIMD_VALUE_MANAGER_H_20191119_
+#define SIMD_VALUE_MANAGER_H_20191119_
 
 #include "RegisterGroup.h"
 #include "RegisterViewModelBase.h"

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DEBUGGER_20061101_H_
-#define DEBUGGER_20061101_H_
+#ifndef DEBUGGER_H_20061101_
+#define DEBUGGER_H_20061101_
 
 #include "API.h"
 #include "IBinary.h"

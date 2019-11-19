@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ASSEMBLER_OPTIONS_PAGE_20130611_H_
-#define ASSEMBLER_OPTIONS_PAGE_20130611_H_
+#ifndef ASSEMBLER_OPTIONS_PAGE_H_20130611_
+#define ASSEMBLER_OPTIONS_PAGE_H_20130611_
 
 #include "ui_OptionsPage.h"
 #include <QWidget>

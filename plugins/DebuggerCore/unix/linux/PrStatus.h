@@ -1,6 +1,6 @@
 
-#ifndef PR_STATUS_H_
-#define PR_STATUS_H_
+#ifndef PR_STATUS_H_20191119_
+#define PR_STATUS_H_20191119_
 
 #include <cstdint>
 

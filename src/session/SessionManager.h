@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SESSIONMANAGER_20170928_H_
-#define SESSIONMANAGER_20170928_H_
+#ifndef SESSION_MANAGER_H_20170928_
+#define SESSION_MANAGER_H_20170928_
 
 #include "SessionError.h"
 #include "Status.h"

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOGBACKTRACE_H
-#define DIALOGBACKTRACE_H
+#ifndef DIALOG_BACKTRACE_H_20191119_
+#define DIALOG_BACKTRACE_H_20191119_
 
 #include "CallStack.h"
 #include "ui_DialogBacktrace.h"

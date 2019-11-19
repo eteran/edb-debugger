@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef X86_COMMON_H_20170817
-#define X86_COMMON_H_20170817
+#ifndef X86_COMMON_H_20170817_
+#define X86_COMMON_H_20170817_
 
 static constexpr unsigned FpuTagEmpty = 3;
 

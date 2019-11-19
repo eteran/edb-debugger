@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CONFIGURATION_20061031_H_
-#define CONFIGURATION_20061031_H_
+#ifndef CONFIGURATION_H_20061031_
+#define CONFIGURATION_H_20061031_
 
 #include "API.h"
 #include "IBreakpoint.h"

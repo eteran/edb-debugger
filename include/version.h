@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef VERSION_20061109_H_
-#define VERSION_20061109_H_
+#ifndef VERSION_H_20061109_
+#define VERSION_H_20061109_
 
 namespace edb {
 extern const char version[];

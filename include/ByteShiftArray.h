@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BYTESHIFTARRAY_20060825_H_
-#define BYTESHIFTARRAY_20060825_H_
+#ifndef BYTESHIFTARRAY_H_20060825_
+#define BYTESHIFTARRAY_H_20060825_
 
 #include "API.h"
 #include <QVector>

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LIB_HARDWARE_BREAKPOINTS_H_
-#define LIB_HARDWARE_BREAKPOINTS_H_
+#ifndef LIB_HARDWARE_BREAKPOINTS_H_20191119_
+#define LIB_HARDWARE_BREAKPOINTS_H_20191119_
 
 #include "edb.h"
 

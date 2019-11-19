@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PROCESS_MODEL_H_
-#define PROCESS_MODEL_H_
+#ifndef PROCESS_MODEL_H_20191119_
+#define PROCESS_MODEL_H_20191119_
 
 #include "OSTypes.h"
 

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BOOKMARKS_MODEL_20170103_H_
-#define BOOKMARKS_MODEL_20170103_H_
+#ifndef BOOKMARKS_MODEL_H_20170103_
+#define BOOKMARKS_MODEL_H_20170103_
 
 #include "Types.h"
 #include <QAbstractItemModel>

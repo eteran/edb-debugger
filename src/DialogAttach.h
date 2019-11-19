@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_ATTACH_20091218_H_
-#define DIALOG_ATTACH_20091218_H_
+#ifndef DIALOG_ATTACH_H_20091218_
+#define DIALOG_ATTACH_H_20091218_
 
 #include "OSTypes.h"
 

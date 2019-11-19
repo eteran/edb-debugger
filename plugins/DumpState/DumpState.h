@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CHECKVERSION_20061122_H_
-#define CHECKVERSION_20061122_H_
+#ifndef DUMP_STATE_H_20061122_
+#define DUMP_STATE_H_20061122_
 
 #include "IPlugin.h"
 #include "Types.h"

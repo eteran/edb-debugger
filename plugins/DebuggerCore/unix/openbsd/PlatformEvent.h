@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PLATFORM_EVENT_20121005_H_
-#define PLATFORM_EVENT_20121005_H_
+#ifndef PLATFORM_EVENT_H_20121005_
+#define PLATFORM_EVENT_H_20121005_
 
 #include "IDebugEvent.h"
 #include <QCoreApplication>

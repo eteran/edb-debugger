@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SYMBOLVIEWER_20080812_H_
-#define SYMBOLVIEWER_20080812_H_
+#ifndef SYMBOL_VIEWER_H_20080812_
+#define SYMBOL_VIEWER_H_20080812_
 
 #include "IPlugin.h"
 

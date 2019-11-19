@@ -1,5 +1,6 @@
-#ifndef QT_HELPER_H_
-#define QT_HELPER_H_
+
+#ifndef QT_HELPER_H_20191119_
+#define QT_HELPER_H_20191119_
 
 #include <QCoreApplication>
 

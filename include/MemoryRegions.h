@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef MEMORY_REGIONS_20060501_H_
-#define MEMORY_REGIONS_20060501_H_
+#ifndef MEMORY_REGIONS_H_20060501_
+#define MEMORY_REGIONS_H_20060501_
 
 #include "API.h"
 #include "Types.h"

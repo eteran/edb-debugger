@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef INSTRUCTION_20150908_H
-#define INSTRUCTION_20150908_H
+#ifndef INSTRUCTION_H_20150908_
+#define INSTRUCTION_H_20150908_
 
 #include "API.h"
 #include "Formatter.h"

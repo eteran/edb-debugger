@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SYMBOL_20110401_H_
-#define SYMBOL_20110401_H_
+#ifndef SYMBOL_H_20110401_
+#define SYMBOL_H_20110401_
 
 #include "API.h"
 #include "Types.h"

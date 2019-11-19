@@ -1,6 +1,6 @@
 
-#ifndef INSPECTION_H_
-#define INSPECTION_H_
+#ifndef INSPECTION_H_20191119_
+#define INSPECTION_H_20191119_
 
 #include "API.h"
 

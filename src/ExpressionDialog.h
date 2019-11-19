@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef EXPRESSION_DIALOG_H_
-#define EXPRESSION_DIALOG_H_
+#ifndef EXPRESSION_DIALOG_H_20191119_
+#define EXPRESSION_DIALOG_H_20191119_
 
 #include "Types.h"
 

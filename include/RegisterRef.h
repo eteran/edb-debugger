@@ -1,8 +1,8 @@
 
 // inspired from code from mozilla: https://github.com/mozilla/rr/blob/master/src/Registers.cc
 
-#ifndef REGISTER_REF_H_
-#define REGISTER_REF_H_
+#ifndef REGISTER_REF_H_20191119_
+#define REGISTER_REF_H_20191119_
 
 #include <cassert>
 #include <climits>

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IBREAKPOINT_20060720_H_
-#define IBREAKPOINT_20060720_H_
+#ifndef IBREAKPOINT_H_20060720_
+#define IBREAKPOINT_H_20060720_
 
 #include "Types.h"
 

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ITHREAD_20150529_H_
-#define ITHREAD_20150529_H_
+#ifndef ITHREAD_H_20150529_
+#define ITHREAD_H_20150529_
 
 #include "OSTypes.h"
 #include "Status.h"

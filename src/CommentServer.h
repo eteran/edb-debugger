@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COMMENTSERVER_20070427_H_
-#define COMMENTSERVER_20070427_H_
+#ifndef COMMENTSERVER_H_20070427_
+#define COMMENTSERVER_H_20070427_
 
 #include "Status.h"
 #include "Types.h"

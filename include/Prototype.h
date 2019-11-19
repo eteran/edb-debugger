@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PROTOTYPE_20070320_H_
-#define PROTOTYPE_20070320_H_
+#ifndef PROTOTYPE_H_20070320_
+#define PROTOTYPE_H_20070320_
 
 #include <QString>
 #include <vector>

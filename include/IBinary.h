@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IBINARY_20070718_H_
-#define IBINARY_20070718_H_
+#ifndef IBINARY_H_20070718_
+#define IBINARY_H_20070718_
 
 #include "API.h"
 #include "Types.h"

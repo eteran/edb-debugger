@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_EDIT_MMX_H_20151010
-#define DIALOG_EDIT_MMX_H_20151010
+#ifndef DIALOG_EDIT_MMX_H_20151010_
+#define DIALOG_EDIT_MMX_H_20151010_
 
 #include "Register.h"
 #include "RegisterViewModelBase.h"

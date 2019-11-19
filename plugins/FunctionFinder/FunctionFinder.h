@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef FUNCTIONFINDER_20060430_H_
-#define FUNCTIONFINDER_20060430_H_
+#ifndef FUNCTION_FINDER_H_20060430_
+#define FUNCTION_FINDER_H_20060430_
 
 #include "IPlugin.h"
 

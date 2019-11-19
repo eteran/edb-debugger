@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LINKER_20170103_H_
-#define LINKER_20170103_H_
+#ifndef LINKER_H_20170103_
+#define LINKER_H_20170103_
 
 namespace edb {
 namespace linux_struct {

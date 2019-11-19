@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IPROCESS_20150516_H_
-#define IPROCESS_20150516_H_
+#ifndef IPROCESS_H_20150516_
+#define IPROCESS_H_20150516_
 
 #include "OSTypes.h"
 #include "Patch.h"

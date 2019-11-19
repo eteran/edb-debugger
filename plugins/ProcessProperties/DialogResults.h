@@ -1,6 +1,6 @@
 
-#ifndef ROPTOOL_DIALOG_RESULTS_H
-#define ROPTOOL_DIALOG_RESULTS_H
+#ifndef ROPTOOL_DIALOG_RESULTS_H_20191119_
+#define ROPTOOL_DIALOG_RESULTS_H_20191119_
 
 #include "ResultsModel.h"
 #include "ui_DialogResults.h"

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef STRINGSEARCHER_20060430_H_
-#define STRINGSEARCHER_20060430_H_
+#ifndef STRING_SEARCHER_H_20060430_
+#define STRING_SEARCHER_H_20060430_
 
 #include "IPlugin.h"
 

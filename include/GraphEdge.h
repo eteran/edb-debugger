@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef GRAPH_EDGE_20090903_H_
-#define GRAPH_EDGE_20090903_H_
+#ifndef GRAPH_EDGE_H_20090903_
+#define GRAPH_EDGE_H_20090903_
 
 #include <QColor>
 #include <QGraphicsItemGroup>

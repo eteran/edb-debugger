@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PLATFORM_THREAD_H
-#define PLATFORM_THREAD_H
+#ifndef PLATFORM_THREAD_H_20191119_
+#define PLATFORM_THREAD_H_20191119_
 
 #include "DebuggerCore.h"
 #include "IProcess.h"

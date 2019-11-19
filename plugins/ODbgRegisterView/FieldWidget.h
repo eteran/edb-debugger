@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef FIELD_WIDGET_H_20170818
-#define FIELD_WIDGET_H_20170818
+#ifndef FIELD_WIDGET_H_20170818_
+#define FIELD_WIDGET_H_20170818_
 
 #include <QLabel>
 #include <QModelIndex>

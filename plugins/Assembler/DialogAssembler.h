@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_ASSEMBLER_20130611_H_
-#define DIALOG_ASSEMBLER_20130611_H_
+#ifndef DIALOG_ASSEMBLER_H_20130611_
+#define DIALOG_ASSEMBLER_H_20130611_
 
 #include "IRegion.h"
 #include "Types.h"

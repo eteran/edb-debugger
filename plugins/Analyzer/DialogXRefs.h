@@ -1,6 +1,6 @@
 
-#ifndef DIALOG_XREFS_H_
-#define DIALOG_XREFS_H_
+#ifndef DIALOG_XREFS_H_20191119_
+#define DIALOG_XREFS_H_20191119_
 
 #include "edb.h"
 #include "ui_DialogXRefs.h"

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IPLUGIN_20061101_H_
-#define IPLUGIN_20061101_H_
+#ifndef IPLUGIN_H_20061101_
+#define IPLUGIN_H_20061101_
 
 #include <QList>
 #include <QVariantMap>

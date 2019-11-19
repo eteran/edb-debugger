@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef HEX_STRING_VALIDATOR_20130625_H_
-#define HEX_STRING_VALIDATOR_20130625_H_
+#ifndef HEX_STRING_VALIDATOR_H_20130625_
+#define HEX_STRING_VALIDATOR_H_20130625_
 
 #include <QValidator>
 

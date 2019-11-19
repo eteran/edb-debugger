@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BASIC_BLOCK_20130830_H_
-#define BASIC_BLOCK_20130830_H_
+#ifndef BASIC_BLOCK_H_20130830_
+#define BASIC_BLOCK_H_20130830_
 
 #include "API.h"
 #include "Types.h"

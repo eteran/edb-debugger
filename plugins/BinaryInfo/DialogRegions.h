@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_REGIONS_20111128_H_
-#define DIALOG_REGIONS_20111128_H_
+#ifndef DIALOG_REGIONS_H_20111128_
+#define DIALOG_REGIONS_H_20111128_
 
 #include "Types.h"
 #include "ui_DialogRegions.h"

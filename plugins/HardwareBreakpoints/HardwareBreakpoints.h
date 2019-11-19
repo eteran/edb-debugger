@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef HARDWAREBREAKPOINTS_20080228_H_
-#define HARDWAREBREAKPOINTS_20080228_H_
+#ifndef HARDWARE_BREAKPOINTS_H_20080228_
+#define HARDWARE_BREAKPOINTS_H_20080228_
 
 #include "IDebugEventHandler.h"
 #include "IPlugin.h"

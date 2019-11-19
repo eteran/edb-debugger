@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOGSPECIFIED_FUNCTIONS_20070705_H_
-#define DIALOGSPECIFIED_FUNCTIONS_20070705_H_
+#ifndef DIALOG_SPECIFIED_FUNCTIONS_H_20070705_
+#define DIALOG_SPECIFIED_FUNCTIONS_H_20070705_
 
 #include "ui_SpecifiedFunctions.h"
 #include <QDialog>

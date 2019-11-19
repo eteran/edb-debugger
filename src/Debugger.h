@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DEBUGGERMAIN_20090811_H_
-#define DEBUGGERMAIN_20090811_H_
+#ifndef DEBUGGER_H_20090811_
+#define DEBUGGER_H_20090811_
 
 #include "DataViewInfo.h"
 #include "IDebugEventHandler.h"

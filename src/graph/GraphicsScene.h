@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef GRAPHICS_SCENE_H_
-#define GRAPHICS_SCENE_H_
+#ifndef GRAPHICS_SCENE_H_20191119_
+#define GRAPHICS_SCENE_H_20191119_
 
 #include <QGraphicsScene>
 

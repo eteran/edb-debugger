@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef INSTRUCTION_INSPECTOR_PLUGIN_H_20160418
-#define INSTRUCTION_INSPECTOR_PLUGIN_H_20160418
+#ifndef INSTRUCTION_INSPECTOR_PLUGIN_H_20160418_
+#define INSTRUCTION_INSPECTOR_PLUGIN_H_20160418_
 
 #include "IPlugin.h"
 #include "edb.h"

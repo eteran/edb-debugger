@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ISYMBOL_MANAGER_20110307_H_
-#define ISYMBOL_MANAGER_20110307_H_
+#ifndef ISYMBOL_MANAGER_H_20110307_
+#define ISYMBOL_MANAGER_H_20110307_
 
 #include "Types.h"
 #include <QHash>

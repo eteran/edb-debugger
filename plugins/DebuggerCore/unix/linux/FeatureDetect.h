@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef FEATURE_DETECT_H_
-#define FEATURE_DETECT_H_
+#ifndef FEATURE_DETECT_H_20191119_
+#define FEATURE_DETECT_H_20191119_
 
 namespace DebuggerCorePlugin {
 namespace feature {

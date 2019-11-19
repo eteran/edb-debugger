@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef REGION_BUFFER_20101111_H_
-#define REGION_BUFFER_20101111_H_
+#ifndef REGION_BUFFER_H_20101111_
+#define REGION_BUFFER_H_20101111_
 
 #include "IRegion.h"
 

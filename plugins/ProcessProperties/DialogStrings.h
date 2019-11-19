@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOGSTRINGS_20061101_H_
-#define DIALOGSTRINGS_20061101_H_
+#ifndef DIALOG_STRINGS_H_20061101_
+#define DIALOG_STRINGS_H_20061101_
 
 #include "Types.h"
 #include "ui_DialogStrings.h"

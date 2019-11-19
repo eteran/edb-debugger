@@ -1,5 +1,6 @@
-#ifndef EDB_DEMANGLE_H_20151113
-#define EDB_DEMANGLE_H_20151113
+
+#ifndef EDB_DEMANGLE_H_20151113_
+#define EDB_DEMANGLE_H_20151113_
 
 #include <QString>
 #include <QStringList>

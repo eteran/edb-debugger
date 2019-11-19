@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef QDISASSEMBLYVIEW_20061101_H_
-#define QDISASSEMBLYVIEW_20061101_H_
+#ifndef QDISASSEMBLY_VIEW_H_20061101_
+#define QDISASSEMBLY_VIEW_H_20061101_
 
 #include "NavigationHistory.h"
 #include "Types.h"

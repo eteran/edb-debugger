@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SYNTAX_HIGHLIGHTER_H
-#define SYNTAX_HIGHLIGHTER_H
+#ifndef SYNTAX_HIGHLIGHTER_H_20191119_
+#define SYNTAX_HIGHLIGHTER_H_20191119_
 
 #include <QRegExp>
 #include <QTextCharFormat>

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOGBREAKPOINTS_20061101_H_
-#define DIALOGBREAKPOINTS_20061101_H_
+#ifndef DIALOG_BREAKPOINTS_H_20061101_
+#define DIALOG_BREAKPOINTS_H_20061101_
 
 #include "ui_DialogBreakpoints.h"
 #include <QDialog>

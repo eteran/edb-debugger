@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PE_BINARY_20121007_H_
-#define PE_BINARY_20121007_H_
+#ifndef PE_BINARY_H_20121007_
+#define PE_BINARY_H_20121007_
 
 #include <stdint.h>
 

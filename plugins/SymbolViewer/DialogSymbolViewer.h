@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOGSYMBOLVIEWER_20080812_H_
-#define DIALOGSYMBOLVIEWER_20080812_H_
+#ifndef DIALOG_SYMBOL_VIEWER_H_20080812_
+#define DIALOG_SYMBOL_VIEWER_H_20080812_
 
 #include "Types.h"
 #include "ui_DialogSymbolViewer.h"

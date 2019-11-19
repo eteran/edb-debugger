@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef REGISTER_VIEW_MODEL_X86_20151213
-#define REGISTER_VIEW_MODEL_X86_20151213
+#ifndef X86_REGISTER_VIEW_MODEL_H_20151213_
+#define X86_REGISTER_VIEW_MODEL_H_20151213_
 
 #include "RegisterViewModelBase.h"
 #include "Types.h"

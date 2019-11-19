@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_THREADS_20101026_H_
-#define DIALOG_THREADS_20101026_H_
+#ifndef DIALOG_THREADS_H_20101026_
+#define DIALOG_THREADS_H_20101026_
 
 #include <QDialog>
 

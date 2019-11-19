@@ -1,6 +1,6 @@
 
-#ifndef REGISTER_VIEW_MODEL_H_20151206
-#define REGISTER_VIEW_MODEL_H_20151206
+#ifndef REGISTER_VIEW_MODEL_H_20151206_
+#define REGISTER_VIEW_MODEL_H_20151206_
 
 #include "Register.h"
 #include <QAbstractItemModel>

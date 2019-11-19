@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_RESULTS_20190403_H_
-#define DIALOG_RESULTS_20190403_H_
+#ifndef DIALOG_RESULTS_H_20190403_
+#define DIALOG_RESULTS_H_20190403_
 
 #include "Types.h"
 #include "ui_DialogResults.h"

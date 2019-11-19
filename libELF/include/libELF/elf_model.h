@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ELF_MODEL_20181206_H_
-#define ELF_MODEL_20181206_H_
+#ifndef ELF_MODEL_H_20181206_
+#define ELF_MODEL_H_20181206_
 
 #include "elf_auxv.h"
 #include "elf_dyn.h"

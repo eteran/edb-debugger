@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DEBUGGERCOREBASE_20090529_H_
-#define DEBUGGERCOREBASE_20090529_H_
+#ifndef DEBUGGERCOREBASE_H_20090529_
+#define DEBUGGERCOREBASE_H_20090529_
 
 #include "IDebugger.h"
 

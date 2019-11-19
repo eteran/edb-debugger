@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef API_20090529_H_
-#define API_20090529_H_
+#ifndef API_H_20090529_
+#define API_H_20090529_
 
 #include <QtGlobal>
 

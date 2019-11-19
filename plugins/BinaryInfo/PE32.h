@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PE32_20070718_H_
-#define PE32_20070718_H_
+#ifndef PE32_H_20070718_
+#define PE32_H_20070718_
 
 #include "IBinary.h"
 #include "libPE/pe_binary.h"

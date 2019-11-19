@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ODBG_REGISTER_VIEW_X86_GROUPS_H_20170817
-#define ODBG_REGISTER_VIEW_X86_GROUPS_H_20170817
+#ifndef ODBG_REGISTER_VIEW_X86_GROUPS_H_20170817_
+#define ODBG_REGISTER_VIEW_X86_GROUPS_H_20170817_
 
 #include "RegisterView.h"
 

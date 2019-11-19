@@ -1,6 +1,6 @@
 
-#ifndef FLOAT_X_H_20151108
-#define FLOAT_X_H_20151108
+#ifndef FLOAT_X_H_20151108_
+#define FLOAT_X_H_20151108_
 
 #include "API.h"
 #include "Types.h"

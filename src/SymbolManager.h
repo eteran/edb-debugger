@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SYMBOLMANAGER_20060814_H_
-#define SYMBOLMANAGER_20060814_H_
+#ifndef SYMBOL_MANAGER_H_20060814_
+#define SYMBOL_MANAGER_H_20060814_
 
 #include "ISymbolManager.h"
 

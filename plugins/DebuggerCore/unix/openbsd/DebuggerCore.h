@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DEBUGGERCORE_20090529_H_
-#define DEBUGGERCORE_20090529_H_
+#ifndef DEBUGGER_CORE_H_20090529_
+#define DEBUGGER_CORE_H_20090529_
 
 #include "DebuggerCoreUNIX.h"
 #include <QHash>

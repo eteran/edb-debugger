@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BOOKMARKS_20061122_H_
-#define BOOKMARKS_20061122_H_
+#ifndef BOOKMARKS_H_20061122_
+#define BOOKMARKS_H_20061122_
 
 #include "BookmarksModel.h"
 #include "IPlugin.h"

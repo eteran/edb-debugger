@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BINARYSTRING_20060821_H_
-#define BINARYSTRING_20060821_H_
+#ifndef BINARYSTRING_H_20060821_
+#define BINARYSTRING_H_20060821_
 
 #include "API.h"
 #include <QWidget>

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PATCH_H_
-#define PATCH_H_
+#ifndef PATCH_H_20191119_
+#define PATCH_H_20191119_
 
 #include "Types.h"
 #include <QByteArray>

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef REGISTER_20100329_H_
-#define REGISTER_20100329_H_
+#ifndef REGISTER_H_20100329_
+#define REGISTER_H_20100329_
 
 #include "API.h"
 #include "Types.h"

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PLATFORMSTATE_20110330_H_
-#define PLATFORMSTATE_20110330_H_
+#ifndef PLATFORM_STATE_H_20110330_
+#define PLATFORM_STATE_H_20110330_
 
 #include "IState.h"
 #include "PrStatus.h"

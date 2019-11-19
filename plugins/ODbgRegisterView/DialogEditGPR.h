@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_EDIT_GPR_H_20151011
-#define DIALOG_EDIT_GPR_H_20151011
+#ifndef DIALOG_EDIT_GPR_H_20151011_
+#define DIALOG_EDIT_GPR_H_20151011_
 
 #include "Register.h"
 #include <QDialog>

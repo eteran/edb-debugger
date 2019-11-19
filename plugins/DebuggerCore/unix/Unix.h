@@ -1,6 +1,6 @@
 
-#ifndef UNIX_20181211_H_
-#define UNIX_20181211_H_
+#ifndef UNIX_H_20181211_
+#define UNIX_H_20181211_
 
 #include "Status.h"
 #include <QMap>

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef STRING_HASH_20110823_H_
-#define STRING_HASH_20110823_H_
+#ifndef STRING_HASH_H_20110823_
+#define STRING_HASH_H_20110823_
 
 #include <cstddef>
 #include <cstdint>

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OSTYPES_20070116_H_
-#define OSTYPES_20070116_H_
+#ifndef OS_TYPES_H_20070116_
+#define OS_TYPES_H_20070116_
 
 #ifndef NOMINMAX
 #define NOMINMAX

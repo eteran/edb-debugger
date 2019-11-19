@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_ROPTOOL_20100817_H_
-#define DIALOG_ROPTOOL_20100817_H_
+#ifndef DIALOG_ROPTOOL_H_20100817_
+#define DIALOG_ROPTOOL_H_20100817_
 
 #include "Instruction.h"
 #include "Types.h"

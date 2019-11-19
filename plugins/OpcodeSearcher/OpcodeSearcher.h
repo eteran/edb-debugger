@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPCODESEARCHER_20060430_H_
-#define OPCODESEARCHER_20060430_H_
+#ifndef OPCODE_SEARCHER_H_20060430_
+#define OPCODE_SEARCHER_H_20060430_
 
 #include "IPlugin.h"
 

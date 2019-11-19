@@ -1,6 +1,6 @@
 
-#ifndef VALUE_H_
-#define VALUE_H_
+#ifndef VALUE_H_20191119_
+#define VALUE_H_20191119_
 
 #include "API.h"
 #include <array>

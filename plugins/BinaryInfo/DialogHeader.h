@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_HEADER_20190403_H_
-#define DIALOG_HEADER_20190403_H_
+#ifndef DIALOG_HEADER_H_20190403_
+#define DIALOG_HEADER_H_20190403_
 
 #include "IRegion.h"
 #include "Types.h"

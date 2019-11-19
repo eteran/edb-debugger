@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BREAKPOINTMANAGER_20060430_H_
-#define BREAKPOINTMANAGER_20060430_H_
+#ifndef BREAKPOINT_MANAGER_H_20060430_
+#define BREAKPOINT_MANAGER_H_20060430_
 
 #include "IPlugin.h"
 

@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ODBG_REGISTER_VIEW_H_20151230
-#define ODBG_REGISTER_VIEW_H_20151230
+#ifndef ODBG_REGISTER_VIEW_H_20151230_
+#define ODBG_REGISTER_VIEW_H_20151230_
 
 #include "RegisterViewModelBase.h"
 

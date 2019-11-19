@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TABWIDGET_20080118_H_
-#define TABWIDGET_20080118_H_
+#ifndef TAB_WIDGET_H_20080118_
+#define TAB_WIDGET_H_20080118_
 
 #include <QTabWidget>
 
