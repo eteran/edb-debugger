@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "API.h"
 #include <QString>
 #include <boost/variant.hpp>
+#include <type_traits>
 
 class EDB_EXPORT Status {
 public:
@@ -80,7 +81,7 @@ private:
 template <class T, class E>
 class Result {
 public:
-	template <class U>
+	template <class U, class = typename std::enable_if<std::is_convertible<U, T>::value>::type>
 	Result(U &&value)
 		: value_(std::forward<U>(value)) {
 	}
@@ -103,15 +104,18 @@ public:
 		Q_ASSERT(succeeded());
 		return &boost::get<T>(value_);
 	}
+
 	const T &operator*() const { return value(); }
 	bool succeeded() const { return value_.which() == 0; }
 	bool failed() const { return value_.which() == 1; }
 	explicit operator bool() const { return succeeded(); }
 	bool operator!() const { return failed(); }
+
 	const E &error() const {
 		Q_ASSERT(failed());
 		return boost::get<Unexpected<E>>(value_).error_;
 	}
+
 	const T &value() const {
 		Q_ASSERT(succeeded());
 		return boost::get<T>(value_);
@@ -145,6 +149,7 @@ public:
 	bool failed() const { return value_.which() == 1; }
 	explicit operator bool() const { return succeeded(); }
 	bool operator!() const { return failed(); }
+
 	const E &error() const {
 		Q_ASSERT(failed());
 		return boost::get<Unexpected<E>>(value_).error_;

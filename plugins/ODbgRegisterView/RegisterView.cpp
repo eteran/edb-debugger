@@ -86,9 +86,47 @@ constexpr auto RegisterGroupTypeNames = util::make_array<const char *>(
 #error "Not implemented"
 #endif
 );
+
 static_assert(RegisterGroupTypeNames.size() == ODBRegView::RegisterGroupType::NUM_GROUPS, "Mismatch between number of register group types and names");
 
 const auto SETTINGS_GROUPS_ARRAY_NODE = QLatin1String("visibleGroups");
+
+ODBRegView::RegisterGroupType findGroup(const QString &str) {
+	const auto &names  = RegisterGroupTypeNames;
+	const auto foundIt = std::find(names.begin(), names.end(), str);
+
+	if (foundIt == names.end())
+		return ODBRegView::RegisterGroupType::NUM_GROUPS;
+
+	return ODBRegView::RegisterGroupType(foundIt - names.begin());
+}
+
+RegisterGroup *createSIMDGroup(RegisterViewModelBase::Model *model, QWidget *parent, const QString &catName, const QString &regNamePrefix) {
+	const auto catIndex = find_model_category(model, catName);
+	if (!catIndex.isValid())
+		return nullptr;
+	const auto group = new RegisterGroup(catName, parent);
+	for (int row = 0; row < model->rowCount(catIndex); ++row) {
+		const auto nameIndex = valid_index(model->index(row, ModelNameColumn, catIndex));
+		const auto name      = regNamePrefix + QString("%1").arg(row);
+		if (!valid_variant(nameIndex.data()).toString().toUpper().startsWith(regNamePrefix)) {
+			if (row == 0)
+				return nullptr; // don't want empty groups
+			break;
+		}
+
+		group->insert(row, 0, new FieldWidget(name, group));
+		new SIMDValueManager(row, nameIndex, group);
+	}
+	// This signal must be handled by group _after_ all `SIMDValueManager`s handle their connection to this signal
+	QObject::connect(
+		model, &RegisterViewModelBase::Model::SIMDDisplayFormatChanged, group, [group]() {
+			group->adjustWidth();
+		},
+		Qt::QueuedConnection);
+
+	return group;
+}
 
 }
 
@@ -144,16 +182,6 @@ void ODBRegView::showMenu(const QPoint &position, const QList<QAction *> &additi
 			menu.addSeparator();
 
 	menu.exec(position);
-}
-
-ODBRegView::RegisterGroupType findGroup(const QString &str) {
-	const auto &names  = RegisterGroupTypeNames;
-	const auto foundIt = std::find(names.begin(), names.end(), str);
-
-	if (foundIt == names.end())
-		return ODBRegView::RegisterGroupType::NUM_GROUPS;
-
-	return ODBRegView::RegisterGroupType(foundIt - names.begin());
 }
 
 void ODBRegView::settingsUpdated() {
@@ -321,33 +349,6 @@ void ODBRegView::setModel(RegisterViewModelBase::Model *model) {
 	connect(model, &RegisterViewModelBase::Model::modelReset, this, &ODBRegView::modelReset);
 	connect(model, &RegisterViewModelBase::Model::dataChanged, this, &ODBRegView::modelUpdated);
 	modelReset();
-}
-
-RegisterGroup *createSIMDGroup(RegisterViewModelBase::Model *model, QWidget *parent, const QString &catName, const QString &regNamePrefix) {
-	const auto catIndex = find_model_category(model, catName);
-	if (!catIndex.isValid())
-		return nullptr;
-	const auto group = new RegisterGroup(catName, parent);
-	for (int row = 0; row < model->rowCount(catIndex); ++row) {
-		const auto nameIndex = valid_index(model->index(row, ModelNameColumn, catIndex));
-		const auto name      = regNamePrefix + QString("%1").arg(row);
-		if (!valid_variant(nameIndex.data()).toString().toUpper().startsWith(regNamePrefix)) {
-			if (row == 0)
-				return nullptr; // don't want empty groups
-			break;
-		}
-
-		group->insert(row, 0, new FieldWidget(name, group));
-		new SIMDValueManager(row, nameIndex, group);
-	}
-	// This signal must be handled by group _after_ all `SIMDValueManager`s handle their connection to this signal
-	QObject::connect(
-		model, &RegisterViewModelBase::Model::SIMDDisplayFormatChanged, group, [group]() {
-			group->adjustWidth();
-		},
-		Qt::QueuedConnection);
-
-	return group;
 }
 
 RegisterGroup *ODBRegView::makeGroup(RegisterGroupType type) {

@@ -1225,7 +1225,6 @@ bool falseSyscallReturn(const State &state, std::int64_t origAX) {
 // Desc:
 //------------------------------------------------------------------------------
 Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state) const {
-	using ResultT = Result<edb::address_t, QString>;
 
 	edb::address_t ret = 0;
 	// TODO: get registers by index, not string! too slow
@@ -1311,7 +1310,7 @@ Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::In
 	}
 
 	ret.normalize();
-	return ResultT(ret);
+	return ret;
 }
 
 edb::address_t ArchProcessor::getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool &ok) const {

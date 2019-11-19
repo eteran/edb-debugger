@@ -98,20 +98,22 @@ int capstoneRegToGPRIndex(int capstoneReg, bool &ok) {
 
 Result<edb::address_t, QString> getOperandValueGPR(const edb::Instruction &insn, const edb::Operand &operand, const State &state) {
 
-	using result_type = Result<edb::address_t, QString>;
 	bool ok;
 	const auto regIndex = capstoneRegToGPRIndex(operand->reg, ok);
-	if (!ok) return make_unexpected(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg));
+	if (!ok) {
+		return make_unexpected(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg));
+	}
+
 	const auto reg = state.gpRegister(regIndex);
-	if (!reg)
+	if (!reg) {
 		return make_unexpected(QObject::tr("failed to get register r%1.").arg(regIndex));
-	auto value = reg.valueAsAddress();
-	return result_type(value);
+	}
+
+	return reg.valueAsAddress();
 }
 
 Result<edb::address_t, QString> adjustR15Value(const edb::Instruction &insn, const int regIndex, edb::address_t value) {
 
-	using result_type = Result<edb::address_t, QString>;
 	if (regIndex == 15) {
 		// Even if current state's PC weren't on this instruction, the instruction still refers to
 		// self, so use `insn` instead of `state` to get the value.
@@ -127,7 +129,8 @@ Result<edb::address_t, QString> adjustR15Value(const edb::Instruction &insn, con
 			return make_unexpected(QObject::tr("calculating effective address in modes other than ARM and Thumb is not supported."));
 		}
 	}
-	return result_type(value);
+
+	return value;
 }
 
 uint32_t shift(uint32_t x, arm_shifter type, uint32_t shiftAmount, bool carryFlag) {
@@ -169,8 +172,9 @@ uint32_t shift(uint32_t x, arm_shifter type, uint32_t shiftAmount, bool carryFla
 // Also note that undefined instructions like "STM PC, {regs...}" aren't checked here.
 Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::Instruction &insn, const edb::Operand &operand, const State &state) const {
 
-	using result_type = Result<edb::address_t, QString>;
-	if (!operand || !insn) return make_unexpected(QObject::tr("operand is invalid"));
+	if (!operand || !insn) {
+		return make_unexpected(QObject::tr("operand is invalid"));
+	}
 
 	const auto op = insn.operation();
 	if (is_register(operand)) {
@@ -206,9 +210,11 @@ Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::In
 		// TODO(eteran): why does making this const cause an error on the return? Bug in conversion constructor for Result?
 		if (auto adjustedRes = adjustR15Value(insn, baseIndex, addr)) {
 			addr = adjustedRes.value() + operand->mem.disp;
-			if (indexR)
+			if (indexR) {
 				addr += operand->mem.scale * shift(indexR.valueAsAddress(), operand->shift.type, operand->shift.value, C);
-			return result_type(addr);
+			}
+
+			return addr;
 		} else
 			return adjustedRes;
 	}
