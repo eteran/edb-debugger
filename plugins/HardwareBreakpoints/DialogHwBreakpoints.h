@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOG_HW_BREAKPOINTS_H_20080228_
 #define DIALOG_HW_BREAKPOINTS_H_20080228_
 
-#include "ui_DialogHWBreakpoints.h"
+#include "ui_DialogHwBreakpoints.h"
 #include <QDialog>
 
 namespace HardwareBreakpointsPlugin {

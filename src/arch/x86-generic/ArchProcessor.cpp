@@ -1547,15 +1547,11 @@ bool ArchProcessor::isFilling(const edb::Instruction &inst) const {
 			Q_ASSERT(inst.operandCount() >= 2);
 
 			if (is_register(inst[0]) && is_expression(inst[1])) {
-
-				int reg1;
-				int reg2;
-
-				reg1 = inst[0]->reg;
+				int reg1 = inst[0]->reg;
 
 				if (inst[1]->mem.scale == 1) {
 					if (inst[1]->mem.disp == 0) {
-
+						int reg2;
 						if (inst[1]->mem.base == X86_REG_INVALID) {
 							reg2 = inst[1]->mem.index;
 							ret  = (reg1 == reg2);

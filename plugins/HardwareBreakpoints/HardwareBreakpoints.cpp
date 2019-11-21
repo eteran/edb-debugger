@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QtDebug>
 
-#include "ui_DialogHWBreakpoints.h"
+#include "ui_DialogHwBreakpoints.h"
 
 // TODO: at the moment, nearly this entire file is x86/x86-64 specific
 //       we need to figure out a proper way to support (if at all) non

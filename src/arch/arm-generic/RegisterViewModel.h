@@ -39,7 +39,7 @@ public:
 	};
 
 public:
-	RegisterViewModel(int CPUFeaturesPresent, QObject *parent = nullptr);
+	explicit RegisterViewModel(int CPUFeaturesPresent, QObject *parent = nullptr);
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 	void setCpuMode(CpuMode mode);
 	// NOTE: all these functions only change data, they don't emit dataChanged!
