@@ -82,7 +82,7 @@ ValueField::ValueField(int fieldWidth, const QModelIndex &index, const std::func
 		copyToClipboard();
 	}));
 
-	menuItems_.back()->setShortcut(CopyFieldShortcut);
+	menuItems_.back()->setShortcut(QKeySequence::Copy);
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	if (index.sibling(index.row(), ModelNameColumn).data().toString() == FsrName) {

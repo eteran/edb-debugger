@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-const QKeySequence CopyFieldShortcut(Qt::CTRL | Qt::Key_C);
 constexpr Qt::Key SetToZeroKey = Qt::Key_Z;
 constexpr Qt::Key DecrementKey = Qt::Key_Minus;
 constexpr Qt::Key IncrementKey = Qt::Key_Plus;

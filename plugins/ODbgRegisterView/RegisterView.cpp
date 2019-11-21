@@ -260,7 +260,7 @@ ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 		}
 	}
 
-	connect(new QShortcut(CopyFieldShortcut, this, nullptr, nullptr, Qt::WidgetShortcut), &QShortcut::activated, this, &ODBRegView::copyRegisterToClipboard);
+	connect(new QShortcut(QKeySequence::Copy, this, nullptr, nullptr, Qt::WidgetShortcut), &QShortcut::activated, this, &ODBRegView::copyRegisterToClipboard);
 }
 
 void ODBRegView::copyRegisterToClipboard() const {
