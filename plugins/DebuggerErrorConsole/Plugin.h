@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DEBUGGER_ERROR_CONSOLE_H_20170808_
-#define DEBUGGER_ERROR_CONSOLE_H_20170808_
+#ifndef DEBUGGER_ERROR_CONSOLE_PLUGIN_H_20170808_
+#define DEBUGGER_ERROR_CONSOLE_PLUGIN_H_20170808_
 
 #include "IPlugin.h"
 #include "edb.h"

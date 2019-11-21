@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef GRAPHWIDGET_H_20090903_
-#define GRAPHWIDGET_H_20090903_
+#ifndef GRAPH_WIDGET_H_20090903_
+#define GRAPH_WIDGET_H_20090903_
 
 #include <QGraphicsView>
 #include <graphviz/cgraph.h>

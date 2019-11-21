@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef STRING_SEARCHER_H_20060430_
-#define STRING_SEARCHER_H_20060430_
+#ifndef BINARY_SEARCHER_H_20060430_
+#define BINARY_SEARCHER_H_20060430_
 
 #include "IPlugin.h"
 

@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef FLOAT_80_EDIT_H_20151031_
-#define FLOAT_80_EDIT_H_20151031_
+#ifndef FLOAT80_EDIT_H_20151031_
+#define FLOAT80_EDIT_H_20151031_
 
 #include "Types.h"
 #include <QLineEdit>

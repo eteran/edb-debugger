@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef RECENT_FILEMANAGER_H_20070430_
-#define RECENT_FILEMANAGER_H_20070430_
+#ifndef RECENT_FILE_MANAGER_H_20070430_
+#define RECENT_FILE_MANAGER_H_20070430_
 
 #include <QByteArray>
 #include <QMetaType>

@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "DialogHWBreakpoints.h"
+#include "DialogHwBreakpoints.h"
 #include "IDebugger.h"
 #include "IProcess.h"
 #include "IThread.h"
@@ -27,11 +27,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace HardwareBreakpointsPlugin {
 
 /**
- * @brief DialogHWBreakpoints::DialogHWBreakpoints
+ * @brief DialogHwBreakpoints::DialogHwBreakpoints
  * @param parent
  * @param f
  */
-DialogHWBreakpoints::DialogHWBreakpoints(QWidget *parent, Qt::WindowFlags f)
+DialogHwBreakpoints::DialogHwBreakpoints(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
 
 	ui.setupUi(this);
@@ -43,42 +43,42 @@ DialogHWBreakpoints::DialogHWBreakpoints(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogHWBreakpoints::type1IndexChanged
+ * @brief DialogHwBreakpoints::type1IndexChanged
  * @param index
  */
-void DialogHWBreakpoints::type1IndexChanged(int index) {
+void DialogHwBreakpoints::type1IndexChanged(int index) {
 	ui.cmbSize1->setEnabled(index != 0);
 }
 
 /**
- * @brief DialogHWBreakpoints::type2IndexChanged
+ * @brief DialogHwBreakpoints::type2IndexChanged
  * @param index
  */
-void DialogHWBreakpoints::type2IndexChanged(int index) {
+void DialogHwBreakpoints::type2IndexChanged(int index) {
 	ui.cmbSize2->setEnabled(index != 0);
 }
 
 /**
- * @brief DialogHWBreakpoints::type3IndexChanged
+ * @brief DialogHwBreakpoints::type3IndexChanged
  * @param index
  */
-void DialogHWBreakpoints::type3IndexChanged(int index) {
+void DialogHwBreakpoints::type3IndexChanged(int index) {
 	ui.cmbSize3->setEnabled(index != 0);
 }
 
 /**
- * @brief DialogHWBreakpoints::type4IndexChanged
+ * @brief DialogHwBreakpoints::type4IndexChanged
  * @param index
  */
-void DialogHWBreakpoints::type4IndexChanged(int index) {
+void DialogHwBreakpoints::type4IndexChanged(int index) {
 	ui.cmbSize4->setEnabled(index != 0);
 }
 
 /**
- * @brief DialogHWBreakpoints::showEvent
+ * @brief DialogHwBreakpoints::showEvent
  * @param event
  */
-void DialogHWBreakpoints::showEvent(QShowEvent *event) {
+void DialogHwBreakpoints::showEvent(QShowEvent *event) {
 	Q_UNUSED(event)
 
 	if (IProcess *process = edb::v1::debugger_core->process()) {

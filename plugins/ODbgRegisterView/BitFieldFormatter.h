@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BITFIELD_FORMATTER_H_20191119_
-#define BITFIELD_FORMATTER_H_20191119_
+#ifndef BIT_FIELD_FORMATTER_H_20191119_
+#define BIT_FIELD_FORMATTER_H_20191119_
 
 #include <QString>
 #include <vector>

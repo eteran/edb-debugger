@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OS_TYPES_H_20060625_
-#define OS_TYPES_H_20060625_
+#ifndef OSTYPES_H_20060625_
+#define OSTYPES_H_20060625_
 
 #include <sys/types.h> // for pid_t/uid_t
 

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SYMBOL_GENERATOR_H_20130808_
-#define SYMBOL_GENERATOR_H_20130808_
+#ifndef ISYMBOL_GENERATOR_H_20130808_
+#define ISYMBOL_GENERATOR_H_20130808_
 
 class QString;
 

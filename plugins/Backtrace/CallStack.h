@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CALLSTACK_H_20191119_
-#define CALLSTACK_H_20191119_
+#ifndef CALL_STACK_H_20191119_
+#define CALL_STACK_H_20191119_
 
 #include "edb.h"
 #include <deque>

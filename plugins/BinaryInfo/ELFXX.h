@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ELF32_H_20070718_
-#define ELF32_H_20070718_
+#ifndef ELFXX_H_20070718_
+#define ELFXX_H_20070718_
 
 #include "IBinary.h"
 #include "libELF/elf_binary.h"

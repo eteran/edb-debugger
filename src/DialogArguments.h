@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOGARGUMENTS_H_20090609_
-#define DIALOGARGUMENTS_H_20090609_
+#ifndef DIALOG_ARGUMENTS_H_20090609_
+#define DIALOG_ARGUMENTS_H_20090609_
 
 #include "ui_DialogArguments.h"
 #include <QDialog>

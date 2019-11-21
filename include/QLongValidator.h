@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef QLONGVALIDATOR_H_20071128_
-#define QLONGVALIDATOR_H_20071128_
+#ifndef QLONG_VALIDATOR_H_20071128_
+#define QLONG_VALIDATOR_H_20071128_
 
 #include "API.h"
 #include <QValidator>

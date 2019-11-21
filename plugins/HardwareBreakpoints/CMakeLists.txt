@@ -11,9 +11,9 @@ set(PluginName "HardwareBreakpoints")
 find_package(Qt5 5.0.0 REQUIRED Widgets)
 
 add_library(${PluginName} SHARED
-	DialogHWBreakpoints.cpp
-	DialogHWBreakpoints.h
-	DialogHWBreakpoints.ui
+	DialogHwBreakpoints.cpp
+	DialogHwBreakpoints.h
+	DialogHwBreakpoints.ui
 	HardwareBreakpoints.cpp
 	HardwareBreakpoints.h
 	libHardwareBreakpoints.cpp

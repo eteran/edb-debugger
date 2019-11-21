@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ELF_BINARY_INFO_H_20061122_
-#define ELF_BINARY_INFO_H_20061122_
+#ifndef BINARY_INFO_H_20061122_
+#define BINARY_INFO_H_20061122_
 
 #include "IPlugin.h"
 #include "ISymbolGenerator.h"
