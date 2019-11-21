@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ValueField.h"
 #include "DialogEditGPR.h"
-#include "DialogEditSIMDRegister.h"
+#include "DialogEditSimdRegister.h"
 #include "ODbgRV_Common.h"
 #include "ODbgRV_Util.h"
 #include "RegisterGroup.h"

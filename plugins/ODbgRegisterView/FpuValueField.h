@@ -7,7 +7,7 @@
 namespace ODbgRegisterView {
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
-class FPUValueField final : public ValueField {
+class FpuValueField final : public ValueField {
 	Q_OBJECT
 
 private:
@@ -24,7 +24,7 @@ private:
 
 public:
 	// Will add itself and commentWidget to the group and renew their positions as needed
-	FPUValueField(int fieldWidth, const QModelIndex &regValueIndex, const QModelIndex &tagValueIndex, RegisterGroup *group, FieldWidget *commentWidget, int row, int column);
+	FpuValueField(int fieldWidth, const QModelIndex &regValueIndex, const QModelIndex &tagValueIndex, RegisterGroup *group, FieldWidget *commentWidget, int row, int column);
 
 public Q_SLOTS:
 	void showFPUAsRaw();

@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-class GPREdit final : public QLineEdit {
+class GprEdit final : public QLineEdit {
 	Q_OBJECT
 
 public:
@@ -34,7 +34,7 @@ public:
 	};
 
 public:
-	GPREdit(std::size_t offsetInInteger, std::size_t integerSize, Format format, QWidget *parent = nullptr);
+	GprEdit(std::size_t offsetInInteger, std::size_t integerSize, Format format, QWidget *parent = nullptr);
 
 public:
 	void setGPRValue(std::uint64_t gprValue);

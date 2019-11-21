@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_EDIT_MMX_H_20151010_
-#define DIALOG_EDIT_MMX_H_20151010_
+#ifndef DIALOG_EDIT_SIMD_REGISTER_H_20151010_
+#define DIALOG_EDIT_SIMD_REGISTER_H_20151010_
 
 #include "Register.h"
 #include "RegisterViewModelBase.h"
@@ -39,7 +39,7 @@ namespace ODbgRegisterView {
 
 class NumberEdit;
 
-class DialogEditSIMDRegister : public QDialog {
+class DialogEditSimdRegister : public QDialog {
 	Q_OBJECT
 
 private:
@@ -68,7 +68,7 @@ private:
 	};
 
 public:
-	explicit DialogEditSIMDRegister(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogEditSimdRegister(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	void setValue(const Register &value);
 	void set_current_element(RegisterViewModelBase::Model::ElementSize size, NumberDisplayMode format, int elementIndex);
 	Register value() const;

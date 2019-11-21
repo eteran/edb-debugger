@@ -11,31 +11,25 @@ set(PluginName "ODbgRegisterView")
 find_package(Qt5 5.0.0 REQUIRED Widgets)
 
 set(PluginSources
-	BitFieldDescription.h
 	BitFieldDescription.cpp
-	FPUValueField.h
-	SIMDValueManager.cpp
-	SIMDValueManager.h
-	RegisterGroup.cpp
-	RegisterGroup.h
-	MultiBitFieldWidget.cpp
-	MultiBitFieldWidget.h
+	BitFieldDescription.h
 	BitFieldFormatter.cpp
 	BitFieldFormatter.h
-	VolatileNameField.cpp
-	VolatileNameField.h
 	Canvas.cpp
 	Canvas.h
 	DialogEditGPR.cpp
 	DialogEditGPR.h
-	DialogEditSIMDRegister.cpp
-	DialogEditSIMDRegister.h
+	DialogEditSimdRegister.cpp
+	DialogEditSimdRegister.h
 	EntryGridKeyUpDownEventFilter.cpp
 	EntryGridKeyUpDownEventFilter.h
 	FieldWidget.cpp
 	FieldWidget.h
-	GPREdit.cpp
-	GPREdit.h
+	FpuValueField.h
+	GprEdit.cpp
+	GprEdit.h
+	MultiBitFieldWidget.cpp
+	MultiBitFieldWidget.h
 	NumberEdit.cpp
 	NumberEdit.h
 	ODbgRV_Common.h
@@ -43,10 +37,16 @@ set(PluginSources
 	ODbgRV_x86Common.h
 	Plugin.cpp
 	Plugin.h
+	RegisterGroup.cpp
+	RegisterGroup.h
 	RegisterView.cpp
 	RegisterView.h
+	SimdValueManager.cpp
+	SimdValueManager.h
 	ValueField.cpp
 	ValueField.h
+	VolatileNameField.cpp
+	VolatileNameField.h
 )
 
 if(TARGET_ARCH_FAMILY_X86)

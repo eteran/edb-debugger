@@ -28,7 +28,7 @@ class QLabel;
 
 namespace ODbgRegisterView {
 
-class GPREdit;
+class GprEdit;
 
 class DialogEditGPR : public QDialog {
 	Q_OBJECT
@@ -77,19 +77,19 @@ protected:
 	bool eventFilter(QObject *, QEvent *) override;
 
 private:
-	void updateAllEntriesExcept(GPREdit *notUpdated);
+	void updateAllEntriesExcept(GprEdit *notUpdated);
 	void hideColumn(Column col);
 	void hideRow(Row row);
 	void setupEntriesAndLabels();
 	void resetLayout();
 	QLabel *&columnLabel(Column col);
 	QLabel *&rowLabel(Row row);
-	GPREdit *&entry(Row row, Column col);
+	GprEdit *&entry(Row row, Column col);
 	void setupFocus();
 
 private:
 	std::array<QLabel *, ENTRY_COLS + ENTRY_ROWS> labels_                    = {{nullptr}};
-	std::array<GPREdit *, FULL_LENGTH_ROWS *ENTRY_COLS + CHAR_COLS> entries_ = {{nullptr}};
+	std::array<GprEdit *, FULL_LENGTH_ROWS *ENTRY_COLS + CHAR_COLS> entries_ = {{nullptr}};
 	std::uint64_t value_;
 	std::size_t bitSize_ = 0;
 	Register reg_;

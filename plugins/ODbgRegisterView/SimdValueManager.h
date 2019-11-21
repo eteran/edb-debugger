@@ -12,7 +12,7 @@
 
 namespace ODbgRegisterView {
 
-class SIMDValueManager : public QObject {
+class SimdValueManager : public QObject {
 	Q_OBJECT
 private:
 	QPersistentModelIndex regIndex_;
@@ -47,7 +47,7 @@ private:
 	void fillGroupMenu();
 
 public:
-	SIMDValueManager(int lineInGroup, const QModelIndex &nameIndex, RegisterGroup *parent = nullptr);
+	SimdValueManager(int lineInGroup, const QModelIndex &nameIndex, RegisterGroup *parent = nullptr);
 
 public Q_SLOTS:
 	void displayFormatChanged();

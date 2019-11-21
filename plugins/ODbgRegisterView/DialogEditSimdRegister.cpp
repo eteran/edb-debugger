@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "DialogEditSIMDRegister.h"
+#include "DialogEditSimdRegister.h"
 #include "EntryGridKeyUpDownEventFilter.h"
 #include "FloatX.h"
 #include "NumberEdit.h"
@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace ODbgRegisterView {
 
 template <std::size_t NumEntries, class Func>
-void DialogEditSIMDRegister::setupEntries(const QString &label, std::array<NumberEdit *, NumEntries> &entries, int row, Func slot, int naturalWidthInChars) {
+void DialogEditSimdRegister::setupEntries(const QString &label, std::array<NumberEdit *, NumEntries> &entries, int row, Func slot, int naturalWidthInChars) {
 
 	auto contentsGrid = qobject_cast<QGridLayout *>(layout());
 
@@ -54,7 +54,7 @@ void DialogEditSIMDRegister::setupEntries(const QString &label, std::array<Numbe
 	}
 }
 
-DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget *parent, Qt::WindowFlags f)
+DialogEditSimdRegister::DialogEditSimdRegister(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f),
 	  byteHexValidator_(new QRegExpValidator(QRegExp("[0-9a-fA-F]{0,2}"), this)),
 	  wordHexValidator_(new QRegExpValidator(QRegExp("[0-9a-fA-F]{0,4}"), this)),
@@ -128,7 +128,7 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget *parent, Qt::WindowFlags 
 	{
 		const auto hexSignRadiosLayout = new QVBoxLayout();
 		radioHex_                      = new QRadioButton(tr("Hexadecimal"), this);
-		connect(radioHex_, &QRadioButton::toggled, this, &DialogEditSIMDRegister::onHexToggled);
+		connect(radioHex_, &QRadioButton::toggled, this, &DialogEditSimdRegister::onHexToggled);
 		// setChecked must be called after connecting of toggled()
 		// in order to set validators for integer editors
 		radioHex_->setChecked(true);
@@ -136,11 +136,11 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget *parent, Qt::WindowFlags 
 		hexSignRadiosLayout->addWidget(radioHex_);
 
 		radioSigned_ = new QRadioButton(tr("Signed"), this);
-		connect(radioSigned_, &QRadioButton::toggled, this, &DialogEditSIMDRegister::onSignedToggled);
+		connect(radioSigned_, &QRadioButton::toggled, this, &DialogEditSimdRegister::onSignedToggled);
 		hexSignRadiosLayout->addWidget(radioSigned_);
 
 		radioUnsigned_ = new QRadioButton(tr("Unsigned"), this);
-		connect(radioUnsigned_, &QRadioButton::toggled, this, &DialogEditSIMDRegister::onUnsignedToggled);
+		connect(radioUnsigned_, &QRadioButton::toggled, this, &DialogEditSimdRegister::onUnsignedToggled);
 		hexSignRadiosLayout->addWidget(radioUnsigned_);
 
 		hexSignOKCancelLayout_->addLayout(hexSignRadiosLayout);
@@ -151,8 +151,8 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget *parent, Qt::WindowFlags 
 		okCancelLayout->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
 		okCancel_ = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok, Qt::Horizontal, this);
-		connect(okCancel_, &QDialogButtonBox::accepted, this, &DialogEditSIMDRegister::accept);
-		connect(okCancel_, &QDialogButtonBox::rejected, this, &DialogEditSIMDRegister::reject);
+		connect(okCancel_, &QDialogButtonBox::accepted, this, &DialogEditSimdRegister::accept);
+		connect(okCancel_, &QDialogButtonBox::rejected, this, &DialogEditSimdRegister::reject);
 		okCancelLayout->addWidget(okCancel_);
 
 		hexSignOKCancelLayout_->addLayout(okCancelLayout);
@@ -196,7 +196,7 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget *parent, Qt::WindowFlags 
 }
 
 template <typename T>
-void DialogEditSIMDRegister::updateFloatEntries(const std::array<NumberEdit *, NumBytes / sizeof(T)> &entries, NumberEdit *notUpdated) {
+void DialogEditSimdRegister::updateFloatEntries(const std::array<NumberEdit *, NumBytes / sizeof(T)> &entries, NumberEdit *notUpdated) {
 
 	for (std::size_t i = 0; i < entries.size(); ++i) {
 		if (entries[i] == notUpdated) {
@@ -210,7 +210,7 @@ void DialogEditSIMDRegister::updateFloatEntries(const std::array<NumberEdit *, N
 }
 
 template <typename T>
-void DialogEditSIMDRegister::updateIntegralEntries(const std::array<NumberEdit *, NumBytes / sizeof(T)> &entries, NumberEdit *notUpdated) {
+void DialogEditSimdRegister::updateIntegralEntries(const std::array<NumberEdit *, NumBytes / sizeof(T)> &entries, NumberEdit *notUpdated) {
 
 	for (std::size_t i = 0; i < entries.size(); ++i) {
 		if (entries[i] == notUpdated) {
@@ -223,7 +223,7 @@ void DialogEditSIMDRegister::updateIntegralEntries(const std::array<NumberEdit *
 	}
 }
 
-void DialogEditSIMDRegister::updateAllEntriesExcept(NumberEdit *notUpdated) {
+void DialogEditSimdRegister::updateAllEntriesExcept(NumberEdit *notUpdated) {
 
 	if (!reg_) {
 		return;
@@ -237,7 +237,7 @@ void DialogEditSIMDRegister::updateAllEntriesExcept(NumberEdit *notUpdated) {
 	updateFloatEntries<edb::value64>(floats64_, notUpdated);
 }
 
-void DialogEditSIMDRegister::resetLayout() {
+void DialogEditSimdRegister::resetLayout() {
 
 	auto layout = qobject_cast<QGridLayout *>(this->layout());
 
@@ -279,7 +279,7 @@ void DialogEditSIMDRegister::resetLayout() {
 	layout->addLayout(hexSignOKCancelLayout_, ROW_AFTER_ENTRIES, ENTRIES_FIRST_COL, 1, NumBytes);
 }
 
-void DialogEditSIMDRegister::hideColumns(EntriesCols afterLastToHide) {
+void DialogEditSimdRegister::hideColumns(EntriesCols afterLastToHide) {
 
 	auto layout = qobject_cast<QGridLayout *>(this->layout());
 
@@ -316,7 +316,7 @@ void DialogEditSIMDRegister::hideColumns(EntriesCols afterLastToHide) {
 	layout->addLayout(hexSignOKCancelLayout_, ROW_AFTER_ENTRIES, afterLastToHide, 1, TOTAL_COLS - afterLastToHide);
 }
 
-void DialogEditSIMDRegister::hideRows(EntriesRows rowToHide) {
+void DialogEditSimdRegister::hideRows(EntriesRows rowToHide) {
 
 	auto layout = qobject_cast<QGridLayout *>(this->layout());
 
@@ -328,11 +328,11 @@ void DialogEditSIMDRegister::hideRows(EntriesRows rowToHide) {
 	}
 }
 
-bool DialogEditSIMDRegister::eventFilter(QObject *obj, QEvent *event) {
+bool DialogEditSimdRegister::eventFilter(QObject *obj, QEvent *event) {
 	return entry_grid_key_event_filter(this, obj, event);
 }
 
-void DialogEditSIMDRegister::setValue(const Register &newReg) {
+void DialogEditSimdRegister::setValue(const Register &newReg) {
 	resetLayout();
 	assert(newReg.bitSize() <= 8 * sizeof(value_));
 	reg_ = newReg;
@@ -353,12 +353,12 @@ void DialogEditSIMDRegister::setValue(const Register &newReg) {
 		std::memcpy(&value_, &value, sizeof(value));
 		hideColumns(YMM_FIRST_COL);
 	} else
-		qCritical() << "DialogEditSIMDRegister::setValue(" << reg_.name() << "): register type unsupported";
+		qCritical() << "DialogEditSimdRegister::setValue(" << reg_.name() << "): register type unsupported";
 	setWindowTitle(tr("Modify %1").arg(reg_.name().toUpper()));
 	updateAllEntriesExcept(nullptr);
 }
 
-void DialogEditSIMDRegister::set_current_element(RegisterViewModelBase::Model::ElementSize size, NumberDisplayMode format, int elementIndex) {
+void DialogEditSimdRegister::set_current_element(RegisterViewModelBase::Model::ElementSize size, NumberDisplayMode format, int elementIndex) {
 	using namespace RegisterViewModelBase;
 	if (format != intMode_ && format != NumberDisplayMode::Float) {
 		switch (format) {
@@ -405,7 +405,7 @@ void DialogEditSIMDRegister::set_current_element(RegisterViewModelBase::Model::E
 	edit->setFocus(Qt::OtherFocusReason);
 }
 
-std::uint64_t DialogEditSIMDRegister::readInteger(const NumberEdit *const edit) const {
+std::uint64_t DialogEditSimdRegister::readInteger(const NumberEdit *const edit) const {
 	bool ok;
 	switch (intMode_) {
 	case NumberDisplayMode::Hex:
@@ -421,7 +421,7 @@ std::uint64_t DialogEditSIMDRegister::readInteger(const NumberEdit *const edit) 
 }
 
 template <typename Integer>
-void DialogEditSIMDRegister::formatInteger(NumberEdit *const edit, Integer integer) const {
+void DialogEditSimdRegister::formatInteger(NumberEdit *const edit, Integer integer) const {
 	switch (intMode_) {
 	case NumberDisplayMode::Hex:
 		edit->setText(QString("%1").arg(integer, 2 * sizeof(integer), 16, QChar('0')));
@@ -442,7 +442,7 @@ void DialogEditSIMDRegister::formatInteger(NumberEdit *const edit, Integer integ
 }
 
 template <typename Integer>
-void DialogEditSIMDRegister::onIntegerEdited(QObject *sender, const std::array<NumberEdit *, NumBytes / sizeof(Integer)> &elements) {
+void DialogEditSimdRegister::onIntegerEdited(QObject *sender, const std::array<NumberEdit *, NumBytes / sizeof(Integer)> &elements) {
 	const auto changedElementEdit = qobject_cast<NumberEdit *>(sender);
 	std::size_t elementIndex      = std::find(elements.begin(), elements.end(), changedElementEdit) - elements.begin();
 	Integer value                 = readInteger(elements[elementIndex]);
@@ -451,7 +451,7 @@ void DialogEditSIMDRegister::onIntegerEdited(QObject *sender, const std::array<N
 }
 
 template <typename Float>
-void DialogEditSIMDRegister::onFloatEdited(QObject *sender, const std::array<NumberEdit *, NumBytes / sizeof(Float)> &elements) {
+void DialogEditSimdRegister::onFloatEdited(QObject *sender, const std::array<NumberEdit *, NumBytes / sizeof(Float)> &elements) {
 	const auto changedFloatEdit = qobject_cast<NumberEdit *>(sender);
 	std::size_t floatIndex      = std::find(elements.begin(), elements.end(), changedFloatEdit) - elements.begin();
 	bool ok                     = false;
@@ -462,31 +462,31 @@ void DialogEditSIMDRegister::onFloatEdited(QObject *sender, const std::array<Num
 	}
 }
 
-void DialogEditSIMDRegister::onByteEdited() {
+void DialogEditSimdRegister::onByteEdited() {
 	onIntegerEdited<std::uint8_t>(sender(), bytes_);
 }
 
-void DialogEditSIMDRegister::onWordEdited() {
+void DialogEditSimdRegister::onWordEdited() {
 	onIntegerEdited<std::uint16_t>(sender(), words_);
 }
 
-void DialogEditSIMDRegister::onDwordEdited() {
+void DialogEditSimdRegister::onDwordEdited() {
 	onIntegerEdited<std::uint32_t>(sender(), dwords_);
 }
 
-void DialogEditSIMDRegister::onQwordEdited() {
+void DialogEditSimdRegister::onQwordEdited() {
 	onIntegerEdited<std::uint64_t>(sender(), qwords_);
 }
 
-void DialogEditSIMDRegister::onFloat32Edited() {
+void DialogEditSimdRegister::onFloat32Edited() {
 	onFloatEdited<float>(sender(), floats32_);
 }
 
-void DialogEditSIMDRegister::onFloat64Edited() {
+void DialogEditSimdRegister::onFloat64Edited() {
 	onFloatEdited<double>(sender(), floats64_);
 }
 
-void DialogEditSIMDRegister::onHexToggled(bool checked) {
+void DialogEditSimdRegister::onHexToggled(bool checked) {
 	if ((checked && intMode_ != NumberDisplayMode::Hex) || !bytes_.front()->validator()) {
 		intMode_ = NumberDisplayMode::Hex;
 		for (const auto &byte : bytes_)
@@ -501,7 +501,7 @@ void DialogEditSIMDRegister::onHexToggled(bool checked) {
 	}
 }
 
-void DialogEditSIMDRegister::onSignedToggled(bool checked) {
+void DialogEditSimdRegister::onSignedToggled(bool checked) {
 	if ((checked && intMode_ != NumberDisplayMode::Signed) || !bytes_.front()->validator()) {
 		intMode_ = NumberDisplayMode::Signed;
 		for (const auto &byte : bytes_)
@@ -516,7 +516,7 @@ void DialogEditSIMDRegister::onSignedToggled(bool checked) {
 	}
 }
 
-void DialogEditSIMDRegister::onUnsignedToggled(bool checked) {
+void DialogEditSimdRegister::onUnsignedToggled(bool checked) {
 	if ((checked && intMode_ != NumberDisplayMode::Unsigned) || !bytes_.front()->validator()) {
 		intMode_ = NumberDisplayMode::Unsigned;
 		for (const auto &byte : bytes_)
@@ -531,7 +531,7 @@ void DialogEditSIMDRegister::onUnsignedToggled(bool checked) {
 	}
 }
 
-Register DialogEditSIMDRegister::value() const {
+Register DialogEditSimdRegister::value() const {
 	Register out(reg_);
 	out.setValueFrom(value_);
 	return out;

@@ -1,11 +1,11 @@
 
-#include "SIMDValueManager.h"
+#include "SimdValueManager.h"
 #include "ODbgRV_Util.h"
 #include "ValueField.h"
 
 namespace ODbgRegisterView {
 
-SIMDValueManager::SIMDValueManager(int lineInGroup, const QModelIndex &nameIndex, RegisterGroup *parent)
+SimdValueManager::SimdValueManager(int lineInGroup, const QModelIndex &nameIndex, RegisterGroup *parent)
 	: QObject(parent), regIndex_(nameIndex), lineInGroup_(lineInGroup) {
 
 	setupMenu();
@@ -15,7 +15,7 @@ SIMDValueManager::SIMDValueManager(int lineInGroup, const QModelIndex &nameIndex
 	displayFormatChanged();
 }
 
-void SIMDValueManager::fillGroupMenu() {
+void SimdValueManager::fillGroupMenu() {
 	const auto group = this->group();
 	group->menuItems_.push_back(new_action_separator(this));
 	group->menuItems_.push_back(menuItems_[VIEW_AS_BYTES]);
@@ -31,7 +31,7 @@ void SIMDValueManager::fillGroupMenu() {
 	group->menuItems_.push_back(menuItems_[VIEW_INT_AS_UNSIGNED]);
 }
 
-auto SIMDValueManager::model() const -> Model * {
+auto SimdValueManager::model() const -> Model * {
 	const auto model = static_cast<const Model *>(regIndex_.model());
 	// The model is not supposed to have been created as const object,
 	// and our manipulations won't invalidate the index.
@@ -39,12 +39,12 @@ auto SIMDValueManager::model() const -> Model * {
 	return const_cast<Model *>(model);
 }
 
-void SIMDValueManager::showAsInt(Model::ElementSize size) {
+void SimdValueManager::showAsInt(Model::ElementSize size) {
 	model()->setChosenSIMDSize(regIndex_.parent(), size);
 	model()->setChosenSIMDFormat(regIndex_.parent(), intMode_);
 }
 
-void SIMDValueManager::showAsFloat(Model::ElementSize size) {
+void SimdValueManager::showAsFloat(Model::ElementSize size) {
 	model()->setChosenSIMDFormat(regIndex_.parent(), NumberDisplayMode::Float);
 
 	switch (size) {
@@ -59,11 +59,11 @@ void SIMDValueManager::showAsFloat(Model::ElementSize size) {
 	}
 }
 
-void SIMDValueManager::setIntFormat(NumberDisplayMode format) {
+void SimdValueManager::setIntFormat(NumberDisplayMode format) {
 	model()->setChosenSIMDFormat(regIndex_.parent(), format);
 }
 
-void SIMDValueManager::setupMenu() {
+void SimdValueManager::setupMenu() {
 	const auto group        = this->group();
 	const auto validFormats = valid_variant(regIndex_.parent().data(Model::ValidSIMDFormatsRole)).value<std::vector<NumberDisplayMode>>();
 	// Setup menu if we're the first value field creator
@@ -115,7 +115,7 @@ void SIMDValueManager::setupMenu() {
 	}
 }
 
-void SIMDValueManager::updateMenu() {
+void SimdValueManager::updateMenu() {
 	if (menuItems_.isEmpty())
 		return;
 	Q_FOREACH (auto item, menuItems_)
@@ -162,11 +162,11 @@ void SIMDValueManager::updateMenu() {
 	}
 }
 
-RegisterGroup *SIMDValueManager::group() const {
+RegisterGroup *SimdValueManager::group() const {
 	return checked_cast<RegisterGroup>(parent());
 }
 
-void SIMDValueManager::displayFormatChanged() {
+void SimdValueManager::displayFormatChanged() {
 	const auto newFormat = currentFormat();
 
 	if (newFormat != NumberDisplayMode::Float) {
@@ -201,13 +201,13 @@ void SIMDValueManager::displayFormatChanged() {
 	updateMenu();
 }
 
-RegisterViewModelBase::Model::ElementSize SIMDValueManager::currentSize() const {
+RegisterViewModelBase::Model::ElementSize SimdValueManager::currentSize() const {
 	using RegisterViewModelBase::Model;
 	const int size = valid_variant(regIndex_.parent().data(Model::ChosenSIMDSizeRole)).toInt();
 	return static_cast<Model::ElementSize>(size);
 }
 
-NumberDisplayMode SIMDValueManager::currentFormat() const {
+NumberDisplayMode SimdValueManager::currentFormat() const {
 	using RegisterViewModelBase::Model;
 	const int size = valid_variant(regIndex_.parent().data(Model::ChosenSIMDFormatRole)).toInt();
 	return static_cast<NumberDisplayMode>(size);

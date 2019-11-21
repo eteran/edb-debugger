@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "FPUValueField.h"
+#include "FpuValueField.h"
 #include "ODbgRV_Util.h"
 #include "ODbgRV_x86Common.h"
 #include "RegisterGroup.h"
@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-FPUValueField::FPUValueField(int fieldWidth, const QModelIndex &regValueIndex, const QModelIndex &tagValueIndex, RegisterGroup *group, FieldWidget *commentWidget, int row, int column)
+FpuValueField::FpuValueField(int fieldWidth, const QModelIndex &regValueIndex, const QModelIndex &tagValueIndex, RegisterGroup *group, FieldWidget *commentWidget, int row, int column)
 	: ValueField(
 		  fieldWidth, regValueIndex,
 		  [this](const QString &str) {
@@ -59,15 +59,15 @@ FPUValueField::FPUValueField(int fieldWidth, const QModelIndex &regValueIndex, c
 	connect(index_.model(), SIGNAL(FPUDisplayFormatChanged()), this, SLOT(displayFormatChanged()));
 }
 
-void FPUValueField::showFPUAsRaw() {
+void FpuValueField::showFPUAsRaw() {
 	model()->setChosenFPUFormat(index_.parent(), NumberDisplayMode::Hex);
 }
 
-void FPUValueField::showFPUAsFloat() {
+void FpuValueField::showFPUAsFloat() {
 	model()->setChosenFPUFormat(index_.parent(), NumberDisplayMode::Float);
 }
 
-void FPUValueField::displayFormatChanged() {
+void FpuValueField::displayFormatChanged() {
 
 	using RegisterViewModelBase::Model;
 	const auto format = static_cast<NumberDisplayMode>(valid_variant(index_.parent().data(Model::ChosenFPUFormatRole)).toInt());
@@ -104,7 +104,7 @@ void FPUValueField::displayFormatChanged() {
 	commentWidget->move(x() + maximumWidth(), commentWidget->y());
 }
 
-void FPUValueField::updatePalette() {
+void FpuValueField::updatePalette() {
 	if (!changed() && tagValueIndex.data().toUInt() == FpuTagEmpty) {
 		auto palette = group()->palette();
 		palette.setColor(foregroundRole(), palette.color(QPalette::Disabled, QPalette::Text));

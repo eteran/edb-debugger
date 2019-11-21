@@ -20,12 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Canvas.h"
 #include "Configuration.h"
 #include "DialogEditGPR.h"
-#include "DialogEditSIMDRegister.h"
+#include "DialogEditSimdRegister.h"
 #include "ODbgRV_Common.h"
 #include "ODbgRV_Util.h"
 #include "RegisterGroup.h"
 #include "RegisterViewModelBase.h"
-#include "SIMDValueManager.h"
+#include "SimdValueManager.h"
 #include "State.h"
 #include "ValueField.h"
 #include "VolatileNameField.h"
@@ -116,9 +116,9 @@ RegisterGroup *createSIMDGroup(RegisterViewModelBase::Model *model, QWidget *par
 		}
 
 		group->insert(row, 0, new FieldWidget(name, group));
-		new SIMDValueManager(row, nameIndex, group);
+		new SimdValueManager(row, nameIndex, group);
 	}
-	// This signal must be handled by group _after_ all `SIMDValueManager`s handle their connection to this signal
+	// This signal must be handled by group _after_ all `SimdValueManager`s handle their connection to this signal
 	QObject::connect(
 		model, &RegisterViewModelBase::Model::SIMDDisplayFormatChanged, group, [group]() {
 			group->adjustWidth();
@@ -195,7 +195,7 @@ void ODBRegView::settingsUpdated() {
 ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 	: QScrollArea(parent),
 	  dialogEditGpr_(new DialogEditGPR(this)),
-	  dialogEditSIMDReg_(new DialogEditSIMDRegister(this)),
+	  dialogEditSIMDReg_(new DialogEditSimdRegister(this)),
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	  dialogEditFpu_(new DialogEditFPU(this))
 #else
@@ -273,7 +273,7 @@ DialogEditGPR *ODBRegView::gprEditDialog() const {
 	return dialogEditGpr_;
 }
 
-DialogEditSIMDRegister *ODBRegView::simdEditDialog() const {
+DialogEditSimdRegister *ODBRegView::simdEditDialog() const {
 	return dialogEditSIMDReg_;
 }
 

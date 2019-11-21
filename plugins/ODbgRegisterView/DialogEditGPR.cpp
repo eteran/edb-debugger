@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogEditGPR.h"
-#include "GPREdit.h"
+#include "GprEdit.h"
 #include <QDebug>
 #include <QDialogButtonBox>
 #include <QGridLayout>
@@ -61,12 +61,12 @@ DialogEditGPR::DialogEditGPR(QWidget *parent, Qt::WindowFlags f)
 		static const auto integerSizes     = util::make_array<std::size_t>(8u, 4u, 2u, 1u, 1u);
 		static_assert(std::tuple_size<decltype(integerSizes)>::value == DialogEditGPR::ENTRY_COLS, "integerSizes length doesn't equal ENTRY_COLS");
 		static_assert(std::tuple_size<decltype(offsetsInInteger)>::value == DialogEditGPR::ENTRY_COLS, "offsetsInInteger length doesn't equal ENTRY_COLS");
-		static const auto formats = util::make_array(GPREdit::Format::Hex, GPREdit::Format::Signed, GPREdit::Format::Unsigned);
+		static const auto formats = util::make_array(GprEdit::Format::Hex, GprEdit::Format::Signed, GprEdit::Format::Unsigned);
 		for (std::size_t f = 0; f < formats.size(); ++f) {
 			for (std::size_t c = 0; c < ENTRY_COLS; ++c) {
 				auto &entry = this->entry(static_cast<Row>(FIRST_ENTRY_ROW + f), static_cast<Column>(FIRST_ENTRY_COL + c));
-				entry       = new GPREdit(offsetsInInteger[c], integerSizes[c], formats[f], this);
-				connect(entry, &GPREdit::textEdited, this, &DialogEditGPR::onTextEdited);
+				entry       = new GprEdit(offsetsInInteger[c], integerSizes[c], formats[f], this);
+				connect(entry, &GprEdit::textEdited, this, &DialogEditGPR::onTextEdited);
 				entry->installEventFilter(this);
 				allContentsGrid->addWidget(entry, FIRST_ENTRY_ROW + f, FIRST_ENTRY_COL + c);
 			}
@@ -76,8 +76,8 @@ DialogEditGPR::DialogEditGPR(QWidget *parent, Qt::WindowFlags f)
 	// High byte char
 	{
 		auto &charHigh = entry(CHAR_ROW, GPR8H_COL);
-		charHigh       = new GPREdit(1, 1, GPREdit::Format::Character, this);
-		connect(charHigh, &GPREdit::textEdited, this, &DialogEditGPR::onTextEdited);
+		charHigh       = new GprEdit(1, 1, GprEdit::Format::Character, this);
+		connect(charHigh, &GprEdit::textEdited, this, &DialogEditGPR::onTextEdited);
 		charHigh->installEventFilter(this);
 		allContentsGrid->addWidget(charHigh, CHAR_ROW, GPR8H_COL);
 	}
@@ -85,8 +85,8 @@ DialogEditGPR::DialogEditGPR(QWidget *parent, Qt::WindowFlags f)
 	// Low byte char
 	{
 		auto &charLow = entry(CHAR_ROW, GPR8L_COL);
-		charLow       = new GPREdit(0, 1, GPREdit::Format::Character, this);
-		connect(charLow, &GPREdit::textEdited, this, &DialogEditGPR::onTextEdited);
+		charLow       = new GprEdit(0, 1, GprEdit::Format::Character, this);
+		connect(charLow, &GprEdit::textEdited, this, &DialogEditGPR::onTextEdited);
 		charLow->installEventFilter(this);
 		allContentsGrid->addWidget(charLow, CHAR_ROW, GPR8L_COL);
 	}
@@ -107,7 +107,7 @@ DialogEditGPR::DialogEditGPR(QWidget *parent, Qt::WindowFlags f)
 	}
 }
 
-GPREdit *&DialogEditGPR::entry(DialogEditGPR::Row row, DialogEditGPR::Column col) {
+GprEdit *&DialogEditGPR::entry(DialogEditGPR::Row row, DialogEditGPR::Column col) {
 
 	if (row < ENTRY_ROWS)
 		return entries_.at((row - FIRST_ENTRY_ROW) * ENTRY_COLS + (col - FIRST_ENTRY_COL));
@@ -120,7 +120,7 @@ GPREdit *&DialogEditGPR::entry(DialogEditGPR::Row row, DialogEditGPR::Column col
 	return entries_.front(); // silence the compiler
 }
 
-void DialogEditGPR::updateAllEntriesExcept(GPREdit *notUpdated) {
+void DialogEditGPR::updateAllEntriesExcept(GprEdit *notUpdated) {
 
 	for (auto entry : entries_) {
 		if (entry != notUpdated && !entry->isHidden()) {
@@ -297,7 +297,7 @@ Register DialogEditGPR::value() const {
 }
 
 void DialogEditGPR::onTextEdited(const QString &) {
-	auto edit = dynamic_cast<GPREdit *>(sender());
+	auto edit = dynamic_cast<GprEdit *>(sender());
 	edit->updateGPRValue(value_);
 	updateAllEntriesExcept(edit);
 }

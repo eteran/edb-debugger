@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-class DialogEditSIMDRegister;
+class DialogEditSimdRegister;
 class DialogEditGPR;
 class DialogEditFPU;
 class RegisterGroup;
@@ -72,7 +72,7 @@ public:
 	void saveState(const QString &settings) const;
 	void groupHidden(RegisterGroup *group);
 	DialogEditGPR *gprEditDialog() const;
-	DialogEditSIMDRegister *simdEditDialog() const;
+	DialogEditSimdRegister *simdEditDialog() const;
 	DialogEditFPU *fpuEditDialog() const;
 	void selectAField();
 
@@ -102,7 +102,7 @@ private:
 	std::vector<RegisterGroupType> visibleGroupTypes_;
 	QList<QAction *> menuItems_;
 	DialogEditGPR *dialogEditGpr_;
-	DialogEditSIMDRegister *dialogEditSIMDReg_;
+	DialogEditSimdRegister *dialogEditSIMDReg_;
 	DialogEditFPU *dialogEditFpu_;
 };
 

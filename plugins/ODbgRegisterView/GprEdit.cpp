@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "GPREdit.h"
+#include "GprEdit.h"
 #include "QLongValidator.h"
 #include "QULongValidator.h"
 #include <QApplication>
@@ -59,7 +59,7 @@ const std::map<int, const QULongValidator *> unsignedValidators = {
 
 }
 
-void GPREdit::setupFormat(Format newFormat) {
+void GprEdit::setupFormat(Format newFormat) {
 	format_ = newFormat;
 	switch (format_) {
 	case Format::Hex:
@@ -82,13 +82,13 @@ void GPREdit::setupFormat(Format newFormat) {
 	}
 }
 
-GPREdit::GPREdit(std::size_t offsetInInteger, std::size_t integerSize, Format format, QWidget *parent)
+GprEdit::GprEdit(std::size_t offsetInInteger, std::size_t integerSize, Format format, QWidget *parent)
 	: QLineEdit(parent), naturalWidthInChars_(2 * integerSize), integerSize_(integerSize), offsetInInteger_(offsetInInteger) {
 
 	setupFormat(format);
 }
 
-void GPREdit::setGPRValue(std::uint64_t gprValue) {
+void GprEdit::setGPRValue(std::uint64_t gprValue) {
 	std::uint64_t value(0);
 	signBit_ = format_ == Format::Signed ? 1ull << (8 * integerSize_ - 1) : 0;
 	if ((gprValue >> 8 * offsetInInteger_) & signBit_)
@@ -110,7 +110,7 @@ void GPREdit::setGPRValue(std::uint64_t gprValue) {
 	}
 }
 
-void GPREdit::updateGPRValue(std::uint64_t &gpr) const {
+void GprEdit::updateGPRValue(std::uint64_t &gpr) const {
 	bool ok;
 	std::uint64_t value;
 	switch (format_) {
@@ -132,7 +132,7 @@ void GPREdit::updateGPRValue(std::uint64_t &gpr) const {
 	std::memcpy(reinterpret_cast<char *>(&gpr) + offsetInInteger_, &value, integerSize_);
 }
 
-QSize GPREdit::sizeHint() const {
+QSize GprEdit::sizeHint() const {
 
 	const auto baseHint = QLineEdit::sizeHint();
 	// taking long enough reference char to make enough room even in presence of inner shadows like in Oxygen style

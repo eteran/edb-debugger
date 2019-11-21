@@ -6,14 +6,14 @@
 
 namespace ODbgRegisterView {
 
-class SIMDValueManager;
+class SimdValueManager;
 class FieldWidget;
 class ValueField;
 class ODBRegView;
 
 class RegisterGroup : public QWidget {
 	Q_OBJECT
-	friend SIMDValueManager;
+	friend SimdValueManager;
 
 public:
 	explicit RegisterGroup(const QString &name_, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());

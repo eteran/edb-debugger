@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "x86Groups.h"
 #include "BitFieldDescription.h"
-#include "FPUValueField.h"
+#include "FpuValueField.h"
 #include "MultiBitFieldWidget.h"
 #include "ODbgRV_Util.h"
 #include "ODbgRV_x86Common.h"
@@ -251,12 +251,15 @@ RegisterGroup *create_expanded_eflags(RegisterViewModelBase::Model *model, QWidg
 		const auto flagNameIndex  = model->index(row, ModelNameColumn, regNameIndex);
 		const auto flagValueIndex = model->index(row, ModelValueColumn, regNameIndex);
 		const auto flagName       = model->data(flagNameIndex).toString().toUpper();
-		if (flagName.length() != 2 || flagName[1] != 'F')
+
+		if (flagName.length() != 2 || flagName[1] != 'F') {
 			continue;
+		}
+
 		constexpr int FlagNameWidth = 1;
 		constexpr int ValueWidth    = 1;
-		const char name             = flagName[0].toLatin1();
 
+		const char name = flagName[0].toLatin1();
 		switch (name) {
 		case 'C':
 		case 'P':
@@ -268,8 +271,10 @@ RegisterGroup *create_expanded_eflags(RegisterViewModelBase::Model *model, QWidg
 		case 'O': {
 			const auto nameField = new FieldWidget(QChar(name), group);
 			group->insert(groupRow, 0, nameField);
+
 			const auto valueField = new ValueField(ValueWidth, flagValueIndex, group);
 			group->insert(groupRow, FlagNameWidth + 1, valueField);
+
 			++groupRow;
 
 			const auto tooltipStr = flagTooltips.at(name);
@@ -335,7 +340,7 @@ RegisterGroup *create_fpu_data(RegisterViewModelBase::Model *model, QWidget *par
 		const int regValueWidth  = regValueIndex.data(Model::FixedLengthRole).toInt();
 		Q_ASSERT(regValueWidth > 0);
 		const auto regCommentIndex = model->index(row, ModelCommentColumn, catIndex);
-		new FPUValueField(regValueWidth, regValueIndex, tagValueIndex, group, new FieldWidget(0, regCommentIndex, group), row, column);
+		new FpuValueField(regValueWidth, regValueIndex, tagValueIndex, group, new FieldWidget(0, regCommentIndex, group), row, column);
 	}
 
 	return group;
@@ -343,8 +348,10 @@ RegisterGroup *create_fpu_data(RegisterViewModelBase::Model *model, QWidget *par
 
 RegisterGroup *create_fpu_words(RegisterViewModelBase::Model *model, QWidget *parent) {
 	const auto catIndex = find_model_category(model, "FPU");
-	if (!catIndex.isValid())
+	if (!catIndex.isValid()) {
 		return nullptr;
+	}
+
 	const auto group = new RegisterGroup(tr("FPU Status&&Control Registers"), parent);
 	group->appendNameValueComment(find_model_register(catIndex, FtrName), tr("FPU Tag Register"), false);
 
