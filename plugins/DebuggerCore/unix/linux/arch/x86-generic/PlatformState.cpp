@@ -167,7 +167,7 @@ size_t PlatformState::X87::STIndexToRIndex(size_t n) const {
 }
 
 int PlatformState::X87::recreateTag(edb::value80 value) const {
-	switch (floatType(value)) {
+	switch (float_type(value)) {
 	case FloatValueClass::Zero:
 		return TAG_ZERO;
 	case FloatValueClass::Normal:

@@ -944,7 +944,7 @@ int SIMDFormatItem<edb::value80, edb::value80>::valueMaxLength() const {
 	case NumberDisplayMode::Hex:
 		return 2 * sizeof(edb::value80);
 	case NumberDisplayMode::Float:
-		return maxPrintedLength<long double>();
+		return max_printed_length<long double>();
 	default:
 		EDB_PRINT_AND_DIE("Unexpected format: ", static_cast<long>(format_));
 	}
@@ -960,15 +960,15 @@ int SIMDFormatItem<StoredType, SizingType>::valueMaxLength() const {
 	case NumberDisplayMode::Hex:
 		return 2 * sizeof(SizingType);
 	case NumberDisplayMode::Signed:
-		return maxPrintedLength<Signed>();
+		return max_printed_length<Signed>();
 	case NumberDisplayMode::Unsigned:
-		return maxPrintedLength<Unsigned>();
+		return max_printed_length<Unsigned>();
 	case NumberDisplayMode::Float:
 		switch (sizeof(SizingType)) {
 		case sizeof(float):
-			return maxPrintedLength<float>();
+			return max_printed_length<float>();
 		case sizeof(double):
-			return maxPrintedLength<double>();
+			return max_printed_length<double>();
 		default:
 			if (sizeof(SizingType) < sizeof(float)) {
 				return 0;

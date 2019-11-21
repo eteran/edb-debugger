@@ -128,7 +128,7 @@ public:
 	void setThreadState(HANDLE hThread) const;
 
 private:
-#ifdef EDB_X86_64
+#if defined(EDB_X86_64)
 	union {
 		CONTEXT context64_ = {};
 		WOW64_CONTEXT context32_;

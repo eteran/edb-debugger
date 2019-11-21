@@ -65,7 +65,7 @@ private:
 	void fillSegmentBases(PlatformState *state);
 	bool fillStateFromPrStatus(PlatformState *state);
 	bool fillStateFromSimpleRegs(PlatformState *state);
-#ifdef EDB_ARM32
+#if defined(EDB_ARM32)
 	bool fillStateFromVFPRegs(PlatformState *state);
 #endif
 

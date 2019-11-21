@@ -33,8 +33,7 @@ set(PluginSources
 	NumberEdit.cpp
 	NumberEdit.h
 	ODbgRV_Common.h
-	ODbgRV_Util.h
-	ODbgRV_x86Common.h
+	ODbgRV_Util.h	
 	Plugin.cpp
 	Plugin.h
 	RegisterGroup.cpp
@@ -50,25 +49,41 @@ set(PluginSources
 )
 
 if(TARGET_ARCH_FAMILY_X86)
+
+	set(PLUGIN_INCLUDES
+		arch/x86-generic
+	)
+	
 	set(PluginSources
 		${PluginSources}
-		x86Groups.cpp
-		x86Groups.h
-		x86FPUValueField.cpp
-		Float80Edit.cpp
-		Float80Edit.h
-		DialogEditFPU.cpp
-		DialogEditFPU.h
+		arch/x86-generic/x86Groups.cpp
+		arch/x86-generic/x86Groups.h
+		arch/x86-generic/x86FPUValueField.cpp
+		arch/x86-generic/Float80Edit.cpp
+		arch/x86-generic/Float80Edit.h
+		arch/x86-generic/DialogEditFPU.cpp
+		arch/x86-generic/DialogEditFPU.h
+		arch/x86-generic/ODbgRV_x86Common.h
 	)
 elseif(TARGET_ARCH_FAMILY_ARM)
+
+	set(PLUGIN_INCLUDES
+		arch/arm-generic
+	)
+
 	set(PluginSources
 		${PluginSources}
-		armGroups.cpp
-		armGroups.h
+		arch/arm-generic/armGroups.cpp
+		arch/arm-generic/armGroups.h
 	)
 endif()
 
 add_library(${PluginName} SHARED ${PluginSources})
+
+target_include_directories(${PluginName} PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${PLUGIN_INCLUDES}
+)
 
 target_link_libraries(${PluginName} Qt5::Widgets edb)
 

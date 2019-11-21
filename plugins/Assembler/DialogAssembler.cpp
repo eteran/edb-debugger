@@ -45,19 +45,19 @@ namespace AssemblerPlugin {
 namespace {
 
 /**
- * @brief toHtmlEscaped
+ * @brief escape_html
  * @param str
  * @return
  */
-QString toHtmlEscaped(const QString &str) {
+QString escape_html(const QString &str) {
 	return str.toHtmlEscaped();
 }
 
 /**
- * @brief getAssemblerDescription
+ * @brief assembler_description
  * @return
  */
-QDomDocument getAssemblerDescription() {
+QDomDocument assembler_description() {
 
 	const QString assembler = QSettings().value("Assembler/helper", "yasm").toString();
 
@@ -67,7 +67,7 @@ QDomDocument getAssemblerDescription() {
 		QXmlQuery query;
 		QString assembler_xml;
 		query.setFocus(&file);
-		query.setQuery(QString("assemblers/assembler[@name='%1']").arg(toHtmlEscaped(assembler)));
+        query.setQuery(QString("assemblers/assembler[@name='%1']").arg(escape_html(assembler)));
 		if (query.isValid()) {
 			query.evaluateTo(&assembler_xml);
 		}
@@ -84,9 +84,9 @@ QDomDocument getAssemblerDescription() {
  * @param insn
  * @return
  */
-QString fixupSyntax(QString insn) {
+QString fixup_syntax(QString insn) {
 
-	const QDomElement asmRoot = getAssemblerDescription().documentElement();
+    const QDomElement asmRoot = assembler_description().documentElement();
 	if (asmRoot.isNull()) {
 		return insn;
 	}
@@ -107,10 +107,12 @@ QString fixupSyntax(QString insn) {
 		"zmmword"};
 
 	for (const QString &size : sizes) {
-		const QString replacement = opSizes.attribute(size);
-		if (!replacement.isEmpty())
-			insn.replace(QRegExp("\\b" + size + "\\b"), replacement);
+        const QString replacement = opSizes.attribute(size);
+        if (!replacement.isEmpty()) {
+            insn.replace(QRegExp("\\b" + size + "\\b"), replacement);
+        }
 	}
+
 	return insn;
 }
 
@@ -143,7 +145,7 @@ void DialogAssembler::setAddress(edb::address_t address) {
 	if (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 		edb::Instruction inst(buffer, buffer + size, address);
 		if (inst) {
-			ui.assembly->setEditText(fixupSyntax(edb::v1::formatter().toString(inst).c_str()).simplified());
+            ui.assembly->setEditText(fixup_syntax(edb::v1::formatter().toString(inst).c_str()).simplified());
 			instructionSize_ = inst.byteSize();
 		}
 	}
@@ -157,11 +159,11 @@ void DialogAssembler::on_buttonBox_accepted() {
 	if (IDebugger *core = edb::v1::debugger_core) {
 		const QString nasm_syntax = ui.assembly->currentText().trimmed();
 
-		const QDomElement asm_root = getAssemblerDescription().documentElement();
+        const QDomElement asm_root = assembler_description().documentElement();
 		if (!asm_root.isNull()) {
 			QDomElement asm_executable = asm_root.firstChildElement("executable");
 			QDomElement asm_template   = asm_root.firstChildElement("template");
-#ifdef EDB_ARM32
+#if defined(EDB_ARM32)
 			const auto mode = core->cpuMode();
 			while (mode == IDebugger::CpuMode::ARM32 && asm_template.attribute("mode") != "arm" ||
 				   mode == IDebugger::CpuMode::Thumb && asm_template.attribute("mode") != "thumb") {

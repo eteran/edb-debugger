@@ -23,6 +23,7 @@ namespace ODbgRegisterView {
 
 Float80Edit::Float80Edit(QWidget *parent)
 	: QLineEdit(parent) {
+
 	setValidator(new FloatXValidator<long double>(this));
 }
 

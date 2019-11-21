@@ -51,7 +51,7 @@ static constexpr size_t MAX_XMM_REG_COUNT               = AMD64_XMM_REG_COUNT;
 static constexpr size_t MAX_YMM_REG_COUNT               = AMD64_YMM_REG_COUNT;
 static constexpr size_t MAX_ZMM_REG_COUNT               = AMD64_ZMM_REG_COUNT;
 
-#ifdef EDB_X86
+#if defined(EDB_X86)
 using UserRegsStructX86    = struct user_regs_struct;
 using UserFPRegsStructX86  = struct user_fpregs_struct;
 using UserFPXRegsStructX86 = struct user_fpxregs_struct;

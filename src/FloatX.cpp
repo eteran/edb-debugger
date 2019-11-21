@@ -22,11 +22,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <sstream>
 
-#ifdef HAVE_DOUBLE_CONVERSION
+#if defined(HAVE_DOUBLE_CONVERSION)
 #include <double-conversion/double-conversion.h>
 #endif
 
-#ifdef HAVE_GDTOA
+#if defined(HAVE_GDTOA)
 #include <gdtoa-desktop.h>
 #endif
 
@@ -98,33 +98,33 @@ constexpr std::array<std::uint8_t, 16> SpecialValues<long double>::negativeQNaN;
 #endif
 #endif
 
-float toFloatValue(edb::value32 value) {
+float to_real(edb::value32 value) {
 	float result;
 	std::memcpy(&result, &value, sizeof(result));
 	return result;
 }
 
-double toFloatValue(edb::value64 value) {
+double to_real(edb::value64 value) {
 	double result;
 	std::memcpy(&result, &value, sizeof(result));
 	return result;
 }
 
-long double toFloatValue(edb::value80 value) {
+long double to_real(edb::value80 value) {
 	return value.toFloatValue();
 }
 
-template <unsigned mantissaLength, typename FloatHolder>
-FloatValueClass ieeeClassify(FloatHolder value) {
+template <unsigned MantissaLength, typename FloatHolder>
+FloatValueClass ieee_classify(FloatHolder value) {
 
-	constexpr auto expLength = 8 * sizeof(value) - mantissaLength - 1;
-	constexpr auto expMax    = (1u << expLength) - 1;
-	constexpr auto QNaN_mask = 1ull << (mantissaLength - 1);
+    constexpr auto ExpLength = 8 * sizeof(value) - MantissaLength - 1;
+    constexpr auto ExpMax    = (1u << ExpLength) - 1;
+    constexpr auto QNaN_mask = 1ull << (MantissaLength - 1);
 
-	const auto mantissa = value & ((1ull << mantissaLength) - 1);
-	const auto exponent = (value >> mantissaLength) & expMax;
+    const auto mantissa = value & ((1ull << MantissaLength) - 1);
+    const auto exponent = (value >> MantissaLength) & ExpMax;
 
-	if (exponent == expMax) {
+    if (exponent == ExpMax) {
 		if (mantissa == 0u) {
 			return FloatValueClass::Infinity; // |S|11..11|00..00|
 		} else if (mantissa & QNaN_mask) {
@@ -143,7 +143,7 @@ FloatValueClass ieeeClassify(FloatHolder value) {
 	}
 }
 
-#ifdef HAVE_GDTOA
+#if defined(HAVE_GDTOA)
 /*
  * gdtoa_g_?fmt functions do generally a good job at formatting the numbers in
  * a form close to that specified in ECMAScript specification (actually the
@@ -267,10 +267,10 @@ const char *fixup_g_Yfmt(char *buffer, int digits10) {
 }
 
 template <class Float>
-Float read_float(const QString &strInput, bool &ok) {
+Float read_float(const QString &input, bool &ok) {
 
 	ok = false;
-	const QString str(strInput.toLower().trimmed());
+    const QString str(input.toLower().trimmed());
 	if (const auto value = util::full_string_to_float<Float>(str.toStdString())) {
 		ok = true;
 		return *value;
@@ -299,42 +299,42 @@ Float read_float(const QString &strInput, bool &ok) {
 	return value;
 }
 
-template EDB_EXPORT float read_float<float>(const QString &strInput, bool &ok);
-template EDB_EXPORT double read_float<double>(const QString &strInput, bool &ok);
+template EDB_EXPORT float read_float<float>(const QString &input, bool &ok);
+template EDB_EXPORT double read_float<double>(const QString &input, bool &ok);
 
 #ifndef _MSC_VER
 #if defined(EDB_X86) || defined(EDB_X86_64)
-template long double read_float<long double>(const QString &strInput, bool &ok);
+template long double read_float<long double>(const QString &input, bool &ok);
 #endif
 #endif
 
-FloatValueClass floatType(edb::value32 value) {
-	return ieeeClassify<23>(value);
+FloatValueClass float_type(edb::value32 value) {
+    return ieee_classify<23>(value);
 }
 
-FloatValueClass floatType(edb::value64 value) {
-	return ieeeClassify<52>(value);
+FloatValueClass float_type(edb::value64 value) {
+    return ieee_classify<52>(value);
 }
 
-FloatValueClass floatType(edb::value80 value) {
-	constexpr auto mantissaLength = 64;
-	constexpr auto expLength      = 8 * sizeof(value) - mantissaLength - 1;
-	constexpr auto integerBitOnly = 1ull << (mantissaLength - 1);
-	constexpr auto QNaN_mask      = 3ull << (mantissaLength - 2);
-	constexpr auto expMax         = (1u << expLength) - 1;
+FloatValueClass float_type(edb::value80 value) {
+    constexpr auto MantissaLength = 64;
+    constexpr auto ExpLength      = 8 * sizeof(value) - MantissaLength - 1;
+    constexpr auto IntegerBitOnly = 1ull << (MantissaLength - 1);
+    constexpr auto QNaN_mask      = 3ull << (MantissaLength - 2);
+    constexpr auto ExpMax         = (1u << ExpLength) - 1;
 
 	const auto exponent      = value.exponent();
 	const auto mantissa      = value.mantissa();
-	const bool integerBitSet = mantissa & integerBitOnly;
+    const bool integerBitSet = mantissa & IntegerBitOnly;
 
-	// This is almost as ieeeClassify, but also takes integer bit (not present in
+    // This is almost as ieee_classify, but also takes integer bit (not present in
 	// IEEE754 format) into account to detect unsupported values
-	if (exponent == expMax) {
-		if (mantissa == integerBitOnly) {
+    if (exponent == ExpMax) {
+        if (mantissa == IntegerBitOnly) {
 			return FloatValueClass::Infinity; // |S|11..11|1.000..0|
 		} else if ((mantissa & QNaN_mask) == QNaN_mask) {
 			return FloatValueClass::QNaN; // |S|11..11|1.1XX..X|
-		} else if ((mantissa & QNaN_mask) == integerBitOnly) {
+        } else if ((mantissa & QNaN_mask) == IntegerBitOnly) {
 			return FloatValueClass::SNaN; // |S|11..11|1.0XX..X|
 		} else {
 			return FloatValueClass::Unsupported; // all exp bits set, but integer bit reset - pseudo-NaN/Inf
@@ -404,7 +404,7 @@ template QValidator::State FloatXValidator<long double>::validate(QString &input
 template <typename Float>
 EDB_EXPORT QString format_float(Float value) {
 
-	const auto type    = floatType(value);
+	const auto type    = float_type(value);
 	QString specialStr = "???? ";
 
 	switch (type) {
@@ -461,7 +461,7 @@ EDB_EXPORT QString format_float(Float value) {
 			}
 		}
 #endif
-#ifdef HAVE_GDTOA
+#if defined(HAVE_GDTOA)
 		if (std::is_same<Float, edb::value80>::value) {
 			char buffer[64] = {};
 			gdtoa_g_xfmt(buffer, &value, -1, sizeof buffer);
@@ -476,7 +476,7 @@ EDB_EXPORT QString format_float(Float value) {
 		}
 #endif
 		std::ostringstream ss;
-		ss << std::setprecision(std::numeric_limits<decltype(toFloatValue(value))>::max_digits10) << toFloatValue(value);
+        ss << std::setprecision(std::numeric_limits<decltype(to_real(value))>::max_digits10) << to_real(value);
 
 		const auto result = QString::fromStdString(ss.str());
 		if (result.size() == 1 && result[0].isDigit()) {

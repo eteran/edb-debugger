@@ -22,7 +22,7 @@ enum class FloatValueClass {
 };
 
 template <class Float>
-Float EDB_EXPORT read_float(const QString &strInput, bool &ok);
+Float EDB_EXPORT read_float(const QString &input, bool &ok);
 
 template <class Float>
 class EDB_EXPORT FloatXValidator : public QValidator {
@@ -36,13 +36,13 @@ public:
 template <class Float>
 EDB_EXPORT QString format_float(Float value);
 
-EDB_EXPORT FloatValueClass floatType(edb::value32 value);
-EDB_EXPORT FloatValueClass floatType(edb::value64 value);
-EDB_EXPORT FloatValueClass floatType(edb::value80 value);
+EDB_EXPORT FloatValueClass float_type(edb::value32 value);
+EDB_EXPORT FloatValueClass float_type(edb::value64 value);
+EDB_EXPORT FloatValueClass float_type(edb::value80 value);
 
 // This will work not only for floats, but also for integers
 template <class T>
-constexpr int maxPrintedLength() {
+constexpr int max_printed_length() {
 	using Limits = std::numeric_limits<T>;
 
 	constexpr bool isInteger        = Limits::is_integer;
