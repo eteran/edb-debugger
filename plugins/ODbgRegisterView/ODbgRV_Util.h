@@ -35,13 +35,13 @@ T valid_index(T index) {
 					  std::is_same<const typename std::remove_reference<T>::type, const QPersistentModelIndex>::value,
 				  "Wrong type passed to valid_index");
 
-    Q_ASSERT(index.isValid());
+	Q_ASSERT(index.isValid());
 	return index;
 }
 
 template <class T, class P>
 T *checked_cast(P p) {
-    Q_ASSERT(dynamic_cast<T *>(p));
+	Q_ASSERT(dynamic_cast<T *>(p));
 	return static_cast<T *>(p);
 }
 
@@ -83,13 +83,13 @@ inline QAction *new_action(const QString &text, QObject *parent, Func func) {
 // TODO: switch from string-based search to enum-based one (add a new Role to model data)
 inline QModelIndex find_model_category(const RegisterViewModelBase::Model *model, const QString &catToFind) {
 	for (int row = 0; row < model->rowCount(); ++row) {
-        const QVariant cat = model->index(row, 0).data(ModelNameColumn);
-        if (cat.isValid() && cat.toString() == catToFind) {
-            return model->index(row, 0);
-        }
-    }
+		const QVariant cat = model->index(row, 0).data(ModelNameColumn);
+		if (cat.isValid() && cat.toString() == catToFind) {
+			return model->index(row, 0);
+		}
+	}
 
-    return {};
+	return {};
 }
 
 // TODO: switch from string-based search to enum-based one (add a new Role to model data)
@@ -109,18 +109,18 @@ inline QModelIndex find_model_register(QModelIndex categoryIndex, const QString 
 }
 
 inline QModelIndex comment_index(const QModelIndex &nameIndex) {
-    Q_ASSERT(nameIndex.isValid());
+	Q_ASSERT(nameIndex.isValid());
 	return nameIndex.sibling(nameIndex.row(), ModelCommentColumn);
 }
 
 inline QModelIndex value_index(const QModelIndex &nameIndex) {
-    Q_ASSERT(nameIndex.isValid());
+	Q_ASSERT(nameIndex.isValid());
 	return nameIndex.sibling(nameIndex.row(), ModelValueColumn);
 }
 
 inline const QVariant &valid_variant(const QVariant &variant) {
-    Q_ASSERT(variant.isValid());
-    return variant;
+	Q_ASSERT(variant.isValid());
+	return variant;
 }
 
 }

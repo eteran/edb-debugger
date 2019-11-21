@@ -117,14 +117,14 @@ long double to_real(edb::value80 value) {
 template <unsigned MantissaLength, typename FloatHolder>
 FloatValueClass ieee_classify(FloatHolder value) {
 
-    constexpr auto ExpLength = 8 * sizeof(value) - MantissaLength - 1;
-    constexpr auto ExpMax    = (1u << ExpLength) - 1;
-    constexpr auto QNaN_mask = 1ull << (MantissaLength - 1);
+	constexpr auto ExpLength = 8 * sizeof(value) - MantissaLength - 1;
+	constexpr auto ExpMax    = (1u << ExpLength) - 1;
+	constexpr auto QNaN_mask = 1ull << (MantissaLength - 1);
 
-    const auto mantissa = value & ((1ull << MantissaLength) - 1);
-    const auto exponent = (value >> MantissaLength) & ExpMax;
+	const auto mantissa = value & ((1ull << MantissaLength) - 1);
+	const auto exponent = (value >> MantissaLength) & ExpMax;
 
-    if (exponent == ExpMax) {
+	if (exponent == ExpMax) {
 		if (mantissa == 0u) {
 			return FloatValueClass::Infinity; // |S|11..11|00..00|
 		} else if (mantissa & QNaN_mask) {
@@ -270,7 +270,7 @@ template <class Float>
 Float read_float(const QString &input, bool &ok) {
 
 	ok = false;
-    const QString str(input.toLower().trimmed());
+	const QString str(input.toLower().trimmed());
 	if (const auto value = util::full_string_to_float<Float>(str.toStdString())) {
 		ok = true;
 		return *value;
@@ -309,32 +309,32 @@ template long double read_float<long double>(const QString &input, bool &ok);
 #endif
 
 FloatValueClass float_type(edb::value32 value) {
-    return ieee_classify<23>(value);
+	return ieee_classify<23>(value);
 }
 
 FloatValueClass float_type(edb::value64 value) {
-    return ieee_classify<52>(value);
+	return ieee_classify<52>(value);
 }
 
 FloatValueClass float_type(edb::value80 value) {
-    constexpr auto MantissaLength = 64;
-    constexpr auto ExpLength      = 8 * sizeof(value) - MantissaLength - 1;
-    constexpr auto IntegerBitOnly = 1ull << (MantissaLength - 1);
-    constexpr auto QNaN_mask      = 3ull << (MantissaLength - 2);
-    constexpr auto ExpMax         = (1u << ExpLength) - 1;
+	constexpr auto MantissaLength = 64;
+	constexpr auto ExpLength      = 8 * sizeof(value) - MantissaLength - 1;
+	constexpr auto IntegerBitOnly = 1ull << (MantissaLength - 1);
+	constexpr auto QNaN_mask      = 3ull << (MantissaLength - 2);
+	constexpr auto ExpMax         = (1u << ExpLength) - 1;
 
 	const auto exponent      = value.exponent();
 	const auto mantissa      = value.mantissa();
-    const bool integerBitSet = mantissa & IntegerBitOnly;
+	const bool integerBitSet = mantissa & IntegerBitOnly;
 
-    // This is almost as ieee_classify, but also takes integer bit (not present in
+	// This is almost as ieee_classify, but also takes integer bit (not present in
 	// IEEE754 format) into account to detect unsupported values
-    if (exponent == ExpMax) {
-        if (mantissa == IntegerBitOnly) {
+	if (exponent == ExpMax) {
+		if (mantissa == IntegerBitOnly) {
 			return FloatValueClass::Infinity; // |S|11..11|1.000..0|
 		} else if ((mantissa & QNaN_mask) == QNaN_mask) {
 			return FloatValueClass::QNaN; // |S|11..11|1.1XX..X|
-        } else if ((mantissa & QNaN_mask) == IntegerBitOnly) {
+		} else if ((mantissa & QNaN_mask) == IntegerBitOnly) {
 			return FloatValueClass::SNaN; // |S|11..11|1.0XX..X|
 		} else {
 			return FloatValueClass::Unsupported; // all exp bits set, but integer bit reset - pseudo-NaN/Inf
@@ -476,7 +476,7 @@ EDB_EXPORT QString format_float(Float value) {
 		}
 #endif
 		std::ostringstream ss;
-        ss << std::setprecision(std::numeric_limits<decltype(to_real(value))>::max_digits10) << to_real(value);
+		ss << std::setprecision(std::numeric_limits<decltype(to_real(value))>::max_digits10) << to_real(value);
 
 		const auto result = QString::fromStdString(ss.str());
 		if (result.size() == 1 && result[0].isDigit()) {
