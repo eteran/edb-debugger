@@ -221,14 +221,14 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 		if (const auto insn = edb::Instruction(buffer, buffer + size, pc)) {
 
 			const auto op                = insn.operation();
-			edb::address_t addrAfterInsn = pc + insn.byte_size();
+			edb::address_t addrAfterInsn = pc + insn.byteSize();
 
 			auto targetMode = core_->cpuMode();
 			if (modifies_pc(insn) && edb::v1::arch_processor().isExecuted(insn, state)) {
 				if (op == ARM_INS_BXJ)
 					return Status(tr("EDB doesn't yet support single-stepping into Jazelle state."));
 
-				const auto opCount = insn.operand_count();
+				const auto opCount = insn.operandCount();
 				if (opCount == 0)
 					return Status(tr("instruction %1 isn't supported yet.").arg(insn.mnemonic().c_str()));
 

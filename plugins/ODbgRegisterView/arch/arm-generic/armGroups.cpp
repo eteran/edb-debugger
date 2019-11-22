@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "MultiBitFieldWidget.h"
 #include "ODbgRV_Util.h"
 #include "ValueField.h"
+#include "QtHelper.h"
 #include <QDebug>
 #include <unordered_map>
 
