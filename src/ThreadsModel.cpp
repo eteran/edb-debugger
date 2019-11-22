@@ -127,7 +127,7 @@ void ThreadsModel::addThread(const std::shared_ptr<IThread> &thread, bool curren
 }
 
 void ThreadsModel::clear() {
-	beginRemoveRows(QModelIndex(), 0, rowCount());
+	beginResetModel();
 	items_.clear();
-	endRemoveRows();
+	endResetModel();
 }

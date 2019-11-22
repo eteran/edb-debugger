@@ -38,7 +38,9 @@ MemoryRegions::MemoryRegions()
 // Desc:
 //------------------------------------------------------------------------------
 void MemoryRegions::clear() {
+	beginResetModel();
 	regions_.clear();
+	endResetModel();
 }
 
 //------------------------------------------------------------------------------

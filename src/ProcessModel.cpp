@@ -108,7 +108,7 @@ void ProcessModel::addProcess(const std::shared_ptr<IProcess> &process) {
 }
 
 void ProcessModel::clear() {
-	beginRemoveRows(QModelIndex(), 0, rowCount());
+	beginResetModel();
 	items_.clear();
-	endRemoveRows();
+	endResetModel();
 }

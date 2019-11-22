@@ -145,7 +145,7 @@ void PluginModel::addPlugin(const QString &filename, const QString &plugin, cons
 // Desc:
 //------------------------------------------------------------------------------
 void PluginModel::clear() {
-	beginRemoveRows(QModelIndex(), 0, rowCount());
+	beginResetModel();
 	items_.clear();
-	endRemoveRows();
+	endResetModel();
 }
