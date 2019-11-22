@@ -44,8 +44,8 @@ public:
 	State();
 	State(const State &other);
 	State &operator=(const State &rhs);
-	State(State &&other);
-	State &operator=(State &&rhs);
+	State(State &&other) noexcept;
+	State &operator=(State &&rhs) noexcept;
 	~State();
 
 public:

@@ -47,7 +47,7 @@ State::State(const State &other)
  * @brief State::State
  * @param other
  */
-State::State(State &&other)
+State::State(State &&other) noexcept
 	: impl_(std::move(other.impl_)) {
 }
 
@@ -65,7 +65,7 @@ void State::swap(State &other) {
  * @param rhs
  * @return
  */
-State &State::operator=(State &&rhs) {
+State &State::operator=(State &&rhs) noexcept {
 	if (this != &rhs) {
 		impl_ = std::move(rhs.impl_);
 	}
