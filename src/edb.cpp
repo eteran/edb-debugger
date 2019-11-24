@@ -96,7 +96,7 @@ bool function_symbol_base(edb::address_t address, QString *value, int *offset) {
 }
 }
 
-const char version[] = "1.0.0";
+const char version[] = "1.1.0";
 
 namespace internal {
 
