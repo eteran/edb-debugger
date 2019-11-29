@@ -2,7 +2,6 @@
 #ifndef OPCODE_SEARCHER_DIALOG_RESULTS_H_20191119_
 #define OPCODE_SEARCHER_DIALOG_RESULTS_H_20191119_
 
-#include "ResultsModel.h"
 #include "ui_DialogResults.h"
 #include <QDialog>
 #include <QSortFilterProxyModel>
@@ -12,6 +11,7 @@ class QSortFilterProxyModel;
 namespace OpcodeSearcherPlugin {
 
 class ResultsModel;
+struct Result;
 
 class DialogResults : public QDialog {
 	Q_OBJECT

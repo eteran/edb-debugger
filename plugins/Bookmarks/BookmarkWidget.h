@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BookmarksModel.h"
 #include "Types.h"
-#include "ui_Bookmarks.h"
+#include "ui_BookmarkWidget.h"
 #include <QWidget>
 
 class QModelIndex;
@@ -38,9 +38,6 @@ public:
 	~BookmarkWidget() override = default;
 
 public Q_SLOTS:
-	void on_btnAdd_clicked();
-	void on_btnDel_clicked();
-	void on_btnClear_clicked();
 	void on_tableView_doubleClicked(const QModelIndex &index);
 	void on_tableView_customContextMenuRequested(const QPoint &pos);
 
@@ -50,7 +47,12 @@ public:
 	QList<BookmarksModel::Bookmark> entries() const;
 
 private:
-	Ui::Bookmarks ui;
+	void buttonAddClicked();
+	void buttonDelClicked();
+	void buttonClearClicked();
+
+private:
+	Ui::BookmarkWidget ui;
 	BookmarksModel *model_ = nullptr;
 };
 

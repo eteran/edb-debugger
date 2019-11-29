@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogResults.h"
 #include "IRegion.h"
 #include "MemoryRegions.h"
+#include "ResultsModel.h"
 #include "Util.h"
 #include "edb.h"
 

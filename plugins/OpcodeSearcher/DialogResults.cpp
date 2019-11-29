@@ -1,5 +1,6 @@
 
 #include "DialogResults.h"
+#include "ResultsModel.h"
 #include "edb.h"
 #include <QSortFilterProxyModel>
 

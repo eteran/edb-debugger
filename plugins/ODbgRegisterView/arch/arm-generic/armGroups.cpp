@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "BitFieldDescription.h"
 #include "MultiBitFieldWidget.h"
 #include "ODbgRV_Util.h"
-#include "ValueField.h"
 #include "QtHelper.h"
+#include "ValueField.h"
 #include <QDebug>
 #include <unordered_map>
 

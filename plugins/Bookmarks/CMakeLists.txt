@@ -17,7 +17,7 @@ add_library(${PluginName} SHARED
 	BookmarkWidget.h
 	BookmarksModel.cpp
 	BookmarksModel.h
-	Bookmarks.ui
+	BookmarkWidget.ui
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets edb)

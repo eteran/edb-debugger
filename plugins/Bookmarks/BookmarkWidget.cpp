@@ -41,6 +41,9 @@ BookmarkWidget::BookmarkWidget(QWidget *parent, Qt::WindowFlags f)
 	ui.tableView->setModel(model_);
 
 	connect(edb::v1::debugger_ui, SIGNAL(detachEvent()), model_, SLOT(clearBookmarks()));
+	connect(ui.buttonAdd, &QPushButton::clicked, this, &BookmarkWidget::buttonAddClicked);
+	connect(ui.buttonDel, &QPushButton::clicked, this, &BookmarkWidget::buttonDelClicked);
+	connect(ui.buttonClear, &QPushButton::clicked, this, &BookmarkWidget::buttonClearClicked);
 }
 
 /**
@@ -90,9 +93,9 @@ void BookmarkWidget::on_tableView_doubleClicked(const QModelIndex &index) {
 }
 
 /**
- * @brief BookmarkWidget::on_btnAdd_clicked
+ * @brief BookmarkWidget::buttonAddClicked
  */
-void BookmarkWidget::on_btnAdd_clicked() {
+void BookmarkWidget::buttonAddClicked() {
 
 	if (boost::optional<edb::address_t> address = edb::v2::get_expression_from_user(tr("Bookmark Address"), tr("Address:"))) {
 		addAddress(*address);
@@ -100,9 +103,9 @@ void BookmarkWidget::on_btnAdd_clicked() {
 }
 
 /**
- * @brief BookmarkWidget::on_btnDel_clicked
+ * @brief BookmarkWidget::buttonDelClicked
  */
-void BookmarkWidget::on_btnDel_clicked() {
+void BookmarkWidget::buttonDelClicked() {
 
 	const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 	const QModelIndexList selections          = selModel->selectedRows();
@@ -114,9 +117,9 @@ void BookmarkWidget::on_btnDel_clicked() {
 }
 
 /**
- * @brief BookmarkWidget::on_btnClear_clicked
+ * @brief BookmarkWidget::buttonClearClicked
  */
-void BookmarkWidget::on_btnClear_clicked() {
+void BookmarkWidget::buttonClearClicked() {
 	model_->clearBookmarks();
 }
 
@@ -185,11 +188,11 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 	QAction *const chosen        = menu.exec(ui.tableView->mapToGlobal(pos));
 
 	if (chosen == actionAdd) {
-		on_btnAdd_clicked();
+		buttonAddClicked();
 	} else if (chosen == actionDel) {
-		on_btnDel_clicked();
+		buttonDelClicked();
 	} else if (chosen == actionClear) {
-		on_btnClear_clicked();
+		buttonClearClicked();
 	} else if (chosen == actionComment) {
 
 		const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
