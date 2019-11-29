@@ -160,7 +160,8 @@ void add_puozdi(RegisterGroup *group, const QModelIndex &excRegIndex, const QMod
 		{'O', tr("Overflow")},
 		{'Z', tr("Zero Divide")},
 		{'D', tr("Denormalized Operand")},
-		{'I', tr("Invalid Operation")}};
+		{'I', tr("Invalid Operation")},
+	};
 
 	for (int exN = 0; exN < exceptions.length(); ++exN) {
 		const QString ex         = exceptions[exN];
