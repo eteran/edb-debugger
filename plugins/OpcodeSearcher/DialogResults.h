@@ -34,5 +34,6 @@ private:
 	QSortFilterProxyModel *filterModel_ = nullptr;
 };
 
-#endif
 }
+
+#endif

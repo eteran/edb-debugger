@@ -71,5 +71,7 @@ private:
 	ResultFilterProxy *resultFilter_    = nullptr;
 };
 
-#endif
 }
+
+#endif
+
