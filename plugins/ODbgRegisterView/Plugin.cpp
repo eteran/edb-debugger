@@ -29,11 +29,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSettings>
 
 namespace ODbgRegisterView {
-Q_DECLARE_NAMESPACE_TR(ODbgRegisterView)
+//Q_DECLARE_NAMESPACE_TR(ODbgRegisterView)
 
 namespace {
 const auto pluginName             = QLatin1String("ODbgRegisterView");
-const auto dockName               = tr("Registers");
 const auto dockNameSuffixTemplate = QString(" <%1>");
 const auto dockObjectNameTemplate = QString(pluginName + "-%1");
 const auto views                  = QLatin1String("views");
@@ -43,6 +42,10 @@ Plugin::Plugin(QObject *parent)
 	: QObject(parent) {
 
 	connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &Plugin::saveSettings);
+}
+
+QString Plugin::dockName() const {
+    return tr("Registers");
 }
 
 void Plugin::setupDocks() {
@@ -83,8 +86,8 @@ void Plugin::createRegisterView(const QString &settingsGroup) {
 		registerViews_.emplace_back(regView);
 		regView->setModel(&edb::v1::arch_processor().registerViewModel());
 
-		const QString suffix          = registerViews_.size() > 1 ? dockNameSuffixTemplate.arg(registerViews_.size()) : "";
-		auto *const regViewDockWidget = new QDockWidget(dockName + suffix, mainWindow);
+        const QString suffix          = registerViews_.size() > 1 ? dockNameSuffixTemplate.arg(registerViews_.size()) : "";
+        auto *const regViewDockWidget = new QDockWidget(dockName() + suffix, mainWindow);
 		const auto viewNumber         = registerViews_.size();
 		regViewDockWidget->setObjectName(dockObjectNameTemplate.arg(viewNumber));
 		regViewDockWidget->setWidget(regView);
@@ -122,9 +125,9 @@ void Plugin::renumerateDocks() const {
 	for (std::size_t i = 0; i < registerViews_.size(); ++i) {
 		const auto view = registerViews_[i];
 		Q_ASSERT(dynamic_cast<QDockWidget *>(view->parentWidget()));
-		const auto dock = view->parentWidget();
-		dock->setObjectName(dockObjectNameTemplate.arg(i + 1));
-		dock->setWindowTitle(dockName + (i ? dockNameSuffixTemplate.arg(i + 1) : ""));
+        QWidget *dock = view->parentWidget();
+        dock->setObjectName(dockObjectNameTemplate.arg(i + 1));
+        dock->setWindowTitle(dockName() + (i ? dockNameSuffixTemplate.arg(i + 1) : ""));
 	}
 }
 
