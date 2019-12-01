@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOG_HEAP_H_20061101_
 #define DIALOG_HEAP_H_20061101_
 
+#include "ResultViewModel.h"
 #include "Types.h"
 #include "ui_DialogHeap.h"
 #include <QDialog>
@@ -26,9 +27,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QSortFilterProxyModel;
 
 namespace HeapAnalyzerPlugin {
-
-struct Result;
-class ResultViewModel;
 
 class DialogHeap : public QDialog {
 	Q_OBJECT
@@ -47,7 +45,7 @@ private:
 	void detectPointers();
 	void processPotentialPointers(const QHash<edb::address_t, edb::address_t> &targets, const QModelIndex &index);
 	edb::address_t findHeapStartHeuristic(edb::address_t end_address, size_t offset) const;
-	QMap<edb::address_t, const Result *> createResultMap() const;
+	QMap<edb::address_t, const ResultViewModel::Result *> createResultMap() const;
 
 private:
 	template <class Addr>

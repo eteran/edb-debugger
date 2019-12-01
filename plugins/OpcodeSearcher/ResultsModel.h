@@ -26,13 +26,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace OpcodeSearcherPlugin {
 
-struct Result {
-	edb::address_t address = 0;
-	QString instruction;
-};
-
 class ResultsModel : public QAbstractItemModel {
 	Q_OBJECT
+
+public:
+	struct Result {
+		edb::address_t address = 0;
+		QString instruction;
+	};
+
 public:
 	explicit ResultsModel(QObject *parent = nullptr);
 

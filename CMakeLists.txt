@@ -24,11 +24,6 @@ option(ENABLE_USAN        "Enable undefined santiziers")
 option(ENABLE_MSAN        "Enable memory santiziers")
 option(ENABLE_TSAN        "Enable thread santiziers")
 option(ENABLE_STL_DEBUG   "Enable STL container debugging")
-option(ENABLE_JUMBO_BUILD "Enable Jumbo builds for possibly faster compile times")
-
-if (ENABLE_JUMBO_BUILD)
-	include("Jumbo")
-endif()
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Choose the type of build." FORCE)

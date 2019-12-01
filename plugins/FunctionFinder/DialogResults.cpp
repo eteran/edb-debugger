@@ -43,6 +43,7 @@ namespace FunctionFinderPlugin {
  */
 DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
@@ -67,7 +68,7 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 		if (sel.size() == 1) {
 			const QModelIndex index = filterModel_->mapToSource(sel[0]);
 
-			if (auto item = static_cast<Result *>(index.internalPointer())) {
+			if (auto item = static_cast<ResultsModel::Result *>(index.internalPointer())) {
 				const edb::address_t addr = item->startAddress;
 
 				if (IAnalyzer *const analyzer = edb::v1::analyzer()) {
@@ -164,7 +165,7 @@ void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
 
 	if (index.isValid()) {
 		const QModelIndex realIndex = filterModel_->mapToSource(index);
-		if (auto item = static_cast<Result *>(realIndex.internalPointer())) {
+		if (auto item = static_cast<ResultsModel::Result *>(realIndex.internalPointer())) {
 			edb::v1::jump_to_address(item->startAddress);
 		}
 	}
@@ -176,7 +177,7 @@ void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
  */
 void DialogResults::addResult(const Function &function) {
 
-	Result result;
+	ResultsModel::Result result;
 
 	// entry point
 	result.startAddress = function.entryAddress();

@@ -26,36 +26,38 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace HeapAnalyzerPlugin {
 
-struct Result {
-
-	enum DataType {
-		Unknown,
-		Pointer,
-		Png,
-		Xpm,
-		Bzip,
-		Compress,
-		Gzip,
-		Ascii,
-		Utf16
-	};
-
-	enum NodeType {
-		Top,
-		Free,
-		Busy
-	};
-
-	edb::address_t address = 0;
-	edb::address_t size    = 0;
-	NodeType type;
-	DataType dataType = Unknown;
-	QString data;
-	std::vector<edb::address_t> pointers;
-};
-
 class ResultViewModel : public QAbstractItemModel {
 	Q_OBJECT
+
+public:
+	struct Result {
+
+		enum DataType {
+			Unknown,
+			Pointer,
+			Png,
+			Xpm,
+			Bzip,
+			Compress,
+			Gzip,
+			Ascii,
+			Utf16
+		};
+
+		enum NodeType {
+			Top,
+			Free,
+			Busy
+		};
+
+		edb::address_t address = 0;
+		edb::address_t size    = 0;
+		NodeType type;
+		DataType dataType = Unknown;
+		QString data;
+		std::vector<edb::address_t> pointers;
+	};
+
 public:
 	explicit ResultViewModel(QObject *parent = nullptr);
 

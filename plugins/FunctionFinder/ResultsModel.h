@@ -26,17 +26,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace FunctionFinderPlugin {
 
-struct Result {
-	edb::address_t startAddress = 0;
-	edb::address_t endAddress   = 0;
-	size_t size                 = 0;
-	int score                   = 0;
-	Function::Type type         = Function::Type::Standard;
-	QString symbol;
-};
-
 class ResultsModel : public QAbstractItemModel {
 	Q_OBJECT
+public:
+	struct Result {
+		edb::address_t startAddress = 0;
+		edb::address_t endAddress   = 0;
+		size_t size                 = 0;
+		int score                   = 0;
+		Function::Type type         = Function::Type::Standard;
+		QString symbol;
+	};
+
 public:
 	explicit ResultsModel(QObject *parent = nullptr);
 

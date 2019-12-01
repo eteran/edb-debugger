@@ -90,7 +90,7 @@ edb::address_t block_start(edb::address_t pointer) {
  * @param result
  * @return
  */
-edb::address_t block_start(const Result &result) {
+edb::address_t block_start(const ResultViewModel::Result &result) {
 	return block_start(result.address);
 }
 
@@ -191,10 +191,10 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f)
 
 		do {
 			QMap<edb::address_t, GraphNode *> nodes;
-			QStack<const Result *> result_stack;
-			QSet<const Result *> seen_results;
+			QStack<const ResultViewModel::Result *> result_stack;
+			QSet<const ResultViewModel::Result *> seen_results;
 
-			QMap<edb::address_t, const Result *> result_map = createResultMap();
+			QMap<edb::address_t, const ResultViewModel::Result *> result_map = createResultMap();
 
 			// seed our search with the selected blocks
 			const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
@@ -202,20 +202,21 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f)
 			if (sel.size() != 0) {
 				for (const QModelIndex &index : sel) {
 					const QModelIndex idx = filterModel_->mapToSource(index);
-					auto item             = static_cast<Result *>(idx.internalPointer());
+					auto item             = static_cast<ResultViewModel::Result *>(idx.internalPointer());
 					result_stack.push(item);
 					seen_results.insert(item);
 				}
 			}
 
 			while (!result_stack.isEmpty()) {
-				const Result *const result = result_stack.pop();
-				GraphNode *node            = new GraphNode(graph, edb::v1::format_pointer(result->address), result->type == Result::Busy ? Qt::lightGray : Qt::red);
+				const ResultViewModel::Result *const result = result_stack.pop();
+
+				GraphNode *node = new GraphNode(graph, edb::v1::format_pointer(result->address), result->type == ResultViewModel::Result::Busy ? Qt::lightGray : Qt::red);
 
 				nodes.insert(result->address, node);
 
 				for (edb::address_t pointer : result->pointers) {
-					const Result *next_result = result_map[pointer];
+					const ResultViewModel::Result *next_result = result_map[pointer];
 					if (!seen_results.contains(next_result)) {
 						seen_results.insert(next_result);
 						result_stack.push(next_result);
@@ -230,7 +231,7 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f)
 				return;
 			}
 
-			Q_FOREACH (const Result *result, result_map) {
+            Q_FOREACH (const ResultViewModel::Result *result, result_map) {
 				const edb::address_t addr = result->address;
 				if (nodes.contains(addr)) {
 					for (edb::address_t pointer : result->pointers) {
@@ -270,7 +271,7 @@ void DialogHeap::showEvent(QShowEvent *) {
  */
 void DialogHeap::on_tableView_doubleClicked(const QModelIndex &index) {
 	const QModelIndex idx = filterModel_->mapToSource(index);
-	if (auto item = static_cast<Result *>(idx.internalPointer())) {
+    if (auto item = static_cast<ResultViewModel::Result *>(idx.internalPointer())) {
 		edb::v1::dump_data_range(item->address, item->address + item->size, false);
 	}
 }
@@ -282,12 +283,12 @@ void DialogHeap::on_tableView_doubleClicked(const QModelIndex &index) {
  */
 void DialogHeap::processPotentialPointers(const QHash<edb::address_t, edb::address_t> &targets, const QModelIndex &index) {
 
-	if (auto result = static_cast<Result *>(index.internalPointer())) {
+    if (auto result = static_cast<ResultViewModel::Result *>(index.internalPointer())) {
 
 		std::vector<edb::address_t> pointers;
 
 		if (IProcess *process = edb::v1::debugger_core->process()) {
-			if (result->dataType == Result::Unknown) {
+            if (result->dataType == ResultViewModel::Result::Unknown) {
 				edb::address_t pointer(0);
 				edb::address_t block_ptr = block_start(*result);
 				edb::address_t block_end = block_ptr + result->size;
@@ -324,7 +325,7 @@ void DialogHeap::detectPointers() {
 	qDebug() << "[Heap Analyzer] collecting possible targets addresses";
 	for (int row = 0; row < model_->rowCount(); ++row) {
 		QModelIndex index = model_->index(row, 0);
-		if (auto result = static_cast<Result *>(index.internalPointer())) {
+        if (auto result = static_cast<ResultViewModel::Result *>(index.internalPointer())) {
 			edb::address_t block_ptr = block_start(*result);
 			edb::address_t block_end = block_ptr + result->size;
 			while (block_ptr < block_end) {
@@ -375,7 +376,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 
 				// is this the last chunk (if so, it's the 'top')
 				if (nextChunkAddress == end_address) {
-					model_->addResult({currentChunkAddress, currentChunk.chunkSize(), Result::Top, Result::Unknown, {}, {}});
+					model_->addResult({currentChunkAddress, currentChunk.chunkSize(), ResultViewModel::Result::Top, ResultViewModel::Result::Unknown, {}, {}});
 				} else {
 
 					// make sure we aren't following a broken heap...
@@ -384,7 +385,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 					}
 
 					QString data;
-					Result::DataType data_type = Result::Unknown;
+					ResultViewModel::Result::DataType data_type = ResultViewModel::Result::Unknown;
 
 					// read in the next chunk
 					process->readBytes(nextChunkAddress, &nextChunk, sizeof(nextChunk));
@@ -403,7 +404,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 							asciisz)) {
 
 						data      = asciiData;
-						data_type = Result::Ascii;
+						data_type = ResultViewModel::Result::Ascii;
 					} else if (edb::v1::get_utf16_string_at_address(
 								   block_start(currentChunkAddress),
 								   utf16Data,
@@ -411,7 +412,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 								   currentChunk.chunkSize(),
 								   utf16sz)) {
 						data      = utf16Data;
-						data_type = Result::Utf16;
+						data_type = ResultViewModel::Result::Utf16;
 					} else {
 
 						using std::memcmp;
@@ -420,23 +421,23 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 						process->readBytes(block_start(currentChunkAddress), bytes, sizeof(bytes));
 
 						if (memcmp(bytes, "\x89\x50\x4e\x47", 4) == 0) {
-							data_type = Result::Png;
+							data_type = ResultViewModel::Result::Png;
 						} else if (memcmp(bytes, "\x2f\x2a\x20\x58\x50\x4d\x20\x2a\x2f", 9) == 0) {
-							data_type = Result::Xpm;
+							data_type = ResultViewModel::Result::Xpm;
 						} else if (memcmp(bytes, "\x42\x5a", 2) == 0) {
-							data_type = Result::Bzip;
+							data_type = ResultViewModel::Result::Bzip;
 						} else if (memcmp(bytes, "\x1f\x9d", 2) == 0) {
-							data_type = Result::Compress;
+							data_type = ResultViewModel::Result::Compress;
 						} else if (memcmp(bytes, "\x1f\x8b", 2) == 0) {
-							data_type = Result::Gzip;
+							data_type = ResultViewModel::Result::Gzip;
 						}
 					}
 
 					// TODO(eteran): should this be unsigned int? Or should it be sizeof(value32)/sizeof(value64)?
-					const Result r{
+                    const ResultViewModel::Result r{
 						currentChunkAddress,
 						currentChunk.chunkSize() + sizeof(unsigned int),
-						nextChunk.prevInUse() ? Result::Busy : Result::Free,
+                        nextChunk.prevInUse() ? ResultViewModel::Result::Busy : ResultViewModel::Result::Free,
 						data_type,
 						data,
 						{}};
@@ -588,14 +589,14 @@ void DialogHeap::doFind() {
  * @brief DialogHeap::createResultMap
  * @return
  */
-QMap<edb::address_t, const Result *> DialogHeap::createResultMap() const {
+QMap<edb::address_t, const ResultViewModel::Result *> DialogHeap::createResultMap() const {
 
-	const QVector<Result> &results = model_->results();
-	QMap<edb::address_t, const Result *> result_map;
+	const QVector<ResultViewModel::Result> &results = model_->results();
+	QMap<edb::address_t, const ResultViewModel::Result *> result_map;
 
 	// first we make a nice index for our results, this is likely redundant,
 	// but won't take long
-	for (const Result &result : results) {
+	for (const ResultViewModel::Result &result : results) {
 		result_map.insert(result.address, &result);
 	}
 

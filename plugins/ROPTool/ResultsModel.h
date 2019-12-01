@@ -26,14 +26,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ROPToolPlugin {
 
-struct Result {
-	edb::address_t address = 0;
-	QString instruction;
-	uint32_t role = 0x00;
-};
-
 class ResultsModel : public QAbstractItemModel {
 	Q_OBJECT
+public:
+	struct Result {
+		edb::address_t address = 0;
+		QString instruction;
+		uint32_t role = 0x00;
+	};
+
 public:
 	explicit ResultsModel(QObject *parent = nullptr);
 

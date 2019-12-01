@@ -4,7 +4,6 @@ include("GNUInstallDirs")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns Svg)
 
@@ -19,7 +18,18 @@ else()
 	set(GIT_BRANCH "Unknown")
 endif()
 
+qt5_add_resources(QRC_SOURCES 
+	debugger.qrc
+	breeze-edb.qrc
+	breeze-dark-edb.qrc
+)
+
+foreach(FILE IN LISTS QRC_SOURCES)
+	set_property(SOURCE ${FILE} PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
+endforeach()
+
 set(edb_SRCS
+	${QRC_SOURCES}
 	BasicBlock.cpp
 	BinaryString.cpp
 	BinaryString.ui
@@ -89,11 +99,8 @@ set(edb_SRCS
 	SymbolManager.cpp
 	SymbolManager.h
 	ThreadsModel.cpp
-	debugger.qrc
 	edb.cpp
 	main.cpp
-	breeze-edb.qrc
-	breeze-dark-edb.qrc
 	capstone-edb/Inspection.cpp
 	capstone-edb/Instruction.cpp
 	capstone-edb/include/Formatter.h
@@ -248,7 +255,3 @@ set_property(TARGET edb PROPERTY ENABLE_EXPORTS TRUE)
 set_property(TARGET edb PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/test")
-
-if (ENABLE_JUMBO_BUILD)
-	enable_jumbo_build(edb)
-endif()

@@ -46,7 +46,7 @@ private:
 	void expandRSDown(bool checked) const;
 	void expandLSUp(bool checked) const;
 	void expandLSDown(bool checked) const;
-    QString dockName() const;
+	QString dockName() const;
 
 private Q_SLOTS:
 	void createRegisterView();

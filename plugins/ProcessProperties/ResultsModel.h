@@ -26,19 +26,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ProcessPropertiesPlugin {
 
-struct Result {
-	edb::address_t address = 0;
-	QString string;
-	enum {
-		Ascii,
-		Utf8,
-		Utf16,
-		Utf32,
-	} type;
-};
-
 class ResultsModel : public QAbstractItemModel {
 	Q_OBJECT
+
+public:
+	struct Result {
+		edb::address_t address = 0;
+		QString string;
+		enum {
+			Ascii,
+			Utf8,
+			Utf16,
+			Utf32,
+		} type;
+	};
+
 public:
 	explicit ResultsModel(QObject *parent = nullptr);
 

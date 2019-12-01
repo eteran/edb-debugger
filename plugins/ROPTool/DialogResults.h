@@ -35,7 +35,7 @@ protected:
 	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override {
 		QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
 		if (index.isValid()) {
-			if (auto result = reinterpret_cast<const Result *>(index.internalPointer())) {
+			if (auto result = reinterpret_cast<const ResultsModel::Result *>(index.internalPointer())) {
 				if (result->role & mask_) {
 					return true;
 				}
@@ -56,7 +56,7 @@ public:
 	explicit DialogResults(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
 public:
-	void addResult(const Result &result);
+	void addResult(const ResultsModel::Result &result);
 
 private Q_SLOTS:
 	void on_tableView_doubleClicked(const QModelIndex &index);

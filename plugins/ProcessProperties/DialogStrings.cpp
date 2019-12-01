@@ -107,12 +107,12 @@ void DialogStrings::doFind() {
 				int string_length = 0;
 				bool ok           = edb::v1::get_ascii_string_at_address(start_address, str, min_string_length, 256, string_length);
 				if (ok) {
-					resultsDialog->addResult({start_address, str, Result::Ascii});
+					resultsDialog->addResult({start_address, str, ResultsModel::Result::Ascii});
 				} else if (ui.search_unicode->isChecked()) {
 					string_length = 0;
 					ok            = edb::v1::get_utf16_string_at_address(start_address, str, min_string_length, 256, string_length);
 					if (ok) {
-						resultsDialog->addResult({start_address, str, Result::Utf16});
+						resultsDialog->addResult({start_address, str, ResultsModel::Result::Utf16});
 					}
 				}
 

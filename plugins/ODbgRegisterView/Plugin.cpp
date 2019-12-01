@@ -45,7 +45,7 @@ Plugin::Plugin(QObject *parent)
 }
 
 QString Plugin::dockName() const {
-    return tr("Registers");
+	return tr("Registers");
 }
 
 void Plugin::setupDocks() {
@@ -86,8 +86,8 @@ void Plugin::createRegisterView(const QString &settingsGroup) {
 		registerViews_.emplace_back(regView);
 		regView->setModel(&edb::v1::arch_processor().registerViewModel());
 
-        const QString suffix          = registerViews_.size() > 1 ? dockNameSuffixTemplate.arg(registerViews_.size()) : "";
-        auto *const regViewDockWidget = new QDockWidget(dockName() + suffix, mainWindow);
+		const QString suffix          = registerViews_.size() > 1 ? dockNameSuffixTemplate.arg(registerViews_.size()) : "";
+		auto *const regViewDockWidget = new QDockWidget(dockName() + suffix, mainWindow);
 		const auto viewNumber         = registerViews_.size();
 		regViewDockWidget->setObjectName(dockObjectNameTemplate.arg(viewNumber));
 		regViewDockWidget->setWidget(regView);
@@ -125,9 +125,9 @@ void Plugin::renumerateDocks() const {
 	for (std::size_t i = 0; i < registerViews_.size(); ++i) {
 		const auto view = registerViews_[i];
 		Q_ASSERT(dynamic_cast<QDockWidget *>(view->parentWidget()));
-        QWidget *dock = view->parentWidget();
-        dock->setObjectName(dockObjectNameTemplate.arg(i + 1));
-        dock->setWindowTitle(dockName() + (i ? dockNameSuffixTemplate.arg(i + 1) : ""));
+		QWidget *dock = view->parentWidget();
+		dock->setObjectName(dockObjectNameTemplate.arg(i + 1));
+		dock->setWindowTitle(dockName() + (i ? dockNameSuffixTemplate.arg(i + 1) : ""));
 	}
 }
 
