@@ -60,7 +60,7 @@ QString PlatformThread::name() const {
 
 	using GetThreadDescriptionType = HRESULT(WINAPI *)(HANDLE, PWSTR *);
 
-	static auto fnGetThreadDescription = (GetThreadDescriptionType)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "GetThreadDescription");
+	static auto fnGetThreadDescription = reinterpret_cast<GetThreadDescriptionType>(GetProcAddress(GetModuleHandle(TEXT("kernel32")), "GetThreadDescription"));
 	if (fnGetThreadDescription) {
 		WCHAR *data;
 		HRESULT hr = fnGetThreadDescription(hThread_, &data);
@@ -170,7 +170,7 @@ Status PlatformThread::step() {
  * @param status
  * @return
  */
-Status PlatformThread::step(edb::EVENT_STATUS status) {
+Status PlatformThread::step(edb::EventStatus status) {
 #if defined(EDB_X86)
 	CONTEXT context;
 	context.ContextFlags = CONTEXT_CONTROL;
@@ -213,7 +213,7 @@ Status PlatformThread::resume() {
  * @param status
  * @return
  */
-Status PlatformThread::resume(edb::EVENT_STATUS status) {
+Status PlatformThread::resume(edb::EventStatus status) {
 
 	// TODO(eteran): suspend the other threads, then basically just call process_->resume
 

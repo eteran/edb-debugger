@@ -1589,7 +1589,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		partialLastLine_ = false;
 	}
 
-	const auto binary_info = edb::v1::get_binary_info(region_);
+	const auto binary_info = nullptr; // edb::v1::get_binary_info(region_);
 	const auto group       = hasFocus() ? QPalette::Active : QPalette::Inactive;
 
 	lines_to_render         = updateDisassembly(lines_to_render);
