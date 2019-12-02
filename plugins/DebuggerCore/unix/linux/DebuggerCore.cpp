@@ -16,8 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// TODO(eteran): research usage of process_vm_readv, process_vm_writev
-
 #include "DebuggerCore.h"
 #include "Configuration.h"
 #include "DialogMemoryAccess.h"
@@ -170,7 +168,7 @@ bool os_is_64_bit(bool edbIsIn64BitSegment) {
 	} else {
 		// We want to be really sure the OS is 32 bit, so we can't rely on such easy
 		// to (even unintentionally) fake mechanisms as uname(2) (e.g. see setarch(8))
-		asm(R"(.intel_syntax noprefix
+		__asm__(R"(.intel_syntax noprefix
 			   mov eax,cs
 			   cmp ax,0x23 # this value is set for 32-bit processes on 64-bit kernel
 			   mov ah,0    # not sure this is really needed: usually the compiler will do
@@ -232,14 +230,16 @@ bool DebuggerCore::hasExtension(quint64 ext) const {
 	static constexpr auto xmmHash = edb::string_hash("XMM");
 	static constexpr auto ymmHash = edb::string_hash("YMM");
 
-	if (EDB_IS_64_BIT && (ext == xmmHash || ext == mmxHash)) {
+#if defined(EDB_X86_64)
+	if (ext == xmmHash || ext == mmxHash) {
 		return true;
 	}
+#endif
 
-	quint32 eax;
-	quint32 ebx;
-	quint32 ecx;
-	quint32 edx;
+	uint32_t eax;
+	uint32_t ebx;
+	uint32_t ecx;
+	uint32_t edx;
 	__cpuid(1, eax, ebx, ecx, edx);
 
 	switch (ext) {
@@ -822,26 +822,32 @@ void DebuggerCore::kill() {
 void DebuggerCore::detectCpuMode() {
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
-	const size_t offset     = EDB_IS_64_BIT ? offsetof(UserRegsStructX86_64, cs) : offsetof(UserRegsStructX86, xcs);
+
+#if defined(EDB_X86)
+	constexpr size_t Offset = offsetof(UserRegsStructX86, xcs);
+#elif defined(EDB_X86_64)
+	constexpr size_t Offset = offsetof(UserRegsStructX86_64, cs);
+#endif
+
 	errno                   = 0;
-	const edb::seg_reg_t cs = ptrace(PTRACE_PEEKUSER, activeThread_, offset, 0);
+	const edb::seg_reg_t cs = ptrace(PTRACE_PEEKUSER, activeThread_, Offset, 0);
 
 	if (!errno) {
 		if (cs == userCodeSegment32_) {
-			if (pointerSize_ == sizeof(quint64)) {
+			if (pointerSize_ == sizeof(uint64_t)) {
 				qDebug() << "Debuggee is now 32 bit";
 				cpuMode_ = CpuMode::x86_32;
 				CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_X86);
 			}
-			pointerSize_ = sizeof(quint32);
+			pointerSize_ = sizeof(uint32_t);
 			return;
 		} else if (cs == userCodeSegment64_) {
-			if (pointerSize_ == sizeof(quint32)) {
+			if (pointerSize_ == sizeof(uint32_t)) {
 				qDebug() << "Debuggee is now 64 bit";
 				cpuMode_ = CpuMode::x86_64;
 				CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_AMD64);
 			}
-			pointerSize_ = sizeof(quint64);
+			pointerSize_ = sizeof(uint64_t);
 			return;
 		}
 	}
@@ -858,11 +864,11 @@ void DebuggerCore::detectCpuMode() {
 			CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32_ARM);
 		}
 	}
-	pointerSize_ = sizeof(quint32);
+	pointerSize_ = sizeof(uint32_t);
 #elif defined(EDB_ARM64)
 	cpuMode_ = CpuMode::ARM64;
 	CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM64);
-	pointerSize_ = sizeof(quint64);
+	pointerSize_ = sizeof(uint64_t);
 #else
 #error "Unsupported Architecture"
 #endif
@@ -882,12 +888,12 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 
 	lastMeansOfCapture_ = MeansOfCapture::Launch;
 
-	static constexpr std::size_t sharedMemSize = 4096;
+	constexpr std::size_t SharedMemSize = 4096;
 
-	void *const ptr      = ::mmap(nullptr, sharedMemSize, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	void *const ptr      = ::mmap(nullptr, SharedMemSize, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	const auto sharedMem = static_cast<QChar *>(ptr);
 
-	std::memset(ptr, 0, sharedMemSize);
+	std::memset(ptr, 0, SharedMemSize);
 
 	switch (pid_t pid = fork()) {
 	case 0: {
@@ -922,7 +928,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 		static_assert(std::is_trivially_copyable<QChar>::value, "Can't copy string of QChar to shared memory");
 #endif
 		QString error = status.error();
-		std::memcpy(sharedMem, error.constData(), std::min(sizeof(QChar) * error.size(), sharedMemSize - sizeof(QChar) /*prevent overwriting of last null*/));
+		std::memcpy(sharedMem, error.constData(), std::min(sizeof(QChar) * error.size(), SharedMemSize - sizeof(QChar) /*prevent overwriting of last null*/));
 
 		// we should never get here!
 		abort();
@@ -939,7 +945,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 			int status;
 			const auto wpidRet = Posix::waitpid(pid, &status, __WALL);
 			const QString childError(sharedMem);
-			::munmap(sharedMem, sharedMemSize);
+			::munmap(sharedMem, SharedMemSize);
 
 			if (wpidRet == -1) {
 				return Status(tr("waitpid() failed: %1").arg(std::strerror(errno)) + (childError.isEmpty() ? "" : tr(".\nError returned by child:\n%1.").arg(childError)));
@@ -1067,12 +1073,10 @@ edb::pid_t DebuggerCore::parentPid(edb::pid_t pid) const {
  * @return edb's native CPU type
  */
 quint64 DebuggerCore::cpuType() const {
-#if defined(EDB_X86) || defined(EDB_X86_64)
-	if (EDB_IS_32_BIT) {
-		return edb::string_hash("x86");
-	} else {
-		return edb::string_hash("x86-64");
-	}
+#if defined(EDB_X86_64)
+	return edb::string_hash("x86-64");
+#elif defined(EDB_X86)
+	return edb::string_hash("x86");
 #elif defined(EDB_ARM32)
 	return edb::string_hash("arm");
 #elif defined(EDB_ARM64)
