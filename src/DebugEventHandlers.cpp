@@ -64,13 +64,13 @@ void DebugEventHandlers::remove(IDebugEventHandler *handler) {
 	handlers_.erase(it);
 }
 
-edb::EVENT_STATUS DebugEventHandlers::execute(const std::shared_ptr<IDebugEvent> &event) {
+edb::EventStatus DebugEventHandlers::execute(const std::shared_ptr<IDebugEvent> &event) {
 	if (currentHandler_) {
 		EDB_PRINT_AND_DIE("recursive debug event execution is not allowed");
 	}
 
 	// if somehow no handler is run, then let's just assume we should stop...
-	edb::EVENT_STATUS status = edb::DEBUG_STOP;
+	edb::EventStatus status = edb::DEBUG_STOP;
 
 	try {
 		// loop through all of the handlers, stopping when one thinks that it handled

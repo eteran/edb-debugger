@@ -64,8 +64,8 @@ public:
 
 public:
 	Status pause() override;
-	Status resume(edb::EVENT_STATUS status) override;
-	Status step(edb::EVENT_STATUS status) override;
+	Status resume(edb::EventStatus status) override;
+	Status step(edb::EventStatus status) override;
 	bool isPaused() const override;
 
 public:

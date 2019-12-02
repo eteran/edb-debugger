@@ -840,7 +840,7 @@ Status PlatformProcess::pause() {
  * @param status
  * @return
  */
-Status PlatformProcess::resume(edb::EVENT_STATUS status) {
+Status PlatformProcess::resume(edb::EventStatus status) {
 
 	// NOTE(eteran): OK, this is very tricky. When the user wants to resume
 	// while ignoring a signal (DEBUG_CONTINUE), we need to know which thread
@@ -887,7 +887,7 @@ Status PlatformProcess::resume(edb::EVENT_STATUS status) {
  * @param status
  * @return
  */
-Status PlatformProcess::step(edb::EVENT_STATUS status) {
+Status PlatformProcess::step(edb::EventStatus status) {
 	// TODO: assert that we are paused
 	Q_ASSERT(core_->process_.get() == this);
 

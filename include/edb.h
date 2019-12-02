@@ -148,7 +148,7 @@ EDB_EXPORT address_t get_value(address_t address, bool *ok, ExpressionError *err
 EDB_EXPORT address_t get_variable(const QString &s, bool *ok, ExpressionError *err);
 
 // hook the debug event system
-EDB_EXPORT edb::EVENT_STATUS execute_debug_event_handlers(const std::shared_ptr<IDebugEvent> &e);
+EDB_EXPORT edb::EventStatus execute_debug_event_handlers(const std::shared_ptr<IDebugEvent> &e);
 EDB_EXPORT void add_debug_event_handler(IDebugEventHandler *p);
 EDB_EXPORT void remove_debug_event_handler(IDebugEventHandler *p);
 

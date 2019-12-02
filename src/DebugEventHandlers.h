@@ -59,7 +59,7 @@ public:
 
 	void add(IDebugEventHandler *handler);
 	void remove(IDebugEventHandler *handler);
-	edb::EVENT_STATUS execute(const std::shared_ptr<IDebugEvent> &event);
+	edb::EventStatus execute(const std::shared_ptr<IDebugEvent> &event);
 
 private:
 	/*

@@ -62,9 +62,9 @@ public:
 	// system properties
 	virtual std::size_t pageSize() const                  = 0;
 	virtual std::size_t pointerSize() const               = 0;
-	virtual quint64 cpuType() const                       = 0;
+	virtual uint64_t cpuType() const                      = 0;
 	virtual CpuMode cpuMode() const                       = 0;
-	virtual bool hasExtension(quint64 ext) const          = 0;
+	virtual bool hasExtension(uint64_t ext) const         = 0;
 	virtual QMap<qlonglong, QString> exceptions() const   = 0;
 	virtual QString exceptionName(qlonglong value)        = 0;
 	virtual qlonglong exceptionValue(const QString &name) = 0;

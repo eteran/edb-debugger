@@ -224,7 +224,7 @@ DebuggerCore::DebuggerCore()
  * @param ext
  * @return
  */
-bool DebuggerCore::hasExtension(quint64 ext) const {
+bool DebuggerCore::hasExtension(uint64_t ext) const {
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	static constexpr auto mmxHash = edb::string_hash("MMX");
 	static constexpr auto xmmHash = edb::string_hash("XMM");
@@ -1072,7 +1072,7 @@ edb::pid_t DebuggerCore::parentPid(edb::pid_t pid) const {
  * @brief DebuggerCore::cpuType
  * @return edb's native CPU type
  */
-quint64 DebuggerCore::cpuType() const {
+uint64_t DebuggerCore::cpuType() const {
 #if defined(EDB_X86_64)
 	return edb::string_hash("x86-64");
 #elif defined(EDB_X86)

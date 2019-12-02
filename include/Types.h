@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace edb {
 
-enum EVENT_STATUS {
+enum EventStatus {
 	DEBUG_STOP,                  // do nothing, the UI will instigate the next event
 	DEBUG_CONTINUE,              // the event has been addressed, continue as normal
 	DEBUG_CONTINUE_STEP,         // the event has been addressed, step as normal

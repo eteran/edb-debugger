@@ -134,7 +134,7 @@ Status PlatformThread::resume() {
  * @param status
  * @return
  */
-Status PlatformThread::resume(edb::EVENT_STATUS status) {
+Status PlatformThread::resume(edb::EventStatus status) {
 	const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(status_) : 0;
 	return core_->ptraceContinue(tid_, code);
 }

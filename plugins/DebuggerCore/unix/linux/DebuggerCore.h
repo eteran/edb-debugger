@@ -53,7 +53,7 @@ public:
 	Status attach(edb::pid_t pid) override;
 	Status detach() override;
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
-	bool hasExtension(quint64 ext) const override;
+	bool hasExtension(uint64_t ext) const override;
 	size_t pageSize() const override;
 	std::shared_ptr<IDebugEvent> waitDebugEvent(std::chrono::milliseconds msecs) override;
 	std::size_t pointerSize() const override;
@@ -73,7 +73,7 @@ public:
 	std::unique_ptr<IState> createState() const override;
 
 public:
-	quint64 cpuType() const override;
+	uint64_t cpuType() const override;
 
 private:
 	QMap<edb::pid_t, std::shared_ptr<IProcess>> enumerateProcesses() const override;

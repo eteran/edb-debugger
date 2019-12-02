@@ -241,7 +241,7 @@ IAnalyzer *analyzer() {
 // Name: execute_debug_event_handlers
 // Desc:
 //------------------------------------------------------------------------------
-EVENT_STATUS execute_debug_event_handlers(const std::shared_ptr<IDebugEvent> &e) {
+EventStatus execute_debug_event_handlers(const std::shared_ptr<IDebugEvent> &e) {
 	return g_DebugEventHandlers.execute(e);
 }
 

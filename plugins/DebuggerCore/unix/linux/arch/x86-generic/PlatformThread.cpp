@@ -350,7 +350,7 @@ Status PlatformThread::step() {
  * @param status
  * @return
  */
-Status PlatformThread::step(edb::EVENT_STATUS status) {
+Status PlatformThread::step(edb::EventStatus status) {
 	const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(status_) : 0;
 	return core_->ptraceStep(tid_, code);
 }

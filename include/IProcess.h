@@ -68,8 +68,8 @@ public:
 	virtual std::size_t readBytes(edb::address_t address, void *buf, size_t len) const   = 0;
 	virtual std::size_t readPages(edb::address_t address, void *buf, size_t count) const = 0;
 	virtual Status pause()                                                               = 0;
-	virtual Status resume(edb::EVENT_STATUS status)                                      = 0;
-	virtual Status step(edb::EVENT_STATUS status)                                        = 0;
+	virtual Status resume(edb::EventStatus status)                                       = 0;
+	virtual Status step(edb::EventStatus status)                                         = 0;
 	virtual bool isPaused() const                                                        = 0;
 	virtual QMap<edb::address_t, Patch> patches() const                                  = 0;
 };

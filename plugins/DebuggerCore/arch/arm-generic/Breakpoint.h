@@ -48,7 +48,7 @@ public:
 
 public:
 	edb::address_t address() const override { return address_; }
-	quint64 hitCount() const override { return hitCount_; }
+	uint64_t hitCount() const override { return hitCount_; }
 	bool enabled() const override { return enabled_; }
 	bool oneTime() const override { return oneTime_; }
 	bool internal() const override { return internal_; }
@@ -71,10 +71,10 @@ public:
 private:
 	std::vector<uint8_t> originalBytes_;
 	edb::address_t address_;
-	quint64 hitCount_ = 0;
-	bool enabled_     = false;
-	bool oneTime_     = false;
-	bool internal_    = false;
+	uint64_t hitCount_ = 0;
+	bool enabled_      = false;
+	bool oneTime_      = false;
+	bool internal_     = false;
 	Type type_;
 };
 

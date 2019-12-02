@@ -195,7 +195,7 @@ public:
 	// Name: pass_back_to_debugger
 	// Desc: Makes the previous handler the event handler again and deletes this.
 	//--------------------------------------------------------------------------
-	virtual edb::EVENT_STATUS pass_back_to_debugger() {
+	virtual edb::EventStatus pass_back_to_debugger() {
 		delete this;
 		return edb::DEBUG_NEXT_HANDLER;
 	}
@@ -204,7 +204,7 @@ public:
 	// Name: handle_event
 	//--------------------------------------------------------------------------
 	//TODO: Need to handle stop/pause button
-	edb::EVENT_STATUS handleEvent(const std::shared_ptr<IDebugEvent> &event) override {
+	edb::EventStatus handleEvent(const std::shared_ptr<IDebugEvent> &event) override {
 
 		if (!event->isTrap()) {
 			return pass_back_to_debugger();
@@ -2179,7 +2179,7 @@ bool Debugger::isBreakpointConditionTrue(const QString &condition) {
 // Name: handle_trap
 // Desc: returns true if we should resume as if this trap never happened
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::handleTrap(const std::shared_ptr<IDebugEvent> &event) {
+edb::EventStatus Debugger::handleTrap(const std::shared_ptr<IDebugEvent> &event) {
 
 	// we just got a trap event, there are a few possible causes
 	// #1: we hit a 0xcc breakpoint, if so, then we want to stop
@@ -2256,7 +2256,7 @@ edb::EVENT_STATUS Debugger::handleTrap(const std::shared_ptr<IDebugEvent> &event
 // Name: handle_event_stopped
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::handleEventStopped(const std::shared_ptr<IDebugEvent> &event) {
+edb::EventStatus Debugger::handleEventStopped(const std::shared_ptr<IDebugEvent> &event) {
 
 	// ok we just came in from a stop, we need to test some things,
 	// generally, we will want to check if it was a step, if it was, was it
@@ -2331,7 +2331,7 @@ edb::EVENT_STATUS Debugger::handleEventStopped(const std::shared_ptr<IDebugEvent
 // Name: handle_event_terminated
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::handleEventTerminated(const std::shared_ptr<IDebugEvent> &event) {
+edb::EventStatus Debugger::handleEventTerminated(const std::shared_ptr<IDebugEvent> &event) {
 	on_action_Detach_triggered();
 	QMessageBox::information(
 		this,
@@ -2345,7 +2345,7 @@ edb::EVENT_STATUS Debugger::handleEventTerminated(const std::shared_ptr<IDebugEv
 // Name: handle_event_exited
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::handleEventExited(const std::shared_ptr<IDebugEvent> &event) {
+edb::EventStatus Debugger::handleEventExited(const std::shared_ptr<IDebugEvent> &event) {
 	on_action_Detach_triggered();
 	QMessageBox::information(
 		this,
@@ -2359,11 +2359,11 @@ edb::EVENT_STATUS Debugger::handleEventExited(const std::shared_ptr<IDebugEvent>
 // Name: handle_event
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::handleEvent(const std::shared_ptr<IDebugEvent> &event) {
+edb::EventStatus Debugger::handleEvent(const std::shared_ptr<IDebugEvent> &event) {
 
 	Q_ASSERT(edb::v1::debugger_core);
 
-	edb::EVENT_STATUS status;
+	edb::EventStatus status;
 	switch (event->reason()) {
 	// either a syncronous event (STOPPED)
 	// or an asyncronous event (SIGNALED)
@@ -2581,7 +2581,7 @@ void Debugger::updateUi() {
 // Name: resume_status
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::resumeStatus(bool pass_exception) {
+edb::EventStatus Debugger::resumeStatus(bool pass_exception) {
 
 	if (pass_exception && lastEvent_ && lastEvent_->stopped() && !lastEvent_->isTrap()) {
 		return edb::DEBUG_EXCEPTION_NOT_HANDLED;
@@ -2604,7 +2604,7 @@ void Debugger::resumeExecution(ExceptionResume pass_exception, DebugMode mode, R
 
 			// if necessary pass the trap to the application, otherwise just resume
 			// as normal
-			const edb::EVENT_STATUS status = resumeStatus(pass_exception == PassException);
+			const edb::EventStatus status = resumeStatus(pass_exception == PassException);
 
 			// if we are on a breakpoint, disable it
 			std::shared_ptr<IBreakpoint> bp;
@@ -3435,7 +3435,7 @@ void Debugger::nextDebugEvent() {
 
 		Q_EMIT debugEvent();
 
-		const edb::EVENT_STATUS status = edb::v1::execute_debug_event_handlers(e);
+		const edb::EventStatus status = edb::v1::execute_debug_event_handlers(e);
 		switch (status) {
 		case edb::DEBUG_STOP:
 			updateUi();

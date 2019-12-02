@@ -128,7 +128,7 @@ size_t DebuggerCore::pageSize() const {
  * @param ext
  * @return
  */
-bool DebuggerCore::hasExtension(quint64 ext) const {
+bool DebuggerCore::hasExtension(uint64_t ext) const {
 #if !defined(EDB_X86_64)
 	switch (ext) {
 	case edb::string_hash("MMX"):
@@ -438,7 +438,7 @@ QMap<qlonglong, QString> DebuggerCore::exceptions() const {
  * @brief DebuggerCore::cpuType
  * @return
  */
-quint64 DebuggerCore::cpuType() const {
+uint64_t DebuggerCore::cpuType() const {
 #ifdef EDB_X86
 	return edb::string_hash("x86");
 #elif defined(EDB_X86_64)

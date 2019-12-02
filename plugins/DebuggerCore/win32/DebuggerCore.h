@@ -44,7 +44,7 @@ public:
 	~DebuggerCore() override;
 
 public:
-	bool hasExtension(quint64 ext) const override;
+	bool hasExtension(uint64_t ext) const override;
 	size_t pageSize() const override;
 	std::size_t pointerSize() const override {
 		return sizeof(void *);
@@ -85,7 +85,7 @@ public:
 public:
 	// process properties
 	edb::pid_t parentPid(edb::pid_t pid) const override;
-	quint64 cpuType() const override;
+	uint64_t cpuType() const override;
 
 	CpuMode cpuMode() const override {
 		qDebug("TODO: Implement DebuggerCore::cpu_mode");

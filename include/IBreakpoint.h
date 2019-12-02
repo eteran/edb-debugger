@@ -50,7 +50,7 @@ public:
 
 public:
 	virtual edb::address_t address() const       = 0;
-	virtual quint64 hitCount() const             = 0;
+	virtual uint64_t hitCount() const            = 0;
 	virtual bool enabled() const                 = 0;
 	virtual bool oneTime() const                 = 0;
 	virtual bool internal() const                = 0;

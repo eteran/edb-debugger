@@ -223,7 +223,7 @@ void HardwareBreakpoints::showMenu() {
  * @param event
  * @return
  */
-edb::EVENT_STATUS HardwareBreakpoints::handleEvent(const std::shared_ptr<IDebugEvent> &event) {
+edb::EventStatus HardwareBreakpoints::handleEvent(const std::shared_ptr<IDebugEvent> &event) {
 
 	if (event->stopped() && event->isTrap()) {
 

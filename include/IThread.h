@@ -41,10 +41,10 @@ public:
 	virtual void setState(const State &state) = 0;
 
 public:
-	virtual Status step()                           = 0;
-	virtual Status step(edb::EVENT_STATUS status)   = 0;
-	virtual Status resume()                         = 0;
-	virtual Status resume(edb::EVENT_STATUS status) = 0;
+	virtual Status step()                          = 0;
+	virtual Status step(edb::EventStatus status)   = 0;
+	virtual Status resume()                        = 0;
+	virtual Status resume(edb::EventStatus status) = 0;
 
 public:
 	virtual bool isPaused() const = 0;

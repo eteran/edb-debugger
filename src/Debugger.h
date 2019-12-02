@@ -215,7 +215,7 @@ private:
 	void showEvent(QShowEvent *event) override;
 
 public:
-	edb::EVENT_STATUS handleEvent(const std::shared_ptr<IDebugEvent> &event) override;
+	edb::EventStatus handleEvent(const std::shared_ptr<IDebugEvent> &event) override;
 
 private:
 	QString createTty();
@@ -224,11 +224,11 @@ private:
 	Result<edb::reg_t, QString> getFollowRegister() const;
 	bool commonOpen(const QString &s, const QList<QByteArray> &args);
 	bool isBreakpointConditionTrue(const QString &condition);
-	edb::EVENT_STATUS handleEventExited(const std::shared_ptr<IDebugEvent> &event);
-	edb::EVENT_STATUS handleEventStopped(const std::shared_ptr<IDebugEvent> &event);
-	edb::EVENT_STATUS handleEventTerminated(const std::shared_ptr<IDebugEvent> &event);
-	edb::EVENT_STATUS handleTrap(const std::shared_ptr<IDebugEvent> &event);
-	edb::EVENT_STATUS resumeStatus(bool pass_exception);
+	edb::EventStatus handleEventExited(const std::shared_ptr<IDebugEvent> &event);
+	edb::EventStatus handleEventStopped(const std::shared_ptr<IDebugEvent> &event);
+	edb::EventStatus handleEventTerminated(const std::shared_ptr<IDebugEvent> &event);
+	edb::EventStatus handleTrap(const std::shared_ptr<IDebugEvent> &event);
+	edb::EventStatus resumeStatus(bool pass_exception);
 	std::shared_ptr<IRegion> updateCpuView(const State &state);
 	void applyDefaultFonts();
 	void applyDefaultShowSeparator();

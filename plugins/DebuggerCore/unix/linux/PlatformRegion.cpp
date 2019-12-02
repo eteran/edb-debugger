@@ -68,9 +68,9 @@ public:
 	bool restore();
 
 public:
-	edb::EVENT_STATUS handleEvent(const std::shared_ptr<IDebugEvent> &event) override;
+	edb::EventStatus handleEvent(const std::shared_ptr<IDebugEvent> &event) override;
 
-public:
+private:
 	QAtomicInt lock_ = 1;
 	edb::address_t address_;
 	IRegion::permissions_t premissions_;
@@ -140,7 +140,7 @@ bool BackupInfo<N>::restore() {
  * @return
  */
 template <size_t N>
-edb::EVENT_STATUS BackupInfo<N>::handleEvent(const std::shared_ptr<IDebugEvent> &event) {
+edb::EventStatus BackupInfo<N>::handleEvent(const std::shared_ptr<IDebugEvent> &event) {
 	Q_UNUSED(event)
 
 	lock_.testAndSetRelease(1, 0);
