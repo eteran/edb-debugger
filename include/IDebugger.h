@@ -93,6 +93,7 @@ public:
 
 public:
 	// basic breakpoint managment
+	// TODO(eteran): these should be logically moved to IProcess
 	virtual BreakpointList backupBreakpoints() const                                     = 0;
 	virtual std::shared_ptr<IBreakpoint> addBreakpoint(edb::address_t address)           = 0;
 	virtual std::shared_ptr<IBreakpoint> findBreakpoint(edb::address_t address)          = 0;
