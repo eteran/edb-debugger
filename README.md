@@ -10,7 +10,7 @@ but aims to function on AArch32, x86, and x86-64 as well as multiple OS's. Linux
 only officially supported platform at the moment, but FreeBSD, OpenBSD, OSX and 
 Windows ports are underway with varying degrees of functionality.
 
-![Screenshot](https://github.com/eteran/edb-debugger/raw/master/doc/img/edb_interface-2019.png)
+![Screenshot](https://raw.githubusercontent.com/wiki/eteran/edb-debugger/img/edb_interface-2019.png)
 
 edb is available under the GPL 2 license, see the COPYING for details.
 
