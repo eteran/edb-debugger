@@ -231,7 +231,7 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f)
 				return;
 			}
 
-            Q_FOREACH (const ResultViewModel::Result *result, result_map) {
+			Q_FOREACH (const ResultViewModel::Result *result, result_map) {
 				const edb::address_t addr = result->address;
 				if (nodes.contains(addr)) {
 					for (edb::address_t pointer : result->pointers) {
@@ -271,7 +271,7 @@ void DialogHeap::showEvent(QShowEvent *) {
  */
 void DialogHeap::on_tableView_doubleClicked(const QModelIndex &index) {
 	const QModelIndex idx = filterModel_->mapToSource(index);
-    if (auto item = static_cast<ResultViewModel::Result *>(idx.internalPointer())) {
+	if (auto item = static_cast<ResultViewModel::Result *>(idx.internalPointer())) {
 		edb::v1::dump_data_range(item->address, item->address + item->size, false);
 	}
 }
@@ -283,12 +283,12 @@ void DialogHeap::on_tableView_doubleClicked(const QModelIndex &index) {
  */
 void DialogHeap::processPotentialPointers(const QHash<edb::address_t, edb::address_t> &targets, const QModelIndex &index) {
 
-    if (auto result = static_cast<ResultViewModel::Result *>(index.internalPointer())) {
+	if (auto result = static_cast<ResultViewModel::Result *>(index.internalPointer())) {
 
 		std::vector<edb::address_t> pointers;
 
 		if (IProcess *process = edb::v1::debugger_core->process()) {
-            if (result->dataType == ResultViewModel::Result::Unknown) {
+			if (result->dataType == ResultViewModel::Result::Unknown) {
 				edb::address_t pointer(0);
 				edb::address_t block_ptr = block_start(*result);
 				edb::address_t block_end = block_ptr + result->size;
@@ -325,7 +325,7 @@ void DialogHeap::detectPointers() {
 	qDebug() << "[Heap Analyzer] collecting possible targets addresses";
 	for (int row = 0; row < model_->rowCount(); ++row) {
 		QModelIndex index = model_->index(row, 0);
-        if (auto result = static_cast<ResultViewModel::Result *>(index.internalPointer())) {
+		if (auto result = static_cast<ResultViewModel::Result *>(index.internalPointer())) {
 			edb::address_t block_ptr = block_start(*result);
 			edb::address_t block_end = block_ptr + result->size;
 			while (block_ptr < block_end) {
@@ -434,10 +434,10 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 					}
 
 					// TODO(eteran): should this be unsigned int? Or should it be sizeof(value32)/sizeof(value64)?
-                    const ResultViewModel::Result r{
+					const ResultViewModel::Result r{
 						currentChunkAddress,
 						currentChunk.chunkSize() + sizeof(unsigned int),
-                        nextChunk.prevInUse() ? ResultViewModel::Result::Busy : ResultViewModel::Result::Free,
+						nextChunk.prevInUse() ? ResultViewModel::Result::Busy : ResultViewModel::Result::Free,
 						data_type,
 						data,
 						{}};

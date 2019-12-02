@@ -80,6 +80,19 @@ bool will_return(edb::address_t address) {
 }
 
 /**
+ * @brief is_entrypoint
+ * @param sym
+ * @return
+ */
+bool is_entrypoint(const Symbol &sym) {
+#ifdef Q_OS_UNIX
+	return sym.name_no_prefix == "_start";
+#else
+	return false;
+#endif
+}
+
+/**
  * @brief is_thunk
  * @param address
  * @return true if the first instruction of the function is a jmp
@@ -371,7 +384,11 @@ void Analyzer::bonusSymbols(RegionData *data) {
 	for (const std::shared_ptr<Symbol> &sym : symbols) {
 		const edb::address_t addr = sym->address;
 
-		if (data->region->contains(addr) && sym->isCode()) {
+		// NOTE(eteran): we special case the module entry point because while we bonus the
+		// application's entry point in bonusEntryPoint, each module can have one which
+		// is called on load by the linker, including the linker itself! And unfortunately
+		// at least on some systems, it is a data symbol, not a code symbol
+		if (data->region->contains(addr) && (sym->isCode() || is_entrypoint(*sym))) {
 			qDebug("[Analyzer] adding: %s <%s>", qPrintable(sym->name), qPrintable(addr.toPointerString()));
 			data->knownFunctions.insert(addr);
 		}

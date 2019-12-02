@@ -176,7 +176,7 @@ bool os_is_64_bit(bool edbIsIn64BitSegment) {
 			   sete al
 			   .att_syntax # restore default syntax
 			   )"
-			: "=a"(osIs64Bit));
+				: "=a"(osIs64Bit));
 	}
 
 	return osIs64Bit;
