@@ -15,7 +15,6 @@
 
 #ifdef _MSC_VER
 extern "C" EDB_EXPORT void __fastcall long_double_to_double(const void *src, double *dest);
-extern "C" EDB_EXPORT void __fastcall float64_to_float80(const void *src, void *dest);
 #endif
 
 namespace edb {
@@ -768,7 +767,7 @@ public:
 #ifdef _MSC_VER
 		if(std::is_same<U, long double>::value && sizeof(U) < sizeof(T)) {
 			T temp;
-			//float64_to_float80(&data, &temp);
+			convert_real64_to_real80(&data, &temp);
 
 			Q_ASSERT(sizeof(temp) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
 

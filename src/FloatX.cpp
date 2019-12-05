@@ -30,6 +30,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <gdtoa-desktop.h>
 #endif
 
+#ifdef _MSC_VER
+extern "C" EDB_EXPORT void __fastcall float64_to_float80(const void *src, void *dest);
+
+// NOTE(eteran): this thin wrapper function make look pointless... and it REALLY does.
+// However, I could not get plugins to be able to see the functions defined in .asm files
+// unless I wrapped them in a concrete function like this. It's dumb, but it works
+void convert_real64_to_real80(const void *src, void *dst) {
+	float64_to_float80(src, dst);
+}
+#endif
+
+
+
 namespace {
 
 template <class T>
@@ -113,6 +126,7 @@ double to_real(edb::value64 value) {
 long double to_real(edb::value80 value) {
 	return value.toFloatValue();
 }
+
 
 template <unsigned MantissaLength, typename FloatHolder>
 FloatValueClass ieee_classify(FloatHolder value) {
