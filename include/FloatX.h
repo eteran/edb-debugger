@@ -57,4 +57,8 @@ constexpr int max_printed_length() {
 	return maxWidth;
 }
 
+#ifdef _MSC_VER
+EDB_EXPORT void convert_real64_to_real80(const void *src, void *dst);
+#endif
+
 #endif

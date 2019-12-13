@@ -55,8 +55,8 @@ public:
 
 private:
 	std::shared_ptr<IRegion> region_;
-	libPE::IMAGE_DOS_HEADER dos_;
-	libPE::IMAGE_NT_HEADERS32 pe_;
+	libPE::IMAGE_DOS_HEADER dos_ = {};
+	libPE::IMAGE_NT_HEADERS32 pe_ = {};
 };
 
 }

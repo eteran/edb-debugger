@@ -764,7 +764,20 @@ public:
 public:
 	template <class U>
 	explicit value_type80(const U &data, size_t offset = 0) {
+#ifdef _MSC_VER
+		if(std::is_same<U, long double>::value && sizeof(U) < sizeof(T)) {
+			T temp;
+			convert_real64_to_real80(&data, &temp);
+
+			Q_ASSERT(sizeof(temp) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
+
+			auto dataStart = reinterpret_cast<const char *>(&temp);
+			std::memcpy(&value_, dataStart + offset, sizeof(value_));
+			return;
+		}
+#else
 		static_assert(sizeof(data) >= sizeof(T), "ValueBase can only be constructed from large enough variable");
+#endif
 		static_assert(std::is_trivially_copyable<U>::value, "ValueBase can only be constructed from trivially copiable data");
 
 		Q_ASSERT(sizeof(data) - offset >= sizeof(T)); // check bounds, this can't be done at compile time

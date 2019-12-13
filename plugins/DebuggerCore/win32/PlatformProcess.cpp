@@ -597,7 +597,7 @@ void PlatformProcess::setCurrentThread(IThread &thread) {
 	edb::v1::update_ui();
 }
 
-Status PlatformProcess::step(edb::EVENT_STATUS status) {
+Status PlatformProcess::step(edb::EventStatus status) {
 	// TODO: assert that we are paused
 	Q_ASSERT(core_->process_.get() == this);
 
@@ -624,21 +624,21 @@ bool PlatformProcess::isPaused() const {
  * @param status
  * @return
  */
-Status PlatformProcess::resume(edb::EVENT_STATUS status) {
+Status PlatformProcess::resume(edb::EventStatus status) {
 
 	int ret;
 
 	switch (status) {
-	case edb::EVENT_STATUS::DEBUG_CONTINUE:
+	case edb::EventStatus::DEBUG_CONTINUE:
 		ret = ContinueDebugEvent(lastEvent_.dwProcessId, lastEvent_.dwThreadId, DBG_CONTINUE);
 		break;
-	case edb::EVENT_STATUS::DEBUG_EXCEPTION_NOT_HANDLED:
+	case edb::EventStatus::DEBUG_EXCEPTION_NOT_HANDLED:
 		ret = ContinueDebugEvent(lastEvent_.dwProcessId, lastEvent_.dwThreadId, DBG_EXCEPTION_NOT_HANDLED);
 		break;
-	case edb::EVENT_STATUS::DEBUG_NEXT_HANDLER:
-	case edb::EVENT_STATUS::DEBUG_CONTINUE_BP:
-	case edb::EVENT_STATUS::DEBUG_CONTINUE_STEP:
-	case edb::EVENT_STATUS::DEBUG_STOP:
+	case edb::EventStatus::DEBUG_NEXT_HANDLER:
+	case edb::EventStatus::DEBUG_CONTINUE_BP:
+	case edb::EventStatus::DEBUG_CONTINUE_STEP:
+	case edb::EventStatus::DEBUG_STOP:
 	default:
 		break;
 	}

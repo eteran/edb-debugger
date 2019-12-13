@@ -939,7 +939,10 @@ QByteArray SIMDFormatItem<StoredType, SizingType>::rawValue() const {
 template <>
 int SIMDFormatItem<edb::value80, edb::value80>::valueMaxLength() const {
 
+	// TODO(eteran): we need a sensible implementation for non-80-bit long double support
+#ifndef _MSC_VER
 	Q_ASSERT(sizeof(edb::value80) <= sizeof(long double));
+#endif
 	switch (format_) {
 	case NumberDisplayMode::Hex:
 		return 2 * sizeof(edb::value80);
