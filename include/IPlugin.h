@@ -43,6 +43,10 @@ public:
 	virtual QMenu *menu(QWidget *parent = nullptr) = 0;
 
 public:
+	// optional, overload this to provide actions that are available by global shortcuts
+	virtual QList<QAction *> globalShortcuts() { return {}; }
+
+public:
 	// optional, overload these to have there contents added to a view's context menu
 	virtual QList<QAction *> cpuContextMenu() { return {}; }
 	virtual QList<QAction *> registerContextMenu() { return {}; }

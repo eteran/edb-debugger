@@ -858,11 +858,7 @@ void Debugger::finishPluginSetup() {
 			}
 
 			// setup the shortcuts for these actions
-			const QList<QAction *> register_actions = p->registerContextMenu();
-			const QList<QAction *> cpu_actions      = p->cpuContextMenu();
-			const QList<QAction *> stack_actions    = p->stackContextMenu();
-			const QList<QAction *> data_actions     = p->dataContextMenu();
-			const QList<QAction *> actions          = register_actions + cpu_actions + stack_actions + data_actions;
+			const QList<QAction *> actions = p->globalShortcuts();
 
 			for (QAction *action : actions) {
 				QKeySequence shortcut = action->shortcut();

@@ -33,7 +33,10 @@ namespace AssemblerPlugin {
  * @param parent
  */
 Assembler::Assembler(QObject *parent)
-	: QObject(parent) {
+	: QObject(parent),
+	  action_assemble_(tr("&Assemble..."), this) {
+	action_assemble_.setShortcut(QKeySequence(tr("Space")));
+	connect(&action_assemble_, &QAction::triggered, this, &Assembler::showDialog);
 }
 
 /**
@@ -44,19 +47,24 @@ Assembler::~Assembler() {
 }
 
 /**
+ * @brief Assembler::globalShortcuts
+ * @return
+ */
+QList<QAction *> Assembler::globalShortcuts() {
+
+	QList<QAction *> ret;
+	ret << &action_assemble_;
+	return ret;
+}
+
+/**
  * @brief Assembler::cpuContextMenu
  * @return
  */
 QList<QAction *> Assembler::cpuContextMenu() {
 
 	QList<QAction *> ret;
-
-	auto action_assemble = new QAction(tr("&Assemble..."), this);
-	action_assemble->setShortcut(QKeySequence(tr("Space")));
-
-	connect(action_assemble, &QAction::triggered, this, &Assembler::showDialog);
-	ret << action_assemble;
-
+	ret << &action_assemble_;
 	return ret;
 }
 
