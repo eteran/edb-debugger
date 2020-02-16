@@ -1685,10 +1685,10 @@ void Debugger::mnuStackPop() {
 void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	QMenu menu;
 
-	auto displayMenu = new QMenu(tr("Display"));
+	auto displayMenu = new QMenu(tr("Display"), &menu);
 	displayMenu->addAction(QIcon::fromTheme(QString::fromUtf8("view-restore")), tr("Restore Column Defaults"), ui.cpuView, SLOT(resetColumns()));
 
-	auto editMenu = new QMenu(tr("&Edit"));
+	auto editMenu = new QMenu(tr("&Edit"), &menu);
 	editMenu->addAction(editBytesAction_);
 	editMenu->addAction(fillWithZerosAction_);
 	editMenu->addAction(fillWithNOPsAction_);
