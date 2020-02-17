@@ -458,7 +458,8 @@ void ODBRegView::modelReset() {
 		delete item;
 	}
 
-	const auto flagsAndSegments = new QHBoxLayout();
+	const auto flagsAndSegments = new QHBoxLayout(this);
+
 	// (3/2+1/2)-letter — Total of 2-letter spacing. Fourth half-letter is from flag values extension.
 	// Segment extensions at LHS of the widget don't influence minimumSize request, so no need to take
 	// them into account.
