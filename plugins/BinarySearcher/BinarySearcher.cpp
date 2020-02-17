@@ -53,11 +53,11 @@ QMenu *BinarySearcher::menu(QWidget *parent) {
  * @brief BinarySearcher::stackContextMenu
  * @return
  */
-QList<QAction *> BinarySearcher::stackContextMenu() {
+QList<QAction *> BinarySearcher::stackContextMenu(QMenu *parent) {
 
 	QList<QAction *> ret;
 
-	auto action_find = new QAction(tr("&Find ASCII String"), this);
+	auto action_find = new QAction(tr("&Find ASCII String"), parent);
 	connect(action_find, &QAction::triggered, this, &BinarySearcher::mnuStackFindAscii);
 	ret << action_find;
 

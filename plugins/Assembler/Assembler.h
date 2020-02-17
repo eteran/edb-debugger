@@ -41,7 +41,7 @@ public:
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
 	QList<QAction *> globalShortcuts() override;
-	QList<QAction *> cpuContextMenu() override;
+	QList<QAction *> cpuContextMenu(QMenu *parent) override;
 	QWidget *optionsPage() override;
 
 private:

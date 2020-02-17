@@ -61,7 +61,7 @@ QList<QAction *> Assembler::globalShortcuts() {
  * @brief Assembler::cpuContextMenu
  * @return
  */
-QList<QAction *> Assembler::cpuContextMenu() {
+QList<QAction *> Assembler::cpuContextMenu(QMenu *parent) {
 
 	QList<QAction *> ret;
 	ret << &action_assemble_;
