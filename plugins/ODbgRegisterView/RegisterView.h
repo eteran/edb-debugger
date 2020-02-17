@@ -23,6 +23,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPersistentModelIndex>
 #include <QScrollArea>
 #include <QString>
+#include <QHBoxLayout>
+
+#include <memory>
 
 namespace ODbgRegisterView {
 
@@ -99,6 +102,7 @@ private Q_SLOTS:
 private:
 	RegisterViewModelBase::Model *model_ = nullptr;
 	QList<RegisterGroup *> groups_;
+	std::unique_ptr<QHBoxLayout> flagsAndSegments_;
 	std::vector<RegisterGroupType> visibleGroupTypes_;
 	QList<QAction *> menuItems_;
 	DialogEditGPR *dialogEditGpr_;
