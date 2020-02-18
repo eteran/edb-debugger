@@ -453,12 +453,8 @@ void ODBRegView::modelReset() {
 
 	const auto layout = static_cast<QVBoxLayout *>(widget()->layout());
 
-	// layout contains not only groups, so delete all items too
-	while (const auto item = layout->takeAt(0)) {
-		delete item;
-	}
-
-	const auto flagsAndSegments = new QHBoxLayout(this);
+	const auto flagsAndSegments = new QHBoxLayout();
+	flagsAndSegments_.reset(flagsAndSegments);
 
 	// (3/2+1/2)-letter — Total of 2-letter spacing. Fourth half-letter is from flag values extension.
 	// Segment extensions at LHS of the widget don't influence minimumSize request, so no need to take
