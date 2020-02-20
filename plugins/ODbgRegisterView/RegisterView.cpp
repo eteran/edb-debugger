@@ -453,15 +453,14 @@ void ODBRegView::modelReset() {
 
 	const auto layout = static_cast<QVBoxLayout *>(widget()->layout());
 
-	const auto flagsAndSegments = new QHBoxLayout();
-	flagsAndSegments_.reset(flagsAndSegments);
+	flagsAndSegments_ = std::make_unique<QHBoxLayout>();
 
-	// (3/2+1/2)-letter — Total of 2-letter spacing. Fourth half-letter is from flag values extension.
+	// (3/2+1/2)-letter - Total of 2-letter spacing. Fourth half-letter is from flag values extension.
 	// Segment extensions at LHS of the widget don't influence minimumSize request, so no need to take
 	// them into account.
-	flagsAndSegments->setSpacing(letter_size(this->font()).width() * 3 / 2);
-	flagsAndSegments->setContentsMargins(QMargins());
-	flagsAndSegments->setAlignment(Qt::AlignLeft);
+	flagsAndSegments_->setSpacing(letter_size(this->font()).width() * 3 / 2);
+	flagsAndSegments_->setContentsMargins(QMargins());
+	flagsAndSegments_->setAlignment(Qt::AlignLeft);
 
 	bool flagsAndSegsInserted = false;
 
@@ -475,9 +474,9 @@ void ODBRegView::modelReset() {
 				continue;
 #if defined(EDB_X86) || defined(EDB_X86_64)
 			if (groupType == RegisterGroupType::Segment || groupType == RegisterGroupType::ExpandedEFL) {
-				flagsAndSegments->addWidget(group);
+				flagsAndSegments_->addWidget(group);
 				if (!flagsAndSegsInserted) {
-					layout->addLayout(flagsAndSegments);
+					layout->addLayout(flagsAndSegments_.get());
 					flagsAndSegsInserted = true;
 				}
 			} else
