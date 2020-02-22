@@ -107,6 +107,12 @@ constexpr Exception Exceptions[] = {
 #endif
 };
 
+char *copyString(QByteArray const &str) {
+	char *p = new char[str.length() + 1];
+	std::strcpy(p, str.constData());
+	return p;
+}
+
 }
 
 /**
@@ -175,15 +181,10 @@ Status Unix::execute_process(const QString &path, const QString &cwd, const QLis
 
 		char **p = argv_pointers;
 
-		*p = new char[path.length() + 1];
-		std::strcpy(*p, qPrintable(path));
-		++p;
+		*p++ = copyString(path.toLocal8Bit());
 
 		for (int i = 0; i < args.count(); ++i) {
-			const QByteArray s(args[i]);
-			*p = new char[s.length() + 1];
-			std::strcpy(*p, s.constData());
-			++p;
+			*p++ = copyString(args[i]);
 		}
 
 		*p = nullptr;
