@@ -113,7 +113,6 @@ private:
 	edb::address_t addressFromCoord(int x, int y) const;
 	int addressLength() const;
 	int autoLine2() const;
-	int line0() const;
 	int line1() const;
 	int line2() const;
 	int line3() const;
@@ -150,7 +149,6 @@ private:
 	int fontWidth_                 = 0; // width of a character in this font
 	int iconWidth_                 = 0;
 	int iconHeight_                = 0;
-	int line0_                     = 0;
 	int line1_                     = 0;
 	int line2_                     = 0;
 	int line3_                     = 0;

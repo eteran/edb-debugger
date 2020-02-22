@@ -1707,14 +1707,6 @@ void QDisassemblyView::updateScrollbars() {
 }
 
 //------------------------------------------------------------------------------
-// Name: line0
-// Desc:
-//------------------------------------------------------------------------------
-int QDisassemblyView::line0() const {
-	return line0_;
-}
-
-//------------------------------------------------------------------------------
 // Name: line1
 // Desc:
 //------------------------------------------------------------------------------
@@ -1965,7 +1957,7 @@ void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
-	const int event_x = event->x() - line0();
+	const int event_x = event->x();
 	if (region_) {
 		if (event->button() == Qt::LeftButton) {
 			if (near_line(event_x, line1()) && edb::v1::config().show_jump_arrow) {
@@ -1993,7 +1985,7 @@ void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 
 	if (region_) {
-		const int x_pos = event->x() - line0();
+		const int x_pos = event->x();
 
 		if (movingLine1_) {
 			if (line2_ == 0) {
