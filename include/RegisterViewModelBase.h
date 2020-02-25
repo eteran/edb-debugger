@@ -408,9 +408,8 @@ protected:
 	std::vector<std::unique_ptr<RegisterViewItem>> elements;
 
 public:
-	SIMDSizedElementsContainer(const QString &name, std::size_t size,
-							   const std::vector<NumberDisplayMode> &validFormats);
-	SIMDSizedElementsContainer(SIMDSizedElementsContainer &&other);
+	SIMDSizedElementsContainer(const QString &name, std::size_t size, const std::vector<NumberDisplayMode> &validFormats);
+	SIMDSizedElementsContainer(SIMDSizedElementsContainer &&other) noexcept;
 	RegisterViewItem *child(int row) override;
 	int childCount() const override;
 	QVariant data(int column) const override;
@@ -466,7 +465,7 @@ protected:
 class Category : public RegisterViewItem {
 public:
 	Category(const QString &name, int row);
-	Category(Category &&other);
+	Category(Category &&other) noexcept;
 
 public:
 	AbstractRegisterItem *getRegister(std::size_t i) const;

@@ -560,8 +560,8 @@ Category::Category(const QString &name, int row)
 	init(nullptr, row);
 }
 
-Category::Category(Category &&other)
-	: RegisterViewItem(std::move(other.name())) {
+Category::Category(Category &&other) noexcept
+	: RegisterViewItem(std::move(other.name_)) {
 	parentItem = other.parentItem;
 	row_       = other.row_;
 	registers  = std::move(other.registers);
@@ -1111,7 +1111,7 @@ SIMDSizedElementsContainer<StoredType>::SIMDSizedElementsContainer(const QString
 }
 
 template <class StoredType>
-SIMDSizedElementsContainer<StoredType>::SIMDSizedElementsContainer(SIMDSizedElementsContainer &&other)
+SIMDSizedElementsContainer<StoredType>::SIMDSizedElementsContainer(SIMDSizedElementsContainer &&other) noexcept
 	: RegisterViewItem(other), elements(std::move(other.elements)) {
 }
 

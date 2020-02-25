@@ -54,7 +54,7 @@ void DialogPlugins::showEvent(QShowEvent *) {
 
 	for (auto it = plugins.begin(); it != plugins.end(); ++it) {
 
-		const QString filename = it.key();
+		const QString &filename = it.key();
 		QString plugin_name;
 		QString author;
 		QString url;

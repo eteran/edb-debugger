@@ -20,10 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RegisterViewModelBase.h"
 
+#include <QHBoxLayout>
 #include <QPersistentModelIndex>
 #include <QScrollArea>
 #include <QString>
-#include <QHBoxLayout>
 
 #include <memory>
 
