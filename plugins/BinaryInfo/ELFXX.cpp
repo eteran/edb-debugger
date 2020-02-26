@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ELFXX.h"
-#include "ByteShiftArray.h"
 #include "IDebugger.h"
 #include "IProcess.h"
 #include "IRegion.h"

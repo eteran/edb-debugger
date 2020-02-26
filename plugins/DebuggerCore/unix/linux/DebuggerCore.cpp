@@ -209,12 +209,10 @@ DebuggerCore::DebuggerCore()
 		QSettings settings;
 		const bool warn = settings.value("DebuggerCore/warn_on_broken_proc_mem.enabled", true).toBool();
 		if (warn) {
-			auto dialog = new DialogMemoryAccess(nullptr);
+			auto dialog = std::make_unique<DialogMemoryAccess>(nullptr);
 			dialog->exec();
 
 			settings.setValue("DebuggerCore/warn_on_broken_proc_mem.enabled", dialog->warnNextTime());
-
-			delete dialog;
 		}
 	}
 }
@@ -552,14 +550,14 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int statu
 	}
 
 	/* NOTE(eteran): OK, so when we get an event, we generally want to stop
-	 * any other threads as well. So we will call stop_threads() below
+	 * any other threads as well. So we will call stopThreads() below
 	 * which sends a SIGSTOP.
 	 *
 	 * We need to be very careful to avoid those future events causing the
 	 * active thread to be set, because we want it to remain set to the thread
 	 * which recieved the initial signal. This is all so that later when the
 	 * user clicks resume, that the correct active thread gets (or doesn't)
-	 * get signals, and the rest get resumed properly.
+	 * get signaled, and the rest get resumed properly.
 	 *
 	 * To do this, we simply only alter the activeThread_ variable if this
 	 * event was the first we saw after a resume/run (phew!).*/

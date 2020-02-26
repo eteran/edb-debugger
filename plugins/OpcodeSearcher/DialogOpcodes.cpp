@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogOpcodes.h"
-#include "ByteShiftArray.h"
 #include "DialogResults.h"
 #include "IDebugger.h"
 #include "IProcess.h"
