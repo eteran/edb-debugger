@@ -58,7 +58,9 @@ ByteShiftArray &ByteShiftArray::shl() {
 //------------------------------------------------------------------------------
 ByteShiftArray &ByteShiftArray::shr() {
 	if (data_.size() == maxSize_) {
-		std::rotate(data_.rbegin(), data_.rbegin() + 1, data_.rend());
+		for (int i = 0; i < data_.size() - 1; ++i) {
+			data_[i + 1] = data_[i];
+		}
 		data_.first() = 0;
 	} else {
 		data_.push_front(0);
