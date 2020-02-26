@@ -1,5 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 include("GNUInstallDirs")
+include("DetectGitBranch")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -7,16 +8,7 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns Svg)
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
-	execute_process(
-		COMMAND git rev-parse HEAD
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-		OUTPUT_VARIABLE GIT_BRANCH
-		OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-else()
-	set(GIT_BRANCH "Unknown")
-endif()
+git_get_branch(GIT_BRANCH)
 
 qt5_add_resources(QRC_SOURCES 
 	debugger.qrc

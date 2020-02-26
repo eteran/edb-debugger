@@ -14,20 +14,12 @@ include("CheckIncludeFileCXX")
 include("DetectCompiler")
 include("DetectOS")
 include("DetectArchitecture")
+include("EnableSanitizers")
+include("EnableSTLDebug")
+include("ProjectDefaults")
 
 if(TARGET_COMPILER_GCC AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 5.0)
 	message(FATAL_ERROR "Your g++ version is too old. At least 5.0 is required.")
-endif()
-
-option(ENABLE_ASAN        "Enable address sanitizer")
-option(ENABLE_USAN        "Enable undefined sanitizer")
-option(ENABLE_MSAN        "Enable memory sanitizer")
-option(ENABLE_TSAN        "Enable thread sanitizer")
-option(ENABLE_STL_DEBUG   "Enable STL container debugging")
-
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Choose the type of build." FORCE)
-    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
 endif()
 
 find_package(Boost 1.35 REQUIRED)
@@ -117,31 +109,6 @@ endif()
 
 
 if (TARGET_COMPILER_CLANG OR TARGET_COMPILER_GCC)
-	if(ENABLE_ASAN)
-		set(CMAKE_CXX_FLAGS        "${CMAKE_CXX_FLAGS}        -fsanitize=address") # -fsanitize-address-use-after-scope
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
-	endif()
-
-	if(ENABLE_USAN)
-		set(CMAKE_CXX_FLAGS        "${CMAKE_CXX_FLAGS}        -fsanitize=undefined")
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=undefined")
-	endif()
-
-	if(ENABLE_TSAN)
-		set(CMAKE_CXX_FLAGS        "${CMAKE_CXX_FLAGS}        -fsanitize=thread")
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=thread")
-	endif()
-
-	if(ENABLE_MSAN)
-		set(CMAKE_CXX_FLAGS        "${CMAKE_CXX_FLAGS}        -fsanitize=memory")
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=memory")
-	endif()
-	
-	if(ENABLE_STL_DEBUG)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_DEBUG")
-		set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -D_GLIBCXX_DEBUG")	
-	endif()
-	
     add_compile_options(
 		-W
 		-Wall
@@ -188,8 +155,6 @@ if (TARGET_COMPILER_CLANG OR TARGET_COMPILER_GCC)
 			-Wsuggest-override
 		)
 	endif()
-elseif(TARGET_COMPILER_MSVC)
-	add_definitions(-DUNICODE -D_UNICODE -D_CRT_SECURE_NO_WARNINGS)
 endif()
 
 add_subdirectory(src)
