@@ -1,6 +1,11 @@
 
 include("DetectCompiler")
 
+function(JOIN VALUES GLUE OUTPUT)
+  string (REPLACE ";" "${GLUE}" _TMP_STR "${VALUES}")
+  set (${OUTPUT} "${_TMP_STR}" PARENT_SCOPE)
+endfunction()
+
 if((TARGET_COMPILER_GCC) OR (TARGET_COMPILER_CLANG))
 	option(ENABLE_ASAN        "Enable address sanitizer")
 	option(ENABLE_MSAN        "Enable memory sanitizer")
@@ -25,7 +30,7 @@ if((TARGET_COMPILER_GCC) OR (TARGET_COMPILER_CLANG))
 		list(APPEND SANITIZERS "thread")
 	endif()
 
-	list(JOIN SANITIZERS "," LIST_OF_SANITIZERS)
+	JOIN("${SANITIZERS}" "," LIST_OF_SANITIZERS)
 endif()
 
 if(LIST_OF_SANITIZERS)
