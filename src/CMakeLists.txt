@@ -22,6 +22,7 @@ endforeach()
 
 set(edb_SRCS
 	${QRC_SOURCES}
+	
 	BasicBlock.cpp
 	BinaryString.cpp
 	BinaryString.ui
@@ -72,6 +73,7 @@ set(edb_SRCS
 	FixedFontSelector.h
 	FixedFontSelector.ui
 	FloatX.cpp
+	Font.cpp
 	Function.cpp
 	HexStringValidator.cpp
 	MemoryRegions.cpp
@@ -91,17 +93,17 @@ set(edb_SRCS
 	SymbolManager.cpp
 	SymbolManager.h
 	ThreadsModel.cpp
-	edb.cpp
-	main.cpp
 	capstone-edb/Inspection.cpp
 	capstone-edb/Instruction.cpp
 	capstone-edb/include/Formatter.h
 	capstone-edb/include/Inspection.h
 	capstone-edb/include/Instruction.h
 	capstone-edb/include/Operand.h
+	edb.cpp
+	main.cpp
+	qhexview/QHexView
 	qhexview/qhexview.cpp
 	qhexview/qhexview.h
-	qhexview/QHexView
 	session/SessionError.cpp
 	session/SessionError.h
 	session/SessionManager.cpp
@@ -116,14 +118,13 @@ set(edb_SRCS
 	widgets/SyntaxHighlighter.h
 	widgets/TabWidget.cpp
 	widgets/TabWidget.h
-	
+
 	${PROJECT_SOURCE_DIR}/include/API.h
 	${PROJECT_SOURCE_DIR}/include/ArchProcessor.h
 	${PROJECT_SOURCE_DIR}/include/BasicBlock.h
 	${PROJECT_SOURCE_DIR}/include/BinaryString.h
 	${PROJECT_SOURCE_DIR}/include/ByteShiftArray.h
 	${PROJECT_SOURCE_DIR}/include/Configuration.h
-	${PROJECT_SOURCE_DIR}/include/edb.h
 	${PROJECT_SOURCE_DIR}/include/Expression.h
 	${PROJECT_SOURCE_DIR}/include/FloatX.h
 	${PROJECT_SOURCE_DIR}/include/Function.h
@@ -134,7 +135,6 @@ set(edb_SRCS
 	${PROJECT_SOURCE_DIR}/include/IDebugEvent.h
 	${PROJECT_SOURCE_DIR}/include/IDebugEventHandler.h
 	${PROJECT_SOURCE_DIR}/include/IDebugger.h
-	${PROJECT_SOURCE_DIR}/include/Instruction.h
 	${PROJECT_SOURCE_DIR}/include/IPlugin.h
 	${PROJECT_SOURCE_DIR}/include/IProcess.h
 	${PROJECT_SOURCE_DIR}/include/IRegion.h
@@ -142,24 +142,33 @@ set(edb_SRCS
 	${PROJECT_SOURCE_DIR}/include/ISymbolGenerator.h
 	${PROJECT_SOURCE_DIR}/include/ISymbolManager.h
 	${PROJECT_SOURCE_DIR}/include/IThread.h
+	${PROJECT_SOURCE_DIR}/include/Instruction.h
 	${PROJECT_SOURCE_DIR}/include/MemoryRegions.h
 	${PROJECT_SOURCE_DIR}/include/Module.h
 	${PROJECT_SOURCE_DIR}/include/Patch.h
 	${PROJECT_SOURCE_DIR}/include/Prototype.h
-	${PROJECT_SOURCE_DIR}/include/QtHelper.h
 	${PROJECT_SOURCE_DIR}/include/QLongValidator.h
 	${PROJECT_SOURCE_DIR}/include/QULongValidator.h
+	${PROJECT_SOURCE_DIR}/include/QtHelper.h
 	${PROJECT_SOURCE_DIR}/include/Register.h
 	${PROJECT_SOURCE_DIR}/include/RegisterRef.h
 	${PROJECT_SOURCE_DIR}/include/RegisterViewModelBase.h
 	${PROJECT_SOURCE_DIR}/include/State.h
 	${PROJECT_SOURCE_DIR}/include/Status.h
-	${PROJECT_SOURCE_DIR}/include/string_hash.h
 	${PROJECT_SOURCE_DIR}/include/Symbol.h
 	${PROJECT_SOURCE_DIR}/include/ThreadsModel.h
 	${PROJECT_SOURCE_DIR}/include/Types.h
-	${PROJECT_SOURCE_DIR}/include/Value.h
 	${PROJECT_SOURCE_DIR}/include/Util.h
+	${PROJECT_SOURCE_DIR}/include/Value.h
+	${PROJECT_SOURCE_DIR}/include/edb.h
+	${PROJECT_SOURCE_DIR}/include/string_hash.h
+	${PROJECT_SOURCE_DIR}/include/util/Container.h
+	${PROJECT_SOURCE_DIR}/include/util/Float.h
+	${PROJECT_SOURCE_DIR}/include/util/Font.h
+	${PROJECT_SOURCE_DIR}/include/util/Integer.h
+	${PROJECT_SOURCE_DIR}/include/util/Math.h
+	${PROJECT_SOURCE_DIR}/include/util/String.h
+	${PROJECT_SOURCE_DIR}/include/util/Error.h
 	${PROJECT_SOURCE_DIR}/include/version.h
 )
 

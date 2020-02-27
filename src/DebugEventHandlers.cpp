@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DebugEventHandlers.h"
 #include "IDebugEventHandler.h"
-#include "Util.h"
+#include "util/Error.h"
 
 DebugEventHandlers::~DebugEventHandlers() {
 	if (currentHandler_) {

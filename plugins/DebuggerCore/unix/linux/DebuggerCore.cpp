@@ -32,6 +32,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Unix.h"
 #include "edb.h"
 #include "string_hash.h"
+#include "util/Container.h"
+#include "util/String.h"
 
 #include <QDebug>
 #include <QDir>
@@ -102,21 +104,6 @@ void disable_lazy_binding() {
 	if (setenv("LD_BIND_NOW", "1", true) == -1) {
 		perror("Failed to disable lazy binding");
 	}
-}
-
-/**
- * @brief is_numeric
- * @param s
- * @return true if the string only contains decimal digits
- */
-bool is_numeric(const QString &s) {
-	for (QChar ch : s) {
-		if (!ch.isDigit()) {
-			return false;
-		}
-	}
-
-	return true;
 }
 
 /**
@@ -1036,7 +1023,7 @@ QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerateProcesses() c
 
 	for (const QFileInfo &info : entries) {
 		const QString filename = info.fileName();
-		if (is_numeric(filename)) {
+		if (util::is_numeric(filename)) {
 			const edb::pid_t pid = filename.toInt();
 
 			// NOTE(eteran): the const_cast is reasonable here.

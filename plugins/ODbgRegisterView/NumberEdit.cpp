@@ -1,5 +1,6 @@
 
 #include "NumberEdit.h"
+#include "util/Font.h"
 #include <QApplication>
 
 namespace ODbgRegisterView {
@@ -28,7 +29,7 @@ QSize NumberEdit::sizeHint() const {
 
 	const auto baseHint = QLineEdit::sizeHint();
 	// taking long enough reference char to make enough room even in presence of inner shadows like in Oxygen style
-	const auto charWidth       = QFontMetrics(font()).width(QLatin1Char('w'));
+	const auto charWidth       = Font::maxWidth(QFontMetrics(font()));
 	const auto textMargins     = this->textMargins();
 	const auto contentsMargins = this->contentsMargins();
 	int customWidth            = charWidth * naturalWidthInChars_ + textMargins.left() + contentsMargins.left() + textMargins.right() + contentsMargins.right();

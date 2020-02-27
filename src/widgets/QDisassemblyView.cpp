@@ -31,8 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SessionManager.h"
 #include "State.h"
 #include "SyntaxHighlighter.h"
-#include "Util.h"
 #include "edb.h"
+#include "util/Font.h"
 
 #include <QAbstractItemDelegate>
 #include <QApplication>
@@ -51,6 +51,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
 #include <climits>
+#include <cmath>
 
 namespace {
 
@@ -1653,7 +1654,7 @@ void QDisassemblyView::setFont(const QFont &f) {
 
 	// recalculate all of our metrics/offsets
 	const QFontMetrics metrics(newFont);
-	fontWidth_  = metrics.width('X');
+	fontWidth_  = Font::maxWidth(metrics);
 	fontHeight_ = metrics.lineSpacing() + 1;
 
 	// NOTE(eteran): we let the icons be a bit wider than the font itself, since things

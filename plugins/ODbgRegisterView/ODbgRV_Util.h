@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "FieldWidget.h"
 #include "RegisterGroup.h"
 #include "RegisterViewModelBase.h"
+#include "util/Font.h"
 #include <QAction>
 
 namespace ODbgRegisterView {
@@ -62,7 +63,7 @@ inline int distance_squared(const QPoint &w1, const QPoint &w2) {
 
 inline QSize letter_size(const QFont &font) {
 	const QFontMetrics fontMetrics(font);
-	const int width  = fontMetrics.width('w');
+	const int width  = Font::maxWidth(fontMetrics);
 	const int height = fontMetrics.height();
 	return QSize(width, height);
 }

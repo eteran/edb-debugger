@@ -16,7 +16,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogEditGPR.h"
+#include "EntryGridKeyUpDownEventFilter.h"
 #include "GprEdit.h"
+#include "util/Container.h"
+
 #include <QDebug>
 #include <QDialogButtonBox>
 #include <QGridLayout>
@@ -25,8 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstring>
 #include <tuple>
 #include <type_traits>
-
-#include "EntryGridKeyUpDownEventFilter.h"
 
 namespace ODbgRegisterView {
 

@@ -16,7 +16,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogEditFPU.h"
+#include "EntryGridKeyUpDownEventFilter.h"
 #include "Float80Edit.h"
+#include "util/Float.h"
 
 #include <QDebug>
 #include <QDialogButtonBox>
@@ -30,8 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstring>
 #include <iomanip>
 #include <iostream>
-
-#include "EntryGridKeyUpDownEventFilter.h"
 
 namespace ODbgRegisterView {
 namespace {

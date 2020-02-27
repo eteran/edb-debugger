@@ -3,6 +3,7 @@
 #define REGISTER_VIEW_MODEL_BASE_H_20151206_
 
 #include "Register.h"
+#include "util/Integer.h"
 #include <QAbstractItemModel>
 #include <deque>
 #include <vector>

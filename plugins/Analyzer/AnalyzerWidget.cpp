@@ -24,6 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "MemoryRegions.h"
 #include "State.h"
 #include "edb.h"
+#include "util/Font.h"
+
 #include <QAbstractScrollArea>
 #include <QDebug>
 #include <QDir>
@@ -127,7 +129,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 				painter.setFont(QFont("Lucida Sans Unicode", 16));
 #endif
 				painter.setPen(QPen(Qt::yellow));
-				painter.drawText(offset - fm.width(triangle) / 2, height(), triangle);
+				painter.drawText(offset - Font::stringWidth(fm, triangle) / 2, height(), triangle);
 #ifdef Q_OS_WIN32
 				painter.setFont(f);
 #endif

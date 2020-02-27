@@ -1,6 +1,6 @@
 
 #include "Instruction.h"
-#include "Util.h"
+#include "util/Container.h"
 
 namespace CapstoneEDB {
 
@@ -266,9 +266,11 @@ bool is_simd(const Instruction &insn) {
 		X86_GRP_NOVLX,
 	};
 
-	for (auto g = 0; g < insn->detail->groups_count; ++g)
-		if (util::contains(simdGroups, insn->detail->groups[g]))
+	for (auto g = 0; g < insn->detail->groups_count; ++g) {
+		if (util::contains(simdGroups, insn->detail->groups[g])) {
 			return true;
+		}
+	}
 
 	return false;
 }

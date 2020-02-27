@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IProcess.h"
 #include "ProcessModel.h"
 #include "edb.h"
+#include "util/String.h"
 
 #include <QHeaderView>
 #include <QMap>
@@ -37,24 +38,6 @@ int getuid() {
 #else
 #include <unistd.h>
 #endif
-
-namespace {
-
-//------------------------------------------------------------------------------
-// Name: is_numeric
-// Desc: returns true if the string only contains decimal digits
-//------------------------------------------------------------------------------
-bool is_numeric(const QString &s) {
-	for (QChar ch : s) {
-		if (!ch.isDigit()) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
-}
 
 //------------------------------------------------------------------------------
 // Name: DialogAttach
@@ -86,7 +69,7 @@ DialogAttach::DialogAttach(QWidget *parent, Qt::WindowFlags f)
 //------------------------------------------------------------------------------
 void DialogAttach::on_filter_textChanged(const QString &filter) {
 
-	if (is_numeric(filter)) {
+	if (util::is_numeric(filter)) {
 		processPidFilter_->setFilterFixedString(filter);
 		processNameFilter_->setFilterFixedString(QString());
 	} else {

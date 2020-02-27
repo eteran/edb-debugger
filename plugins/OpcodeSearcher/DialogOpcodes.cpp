@@ -24,8 +24,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Instruction.h"
 #include "MemoryRegions.h"
 #include "ResultsModel.h"
-#include "Util.h"
 #include "edb.h"
+#include "util/Container.h"
+#include "util/Math.h"
 
 #include <QDebug>
 #include <QHeaderView>

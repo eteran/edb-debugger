@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ODbgRV_Util.h"
 #include "RegisterGroup.h"
 #include "RegisterView.h"
+#include "util/Font.h"
 #if defined(EDB_X86) || defined(EDB_X86_64)
 #include "DialogEditFPU.h"
 #include "ODbgRV_x86Common.h"
@@ -65,7 +66,7 @@ ValueField::ValueField(int fieldWidth, const QModelIndex &index, const std::func
 	using namespace RegisterViewModelBase;
 
 	if (index.data(Model::IsNormalRegisterRole).toBool() || index.data(Model::IsSIMDElementRole).toBool()) {
-		menuItems_.push_back(new_action(trUtf8("&Modify…"), this, [this](bool) {
+		menuItems_.push_back(new_action(tr("&Modify") + QChar(0x2026), this, [this](bool) {
 			defaultAction();
 		}));
 

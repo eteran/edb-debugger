@@ -26,8 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Module.h"
 #include "ResultViewModel.h"
 #include "Symbol.h"
-#include "Util.h"
 #include "edb.h"
+#include "util/Math.h"
 
 #ifdef ENABLE_GRAPH
 #include "GraphEdge.h"

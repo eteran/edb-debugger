@@ -2,6 +2,7 @@
 #include "SimdValueManager.h"
 #include "ODbgRV_Util.h"
 #include "ValueField.h"
+#include "util/Container.h"
 
 namespace ODbgRegisterView {
 

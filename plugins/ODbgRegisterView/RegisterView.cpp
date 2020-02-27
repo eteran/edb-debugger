@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ValueField.h"
 #include "VolatileNameField.h"
 #include "edb.h"
+#include "util/Container.h"
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 #include "DialogEditFPU.h"

@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerCore.h"
 #include "IProcess.h"
 #include "PlatformCommon.h"
-#include "Util.h"
+#include "util/Container.h"
 
 #include <QDebug>
 

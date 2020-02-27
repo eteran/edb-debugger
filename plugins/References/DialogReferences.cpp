@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogReferences.h"
 #include "IDebugger.h"
 #include "MemoryRegions.h"
-#include "Util.h"
 #include "edb.h"
+#include "util/Math.h"
 
 #include <QMessageBox>
 #include <QPushButton>

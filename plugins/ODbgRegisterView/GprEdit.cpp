@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "GprEdit.h"
 #include "QLongValidator.h"
 #include "QULongValidator.h"
+#include "util/Font.h"
 #include <QApplication>
 #include <QRegExpValidator>
 #include <cmath>
@@ -136,7 +137,7 @@ QSize GprEdit::sizeHint() const {
 
 	const auto baseHint = QLineEdit::sizeHint();
 	// taking long enough reference char to make enough room even in presence of inner shadows like in Oxygen style
-	const auto charWidth       = QFontMetrics(font()).width(QLatin1Char('w'));
+	const auto charWidth       = Font::maxWidth(QFontMetrics(font()));
 	const auto textMargins     = this->textMargins();
 	const auto contentsMargins = this->contentsMargins();
 	int customWidth            = charWidth * naturalWidthInChars_ + textMargins.left() + contentsMargins.left() + textMargins.right() + contentsMargins.right() + 1 * charWidth; // additional char to make edit field not too tight

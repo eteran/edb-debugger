@@ -32,8 +32,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Prototype.h"
 #include "SpecifiedFunctions.h"
 #include "State.h"
-#include "Util.h"
 #include "edb.h"
+#include "util/Math.h"
 
 #include <QCoreApplication>
 #include <QDir>

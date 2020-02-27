@@ -21,8 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "IRegion.h"
 #include "MemoryRegions.h"
-#include "Util.h"
 #include "edb.h"
+#include "util/Math.h"
+
 #include <QListWidget>
 #include <QMessageBox>
 #include <QPushButton>
@@ -38,6 +39,7 @@ namespace BinarySearcherPlugin {
  */
 DialogBinaryString::DialogBinaryString(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
+
 	ui.setupUi(this);
 	ui.progressBar->setValue(0);
 

@@ -24,8 +24,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IThread.h"
 #include "MemoryRegions.h"
 #include "State.h"
-#include "Util.h"
 #include "edb.h"
+#include "util/Math.h"
+
 #include <QListWidget>
 #include <QMessageBox>
 #include <QPushButton>

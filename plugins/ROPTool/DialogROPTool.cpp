@@ -23,8 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IProcess.h"
 #include "IRegion.h"
 #include "MemoryRegions.h"
-#include "Util.h"
 #include "edb.h"
+#include "util/Math.h"
 
 #include <QDebug>
 #include <QHeaderView>

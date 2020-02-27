@@ -16,13 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "RegisterViewModelBase.h"
+#include "FloatX.h"
 #include "IDebugger.h"
 #include "IProcess.h"
 #include "IThread.h"
 #include "State.h"
 #include "Types.h"
-#include "Util.h"
 #include "edb.h"
+#include "util/Container.h"
 
 #include <QBrush>
 #include <QDebug>
@@ -31,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtGlobal>
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <numeric>
