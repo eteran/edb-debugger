@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Util.h"
 
 #include <cstdint>
+#include <typeinfo>
 
 #include <QDebug>
 #include <QList>
