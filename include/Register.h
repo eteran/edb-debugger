@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Util.h"
 #include <QCoreApplication>
 #include <QString>
+#include <cassert>
 #include <cstring>
 #include <type_traits>
 
