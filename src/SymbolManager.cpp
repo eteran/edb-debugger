@@ -188,7 +188,9 @@ bool SymbolManager::processSymbolFile(const QString &f, edb::address_t base, con
 		std::string filename;
 
 		if (std::getline(file, date)) {
-			if (file >> md5 >> filename) {
+			file >> md5 >> std::ws;
+			std::getline(file, filename);
+			if (file) {
 
 				const QByteArray file_md5   = QByteArray::fromHex(md5.c_str());
 				const QByteArray actual_md5 = edb::v1::get_file_md5(library_filename);
