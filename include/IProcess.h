@@ -43,6 +43,8 @@ public:
 	virtual QList<QByteArray> arguments() const             = 0;
 	virtual QString currentWorkingDirectory() const         = 0;
 	virtual QString executable() const                      = 0;
+	virtual QString stardardInput() const                   = 0;
+	virtual QString stardardOutput() const                  = 0;
 	virtual edb::pid_t pid() const                          = 0;
 	virtual std::shared_ptr<IProcess> parent() const        = 0;
 	virtual edb::address_t codeAddress() const              = 0;

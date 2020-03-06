@@ -37,14 +37,79 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <ctime>
 #include <iostream>
 
+#include <boost/optional.hpp>
+
 namespace {
 
 Q_DECLARE_NAMESPACE_TR(edb)
 
-//------------------------------------------------------------------------------
-// Name: load_plugins
-// Desc: attempts to load all plugins in a given directory
-//------------------------------------------------------------------------------
+struct LaunchArguments {
+
+	// if we are attaching
+	boost::optional<edb::pid_t> attach_pid;
+
+	// if we are running
+	QList<QByteArray> run_args;
+	QString run_app;
+	QString run_stdin;
+	QString run_stdout;
+};
+
+/**
+ * displays a usage statement then exits
+ *
+ * @brief usage
+ */
+[[noreturn]] void usage() {
+
+	QStringList args = qApp->arguments();
+	std::cerr << "Usage: " << qPrintable(args[0]) << " [OPTIONS]\n";
+	std::cerr << '\n';
+	std::cerr << " --attach <pid>            : attach to running process\n";
+	std::cerr << " --run <program> (args...) : execute specified <program> with <args>\n";
+	std::cerr << " --stdin <filename>        : set the STDIN of the target process (MUST preceed --run)\n";
+	std::cerr << " --stdout <filename>       : set the STDOUT of the target process (MUST preceed --run)\n";
+	std::cerr << " --version                 : output version information and exit\n";
+	std::cerr << " --dump-version            : display terse version string and exit\n";
+	std::cerr << " --help                    : display this help and exit\n";
+
+	for (QObject *plugin : edb::v1::plugin_list()) {
+		if (auto p = qobject_cast<IPlugin *>(plugin)) {
+			const QString s = p->extraArguments();
+			if (!s.isEmpty()) {
+				std::cerr << '\n';
+				std::cerr << qPrintable(plugin->metaObject()->className()) << '\n';
+				std::cerr << qPrintable(s) << '\n';
+			}
+		}
+	}
+
+	std::cerr << std::flush;
+	std::exit(-1);
+}
+
+/**
+ * @brief validate_launch_arguments
+ * @param launch_args
+ */
+void validate_launch_arguments(const LaunchArguments &launch_args) {
+	if (!launch_args.run_app.isEmpty() && launch_args.attach_pid) {
+		std::cerr << "ERROR: Cannot specify both --attach and --run\n\n";
+		usage();
+	}
+
+	if ((!launch_args.run_stdin.isEmpty() || !launch_args.run_stdout.isEmpty()) && launch_args.run_app.isEmpty()) {
+		std::cerr << "ERROR: --stdin and --stdout MUST be combined with --run\n\n";
+		usage();
+	}
+}
+
+/**
+ * attempts to load all plugins in a given directory
+ *
+ * @brief load_plugins
+ * @param directory
+ */
 void load_plugins(const QString &directory) {
 
 	QDir plugins_dir(qApp->applicationDirPath());
@@ -81,11 +146,14 @@ void load_plugins(const QString &directory) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: start_debugger
-// Desc: starts the main debugger code
-//------------------------------------------------------------------------------
-int start_debugger(edb::pid_t attach_pid, const QString &program, const QList<QByteArray> &programArgs) {
+/**
+ * starts the main debugger code
+ *
+ * @brief start_debugger
+ * @param launch_args
+ * @return
+ */
+int start_debugger(const LaunchArguments &launch_args) {
 
 	qDebug() << "Starting edb version:" << edb::version;
 	qDebug("Please Report Bugs & Requests At: https://github.com/eteran/edb-debugger/issues");
@@ -116,20 +184,19 @@ int start_debugger(edb::pid_t attach_pid, const QString &program, const QList<QB
 		return -1;
 	} else {
 		// have we been asked to attach to a given program?
-		if (attach_pid != 0) {
-			debugger.attach(attach_pid);
-		} else if (!program.isEmpty()) {
-			debugger.execute(program, programArgs);
+		if (launch_args.attach_pid) {
+			debugger.attach(*launch_args.attach_pid);
+		} else if (!launch_args.run_app.isEmpty()) {
+			debugger.execute(launch_args.run_app, launch_args.run_args, launch_args.run_stdin, launch_args.run_stdout);
 		}
 
 		return qApp->exec();
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: load_translations
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief load_translations
+ */
 void load_translations() {
 	// load some translations
 	QTranslator qtTranslator;
@@ -141,42 +208,14 @@ void load_translations() {
 	qApp->installTranslator(&myappTranslator);
 }
 
-//------------------------------------------------------------------------------
-// Name: usage
-// Desc: displays a usage statement then exits
-//------------------------------------------------------------------------------
-[[noreturn]] void usage() {
-
-	QStringList args = qApp->arguments();
-	std::cerr << "Usage: " << qPrintable(args[0]) << " [OPTIONS]\n";
-	std::cerr << '\n';
-	std::cerr << " --attach <pid>            : attach to running process\n";
-	std::cerr << " --run <program> (args...) : execute specified <program> with <args>\n";
-	std::cerr << " --version                 : output version information and exit\n";
-	std::cerr << " --dump-version            : display terse version string and exit\n";
-	std::cerr << " --help                    : display this help and exit\n";
-
-	for (QObject *plugin : edb::v1::plugin_list()) {
-		if (auto p = qobject_cast<IPlugin *>(plugin)) {
-			const QString s = p->extraArguments();
-			if (!s.isEmpty()) {
-				std::cerr << '\n';
-				std::cerr << qPrintable(plugin->metaObject()->className()) << '\n';
-				std::cerr << qPrintable(s) << '\n';
-			}
-		}
-	}
-
-	std::cerr << std::flush;
-	std::exit(-1);
 }
 
-}
-
-//------------------------------------------------------------------------------
-// Name: main
-// Desc: entry point
-//------------------------------------------------------------------------------
+/**
+ * @brief main
+ * @param argc
+ * @param argv
+ * @return
+ */
 int main(int argc, char *argv[]) {
 
 	QT_REQUIRE_VERSION(argc, argv, "5.0.0");
@@ -202,13 +241,9 @@ int main(int argc, char *argv[]) {
 	// look for some plugins..
 	load_plugins(edb::v1::config().plugin_path);
 
-	QStringList args      = app.arguments();
-	edb::pid_t attach_pid = 0;
-	QList<QByteArray> run_args;
-	QString run_app;
+	QStringList args = app.arguments();
 
-	// call the init function for each plugin, this is done after
-	// ALL plugins are loaded in case there are inter-plugin dependencies
+	// call the parseArguments function for each plugin
 	for (QObject *plugin : edb::v1::plugin_list()) {
 		if (auto p = qobject_cast<IPlugin *>(plugin)) {
 
@@ -216,7 +251,6 @@ int main(int argc, char *argv[]) {
 			switch (r) {
 			case IPlugin::ARG_ERROR:
 				usage();
-				break;
 			case IPlugin::ARG_EXIT:
 				std::exit(0);
 			default:
@@ -225,25 +259,53 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	if (args.size() > 1) {
-		if (args.size() == 3 && args[1] == "--attach") {
-			attach_pid = args[2].toUInt();
-		} else if (args.size() >= 3 && args[1] == "--run") {
-			run_app = args[2];
+	LaunchArguments launch_args;
 
-			for (int i = 3; i < args.size(); ++i) {
-				run_args.push_back(argv[i]);
-			}
-		} else if (args.size() == 2 && args[1] == "--version") {
+	for (int i = 1; i < args.size(); ++i) {
+
+		if (args[i] == "--version") {
 			std::cout << "edb version: " << edb::version << std::endl;
 			return 0;
-		} else if (args.size() == 2 && args[1] == "--dump-version") {
+		} else if (args[i] == "--dump-version") {
 			std::cout << edb::version << std::endl;
 			return 0;
+		} else if (args[i] == "--attach") {
+			++i;
+			if (i >= args.size()) {
+				usage();
+			}
+			launch_args.attach_pid = args[i].toUInt();
+		} else if (args[i] == "--run") {
+			++i;
+			if (i >= args.size()) {
+				usage();
+			}
+
+			launch_args.run_app = args[i++];
+
+			for (; i < args.size(); ++i) {
+				// NOTE(eteran): we are using argv here, not args, because
+				// we want to avoid any unicode conversions
+				launch_args.run_args.push_back(argv[i]);
+			}
+		} else if (args[i] == "--stdin") {
+			++i;
+			if (i >= args.size()) {
+				usage();
+			}
+			launch_args.run_stdin = args[i];
+		} else if (args[i] == "--stdout") {
+			++i;
+			if (i >= args.size()) {
+				usage();
+			}
+			launch_args.run_stdout = args[i];
 		} else {
 			usage();
 		}
 	}
+
+	validate_launch_arguments(launch_args);
 
 	// Light/Dark icons on all platforms
 	if (qApp->palette().window().color().lightnessF() >= 0.5) {
@@ -252,5 +314,5 @@ int main(int argc, char *argv[]) {
 		QIcon::setThemeName(QLatin1String("breeze-dark-edb"));
 	}
 
-	return start_debugger(attach_pid, run_app, run_args);
+	return start_debugger(launch_args);
 }

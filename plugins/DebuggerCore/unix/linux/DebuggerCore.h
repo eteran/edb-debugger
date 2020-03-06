@@ -52,7 +52,7 @@ public:
 	MeansOfCapture lastMeansOfCapture() const override;
 	Status attach(edb::pid_t pid) override;
 	Status detach() override;
-	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
+	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &input, const QString &output) override;
 	bool hasExtension(uint64_t ext) const override;
 	size_t pageSize() const override;
 	std::shared_ptr<IDebugEvent> waitDebugEvent(std::chrono::milliseconds msecs) override;

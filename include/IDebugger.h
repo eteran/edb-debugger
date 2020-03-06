@@ -84,12 +84,12 @@ public:
 
 public:
 	// basic process management
-	virtual Status attach(edb::pid_t pid)                                                                                       = 0;
-	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty = QString()) = 0;
-	virtual std::shared_ptr<IDebugEvent> waitDebugEvent(std::chrono::milliseconds msecs)                                        = 0;
-	virtual Status detach()                                                                                                     = 0;
-	virtual void kill()                                                                                                         = 0;
-	virtual void endDebugSession()                                                                                              = 0;
+	virtual Status attach(edb::pid_t pid)                                                                                                    = 0;
+	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &input, const QString &output) = 0;
+	virtual std::shared_ptr<IDebugEvent> waitDebugEvent(std::chrono::milliseconds msecs)                                                     = 0;
+	virtual Status detach()                                                                                                                  = 0;
+	virtual void kill()                                                                                                                      = 0;
+	virtual void endDebugSession()                                                                                                           = 0;
 
 public:
 	// basic breakpoint managment

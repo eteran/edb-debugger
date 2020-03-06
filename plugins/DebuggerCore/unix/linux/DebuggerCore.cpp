@@ -867,7 +867,7 @@ void DebuggerCore::detectCpuMode() {
  * @param tty
  * @return
  */
-Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
+Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &input, const QString &output) {
 
 	endDebugSession();
 
@@ -888,15 +888,22 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 		ptraceTraceme();
 
 		// redirect it's I/O
-		if (!tty.isEmpty()) {
-			FILE *const std_out = freopen(qPrintable(tty), "r+b", stdout);
-			FILE *const std_in  = freopen(qPrintable(tty), "r+b", stdin);
-			FILE *const std_err = freopen(qPrintable(tty), "r+b", stderr);
+		FILE *std_in  = nullptr;
+		FILE *std_out = nullptr;
+		FILE *std_err = nullptr;
 
-			Q_UNUSED(std_out)
-			Q_UNUSED(std_in)
-			Q_UNUSED(std_err)
+		if (!input.isEmpty()) {
+			std_in = freopen(qPrintable(input), "r+b", stdin);
 		}
+
+		if (!output.isEmpty()) {
+			std_out = freopen(qPrintable(output), "r+b", stdout);
+			std_err = freopen(qPrintable(output), "r+b", stderr);
+		}
+
+		Q_UNUSED(std_in)
+		Q_UNUSED(std_out)
+		Q_UNUSED(std_err)
 
 		if (edb::v1::config().disableASLR) {
 			disable_aslr();

@@ -1189,4 +1189,20 @@ edb::address_t PlatformProcess::calculateMain() const {
 	return 0;
 }
 
+/**
+ * @brief PlatformProcess::stardardInput
+ * @return
+ */
+QString PlatformProcess::stardardInput() const {
+	return input_;
+}
+
+/**
+ * @brief PlatformProcess::stardardOutput
+ * @return
+ */
+QString PlatformProcess::stardardOutput() const {
+	return output_;
+}
+
 }

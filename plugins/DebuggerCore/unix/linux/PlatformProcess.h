@@ -44,6 +44,8 @@ public:
 	QList<QByteArray> arguments() const override;
 	QString currentWorkingDirectory() const override;
 	QString executable() const override;
+	QString stardardInput() const override;
+	QString stardardOutput() const override;
 	edb::pid_t pid() const override;
 	std::shared_ptr<IProcess> parent() const override;
 	edb::address_t codeAddress() const override;
@@ -87,6 +89,8 @@ private:
 	std::shared_ptr<QFile> readOnlyMemFile_;
 	std::shared_ptr<QFile> readWriteMemFile_;
 	QMap<edb::address_t, Patch> patches_;
+	QString input_;
+	QString output_;
 };
 
 }

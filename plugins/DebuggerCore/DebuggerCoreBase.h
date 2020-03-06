@@ -30,8 +30,6 @@ public:
 	~DebuggerCoreBase() override = default;
 
 public:
-	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override = 0;
-
 	enum class MeansOfCapture {
 		NeverCaptured,
 		Attach,

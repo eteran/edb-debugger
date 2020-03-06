@@ -96,7 +96,7 @@ public:
 	int currentTab() const;
 	void attach(edb::pid_t pid);
 	void clearData(const std::shared_ptr<DataViewInfo> &v);
-	void execute(const QString &s, const QList<QByteArray> &args);
+	void execute(const QString &s, const QList<QByteArray> &args, const QString &input, const QString &output);
 	void refreshUi();
 	void updateData(const std::shared_ptr<DataViewInfo> &v);
 	void updateUi();
@@ -204,7 +204,7 @@ private Q_SLOTS:
 private Q_SLOTS:
 	void gotoTriggered();
 	void nextDebugEvent();
-	void openFile(const QString &s, const QList<QByteArray> &a);
+	void openFile(const QString &filename, const QList<QByteArray> &args);
 	void tabContextMenu(int index, const QPoint &pos);
 	void ttyProcFinished(int exit_code, QProcess::ExitStatus exit_status);
 
@@ -222,7 +222,7 @@ private:
 	QString sessionFilename() const;
 	Result<edb::address_t, QString> getGotoExpression();
 	Result<edb::reg_t, QString> getFollowRegister() const;
-	bool commonOpen(const QString &s, const QList<QByteArray> &args);
+	bool commonOpen(const QString &s, const QList<QByteArray> &args, const QString &input, const QString &output);
 	bool isBreakpointConditionTrue(const QString &condition);
 	edb::EventStatus handleEventExited(const std::shared_ptr<IDebugEvent> &event);
 	edb::EventStatus handleEventStopped(const std::shared_ptr<IDebugEvent> &event);
