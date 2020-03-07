@@ -897,8 +897,8 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 		}
 
 		if (!output.isEmpty()) {
-			std_out = freopen(qPrintable(output), "r+b", stdout);
-			std_err = freopen(qPrintable(output), "r+b", stderr);
+			std_out = freopen(qPrintable(output), "wb", stdout);
+			std_err = freopen(qPrintable(output), "wb", stderr);
 		}
 
 		Q_UNUSED(std_in)
