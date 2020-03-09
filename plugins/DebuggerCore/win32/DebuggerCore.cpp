@@ -277,12 +277,13 @@ void DebuggerCore::kill() {
  * @param tty
  * @return
  */
-Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
+Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &input, const QString &output) {
 
 	// TODO: Don't inherit security descriptors from this process (default values)
 	//       Is this even possible?
 
-	Q_UNUSED(tty)
+	Q_UNUSED(input)
+	Q_UNUSED(output)
 
 	Q_ASSERT(!path.isEmpty());
 

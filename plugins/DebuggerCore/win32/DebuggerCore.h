@@ -54,7 +54,7 @@ public:
 	Status detach() override;
 	void kill() override;
 
-	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
+	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &input, const QString &output) override;
 
 	MeansOfCapture lastMeansOfCapture() const override {
 		qDebug("TODO: Implement DebuggerCore::lastMeansOfCapture");
