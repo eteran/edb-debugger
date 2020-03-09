@@ -3025,7 +3025,7 @@ bool Debugger::commonOpen(const QString &s, const QList<QByteArray> &args, const
 	bool ret = false;
 	ttyFile_ = createTty();
 
-	QString process_input = input.isNull() ? ttyFile_ : input;
+	QString process_input  = input.isNull() ? ttyFile_ : input;
 	QString process_output = output.isNull() ? ttyFile_ : output;
 
 	if (const Status status = edb::v1::debugger_core->open(s, workingDirectory_, args, process_input, process_output)) {

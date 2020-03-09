@@ -46,15 +46,25 @@ public:
 
 	QList<QByteArray> arguments() const override;
 
+	QString stardardInput() const override {
+		qDebug("TODO: implement PlatformProcess::stardardInput");
+		return QString();
+	}
+
+	QString stardardOutput() const override {
+		qDebug("TODO: implement PlatformProcess::currentWorkingDirectory");
+		return QString();
+	}
+
 	QString currentWorkingDirectory() const override {
-		qDebug("TODO: implement PlatformProcess::current_working_directory");
-		return "";
+		qDebug("TODO: implement PlatformProcess::currentWorkingDirectory");
+		return QString();
 	}
 
 	QString executable() const override;
 
 	edb::address_t entryPoint() const override {
-		qDebug("TODO: implement PlatformProcess::entry_point");
+		qDebug("TODO: implement PlatformProcess::entryPoint");
 		return edb::address_t();
 		return 0;
 	}
@@ -63,12 +73,12 @@ public:
 	std::shared_ptr<IProcess> parent() const override;
 
 	edb::address_t codeAddress() const override {
-		qDebug("TODO: implement PlatformProcess::code_address");
+		qDebug("TODO: implement PlatformProcess::codeAddress");
 		return edb::address_t();
 	}
 
 	edb::address_t dataAddress() const override {
-		qDebug("TODO: implement PlatformProcess::data_address");
+		qDebug("TODO: implement PlatformProcess::dataAddress");
 		return edb::address_t();
 	}
 
@@ -93,7 +103,7 @@ public:
 		Q_UNUSED(address)
 		Q_UNUSED(buf)
 		Q_UNUSED(len)
-		qDebug("TODO: implement PlatformProcess::patch_bytes");
+		qDebug("TODO: implement PlatformProcess::patchBytes");
 		return 0;
 	}
 
