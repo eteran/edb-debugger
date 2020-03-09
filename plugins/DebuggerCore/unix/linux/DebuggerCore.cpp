@@ -893,7 +893,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 		FILE *std_err = nullptr;
 
 		if (!input.isEmpty()) {
-			std_in = freopen(qPrintable(input), "r+b", stdin);
+			std_in = freopen(qPrintable(input), "rb", stdin);
 		}
 
 		if (!output.isEmpty()) {
