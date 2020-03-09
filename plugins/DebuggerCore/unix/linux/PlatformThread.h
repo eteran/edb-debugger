@@ -71,7 +71,7 @@ private:
 
 private:
 	unsigned long getDebugRegister(std::size_t n);
-	long setDebugRegister(std::size_t n, long value);
+	long setDebugRegister(std::size_t n, unsigned long value);
 
 private:
 	DebuggerCore *core_ = nullptr;

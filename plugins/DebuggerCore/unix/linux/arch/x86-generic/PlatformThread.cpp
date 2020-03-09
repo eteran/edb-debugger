@@ -327,7 +327,7 @@ unsigned long PlatformThread::getDebugRegister(std::size_t n) {
  * @param value
  * @return
  */
-long PlatformThread::setDebugRegister(std::size_t n, long value) {
+long PlatformThread::setDebugRegister(std::size_t n, unsigned long value) {
 	return ptrace(PTRACE_POKEUSER, tid_, offsetof(struct user, u_debugreg[n]), value);
 }
 

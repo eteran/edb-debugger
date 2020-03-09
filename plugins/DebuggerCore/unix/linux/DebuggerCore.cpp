@@ -1,6 +1,6 @@
 /*
 Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -82,7 +82,7 @@ namespace DebuggerCorePlugin {
 
 namespace {
 
-const size_t PageSize = 0x1000;
+constexpr size_t PageSize = 0x1000;
 
 /**
  * @brief disable_aslr
@@ -111,7 +111,7 @@ void disable_lazy_binding() {
  * @param status
  * @return
  */
-bool is_clone_event(int status) {
+constexpr bool is_clone_event(int status) {
 	return (status >> 8 == (SIGTRAP | (PTRACE_EVENT_CLONE << 8)));
 }
 
@@ -120,7 +120,7 @@ bool is_clone_event(int status) {
  * @param status
  * @return
  */
-bool is_exit_trace_event(int status) {
+constexpr bool is_exit_trace_event(int status) {
 	return (status >> 8 == (SIGTRAP | (PTRACE_EVENT_EXIT << 8)));
 }
 
@@ -147,7 +147,8 @@ bool in_64bit_segment() {
  * @param edbIsIn64BitSegment
  * @return
  */
-bool os_is_64_bit(bool edbIsIn64BitSegment) {
+bool os_is_64_bit() {
+	bool edbIsIn64BitSegment = in_64bit_segment();
 	bool osIs64Bit;
 
 	if (edbIsIn64BitSegment) {
@@ -177,8 +178,7 @@ bool os_is_64_bit(bool edbIsIn64BitSegment) {
  */
 DebuggerCore::DebuggerCore()
 #if defined(EDB_X86) || defined(EDB_X86_64)
-	: edbIsIn64BitSegment_(in_64bit_segment()),
-	  osIs64Bit_(os_is_64_bit(edbIsIn64BitSegment_)),
+	: osIs64Bit_(os_is_64_bit()),
 	  userCodeSegment32_(osIs64Bit_ ? 0x23 : 0x73),
 	  userCodeSegment64_(osIs64Bit_ ? 0x33 : 0xfff8), // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
 	  userStackSegment_(osIs64Bit_ ? 0x2b : 0x7b)
@@ -324,7 +324,7 @@ Status DebuggerCore::ptraceContinue(edb::tid_t tid, long status) {
 			qWarning() << "Unable to continue thread" << tid << ": PTRACE_CONT failed:" << strError;
 			return Status(strError);
 		}
-		waitedThreads_.remove(tid);
+		waitedThreads_.erase(tid);
 		return Status::Ok;
 	}
 	return Status(tr("ptrace_continue(): waited_threads_ doesn't contain tid %1").arg(tid));
@@ -347,7 +347,7 @@ Status DebuggerCore::ptraceStep(edb::tid_t tid, long status) {
 			qWarning() << "Unable to step thread" << tid << ": PTRACE_SINGLESTEP failed:" << strError;
 			return Status(strError);
 		}
-		waitedThreads_.remove(tid);
+		waitedThreads_.erase(tid);
 		return Status::Ok;
 	}
 	return Status(tr("ptrace_step(): waited_threads_ doesn't contain tid %1").arg(tid));
@@ -430,7 +430,7 @@ void DebuggerCore::handleThreadExit(edb::tid_t tid, int status) {
 	Q_UNUSED(status)
 
 	threads_.remove(tid);
-	waitedThreads_.remove(tid);
+	waitedThreads_.erase(tid);
 }
 
 /**
@@ -448,9 +448,9 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleThreadCreate(edb::tid_t tid, in
 
 		auto new_tid = static_cast<edb::tid_t>(message);
 
-		auto newThread = std::make_shared<PlatformThread>(this, process_, new_tid);
+		auto new_thread = std::make_shared<PlatformThread>(this, process_, new_tid);
 
-		threads_.insert(new_tid, newThread);
+		threads_.insert(new_tid, new_thread);
 
 		int thread_status = 0;
 		if (!util::contains(waitedThreads_, new_tid)) {
@@ -469,20 +469,19 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleThreadCreate(edb::tid_t tid, in
 			qWarning("handle_event(): new thread [%d] received an event besides SIGSTOP: status=0x%x", static_cast<int>(new_tid), thread_status);
 		}
 
-		newThread->status_ = thread_status;
+		new_thread->status_ = thread_status;
 
 		// copy the hardware debug registers from the current thread to the new thread
 		if (process_) {
 			if (auto cur_thread = process_->currentThread()) {
+				auto old_thread = std::static_pointer_cast<PlatformThread>(cur_thread);
 				for (size_t i = 0; i < 8; ++i) {
-					auto new_thread = std::static_pointer_cast<PlatformThread>(newThread);
-					auto old_thread = std::static_pointer_cast<PlatformThread>(cur_thread);
 					new_thread->setDebugRegister(i, old_thread->getDebugRegister(i));
 				}
 			}
 		}
 
-		newThread->resume();
+		new_thread->resume();
 	}
 
 	ptraceContinue(tid, 0);
@@ -931,7 +930,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 		return Status(tr("Failed to fork"));
 	default:
 		// parent
-		do {
+		{
 			reset();
 
 			int status;
@@ -988,8 +987,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 			detectCpuMode();
 
 			return Status::Ok;
-		} while (0);
-		break;
+		}
 	}
 }
 

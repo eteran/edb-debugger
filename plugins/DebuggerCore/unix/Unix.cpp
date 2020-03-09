@@ -107,7 +107,12 @@ constexpr Exception Exceptions[] = {
 #endif
 };
 
-char *copyString(QByteArray const &str) {
+/**
+ * @brief copyString
+ * @param str
+ * @return
+ */
+char *copyString(const QByteArray &str) {
 	char *p = new char[str.length() + 1];
 	std::strcpy(p, str.constData());
 	return p;

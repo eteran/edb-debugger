@@ -1,6 +1,6 @@
 /*
 Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,8 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerCoreBase.h"
 #include <QHash>
 #include <QObject>
-#include <QSet>
 #include <csignal>
+#include <set>
 #include <unistd.h>
 
 class IBinary;
@@ -113,7 +113,7 @@ private:
 	CpuMode cpuMode_                   = CpuMode::Unknown;
 	MeansOfCapture lastMeansOfCapture_ = MeansOfCapture::NeverCaptured;
 	QList<qlonglong> ignoredExceptions_;
-	QSet<edb::tid_t> waitedThreads_;
+	std::set<edb::tid_t> waitedThreads_;
 	edb::tid_t activeThread_;
 	std::shared_ptr<IProcess> process_;
 	threads_type threads_;
@@ -121,7 +121,6 @@ private:
 	bool procMemWriteBroken_ = true;
 	std::size_t pointerSize_ = sizeof(void *);
 #if defined(EDB_X86) || defined(EDB_X86_64)
-	const bool edbIsIn64BitSegment_;
 	const bool osIs64Bit_;
 	const edb::seg_reg_t userCodeSegment32_;
 	const edb::seg_reg_t userCodeSegment64_;
