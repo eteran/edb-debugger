@@ -37,6 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QElapsedTimer>
 #include <QFileInfo>
 #include <QHash>
 #include <QMainWindow>
@@ -45,7 +46,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QProgressDialog>
 #include <QSettings>
 #include <QStack>
-#include <QTime>
 #include <QToolBar>
 #include <QtDebug>
 
@@ -628,7 +628,7 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
  */
 void Analyzer::analyze(const std::shared_ptr<IRegion> &region) {
 
-	QTime t;
+	QElapsedTimer t;
 	t.start();
 
 	RegionData &region_data = analysisInfo_[region->start()];
@@ -694,7 +694,7 @@ void Analyzer::analyze(const std::shared_ptr<IRegion> &region) {
 		qDebug("[Analyzer] region unchanged, using previous analysis");
 	}
 
-	qDebug("[Analyzer] elapsed: %d ms", t.elapsed());
+	qDebug("[Analyzer] elapsed: %lld ms", t.elapsed());
 }
 
 /**

@@ -118,9 +118,11 @@ void BinaryString::on_txtAscii_textEdited(const QString &text) {
 	int counter = 0;
 
 	for (uint8_t ch : p) {
-
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
+		textHex += QString::asprintf("%02x ", ch & 0xff);
+#else
 		textHex += temp.sprintf("%02x ", ch & 0xff);
-
+#endif
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
 		utf16Char = (utf16Char >> 8) | (ch << 8);
 #else
@@ -151,11 +153,19 @@ void BinaryString::on_txtUTF16_textEdited(const QString &text) {
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
 		textAscii += ch & 0xff;
 		textAscii += (ch >> 8) & 0xff;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
+		textHex += QString::asprintf("%02x %02x ", ch & 0xff, (ch >> 8) & 0xff);
+#else
 		textHex += temp.sprintf("%02x %02x ", ch & 0xff, (ch >> 8) & 0xff);
+#endif
 #else
 		textAscii += (ch >> 8) & 0xff;
 		textAscii += ch & 0xff;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
+		textHex += QString::asprintf("%02x %02x ", (ch >> 8) & 0xff, ch & 0xff);
+#else
 		textHex += temp.sprintf("%02x %02x ", (ch >> 8) & 0xff, ch & 0xff);
+#endif
 #endif
 	}
 

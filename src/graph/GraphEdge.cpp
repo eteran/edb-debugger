@@ -127,7 +127,11 @@ QLineF GraphEdge::shortenLineToNode(QLineF line) {
 	// for any that intersect, shorten the line appropriately
 	for (int i = 0; i < 4; ++i) {
 		QPointF intersectPoint;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+		QLineF::IntersectType intersectType = polyLines[i].intersects(line, &intersectPoint);
+#else
 		QLineF::IntersectType intersectType = polyLines[i].intersect(line, &intersectPoint);
+#endif
 		if (intersectType == QLineF::BoundedIntersection) {
 			line.setP2(intersectPoint);
 		}

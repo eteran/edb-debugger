@@ -1511,9 +1511,8 @@ QStringList ArchProcessor::updateInstructionInfo(edb::address_t address) {
 		}
 
 		// eliminate duplicates
-		ret = QStringList::fromSet(ret.toSet());
-		// elimination of duplicates left ret in a strange order, make it easier to follow
 		ret.sort();
+		ret.erase(std::unique(ret.begin(), ret.end()), ret.end());
 	}
 	return ret;
 }

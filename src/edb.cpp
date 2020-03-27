@@ -234,7 +234,11 @@ IAnalyzer *set_analyzer(IAnalyzer *p) {
 // Desc:
 //------------------------------------------------------------------------------
 IAnalyzer *analyzer() {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+	return g_Analyzer.loadRelaxed();
+#else
 	return g_Analyzer.load();
+#endif
 }
 
 //------------------------------------------------------------------------------
