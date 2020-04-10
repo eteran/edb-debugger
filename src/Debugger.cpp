@@ -2614,7 +2614,7 @@ void Debugger::resumeExecution(ExceptionResume pass_exception, DebugMode mode, R
 
 			// if we are on a breakpoint, disable it
 			std::shared_ptr<IBreakpoint> bp;
-			if (flags == ResumeFlag::Forced) {
+			if (flags != ResumeFlag::Forced) {
 				State state;
 				thread->getState(&state);
 				bp = edb::v1::debugger_core->findBreakpoint(state.instructionPointer());
