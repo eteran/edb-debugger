@@ -628,8 +628,9 @@ QString Debugger::createTty() {
 						  << "--title" << tr("edb output");
 			} else if (command_info.fileName() == "konsole") {
 				proc_args << "--hide-menubar"
-						  << "--title" << tr("edb output") << "--nofork"
-						  << "-hold";
+						  << "--title" << tr("edb output")
+						  << "--nofork"
+						  << "--hold";
 			} else {
 				proc_args << "-title" << tr("edb output") << "-hold";
 			}
