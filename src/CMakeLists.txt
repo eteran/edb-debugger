@@ -227,7 +227,7 @@ add_executable(edb ${edb_SRCS})
 
 target_compile_definitions(edb PRIVATE
 	-DGIT_BRANCH=${GIT_BRANCH}
-	-DDEFAULT_PLUGIN_PATH=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb\"
+	-DDEFAULT_PLUGIN_PATH=\"${CMAKE_INSTALL_FULL_LIBDIR}/edb\"
 )
 
 target_link_libraries(edb 
