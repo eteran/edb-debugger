@@ -39,6 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "QHexView"
 #include "QtHelper.h"
 #include "State.h"
+#include "SessionManager.h"
 #include "Symbol.h"
 #include "SymbolManager.h"
 #include "version.h"
@@ -200,6 +201,14 @@ void repaint_cpu_view() {
 ISymbolManager &symbol_manager() {
 	static SymbolManager g_SymbolManager;
 	return g_SymbolManager;
+}
+
+//------------------------------------------------------------------------------
+// Name: session_manager
+// Desc:
+//------------------------------------------------------------------------------
+ISessionManager &session_manager() {
+    return SessionManager::instance();
 }
 
 //------------------------------------------------------------------------------

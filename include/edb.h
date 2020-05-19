@@ -39,6 +39,7 @@ class IDebugEvent;
 class IDebugger;
 class IPlugin;
 class IRegion;
+class ISessionManager;
 class ISymbolManager;
 class MemoryRegions;
 class Register;
@@ -75,6 +76,9 @@ EDB_EXPORT extern QWidget *debugger_ui;
 
 // the symbol mananger
 EDB_EXPORT ISymbolManager &symbol_manager();
+
+// the session manager
+EDB_EXPORT ISessionManager &session_manager();
 
 // the memory region manager
 EDB_EXPORT MemoryRegions &memory_regions();

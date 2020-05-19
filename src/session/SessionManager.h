@@ -19,15 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SESSION_MANAGER_H_20170928_
 #define SESSION_MANAGER_H_20170928_
 
+#include "ISessionManager.h"
 #include "SessionError.h"
-#include "Status.h"
-#include "Types.h"
 
 #include <QCoreApplication>
-#include <QString>
-#include <QVariant>
 
-class SessionManager {
+class SessionManager final : public ISessionManager {
 	Q_DECLARE_TR_FUNCTIONS(SessionManager)
 
 private:
@@ -41,11 +38,11 @@ public:
 	static SessionManager &instance();
 
 public:
-	Result<void, SessionError> loadSession(const QString &filename);
-	void saveSession(const QString &filename);
-	QVariantList comments() const;
-	void addComment(const Comment &c);
-	void removeComment(edb::address_t address);
+	Result<void, SessionError> loadSession(const QString &filename) override;
+	void saveSession(const QString &filename) override;
+	QVariantList comments() const override;
+	void addComment(const Comment &c) override;
+	void removeComment(edb::address_t address) override;
 
 private:
 	void loadPluginData();
