@@ -22,6 +22,7 @@ add_subdirectory(BinarySearcher)
 add_subdirectory(InstructionInspector)
 add_subdirectory(FasLoader)
 add_subdirectory(ODbgRegisterView)
+add_subdirectory(CommentsViewer)
 
 if(TARGET_ARCH_FAMILY_X86)
     add_subdirectory(HardwareBreakpoints)
