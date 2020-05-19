@@ -89,13 +89,15 @@ void Breakpoint::setType(TypeId type) {
  * @param type
  */
 void Breakpoint::setType(IBreakpoint::TypeId type) {
+	TypeId _type;
 	disable();
 
 	if (Type{type} >= TypeId::TYPE_COUNT) {
 		throw BreakpointCreationError();
 	}
 
-	setType(type);
+	_type = Type{type}.operator DebuggerCorePlugin::Breakpoint::TypeId();
+	setType(_type);
 }
 
 /**
