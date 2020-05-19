@@ -40,10 +40,13 @@ public:
 public:
 	Result<void, SessionError> loadSession(const QString &filename) override;
 	void saveSession(const QString &filename) override;
+    QVariantList breakpoints() const override;
 	QVariantList comments() const override;
     QVariantList labels() const override;
+    void addBreakpoint(const IBreakpoint &b) override;
     void addComment(const Comment &c) override;
     void addLabel(const Label &l) override;
+    void removeBreakpoint(edb::address_t address) override;
     void removeComment(edb::address_t address) override;
     void removeLabel(edb::address_t address) override;
 

@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Breakpoint.h"
 #include "Configuration.h"
 #include "edb.h"
+#include "ISessionManager.h"
 #include <QtDebug>
 
 namespace DebuggerCorePlugin {
@@ -52,6 +53,7 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::addBreakpoint(edb::address_t addr
 
 			auto bp               = std::make_shared<Breakpoint>(address);
 			breakpoints_[address] = bp;
+            edb::v1::session_manager().addBreakpoint(*bp);
 			return bp;
 		}
 
@@ -115,6 +117,7 @@ void DebuggerCoreBase::removeBreakpoint(edb::address_t address) {
 		auto it = breakpoints_.find(address);
 		if (it != breakpoints_.end()) {
 			breakpoints_.erase(it);
+            edb::v1::session_manager().removeBreakpoint(address);
 		}
 	}
 }

@@ -175,6 +175,14 @@ void SessionManager::loadPluginData() {
 }
 
 /**
+ * @brief SessionManager::breakpoints
+ * @return all breakpoints from the sessionData_
+ */
+QVariantList SessionManager::breakpoints() const {
+    return sessionData_["breakpoints"].toList();
+}
+
+/**
  * @brief SessionManager::comments
  * @return all comments from the sessionData_
  */
@@ -188,6 +196,33 @@ QVariantList SessionManager::comments() const {
  */
 QVariantList SessionManager::labels() const {
     return sessionData_["labels"].toList();
+}
+
+/**
+* Adds a breakpoint to the session_data
+* @param b
+*/
+void SessionManager::addBreakpoint(const IBreakpoint &b) {
+    QVariantList breakpoints_data = sessionData_["breakpoints"].toList();
+
+    QVariantMap breakpoint;
+    breakpoint["address"] = b.address().toHexString();
+    breakpoint["enabled"] = b.enabled();
+    breakpoint["type"] = quint8(b.type());
+
+    //Check if we already have an entry with the same address and overwrite it
+    auto it = std::find_if(breakpoints_data.begin(), breakpoints_data.end(), [&breakpoint](QVariant entry) {
+        QVariantMap data = entry.toMap();
+        return data["address"] == breakpoint["address"];
+    });
+
+    if (it != breakpoints_data.end()) {
+        *it = breakpoint;
+    } else {
+        breakpoints_data.push_back(breakpoint);
+    }
+
+    sessionData_["breakpoints"] = breakpoints_data;
 }
 
 /**
@@ -247,23 +282,43 @@ void SessionManager::addLabel(const Label &l) {
 }
 
 /**
-* Removes a comment from the session_data
+* Removes a breakpoint from the session_data
 * @param address
 */
-void SessionManager::removeComment(edb::address_t address) {
+void SessionManager::removeBreakpoint(edb::address_t address) {
 	QString hexAddressString   = address.toHexString();
-	QVariantList comments_data = sessionData_["comments"].toList();
+    QVariantList breakpoints_data = sessionData_["breakpoints"].toList();
 
-	auto it = std::find_if(comments_data.begin(), comments_data.end(), [&hexAddressString](QVariant entry) {
+    auto it = std::find_if(breakpoints_data.begin(), breakpoints_data.end(), [&hexAddressString](QVariant entry) {
 		QVariantMap data = entry.toMap();
 		return data["address"] == hexAddressString;
 	});
 
-	if (it != comments_data.end()) {
-		comments_data.erase(it);
+    if (it != breakpoints_data.end()) {
+        breakpoints_data.erase(it);
 	}
 
-	sessionData_["comments"] = comments_data;
+    sessionData_["breakpoints"] = breakpoints_data;
+}
+
+/**
+* Removes a label from the session_data
+* @param address
+*/
+void SessionManager::removeComment(edb::address_t address) {
+    QString hexAddressString   = address.toHexString();
+    QVariantList comments_data = sessionData_["comments"].toList();
+
+    auto it = std::find_if(comments_data.begin(), comments_data.end(), [&hexAddressString](QVariant entry) {
+        QVariantMap data = entry.toMap();
+        return data["address"] == hexAddressString;
+    });
+
+    if (it != comments_data.end()) {
+        comments_data.erase(it);
+    }
+
+    sessionData_["comments"] = comments_data;
 }
 
 /**

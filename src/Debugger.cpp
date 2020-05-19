@@ -2888,14 +2888,24 @@ void Debugger::setInitialDebuggerState() {
 
 	const QString filename = sessionFilename();
 	if (!filename.isEmpty()) {
+		std::shared_ptr<IBreakpoint> bp;
+		const ISessionManager &session_manager = edb::v1::session_manager();
 
-        const ISessionManager &session_manager = edb::v1::session_manager();
+		if (Result<void, SessionError> session_error = edb::v1::session_manager().loadSession(filename)) {
+			QVariantList breakpoints_data = session_manager.breakpoints();
+			QVariantList comments_data = session_manager.comments();
+			QVariantList labels_data = session_manager.labels();
+			ui.cpuView->restoreComments(comments_data);
+			edb::v1::symbol_manager().restoreLabels(labels_data);
+			for (auto it = breakpoints_data.begin(); it != breakpoints_data.end(); ++it) {
+				IBreakpoint::TypeId type;
+				QVariantMap bp_data = it->toMap();
 
-        if (Result<void, SessionError> session_error = edb::v1::session_manager().loadSession(filename)) {
-            QVariantList comments_data = session_manager.comments();
-            QVariantList labels_data = session_manager.labels();
-            ui.cpuView->restoreComments(comments_data);
-            edb::v1::symbol_manager().restoreLabels(labels_data);
+				type = static_cast<IBreakpoint::TypeId>(bp_data["type"].toInt());
+				bp = edb::v1::create_breakpoint(edb::v1::string_to_address(bp_data["address"].toString()).value());
+				bp->setType(type);
+				bp_data["enabled"].toBool() ? bp->enable() : bp->disable();
+			}
 		} else {
 			QMessageBox::warning(
 				this,
