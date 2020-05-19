@@ -208,7 +208,7 @@ ISymbolManager &symbol_manager() {
 // Desc:
 //------------------------------------------------------------------------------
 ISessionManager &session_manager() {
-    return SessionManager::instance();
+	return SessionManager::instance();
 }
 
 //------------------------------------------------------------------------------

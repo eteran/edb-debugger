@@ -1013,7 +1013,7 @@ void Debugger::closeEvent(QCloseEvent *event) {
 	// make sure sessions still get recorded even if they just close us
 	const QString filename = sessionFilename();
 	if (!filename.isEmpty()) {
-        edb::v1::session_manager().saveSession(filename);
+		edb::v1::session_manager().saveSession(filename);
 	}
 
 	if (IDebugger *core = edb::v1::debugger_core) {
@@ -2829,7 +2829,7 @@ void Debugger::detachFromProcess(DetachAction kill) {
 
 	const QString filename = sessionFilename();
 	if (!filename.isEmpty()) {
-        edb::v1::session_manager().saveSession(filename);
+		edb::v1::session_manager().saveSession(filename);
 	}
 
 	programExecutable_.clear();

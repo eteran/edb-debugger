@@ -61,9 +61,9 @@ void DialogCommentsViewer::on_listView_doubleClicked(const QModelIndex &index) {
 
 	const QString s = index.data().toString();
 
-    if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(s.split(":")[0])) {
-        edb::v1::jump_to_address(*addr);
-    }
+	if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(s.split(":")[0])) {
+		edb::v1::jump_to_address(*addr);
+	}
 }
 
 /**
@@ -101,16 +101,16 @@ void DialogCommentsViewer::mnuFollowInCPU() {
  * @brief DialogCommentsViewer::showEvent
  */
 void DialogCommentsViewer::showEvent(QShowEvent*) {
-    edb::address_t addr;
-    QStringList results;
-    QVariantList comments;
+	edb::address_t addr;
+	QStringList results;
+	QVariantList comments;
 
-    comments = edb::v1::session_manager().comments();
-    for (auto it = comments.begin(); it != comments.end(); ++it) {
-        QVariantMap data = it->toMap();
-        addr = edb::v1::string_to_address(data["address"].toString()).value();
-        results << QString("%1: %2").arg(edb::v1::format_pointer(addr), data["comment"].toString());
-    }
+	comments = edb::v1::session_manager().comments();
+	for (auto it = comments.begin(); it != comments.end(); ++it) {
+		QVariantMap data = it->toMap();
+		addr = edb::v1::string_to_address(data["address"].toString()).value();
+		results << QString("%1: %2").arg(edb::v1::format_pointer(addr), data["comment"].toString());
+	}
 
 	model_->setStringList(results);
 }

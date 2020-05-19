@@ -282,7 +282,7 @@ void SymbolManager::setSymbolGenerator(ISymbolGenerator *generator) {
 //       wants to call this address). And only apply to code
 //------------------------------------------------------------------------------
 void SymbolManager::setLabel(edb::address_t address, const QString &label) {
-    Label vlabel;
+	Label vlabel;
 
 	if (label.isEmpty()) {
 		labelsByName_.remove(labels_[address]);
@@ -299,18 +299,18 @@ void SymbolManager::setLabel(edb::address_t address, const QString &label) {
 
 		labels_[address]     = label;
 		labelsByName_[label] = address;
-        vlabel.address = address;
-        vlabel.comment = label;
-        edb::v1::session_manager().addLabel(vlabel);
+		vlabel.address = address;
+		vlabel.comment = label;
+		edb::v1::session_manager().addLabel(vlabel);
 	}
 }
 
 void SymbolManager::restoreLabels(const QVariantList &labels) {
-    qDebug("Restoring labels");
-    for (auto it = labels.begin(); it != labels.end(); ++it) {
-        QVariantMap data = it->toMap();
-        this->setLabel(edb::v1::string_to_address(data["address"].toString()).value(), data["label"].toString());
-    }
+	qDebug("Restoring labels");
+	for (auto it = labels.begin(); it != labels.end(); ++it) {
+		QVariantMap data = it->toMap();
+		this->setLabel(edb::v1::string_to_address(data["address"].toString()).value(), data["label"].toString());
+	}
 }
 
 //------------------------------------------------------------------------------

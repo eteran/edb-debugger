@@ -35,7 +35,7 @@ CommentsViewer::CommentsViewer(QObject *parent)
  * @brief CommentsViewer::~CommentsViewer
  */
 CommentsViewer::~CommentsViewer() {
-    delete dialog_;
+	delete dialog_;
 }
 
 /**
@@ -44,11 +44,11 @@ CommentsViewer::~CommentsViewer() {
  * @return
  */
 QMenu* CommentsViewer::menu(QWidget *parent) {
-    Q_ASSERT(parent);
+	Q_ASSERT(parent);
 
 	if (!menu_) {
-        menu_ = new QMenu(tr("CommentsViewer"), parent);
-        menu_->addAction(tr("&CommentsViewer"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+Alt+C")));
+		menu_ = new QMenu(tr("CommentsViewer"), parent);
+		menu_->addAction(tr("&CommentsViewer"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+Alt+C")));
 	}
 
 	return menu_;
@@ -58,11 +58,11 @@ QMenu* CommentsViewer::menu(QWidget *parent) {
  * @brief CommentsViewer::showMenu
  */
 void CommentsViewer::showMenu() {
-    if (!dialog_) {
-        dialog_ = new DialogCommentsViewer(edb::v1::debugger_ui);
-    }
+	if (!dialog_) {
+		dialog_ = new DialogCommentsViewer(edb::v1::debugger_ui);
+	}
 
-    dialog_->show();
+	dialog_->show();
 }
 
 }

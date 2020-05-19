@@ -44,7 +44,7 @@ public:
 	void loadSymbolFile(const QString &filename, edb::address_t base) override;
 	void setSymbolGenerator(ISymbolGenerator *generator) override;
 	void setLabel(edb::address_t address, const QString &label) override;
-    void restoreLabels(const QVariantList &labels) override;
+	void restoreLabels(const QVariantList &labels) override;
 	QString findAddressName(edb::address_t address, bool prefixed = true) override;
 	QHash<edb::address_t, QString> labels() const override;
 	QStringList files() const override;
