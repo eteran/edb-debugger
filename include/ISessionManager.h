@@ -35,8 +35,11 @@ public:
     virtual Result<void, SessionError> loadSession(const QString &filename) = 0;
     virtual void saveSession(const QString &filename)                       = 0;
     virtual QVariantList comments() const                                   = 0;
+    virtual QVariantList labels() const                                     = 0;
     virtual void addComment(const Comment &c)                               = 0;
+    virtual void addLabel(const Label &l)                                   = 0;
     virtual void removeComment(edb::address_t address)                      = 0;
+    virtual void removeLabel(edb::address_t address)                        = 0;
 };
 
 #endif

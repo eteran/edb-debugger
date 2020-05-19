@@ -41,5 +41,8 @@ struct Comment {
 	QString comment;
 };
 
+/* Label Type */
+typedef struct Comment Label; // label treated as a comment
+
 #include "ArchTypes.h"
 #endif

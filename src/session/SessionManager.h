@@ -41,8 +41,11 @@ public:
 	Result<void, SessionError> loadSession(const QString &filename) override;
 	void saveSession(const QString &filename) override;
 	QVariantList comments() const override;
-	void addComment(const Comment &c) override;
-	void removeComment(edb::address_t address) override;
+    QVariantList labels() const override;
+    void addComment(const Comment &c) override;
+    void addLabel(const Label &l) override;
+    void removeComment(edb::address_t address) override;
+    void removeLabel(edb::address_t address) override;
 
 private:
 	void loadPluginData();

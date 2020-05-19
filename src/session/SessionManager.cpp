@@ -183,6 +183,14 @@ QVariantList SessionManager::comments() const {
 }
 
 /**
+ * @brief SessionManager::labels
+ * @return all labels from the sessionData_
+ */
+QVariantList SessionManager::labels() const {
+    return sessionData_["labels"].toList();
+}
+
+/**
 * Adds a comment to the session_data
 * @param c (struct in Types.h)
 */
@@ -210,6 +218,35 @@ void SessionManager::addComment(const Comment &c) {
 }
 
 /**
+* Adds a label to the session_data
+* @param l (struct in Types.h)
+*/
+void SessionManager::addLabel(const Label &l) {
+
+    QVariantList labels_data = sessionData_["labels"].toList();
+
+    QVariantMap label;
+    label["address"] = l.address.toHexString();
+    label["label"] = l.comment;
+
+    qDebug() << "Add new label " << l.comment;
+
+    //Check if we already have an entry with the same address and overwrite it
+    auto it = std::find_if(labels_data.begin(), labels_data.end(), [&label](QVariant entry) {
+        QVariantMap data = entry.toMap();
+        return data["address"] == label["address"];
+    });
+
+    if (it != labels_data.end()) {
+        *it = label;
+    } else {
+        labels_data.push_back(label);
+    }
+
+    sessionData_["labels"] = labels_data;
+}
+
+/**
 * Removes a comment from the session_data
 * @param address
 */
@@ -227,4 +264,24 @@ void SessionManager::removeComment(edb::address_t address) {
 	}
 
 	sessionData_["comments"] = comments_data;
+}
+
+/**
+* Removes a label from the session_data
+* @param address
+*/
+void SessionManager::removeLabel(edb::address_t address) {
+    QString hexAddressString   = address.toHexString();
+    QVariantList labels_data = sessionData_["labels"].toList();
+
+    auto it = std::find_if(labels_data.begin(), labels_data.end(), [&hexAddressString](QVariant entry) {
+        QVariantMap data = entry.toMap();
+        return data["address"] == hexAddressString;
+    });
+
+    if (it != labels_data.end()) {
+        labels_data.erase(it);
+    }
+
+    sessionData_["labels"] = labels_data;
 }

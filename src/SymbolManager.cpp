@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SymbolManager.h"
 #include "Configuration.h"
+#include "ISessionManager.h"
 #include "ISymbolGenerator.h"
 #include "Symbol.h"
 #include "edb.h"
@@ -281,6 +282,8 @@ void SymbolManager::setSymbolGenerator(ISymbolGenerator *generator) {
 //       wants to call this address). And only apply to code
 //------------------------------------------------------------------------------
 void SymbolManager::setLabel(edb::address_t address, const QString &label) {
+    Label vlabel;
+
 	if (label.isEmpty()) {
 		labelsByName_.remove(labels_[address]);
 		labels_.remove(address);
@@ -296,7 +299,18 @@ void SymbolManager::setLabel(edb::address_t address, const QString &label) {
 
 		labels_[address]     = label;
 		labelsByName_[label] = address;
+        vlabel.address = address;
+        vlabel.comment = label;
+        edb::v1::session_manager().addLabel(vlabel);
 	}
+}
+
+void SymbolManager::restoreLabels(const QVariantList &labels) {
+    qDebug("Restoring labels");
+    for (auto it = labels.begin(); it != labels.end(); ++it) {
+        QVariantMap data = it->toMap();
+        this->setLabel(edb::v1::string_to_address(data["address"].toString()).value(), data["label"].toString());
+    }
 }
 
 //------------------------------------------------------------------------------

@@ -1013,7 +1013,7 @@ void Debugger::closeEvent(QCloseEvent *event) {
 	// make sure sessions still get recorded even if they just close us
 	const QString filename = sessionFilename();
 	if (!filename.isEmpty()) {
-		SessionManager::instance().saveSession(filename);
+        edb::v1::session_manager().saveSession(filename);
 	}
 
 	if (IDebugger *core = edb::v1::debugger_core) {
@@ -2829,7 +2829,7 @@ void Debugger::detachFromProcess(DetachAction kill) {
 
 	const QString filename = sessionFilename();
 	if (!filename.isEmpty()) {
-		SessionManager::instance().saveSession(filename);
+        edb::v1::session_manager().saveSession(filename);
 	}
 
 	programExecutable_.clear();
@@ -2889,11 +2889,13 @@ void Debugger::setInitialDebuggerState() {
 	const QString filename = sessionFilename();
 	if (!filename.isEmpty()) {
 
-		SessionManager &session_manager = SessionManager::instance();
+        const ISessionManager &session_manager = edb::v1::session_manager();
 
-		if (Result<void, SessionError> session_error = session_manager.loadSession(filename)) {
-			QVariantList comments_data = session_manager.comments();
-			ui.cpuView->restoreComments(comments_data);
+        if (Result<void, SessionError> session_error = edb::v1::session_manager().loadSession(filename)) {
+            QVariantList comments_data = session_manager.comments();
+            QVariantList labels_data = session_manager.labels();
+            ui.cpuView->restoreComments(comments_data);
+            edb::v1::symbol_manager().restoreLabels(labels_data);
 		} else {
 			QMessageBox::warning(
 				this,

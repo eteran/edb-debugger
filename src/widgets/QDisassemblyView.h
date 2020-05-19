@@ -82,9 +82,9 @@ public:
 	int removeComment(edb::address_t address);
 	int selectedSize() const;
 	std::shared_ptr<IRegion> region() const;
-	void addComment(edb::address_t address, QString comment);
-	void clearComments();
-	void restoreComments(QVariantList &);
+    void addComment(edb::address_t address, QString comment);
+    void clearComments();
+    void restoreComments(QVariantList &);
 	void restoreState(const QByteArray &stateBuffer);
 	void setSelectedAddress(edb::address_t address);
 
@@ -174,7 +174,7 @@ private:
 	std::vector<CapstoneEDB::Instruction> instructions_;
 	SyntaxHighlighter *highlighter_;
 	bool showAddressSeparator_;
-	QHash<edb::address_t, QString> comments_;
+    QHash<edb::address_t, QString> comments_;
 	NavigationHistory history_;
 	QSvgRenderer breakpointRenderer_;
 	QSvgRenderer currentRenderer_;
