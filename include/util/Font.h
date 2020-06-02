@@ -2,6 +2,8 @@
 #ifndef FONT_H_
 #define FONT_H_
 
+#include "API.h"
+
 class QString;
 class QFont;
 class QFontMetrics;
@@ -15,10 +17,10 @@ enum Type {
 	Bold   = 2,
 };
 
-QFont fromString(const QString &fontName);
-int maxWidth(const QFontMetrics &fm);
-int characterWidth(const QFontMetrics &fm, QChar ch);
-int stringWidth(const QFontMetrics &fm, const QString &s);
+EDB_EXPORT QFont fromString(const QString &fontName);
+EDB_EXPORT int maxWidth(const QFontMetrics &fm);
+EDB_EXPORT int characterWidth(const QFontMetrics &fm, QChar ch);
+EDB_EXPORT int stringWidth(const QFontMetrics &fm, const QString &s);
 
 }
 
