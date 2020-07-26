@@ -173,6 +173,12 @@ QDisassemblyView::QDisassemblyView(QWidget *parent)
 	badgeBackgroundColor_   = QColor(settings.value("theme.badge.background", "blue").toString());
 	badgeForegroundColor_   = QColor(settings.value("theme.badge.foreground", "white").toString());
 
+
+	auto palette         = this->palette();
+	auto backgroundColor = QColor(settings.value("theme.disassembly.background", palette.color(QPalette::Base).name()).toString());
+	palette.setColor(QPalette::Base, backgroundColor);
+	setPalette(palette);
+
 	setShowAddressSeparator(true);
 
 	setFont(QFont("Monospace", 8));
