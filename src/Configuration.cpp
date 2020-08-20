@@ -274,6 +274,8 @@ void Configuration::writeSettings() {
 	settings.setValue("directory.symbol.path", symbol_path);
 	if (plugin_path != getDefaultPluginPath()) {
 		settings.setValue("directory.plugin.path", plugin_path);
+	} else {
+		settings.remove("directory.plugin.path");
 	}
 	settings.setValue("directory.session.path", session_path);
 	settings.endGroup();
