@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 QDataStream &operator<<(QDataStream &s, const IBreakpoint::TypeId &id);
 QDataStream &operator>>(QDataStream &s, IBreakpoint::TypeId &id);
+static QString getDefaultPluginPath();
 
 //------------------------------------------------------------------------------
 // Name: Configuration
@@ -70,6 +71,23 @@ QDataStream &operator>>(QDataStream &s, IBreakpoint::TypeId &id) {
 }
 
 //------------------------------------------------------------------------------
+// Name: getDefaultPluginPath
+// Desc: return default path for plugins
+//------------------------------------------------------------------------------
+static QString getDefaultPluginPath() {
+#ifdef DEFAULT_PLUGIN_PATH
+	const QString default_plugin_path = DEFAULT_PLUGIN_PATH;
+#else
+	const QString edb_lib_dir    = QCoreApplication::applicationDirPath() + (EDB_IS_64_BIT ? "/../lib64/edb" : "/../lib/edb");
+	const QString edb_binary_dir = QCoreApplication::applicationDirPath();
+	// If the binary is in its installation directory, then look for plugins in their installation directory
+	// Otherwise assume that we are in build directory, so the plugins are in the same directory as the binary
+	const QString default_plugin_path = QRegExp(".*/bin/?$").exactMatch(edb_binary_dir) ? edb_lib_dir : edb_binary_dir;
+#endif
+	return default_plugin_path;
+}
+
+//------------------------------------------------------------------------------
 // Name: read_settings
 // Desc: read in the options from the file
 //------------------------------------------------------------------------------
@@ -83,16 +101,6 @@ void Configuration::readSettings() {
 	const QString default_font   = QFont("Courier New", 10).toString();
 #else
 	const QString default_font = QFont("Monospace", 8).toString();
-#endif
-
-#ifdef DEFAULT_PLUGIN_PATH
-	const QString default_plugin_path = DEFAULT_PLUGIN_PATH;
-#else
-	const QString edb_lib_dir    = QCoreApplication::applicationDirPath() + (EDB_IS_64_BIT ? "/../lib64/edb" : "/../lib/edb");
-	const QString edb_binary_dir = QCoreApplication::applicationDirPath();
-	// If the binary is in its installation directory, then look for plugins in their installation directory
-	// Otherwise assume that we are in build directory, so the plugins are in the same directory as the binary
-	const QString default_plugin_path = QRegExp(".*/bin/?$").exactMatch(edb_binary_dir) ? edb_lib_dir : edb_binary_dir;
 #endif
 
 	QSettings settings;
@@ -156,7 +164,7 @@ void Configuration::readSettings() {
 	QString defaultSessionPath = QString("%1/%2").arg(cacheDirectory, "sessions");
 
 	symbol_path  = settings.value("directory.symbol.path", defaultSymbolPath).toString();
-	plugin_path  = settings.value("directory.plugin.path", default_plugin_path).toString();
+	plugin_path  = settings.value("directory.plugin.path", getDefaultPluginPath()).toString();
 	session_path = settings.value("directory.session.path", defaultSessionPath).toString();
 	settings.endGroup();
 
@@ -264,7 +272,11 @@ void Configuration::writeSettings() {
 
 	settings.beginGroup("Directories");
 	settings.setValue("directory.symbol.path", symbol_path);
-	settings.setValue("directory.plugin.path", plugin_path);
+	if (plugin_path != getDefaultPluginPath()) {
+		settings.setValue("directory.plugin.path", plugin_path);
+	} else {
+		settings.remove("directory.plugin.path");
+	}
 	settings.setValue("directory.session.path", session_path);
 	settings.endGroup();
 
