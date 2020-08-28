@@ -388,7 +388,7 @@ public:
 public:
 	QString toPointerString(bool createdFromNativePointer = true) const {
 		if (edb::v1::debuggeeIs32Bit()) {
-			return "0x" + toHexString();
+			return "0x" + value_type<uint32_t>(value_).toHexString();
 		} else {
 			if (!createdFromNativePointer) { // then we don't know value of upper dword
 				return "0x????????" + value_type<uint32_t>(value_).toHexString();
