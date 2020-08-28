@@ -88,7 +88,7 @@ void CheckVersion::doCheck() {
 
 	//network_->abort(); //?
 
-	const QUrl update_url("http://codef00.com/projects/debugger-latest");
+	const QUrl update_url("https://codef00.com/projects/debugger-latest");
 	const QNetworkRequest request(update_url);
 
 	setProxy(update_url);
