@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "CheckVersion.h"
 #include "OptionsPage.h"
 #include "edb.h"
+#include "version.h"
 
 #include <QDebug>
 #include <QMenu>
@@ -30,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QNetworkRequest>
 #include <QSettings>
 #include <QUrl>
+#include <QJsonDocument>
 
 namespace CheckVersionPlugin {
 
@@ -86,13 +88,11 @@ void CheckVersion::doCheck() {
 		connect(network_, &QNetworkAccessManager::finished, this, &CheckVersion::requestFinished);
 	}
 
-	//network_->abort(); //?
 
-	const QUrl update_url("https://codef00.com/projects/debugger-latest");
-	const QNetworkRequest request(update_url);
+	QUrl update_url(QString("https://codef00.com/projects/debugger-latest.json?v=%1").arg(edb::version));
+	QNetworkRequest request(update_url);
 
 	setProxy(update_url);
-
 	network_->get(request);
 }
 
@@ -148,16 +148,45 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 				reply->errorString());
 		}
 	} else {
-		const QByteArray result = reply->readAll();
-		const QString s         = result;
 
-		qDebug("comparing versions: [%d] [%d]", edb::v1::int_version(s), edb::v1::edb_version());
+		QByteArray s = reply->readAll();
 
-		if (edb::v1::int_version(s) > edb::v1::edb_version()) {
-			QMessageBox::information(
-				nullptr,
-				tr("New Version Available"),
-				tr("There is a newer version of edb available: <strong>%1</strong>").arg(s));
+		QJsonParseError e;
+		QJsonDocument d = QJsonDocument::fromJson(s, &e);
+		if(d.isNull() || e.error != QJsonParseError::NoError) {
+			qDebug("[CheckVersion] Error parsing JSON response: %s", qPrintable(e.errorString()));
+			return;
+		}
+
+
+		if(!d.isObject()) {
+			qDebug("[CheckVersion] Unexpected data format in JSON response");
+			return;
+		}
+
+		QString version = d["version"].toString();
+		QString url = d["url"].toString();
+		QString md5 = d["md5"].toString();
+		QString sha1 = d["sha1"].toString();
+
+		if(version.isEmpty() || url.isEmpty() || md5.isEmpty() || sha1.isEmpty()) {
+			qDebug("[CheckVersion] Unexpected data format in JSON response");
+			return;
+		}
+
+		qDebug("comparing versions: [%d] [%d]", edb::v1::int_version(version), edb::v1::edb_version());
+
+		if (edb::v1::int_version(version) > edb::v1::edb_version()) {
+			QMessageBox msg;
+			msg.setTextFormat(Qt::RichText);
+			msg.setWindowTitle(tr("New Version Available"));
+			msg.setText(tr("A newer version of edb is available: <strong>%1</strong><br><br>"
+						   "URL: <a href=\"%2\">%2</a><br><br>"
+						   "MD5: %3<br>"
+						   "SHA1: %4").arg(version, url, md5, sha1));
+			msg.setStandardButtons(QMessageBox::Ok);
+			msg.exec();
+
 		} else {
 			if (!initialCheck_) {
 				QMessageBox::information(
