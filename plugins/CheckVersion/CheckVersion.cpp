@@ -164,10 +164,12 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 			return;
 		}
 
-		QString version = d["version"].toString();
-		QString url = d["url"].toString();
-		QString md5 = d["md5"].toString();
-		QString sha1 = d["sha1"].toString();
+		QJsonObject obj = d.object();
+
+		QString version = obj["version"].toString();
+		QString url = obj["url"].toString();
+		QString md5 = obj["md5"].toString();
+		QString sha1 = obj["sha1"].toString();
 
 		if(version.isEmpty() || url.isEmpty() || md5.isEmpty() || sha1.isEmpty()) {
 			qDebug("[CheckVersion] Unexpected data format in JSON response");
