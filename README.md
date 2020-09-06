@@ -3,7 +3,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/91jfbbyg075wk96q?svg=true)](https://ci.appveyor.com/project/eteran/edb-debugger)
 [![License](https://img.shields.io/badge/license-GPL2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 [![Paypal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=evan%2eteran%40gmail%2ecom&lc=US&item_name=edb%2ddebugger&currency_code=USD&bn=PP%2dDonationsBF%3a68747470733a2f2f696d672e736869656c64732e696f2f62616467652f446f6e6174652d50617950616c2d677265656e2e737667%3aNonHosted)
-[![Rawsec's CyberSecurity Inventory](https://inventory.rawsec.ml/img/badges/Rawsec-inventoried-FF5050_flat.svg)](https://inventory.rawsec.ml/)
+
 
 edb is a cross platform AArch32/x86/x86-64 debugger. It was inspired by [Ollydbg](http://www.ollydbg.de/ "Ollydbg"), 
 but aims to function on AArch32, x86, and x86-64 as well as multiple OS's. Linux is the 
