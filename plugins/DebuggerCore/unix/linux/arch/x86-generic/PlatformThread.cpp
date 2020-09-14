@@ -318,7 +318,8 @@ edb::address_t PlatformThread::instructionPointer() const {
  * @return
  */
 unsigned long PlatformThread::getDebugRegister(std::size_t n) {
-	return ptrace(PTRACE_PEEKUSER, tid_, offsetof(struct user, u_debugreg[n]), 0);
+	size_t drOffset = offsetof(struct user, u_debugreg) + n * sizeof(user::u_debugreg[0]);
+	return ptrace(PTRACE_PEEKUSER, tid_, drOffset, 0);
 }
 
 /**
@@ -328,7 +329,8 @@ unsigned long PlatformThread::getDebugRegister(std::size_t n) {
  * @return
  */
 long PlatformThread::setDebugRegister(std::size_t n, unsigned long value) {
-	return ptrace(PTRACE_POKEUSER, tid_, offsetof(struct user, u_debugreg[n]), value);
+	size_t drOffset = offsetof(struct user, u_debugreg) + n * sizeof(user::u_debugreg[0]);
+	return ptrace(PTRACE_POKEUSER, tid_, drOffset, value);
 }
 
 /**
