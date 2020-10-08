@@ -13,6 +13,6 @@ insert_final_newline = true
 # Set default charset
 [*.{c,h,cpp,hpp,tcc}]
 charset = utf-8
-indent_style = space
+indent_style = tab
 indent_size = 4
 trim_trailing_whitespace = true
