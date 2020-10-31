@@ -64,6 +64,7 @@ namespace v2 {
 // ask the user for a value in an expression form
 EDB_EXPORT boost::optional<edb::address_t> get_expression_from_user(const QString &title, const QString &prompt);
 EDB_EXPORT boost::optional<edb::address_t> eval_expression(const QString &expression);
+EDB_EXPORT QString format_bytes(const void *buffer, size_t count);
 
 }
 
