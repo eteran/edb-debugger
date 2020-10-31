@@ -1267,24 +1267,7 @@ Result<address_t, QString> string_to_address(const QString &s) {
 // Desc:
 //------------------------------------------------------------------------------
 QString format_bytes(const uint8_t *buffer, size_t count) {
-	QString bytes;
-
-	if (count != 0) {
-		bytes.reserve(count * 4);
-
-		auto it = buffer;
-
-		char buf[4];
-		qsnprintf(buf, sizeof(buf), "%02x", *it++ & 0xff);
-		bytes += buf;
-
-		while (it != buffer + count) {
-			qsnprintf(buf, sizeof(buf), " %02x", *it++ & 0xff);
-			bytes += buf;
-		}
-	}
-
-	return bytes;
+	return v2::format_bytes(buffer, count);
 }
 
 //------------------------------------------------------------------------------
@@ -1292,24 +1275,7 @@ QString format_bytes(const uint8_t *buffer, size_t count) {
 // Desc:
 //------------------------------------------------------------------------------
 QString format_bytes(const QByteArray &x) {
-	QString bytes;
-
-	if (!x.isEmpty()) {
-		bytes.reserve(x.size() * 4);
-
-		auto it = x.begin();
-
-		char buf[4];
-		qsnprintf(buf, sizeof(buf), "%02x", *it++ & 0xff);
-		bytes += buf;
-
-		while (it != x.end()) {
-			qsnprintf(buf, sizeof(buf), " %02x", *it++ & 0xff);
-			bytes += buf;
-		}
-	}
-
-	return bytes;
+	return v2::format_bytes(x.data(), x.size());
 }
 
 //------------------------------------------------------------------------------
@@ -1317,15 +1283,9 @@ QString format_bytes(const QByteArray &x) {
 // Desc:
 //------------------------------------------------------------------------------
 QString format_bytes(uint8_t byte) {
-	QString bytes;
-
-	bytes.reserve(4);
-
 	char buf[4];
 	qsnprintf(buf, sizeof(buf), "%02x", byte & 0xff);
-	bytes += buf;
-
-	return bytes;
+	return QLatin1String(buf);
 }
 
 //------------------------------------------------------------------------------
@@ -1553,6 +1513,32 @@ boost::optional<edb::address_t> get_expression_from_user(const QString &title, c
 	}
 
 	return boost::none;
+}
+
+//------------------------------------------------------------------------------
+// Name: format_bytes
+// Desc:
+//------------------------------------------------------------------------------
+QString format_bytes(const void *buffer, size_t count) {
+	QString bytes;
+
+	if (count != 0) {
+		bytes.reserve(count * 4);
+
+		auto it = static_cast<const uint8_t *>(buffer);
+		auto end = it + count;
+
+		char buf[4];
+		qsnprintf(buf, sizeof(buf), "%02x", *it++ & 0xff);
+		bytes += buf;
+
+		while (it != end) {
+			qsnprintf(buf, sizeof(buf), " %02x", *it++ & 0xff);
+			bytes += buf;
+		}
+	}
+
+	return bytes;
 }
 
 }
