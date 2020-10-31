@@ -601,7 +601,7 @@ QString Debugger::createTty() {
 			// first try to get a 'unique' filename, i would love to use a system
 			// temp file API... but there doesn't seem to be one which will create
 			// a pipe...only ordinary files!
-			const QString temp_pipe = QString("%1/edb_temp_file_%2_%3").arg(QDir::tempPath()).arg(qrand()).arg(getpid());
+			const auto temp_pipe = QString("%1/edb_temp_file_%2_%3").arg(QDir::tempPath()).arg(qrand()).arg(getpid());
 
 			// make sure it isn't already there, and then make the pipe
 			::unlink(qPrintable(temp_pipe));
@@ -609,12 +609,12 @@ QString Debugger::createTty() {
 
 			// this is a basic shell script which will output the tty to a file (the pipe),
 			// ignore kill sigs, close all standard IO, and then just hang
-			const QString shell_script = QString(
-											 "tty > %1;"
-											 "trap \"\" INT QUIT TSTP;"
-											 "exec<&-; exec>&-;"
-											 "while :; do sleep 3600; done")
-											 .arg(temp_pipe);
+			const auto shell_script = QString(
+										  "tty > %1;"
+										  "trap \"\" INT QUIT TSTP;"
+										  "exec<&-; exec>&-;"
+										  "while :; do sleep 3600; done")
+										  .arg(temp_pipe);
 
 			// parse up the command from the options, white space delimited
 			QStringList proc_args     = edb::v1::parse_command_line(command);
@@ -624,19 +624,25 @@ QString Debugger::createTty() {
 			const QFileInfo command_info(tty_command);
 
 			if (command_info.fileName() == "gnome-terminal") {
+				// NOTE(eteran): gnome-terminal at some point dropped support for -e
+				// in favor of using "everything after --"
+				// See issue: https://github.com/eteran/edb-debugger/issues/774
 				proc_args << "--hide-menubar"
-						  << "--title" << tr("edb output");
+						  << "--title" << tr("edb output")
+						  << "--";
 			} else if (command_info.fileName() == "konsole") {
 				proc_args << "--hide-menubar"
 						  << "--title" << tr("edb output")
 						  << "--nofork"
-						  << "--hold";
+						  << "--hold"
+						  << "-e";
 			} else {
-				proc_args << "-title" << tr("edb output") << "-hold";
+				proc_args << "-title" << tr("edb output")
+						  << "-hold"
+						  << "-e";
 			}
 
-			proc_args << "-e"
-					  << "sh"
+			proc_args << "sh"
 					  << "-c" << QString("%1").arg(shell_script);
 
 			qDebug() << "Running Terminal: " << tty_command;
