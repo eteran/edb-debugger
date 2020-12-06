@@ -1,9 +1,9 @@
 [Icon Theme]
 Name=Breeze edb
 Comment=Breeze Icon Theme for edb
-Inherits=default
+Inherits=breeze
 Directories=16x16,24x24,64x64
- 
+
 [16x16]
 Size=16
 
