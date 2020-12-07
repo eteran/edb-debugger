@@ -223,6 +223,7 @@ int main(int argc, char *argv[]) {
 	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 	QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
+
 	QApplication app(argc, argv);
 	QApplication::setWindowIcon(QIcon(":/debugger/images/edb48-logo.png"));
 
@@ -306,7 +307,7 @@ int main(int argc, char *argv[]) {
 	validate_launch_arguments(launch_args);
 
 	// Light/Dark icons on all platforms
-	if (qApp->palette().window().color().lightnessF() >= 0.5) {
+	if (QApplication::palette().window().color().lightnessF() >= 0.5) {
 		QIcon::setThemeName(QLatin1String("breeze-edb"));
 	} else {
 		QIcon::setThemeName(QLatin1String("breeze-dark-edb"));
