@@ -30,9 +30,46 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
-QDataStream &operator<<(QDataStream &s, const IBreakpoint::TypeId &id);
-QDataStream &operator>>(QDataStream &s, IBreakpoint::TypeId &id);
-static QString getDefaultPluginPath();
+namespace {
+
+QDataStream &operator<<(QDataStream &s, const IBreakpoint::TypeId &id) {
+	return s << static_cast<int>(id);
+}
+
+QDataStream &operator>>(QDataStream &s, IBreakpoint::TypeId &id) {
+	int value = 0;
+	s >> value;
+	id = static_cast<IBreakpoint::TypeId>(value);
+	return s;
+}
+
+QColor readColor(QSettings &settings, const QString &name) {
+	QVariant value = settings.value(name).toString();
+	if(value.isValid()) {
+		return QColor(value.toString());
+	}
+
+	return QColor();
+}
+
+//------------------------------------------------------------------------------
+// Name: getDefaultPluginPath
+// Desc: return default path for plugins
+//------------------------------------------------------------------------------
+static QString getDefaultPluginPath() {
+#ifdef DEFAULT_PLUGIN_PATH
+	const QString default_plugin_path = DEFAULT_PLUGIN_PATH;
+#else
+	const QString edb_lib_dir    = QCoreApplication::applicationDirPath() + (EDB_IS_64_BIT ? "/../lib64/edb" : "/../lib/edb");
+	const QString edb_binary_dir = QCoreApplication::applicationDirPath();
+	// If the binary is in its installation directory, then look for plugins in their installation directory
+	// Otherwise assume that we are in build directory, so the plugins are in the same directory as the binary
+	const QString default_plugin_path = QRegExp(".*/bin/?$").exactMatch(edb_binary_dir) ? edb_lib_dir : edb_binary_dir;
+#endif
+	return default_plugin_path;
+}
+
+}
 
 //------------------------------------------------------------------------------
 // Name: Configuration
@@ -59,33 +96,7 @@ void Configuration::sendChangeNotification() {
 	Q_EMIT settingsUpdated();
 }
 
-QDataStream &operator<<(QDataStream &s, const IBreakpoint::TypeId &id) {
-	return s << static_cast<int>(id);
-}
 
-QDataStream &operator>>(QDataStream &s, IBreakpoint::TypeId &id) {
-	int value = 0;
-	s >> value;
-	id = static_cast<IBreakpoint::TypeId>(value);
-	return s;
-}
-
-//------------------------------------------------------------------------------
-// Name: getDefaultPluginPath
-// Desc: return default path for plugins
-//------------------------------------------------------------------------------
-static QString getDefaultPluginPath() {
-#ifdef DEFAULT_PLUGIN_PATH
-	const QString default_plugin_path = DEFAULT_PLUGIN_PATH;
-#else
-	const QString edb_lib_dir    = QCoreApplication::applicationDirPath() + (EDB_IS_64_BIT ? "/../lib64/edb" : "/../lib/edb");
-	const QString edb_binary_dir = QCoreApplication::applicationDirPath();
-	// If the binary is in its installation directory, then look for plugins in their installation directory
-	// Otherwise assume that we are in build directory, so the plugins are in the same directory as the binary
-	const QString default_plugin_path = QRegExp(".*/bin/?$").exactMatch(edb_binary_dir) ? edb_lib_dir : edb_binary_dir;
-#endif
-	return default_plugin_path;
-}
 
 //------------------------------------------------------------------------------
 // Name: read_settings
@@ -137,9 +148,7 @@ void Configuration::readSettings() {
 	disableASLR             = settings.value("debugger.disableASLR.enabled", false).toBool();
 	disableLazyBinding      = settings.value("debugger.disableLazyBinding.enabled", false).toBool();
 	break_on_library_load   = settings.value("debugger.break_on_library_load_event.enabled", false).toBool();
-	default_breakpoint_type = settings.value("debugger.default_breakpoint_type",
-											 QVariant::fromValue(IBreakpoint::TypeId::Automatic))
-								  .value<IBreakpoint::TypeId>();
+	default_breakpoint_type = settings.value("debugger.default_breakpoint_type", QVariant::fromValue(IBreakpoint::TypeId::Automatic)).value<IBreakpoint::TypeId>();
 	settings.endGroup();
 
 	settings.beginGroup("Disassembly");
@@ -295,3 +304,52 @@ void Configuration::writeSettings() {
 	settings.setValue("window.startup_window_location", startup_window_location);
 	settings.endGroup();
 }
+
+Theme Configuration::readTheme() {
+	Theme theme;
+	QSettings settings;
+	
+	settings.beginGroup("Theme");
+	theme.palette[Theme::Palette::Window]                  = readColor(settings, "theme.palette.window");
+	theme.palette[Theme::Palette::WindowDisabled]          = readColor(settings, "theme.palette.window.disabled");
+	theme.palette[Theme::Palette::WindowText]              = readColor(settings, "theme.palette.windowtext");
+	theme.palette[Theme::Palette::WindowTextDisabled]      = readColor(settings, "theme.palette.windowtext.disabled");
+	theme.palette[Theme::Palette::Base]                    = readColor(settings, "theme.palette.base");
+	theme.palette[Theme::Palette::BaseDisabled]            = readColor(settings, "theme.palette.base.disabled");
+	theme.palette[Theme::Palette::AlternateBase]           = readColor(settings, "theme.palette.alternatebase");
+	theme.palette[Theme::Palette::AlternateBaseDisabled]   = readColor(settings, "theme.palette.alternatebase.disabled");
+	theme.palette[Theme::Palette::ToolTipBase]             = readColor(settings, "theme.palette.tooltipbase");
+	theme.palette[Theme::Palette::ToolTipBaseDisabled]     = readColor(settings, "theme.palette.tooltipbase.disabled");
+	theme.palette[Theme::Palette::ToolTipText]             = readColor(settings, "theme.palette.tooltiptext");
+	theme.palette[Theme::Palette::ToolTipTextDisabled]     = readColor(settings, "theme.palette.tooltiptext.disabled");
+	theme.palette[Theme::Palette::Text]                    = readColor(settings, "theme.palette.text");
+	theme.palette[Theme::Palette::TextDisabled]            = readColor(settings, "theme.palette.text.disabled");
+	theme.palette[Theme::Palette::Button]                  = readColor(settings, "theme.palette.button");
+	theme.palette[Theme::Palette::ButtonDisabled]          = readColor(settings, "theme.palette.button.disabled");
+	theme.palette[Theme::Palette::ButtonText]              = readColor(settings, "theme.palette.buttontext");
+	theme.palette[Theme::Palette::ButtonTextDisabled]      = readColor(settings, "theme.palette.buttontext.disabled");
+	theme.palette[Theme::Palette::BrightText]              = readColor(settings, "theme.palette.brighttext");
+	theme.palette[Theme::Palette::BrightTextDisabled]      = readColor(settings, "theme.palette.brighttext.disabled");
+	theme.palette[Theme::Palette::Highlight]               = readColor(settings, "theme.palette.highlight");
+	theme.palette[Theme::Palette::HighlightDisabled]       = readColor(settings, "theme.palette.highlight.disabled");
+	theme.palette[Theme::Palette::HighlightedText]         = readColor(settings, "theme.palette.highlightedtext");
+	theme.palette[Theme::Palette::HighlightedTextDisabled] = readColor(settings, "theme.palette.highlightedtext.disabled");
+	theme.palette[Theme::Palette::Link]                    = readColor(settings, "theme.palette.link");
+	theme.palette[Theme::Palette::LinkDisabled]            = readColor(settings, "theme.palette.link.disabled");
+	theme.palette[Theme::Palette::LinkVisited]             = readColor(settings, "theme.palette.linkvisited");
+	theme.palette[Theme::Palette::LinkVisitedDisabled]     = readColor(settings, "theme.palette.linkvisited.disabled");
+	theme.palette[Theme::Palette::Light]                   = readColor(settings, "theme.palette.light");
+	theme.palette[Theme::Palette::LightDisabled]           = readColor(settings, "theme.palette.light.disabled");
+	theme.palette[Theme::Palette::Midlight]                = readColor(settings, "theme.palette.midlight");
+	theme.palette[Theme::Palette::MidlightDisabled]        = readColor(settings, "theme.palette.midlight.disabled");
+	theme.palette[Theme::Palette::Dark]                    = readColor(settings, "theme.palette.dark");
+	theme.palette[Theme::Palette::DarkDisabled]            = readColor(settings, "theme.palette.dark.disabled");
+	theme.palette[Theme::Palette::Mid]                     = readColor(settings, "theme.palette.mid");
+	theme.palette[Theme::Palette::MidDisabled]             = readColor(settings, "theme.palette.mid.disabled");
+	theme.palette[Theme::Palette::Shadow]                  = readColor(settings, "theme.palette.shadow");
+	theme.palette[Theme::Palette::ShadowDisabled]          = readColor(settings, "theme.palette.shadow.disabled");
+	settings.endGroup();
+
+	return theme;
+}
+

@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define CONFIGURATION_H_20061031_
 
 #include "API.h"
+#include "Theme.h"
 #include "IBreakpoint.h"
 #include <QList>
 #include <QObject>
@@ -114,6 +115,9 @@ public:
 	// Exceptions tab
 	bool enable_signals_message_box;
 	QList<qlonglong> ignored_exceptions;
+
+public:
+	static Theme readTheme();
 
 protected:
 	void readSettings();

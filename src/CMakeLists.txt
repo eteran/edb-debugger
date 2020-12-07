@@ -10,7 +10,7 @@ find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns Svg)
 
 git_get_branch(GIT_BRANCH)
 
-qt5_add_resources(QRC_SOURCES 
+qt5_add_resources(QRC_SOURCES
 	debugger.qrc
 	breeze-edb.qrc
 	breeze-dark-edb.qrc
@@ -22,7 +22,7 @@ endforeach()
 
 set(edb_SRCS
 	${QRC_SOURCES}
-	
+
 	BasicBlock.cpp
 	BinaryString.cpp
 	BinaryString.ui
@@ -156,6 +156,7 @@ set(edb_SRCS
 	${PROJECT_SOURCE_DIR}/include/State.h
 	${PROJECT_SOURCE_DIR}/include/Status.h
 	${PROJECT_SOURCE_DIR}/include/Symbol.h
+	${PROJECT_SOURCE_DIR}/include/Theme.h
 	${PROJECT_SOURCE_DIR}/include/ThreadsModel.h
 	${PROJECT_SOURCE_DIR}/include/Types.h
 	${PROJECT_SOURCE_DIR}/include/Util.h
@@ -230,14 +231,14 @@ target_compile_definitions(edb PRIVATE
 	-DDEFAULT_PLUGIN_PATH=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb\"
 )
 
-target_link_libraries(edb 
-	${CAPSTONE_LIBRARIES} 
-	Qt5::Widgets 
-	Qt5::Xml 
-	Qt5::XmlPatterns 
-	Qt5::Svg 
-	${GRAPHVIZ_LIBRARIES} 
-	${DOUBLE_CONVERSION_LIBRARIES} 
+target_link_libraries(edb
+	${CAPSTONE_LIBRARIES}
+	Qt5::Widgets
+	Qt5::Xml
+	Qt5::XmlPatterns
+	Qt5::Svg
+	${GRAPHVIZ_LIBRARIES}
+	${DOUBLE_CONVERSION_LIBRARIES}
 	${GDTOA_LIBRARIES}
 )
 
