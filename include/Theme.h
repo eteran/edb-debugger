@@ -6,53 +6,53 @@
 
 struct Theme {
 
-    enum Palette {
-       Window,
-       WindowText,
-       Base,
-       AlternateBase,
-       ToolTipBase,
-       ToolTipText,
-       Text,
-       Button,
-       ButtonText,
-       BrightText,
-       Highlight,
-       HighlightedText,
-       Link,
-       LinkVisited,
+	enum Palette {
+		Window,
+		WindowText,
+		Base,
+		AlternateBase,
+		ToolTipBase,
+		ToolTipText,
+		Text,
+		Button,
+		ButtonText,
+		BrightText,
+		Highlight,
+		HighlightedText,
+		Link,
+		LinkVisited,
 
-       Light,
-       Midlight,
-       Dark,
-       Mid,
-       Shadow,
+		Light,
+		Midlight,
+		Dark,
+		Mid,
+		Shadow,
 
-       WindowDisabled,
-       WindowTextDisabled,
-       BaseDisabled,
-       AlternateBaseDisabled,
-       ToolTipBaseDisabled,
-       ToolTipTextDisabled,
-       TextDisabled,
-       ButtonDisabled,
-       ButtonTextDisabled,
-       BrightTextDisabled,
-       HighlightDisabled,
-       HighlightedTextDisabled,
-       LinkDisabled,
-       LinkVisitedDisabled,
+		WindowDisabled,
+		WindowTextDisabled,
+		BaseDisabled,
+		AlternateBaseDisabled,
+		ToolTipBaseDisabled,
+		ToolTipTextDisabled,
+		TextDisabled,
+		ButtonDisabled,
+		ButtonTextDisabled,
+		BrightTextDisabled,
+		HighlightDisabled,
+		HighlightedTextDisabled,
+		LinkDisabled,
+		LinkVisitedDisabled,
 
-       LightDisabled,
-       MidlightDisabled,
-       DarkDisabled,
-       MidDisabled,
-       ShadowDisabled,
+		LightDisabled,
+		MidlightDisabled,
+		DarkDisabled,
+		MidDisabled,
+		ShadowDisabled,
 
-        PaletteCount
-    };
+		PaletteCount
+	};
 
-    QColor palette[PaletteCount];
+	QColor palette[PaletteCount];
 };
 
 #endif
