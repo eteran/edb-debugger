@@ -12,6 +12,7 @@ git_get_branch(GIT_BRANCH)
 
 qt5_add_resources(QRC_SOURCES
 	debugger.qrc
+	themes.qrc
 	breeze-edb.qrc
 	breeze-dark-edb.qrc
 )
@@ -92,6 +93,7 @@ set(edb_SRCS
 	State.cpp
 	SymbolManager.cpp
 	SymbolManager.h
+	Theme.cpp
 	ThreadsModel.cpp
 	capstone-edb/Inspection.cpp
 	capstone-edb/Instruction.cpp

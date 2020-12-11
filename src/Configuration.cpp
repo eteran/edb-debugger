@@ -43,15 +43,6 @@ QDataStream &operator>>(QDataStream &s, IBreakpoint::TypeId &id) {
 	return s;
 }
 
-QColor readColor(QSettings &settings, const QString &name) {
-	QVariant value = settings.value(name).toString();
-	if(value.isValid()) {
-		return QColor(value.toString());
-	}
-
-	return QColor();
-}
-
 //------------------------------------------------------------------------------
 // Name: getDefaultPluginPath
 // Desc: return default path for plugins
@@ -305,51 +296,5 @@ void Configuration::writeSettings() {
 	settings.endGroup();
 }
 
-Theme Configuration::readTheme() {
-	Theme theme;
-	QSettings settings;
-	
-	settings.beginGroup("Theme");
-	theme.palette[Theme::Palette::Window]                  = readColor(settings, "theme.palette.window");
-	theme.palette[Theme::Palette::WindowDisabled]          = readColor(settings, "theme.palette.window.disabled");
-	theme.palette[Theme::Palette::WindowText]              = readColor(settings, "theme.palette.windowtext");
-	theme.palette[Theme::Palette::WindowTextDisabled]      = readColor(settings, "theme.palette.windowtext.disabled");
-	theme.palette[Theme::Palette::Base]                    = readColor(settings, "theme.palette.base");
-	theme.palette[Theme::Palette::BaseDisabled]            = readColor(settings, "theme.palette.base.disabled");
-	theme.palette[Theme::Palette::AlternateBase]           = readColor(settings, "theme.palette.alternatebase");
-	theme.palette[Theme::Palette::AlternateBaseDisabled]   = readColor(settings, "theme.palette.alternatebase.disabled");
-	theme.palette[Theme::Palette::ToolTipBase]             = readColor(settings, "theme.palette.tooltipbase");
-	theme.palette[Theme::Palette::ToolTipBaseDisabled]     = readColor(settings, "theme.palette.tooltipbase.disabled");
-	theme.palette[Theme::Palette::ToolTipText]             = readColor(settings, "theme.palette.tooltiptext");
-	theme.palette[Theme::Palette::ToolTipTextDisabled]     = readColor(settings, "theme.palette.tooltiptext.disabled");
-	theme.palette[Theme::Palette::Text]                    = readColor(settings, "theme.palette.text");
-	theme.palette[Theme::Palette::TextDisabled]            = readColor(settings, "theme.palette.text.disabled");
-	theme.palette[Theme::Palette::Button]                  = readColor(settings, "theme.palette.button");
-	theme.palette[Theme::Palette::ButtonDisabled]          = readColor(settings, "theme.palette.button.disabled");
-	theme.palette[Theme::Palette::ButtonText]              = readColor(settings, "theme.palette.buttontext");
-	theme.palette[Theme::Palette::ButtonTextDisabled]      = readColor(settings, "theme.palette.buttontext.disabled");
-	theme.palette[Theme::Palette::BrightText]              = readColor(settings, "theme.palette.brighttext");
-	theme.palette[Theme::Palette::BrightTextDisabled]      = readColor(settings, "theme.palette.brighttext.disabled");
-	theme.palette[Theme::Palette::Highlight]               = readColor(settings, "theme.palette.highlight");
-	theme.palette[Theme::Palette::HighlightDisabled]       = readColor(settings, "theme.palette.highlight.disabled");
-	theme.palette[Theme::Palette::HighlightedText]         = readColor(settings, "theme.palette.highlightedtext");
-	theme.palette[Theme::Palette::HighlightedTextDisabled] = readColor(settings, "theme.palette.highlightedtext.disabled");
-	theme.palette[Theme::Palette::Link]                    = readColor(settings, "theme.palette.link");
-	theme.palette[Theme::Palette::LinkDisabled]            = readColor(settings, "theme.palette.link.disabled");
-	theme.palette[Theme::Palette::LinkVisited]             = readColor(settings, "theme.palette.linkvisited");
-	theme.palette[Theme::Palette::LinkVisitedDisabled]     = readColor(settings, "theme.palette.linkvisited.disabled");
-	theme.palette[Theme::Palette::Light]                   = readColor(settings, "theme.palette.light");
-	theme.palette[Theme::Palette::LightDisabled]           = readColor(settings, "theme.palette.light.disabled");
-	theme.palette[Theme::Palette::Midlight]                = readColor(settings, "theme.palette.midlight");
-	theme.palette[Theme::Palette::MidlightDisabled]        = readColor(settings, "theme.palette.midlight.disabled");
-	theme.palette[Theme::Palette::Dark]                    = readColor(settings, "theme.palette.dark");
-	theme.palette[Theme::Palette::DarkDisabled]            = readColor(settings, "theme.palette.dark.disabled");
-	theme.palette[Theme::Palette::Mid]                     = readColor(settings, "theme.palette.mid");
-	theme.palette[Theme::Palette::MidDisabled]             = readColor(settings, "theme.palette.mid.disabled");
-	theme.palette[Theme::Palette::Shadow]                  = readColor(settings, "theme.palette.shadow");
-	theme.palette[Theme::Palette::ShadowDisabled]          = readColor(settings, "theme.palette.shadow.disabled");
-	settings.endGroup();
 
-	return theme;
-}
 

@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "QDisassemblyView.h"
 #include "ArchProcessor.h"
 #include "Configuration.h"
 #include "Function.h"
@@ -28,9 +27,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IThread.h"
 #include "Instruction.h"
 #include "MemoryRegions.h"
+#include "QDisassemblyView.h"
 #include "SessionManager.h"
 #include "State.h"
 #include "SyntaxHighlighter.h"
+#include "Theme.h"
 #include "edb.h"
 #include "util/Font.h"
 
@@ -164,20 +165,15 @@ QDisassemblyView::QDisassemblyView(QWidget *parent)
 	  currentBpRenderer_(QLatin1String(":/debugger/images/arrow-right-red.svg")),
 	  syntaxCache_(256) {
 
-	QSettings settings;
-	settings.beginGroup("Theme");
+	// TODO(eteran): it makes more sense for these to have setters/getters and it just be told
+	// by the parent what these colors should be
+	Theme theme = Theme::load();
 
-	takenJumpColor_         = QColor(settings.value("theme.taken_jump.foreground", "red").toString());
-	fillingBytesColor_      = QColor(settings.value("theme.filling.foreground", "gray").toString());
-	addressForegroundColor_ = QColor(settings.value("theme.address.foreground", "red").toString());
-	badgeBackgroundColor_   = QColor(settings.value("theme.badge.background", "blue").toString());
-	badgeForegroundColor_   = QColor(settings.value("theme.badge.foreground", "white").toString());
-
-
-	auto palette         = this->palette();
-	auto backgroundColor = QColor(settings.value("theme.disassembly.background", palette.color(QPalette::Base).name()).toString());
-	palette.setColor(QPalette::Base, backgroundColor);
-	setPalette(palette);
+	takenJumpColor_         = theme.text[Theme::Text::TakenJump].foreground().color();
+	fillingBytesColor_      = theme.text[Theme::Text::Filling].foreground().color();
+	addressForegroundColor_ = theme.text[Theme::Text::Address].foreground().color();
+	badgeBackgroundColor_   = theme.text[Theme::Misc::Badge].background().color();
+	badgeForegroundColor_   = theme.text[Theme::Misc::Badge].foreground().color();
 
 	setShowAddressSeparator(true);
 
@@ -2142,7 +2138,8 @@ QByteArray QDisassemblyView::saveState() const {
 		line1_,
 		line2_,
 		line3_,
-		line4_};
+		line4_,
+	};
 
 	char buf[sizeof(WidgetState1)];
 	memcpy(buf, &state, sizeof(buf));

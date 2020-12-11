@@ -233,7 +233,7 @@ QPalette initialPalette() {
 QPalette themePalette() {
 	QPalette pal = initialPalette();
 
-	Theme theme = Configuration::readTheme();
+	Theme theme = Theme::load();
 
 	const static struct {
 		Theme::Palette paletteIndex;

@@ -39,8 +39,8 @@ public:
 
 private:
 	struct HighlightingRule {
-		HighlightingRule();
-		HighlightingRule(const QString &regex, const QBrush &foreground, const QBrush &background, int weight, bool italic, bool underline);
+		HighlightingRule() = default;
+		HighlightingRule(const QString &regex, const QTextCharFormat &fmt);
 
 		QRegExp pattern;
 		QTextCharFormat format;
