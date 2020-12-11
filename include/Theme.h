@@ -70,7 +70,7 @@ struct Theme {
 		PaletteCount
 	};
 
-	QColor palette[Palette::PaletteCount];
+	QColor palette[PaletteCount];
 	
 	enum Text {
 		Address,
@@ -99,7 +99,7 @@ struct Theme {
 		TextCount
 	};
 	
-	QTextCharFormat text[Text::TextCount];
+	QTextCharFormat text[TextCount];
 	
 	enum Misc {
 		Badge,
@@ -107,7 +107,7 @@ struct Theme {
 		MiscCount
 	};
 	
-	QTextCharFormat misc[Misc::MiscCount];
+	QTextCharFormat misc[MiscCount];
 	
 public:
 	static Theme load();
