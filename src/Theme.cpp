@@ -122,7 +122,7 @@ Theme readTheme(QSettings &settings) {
 	return theme;
 }
 
-Theme readTheme() {
+Theme readSystemTheme() {
 	if (QApplication::palette().window().color().lightnessF() >= 0.5) {
 		QSettings settings(":/themes/system-light.ini", QSettings::IniFormat);
 		return readTheme(settings);
@@ -130,6 +130,14 @@ Theme readTheme() {
 		QSettings settings(":/themes/system-dark.ini", QSettings::IniFormat);
 		return readTheme(settings);
 	}
+}
+
+Theme readTheme() {
+
+	Theme system = readSystemTheme();
+	// TODO(eteran): combine with what the user has chosen...
+	
+	return system;
 }
 
 }
