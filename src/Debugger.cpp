@@ -769,9 +769,9 @@ void Debugger::createDataTab() {
 
 	Theme theme = Theme::load();
 
-	QColor addressForegroundColor = theme.text[Theme::Text::Address].foreground().color();
-	QColor alternatingByteColor   = theme.text[Theme::Text::AlternatingByte].foreground().color();
-	QColor nonPrintableTextColor  = theme.text[Theme::Text::NonPrintingCharacter].foreground().color();
+	QColor addressForegroundColor = theme.text[Theme::Address].foreground().color();
+	QColor alternatingByteColor   = theme.text[Theme::AlternatingByte].foreground().color();
+	QColor nonPrintableTextColor  = theme.text[Theme::NonPrintingCharacter].foreground().color();
 	hexview->setAddressColor(addressForegroundColor);
 	hexview->setAlternateWordColor(alternatingByteColor);
 	hexview->setNonPrintableTextColor(nonPrintableTextColor);
@@ -985,9 +985,9 @@ void Debugger::setupStackView() {
 
 	Theme theme = Theme::load();
 
-	QColor addressForegroundColor = theme.text[Theme::Text::Address].foreground().color();
-	QColor alternatingByteColor   = theme.text[Theme::Text::AlternatingByte].foreground().color();
-	QColor nonPrintableTextColor  = theme.text[Theme::Text::NonPrintingCharacter].foreground().color();
+	QColor addressForegroundColor = theme.text[Theme::Address].foreground().color();
+	QColor alternatingByteColor   = theme.text[Theme::AlternatingByte].foreground().color();
+	QColor nonPrintableTextColor  = theme.text[Theme::NonPrintingCharacter].foreground().color();
 
 	stackView_->setAddressColor(addressForegroundColor);
 	stackView_->setAlternateWordColor(alternatingByteColor);

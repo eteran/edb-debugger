@@ -56,17 +56,17 @@ void SyntaxHighlighter::createRules() {
 	// comma
 	rules_.emplace_back(
 		"(?:,)",
-		theme.text[Theme::Text::Comma]);
+		theme.text[Theme::Comma]);
 
 	// expression brackets
 	rules_.emplace_back(
 		"(?:[\\(?:\\)\\[\\]])",
-		theme.text[Theme::Text::Brackets]);
+		theme.text[Theme::Brackets]);
 
 	// math operators
 	rules_.emplace_back(
 		"\\b(?:[\\+\\-\\*])\\b",
-		theme.text[Theme::Text::Operator]);
+		theme.text[Theme::Operator]);
 
 	// registers
 	// TODO: support ST(N)
@@ -80,7 +80,7 @@ void SyntaxHighlighter::createRules() {
 #else
 #error "What string should be here?"
 #endif
-		theme.text[Theme::Text::Register]);
+		theme.text[Theme::Register]);
 
 	// constants
 	rules_.emplace_back(
@@ -88,18 +88,18 @@ void SyntaxHighlighter::createRules() {
 		"#?" /* concatenated with general number pattern */
 #endif
 		"\\b(?:(?:0[0-7]*)|(?:0(?:x|X)[0-9a-fA-F]+)|(?:[1-9][0-9]*))\\b",
-		theme.text[Theme::Text::Constant]);
+		theme.text[Theme::Constant]);
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	// pointer modifiers
 	rules_.emplace_back(
 		"\\b(?:t?byte|(?:[xyz]mm|[qdf]?)word)(?: ptr)?\\b",
-		theme.text[Theme::Text::Ptr]);
+		theme.text[Theme::Ptr]);
 
 	// prefix
 	rules_.emplace_back(
 		"\\b(?:lock|rep(?:ne)?)\\b",
-		theme.text[Theme::Text::Prefix]);
+		theme.text[Theme::Prefix]);
 #endif
 
 	// flow control
@@ -113,7 +113,7 @@ void SyntaxHighlighter::createRules() {
 #else
 #error "What string should be here?"
 #endif
-		theme.text[Theme::Text::FlowCtrl]);
+		theme.text[Theme::FlowCtrl]);
 
 	// function call
 	rules_.emplace_back(
@@ -124,7 +124,7 @@ void SyntaxHighlighter::createRules() {
 #else
 #error "What string should be here?"
 #endif
-		theme.text[Theme::Text::Function]);
+		theme.text[Theme::Function]);
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	// FIXME(ARM): this is stubbed out
@@ -132,43 +132,43 @@ void SyntaxHighlighter::createRules() {
 	// stack operations
 	rules_.emplace_back(
 		"\\b(?:pushf?|popf?|enter|leave)\\b",
-		theme.text[Theme::Text::Stack]);
+		theme.text[Theme::Stack]);
 
 	// comparison
 	rules_.emplace_back(
 		"\\b(?:cmp|test)[bswlqt]?\\b",
-		theme.text[Theme::Text::Comparison]);
+		theme.text[Theme::Comparison]);
 
 	// data transfer
 	rules_.emplace_back(
 		"\\b(?:c?movs[bw]|lea|xchg|mov(?:[zs]x?)?)[bswlqt]?\\b",
-		theme.text[Theme::Text::DataXfer]);
+		theme.text[Theme::DataXfer]);
 
 	// arithmetic
 	rules_.emplace_back(
 		"\\b(?:add|sub|i?mul|i?div|neg|adc|sbb|inc|dec)[bswlqt]?\\b",
-		theme.text[Theme::Text::Arithmetic]);
+		theme.text[Theme::Arithmetic]);
 
 	// logic
 	rules_.emplace_back(
 		"\\b(?:and|x?or|not)[bswlqt]?\\b",
-		theme.text[Theme::Text::Logic]);
+		theme.text[Theme::Logic]);
 
 	// shift
 	rules_.emplace_back(
 		"\\b(?:sh|sa|sc|ro)[rl][bswlqt]?\\b",
-		theme.text[Theme::Text::Shift]);
+		theme.text[Theme::Shift]);
 
 	// system
 	rules_.emplace_back(
 		"\\b(?:sti|cli|hlt|in|out|sysenter|sysexit|syscall|sysret|int)\\b",
-		theme.text[Theme::Text::System]);
+		theme.text[Theme::System]);
 #endif
 
 	// data bytes
 	rules_.emplace_back(
 		"\\b(?:db|dw|dd|dq)\\b",
-		theme.text[Theme::Text::Data]);
+		theme.text[Theme::Data]);
 }
 
 /**
