@@ -24,9 +24,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace {
 
 QColor readColor(QSettings &settings, const QString &name, const QColor &defaultValue = QColor()) {
-	QVariant value = settings.value(name).toString();
-	if (value.isValid()) {
-		return QColor(value.toString());
+
+	QVariant variant = settings.value(name);
+
+	auto color = variant.value<QColor>();
+	if (color.isValid()) {
+		return color;
 	}
 
 	return defaultValue;
@@ -136,7 +139,7 @@ Theme readTheme() {
 
 	Theme system = readSystemTheme();
 	// TODO(eteran): combine with what the user has chosen...
-	
+
 	return system;
 }
 
