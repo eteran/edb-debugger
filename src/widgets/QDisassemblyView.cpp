@@ -172,8 +172,8 @@ QDisassemblyView::QDisassemblyView(QWidget *parent)
 	takenJumpColor_         = theme.text[Theme::Text::TakenJump].foreground().color();
 	fillingBytesColor_      = theme.text[Theme::Text::Filling].foreground().color();
 	addressForegroundColor_ = theme.text[Theme::Text::Address].foreground().color();
-	badgeBackgroundColor_   = theme.text[Theme::Misc::Badge].background().color();
-	badgeForegroundColor_   = theme.text[Theme::Misc::Badge].foreground().color();
+	badgeBackgroundColor_   = theme.misc[Theme::Misc::Badge].background().color();
+	badgeForegroundColor_   = theme.misc[Theme::Misc::Badge].foreground().color();
 
 	setShowAddressSeparator(true);
 

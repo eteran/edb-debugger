@@ -231,6 +231,7 @@ QPalette initialPalette() {
 }
 
 QPalette themePalette() {
+
 	QPalette pal = initialPalette();
 
 	Theme theme = Theme::load();
