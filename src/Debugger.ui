@@ -114,7 +114,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dataDock">
    <property name="windowTitle">
-    <string>Data D&amp;ump</string>
+    <string>Data Dump</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>8</number>
@@ -136,7 +136,7 @@
   </widget>
   <widget class="QDockWidget" name="stackDock">
    <property name="windowTitle">
-    <string>Stac&amp;k</string>
+    <string>Stack</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>8</number>
