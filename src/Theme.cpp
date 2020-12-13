@@ -216,7 +216,7 @@ QStringList Theme::userThemes() {
 	return directory.entryList(QStringList() << "*.ini", QDir::Files);
 }
 
-QString Theme::themeThame(const QString &theme_file) {
+QString Theme::themeName(const QString &theme_file) {
 	QString themeFile = themeDirectory() + QDir::separator() + theme_file;
 	QSettings settings(themeFile, QSettings::IniFormat);
 

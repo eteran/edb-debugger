@@ -257,7 +257,7 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	if(currentThemeName_.isEmpty()) {
 		QStringList themes = Theme::userThemes();
 		for(QString &theme : themes) {
-			QString name = Theme::themeThame(theme);
+			QString name = Theme::themeName(theme);
 			ui.comboTheme->addItem(name, theme);
 		}
 
