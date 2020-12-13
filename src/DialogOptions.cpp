@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "Theme.h"
 
-#include <QMessageBox>
 #include <QCloseEvent>
 #include <QDebug>
 #include <QFileDialog>
@@ -362,11 +361,8 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	}
 
 	QString newThemeName = ui.comboTheme->currentText();
-	if(newThemeName != currentThemeName_) {
-		currentThemeName_ = newThemeName;
-		QMessageBox::information(this, tr("Theme Change"), tr("The new theme will take effect after restarting edb"));
-		config.theme_name = newThemeName;
-	}
+	currentThemeName_ = newThemeName;
+	config.theme_name = newThemeName;
 
 	config.sendChangeNotification();
 	event->accept();
