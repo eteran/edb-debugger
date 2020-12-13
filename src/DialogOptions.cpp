@@ -59,6 +59,10 @@ DialogOptions::DialogOptions(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
 
 	ui.setupUi(this);
+
+	ui.comboTheme->addItem(tr("System"), "System");
+	ui.comboTheme->addItem(tr("Dark [Built-in]"), "Dark [Built-in]");
+	ui.comboTheme->addItem(tr("Light [Built-in]"), "Light [Built-in]");
 }
 
 //------------------------------------------------------------------------------
@@ -252,11 +256,20 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	// setup the theme list ONCE
 	if(currentThemeName_.isEmpty()) {
 		QStringList themes = Theme::userThemes();
-		ui.comboTheme->addItems(themes);
-		ui.comboTheme->setCurrentText(config.theme_name);
+		for(QString &theme : themes) {
+			QString name = Theme::themeThame(theme);
+			ui.comboTheme->addItem(name, theme);
+		}
+
+		int index = ui.comboTheme->findData(config.theme_name);
+		if(index == -1) {
+			qDebug("Theme not found, defaulting to System");
+			index = 0;
+		}
+		ui.comboTheme->setCurrentIndex(index);
 	}
 
-	currentThemeName_ = ui.comboTheme->currentText();
+	currentThemeName_ = ui.comboTheme->currentData().toString();
 
 }
 
@@ -360,7 +373,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 		core->setIgnoredExceptions(config.ignored_exceptions);
 	}
 
-	QString newThemeName = ui.comboTheme->currentText();
+	QString newThemeName = ui.comboTheme->currentData().toString();
 	currentThemeName_ = newThemeName;
 	config.theme_name = newThemeName;
 

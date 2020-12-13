@@ -215,3 +215,14 @@ QStringList Theme::userThemes() {
 	QDir directory(themeDirectory());
 	return directory.entryList(QStringList() << "*.ini", QDir::Files);
 }
+
+QString Theme::themeThame(const QString &theme_file) {
+	QString themeFile = themeDirectory() + QDir::separator() + theme_file;
+	QSettings settings(themeFile, QSettings::IniFormat);
+
+	settings.beginGroup("Meta");
+	QString name = settings.value("name", theme_file).toString();
+	settings.endGroup();
+	return name;
+
+}

@@ -354,23 +354,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboTheme">
-           <item>
-            <property name="text">
-             <string>System</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Dark [Built-in]</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Light [Built-in]</string>
-            </property>
-           </item>
-          </widget>
+          <widget class="QComboBox" name="comboTheme"/>
          </item>
         </layout>
        </item>
