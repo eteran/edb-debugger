@@ -114,51 +114,7 @@
        <string>Appearance</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0" colspan="2">
-        <layout class="QGridLayout">
-         <item row="1" column="1">
-          <widget class="FixedFontSelector" name="dataFont" native="true"/>
-         </item>
-         <item row="3" column="1">
-          <widget class="FixedFontSelector" name="disassemblyFont" native="true"/>
-         </item>
-         <item row="2" column="1">
-          <widget class="FixedFontSelector" name="registerFont" native="true"/>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_10">
-           <property name="text">
-            <string>Default Disassembly View Font</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_9">
-           <property name="text">
-            <string>Default Stack View Font</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>Default Register View Font</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>Default Memory Dump View Font</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="FixedFontSelector" name="stackFont" native="true"/>
-         </item>
-        </layout>
-       </item>
-       <item row="1" column="0">
+       <item row="1" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_5">
          <property name="title">
           <string>Default Data View Settings</string>
@@ -288,7 +244,7 @@
          </layout>
         </widget>
        </item>
-       <item row="1" column="1">
+       <item row="1" column="2">
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <widget class="QCheckBox" name="chkAddressColon">
@@ -322,7 +278,7 @@
          </item>
         </layout>
        </item>
-       <item row="3" column="0" colspan="2">
+       <item row="3" column="0" colspan="3">
         <spacer>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -334,6 +290,80 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="label_14">
+           <property name="text">
+            <string>Theme:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboTheme">
+           <item>
+            <property name="text">
+             <string>System</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Dark [Built-in]</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Light [Built-in]</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0" colspan="3">
+        <layout class="QGridLayout">
+         <item row="1" column="1">
+          <widget class="FixedFontSelector" name="dataFont" native="true"/>
+         </item>
+         <item row="3" column="1">
+          <widget class="FixedFontSelector" name="disassemblyFont" native="true"/>
+         </item>
+         <item row="2" column="1">
+          <widget class="FixedFontSelector" name="registerFont" native="true"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>Default Disassembly View Font</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Default Stack View Font</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Default Register View Font</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Default Memory Dump View Font</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="FixedFontSelector" name="stackFont" native="true"/>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>

@@ -111,6 +111,7 @@ struct Theme {
 	
 public:
 	static Theme load();
+	static QStringList userThemes();
 };
 
 #endif

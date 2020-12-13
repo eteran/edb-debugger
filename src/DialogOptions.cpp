@@ -20,7 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "IDebugger.h"
 #include "edb.h"
+#include "Theme.h"
 
+#include <QMessageBox>
 #include <QCloseEvent>
 #include <QDebug>
 #include <QFileDialog>
@@ -247,6 +249,16 @@ void DialogOptions::showEvent(QShowEvent *event) {
 				combo->setCurrentIndex(combo->count() - 1);
 		}
 	}
+
+	// setup the theme list ONCE
+	if(currentThemeName_.isEmpty()) {
+		QStringList themes = Theme::userThemes();
+		ui.comboTheme->addItems(themes);
+		ui.comboTheme->setCurrentText(config.theme_name);
+	}
+
+	currentThemeName_ = ui.comboTheme->currentText();
+
 }
 
 //------------------------------------------------------------------------------
@@ -347,6 +359,13 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 
 	if (IDebugger *core = edb::v1::debugger_core) {
 		core->setIgnoredExceptions(config.ignored_exceptions);
+	}
+
+	QString newThemeName = ui.comboTheme->currentText();
+	if(newThemeName != currentThemeName_) {
+		currentThemeName_ = newThemeName;
+		QMessageBox::information(this, tr("Theme Change"), tr("The new theme will take effect after restarting edb"));
+		config.theme_name = newThemeName;
 	}
 
 	config.sendChangeNotification();

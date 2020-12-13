@@ -52,6 +52,7 @@ private:
 private:
 	Ui::DialogOptions ui;
 	QToolBox *toolbox_ = nullptr;
+	QString currentThemeName_;
 };
 
 #endif

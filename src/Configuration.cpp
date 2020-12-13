@@ -125,6 +125,7 @@ void Configuration::readSettings() {
 	show_address_separator  = settings.value("appearance.address_colon.enabled", true).toBool();
 	show_jump_arrow         = settings.value("appearance.show_jump_arrow.enabled", true).toBool();
 	function_offsets_in_hex = settings.value("appearance.function_offsets_in_hex.enabled", false).toBool();
+	theme_name              = settings.value("appearance.theme", "System").toString();
 
 	settings.endGroup();
 
@@ -241,6 +242,7 @@ void Configuration::writeSettings() {
 	settings.setValue("appearance.address_colon.enabled", show_address_separator);
 	settings.setValue("appearance.show_jump_arrow.enabled", show_jump_arrow);
 	settings.setValue("appearance.function_offsets_in_hex.enabled", function_offsets_in_hex);
+	settings.setValue("appearance.theme", theme_name);
 	settings.endGroup();
 
 	settings.beginGroup("Debugging");
