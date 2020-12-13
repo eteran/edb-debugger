@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.1)
 include("GNUInstallDirs")
 include("DetectGitBranch")
 
@@ -255,6 +255,7 @@ install (TARGETS edb DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 set_property(TARGET edb PROPERTY CXX_EXTENSIONS OFF)
 set_property(TARGET edb PROPERTY CXX_STANDARD 14)
+set_property(TARGET edb PROPERTY CXX_STANDARD_REQUIRED ON)
 set_property(TARGET edb PROPERTY ENABLE_EXPORTS TRUE)
 set_property(TARGET edb PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
