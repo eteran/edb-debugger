@@ -172,6 +172,9 @@ Theme readSystemTheme() {
  */
 Theme readTheme() {
 
+	// Ensure that the directory exists, this will help users know where to put the theme files
+	QDir().mkpath(themeDirectory());
+
 	Theme system = readSystemTheme();
 
 	QString theme_name = edb::v1::config().theme_name;
@@ -216,6 +219,11 @@ QStringList Theme::userThemes() {
 	return directory.entryList(QStringList() << "*.ini", QDir::Files);
 }
 
+/**
+ * @brief Theme::themeName
+ * @param theme_file
+ * @return
+ */
 QString Theme::themeName(const QString &theme_file) {
 	QString themeFile = themeDirectory() + QDir::separator() + theme_file;
 	QSettings settings(themeFile, QSettings::IniFormat);
