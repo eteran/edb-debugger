@@ -480,7 +480,7 @@ void PlatformState::set_instruction_pointer(edb::address_t value) {
 #if defined(EDB_X86)
 	thread_state_.REG(eip) = value;
 #elif defined(EDB_X86_64)
-	thread_state_.REG(rip)    = value;
+	thread_state_.REG(rip) = value;
 #endif
 }
 

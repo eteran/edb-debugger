@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogOptions.h"
 #include "Configuration.h"
 #include "IDebugger.h"
-#include "edb.h"
 #include "Theme.h"
+#include "edb.h"
 
 #include <QCloseEvent>
 #include <QDebug>
@@ -254,15 +254,15 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	}
 
 	// setup the theme list ONCE
-	if(currentThemeName_.isEmpty()) {
+	if (currentThemeName_.isEmpty()) {
 		QStringList themes = Theme::userThemes();
-		for(QString &theme : themes) {
+		for (QString &theme : themes) {
 			QString name = Theme::themeName(theme);
 			ui.comboTheme->addItem(name, theme);
 		}
 
 		int index = ui.comboTheme->findData(config.theme_name);
-		if(index == -1) {
+		if (index == -1) {
 			qDebug("Theme not found, defaulting to System");
 			index = 0;
 		}
@@ -270,7 +270,6 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	}
 
 	currentThemeName_ = ui.comboTheme->currentData().toString();
-
 }
 
 //------------------------------------------------------------------------------
@@ -374,8 +373,8 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	}
 
 	QString newThemeName = ui.comboTheme->currentData().toString();
-	currentThemeName_ = newThemeName;
-	config.theme_name = newThemeName;
+	currentThemeName_    = newThemeName;
+	config.theme_name    = newThemeName;
 
 	config.sendChangeNotification();
 	event->accept();

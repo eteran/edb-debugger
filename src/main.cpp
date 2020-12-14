@@ -314,8 +314,6 @@ int main(int argc, char *argv[]) {
 	QApplication app(argc, argv);
 	QApplication::setWindowIcon(QIcon(":/debugger/images/edb48-logo.png"));
 
-	qsrand(std::time(nullptr));
-
 	// setup organization info so settings go in right place
 	QApplication::setOrganizationName("codef00.com");
 	QApplication::setOrganizationDomain("codef00.com");

@@ -426,7 +426,7 @@ void PlatformState::set_instruction_pointer(edb::address_t value) {
 #if defined(EDB_X86)
 	regs_.r_eip = value;
 #elif defined(EDB_X86_64)
-	regs_.r_rip    = value;
+	regs_.r_rip = value;
 #endif
 }
 

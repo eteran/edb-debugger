@@ -36,7 +36,6 @@ QString themeDirectory() {
 	return QString("%1/%2/%3").arg(configDir, QApplication::organizationName(), QLatin1String("themes"));
 }
 
-
 /**
  * @brief readColor
  * @param settings
@@ -180,9 +179,9 @@ Theme readTheme() {
 	QString theme_name = edb::v1::config().theme_name;
 
 	// Handle the built-in themese
-	if(theme_name == "System") {
+	if (theme_name == "System") {
 		return system;
-	} else if(theme_name == "Dark [Built-in]") {
+	} else if (theme_name == "Dark [Built-in]") {
 		QSettings settings(":/themes/dark.ini", QSettings::IniFormat);
 		return readTheme(settings, system);
 	} else if (theme_name == "Light [Built-in]") {
@@ -209,7 +208,6 @@ Theme Theme::load() {
 	return theme;
 }
 
-
 /**
  * @brief Theme::userThemes
  * @return
@@ -232,5 +230,4 @@ QString Theme::themeName(const QString &theme_file) {
 	QString name = settings.value("name", theme_file).toString();
 	settings.endGroup();
 	return name;
-
 }

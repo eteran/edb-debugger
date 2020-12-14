@@ -16,10 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Debugger.h"
 #include "ArchProcessor.h"
 #include "CommentServer.h"
 #include "Configuration.h"
-#include "Debugger.h"
 #include "DebuggerInternal.h"
 #include "DialogAbout.h"
 #include "DialogArguments.h"
@@ -86,6 +86,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <clocale>
 #include <cstring>
 #include <memory>
+#include <random>
 
 #if defined(Q_OS_UNIX)
 #include <signal.h>
@@ -602,7 +603,9 @@ QString Debugger::createTty() {
 			// first try to get a 'unique' filename, i would love to use a system
 			// temp file API... but there doesn't seem to be one which will create
 			// a pipe...only ordinary files!
-			const auto temp_pipe = QString("%1/edb_temp_file_%2_%3").arg(QDir::tempPath()).arg(qrand()).arg(getpid());
+			std::random_device rd;
+			std::mt19937 mt(rd());
+			const auto temp_pipe = QString("%1/edb_temp_file_%2_%3").arg(QDir::tempPath()).arg(mt()).arg(getpid());
 
 			// make sure it isn't already there, and then make the pipe
 			::unlink(qPrintable(temp_pipe));

@@ -1080,7 +1080,7 @@ bool SIMDSizedElement<StoredType, SizingType>::changed() const {
 
 template <class StoredType>
 template <class SizeType, class... Args>
-void SIMDSizedElementsContainer<StoredType>::addElement(Args &&... args) {
+void SIMDSizedElementsContainer<StoredType>::addElement(Args &&...args) {
 	using Element = SIMDSizedElement<StoredType, SizeType>;
 
 	elements.emplace_back(std::make_unique<Element>(std::forward<Args>(args)...));

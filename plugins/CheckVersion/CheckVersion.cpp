@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "version.h"
 
 #include <QDebug>
+#include <QJsonDocument>
 #include <QMenu>
 #include <QMessageBox>
 #include <QNetworkAccessManager>
@@ -31,7 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QNetworkRequest>
 #include <QSettings>
 #include <QUrl>
-#include <QJsonDocument>
 
 namespace CheckVersionPlugin {
 
@@ -87,7 +87,6 @@ void CheckVersion::doCheck() {
 		network_ = new QNetworkAccessManager(this);
 		connect(network_, &QNetworkAccessManager::finished, this, &CheckVersion::requestFinished);
 	}
-
 
 	QUrl update_url(QString("https://codef00.com/projects/debugger-latest.json?v=%1").arg(edb::version));
 	QNetworkRequest request(update_url);
@@ -153,13 +152,12 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 
 		QJsonParseError e;
 		QJsonDocument d = QJsonDocument::fromJson(s, &e);
-		if(d.isNull() || e.error != QJsonParseError::NoError) {
+		if (d.isNull() || e.error != QJsonParseError::NoError) {
 			qDebug("[CheckVersion] Error parsing JSON response: %s", qPrintable(e.errorString()));
 			return;
 		}
 
-
-		if(!d.isObject()) {
+		if (!d.isObject()) {
 			qDebug("[CheckVersion] Unexpected data format in JSON response");
 			return;
 		}
@@ -167,11 +165,11 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 		QJsonObject obj = d.object();
 
 		QString version = obj["version"].toString();
-		QString url = obj["url"].toString();
-		QString md5 = obj["md5"].toString();
-		QString sha1 = obj["sha1"].toString();
+		QString url     = obj["url"].toString();
+		QString md5     = obj["md5"].toString();
+		QString sha1    = obj["sha1"].toString();
 
-		if(version.isEmpty() || url.isEmpty() || md5.isEmpty() || sha1.isEmpty()) {
+		if (version.isEmpty() || url.isEmpty() || md5.isEmpty() || sha1.isEmpty()) {
 			qDebug("[CheckVersion] Unexpected data format in JSON response");
 			return;
 		}
@@ -185,7 +183,8 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 			msg.setText(tr("A newer version of edb is available: <strong>%1</strong><br><br>"
 						   "URL: <a href=\"%2\">%2</a><br><br>"
 						   "MD5: %3<br>"
-						   "SHA1: %4").arg(version, url, md5, sha1));
+						   "SHA1: %4")
+							.arg(version, url, md5, sha1));
 			msg.setStandardButtons(QMessageBox::Ok);
 			msg.exec();
 

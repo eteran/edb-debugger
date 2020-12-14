@@ -403,7 +403,7 @@ private:
 template <class StoredType>
 class SIMDSizedElementsContainer final : public RegisterViewItem {
 	template <class SizeType, class... Args>
-	void addElement(Args &&... args);
+	void addElement(Args &&...args);
 
 protected:
 	std::vector<std::unique_ptr<RegisterViewItem>> elements;

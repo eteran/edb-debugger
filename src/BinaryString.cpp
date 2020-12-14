@@ -173,7 +173,11 @@ void BinaryString::on_txtHex_textEdited(const QString &text) {
 	QString textAscii;
 	QString textUTF16;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+	const QStringList list1 = text.split(" ", Qt::SkipEmptyParts);
+#else
 	const QStringList list1 = text.split(" ", QString::SkipEmptyParts);
+#endif
 
 	for (const QString &s : list1) {
 
@@ -203,8 +207,11 @@ void BinaryString::on_txtHex_textEdited(const QString &text) {
 QByteArray BinaryString::value() const {
 
 	QByteArray ret;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+	const QStringList list1 = ui->txtHex->text().split(" ", Qt::SkipEmptyParts);
+#else
 	const QStringList list1 = ui->txtHex->text().split(" ", QString::SkipEmptyParts);
-
+#endif
 	for (const QString &i : list1) {
 		ret += static_cast<uint8_t>(i.toUInt(nullptr, 16));
 	}

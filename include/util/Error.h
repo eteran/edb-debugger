@@ -13,7 +13,7 @@ void print(Stream &str) {
 }
 
 template <class Stream, class Arg0, class... Args>
-void print(Stream &str, Arg0 &&arg0, Args &&... args) {
+void print(Stream &str, Arg0 &&arg0, Args &&...args) {
 	str << std::forward<Arg0>(arg0);
 	print(str, std::forward<Args>(args)...);
 }

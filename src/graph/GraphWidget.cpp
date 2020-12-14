@@ -277,7 +277,7 @@ void GraphWidget::keyReleaseEvent(QKeyEvent *event) {
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::wheelEvent(QWheelEvent *event) {
-	setScale(std::pow(2.0, +event->delta() / 240.0));
+	setScale(std::pow(2.0, +event->angleDelta().y() / 240.0));
 }
 
 //------------------------------------------------------------------------------

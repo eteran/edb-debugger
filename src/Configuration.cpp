@@ -87,8 +87,6 @@ void Configuration::sendChangeNotification() {
 	Q_EMIT settingsUpdated();
 }
 
-
-
 //------------------------------------------------------------------------------
 // Name: read_settings
 // Desc: read in the options from the file
@@ -100,7 +98,7 @@ void Configuration::readSettings() {
 #ifdef Q_OS_WIN32
 	const QString default_font = QFont("Courier New", 8).toString();
 #elif defined(Q_OS_MACX)
-	const QString default_font   = QFont("Courier New", 10).toString();
+	const QString default_font = QFont("Courier New", 10).toString();
 #else
 	const QString default_font = QFont("Monospace", 8).toString();
 #endif
@@ -297,6 +295,3 @@ void Configuration::writeSettings() {
 	settings.setValue("window.startup_window_location", startup_window_location);
 	settings.endGroup();
 }
-
-
-

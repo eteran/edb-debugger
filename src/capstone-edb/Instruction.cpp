@@ -473,7 +473,8 @@ std::string Formatter::toString(const Instruction &insn) const {
 	std::string space = " ";
 	if (options_.tabBetweenMnemonicAndOperands) {
 		const auto pos = s.tellp();
-		const auto pad = pos < Tab1Size ? Tab1Size - pos : pos < Tab2Size ? Tab2Size - pos : 1;
+		const auto pad = pos < Tab1Size ? Tab1Size - pos : pos < Tab2Size ? Tab2Size - pos
+																		  : 1;
 		space          = std::string(pad, ' ');
 	}
 	if (insn.operandCount() > 0) // prevent addition of trailing whitespace

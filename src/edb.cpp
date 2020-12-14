@@ -1525,7 +1525,7 @@ QString format_bytes(const void *buffer, size_t count) {
 	if (count != 0) {
 		bytes.reserve(count * 4);
 
-		auto it = static_cast<const uint8_t *>(buffer);
+		auto it  = static_cast<const uint8_t *>(buffer);
 		auto end = it + count;
 
 		char buf[4];

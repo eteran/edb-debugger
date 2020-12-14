@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef THEME_H_
 #define THEME_H_
 
-#include <QTextCharFormat>
 #include <QColor>
+#include <QTextCharFormat>
 
 struct Theme {
 
@@ -71,7 +71,7 @@ struct Theme {
 	};
 
 	QColor palette[PaletteCount];
-	
+
 	enum Text {
 		Address,
 		AlternatingByte,
@@ -98,17 +98,17 @@ struct Theme {
 
 		TextCount
 	};
-	
+
 	QTextCharFormat text[TextCount];
-	
+
 	enum Misc {
 		Badge,
 
 		MiscCount
 	};
-	
+
 	QTextCharFormat misc[MiscCount];
-	
+
 public:
 	static Theme load();
 	static QStringList userThemes();

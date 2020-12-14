@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "QDisassemblyView.h"
 #include "ArchProcessor.h"
 #include "Configuration.h"
 #include "Function.h"
@@ -27,7 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IThread.h"
 #include "Instruction.h"
 #include "MemoryRegions.h"
-#include "QDisassemblyView.h"
 #include "SessionManager.h"
 #include "State.h"
 #include "SyntaxHighlighter.h"
