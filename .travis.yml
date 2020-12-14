@@ -35,4 +35,4 @@ addons:
             - qtbase5-dev-tools
             - qttools5-dev-tools
             - qttools5-dev
-			- libqt5xmlpatterns5-dev
+            - libqt5xmlpatterns5-dev
