@@ -406,7 +406,7 @@ int QDisassemblyView::followingInstructions(int current_address, int count) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::wheelEvent(QWheelEvent *e) {
 
-	const int dy           = e->delta();
+	const int dy           = e->angleDelta().y();
 	const int scroll_count = dy / 120;
 
 	// Ctrl+Wheel scrolls by single bytes
@@ -419,7 +419,7 @@ void QDisassemblyView::wheelEvent(QWheelEvent *e) {
 
 	const int abs_scroll_count = std::abs(scroll_count);
 
-	if (e->delta() > 0) {
+	if (dy > 0) {
 		// scroll up
 		int address = verticalScrollBar()->value();
 		address     = previousInstructions(address, abs_scroll_count);
