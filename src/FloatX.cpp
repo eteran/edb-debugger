@@ -449,9 +449,7 @@ EDB_EXPORT QString format_float(Float value) {
 			StringBuilder builder(buffer, sizeof(buffer));
 			bool ret = false;
 
-			// NOTE(eteran): we get a warning here about out of bounds memory reads, but it functionally can't happen at runtime
-			// if we had constexpr if, we could avoid the warning
-			if (isDouble) {
+			if constexpr (isDouble) {
 				double d;
 				std::memcpy(&d, &value, sizeof(d));
 				ret = conv.ToShortest(d, &builder);
