@@ -20,13 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define _LARGEFILE64_SOURCE
 #endif
 
-#include "PlatformProcess.h"
 #include "ByteShiftArray.h"
 #include "DebuggerCore.h"
 #include "IBreakpoint.h"
 #include "MemoryRegions.h"
 #include "Module.h"
 #include "PlatformCommon.h"
+#include "PlatformProcess.h"
 #include "PlatformRegion.h"
 #include "PlatformThread.h"
 #include "edb.h"
@@ -42,7 +42,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include <QTextStream>
 
-#include <boost/functional/hash.hpp>
 #include <fstream>
 
 #include <elf.h>
@@ -58,6 +57,12 @@ namespace {
 
 // Used as size of ptrace word
 constexpr size_t WordSize = sizeof(long);
+
+template <class T>
+void hash_combine(std::size_t &seed, const T &v) {
+	std::hash<T> hasher;
+	seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+}
 
 /**
  * @brief set_ok
@@ -464,11 +469,11 @@ QList<QByteArray> PlatformProcess::arguments() const {
 			QTextStream in(&file);
 
 			QByteArray s;
-			QChar ch;
+			char ch;
 
 			while (in.status() == QTextStream::Ok) {
 				in >> ch;
-				if (ch.isNull()) {
+				if (ch != '\0') {
 					if (!s.isEmpty()) {
 						ret << s;
 					}
@@ -569,7 +574,7 @@ QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
 		std::string line;
 
 		while (std::getline(mf, line)) {
-			boost::hash_combine(newHash, line);
+			hash_combine(newHash, line);
 		}
 
 		if (totalHash == newHash) {
