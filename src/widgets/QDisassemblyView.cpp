@@ -2004,7 +2004,7 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 			}
 			const int min_line1 = 0;
 			const int max_line1 = line2() - fontWidth_;
-			line1_              = std::min(std::max(min_line1, x_pos), max_line1);
+			line1_              = std::clamp(x_pos, min_line1, max_line1);
 			update();
 		} else if (movingLine2_) {
 			if (line3_ == 0) {
@@ -2012,7 +2012,7 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 			}
 			const int min_line2 = line1() + iconWidth_;
 			const int max_line2 = line3() - fontWidth_;
-			line2_              = std::min(std::max(min_line2, x_pos), max_line2);
+			line2_              = std::clamp(x_pos, min_line2, max_line2);
 			update();
 		} else if (movingLine3_) {
 			if (line4_ == 0) {
@@ -2020,12 +2020,12 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 			}
 			const int min_line3 = line2() + fontWidth_ + fontWidth_ / 2;
 			const int max_line3 = line4() - fontWidth_;
-			line3_              = std::min(std::max(min_line3, x_pos), max_line3);
+			line3_              = std::clamp(x_pos, min_line3, max_line3);
 			update();
 		} else if (movingLine4_) {
 			const int min_line4 = line3() + fontWidth_;
 			const int max_line4 = width() - 1 - (verticalScrollBar()->width() + 3);
-			line4_              = std::min(std::max(min_line4, x_pos), max_line4);
+			line4_              = std::clamp(x_pos, min_line4, max_line4);
 			update();
 		} else {
 			if ((near_line(x_pos, line1()) && edb::v1::config().show_jump_arrow) ||
