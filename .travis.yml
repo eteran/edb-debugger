@@ -30,7 +30,6 @@ addons:
         packages:
             - build-essential
             - cmake
-            - libboost-dev
             - libcapstone-dev
             - libgraphviz-dev
             - libqt5svg5-dev

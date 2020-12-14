@@ -47,7 +47,6 @@ Dependency                                  | Version Required
 ------------------------------------------- | ----------------
 GCC/Clang                                   | Supporting C++17
 [Qt](http://www.qt.io/)                     | >= 5.9
-[Boost](http://boost.org) (Headers Only)    | >= 1.35
 [Capstone](http://www.capstone-engine.org/) | >= 3.0
 [Graphviz](http://www.graphviz.org/)        | >= 2.38.0 (Optional)
 

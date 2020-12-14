@@ -22,9 +22,6 @@ if(TARGET_COMPILER_GCC AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 5.0)
 	message(FATAL_ERROR "Your g++ version is too old. At least 5.0 is required.")
 endif()
 
-find_package(Boost 1.35 REQUIRED)
-include_directories(${Boost_INCLUDE_DIR})
-
 find_package(Capstone REQUIRED)
 include_directories(${CAPSTONE_INCLUDE_DIRS})
 link_directories(${CAPSTONE_LIBRARY_DIRS})

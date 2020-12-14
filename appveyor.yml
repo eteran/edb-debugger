@@ -4,7 +4,6 @@ environment:
   CAPSTONE_SDK: C:\capstone\sdk
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      BOOST_INCLUDEDIR: C:\Libraries\boost_1_64_0
       CAPSTONE_ARCHIVE: capstone-3.0.5-rc2-win64
       CMAKE_GENERATOR: Visual Studio 15 2017 Win64
       QT_BASEDIR: C:\Qt\5.9\msvc2017_64
@@ -28,7 +27,7 @@ before_build:
   - cmd: cd C:\projects
   - cmd: md build
   - cmd: cd build
-  - cmd: cmake -Wno-dev -G "%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=%configuration% -DCMAKE_INSTALL_PREFIX=C:\projects\install -DBOOST_INCLUDEDIR="%BOOST_INCLUDEDIR%" -DCAPSTONE_SDK="%CAPSTONE_SDK%" -DQt5Core_DIR="%QT_BASEDIR%\lib\cmake\Qt5Core" -DQt5_DIR="%QT_BASEDIR%\lib\cmake\Qt5" ..\edb-debugger
+  - cmd: cmake -Wno-dev -G "%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=%configuration% -DCMAKE_INSTALL_PREFIX=C:\projects\install -DCAPSTONE_SDK="%CAPSTONE_SDK%" -DQt5Core_DIR="%QT_BASEDIR%\lib\cmake\Qt5Core" -DQt5_DIR="%QT_BASEDIR%\lib\cmake\Qt5" ..\edb-debugger
 
 build_script:
   - cmd: msbuild C:\projects\build\edb.sln /t:edb /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
