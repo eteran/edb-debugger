@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "IDebugger.h"
 #include "edb.h"
+#include "Theme.h"
 
 #include <QCloseEvent>
 #include <QDebug>
@@ -58,6 +59,10 @@ DialogOptions::DialogOptions(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
 
 	ui.setupUi(this);
+
+	ui.comboTheme->addItem(tr("System"), "System");
+	ui.comboTheme->addItem(tr("Dark [Built-in]"), "Dark [Built-in]");
+	ui.comboTheme->addItem(tr("Light [Built-in]"), "Light [Built-in]");
 }
 
 //------------------------------------------------------------------------------
@@ -247,6 +252,25 @@ void DialogOptions::showEvent(QShowEvent *event) {
 				combo->setCurrentIndex(combo->count() - 1);
 		}
 	}
+
+	// setup the theme list ONCE
+	if(currentThemeName_.isEmpty()) {
+		QStringList themes = Theme::userThemes();
+		for(QString &theme : themes) {
+			QString name = Theme::themeName(theme);
+			ui.comboTheme->addItem(name, theme);
+		}
+
+		int index = ui.comboTheme->findData(config.theme_name);
+		if(index == -1) {
+			qDebug("Theme not found, defaulting to System");
+			index = 0;
+		}
+		ui.comboTheme->setCurrentIndex(index);
+	}
+
+	currentThemeName_ = ui.comboTheme->currentData().toString();
+
 }
 
 //------------------------------------------------------------------------------
@@ -348,6 +372,10 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	if (IDebugger *core = edb::v1::debugger_core) {
 		core->setIgnoredExceptions(config.ignored_exceptions);
 	}
+
+	QString newThemeName = ui.comboTheme->currentData().toString();
+	currentThemeName_ = newThemeName;
+	config.theme_name = newThemeName;
 
 	config.sendChangeNotification();
 	event->accept();

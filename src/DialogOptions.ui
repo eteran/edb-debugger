@@ -114,50 +114,6 @@
        <string>Appearance</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0" colspan="2">
-        <layout class="QGridLayout">
-         <item row="1" column="1">
-          <widget class="FixedFontSelector" name="dataFont" native="true"/>
-         </item>
-         <item row="3" column="1">
-          <widget class="FixedFontSelector" name="disassemblyFont" native="true"/>
-         </item>
-         <item row="2" column="1">
-          <widget class="FixedFontSelector" name="registerFont" native="true"/>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_10">
-           <property name="text">
-            <string>Default Disassembly View Font</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_9">
-           <property name="text">
-            <string>Default Stack View Font</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>Default Register View Font</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>Default Memory Dump View Font</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="FixedFontSelector" name="stackFont" native="true"/>
-         </item>
-        </layout>
-       </item>
        <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_5">
          <property name="title">
@@ -323,6 +279,59 @@
         </layout>
        </item>
        <item row="3" column="0" colspan="2">
+        <widget class="QLabel" name="label_15">
+         <property name="palette">
+          <palette>
+           <active>
+            <colorrole role="WindowText">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>170</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
+             </brush>
+            </colorrole>
+           </active>
+           <inactive>
+            <colorrole role="WindowText">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>170</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
+             </brush>
+            </colorrole>
+           </inactive>
+           <disabled>
+            <colorrole role="WindowText">
+             <brush brushstyle="SolidPattern">
+              <color alpha="127">
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+           </disabled>
+          </palette>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>NOTE: Changes to the theme will take effect after restarting edb.</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2">
         <spacer>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -334,6 +343,64 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="label_14">
+           <property name="text">
+            <string>Theme:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboTheme"/>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <layout class="QGridLayout">
+         <item row="1" column="1">
+          <widget class="FixedFontSelector" name="dataFont" native="true"/>
+         </item>
+         <item row="3" column="1">
+          <widget class="FixedFontSelector" name="disassemblyFont" native="true"/>
+         </item>
+         <item row="2" column="1">
+          <widget class="FixedFontSelector" name="registerFont" native="true"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>Default Disassembly View Font</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Default Stack View Font</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Default Register View Font</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Default Memory Dump View Font</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="FixedFontSelector" name="stackFont" native="true"/>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>

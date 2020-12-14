@@ -16,10 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Debugger.h"
 #include "ArchProcessor.h"
 #include "CommentServer.h"
 #include "Configuration.h"
+#include "Debugger.h"
 #include "DebuggerInternal.h"
 #include "DialogAbout.h"
 #include "DialogArguments.h"
@@ -49,6 +49,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "State.h"
 #include "Symbol.h"
 #include "SymbolManager.h"
+#include "Theme.h"
 #include "edb.h"
 
 #if defined(Q_OS_LINUX)
@@ -399,11 +400,11 @@ Debugger::Debugger(QWidget *parent)
 	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("RIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
 	gotoRIPAction_ = createAction(tr("&Goto %1").arg("RIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #elif defined(EDB_X86)
-	setRIPAction_       = createAction(tr("&Set %1 to this Instruction").arg("EIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
-	gotoRIPAction_      = createAction(tr("&Goto %1").arg("EIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
+	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("EIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
+	gotoRIPAction_ = createAction(tr("&Goto %1").arg("EIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
-	setRIPAction_       = createAction(tr("&Set %1 to this Instruction").arg("PC"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
-	gotoRIPAction_      = createAction(tr("&Goto %1").arg("PC"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
+	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("PC"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
+	gotoRIPAction_ = createAction(tr("&Goto %1").arg("PC"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #else
 #error "This doesn't initialize actions and will lead to crash"
 #endif
@@ -766,12 +767,11 @@ void Debugger::createDataTab() {
 
 	auto hexview = std::make_shared<QHexView>();
 
-	QSettings settings;
-	settings.beginGroup("Theme");
+	Theme theme = Theme::load();
 
-	QColor addressForegroundColor = QColor(settings.value("theme.address.foreground", "red").toString());
-	QColor alternatingByteColor   = QColor(settings.value("theme.alternating_byte.foreground", "blue").toString());
-	QColor nonPrintableTextColor  = QColor(settings.value("theme.non_printing_character.foreground", "red").toString());
+	QColor addressForegroundColor = theme.text[Theme::Address].foreground().color();
+	QColor alternatingByteColor   = theme.text[Theme::AlternatingByte].foreground().color();
+	QColor nonPrintableTextColor  = theme.text[Theme::NonPrintingCharacter].foreground().color();
 	hexview->setAddressColor(addressForegroundColor);
 	hexview->setAlternateWordColor(alternatingByteColor);
 	hexview->setNonPrintableTextColor(nonPrintableTextColor);
@@ -983,12 +983,12 @@ void Debugger::setupStackView() {
 
 	stackView_ = std::make_shared<QHexView>();
 
-	QSettings settings;
-	settings.beginGroup("Theme");
+	Theme theme = Theme::load();
 
-	QColor addressForegroundColor = QColor(settings.value("theme.address.foreground", "red").toString());
-	QColor alternatingByteColor   = QColor(settings.value("theme.alternating_byte.foreground", "blue").toString());
-	QColor nonPrintableTextColor  = QColor(settings.value("theme.non_printing_character.foreground", "red").toString());
+	QColor addressForegroundColor = theme.text[Theme::Address].foreground().color();
+	QColor alternatingByteColor   = theme.text[Theme::AlternatingByte].foreground().color();
+	QColor nonPrintableTextColor  = theme.text[Theme::NonPrintingCharacter].foreground().color();
+
 	stackView_->setAddressColor(addressForegroundColor);
 	stackView_->setAlternateWordColor(alternatingByteColor);
 	stackView_->setNonPrintableTextColor(nonPrintableTextColor);
@@ -1081,7 +1081,7 @@ void Debugger::showEvent(QShowEvent *) {
 		QScreen *screen = QGuiApplication::primaryScreen();
 		QRect sg        = screen->geometry();
 #else
-        QRect sg = desktop.screenGeometry();
+		QRect sg = desktop.screenGeometry();
 #endif
 		int x = (sg.width() - this->width()) / 2;
 		int y = (sg.height() - this->height()) / 2;

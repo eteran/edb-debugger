@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>themes/system-light.ini</file>
+        <file>themes/system-dark.ini</file>
+		<file>themes/dark.ini</file>
+		<file>themes/light.ini</file>
+    </qresource>
+</RCC>

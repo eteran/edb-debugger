@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "IPlugin.h"
 #include "QtHelper.h"
+#include "Theme.h"
 #include "edb.h"
 #include "version.h"
 
@@ -208,6 +209,93 @@ void load_translations() {
 	qApp->installTranslator(&myappTranslator);
 }
 
+// See QtCreator: src/libs/utils/theme/theme.cpp
+
+// If you copy QPalette, default values stay at default, even if that default is different
+// within the context of different widgets. Create deep copy.
+QPalette copyPalette(const QPalette &p) {
+	QPalette res;
+	for (int group = 0; group < QPalette::NColorGroups; ++group) {
+		for (int role = 0; role < QPalette::NColorRoles; ++role) {
+			res.setBrush(QPalette::ColorGroup(group),
+						 QPalette::ColorRole(role),
+						 p.brush(QPalette::ColorGroup(group), QPalette::ColorRole(role)));
+		}
+	}
+	return res;
+}
+
+QPalette initialPalette() {
+	static QPalette palette = copyPalette(QApplication::palette());
+	return palette;
+}
+
+QPalette themePalette() {
+
+	QPalette pal = initialPalette();
+
+	Theme theme = Theme::load();
+
+	const static struct {
+		Theme::Palette paletteIndex;
+		QPalette::ColorRole paletteColorRole;
+		QPalette::ColorGroup paletteColorGroup;
+		bool setColorRoleAsBrush;
+	} mapping[] = {
+		{Theme::Palette::Window, QPalette::Window, QPalette::All, false},
+		{Theme::Palette::WindowDisabled, QPalette::Window, QPalette::Disabled, false},
+		{Theme::Palette::WindowText, QPalette::WindowText, QPalette::All, true},
+		{Theme::Palette::WindowTextDisabled, QPalette::WindowText, QPalette::Disabled, true},
+		{Theme::Palette::Base, QPalette::Base, QPalette::All, false},
+		{Theme::Palette::BaseDisabled, QPalette::Base, QPalette::Disabled, false},
+		{Theme::Palette::AlternateBase, QPalette::AlternateBase, QPalette::All, false},
+		{Theme::Palette::AlternateBaseDisabled, QPalette::AlternateBase, QPalette::Disabled, false},
+		{Theme::Palette::ToolTipBase, QPalette::ToolTipBase, QPalette::All, true},
+		{Theme::Palette::ToolTipBaseDisabled, QPalette::ToolTipBase, QPalette::Disabled, true},
+		{Theme::Palette::ToolTipText, QPalette::ToolTipText, QPalette::All, false},
+		{Theme::Palette::ToolTipTextDisabled, QPalette::ToolTipText, QPalette::Disabled, false},
+		{Theme::Palette::Text, QPalette::Text, QPalette::All, true},
+		{Theme::Palette::TextDisabled, QPalette::Text, QPalette::Disabled, true},
+		{Theme::Palette::Button, QPalette::Button, QPalette::All, false},
+		{Theme::Palette::ButtonDisabled, QPalette::Button, QPalette::Disabled, false},
+		{Theme::Palette::ButtonText, QPalette::ButtonText, QPalette::All, true},
+		{Theme::Palette::ButtonTextDisabled, QPalette::ButtonText, QPalette::Disabled, true},
+		{Theme::Palette::BrightText, QPalette::BrightText, QPalette::All, false},
+		{Theme::Palette::BrightTextDisabled, QPalette::BrightText, QPalette::Disabled, false},
+		{Theme::Palette::Highlight, QPalette::Highlight, QPalette::All, true},
+		{Theme::Palette::HighlightDisabled, QPalette::Highlight, QPalette::Disabled, true},
+		{Theme::Palette::HighlightedText, QPalette::HighlightedText, QPalette::All, true},
+		{Theme::Palette::HighlightedTextDisabled, QPalette::HighlightedText, QPalette::Disabled, true},
+		{Theme::Palette::Link, QPalette::Link, QPalette::All, false},
+		{Theme::Palette::LinkDisabled, QPalette::Link, QPalette::Disabled, false},
+		{Theme::Palette::LinkVisited, QPalette::LinkVisited, QPalette::All, false},
+		{Theme::Palette::LinkVisitedDisabled, QPalette::LinkVisited, QPalette::Disabled, false},
+		{Theme::Palette::Light, QPalette::Light, QPalette::All, false},
+		{Theme::Palette::LightDisabled, QPalette::Light, QPalette::Disabled, false},
+		{Theme::Palette::Midlight, QPalette::Midlight, QPalette::All, false},
+		{Theme::Palette::MidlightDisabled, QPalette::Midlight, QPalette::Disabled, false},
+		{Theme::Palette::Dark, QPalette::Dark, QPalette::All, false},
+		{Theme::Palette::DarkDisabled, QPalette::Dark, QPalette::Disabled, false},
+		{Theme::Palette::Mid, QPalette::Mid, QPalette::All, false},
+		{Theme::Palette::MidDisabled, QPalette::Mid, QPalette::Disabled, false},
+		{Theme::Palette::Shadow, QPalette::Shadow, QPalette::All, false},
+		{Theme::Palette::ShadowDisabled, QPalette::Shadow, QPalette::Disabled, false}};
+
+	for (auto entry : mapping) {
+		const QColor themeColor = theme.palette[entry.paletteIndex];
+		// Use original color if color is not defined in theme.
+		if (themeColor.isValid()) {
+			if (entry.setColorRoleAsBrush)
+				// TODO: Find out why sometimes setBrush is used
+				pal.setBrush(entry.paletteColorGroup, entry.paletteColorRole, themeColor);
+			else
+				pal.setColor(entry.paletteColorGroup, entry.paletteColorRole, themeColor);
+		}
+	}
+
+	return pal;
+}
+
 }
 
 /**
@@ -224,7 +312,6 @@ int main(int argc, char *argv[]) {
 	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 	QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-
 
 	QApplication app(argc, argv);
 	QApplication::setWindowIcon(QIcon(":/debugger/images/edb48-logo.png"));
@@ -307,6 +394,8 @@ int main(int argc, char *argv[]) {
 	}
 
 	validate_launch_arguments(launch_args);
+
+	QApplication::setPalette(themePalette());
 
 	// Light/Dark icons on all platforms
 	if (QApplication::palette().window().color().lightnessF() >= 0.5) {

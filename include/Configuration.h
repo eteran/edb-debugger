@@ -79,6 +79,7 @@ public:
 	StartupWindowLocation startup_window_location;
 	bool function_offsets_in_hex;
 	bool show_jump_arrow;
+	QString theme_name;
 
 	// debugging tab
 	InitialBreakpoint initial_breakpoint;
