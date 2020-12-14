@@ -30,12 +30,23 @@ Here is an example:
 Compiling
 ---------
 
-Compiling edb is generally quite simple. edb currently depends on the 
-following packages:
+Compiling edb is generally quite simple. The latest release of edb currently 
+depends on the following packages:
 
 Dependency                                  | Version Required
 ------------------------------------------- | ----------------
+GCC/Clang                                   | Supporting C++14
 [Qt](http://www.qt.io/)                     | >= 5.2
+[Boost](http://boost.org) (Headers Only)    | >= 1.35
+[Capstone](http://www.capstone-engine.org/) | >= 3.0
+[Graphviz](http://www.graphviz.org/)        | >= 2.38.0 (Optional)
+
+The development master branch will be increasing the minimum requirements to:
+
+Dependency                                  | Version Required
+------------------------------------------- | ----------------
+GCC/Clang                                   | Supporting C++17
+[Qt](http://www.qt.io/)                     | >= 5.9
 [Boost](http://boost.org) (Headers Only)    | >= 1.35
 [Capstone](http://www.capstone-engine.org/) | >= 3.0
 [Graphviz](http://www.graphviz.org/)        | >= 2.38.0 (Optional)
