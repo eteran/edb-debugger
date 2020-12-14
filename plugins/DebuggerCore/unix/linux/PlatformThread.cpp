@@ -16,13 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PlatformThread.h"
 #include "DebuggerCore.h"
 #include "IProcess.h"
 #include "PlatformCommon.h"
+#include "PlatformThread.h"
 #include "util/Container.h"
 
 #include <QDebug>
+#include <cassert>
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE /* or _BSD_SOURCE or _SVID_SOURCE */
