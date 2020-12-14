@@ -29,10 +29,12 @@ addons:
     apt:
         packages:
             - build-essential
-            - libboost-dev
             - cmake
-            - qt5-default
-            - qtbase5-dev-tools
-            - qttools5-dev-tools
-            - qttools5-dev
+            - libboost-dev
+            - libcapstone-dev
+            - libgraphviz-dev
+            - libqt5svg5-dev
             - libqt5xmlpatterns5-dev
+            - pkg-config
+            - qt5-default
+            - qtbase5-dev
