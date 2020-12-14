@@ -3,8 +3,8 @@
 #define UTIL_FLOAT_H_2020227_
 
 #include "FloatX.h"
-#include <optional>
 #include <cerrno>
+#include <optional>
 #include <string>
 #include <type_traits>
 
@@ -31,7 +31,7 @@ std::optional<Float> full_string_to_float(const std::string &s) {
 		value = std::strtof(str, &end);
 	} else if constexpr (std::is_same<Float, double>::value) {
 		value = std::strtod(str, &end);
-	} else {
+	} else if constexpr (std::is_same<Float, long double>::value) {
 		value = std::strtold(str, &end);
 	}
 

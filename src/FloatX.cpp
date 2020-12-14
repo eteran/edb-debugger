@@ -471,7 +471,7 @@ EDB_EXPORT QString format_float(Float value) {
 		}
 #endif
 #if defined(HAVE_GDTOA)
-		if (std::is_same<Float, edb::value80>::value) {
+		if constexpr (std::is_same<Float, edb::value80>::value) {
 			char buffer[64] = {};
 			gdtoa_g_xfmt(buffer, &value, -1, sizeof buffer);
 			fixup_g_Yfmt(buffer, std::numeric_limits<long double>::digits10);

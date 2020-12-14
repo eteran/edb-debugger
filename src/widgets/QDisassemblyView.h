@@ -30,8 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSvgRenderer>
 
 #include <memory>
-#include <vector>
 #include <optional>
+#include <vector>
 
 template <class T, class E>
 class Result;

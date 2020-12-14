@@ -20,13 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define _LARGEFILE64_SOURCE
 #endif
 
+#include "PlatformProcess.h"
 #include "ByteShiftArray.h"
 #include "DebuggerCore.h"
 #include "IBreakpoint.h"
 #include "MemoryRegions.h"
 #include "Module.h"
 #include "PlatformCommon.h"
-#include "PlatformProcess.h"
 #include "PlatformRegion.h"
 #include "PlatformThread.h"
 #include "edb.h"

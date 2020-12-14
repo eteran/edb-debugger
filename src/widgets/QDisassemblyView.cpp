@@ -68,32 +68,26 @@ constexpr int DefaultByteWidth = 8;
 
 struct show_separator_tag {};
 
-template <class T, size_t N>
-struct address_format {};
-
 template <class T>
-struct address_format<T, 4> {
+struct address_format {
 	static QString format_address(T address, const show_separator_tag &) {
-		static char buffer[10];
-		qsnprintf(buffer, sizeof(buffer), "%04x:%04x", (address >> 16) & 0xffff, address & 0xffff);
-		return QString::fromLatin1(buffer, sizeof(buffer) - 1);
+		if constexpr (sizeof(T) == sizeof(uint32_t)) {
+			static char buffer[10];
+			qsnprintf(buffer, sizeof(buffer), "%04x:%04x", (address >> 16) & 0xffff, address & 0xffff);
+			return QString::fromLatin1(buffer, sizeof(buffer) - 1);
+		} else if constexpr (sizeof(T) == sizeof(uint64_t)) {
+			return edb::value32(address >> 32).toHexString() + ":" + edb::value32(address).toHexString();
+		}
 	}
 
 	static QString format_address(T address) {
-		static char buffer[9];
-		qsnprintf(buffer, sizeof(buffer), "%04x%04x", (address >> 16) & 0xffff, address & 0xffff);
-		return QString::fromLatin1(buffer, sizeof(buffer) - 1);
-	}
-};
-
-template <class T>
-struct address_format<T, 8> {
-	static QString format_address(T address, const show_separator_tag &) {
-		return edb::value32(address >> 32).toHexString() + ":" + edb::value32(address).toHexString();
-	}
-
-	static QString format_address(T address) {
-		return edb::value64(address).toHexString();
+		if constexpr (sizeof(T) == sizeof(uint32_t)) {
+			static char buffer[9];
+			qsnprintf(buffer, sizeof(buffer), "%04x%04x", (address >> 16) & 0xffff, address & 0xffff);
+			return QString::fromLatin1(buffer, sizeof(buffer) - 1);
+		} else if constexpr (sizeof(T) == sizeof(uint64_t)) {
+			return edb::value64(address).toHexString();
+		}
 	}
 };
 
@@ -104,9 +98,9 @@ struct address_format<T, 8> {
 template <class T>
 QString format_address(T address, bool show_separator) {
 	if (show_separator)
-		return address_format<T, sizeof(T)>::format_address(address, show_separator_tag());
+		return address_format<T>::format_address(address, show_separator_tag());
 	else
-		return address_format<T, sizeof(T)>::format_address(address);
+		return address_format<T>::format_address(address);
 }
 
 //------------------------------------------------------------------------------

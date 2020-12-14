@@ -27,8 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPointer>
 #include <QStringList>
 #include <QVector>
-#include <optional>
 #include <memory>
+#include <optional>
 
 class ArchProcessor;
 class Configuration;

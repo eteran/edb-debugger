@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "API.h"
 #include <QString>
-#include <variant>
 #include <type_traits>
+#include <variant>
 
 class EDB_EXPORT Status {
 public:

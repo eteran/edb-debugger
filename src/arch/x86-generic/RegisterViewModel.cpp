@@ -29,8 +29,9 @@ void invalidate(RegisterViewModelBase::Category *cat, int row, const char *nameT
 
 namespace {
 
-template <std::size_t bitSize>
+template <std::size_t BitSize>
 struct Regs;
+
 template <>
 struct Regs<32> {
 	using GPR   = RegisterViewModelBase::SimpleRegister<edb::value32>;

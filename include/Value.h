@@ -766,7 +766,7 @@ public:
 	template <class U>
 	explicit value_type80(const U &data, size_t offset = 0) {
 #ifdef _MSC_VER
-		if (std::is_same<U, long double>::value && sizeof(U) < sizeof(T)) {
+		if constexpr (std::is_same<U, long double>::value && sizeof(U) < sizeof(T)) {
 			T temp;
 			convert_real64_to_real80(&data, &temp);
 

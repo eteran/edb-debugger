@@ -1134,10 +1134,10 @@ QVariant SIMDSizedElementsContainer<StoredType>::data(int column) const {
 	case Model::VALUE_COLUMN: {
 		const auto width = elements[0]->valueMaxLength();
 		QString str;
-		
+
 		static_assert(Q_BYTE_ORDER == Q_LITTLE_ENDIAN, "This piece of code relies on little endian byte order");
 
-		for(auto it = elements.rbegin(); it != elements.rend(); ++it) {
+		for (auto it = elements.rbegin(); it != elements.rend(); ++it) {
 			const std::unique_ptr<RegisterViewModelBase::RegisterViewItem> &elem = *it;
 			str += elem->data(column).toString().rightJustified(width + 1);
 		}
