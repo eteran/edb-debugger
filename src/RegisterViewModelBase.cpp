@@ -37,8 +37,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 #include <numeric>
 
-#include <boost/range/adaptor/reversed.hpp>
-
 namespace RegisterViewModelBase {
 
 namespace {
@@ -1136,13 +1134,14 @@ QVariant SIMDSizedElementsContainer<StoredType>::data(int column) const {
 	case Model::VALUE_COLUMN: {
 		const auto width = elements[0]->valueMaxLength();
 		QString str;
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-		for (auto &elem : boost::adaptors::reverse(elements)) {
+		
+		static_assert(Q_BYTE_ORDER == Q_LITTLE_ENDIAN, "This piece of code relies on little endian byte order");
+
+		for(auto it = elements.rbegin(); it != elements.rend(); ++it) {
+			const std::unique_ptr<RegisterViewModelBase::RegisterViewItem> &elem = *it;
 			str += elem->data(column).toString().rightJustified(width + 1);
 		}
-#else
-#error "This piece of code relies on little endian byte order"
-#endif
+
 		return str;
 	}
 	case Model::COMMENT_COLUMN:
