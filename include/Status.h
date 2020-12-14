@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "API.h"
 #include <QString>
-#include <boost/variant.hpp>
+#include <variant>
 #include <type_traits>
 
 class EDB_EXPORT Status {
@@ -102,27 +102,27 @@ public:
 public:
 	const T *operator->() const {
 		Q_ASSERT(succeeded());
-		return &boost::get<T>(value_);
+		return &std::get<T>(value_);
 	}
 
 	const T &operator*() const { return value(); }
-	bool succeeded() const { return value_.which() == 0; }
-	bool failed() const { return value_.which() == 1; }
+	bool succeeded() const { return value_.index() == 0; }
+	bool failed() const { return value_.index() == 1; }
 	explicit operator bool() const { return succeeded(); }
 	bool operator!() const { return failed(); }
 
 	const E &error() const {
 		Q_ASSERT(failed());
-		return boost::get<Unexpected<E>>(value_).error_;
+		return std::get<Unexpected<E>>(value_).error_;
 	}
 
 	const T &value() const {
 		Q_ASSERT(succeeded());
-		return boost::get<T>(value_);
+		return std::get<T>(value_);
 	}
 
 private:
-	boost::variant<T, Unexpected<E>> value_;
+	std::variant<T, Unexpected<E>> value_;
 };
 
 template <class E>
@@ -145,18 +145,18 @@ public:
 	Result &operator=(Result &&) = default;
 
 public:
-	bool succeeded() const { return value_.which() == 0; }
-	bool failed() const { return value_.which() == 1; }
+	bool succeeded() const { return value_.index() == 0; }
+	bool failed() const { return value_.index() == 1; }
 	explicit operator bool() const { return succeeded(); }
 	bool operator!() const { return failed(); }
 
 	const E &error() const {
 		Q_ASSERT(failed());
-		return boost::get<Unexpected<E>>(value_).error_;
+		return std::get<Unexpected<E>>(value_).error_;
 	}
 
 private:
-	boost::variant<boost::blank, Unexpected<E>> value_;
+	std::variant<std::monostate, Unexpected<E>> value_;
 };
 
 template <class E>

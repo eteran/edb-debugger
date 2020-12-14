@@ -97,7 +97,7 @@ void BookmarkWidget::on_tableView_doubleClicked(const QModelIndex &index) {
  */
 void BookmarkWidget::buttonAddClicked() {
 
-	if (boost::optional<edb::address_t> address = edb::v2::get_expression_from_user(tr("Bookmark Address"), tr("Address:"))) {
+	if (std::optional<edb::address_t> address = edb::v2::get_expression_from_user(tr("Bookmark Address"), tr("Address:"))) {
 		addAddress(*address);
 	}
 }

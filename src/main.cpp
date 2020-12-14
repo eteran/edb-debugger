@@ -37,8 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <ctime>
 #include <iostream>
-
-#include <boost/optional.hpp>
+#include <optional>
 
 namespace {
 
@@ -47,7 +46,7 @@ Q_DECLARE_NAMESPACE_TR(edb)
 struct LaunchArguments {
 
 	// if we are attaching
-	boost::optional<edb::pid_t> attach_pid;
+	std::optional<edb::pid_t> attach_pid;
 
 	// if we are running
 	QList<QByteArray> run_args;

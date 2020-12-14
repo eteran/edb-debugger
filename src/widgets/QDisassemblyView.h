@@ -31,8 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <memory>
 #include <vector>
-
-#include <boost/optional.hpp>
+#include <optional>
 
 template <class T, class E>
 class Result;
@@ -110,7 +109,7 @@ private:
 	QString instructionString(const edb::Instruction &inst) const;
 	Result<int, QString> getInstructionSize(edb::address_t address) const;
 	Result<int, QString> getInstructionSize(edb::address_t address, uint8_t *buf, int *size) const;
-	boost::optional<unsigned int> getLineOfAddress(edb::address_t addr) const;
+	std::optional<unsigned int> getLineOfAddress(edb::address_t addr) const;
 	edb::address_t addressFromCoord(int x, int y) const;
 	int addressLength() const;
 	int autoLine2() const;

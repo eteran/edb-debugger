@@ -158,7 +158,7 @@ Result<edb::pid_t, QString> DialogAttach::selectedPid() const {
 
 	if (sel.size() == 1) {
 		const QModelIndex index = processNameFilter_->mapToSource(processPidFilter_->mapToSource(sel[0]));
-		return processModel_->data(index, Qt::UserRole).toUInt();
+		return processModel_->data(index, Qt::UserRole).toInt();
 	}
 
 	return make_unexpected(tr("No Selection"));

@@ -891,7 +891,7 @@ void Debugger::finishPluginSetup() {
 //------------------------------------------------------------------------------
 Result<edb::address_t, QString> Debugger::getGotoExpression() {
 
-	boost::optional<edb::address_t> address = edb::v2::get_expression_from_user(tr("Goto Expression"), tr("Expression:"));
+	std::optional<edb::address_t> address = edb::v2::get_expression_from_user(tr("Goto Expression"), tr("Expression:"));
 	if (address) {
 		return *address;
 	} else {
@@ -2185,7 +2185,7 @@ void Debugger::mnuStackModify() {
 //------------------------------------------------------------------------------
 bool Debugger::isBreakpointConditionTrue(const QString &condition) {
 
-	if (boost::optional<edb::address_t> condition_value = edb::v2::eval_expression(condition)) {
+	if (std::optional<edb::address_t> condition_value = edb::v2::eval_expression(condition)) {
 		return *condition_value;
 	}
 	return true;

@@ -713,7 +713,7 @@ void QDisassemblyView::paintLineBg(QPainter &painter, QBrush brush, int line, in
 // Desc: A helper function which sets line to the line on which addr appears,
 // or returns false if that line does not appear to exist.
 //------------------------------------------------------------------------------
-boost::optional<unsigned int> QDisassemblyView::getLineOfAddress(edb::address_t addr) const {
+std::optional<unsigned int> QDisassemblyView::getLineOfAddress(edb::address_t addr) const {
 
 	if (!showAddresses_.isEmpty()) {
 		if (addr >= showAddresses_[0] && addr <= showAddresses_[showAddresses_.size() - 1]) {
@@ -724,7 +724,7 @@ boost::optional<unsigned int> QDisassemblyView::getLineOfAddress(edb::address_t 
 		}
 	}
 
-	return boost::none;
+	return {};
 }
 
 //------------------------------------------------------------------------------
@@ -857,7 +857,7 @@ void QDisassemblyView::drawRegiserBadges(QPainter &painter, DrawingContext *ctx)
 					// Does addr appear here?
 					edb::address_t addr = reg.valueAsAddress();
 
-					if (boost::optional<unsigned int> line = getLineOfAddress(addr)) {
+					if (std::optional<unsigned int> line = getLineOfAddress(addr)) {
 						if (!badge_labels[*line].isEmpty()) {
 							badge_labels[*line].append(", ");
 						}
@@ -866,7 +866,7 @@ void QDisassemblyView::drawRegiserBadges(QPainter &painter, DrawingContext *ctx)
 
 					// what about [addr]?
 					if (process->readBytes(addr, &addr, edb::v1::pointer_size())) {
-						if (boost::optional<unsigned int> line = getLineOfAddress(addr)) {
+						if (std::optional<unsigned int> line = getLineOfAddress(addr)) {
 							if (!badge_labels[*line].isEmpty()) {
 								badge_labels[*line].append(", ");
 							}
