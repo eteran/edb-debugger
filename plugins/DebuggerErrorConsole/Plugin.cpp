@@ -45,10 +45,8 @@ void Plugin::debugMessageIntercept(QtMsgType type, const QMessageLogContext &, c
 		switch (type) {
 		case QtDebugMsg:
 			return tr("DEBUG %1").arg(message);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
 		case QtInfoMsg:
 			return tr("INFO  %1").arg(message);
-#endif
 		case QtWarningMsg:
 			return tr("WARN  %1").arg(message);
 		case QtCriticalMsg:

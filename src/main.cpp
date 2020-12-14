@@ -306,11 +306,9 @@ QPalette themePalette() {
  */
 int main(int argc, char *argv[]) {
 
-	QT_REQUIRE_VERSION(argc, argv, "5.2.0");
+	QT_REQUIRE_VERSION(argc, argv, "5.9.0");
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
 	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
 	QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
 	QApplication app(argc, argv);
