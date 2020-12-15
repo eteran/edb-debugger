@@ -11,10 +11,10 @@ find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns Svg)
 git_get_branch(GIT_BRANCH)
 
 qt5_add_resources(QRC_SOURCES
-	debugger.qrc
-	themes.qrc
-	breeze-edb.qrc
-	breeze-dark-edb.qrc
+	res/debugger.qrc
+	res/themes.qrc
+	res/breeze-edb.qrc
+	res/breeze-dark-edb.qrc
 )
 
 foreach(FILE IN LISTS QRC_SOURCES)
