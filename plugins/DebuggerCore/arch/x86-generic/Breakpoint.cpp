@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "IProcess.h"
 #include "edb.h"
+#include <cassert>
 
 namespace DebuggerCorePlugin {
 
