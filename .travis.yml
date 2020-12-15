@@ -11,11 +11,6 @@ env:
     global:
         - MAKEFLAGS="-j2"
 
-sudo: required
-
-before_install:
-    - ./travis_install_capstone.sh
-
 before_script:
     - mkdir build && cd build && cmake ..
 
