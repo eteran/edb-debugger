@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <memory>
 
+class QMenu;
 namespace ODbgRegisterView {
 
 class DialogEditSimdRegister;
@@ -81,6 +82,7 @@ public:
 
 private:
 	RegisterGroup *makeGroup(RegisterGroupType type);
+	void restoreHiddenGroup(RegisterGroupType type);
 
 private:
 	ValueField *selectedField() const;
@@ -105,6 +107,8 @@ private:
 	std::unique_ptr<QHBoxLayout> flagsAndSegments_;
 	std::vector<RegisterGroupType> visibleGroupTypes_;
 	QList<QAction *> menuItems_;
+	QMenu* hiddenGroupsMenu_;
+	QAction* hiddenGroupsAction_;
 	DialogEditGPR *dialogEditGpr_;
 	DialogEditSimdRegister *dialogEditSIMDReg_;
 	DialogEditFPU *dialogEditFpu_;

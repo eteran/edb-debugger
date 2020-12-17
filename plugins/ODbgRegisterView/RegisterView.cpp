@@ -88,6 +88,31 @@ constexpr auto RegisterGroupTypeNames = util::make_array<const char *>(
 #endif
 );
 
+constexpr std::array allRegisterGroups = {
+#if defined(EDB_X86) || defined(EDB_X86_64)
+	ODBRegView::RegisterGroupType::GPR,
+	ODBRegView::RegisterGroupType::rIP,
+	ODBRegView::RegisterGroupType::ExpandedEFL,
+	ODBRegView::RegisterGroupType::Segment,
+	ODBRegView::RegisterGroupType::EFL,
+	ODBRegView::RegisterGroupType::FPUData,
+	ODBRegView::RegisterGroupType::FPUWords,
+	ODBRegView::RegisterGroupType::FPULastOp,
+	ODBRegView::RegisterGroupType::Debug,
+	ODBRegView::RegisterGroupType::MMX,
+	ODBRegView::RegisterGroupType::SSEData,
+	ODBRegView::RegisterGroupType::AVXData,
+	ODBRegView::RegisterGroupType::MXCSR,
+#elif defined(EDB_ARM32)
+	ODBRegView::RegisterGroupType::GPR,
+	ODBRegView::RegisterGroupType::CPSR,
+	ODBRegView::RegisterGroupType::ExpandedCPSR,
+	ODBRegView::RegisterGroupType::FPSCR,
+#else
+#error "Not implemented"
+#endif
+};
+
 static_assert(RegisterGroupTypeNames.size() == ODBRegView::RegisterGroupType::NUM_GROUPS, "Mismatch between number of register group types and names");
 
 const auto SETTINGS_GROUPS_ARRAY_NODE = QLatin1String("visibleGroups");
@@ -195,6 +220,8 @@ void ODBRegView::settingsUpdated() {
 
 ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 	: QScrollArea(parent),
+	  hiddenGroupsMenu_{new QMenu(this)},
+	  hiddenGroupsAction_{new QAction(tr("Show hidden group"), this)},
 	  dialogEditGpr_(new DialogEditGPR(this)),
 	  dialogEditSIMDReg_(new DialogEditSimdRegister(this)),
 #if defined(EDB_X86) || defined(EDB_X86_64)
@@ -220,36 +247,15 @@ ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 		menuItems_.push_back(new_action(tr("Copy all registers"), this, [this](bool) {
 			copyAllRegisters();
 		}));
+		hiddenGroupsAction_->setMenu(hiddenGroupsMenu_);
+		menuItems_.push_back(hiddenGroupsAction_);
 	}
 
 	QSettings settings;
 	settings.beginGroup(settingsGroup);
 	const auto groupListV = settings.value(SETTINGS_GROUPS_ARRAY_NODE);
 	if (settings.group().isEmpty() || !groupListV.isValid()) {
-		visibleGroupTypes_ = {
-#if defined(EDB_X86) || defined(EDB_X86_64)
-			RegisterGroupType::GPR,
-			RegisterGroupType::rIP,
-			RegisterGroupType::ExpandedEFL,
-			RegisterGroupType::Segment,
-			RegisterGroupType::EFL,
-			RegisterGroupType::FPUData,
-			RegisterGroupType::FPUWords,
-			RegisterGroupType::FPULastOp,
-			RegisterGroupType::Debug,
-			RegisterGroupType::MMX,
-			RegisterGroupType::SSEData,
-			RegisterGroupType::AVXData,
-			RegisterGroupType::MXCSR,
-#elif defined(EDB_ARM32)
-			RegisterGroupType::GPR,
-			RegisterGroupType::CPSR,
-			RegisterGroupType::ExpandedCPSR,
-			RegisterGroupType::FPSCR,
-#else
-#error "Not implemented"
-#endif
-		};
+		visibleGroupTypes_ = std::vector<RegisterGroupType>(allRegisterGroups.begin(), allRegisterGroups.end());
 	} else {
 		Q_FOREACH (const auto &grp, groupListV.toStringList()) {
 			const auto group = findGroup(grp);
@@ -331,8 +337,10 @@ void ODBRegView::groupHidden(RegisterGroup *group) {
 	groupPtr = nullptr;
 
 	auto &types(visibleGroupTypes_);
-	const int groupType = groupPtrIter - groups_.begin();
-	types.erase(remove_if(types.begin(), types.end(), [=](int type) { return type == groupType; }), types.end());
+	const auto groupType = static_cast<RegisterGroupType>(groupPtrIter - groups_.begin());
+	types.erase(remove_if(types.begin(), types.end(), [=](const RegisterGroupType type) { return type == groupType; }), types.end());
+	hiddenGroupsMenu_->addAction(RegisterGroupTypeNames[groupType], [=] { restoreHiddenGroup(groupType); });
+	hiddenGroupsAction_->setVisible(true);
 }
 
 void ODBRegView::saveState(const QString &settingsGroup) const {
@@ -439,6 +447,11 @@ RegisterGroup *ODBRegView::makeGroup(RegisterGroupType type) {
 	return group;
 }
 
+void ODBRegView::restoreHiddenGroup(const RegisterGroupType type) {
+	visibleGroupTypes_.emplace_back(type);
+	modelReset();
+}
+
 void ODBRegView::modelReset() {
 
 	widget()->hide(); // prevent flicker while groups are added to/removed from the layout
@@ -465,6 +478,8 @@ void ODBRegView::modelReset() {
 
 	bool flagsAndSegsInserted = false;
 
+	hiddenGroupsMenu_->clear();
+	hiddenGroupsAction_->setVisible(false);
 	for (int group = 0; group < RegisterGroupType::NUM_GROUPS; ++group) {
 
 		const auto groupType = static_cast<RegisterGroupType>(group);
@@ -483,8 +498,11 @@ void ODBRegView::modelReset() {
 			} else
 #endif
 				layout->addWidget(group);
-		} else
+		} else {
 			groups_.push_back(nullptr);
+			hiddenGroupsMenu_->addAction(RegisterGroupTypeNames[groupType], [=] { restoreHiddenGroup(groupType); });
+			hiddenGroupsAction_->setVisible(true);
+		}
 	}
 
 	widget()->show();
