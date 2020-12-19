@@ -1,5 +1,5 @@
 [![Gitter](https://badges.gitter.im/eteran/edb-debugger.svg)](https://gitter.im/eteran/edb-debugger?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-[![Build Status](https://travis-ci.org/eteran/edb-debugger.svg?branch=master)](https://travis-ci.org/eteran/edb-debugger)
+[![Build Status](https://travis-ci.com/eteran/edb-debugger.svg?branch=master)](https://travis-ci.com/eteran/edb-debugger)
 [![Build status](https://ci.appveyor.com/api/projects/status/91jfbbyg075wk96q?svg=true)](https://ci.appveyor.com/project/eteran/edb-debugger)
 [![License](https://img.shields.io/badge/license-GPL2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 [![Paypal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=evan%2eteran%40gmail%2ecom&lc=US&item_name=edb%2ddebugger&currency_code=USD&bn=PP%2dDonationsBF%3a68747470733a2f2f696d672e736869656c64732e696f2f62616467652f446f6e6174652d50617950616c2d677265656e2e737667%3aNonHosted)
