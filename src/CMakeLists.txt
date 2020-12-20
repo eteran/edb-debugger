@@ -228,6 +228,22 @@ endif()
 
 add_executable(edb ${edb_SRCS})
 
+if(GRAPHVIZ_FOUND)
+	target_link_libraries(edb
+	PUBLIC
+		${GRAPHVIZ_LIBRARY_DIRS}
+	)
+
+	target_include_directories (edb
+	PUBLIC
+		${GRAPHVIZ_INCLUDE_DIRS}
+	)
+
+	target_link_libraries(edb
+		${GRAPHVIZ_LIBRARIES}
+	)
+endif()
+
 target_compile_definitions(edb PRIVATE
 	-DGIT_BRANCH=${GIT_BRANCH}
 	-DDEFAULT_PLUGIN_PATH=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb\"
@@ -239,7 +255,6 @@ target_link_libraries(edb
 	Qt5::Xml
 	Qt5::XmlPatterns
 	Qt5::Svg
-	${GRAPHVIZ_LIBRARIES}
 	${DOUBLE_CONVERSION_LIBRARIES}
 	${GDTOA_LIBRARIES}
 )
