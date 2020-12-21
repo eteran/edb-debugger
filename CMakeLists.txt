@@ -22,8 +22,8 @@ include("EnableSTLDebug")
 include("ProjectDefaults")
 include("AddWarnings")
 
-if(TARGET_COMPILER_GCC AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 5.0)
-	message(FATAL_ERROR "Your g++ version is too old. At least 5.0 is required.")
+if(TARGET_COMPILER_GCC AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 7.0)
+	message(FATAL_ERROR "Your g++ version is too old. At least 7.0 is required.")
 endif()
 
 find_package(Capstone REQUIRED)
