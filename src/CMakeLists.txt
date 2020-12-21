@@ -240,7 +240,7 @@ if(GRAPHVIZ_FOUND)
 endif()
 
 
-if(TARGET_ARCH_FAMILY_X86)
+if(UNIX AND TARGET_ARCH_FAMILY_X86)
 	# now we always have it :-)
 	add_definitions("-DHAVE_GDTOA")
 	if(GDTOA_FOUND)
@@ -248,7 +248,7 @@ if(TARGET_ARCH_FAMILY_X86)
 		PUBLIC
 			${GDTOA_INCLUDE_DIRS}
 		)
-		
+
 		target_link_libraries(edb
 			${GDTOA_LIBRARIES}
 		)
