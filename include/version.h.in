@@ -21,6 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define EDB_VERSION_STRING "@PROJECT_VERSION@"
 
-#cmakedefine GIT_BRANCH @GIT_BRANCH@
+#cmakedefine GIT_BRANCH "@GIT_BRANCH@"
 
 #endif

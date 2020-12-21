@@ -19,9 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogAbout.h"
 #include "version.h"
 
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
-
 //------------------------------------------------------------------------------
 // Name: DialogAbout
 // Desc: constructor
@@ -32,5 +29,5 @@ DialogAbout::DialogAbout(QWidget *parent, Qt::WindowFlags f)
 	ui.labelVersion->setText(tr("Version: %1<br>\n"
 								"Compiled: %2<br>\n"
 								"Git Commit: <a href=\"https://github.com/eteran/edb-debugger/commit/%3\">%3</a>")
-								 .arg(EDB_VERSION_STRING, __DATE__, TOSTRING(GIT_BRANCH)));
+								 .arg(EDB_VERSION_STRING, __DATE__, GIT_BRANCH));
 }
