@@ -12,7 +12,8 @@ env:
         - MAKEFLAGS="-j2"
 
 before_script:
-    - if [ "$TRAVIS_OS_NAME" = "linux" ]; then mkdir build && cd build && cmake ..; fi
+    - if [ "$TRAVIS_OS_NAME" = "linux" ];   then mkdir build && cd build && cmake ..; fi
+    - if [ "$TRAVIS_OS_NAME" = "windows" ]; then curl -vLO https://download.qt.io/official_releases/online_installers/qt-unified-windows-x86-online.exe; fi
 
 script:
     - if [ "$TRAVIS_OS_NAME" = "linux" ]; then make; fi
