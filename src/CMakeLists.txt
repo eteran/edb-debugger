@@ -229,11 +229,6 @@ endif()
 add_executable(edb ${edb_SRCS})
 
 if(GRAPHVIZ_FOUND)
-	target_link_libraries(edb
-	PUBLIC
-		${GRAPHVIZ_LIBRARY_DIRS}
-	)
-
 	target_include_directories (edb
 	PUBLIC
 		${GRAPHVIZ_INCLUDE_DIRS}
@@ -242,6 +237,26 @@ if(GRAPHVIZ_FOUND)
 	target_link_libraries(edb
 		${GRAPHVIZ_LIBRARIES}
 	)
+endif()
+
+
+if(UNIX AND TARGET_ARCH_FAMILY_X86)
+	# now we always have it :-)
+	add_definitions("-DHAVE_GDTOA")
+	if(GDTOA_FOUND)
+		target_include_directories (edb
+		PUBLIC
+			${GDTOA_INCLUDE_DIRS}
+		)
+
+		target_link_libraries(edb
+			${GDTOA_LIBRARIES}
+		)
+	else()
+		target_link_libraries(edb
+			gdtoa-desktop
+		)
+	endif()
 endif()
 
 target_compile_definitions(edb PRIVATE
@@ -256,7 +271,6 @@ target_link_libraries(edb
 	Qt5::XmlPatterns
 	Qt5::Svg
 	${DOUBLE_CONVERSION_LIBRARIES}
-	${GDTOA_LIBRARIES}
 )
 
 target_include_directories (edb PRIVATE
@@ -265,6 +279,9 @@ target_include_directories (edb PRIVATE
 	"widgets"
 	"session"
 )
+
+
+target_add_warnings(edb)
 
 install (TARGETS edb DESTINATION ${CMAKE_INSTALL_BINDIR})
 

@@ -1,3 +1,6 @@
 [submodule "src/qhexview"]
 	path = src/qhexview
 	url = https://github.com/eteran/qhexview.git
+[submodule "lib/gdtoa-desktop"]
+	path = lib/gdtoa-desktop
+	url = https://github.com/10110111/gdtoa-desktop.git

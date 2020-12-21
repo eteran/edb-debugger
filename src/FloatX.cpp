@@ -27,7 +27,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #if defined(HAVE_GDTOA)
-#include <gdtoa-desktop.h>
+	#if __has_include(<gdtoa-functions-renamed.h>)
+		#include <gdtoa-functions-renamed.h>
+	#elif __has_include(<gdtoa-desktop.h>)
+		#include <gdtoa-desktop.h>
+	#endif
 #endif
 
 #ifdef _MSC_VER

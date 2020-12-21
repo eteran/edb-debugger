@@ -17,6 +17,7 @@ include("DetectArchitecture")
 include("EnableSanitizers")
 include("EnableSTLDebug")
 include("ProjectDefaults")
+include("AddWarnings")
 
 if(TARGET_COMPILER_GCC AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 5.0)
 	message(FATAL_ERROR "Your g++ version is too old. At least 5.0 is required.")
@@ -88,67 +89,12 @@ elseif(TARGET_ARCH_ARM64)
 	include_directories("include/arch/arm-generic")
 endif()
 
-# FIXME: This is also useful on Windows, so it should be made usable there too.
 if(UNIX)
 	if(TARGET_ARCH_FAMILY_X86)
 		pkg_check_modules(GDTOA gdtoa-desktop)
 		if(NOT GDTOA_FOUND)
-			message(WARNING "gdtoa-desktop package wasn't found. 80-bit floating-point values will be shown with max_digits10 digits of precision instead of shortest representation.")
-		else()
-			add_definitions("-DHAVE_GDTOA")
-			include_directories(${GDTOA_INCLUDE_DIRS})
-			link_directories(${GDTOA_LIBRARY_DIRS})
+			message(STATUS "gdtoa-desktop package wasn't found. Using built in version.")
 		endif()
-	endif()
-endif()
-
-
-if (TARGET_COMPILER_CLANG OR TARGET_COMPILER_GCC)
-    add_compile_options(
-		-W
-		-Wall
-		#-Wshadow
-		-Wnon-virtual-dtor
-		#-Wold-style-cast
-		-Wcast-align
-		-Wunused
-		-Woverloaded-virtual
-		-pedantic
-		#-Wconversion
-		#-Wsign-conversion
-		#-Wnull-dereference
-		-Wdouble-promotion
-		-Wformat=2
-		-Wno-unused-macros
-		-Wno-switch-enum
-		-Wno-unknown-pragmas
-    )
-
-    if(TARGET_COMPILER_CLANG)
-		add_compile_options(
-			#-Wshorten-64-to-32
-			-Wconditional-uninitialized
-			#-Wshadow-uncaptured-local
-			-Wmissing-prototypes
-			#-Wexit-time-destructors
-			#-Wglobal-constructors
-			-Wimplicit-fallthrough
-		)
-
-    elseif(TARGET_COMPILER_GCC)
-		add_compile_options(
-			#-Wuseless-cast
-			#-Wduplicated-cond
-			#-Wduplicated-branches
-			-Wlogical-op
-
-			#-Wsuggest-attribute=pure
-			#-Wsuggest-attribute=const
-			#-Wsuggest-attribute=noreturn
-			#-Wsuggest-final-types
-			#-Wsuggest-final-methods
-			-Wsuggest-override
-		)
 	endif()
 endif()
 
