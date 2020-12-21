@@ -1643,7 +1643,9 @@ void QDisassemblyView::setFont(const QFont &f) {
 	QFont newFont(f);
 
 	// NOTE(eteran): fix for #414 ?
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
 	newFont.setStyleStrategy(QFont::ForceIntegerMetrics);
+#endif
 
 	// TODO: assert that we are using a fixed font & find out if we care?
 	QAbstractScrollArea::setFont(newFont);

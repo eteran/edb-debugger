@@ -733,7 +733,11 @@ IAnalyzer::FunctionMap Analyzer::functions(const std::shared_ptr<IRegion> &regio
 IAnalyzer::FunctionMap Analyzer::functions() const {
 	FunctionMap results;
 	for (auto &it : analysisInfo_) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+		results.insert(it.functions);
+#else
 		results.unite(it.functions);
+#endif
 	}
 	return results;
 }

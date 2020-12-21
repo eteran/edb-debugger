@@ -253,7 +253,11 @@ QString process_socket_file(const QString &filename, QString *symlink, int sock,
 		while (!line.isNull()) {
 
 			QString lline(line);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+			const QStringList lst = lline.replace(":", " ").split(" ", Qt::SkipEmptyParts);
+#else
 			const QStringList lst = lline.replace(":", " ").split(" ", QString::SkipEmptyParts);
+#endif
 
 			if (func(symlink, sock, lst)) {
 				break;

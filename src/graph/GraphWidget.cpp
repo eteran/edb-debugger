@@ -285,7 +285,7 @@ void GraphWidget::wheelEvent(QWheelEvent *event) {
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::setScale(qreal factor) {
-	const qreal f = std::sqrt(matrix().determinant());
+	const qreal f = std::sqrt(transform().determinant());
 	factor        = qBound(MinimumZoom / f, factor, MaximumZoom / f);
 	scale(factor, factor);
 	Q_EMIT zoomEvent(factor, f);
