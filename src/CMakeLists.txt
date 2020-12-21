@@ -249,11 +249,6 @@ if(TARGET_ARCH_FAMILY_X86)
 	# now we always have it :-)
 	add_definitions("-DHAVE_GDTOA")
 	if(GDTOA_FOUND)
-		target_link_directories(edb
-		PUBLIC
-			${GDTOA_LIBRARY_DIRS}
-		)
-		
 		target_include_directories (edb
 		PUBLIC
 			${GDTOA_INCLUDE_DIRS}
