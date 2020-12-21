@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "FeatureDetect.h"
-#include "version.h"
+#include "edb.h"
 
 #include <fcntl.h>
 #include <iomanip>
@@ -135,7 +135,7 @@ bool detect_proc_access(bool *read_broken, bool *write_broken) {
 		}
 
 		const auto pageAlignMask = ~(sysconf(_SC_PAGESIZE) - 1);
-		const auto addr          = reinterpret_cast<uintptr_t>(&edb::version) & pageAlignMask;
+		const auto addr          = reinterpret_cast<uintptr_t>(&edb::v1::debugger_ui) & pageAlignMask;
 		file.seekp(addr);
 		if (!file) {
 			perror("failed to seek to address to read");
