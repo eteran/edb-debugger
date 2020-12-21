@@ -12,13 +12,14 @@ env:
         - MAKEFLAGS="-j2"
 
 before_script:
-    - mkdir build && cd build && cmake ..
+    - if [ "$TRAVIS_OS_NAME" = "linux" ]; then mkdir build && cd build && cmake ..; fi
 
 script:
-    - make
+    - if [ "$TRAVIS_OS_NAME" = "linux" ]; then make; fi
 
 os:
     - linux
+    - windows
 
 addons:
     apt:
