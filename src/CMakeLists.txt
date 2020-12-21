@@ -253,7 +253,6 @@ if(TARGET_ARCH_FAMILY_X86)
 			${GDTOA_LIBRARIES}
 		)
 	else()
-		add_definitions("-DHAVE_GDTOA")
 		target_link_libraries(edb
 			gdtoa-desktop
 		)
