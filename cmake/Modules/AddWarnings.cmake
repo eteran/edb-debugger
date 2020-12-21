@@ -22,6 +22,7 @@ function(TARGET_ADD_WARNINGS TARGET)
 			-Wno-unused-macros
 			-Wno-switch-enum
 			-Wno-unknown-pragmas
+			-Wimplicit-fallthrough
 		)
 
 		if(TARGET_COMPILER_CLANG)
@@ -32,7 +33,6 @@ function(TARGET_ADD_WARNINGS TARGET)
 				#-Wshadow-uncaptured-local
 				#-Wshorten-64-to-32
 				-Wconditional-uninitialized
-				-Wimplicit-fallthrough
 				-Wmissing-prototypes
 			)
 
@@ -49,7 +49,6 @@ function(TARGET_ADD_WARNINGS TARGET)
 				#-Wuseless-cast
 				-Wlogical-op
 				-Wsuggest-override
-
 			)
 	    endif()
 	endif()

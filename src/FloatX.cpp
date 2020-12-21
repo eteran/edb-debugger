@@ -438,7 +438,7 @@ EDB_EXPORT QString format_float(Float value) {
 
 			std::memcpy(ptr, &exponent, sizeof(exponent));
 		}
-		// fall through
+		[[fallthrough]];
 	case FloatValueClass::Normal:
 	case FloatValueClass::Denormal: {
 #ifdef HAVE_DOUBLE_CONVERSION
