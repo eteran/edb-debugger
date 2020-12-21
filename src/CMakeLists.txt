@@ -1,14 +1,11 @@
 cmake_minimum_required (VERSION 3.1)
 include("GNUInstallDirs")
-include("DetectGitBranch")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
 find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns Svg)
-
-git_get_branch(GIT_BRANCH)
 
 qt5_add_resources(QRC_SOURCES
 	res/debugger.qrc
@@ -239,7 +236,6 @@ if(GRAPHVIZ_FOUND)
 	)
 endif()
 
-
 if(UNIX AND TARGET_ARCH_FAMILY_X86)
 	# now we always have it :-)
 	add_definitions("-DHAVE_GDTOA")
@@ -260,7 +256,6 @@ if(UNIX AND TARGET_ARCH_FAMILY_X86)
 endif()
 
 target_compile_definitions(edb PRIVATE
-	-DGIT_BRANCH=${GIT_BRANCH}
 	-DDEFAULT_PLUGIN_PATH=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb\"
 )
 

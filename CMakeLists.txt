@@ -18,10 +18,13 @@ include("EnableSanitizers")
 include("EnableSTLDebug")
 include("ProjectDefaults")
 include("AddWarnings")
+include("DetectGitBranch")
 
 if(TARGET_COMPILER_GCC AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 7.0)
 	message(FATAL_ERROR "Your g++ version is too old. At least 7.0 is required.")
 endif()
+
+git_get_branch(GIT_BRANCH)
 
 configure_file(include/version.h.in include/version.h)
 include_directories("${PROJECT_BINARY_DIR}/include")

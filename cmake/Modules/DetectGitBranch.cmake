@@ -1,7 +1,7 @@
 
 function(git_get_branch RESULT)
-
-	if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
+	find_package(Git)
+	if(Git_FOUND AND EXISTS "${CMAKE_SOURCE_DIR}/.git")
 		execute_process(
 			COMMAND git rev-parse HEAD
 			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -12,5 +12,4 @@ function(git_get_branch RESULT)
 	else()
 		set(${RESULT} "Unknown" PARENT_SCOPE)
 	endif()
-
 endfunction()
