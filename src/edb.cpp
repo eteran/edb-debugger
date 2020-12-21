@@ -96,8 +96,6 @@ bool function_symbol_base(edb::address_t address, QString *value, int *offset) {
 }
 }
 
-const char version[] = "1.3.0";
-
 namespace internal {
 
 //------------------------------------------------------------------------------
@@ -1040,7 +1038,7 @@ void register_binary_info(IBinary::create_func_ptr_t fptr) {
 // Desc: returns an integer comparable version of our current version string
 //------------------------------------------------------------------------------
 quint32 edb_version() {
-	return int_version(version);
+	return int_version(EDB_VERSION_STRING);
 }
 
 //------------------------------------------------------------------------------

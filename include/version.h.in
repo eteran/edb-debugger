@@ -19,8 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VERSION_H_20061109_
 #define VERSION_H_20061109_
 
-namespace edb {
-extern const char version[];
-}
+#define EDB_VERSION_STRING "@PROJECT_VERSION@"
 
 #endif

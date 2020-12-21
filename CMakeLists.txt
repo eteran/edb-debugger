@@ -1,8 +1,5 @@
 cmake_minimum_required (VERSION 3.1)
-project (edb 
-	LANGUAGES CXX
-	VERSION 1.3.0
-	)
+project (edb LANGUAGES CXX VERSION 1.3.0)
 
 enable_testing()
 
@@ -25,6 +22,9 @@ include("AddWarnings")
 if(TARGET_COMPILER_GCC AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 5.0)
 	message(FATAL_ERROR "Your g++ version is too old. At least 5.0 is required.")
 endif()
+
+configure_file(include/version.h.in include/version.h)
+include_directories("${PROJECT_BINARY_DIR}/include")
 
 find_package(Capstone REQUIRED)
 include_directories(${CAPSTONE_INCLUDE_DIRS})
