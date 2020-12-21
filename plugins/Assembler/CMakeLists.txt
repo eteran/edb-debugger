@@ -33,6 +33,8 @@ target_link_libraries(${PluginName} Qt5::Widgets Qt5::Xml Qt5::XmlPatterns edb)
 
 install (TARGETS ${PluginName} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
 
+target_add_warnings(${PluginName})
+
 set_property(TARGET ${PluginName} PROPERTY CXX_EXTENSIONS OFF)
 set_property(TARGET ${PluginName} PROPERTY CXX_STANDARD 17)
 set_property(TARGET ${PluginName} PROPERTY CXX_STANDARD_REQUIRED ON)

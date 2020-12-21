@@ -26,7 +26,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <double-conversion/double-conversion.h>
 #endif
 
-#if defined(HAVE_GDTOA)
+#if defined(HAVE_GDTOA_INTERNAL)
+#include <gdtoa-functions-renamed.h>
+#elif defined(HAVE_GDTOA)
 #include <gdtoa-desktop.h>
 #endif
 
