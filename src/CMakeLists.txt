@@ -229,11 +229,6 @@ endif()
 add_executable(edb ${edb_SRCS})
 
 if(GRAPHVIZ_FOUND)
-	target_link_directories(edb
-	PUBLIC
-		${GRAPHVIZ_LIBRARY_DIRS}
-	)
-
 	target_include_directories (edb
 	PUBLIC
 		${GRAPHVIZ_INCLUDE_DIRS}
