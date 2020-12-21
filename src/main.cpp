@@ -155,7 +155,7 @@ void load_plugins(const QString &directory) {
  */
 int start_debugger(const LaunchArguments &launch_args) {
 
-	qDebug() << "Starting edb version:" << edb::version;
+	qDebug() << "Starting edb version:" << EDB_VERSION_STRING;
 	qDebug("Please Report Bugs & Requests At: https://github.com/eteran/edb-debugger/issues");
 
 	edb::internal::load_function_db();
@@ -317,7 +317,7 @@ int main(int argc, char *argv[]) {
 	QApplication::setOrganizationName("codef00.com");
 	QApplication::setOrganizationDomain("codef00.com");
 	QApplication::setApplicationName("edb");
-	QApplication::setApplicationVersion(edb::version);
+	QApplication::setApplicationVersion(EDB_VERSION_STRING);
 
 	load_translations();
 
@@ -347,10 +347,10 @@ int main(int argc, char *argv[]) {
 	for (int i = 1; i < args.size(); ++i) {
 
 		if (args[i] == "--version") {
-			std::cout << "edb version: " << edb::version << std::endl;
+			std::cout << "edb version: " << EDB_VERSION_STRING << std::endl;
 			return 0;
 		} else if (args[i] == "--dump-version") {
-			std::cout << edb::version << std::endl;
+			std::cout << EDB_VERSION_STRING << std::endl;
 			return 0;
 		} else if (args[i] == "--attach") {
 			++i;
