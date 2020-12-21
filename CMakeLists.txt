@@ -1,9 +1,12 @@
 cmake_minimum_required (VERSION 3.1)
-project (edb CXX)
+project (edb 
+	LANGUAGES CXX
+	VERSION 1.3.0
+	)
 
 enable_testing()
 
-if(NOT EXISTS "${PROJECT_SOURCE_DIR}/src/qhexview/.git")
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/src/qhexview/.git" OR NOT EXISTS "${PROJECT_SOURCE_DIR}/lib/gdtoa-desktop/.git")
 	message(SEND_ERROR "The git submodules are not available. Please run:\ngit submodule update --init --recursive")
 endif()
 
@@ -26,12 +29,6 @@ endif()
 find_package(Capstone REQUIRED)
 include_directories(${CAPSTONE_INCLUDE_DIRS})
 link_directories(${CAPSTONE_LIBRARY_DIRS})
-
-# eventually use this to generate version.h?
-set(TARGET_VERSION_MAJOR 1)
-set(TARGET_VERSION_MINOR 3)
-set(TARGET_VERSION_PATCH 0)
-set_property(GLOBAL PROPERTY VERSION ${TARGET_VERSION_MAJOR}.${TARGET_VERSION_MINOR}.${TARGET_VERSION_PATCH})
 
 if (UNIX)
 	find_package(PkgConfig REQUIRED)
