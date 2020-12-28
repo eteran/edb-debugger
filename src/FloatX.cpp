@@ -27,11 +27,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #if defined(HAVE_GDTOA)
-	#if __has_include(<gdtoa-functions-renamed.h>)
-		#include <gdtoa-functions-renamed.h>
-	#elif __has_include(<gdtoa-desktop.h>)
-		#include <gdtoa-desktop.h>
-	#endif
+#if __has_include(<gdtoa-functions-renamed.h>)
+#include <gdtoa-functions-renamed.h>
+#elif __has_include(<gdtoa-desktop.h>)
+#include <gdtoa-desktop.h>
+#else
+#error "gdtoa-desktop not found! Please make sure your submodules are up to date by running: git submodule update --init --recursive"
+// undef this macro to suppress an further related errors. This initial error message should be what the user focuses on
+#undef HAVE_GDTOA
+#endif
 #endif
 
 #ifdef _MSC_VER
@@ -427,7 +431,7 @@ EDB_EXPORT QString format_float(Float value) {
 		return value.negative() ? "-0.0" : "0.0";
 
 	case FloatValueClass::PseudoDenormal:
-		if (sizeof(value) >= 10) {
+		if constexpr (sizeof(value) >= 10) {
 			Q_ASSERT(sizeof(value) == 10);
 
 			// Convert to supported value as the CPU would. Otherwise glibc takes it wrong.
@@ -444,7 +448,7 @@ EDB_EXPORT QString format_float(Float value) {
 #ifdef HAVE_DOUBLE_CONVERSION
 		constexpr bool isDouble = std::is_same<Float, edb::value64>::value;
 		constexpr bool isFloat  = std::is_same<Float, edb::value32>::value;
-		if (isDouble || isFloat) {
+		if constexpr (isDouble || isFloat) {
 			using namespace double_conversion;
 
 			char buffer[64];
