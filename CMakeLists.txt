@@ -4,7 +4,7 @@ project (edb LANGUAGES CXX VERSION 1.3.0)
 enable_testing()
 
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/src/qhexview/.git" OR NOT EXISTS "${PROJECT_SOURCE_DIR}/lib/gdtoa-desktop/.git")
-	message(FATAL_ERROR "The git submodules are not available. Please run:\ngit submodule update --init --recursive")
+	message(SEND_ERROR "The git submodules are not available. Please run:\ngit submodule update --init --recursive")
 endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
