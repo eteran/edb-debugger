@@ -252,6 +252,8 @@ if(UNIX AND TARGET_ARCH_FAMILY_X86)
 		target_link_libraries(edb
 			gdtoa-desktop
 		)
+		
+		add_dependencies(edb gdtoa_h)
 	endif()
 endif()
 
