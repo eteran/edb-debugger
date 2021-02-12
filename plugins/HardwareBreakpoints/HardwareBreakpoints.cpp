@@ -249,8 +249,8 @@ edb::EventStatus HardwareBreakpoints::handleEvent(const std::shared_ptr<IDebugEv
  * @brief HardwareBreakpoints::stackContextMenu
  * @return
  */
-QList<QAction *> HardwareBreakpoints::stackContextMenu() {
-	auto menu = new QMenu(tr("Hardware Breakpoints"));
+QList<QAction *> HardwareBreakpoints::stackContextMenu(QMenu *parent) {
+	auto menu = new QMenu(tr("Hardware Breakpoints"), parent);
 
 	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(setAccess1()));
 	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(setAccess2()));
@@ -274,7 +274,7 @@ QList<QAction *> HardwareBreakpoints::stackContextMenu() {
 
 	QList<QAction *> ret;
 
-	auto action = new QAction(tr("Hardware Breakpoints"), this);
+	auto action = new QAction(tr("Hardware Breakpoints"), parent);
 	action->setMenu(menu);
 	ret << action;
 	return ret;
@@ -284,8 +284,8 @@ QList<QAction *> HardwareBreakpoints::stackContextMenu() {
  * @brief HardwareBreakpoints::dataContextMenu
  * @return
  */
-QList<QAction *> HardwareBreakpoints::dataContextMenu() {
-	auto menu = new QMenu(tr("Hardware Breakpoints"));
+QList<QAction *> HardwareBreakpoints::dataContextMenu(QMenu *parent) {
+	auto menu = new QMenu(tr("Hardware Breakpoints"), parent);
 
 	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(setAccess1()));
 	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(setAccess2()));
@@ -309,7 +309,7 @@ QList<QAction *> HardwareBreakpoints::dataContextMenu() {
 
 	QList<QAction *> ret;
 
-	auto action = new QAction(tr("Hardware Breakpoints"), this);
+	auto action = new QAction(tr("Hardware Breakpoints"), parent);
 	action->setMenu(menu);
 	ret << action;
 	return ret;
@@ -319,9 +319,9 @@ QList<QAction *> HardwareBreakpoints::dataContextMenu() {
  * @brief HardwareBreakpoints::cpuContextMenu
  * @return
  */
-QList<QAction *> HardwareBreakpoints::cpuContextMenu() {
+QList<QAction *> HardwareBreakpoints::cpuContextMenu(QMenu *parent) {
 
-	auto menu = new QMenu(tr("Hardware Breakpoints"));
+	auto menu = new QMenu(tr("Hardware Breakpoints"), parent);
 	auto ex1  = menu->addAction(tr("Hardware, On Execute #1"), this, SLOT(setExec1()));
 	auto ex2  = menu->addAction(tr("Hardware, On Execute #2"), this, SLOT(setExec2()));
 	auto ex3  = menu->addAction(tr("Hardware, On Execute #3"), this, SLOT(setExec3()));
@@ -354,7 +354,7 @@ QList<QAction *> HardwareBreakpoints::cpuContextMenu() {
 
 	QList<QAction *> ret;
 
-	auto action = new QAction(tr("Hardware Breakpoints"), this);
+	auto action = new QAction(tr("Hardware Breakpoints"), parent);
 	action->setMenu(menu);
 	ret << action;
 	return ret;

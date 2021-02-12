@@ -95,11 +95,11 @@ QMenu *Bookmarks::menu(QWidget *parent) {
  * @brief Bookmarks::cpuContextMenu
  * @return
  */
-QList<QAction *> Bookmarks::cpuContextMenu() {
+QList<QAction *> Bookmarks::cpuContextMenu(QMenu *parent) {
 
 	QList<QAction *> ret;
 
-	auto action_bookmark = new QAction(tr("Add &Bookmark"), this);
+	auto action_bookmark = new QAction(tr("Add &Bookmark"), parent);
 	connect(action_bookmark, &QAction::triggered, this, &Bookmarks::addBookmarkMenu);
 	ret << action_bookmark;
 
