@@ -6,6 +6,7 @@
 #include "util/Integer.h"
 #include <QAbstractItemModel>
 #include <deque>
+#include <memory>
 #include <vector>
 
 Q_DECLARE_METATYPE(std::vector<NumberDisplayMode>)
