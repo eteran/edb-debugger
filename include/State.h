@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef STATE_H_20060715_
 #define STATE_H_20060715_
 
+#include <memory>
 #include "API.h"
 #include "Types.h"
 
