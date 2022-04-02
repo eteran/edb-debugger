@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ISTATE_H_20110315_
 #define ISTATE_H_20110315_
 
+#include <memory>
 #include "Register.h"
 #include "Types.h"
 
