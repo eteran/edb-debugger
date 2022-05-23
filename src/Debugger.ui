@@ -15,24 +15,7 @@
    <string>edb</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QDisassemblyView" name="cpuView" native="true"/>
-    </item>
-    <item>
-     <widget class="QListView" name="listView">
-      <property name="font">
-       <font>
-        <family>Monospace</family>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
-      <property name="editTriggers">
-       <set>QAbstractItemView::NoEditTriggers</set>
-      </property>
-     </widget>
-    </item>
-   </layout>
+   <layout class="QVBoxLayout" name="verticalLayout"/>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -40,7 +23,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>23</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_help">
@@ -112,39 +95,6 @@
    <addaction name="menu_help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QDockWidget" name="dataDock">
-   <property name="windowTitle">
-    <string>Data Dump</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>8</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_4">
-    <layout class="QGridLayout">
-     <item row="0" column="0">
-      <widget class="TabWidget" name="tabWidget">
-       <widget class="QWidget" name="tab">
-        <attribute name="title">
-         <string>00000000-00000000</string>
-        </attribute>
-        <layout class="QGridLayout"/>
-       </widget>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QDockWidget" name="stackDock">
-   <property name="windowTitle">
-    <string>Stack</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>8</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QGridLayout"/>
-   </widget>
-  </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
     <string>ToolBar</string>
@@ -198,7 +148,8 @@
   </action>
   <action name="action_Memory_Regions">
    <property name="icon">
-    <iconset theme="memory-slot"/>
+    <iconset theme="memory-slot">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Memory Regions</string>
@@ -220,7 +171,8 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="debug-run"/>
+    <iconset theme="debug-run">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Run</string>
@@ -234,7 +186,8 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="debug-pause"/>
+    <iconset theme="debug-pause">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Pause</string>
@@ -248,7 +201,8 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="debug-restart"/>
+    <iconset theme="debug-restart">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>R&amp;estart</string>
@@ -276,7 +230,8 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="debug-step-into"/>
+    <iconset theme="debug-step-into">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Step Into</string>
@@ -290,7 +245,8 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="debug-step-over"/>
+    <iconset theme="debug-step-over">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Step &amp;Over</string>
@@ -366,7 +322,8 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="debug-step-into"/>
+    <iconset theme="debug-step-into">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Step &amp;Into (Pass Signal To Application)</string>
@@ -380,7 +337,8 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="debug-step-over"/>
+    <iconset theme="debug-step-over">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Step O&amp;ver (Pass Signal To Application)</string>
@@ -394,7 +352,8 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="debug-run"/>
+    <iconset theme="debug-run">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Ru&amp;n (Pass Signal To Application)</string>
@@ -422,7 +381,8 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="debug-close"/>
+    <iconset theme="debug-close">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Kill</string>
@@ -430,7 +390,8 @@
   </action>
   <action name="action_Plugins">
    <property name="icon">
-    <iconset theme="plugin"/>
+    <iconset theme="plugin">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Plugins</string>
@@ -449,7 +410,8 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="debug-step-out"/>
+    <iconset theme="debug-step-out">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Step &amp;Out</string>
@@ -459,19 +421,6 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QDisassemblyView</class>
-   <extends>QWidget</extends>
-   <header>QDisassemblyView.h</header>
-  </customwidget>
-  <customwidget>
-   <class>TabWidget</class>
-   <extends>QTabWidget</extends>
-   <header>TabWidget.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>

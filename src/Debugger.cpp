@@ -1,6 +1,6 @@
 /*
 Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -129,10 +129,10 @@ void handle_library_event(IProcess *process, edb::address_t debug_pointer) {
 #endif
 			break;
 		case edb::linux_struct::r_debug<Addr>::RT_ADD:
-			//qDebug("LIBRARY LOAD EVENT");
+			// qDebug("LIBRARY LOAD EVENT");
 			break;
 		case edb::linux_struct::r_debug<Addr>::RT_DELETE:
-			//qDebug("LIBRARY UNLOAD EVENT");
+			// qDebug("LIBRARY UNLOAD EVENT");
 			break;
 		}
 	}
@@ -206,7 +206,7 @@ public:
 	//--------------------------------------------------------------------------
 	// Name: handle_event
 	//--------------------------------------------------------------------------
-	//TODO: Need to handle stop/pause button
+	// TODO: Need to handle stop/pause button
 	edb::EventStatus handleEvent(const std::shared_ptr<IDebugEvent> &event) override {
 
 		if (!event->isTrap()) {
@@ -236,29 +236,29 @@ public:
 			if (trap_reason == IDebugEvent::TRAP_BREAKPOINT) {
 				qDebug() << "Trap breakpoint";
 
-				//Take care of exit/terminated conditions; address == 0 may suffice to catch all, but not 100% sure.
+				// Take care of exit/terminated conditions; address == 0 may suffice to catch all, but not 100% sure.
 				if (reason == IDebugEvent::EVENT_EXITED || reason == IDebugEvent::EVENT_TERMINATED || address == 0) {
 					qDebug() << "The process is no longer running.";
 					return pass_back_to_debugger();
 				}
 
-				//Check the previous byte for 0xcc to see if it was an actual breakpoint
+				// Check the previous byte for 0xcc to see if it was an actual breakpoint
 				std::shared_ptr<IBreakpoint> bp = edb::v1::find_triggered_breakpoint(address);
 
-				//If there was a bp there, then we hit a block terminator as part of our RunUntilRet
-				//algorithm, or it is a user-set breakpoint.
-				if (bp && bp->enabled()) { //Isn't it always enabled if trap_reason is breakpoint, anyway?
+				// If there was a bp there, then we hit a block terminator as part of our RunUntilRet
+				// algorithm, or it is a user-set breakpoint.
+				if (bp && bp->enabled()) { // Isn't it always enabled if trap_reason is breakpoint, anyway?
 
 					const edb::address_t prev_address = bp->address();
 
 					bp->hit();
 
-					//Adjust RIP since 1st byte was replaced with 0xcc and we are now 1 byte after it.
+					// Adjust RIP since 1st byte was replaced with 0xcc and we are now 1 byte after it.
 					state.setInstructionPointer(prev_address);
 					process->currentThread()->setState(state);
 					address = prev_address;
 
-					//If it wasn't internal, it was a user breakpoint. Pass back to Debugger.
+					// If it wasn't internal, it was a user breakpoint. Pass back to Debugger.
 					if (!bp->internal()) {
 						qDebug() << "Previous was not an internal breakpoint.";
 						return pass_back_to_debugger();
@@ -267,51 +267,51 @@ public:
 					bp->disable();
 					edb::v1::debugger_core->removeBreakpoint(bp->address());
 				} else {
-					//No breakpoint if it was a syscall; continue.
+					// No breakpoint if it was a syscall; continue.
 					return edb::DEBUG_CONTINUE;
 				}
 			}
 
-			//If we are on our ret (or the instr after?), then ret.
+			// If we are on our ret (or the instr after?), then ret.
 			if (address == returnAddress_) {
 				qDebug() << QString("On our terminator at 0x%1").arg(address, 0, 16);
 				if (is_instruction_ret(address)) {
 					qDebug() << "Found ret; passing back to debugger";
 					return pass_back_to_debugger();
 				} else {
-					//If not a ret, then step so we can find the next block terminator.
+					// If not a ret, then step so we can find the next block terminator.
 					qDebug() << "Not ret. Single-stepping";
 					return edb::DEBUG_CONTINUE_STEP;
 				}
 			}
 
-			//If we stepped (either because it was the first event or because we hit a jmp/jcc),
-			//then find the next block terminator and edb::DEBUG_CONTINUE.
-			//TODO: What if we started on a ret? Set bp, then the proc runs away?
+			// If we stepped (either because it was the first event or because we hit a jmp/jcc),
+			// then find the next block terminator and edb::DEBUG_CONTINUE.
+			// TODO: What if we started on a ret? Set bp, then the proc runs away?
 			uint8_t buffer[edb::Instruction::MaxSize];
 			while (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 
-				//Get the instruction
+				// Get the instruction
 				edb::Instruction inst(buffer, buffer + size, 0);
 				qDebug() << QString("Scanning for terminator at 0x%1: found %2").arg(address, 0, 16).arg(inst.mnemonic().c_str());
 
-				//Check if it's a proper block terminator (ret/jmp/jcc/hlt)
+				// Check if it's a proper block terminator (ret/jmp/jcc/hlt)
 				if (inst) {
 					if (is_terminator(inst)) {
 						qDebug() << QString("Found terminator %1 at 0x%2").arg(QString(inst.mnemonic().c_str())).arg(address, 0, 16);
-						//If we already had a breakpoint there, then just continue.
+						// If we already had a breakpoint there, then just continue.
 						if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->findBreakpoint(address)) {
 							qDebug() << QString("Already a breakpoint at terminator 0x%1").arg(address, 0, 16);
 							return edb::DEBUG_CONTINUE;
 						}
 
-						//Otherwise, attempt to set a breakpoint there and continue.
+						// Otherwise, attempt to set a breakpoint there and continue.
 						if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(address)) {
 							ownBreakpoints_.emplace_back(address, bp);
 							qDebug() << QString("Setting breakpoint at terminator 0x%1").arg(address, 0, 16);
 							bp->setInternal(true);
-							bp->setOneTime(true); //If the 0xcc get's rm'd on next event, then
-												  //don't set it one time; we'll hande it manually
+							bp->setOneTime(true); // If the 0xcc get's rm'd on next event, then
+												  // don't set it one time; we'll hande it manually
 							returnAddress_ = address;
 							return edb::DEBUG_CONTINUE;
 						} else {
@@ -322,7 +322,7 @@ public:
 						}
 					}
 				} else {
-					//Invalid instruction or some other problem. Pass it back to the debugger.
+					// Invalid instruction or some other problem. Pass it back to the debugger.
 					QMessageBox::critical(edb::v1::debugger_ui,
 										  tr("Error running until return"),
 										  tr("Failed to disassemble instruction at address %1.").arg(address.toPointerString()));
@@ -332,7 +332,7 @@ public:
 				address += inst.byteSize();
 			}
 
-			//If we end up out here, we've got bigger problems. Pass it back to the debugger.
+			// If we end up out here, we've got bigger problems. Pass it back to the debugger.
 			QMessageBox::critical(edb::v1::debugger_ui,
 								  tr("Error running until return"),
 								  tr("Stepped outside the loop, address=%1.").arg(address.toPointerString()));
@@ -363,13 +363,14 @@ Debugger::Debugger(QWidget *parent)
 	  recentFileManager_(new RecentFileManager(this)),
 	  stackViewInfo_(nullptr),
 	  commentServer_(std::make_shared<CommentServer>()) {
+
 	setupUi();
 
 	// connect the timer to the debug event
 	connect(timer_, &QTimer::timeout, this, &Debugger::nextDebugEvent);
 
 	// create a context menu for the tab bar as well
-	connect(ui.tabWidget, &TabWidget::customContextMenuRequested, this, &Debugger::tabContextMenu);
+	connect(tabWidget_, &TabWidget::customContextMenuRequested, this, &Debugger::tabContextMenu);
 
 	// CPU Shortcuts
 	gotoAddressAction_ = createAction(tr("&Goto Expression..."), QKeySequence(tr("Ctrl+G")), &Debugger::gotoTriggered);
@@ -401,11 +402,11 @@ Debugger::Debugger(QWidget *parent)
 	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("RIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
 	gotoRIPAction_ = createAction(tr("&Goto %1").arg("RIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #elif defined(EDB_X86)
-	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("EIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
-	gotoRIPAction_ = createAction(tr("&Goto %1").arg("EIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
+	setRIPAction_       = createAction(tr("&Set %1 to this Instruction").arg("EIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
+	gotoRIPAction_      = createAction(tr("&Goto %1").arg("EIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
-	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("PC"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
-	gotoRIPAction_ = createAction(tr("&Goto %1").arg("PC"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
+	setRIPAction_       = createAction(tr("&Set %1 to this Instruction").arg("PC"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
+	gotoRIPAction_      = createAction(tr("&Goto %1").arg("PC"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #else
 #error "This doesn't initialize actions and will lead to crash"
 #endif
@@ -466,7 +467,7 @@ Debugger::Debugger(QWidget *parent)
 
 	// setup the list model for instruction details list
 	listModel_ = new QStringListModel(this);
-	ui.listView->setModel(listModel_);
+	listView_->setModel(listModel_);
 
 	// setup the recent file manager
 	ui.action_Recent_Files->setMenu(recentFileManager_->createMenu());
@@ -720,7 +721,7 @@ void Debugger::ttyProcFinished(int exit_code, QProcess::ExitStatus exit_status) 
 // Desc:
 //------------------------------------------------------------------------------
 int Debugger::currentTab() const {
-	return ui.tabWidget->currentIndex();
+	return tabWidget_->currentIndex();
 }
 
 //------------------------------------------------------------------------------
@@ -755,7 +756,7 @@ void Debugger::deleteDataTab() {
 	dataRegions_.remove(current);
 
 	// remove the tab associated with it
-	ui.tabWidget->removeTab(current);
+	tabWidget_->removeTab(current);
 }
 
 //------------------------------------------------------------------------------
@@ -779,8 +780,8 @@ void Debugger::createDataTab() {
 	hexview->setAlternateWordColor(alternatingByteColor);
 	hexview->setNonPrintableTextColor(nonPrintableTextColor);
 
-	//QColor coldZoneColor_         = Qt::gray;
-	//QColor lineColor_             = Qt::black;
+	// QColor coldZoneColor_         = Qt::gray;
+	// QColor lineColor_             = Qt::black;
 
 	new_data_view->view = hexview;
 
@@ -827,16 +828,16 @@ void Debugger::createDataTab() {
 
 	// create the tab!
 	if (new_data_view->region) {
-		ui.tabWidget->addTab(hexview.get(), tr("%1-%2").arg(
-												edb::v1::format_pointer(new_data_view->region->start()),
-												edb::v1::format_pointer(new_data_view->region->end())));
+		tabWidget_->addTab(hexview.get(), tr("%1-%2").arg(
+											  edb::v1::format_pointer(new_data_view->region->start()),
+											  edb::v1::format_pointer(new_data_view->region->end())));
 	} else {
-		ui.tabWidget->addTab(hexview.get(), tr("%1-%2").arg(
-												edb::v1::format_pointer(edb::address_t(0)),
-												edb::v1::format_pointer(edb::address_t(0))));
+		tabWidget_->addTab(hexview.get(), tr("%1-%2").arg(
+											  edb::v1::format_pointer(edb::address_t(0)),
+											  edb::v1::format_pointer(edb::address_t(0))));
 	}
 
-	ui.tabWidget->setCurrentIndex(ui.tabWidget->count() - 1);
+	tabWidget_->setCurrentIndex(tabWidget_->count() - 1);
 }
 
 //------------------------------------------------------------------------------
@@ -944,31 +945,66 @@ void Debugger::setupUi() {
 
 	ui.setupUi(this);
 
+	// create the main UI
+	// main CPU area
+	auto centralwidget = new QWidget(this);
+	centralwidget->setObjectName(QLatin1String("centralwidget"));
+	auto verticalLayout = new QVBoxLayout(centralwidget);
+	verticalLayout->setObjectName(QLatin1String("verticalLayout"));
+
+	cpuView_ = new QDisassemblyView(centralwidget);
+	cpuView_->setObjectName(QLatin1String("cpuView"));
+
+	verticalLayout->addWidget(cpuView_);
+
+	listView_ = new QListView(centralwidget);
+	listView_->setObjectName(QLatin1String("listView"));
+
+	QFont font;
+	font.setFamily(QLatin1String("Monospace"));
+	font.setPointSize(10);
+	listView_->setFont(font);
+	listView_->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+	verticalLayout->addWidget(listView_);
+	setCentralWidget(centralwidget);
+
+	// data dock
+	dataDock_ = new QDockWidget(this);
+	dataDock_->setObjectName(QLatin1String("dataDock"));
+	tabWidget_ = new TabWidget(this);
+	tabWidget_->setObjectName(QLatin1String("tabWidget"));
+
+	dataDock_->setWidget(tabWidget_);
+	addDockWidget(Qt::BottomDockWidgetArea, dataDock_);
+	dataDock_->setWindowTitle(tr("Data Dump"));
+
+	// stack dock
+	stackDock_ = new QDockWidget(this);
+	stackDock_->setObjectName(QLatin1String("stackDock"));
+	addDockWidget(Qt::BottomDockWidgetArea, stackDock_);
+	stackDock_->setWindowTitle(tr("Stack"));
+
 	status_ = new QLabel(this);
 	ui.statusbar->insertPermanentWidget(0, status_);
 
 	// add toggles for the dock windows
-	ui.menu_View->addAction(ui.dataDock->toggleViewAction());
-	ui.menu_View->addAction(ui.stackDock->toggleViewAction());
+	ui.menu_View->addAction(dataDock_->toggleViewAction());
+	ui.menu_View->addAction(stackDock_->toggleViewAction());
 	ui.menu_View->addAction(ui.toolBar->toggleViewAction());
 
 	ui.action_Restart->setEnabled(recentFileManager_->entryCount() > 0);
 
 	// make sure our widgets use custom context menus
-	ui.cpuView->setContextMenuPolicy(Qt::CustomContextMenu);
+	cpuView_->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	// set the listbox to about 4 lines
-	const QFontMetrics &fm = ui.listView->fontMetrics();
-	ui.listView->setFixedHeight(fm.height() * 4);
+	const QFontMetrics &fm = listView_->fontMetrics();
+	listView_->setFixedHeight(fm.height() * 4);
 
 	setupStackView();
 	setupTabButtons();
 
-	// remove the one in the designer and put in our built one.
-	// it's a bit ugly to do it this way, but the designer wont let me
-	// make a tabless entry..and the ones i create look slightly diff
-	// (probably lack of layout manager in mine...
-	ui.tabWidget->clear();
 	mnuDumpCreateTab();
 
 	// apply any fonts we may have stored
@@ -976,6 +1012,9 @@ void Debugger::setupUi() {
 
 	// apply the default setting for showing address separators
 	applyDefaultShowSeparator();
+
+	connect(cpuView_, &QDisassemblyView::breakPointToggled, this, &Debugger::breakPointToggled_triggered);
+	connect(cpuView_, &QDisassemblyView::customContextMenuRequested, this, &Debugger::customContextMenuRequested_triggered);
 }
 
 //------------------------------------------------------------------------------
@@ -999,7 +1038,7 @@ void Debugger::setupStackView() {
 	stackView_->setUserConfigRowWidth(false);
 	stackView_->setUserConfigWordWidth(false);
 
-	ui.stackDock->setWidget(stackView_.get());
+	stackDock_->setWidget(stackView_.get());
 
 	// setup the context menu
 	stackView_->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1045,7 +1084,7 @@ void Debugger::closeEvent(QCloseEvent *event) {
 	settings.setValue("window.stack.show_ascii.enabled", stackView_->showAsciiDump());
 	settings.setValue("window.stack.show_comments.enabled", stackView_->showComments());
 
-	QByteArray dissassemblyState = ui.cpuView->saveState();
+	QByteArray dissassemblyState = cpuView_->saveState();
 	settings.setValue("window.disassembly.state", dissassemblyState);
 
 	settings.endGroup();
@@ -1084,7 +1123,7 @@ void Debugger::showEvent(QShowEvent *) {
 		QScreen *screen = QGuiApplication::primaryScreen();
 		QRect sg        = screen->geometry();
 #else
-		QRect sg = desktop.screenGeometry();
+        QRect sg = desktop.screenGeometry();
 #endif
 		int x = (sg.width() - this->width()) / 2;
 		int y = (sg.height() - this->height()) / 2;
@@ -1109,7 +1148,7 @@ void Debugger::showEvent(QShowEvent *) {
 	stackView_->setWordWidth(word_width);
 
 	QByteArray disassemblyState = settings.value("window.disassembly.state").toByteArray();
-	ui.cpuView->restoreState(disassemblyState);
+	cpuView_->restoreState(disassemblyState);
 
 	settings.endGroup();
 	restoreState(state);
@@ -1181,7 +1220,7 @@ void Debugger::applyDefaultFonts() {
 	}
 
 	if (font.fromString(config.disassembly_font)) {
-		ui.cpuView->setFont(font);
+		cpuView_->setFont(font);
 	}
 
 	if (font.fromString(config.data_font)) {
@@ -1198,8 +1237,8 @@ void Debugger::applyDefaultFonts() {
  */
 void Debugger::setupTabButtons() {
 	// add the corner widgets to the data view
-	tabCreate_ = new QToolButton(ui.tabWidget);
-	tabDelete_ = new QToolButton(ui.tabWidget);
+	tabCreate_ = new QToolButton(tabWidget_);
+	tabDelete_ = new QToolButton(tabWidget_);
 
 	tabCreate_->setToolButtonStyle(Qt::ToolButtonIconOnly);
 	tabDelete_->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -1210,8 +1249,8 @@ void Debugger::setupTabButtons() {
 	tabCreate_->setEnabled(false);
 	tabDelete_->setEnabled(false);
 
-	ui.tabWidget->setCornerWidget(tabCreate_, Qt::TopLeftCorner);
-	ui.tabWidget->setCornerWidget(tabDelete_, Qt::TopRightCorner);
+	tabWidget_->setCornerWidget(tabCreate_, Qt::TopLeftCorner);
+	tabWidget_->setCornerWidget(tabDelete_, Qt::TopRightCorner);
 
 	connect(tabCreate_, &QToolButton::clicked, this, &Debugger::mnuDumpCreateTab);
 	connect(tabDelete_, &QToolButton::clicked, this, &Debugger::mnuDumpDeleteTab);
@@ -1292,10 +1331,10 @@ void Debugger::toggleFlag(int pos) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_cpuView_breakPointToggled
+// Name: breakPointToggled_triggered
 // Desc: handler for toggling the breakpoints
 //------------------------------------------------------------------------------
-void Debugger::on_cpuView_breakPointToggled(edb::address_t address) {
+void Debugger::breakPointToggled_triggered(edb::address_t address) {
 	edb::v1::toggle_breakpoint(address);
 }
 
@@ -1317,7 +1356,7 @@ void Debugger::on_action_About_triggered() {
 void Debugger::applyDefaultShowSeparator() {
 	const bool show = edb::v1::config().show_address_separator;
 
-	ui.cpuView->setShowAddressSeparator(show);
+	cpuView_->setShowAddressSeparator(show);
 	stackView_->setShowAddressSeparator(show);
 	Q_FOREACH (const std::shared_ptr<DataViewInfo> &data_view, dataRegions_) {
 		data_view->view->setShowAddressSeparator(show);
@@ -1585,7 +1624,7 @@ void Debugger::followInCpu(const Ptr &hexview) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuDumpFollowInCPU() {
-	followInCpu(qobject_cast<QHexView *>(ui.tabWidget->currentWidget()));
+	followInCpu(qobject_cast<QHexView *>(tabWidget_->currentWidget()));
 }
 
 //------------------------------------------------------------------------------
@@ -1593,7 +1632,7 @@ void Debugger::mnuDumpFollowInCPU() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuDumpFollowInDump() {
-	followInDump(qobject_cast<QHexView *>(ui.tabWidget->currentWidget()));
+	followInDump(qobject_cast<QHexView *>(tabWidget_->currentWidget()));
 }
 
 //------------------------------------------------------------------------------
@@ -1601,7 +1640,7 @@ void Debugger::mnuDumpFollowInDump() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuDumpFollowInStack() {
-	followInStack(qobject_cast<QHexView *>(ui.tabWidget->currentWidget()));
+	followInStack(qobject_cast<QHexView *>(tabWidget_->currentWidget()));
 }
 
 //------------------------------------------------------------------------------
@@ -1695,14 +1734,14 @@ void Debugger::mnuStackPop() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_cpuView_customContextMenuRequested
+// Name: customContextMenuRequested_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
+void Debugger::customContextMenuRequested_triggered(const QPoint &pos) {
 	QMenu menu;
 
 	auto displayMenu = new QMenu(tr("Display"), &menu);
-	displayMenu->addAction(QIcon::fromTheme(QString::fromUtf8("view-restore")), tr("Restore Column Defaults"), ui.cpuView, SLOT(resetColumns()));
+	displayMenu->addAction(QIcon::fromTheme(QString::fromUtf8("view-restore")), tr("Restore Column Defaults"), cpuView_, SLOT(resetColumns()));
 
 	auto editMenu = new QMenu(tr("&Edit"), &menu);
 	editMenu->addAction(editBytesAction_);
@@ -1718,8 +1757,8 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	menu.addAction(gotoAddressAction_);
 	menu.addAction(gotoRIPAction_);
 
-	const edb::address_t address = ui.cpuView->selectedAddress();
-	int size                     = ui.cpuView->selectedSize();
+	const edb::address_t address = cpuView_->selectedAddress();
+	int size                     = cpuView_->selectedSize();
 
 	if (IProcess *process = edb::v1::debugger_core->process()) {
 
@@ -1769,7 +1808,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 
 	addPluginContextMenu(&menu, &IPlugin::cpuContextMenu);
 
-	menu.exec(ui.cpuView->viewport()->mapToGlobal(pos));
+	menu.exec(cpuView_->viewport()->mapToGlobal(pos));
 }
 
 //------------------------------------------------------------------------------
@@ -1778,8 +1817,8 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUFollow() {
 
-	const edb::address_t address = ui.cpuView->selectedAddress();
-	int size                     = ui.cpuView->selectedSize();
+	const edb::address_t address = cpuView_->selectedAddress();
+	int size                     = cpuView_->selectedSize();
 	uint8_t buffer[edb::Instruction::MaxSize + 1];
 	if (!edb::v1::get_instruction_bytes(address, buffer, &size))
 		return;
@@ -1898,7 +1937,7 @@ void Debugger::mnuDumpContextMenu(const QPoint &pos) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuDumpSaveToFile() {
-	auto s = qobject_cast<QHexView *>(ui.tabWidget->currentWidget());
+	auto s = qobject_cast<QHexView *>(tabWidget_->currentWidget());
 
 	Q_ASSERT(s);
 
@@ -1921,8 +1960,8 @@ void Debugger::mnuDumpSaveToFile() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::cpuFill(uint8_t byte) {
-	const edb::address_t address = ui.cpuView->selectedAddress();
-	const unsigned int size      = ui.cpuView->selectedSize();
+	const edb::address_t address = cpuView_->selectedAddress();
+	const unsigned int size      = cpuView_->selectedSize();
 
 	if (size != 0) {
 		if (IProcess *process = edb::v1::debugger_core->process()) {
@@ -1943,7 +1982,7 @@ void Debugger::cpuFill(uint8_t byte) {
 // Desc: Adds/edits a comment at the selected address.
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUEditComment() {
-	const edb::address_t address = ui.cpuView->selectedAddress();
+	const edb::address_t address = cpuView_->selectedAddress();
 
 	bool got_text;
 	const QString comment = QInputDialog::getText(
@@ -1951,18 +1990,18 @@ void Debugger::mnuCPUEditComment() {
 		tr("Edit Comment"),
 		tr("Comment:"),
 		QLineEdit::Normal,
-		ui.cpuView->getComment(address),
+		cpuView_->getComment(address),
 		&got_text);
 
-	//If we got a comment, add it.
+	// If we got a comment, add it.
 	if (got_text && !comment.isEmpty()) {
-		ui.cpuView->addComment(address, comment);
+		cpuView_->addComment(address, comment);
 	} else if (got_text && comment.isEmpty()) {
-		//If the user backspaced the comment, remove the comment since
-		//there's no need for a null string to take space in the hash.
-		ui.cpuView->removeComment(address);
+		// If the user backspaced the comment, remove the comment since
+		// there's no need for a null string to take space in the hash.
+		cpuView_->removeComment(address);
 	} else {
-		//The only other real case is that we didn't got_text.  No change.
+		// The only other real case is that we didn't got_text.  No change.
 		return;
 	}
 
@@ -1974,8 +2013,8 @@ void Debugger::mnuCPUEditComment() {
 // Desc: Removes a comment at the selected address.
 //------------------------------------------------------------------------------
 void Debugger::mnuCPURemoveComment() {
-	const edb::address_t address = ui.cpuView->selectedAddress();
-	ui.cpuView->removeComment(address);
+	const edb::address_t address = cpuView_->selectedAddress();
+	cpuView_->removeComment(address);
 	refreshUi();
 }
 
@@ -1984,7 +2023,7 @@ void Debugger::mnuCPURemoveComment() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::runToThisLine(ExceptionResume pass_signal) {
-	const edb::address_t address    = ui.cpuView->selectedAddress();
+	const edb::address_t address    = cpuView_->selectedAddress();
 	std::shared_ptr<IBreakpoint> bp = edb::v1::find_breakpoint(address);
 	if (!bp) {
 		bp = edb::v1::create_breakpoint(address);
@@ -2018,7 +2057,7 @@ void Debugger::mnuCPURunToThisLine() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUToggleBreakpoint() {
-	const edb::address_t address = ui.cpuView->selectedAddress();
+	const edb::address_t address = cpuView_->selectedAddress();
 	edb::v1::toggle_breakpoint(address);
 }
 
@@ -2028,7 +2067,7 @@ void Debugger::mnuCPUToggleBreakpoint() {
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUAddConditionalBreakpoint() {
 	bool ok;
-	const edb::address_t address = ui.cpuView->selectedAddress();
+	const edb::address_t address = cpuView_->selectedAddress();
 
 	const QString condition = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, QString(), &ok);
 	if (ok) {
@@ -2045,7 +2084,7 @@ void Debugger::mnuCPUAddConditionalBreakpoint() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuCPURemoveBreakpoint() {
-	const edb::address_t address = ui.cpuView->selectedAddress();
+	const edb::address_t address = cpuView_->selectedAddress();
 	edb::v1::remove_breakpoint(address);
 }
 
@@ -2073,7 +2112,7 @@ void Debugger::mnuCPUFillNop() {
 //------------------------------------------------------------------------------
 void Debugger::mnuCPULabelAddress() {
 
-	const edb::address_t address = ui.cpuView->selectedAddress();
+	const edb::address_t address = cpuView_->selectedAddress();
 
 	bool ok;
 	const QString text = QInputDialog::getText(
@@ -2097,7 +2136,7 @@ void Debugger::mnuCPULabelAddress() {
 void Debugger::mnuCPUSetEIP() {
 	if (IProcess *process = edb::v1::debugger_core->process()) {
 		if (std::shared_ptr<IThread> thread = process->currentThread()) {
-			const edb::address_t address = ui.cpuView->selectedAddress();
+			const edb::address_t address = cpuView_->selectedAddress();
 			State state;
 			thread->getState(&state);
 			state.setInstructionPointer(address);
@@ -2112,8 +2151,8 @@ void Debugger::mnuCPUSetEIP() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUModify() {
-	const edb::address_t address = ui.cpuView->selectedAddress();
-	const unsigned int size      = ui.cpuView->selectedSize();
+	const edb::address_t address = cpuView_->selectedAddress();
+	const unsigned int size      = cpuView_->selectedSize();
 
 	uint8_t buf[edb::Instruction::MaxSize];
 
@@ -2153,7 +2192,7 @@ void Debugger::modifyBytes(const Ptr &hexview) {
 void Debugger::mnuModifyBytes() {
 
 	QWidget *const focusedWidget = QApplication::focusWidget();
-	if (focusedWidget == ui.cpuView) {
+	if (focusedWidget == cpuView_) {
 		mnuCPUModify();
 	} else if (focusedWidget == stackView_.get()) {
 		mnuStackModify();
@@ -2168,7 +2207,7 @@ void Debugger::mnuModifyBytes() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuDumpModify() {
-	modifyBytes(qobject_cast<QHexView *>(ui.tabWidget->currentWidget()));
+	modifyBytes(qobject_cast<QHexView *>(tabWidget_->currentWidget()));
 }
 
 //------------------------------------------------------------------------------
@@ -2421,13 +2460,13 @@ edb::EventStatus Debugger::handleEvent(const std::shared_ptr<IDebugEvent> &event
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::updateTabCaption(const std::shared_ptr<QHexView> &view, edb::address_t start, edb::address_t end) {
-	const int index       = ui.tabWidget->indexOf(view.get());
-	const QString caption = ui.tabWidget->data(index).toString();
+	const int index       = tabWidget_->indexOf(view.get());
+	const QString caption = tabWidget_->data(index).toString();
 
 	if (caption.isEmpty()) {
-		ui.tabWidget->setTabText(index, tr("%1-%2").arg(edb::v1::format_pointer(start), edb::v1::format_pointer(end)));
+		tabWidget_->setTabText(index, tr("%1-%2").arg(edb::v1::format_pointer(start), edb::v1::format_pointer(end)));
 	} else {
-		ui.tabWidget->setTabText(index, tr("[%1] %2-%3").arg(caption, edb::v1::format_pointer(start), edb::v1::format_pointer(end)));
+		tabWidget_->setTabText(index, tr("[%1] %2-%3").arg(caption, edb::v1::format_pointer(start), edb::v1::format_pointer(end)));
 	}
 }
 
@@ -2472,11 +2511,11 @@ void Debugger::clearData(const std::shared_ptr<DataViewInfo> &v) {
 //------------------------------------------------------------------------------
 void Debugger::doJumpToAddress(edb::address_t address, const std::shared_ptr<IRegion> &r, bool scrollTo) {
 
-	ui.cpuView->setRegion(r);
-	if (scrollTo && !ui.cpuView->addressShown(address)) {
-		ui.cpuView->scrollTo(address);
+	cpuView_->setRegion(r);
+	if (scrollTo && !cpuView_->addressShown(address)) {
+		cpuView_->scrollTo(address);
 	}
-	ui.cpuView->setSelectedAddress(address);
+	cpuView_->setSelectedAddress(address);
 }
 
 //------------------------------------------------------------------------------
@@ -2484,7 +2523,7 @@ void Debugger::doJumpToAddress(edb::address_t address, const std::shared_ptr<IRe
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::updateDisassembly(edb::address_t address, const std::shared_ptr<IRegion> &r) {
-	ui.cpuView->setCurrentAddress(address);
+	cpuView_->setCurrentAddress(address);
 	doJumpToAddress(address, r, true);
 	listModel_->setStringList(edb::v1::arch_processor().updateInstructionInfo(address));
 }
@@ -2511,8 +2550,8 @@ std::shared_ptr<IRegion> Debugger::updateCpuView(const State &state) {
 		updateDisassembly(address, region);
 		return region;
 	} else {
-		ui.cpuView->clear();
-		ui.cpuView->scrollTo(0);
+		cpuView_->clear();
+		cpuView_->scrollTo(0);
 		listModel_->setStringList(QStringList());
 		return nullptr;
 	}
@@ -2542,7 +2581,7 @@ void Debugger::updateDataViews() {
 //------------------------------------------------------------------------------
 void Debugger::refreshUi() {
 
-	ui.cpuView->update();
+	cpuView_->update();
 	stackView_->update();
 
 	Q_FOREACH (const std::shared_ptr<DataViewInfo> &info, dataRegions_) {
@@ -2587,9 +2626,9 @@ void Debugger::updateUi() {
 		}
 	}
 
-	//Signal all connected slots that the GUI has been updated.
-	//Useful for plugins with windows that should updated after
-	//hitting breakpoints, Step Over, etc.
+	// Signal all connected slots that the GUI has been updated.
+	// Useful for plugins with windows that should updated after
+	// hitting breakpoints, Step Over, etc.
 	Q_EMIT uiUpdated();
 }
 
@@ -2747,8 +2786,8 @@ void Debugger::on_actionRun_Until_Return_triggered() {
 
 	new RunUntilRet();
 
-	//Step over rather than resume in MODE_STEP so that we can avoid stepping into calls.
-	//TODO: If we are sitting on the call and it has a bp, it steps over for some reason...
+	// Step over rather than resume in MODE_STEP so that we can avoid stepping into calls.
+	// TODO: If we are sitting on the call and it has a bp, it steps over for some reason...
 	stepOver([this]() { on_action_Run_triggered(); },
 			 [this]() { on_action_Step_Into_triggered(); });
 }
@@ -2772,17 +2811,17 @@ void Debugger::cleanupDebugger() {
 
 	timer_->stop();
 
-	ui.cpuView->clearComments();
+	cpuView_->clearComments();
 	edb::v1::memory_regions().clear();
 	edb::v1::symbol_manager().clear();
 	edb::v1::arch_processor().reset();
 
 	// clear up the data view
-	while (ui.tabWidget->count() > 1) {
+	while (tabWidget_->count() > 1) {
 		mnuDumpDeleteTab();
 	}
 
-	ui.tabWidget->setData(0, QString());
+	tabWidget_->setData(0, QString());
 
 	Q_ASSERT(!dataRegions_.isEmpty());
 	dataRegions_.first()->region = nullptr;
@@ -2902,7 +2941,7 @@ void Debugger::setInitialDebuggerState() {
 
 		if (Result<void, SessionError> session_error = session_manager.loadSession(filename)) {
 			QVariantList comments_data = session_manager.comments();
-			ui.cpuView->restoreComments(comments_data);
+			cpuView_->restoreComments(comments_data);
 		} else {
 			QMessageBox::warning(
 				this,
@@ -3223,7 +3262,7 @@ void Debugger::on_action_Threads_triggered() {
 //------------------------------------------------------------------------------
 void Debugger::mnuDumpCreateTab() {
 	createDataTab();
-	tabDelete_->setEnabled(ui.tabWidget->count() > 1);
+	tabDelete_->setEnabled(tabWidget_->count() > 1);
 }
 
 //------------------------------------------------------------------------------
@@ -3232,7 +3271,7 @@ void Debugger::mnuDumpCreateTab() {
 //------------------------------------------------------------------------------
 void Debugger::mnuDumpDeleteTab() {
 	deleteDataTab();
-	tabDelete_->setEnabled(ui.tabWidget->count() > 1);
+	tabDelete_->setEnabled(tabWidget_->count() > 1);
 }
 
 //------------------------------------------------------------------------------
@@ -3387,7 +3426,7 @@ void Debugger::tabContextMenu(int index, const QPoint &pos) {
 	QMenu menu;
 	QAction *const actionAdd   = menu.addAction(tr("&Set Label"));
 	QAction *const actionClear = menu.addAction(tr("&Clear Label"));
-	QAction *const chosen      = menu.exec(ui.tabWidget->mapToGlobal(pos));
+	QAction *const chosen      = menu.exec(tabWidget_->mapToGlobal(pos));
 
 	if (chosen == actionAdd) {
 		bool ok;
@@ -3396,14 +3435,14 @@ void Debugger::tabContextMenu(int index, const QPoint &pos) {
 			tr("Set Caption"),
 			tr("Caption:"),
 			QLineEdit::Normal,
-			ui.tabWidget->data(index).toString(),
+			tabWidget_->data(index).toString(),
 			&ok);
 
 		if (ok && !text.isEmpty()) {
-			ui.tabWidget->setData(index, text);
+			tabWidget_->setData(index, text);
 		}
 	} else if (chosen == actionClear) {
-		ui.tabWidget->setData(index, QString());
+		tabWidget_->setData(index, QString());
 	}
 
 	updateUi();
