@@ -62,11 +62,12 @@ DialogBinaryString::DialogBinaryString(QWidget *parent, Qt::WindowFlags f)
  * @brief DialogBinaryString::doFind
  */
 void DialogBinaryString::doFind() {
-
+	// TODO: Algorithm here should be Boyer-Moore for better performance
 	const QByteArray b = ui.binaryString->value();
 
 	auto results = new DialogResults(this);
 
+	const edb::address_t align = ui.chkAlignment->isChecked() ? 1 << (ui.cmbAlignment->currentIndex() + 1) : 1;
 	const int sz = b.size();
 	if (sz != 0) {
 		edb::v1::memory_regions().sync();
@@ -84,30 +85,35 @@ void DialogBinaryString::doFind() {
 			}
 
 			const size_t page_count      = region_size / page_size;
-			const QVector<uint8_t> pages = edb::v1::read_pages(region->start(), page_count);
+			// Read out 4096 pages at a time, as some applications have huge regions
+			// and we will push against memory fragmentation if we mirror those regions.
+			// To prevent missing a needle in the haystack if it is split between read
+			// boundaries. increment current_page by only 4095.
+			for (size_t current_page = 0; current_page < page_count; current_page += 4095) {
+				const QVector<uint8_t> pages = edb::v1::read_pages(
+					region->start() + (current_page * page_size),
+					std::min(size_t(4096), page_count - current_page)
+				);
 
-			if (!pages.isEmpty()) {
+				if (!pages.isEmpty()) {
 
-				const uint8_t *p               = &pages[0];
-				const uint8_t *const pages_end = &pages[0] + region_size - sz;
+					const uint8_t *p               = &pages.constFirst();
+					const uint8_t *const pages_end = &pages.constLast() - sz;
 
-				while (p < pages_end) {
-					// compare values..
-					if (std::memcmp(p, b.constData(), sz) == 0) {
-						const edb::address_t addr  = p - &pages[0] + region->start();
-						const edb::address_t align = 1 << (ui.cmbAlignment->currentIndex() + 1);
-
-						if (!ui.chkAlignment->isChecked() || (addr % align) == 0) {
+					while (p < pages_end) {
+						// compare values..
+						if (std::memcmp(p, b.constData(), sz) == 0) {
+							const edb::address_t addr  = p - &pages[0] + region->start() + (current_page * page_size);
 							results->addResult(DialogResults::RegionType::Data, addr);
 						}
-					}
 
-					// update progress bar every 64KB
-					if ((uint64_t(p) & 0xFFFF) == 0) {
-						ui.progressBar->setValue(util::percentage(i, regions.size(), p - &pages[0], region_size));
-					}
+						// update progress bar every 64KB
+						if ((uint64_t(p) & 0xFFFF) == 0) {
+							ui.progressBar->setValue(util::percentage(i, regions.size(), p - &pages[0], region_size));
+						}
 
-					++p;
+						p += align;
+					}
 				}
 			}
 			++i;
