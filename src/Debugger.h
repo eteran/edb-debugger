@@ -38,25 +38,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 template <class T, class E>
 class Result;
 
+class CommentServer;
 class DialogArguments;
 class IBinary;
 class IBreakpoint;
 class IDebugEvent;
 class IPlugin;
 class RecentFileManager;
-class CommentServer;
+class TabWidget;
 
-class QStringListModel;
-class QTimer;
-class QToolButton;
-class QToolButton;
+class QDisassemblyView;
+class QDockWidget;
 class QDragEnterEvent;
 class QDropEvent;
 class QLabel;
-class QDisassemblyView;
 class QListView;
-class QDockWidget;
-class TabWidget;
+class QMainWindow;
+class QPlainTextEdit;
+class QStringListModel;
+class QTimer;
+class QToolButton;
 
 class Debugger : public QMainWindow, public IDebugEventHandler {
 	Q_OBJECT
@@ -303,6 +304,8 @@ public:
 	QDockWidget *dataDock_     = nullptr;
 	QDockWidget *stackDock_    = nullptr;
 	TabWidget *tabWidget_      = nullptr;
+	QMainWindow *mainWindow_    = nullptr;
+	QPlainTextEdit *logger_     = nullptr;
 
 private:
 	GuiState guiState_                    = Terminated;

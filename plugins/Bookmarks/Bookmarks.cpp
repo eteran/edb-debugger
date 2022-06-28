@@ -48,7 +48,7 @@ QMenu *Bookmarks::menu(QWidget *parent) {
 
 		// if we are dealing with a main window (and we are...)
 		// add the dock object
-		if (auto main_window = qobject_cast<QMainWindow *>(edb::v1::debugger_ui)) {
+		if (const auto main_window = edb::v1::debugger_ui->findChild<QMainWindow *>(QLatin1String("dockingRoot"))) {
 			bookmarkWidget_ = new BookmarkWidget;
 
 			// make the dock widget and _name_ it, it is important to name it so

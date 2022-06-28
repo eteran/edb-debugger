@@ -81,7 +81,7 @@ void Plugin::createRegisterView() {
 
 void Plugin::createRegisterView(const QString &settingsGroup) {
 
-	if (auto *const mainWindow = qobject_cast<QMainWindow *>(edb::v1::debugger_ui)) {
+	if (const auto mainWindow = edb::v1::debugger_ui->findChild<QMainWindow *>(QLatin1String("dockingRoot"))) {
 		const auto regView = new ODBRegView(settingsGroup, mainWindow);
 		registerViews_.emplace_back(regView);
 		regView->setModel(&edb::v1::arch_processor().registerViewModel());

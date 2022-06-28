@@ -76,6 +76,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QScreen>
 #include <QSettings>
 #include <QShortcut>
+#include <QSplitter>
 #include <QStringListModel>
 #include <QTimer>
 #include <QToolButton>
@@ -100,6 +101,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 namespace {
+
+QPlainTextEdit *logger_instance     = nullptr;
 
 constexpr quint64 initial_bp_tag    = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in hex
 constexpr quint64 stepover_bp_tag   = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
@@ -945,6 +948,99 @@ void Debugger::setupUi() {
 
 	ui.setupUi(this);
 
+#if 1
+	auto splitter = new QSplitter(this);
+	splitter->setOrientation(Qt::Vertical);
+
+	{
+		logger_ = new QPlainTextEdit(this);
+		logger_->setReadOnly(true);
+		QFont font("monospace");
+		font.setStyleHint(QFont::TypeWriter);
+		logger_->setFont(font);
+		logger_->setWordWrapMode(QTextOption::WrapMode::NoWrap);
+		logger_->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+		logger_instance = logger_;
+
+		qInstallMessageHandler([](QtMsgType type, const QMessageLogContext &, const QString &message) {
+			if (!logger_instance) {
+				return;
+			}
+
+			const QString text = [type, &message]() {
+				switch (type) {
+				case QtDebugMsg:
+					return tr("DEBUG %1").arg(message);
+				case QtInfoMsg:
+					return tr("INFO  %1").arg(message);
+				case QtWarningMsg:
+					return tr("WARN  %1").arg(message);
+				case QtCriticalMsg:
+					return tr("ERROR %1").arg(message);
+				case QtFatalMsg:
+					return tr("FATAL %1").arg(message);
+				default:
+					Q_UNREACHABLE();
+				}
+			}();
+
+			logger_instance->appendPlainText(text);
+			std::cerr << message.toUtf8().constData() << "\n"; // this may be useful as a crash log
+		});
+
+		connect(ui.action_Debug_Logger, &QAction::triggered, this, [this](bool checked) {
+			logger_->setVisible(checked);
+		});
+	}
+
+
+	mainWindow_ = new QMainWindow(this);
+	mainWindow_->setWindowFlags(Qt::Widget);
+	mainWindow_->layout()->setContentsMargins(3, 3, 3, 3);
+	mainWindow_->setObjectName(QLatin1String("dockingRoot"));
+
+	cpuView_ = new QDisassemblyView;
+	cpuView_->setObjectName(QLatin1String("cpuView"));
+
+	listView_ = new QListView;
+	listView_->setObjectName(QLatin1String("listView"));
+
+	QFont font;
+	font.setFamily(QLatin1String("Monospace"));
+	font.setPointSize(10);
+	listView_->setFont(font);
+	listView_->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	listView_->setFixedHeight(listView_->fontMetrics().height() * 4);
+
+	auto cpu_splitter = new QSplitter(this);
+	cpu_splitter->setOrientation(Qt::Vertical);
+
+	cpu_splitter->addWidget(cpuView_);
+	cpu_splitter->addWidget(listView_);
+	mainWindow_->setCentralWidget(cpu_splitter);
+
+	splitter->addWidget(mainWindow_);
+	splitter->addWidget(logger_);
+	splitter->setChildrenCollapsible(false);
+
+	// data dock
+	dataDock_ = new QDockWidget(this);
+	dataDock_->setObjectName(QLatin1String("dataDock"));
+	tabWidget_ = new TabWidget(this);
+	tabWidget_->setObjectName(QLatin1String("tabWidget"));
+
+	dataDock_->setWidget(tabWidget_);
+	mainWindow_->addDockWidget(Qt::BottomDockWidgetArea, dataDock_);
+	dataDock_->setWindowTitle(tr("Data Dump"));
+
+	// stack dock
+	stackDock_ = new QDockWidget(this);
+	stackDock_->setObjectName(QLatin1String("stackDock"));
+	mainWindow_->addDockWidget(Qt::BottomDockWidgetArea, stackDock_);
+	stackDock_->setWindowTitle(tr("Stack"));
+
+	setCentralWidget(splitter);
+#else
 	// create the main UI
 	// main CPU area
 	auto centralwidget = new QWidget(this);
@@ -984,7 +1080,7 @@ void Debugger::setupUi() {
 	stackDock_->setObjectName(QLatin1String("stackDock"));
 	addDockWidget(Qt::BottomDockWidgetArea, stackDock_);
 	stackDock_->setWindowTitle(tr("Stack"));
-
+#endif
 	status_ = new QLabel(this);
 	ui.statusbar->insertPermanentWidget(0, status_);
 
@@ -998,10 +1094,11 @@ void Debugger::setupUi() {
 	// make sure our widgets use custom context menus
 	cpuView_->setContextMenuPolicy(Qt::CustomContextMenu);
 
+#if 0
 	// set the listbox to about 4 lines
 	const QFontMetrics &fm = listView_->fontMetrics();
 	listView_->setFixedHeight(fm.height() * 4);
-
+#endif
 	setupStackView();
 	setupTabButtons();
 

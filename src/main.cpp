@@ -155,13 +155,13 @@ void load_plugins(const QString &directory) {
  */
 int start_debugger(const LaunchArguments &launch_args) {
 
-	qDebug() << "Starting edb version:" << EDB_VERSION_STRING;
-	qDebug("Please Report Bugs & Requests At: https://github.com/eteran/edb-debugger/issues");
-
 	edb::internal::load_function_db();
 
 	// create the main window object
 	Debugger debugger;
+
+	qDebug() << "Starting edb version:" << EDB_VERSION_STRING;
+	qDebug("Please Report Bugs & Requests At: https://github.com/eteran/edb-debugger/issues");
 
 	// ok things are initialized to a reasonable degree, let's show the main window
 	debugger.show();

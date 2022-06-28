@@ -23,7 +23,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>30</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_help">
@@ -113,6 +113,8 @@
    <addaction name="action_Step_Over"/>
    <addaction name="actionStep_Out"/>
    <addaction name="action_Run"/>
+   <addaction name="separator"/>
+   <addaction name="action_Debug_Logger"/>
   </widget>
   <action name="action_Open">
    <property name="icon">
@@ -418,6 +420,14 @@
    </property>
    <property name="toolTip">
     <string>Step Out</string>
+   </property>
+  </action>
+  <action name="action_Debug_Logger">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Debug_Logger</string>
    </property>
   </action>
  </widget>
