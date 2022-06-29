@@ -948,12 +948,13 @@ void Debugger::setupUi() {
 
 	ui.setupUi(this);
 
-#if 1
 	auto splitter = new QSplitter(this);
+	splitter->setObjectName(QLatin1String("mainSplitter"));
 	splitter->setOrientation(Qt::Vertical);
 
 	{
 		logger_ = new QPlainTextEdit(this);
+		logger_->setObjectName(QLatin1String("logView"));
 		logger_->setReadOnly(true);
 		QFont font("monospace");
 		font.setStyleHint(QFont::TypeWriter);
@@ -988,13 +989,17 @@ void Debugger::setupUi() {
 			std::cerr << message.toUtf8().constData() << "\n"; // this may be useful as a crash log
 		});
 
+
+		auto toolButton = static_cast<QToolButton *>(ui.toolBar->widgetForAction(ui.action_Debug_Logger));
+
+		toolButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 		connect(ui.action_Debug_Logger, &QAction::triggered, this, [this](bool checked) {
 			logger_->setVisible(checked);
 		});
 	}
 
-
 	mainWindow_ = new QMainWindow(this);
+	mainWindow_->setObjectName(QLatin1String("subMainWindow"));
 	mainWindow_->setWindowFlags(Qt::Widget);
 	mainWindow_->layout()->setContentsMargins(3, 3, 3, 3);
 	mainWindow_->setObjectName(QLatin1String("dockingRoot"));
@@ -1013,6 +1018,7 @@ void Debugger::setupUi() {
 	listView_->setFixedHeight(listView_->fontMetrics().height() * 4);
 
 	auto cpu_splitter = new QSplitter(this);
+	cpu_splitter->setObjectName(QLatin1String("cpuSplitter"));
 	cpu_splitter->setOrientation(Qt::Vertical);
 
 	cpu_splitter->addWidget(cpuView_);
@@ -1040,48 +1046,10 @@ void Debugger::setupUi() {
 	stackDock_->setWindowTitle(tr("Stack"));
 
 	setCentralWidget(splitter);
-#else
-	// create the main UI
-	// main CPU area
-	auto centralwidget = new QWidget(this);
-	centralwidget->setObjectName(QLatin1String("centralwidget"));
-	auto verticalLayout = new QVBoxLayout(centralwidget);
-	verticalLayout->setObjectName(QLatin1String("verticalLayout"));
 
-	cpuView_ = new QDisassemblyView(centralwidget);
-	cpuView_->setObjectName(QLatin1String("cpuView"));
 
-	verticalLayout->addWidget(cpuView_);
-
-	listView_ = new QListView(centralwidget);
-	listView_->setObjectName(QLatin1String("listView"));
-
-	QFont font;
-	font.setFamily(QLatin1String("Monospace"));
-	font.setPointSize(10);
-	listView_->setFont(font);
-	listView_->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-	verticalLayout->addWidget(listView_);
-	setCentralWidget(centralwidget);
-
-	// data dock
-	dataDock_ = new QDockWidget(this);
-	dataDock_->setObjectName(QLatin1String("dataDock"));
-	tabWidget_ = new TabWidget(this);
-	tabWidget_->setObjectName(QLatin1String("tabWidget"));
-
-	dataDock_->setWidget(tabWidget_);
-	addDockWidget(Qt::BottomDockWidgetArea, dataDock_);
-	dataDock_->setWindowTitle(tr("Data Dump"));
-
-	// stack dock
-	stackDock_ = new QDockWidget(this);
-	stackDock_->setObjectName(QLatin1String("stackDock"));
-	addDockWidget(Qt::BottomDockWidgetArea, stackDock_);
-	stackDock_->setWindowTitle(tr("Stack"));
-#endif
 	status_ = new QLabel(this);
+	status_->setObjectName(QLatin1String("statusLabel"));
 	ui.statusbar->insertPermanentWidget(0, status_);
 
 	// add toggles for the dock windows
@@ -1171,7 +1139,10 @@ void Debugger::closeEvent(QCloseEvent *event) {
 	QSettings settings;
 	const QByteArray state = saveState();
 	settings.beginGroup("Window");
+	settings.setValue("window.logger.visible", logger_->isVisible());
+	settings.setValue("window.logger.height", logger_->height());
 	settings.setValue("window.state", state);
+	settings.setValue("window.view.state", mainWindow_->saveState());
 	settings.setValue("window.width", width());
 	settings.setValue("window.height", height());
 	settings.setValue("window.x", x());
@@ -1196,11 +1167,12 @@ void Debugger::showEvent(QShowEvent *) {
 
 	QSettings settings;
 	settings.beginGroup("Window");
-	const QByteArray state = settings.value("window.state").toByteArray();
-	const int width        = settings.value("window.width", -1).toInt();
-	const int height       = settings.value("window.height", -1).toInt();
-	const int x            = settings.value("window.x", -1).toInt();
-	const int y            = settings.value("window.y", -1).toInt();
+	const QByteArray viewState = settings.value("window.view.state").toByteArray();
+	const QByteArray state     = settings.value("window.state").toByteArray();
+	const int width            = settings.value("window.width", -1).toInt();
+	const int height           = settings.value("window.height", -1).toInt();
+	const int x                = settings.value("window.x", -1).toInt();
+	const int y                = settings.value("window.y", -1).toInt();
 
 	if (width != -1) {
 		resize(width, size().height());
@@ -1209,7 +1181,10 @@ void Debugger::showEvent(QShowEvent *) {
 	if (height != -1) {
 		resize(size().width(), height);
 	}
-
+	
+	const int loggerHeight = settings.value("window.logger.height").toInt();
+	const bool loggerVisible = settings.value("window.logger.visible").toBool();
+	
 	const Configuration &config = edb::v1::config();
 	switch (config.startup_window_location) {
 	case Configuration::SystemDefault:
@@ -1249,6 +1224,12 @@ void Debugger::showEvent(QShowEvent *) {
 
 	settings.endGroup();
 	restoreState(state);
+	mainWindow_->restoreState(viewState);
+	
+	logger_->setVisible(loggerVisible);
+	logger_->resize(logger_->width(), loggerHeight);
+	ui.action_Debug_Logger->setChecked(loggerVisible);
+
 }
 
 //------------------------------------------------------------------------------

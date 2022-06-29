@@ -23,7 +23,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>20</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_help">
@@ -426,8 +426,11 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset theme="dialog-information"/>
+   </property>
    <property name="text">
-    <string>Debug_Logger</string>
+    <string>Debug Logger</string>
    </property>
   </action>
  </widget>
