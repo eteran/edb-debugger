@@ -55,6 +55,7 @@ class QLabel;
 class QListView;
 class QMainWindow;
 class QPlainTextEdit;
+class QSplitter;
 class QStringListModel;
 class QTimer;
 class QToolButton;
@@ -63,7 +64,7 @@ class Debugger : public QMainWindow, public IDebugEventHandler {
 	Q_OBJECT
 public:
 	explicit Debugger(QWidget *parent = nullptr);
-	Debugger(const Debugger &) = delete;
+	Debugger(const Debugger &)            = delete;
 	Debugger &operator=(const Debugger &) = delete;
 	~Debugger() override;
 
@@ -304,8 +305,9 @@ public:
 	QDockWidget *dataDock_     = nullptr;
 	QDockWidget *stackDock_    = nullptr;
 	TabWidget *tabWidget_      = nullptr;
-	QMainWindow *mainWindow_    = nullptr;
-	QPlainTextEdit *logger_     = nullptr;
+	QMainWindow *mainWindow_   = nullptr;
+	QPlainTextEdit *logger_    = nullptr;
+	QSplitter *splitter_       = nullptr;
 
 private:
 	GuiState guiState_                    = Terminated;
