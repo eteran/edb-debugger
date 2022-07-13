@@ -964,10 +964,6 @@ void Debugger::setupUi() {
 		logger_instance = logger_;
 
 		qInstallMessageHandler([](QtMsgType type, const QMessageLogContext &, const QString &message) {
-			if (!logger_instance) {
-				return;
-			}
-
 			const QString text = [type, &message]() {
 				switch (type) {
 				case QtDebugMsg:
