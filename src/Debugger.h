@@ -1,6 +1,6 @@
 /*
 Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,8 +22,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DataViewInfo.h"
 #include "IDebugEventHandler.h"
 #include "OSTypes.h"
+#include "QDisassemblyView.h"
 #include "QHexView"
+#include "TabWidget.h"
 
+#include <QDockWidget>
 #include <QMainWindow>
 #include <QProcess>
 #include <QVector>
@@ -35,27 +38,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 template <class T, class E>
 class Result;
 
+class CommentServer;
 class DialogArguments;
 class IBinary;
 class IBreakpoint;
 class IDebugEvent;
 class IPlugin;
 class RecentFileManager;
-class CommentServer;
+class TabWidget;
 
-class QStringListModel;
-class QTimer;
-class QToolButton;
-class QToolButton;
+class QDisassemblyView;
+class QDockWidget;
 class QDragEnterEvent;
 class QDropEvent;
 class QLabel;
+class QListView;
+class QMainWindow;
+class QPlainTextEdit;
+class QSplitter;
+class QStringListModel;
+class QTimer;
+class QToolButton;
 
 class Debugger : public QMainWindow, public IDebugEventHandler {
 	Q_OBJECT
 public:
 	explicit Debugger(QWidget *parent = nullptr);
-	Debugger(const Debugger &) = delete;
+	Debugger(const Debugger &)            = delete;
 	Debugger &operator=(const Debugger &) = delete;
 	~Debugger() override;
 
@@ -137,8 +146,6 @@ public Q_SLOTS:
 	void on_action_Step_Over_Pass_Signal_To_Application_triggered();
 	void on_action_Step_Over_triggered();
 	void on_action_Threads_triggered();
-	void on_cpuView_breakPointToggled(edb::address_t);
-	void on_cpuView_customContextMenuRequested(const QPoint &);
 
 private:
 	void toggleFlag(int);
@@ -167,6 +174,8 @@ private Q_SLOTS:
 	void mnuCPURemoveBreakpoint();
 	void mnuCPUSetEIP();
 	void mnuCPULabelAddress();
+	void breakPointToggled_triggered(edb::address_t);
+	void customContextMenuRequested_triggered(const QPoint &);
 
 private Q_SLOTS:
 	// the manually connected Register slots
@@ -291,6 +300,14 @@ private:
 
 public:
 	Ui::Debugger ui;
+	QDisassemblyView *cpuView_ = nullptr;
+	QListView *listView_       = nullptr;
+	QDockWidget *dataDock_     = nullptr;
+	QDockWidget *stackDock_    = nullptr;
+	TabWidget *tabWidget_      = nullptr;
+	QMainWindow *mainWindow_   = nullptr;
+	QPlainTextEdit *logger_    = nullptr;
+	QSplitter *splitter_       = nullptr;
 
 private:
 	GuiState guiState_                    = Terminated;

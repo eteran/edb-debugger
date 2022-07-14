@@ -21,9 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IPlugin.h"
 #include "edb.h"
 #include <QDialog>
-#include <QtGlobal>
-
-class QPlainTextEdit;
 
 namespace DebuggerErrorConsolePlugin {
 
@@ -46,13 +43,6 @@ public:
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
-
-private:
-	static void debugMessageIntercept(QtMsgType type, const QMessageLogContext &, const QString &message);
-
-private:
-	QPlainTextEdit *textWidget_ = nullptr;
-	QMenu *menu_                = nullptr;
 };
 
 }

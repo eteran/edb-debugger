@@ -161,8 +161,8 @@ bool debuggeeIs64Bit() {
 // Desc:
 //------------------------------------------------------------------------------
 void set_cpu_selected_address(address_t address) {
-	ui()->ui.cpuView->setSelectedAddress(address);
-	ui()->ui.cpuView->update();
+	ui()->cpuView_->setSelectedAddress(address);
+	ui()->cpuView_->update();
 }
 
 //------------------------------------------------------------------------------
@@ -170,7 +170,7 @@ void set_cpu_selected_address(address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 address_t cpu_selected_address() {
-	return ui()->ui.cpuView->selectedAddress();
+	return ui()->cpuView_->selectedAddress();
 }
 
 //------------------------------------------------------------------------------
@@ -178,7 +178,7 @@ address_t cpu_selected_address() {
 // Desc:
 //------------------------------------------------------------------------------
 std::shared_ptr<IRegion> current_cpu_view_region() {
-	return ui()->ui.cpuView->region();
+	return ui()->cpuView_->region();
 }
 
 //------------------------------------------------------------------------------
@@ -188,7 +188,7 @@ std::shared_ptr<IRegion> current_cpu_view_region() {
 void repaint_cpu_view() {
 	Debugger *const gui = ui();
 	Q_ASSERT(gui);
-	gui->ui.cpuView->update();
+	gui->cpuView_->update();
 }
 
 //------------------------------------------------------------------------------
@@ -1299,7 +1299,7 @@ QString format_pointer(address_t p) {
 // Desc:
 //------------------------------------------------------------------------------
 address_t current_data_view_address() {
-	return qobject_cast<QHexView *>(ui()->ui.tabWidget->currentWidget())->firstVisibleAddress();
+	return qobject_cast<QHexView *>(ui()->tabWidget_->currentWidget())->firstVisibleAddress();
 }
 
 //------------------------------------------------------------------------------
@@ -1365,7 +1365,7 @@ size_t pointer_size() {
 // Desc:
 //------------------------------------------------------------------------------
 QAbstractScrollArea *disassembly_widget() {
-	return ui()->ui.cpuView;
+	return ui()->cpuView_;
 }
 
 //------------------------------------------------------------------------------
@@ -1426,7 +1426,7 @@ CapstoneEDB::Formatter &formatter() {
 //------------------------------------------------------------------------------
 address_t selected_stack_address() {
 
-	if (auto hexview = qobject_cast<QHexView *>(ui()->ui.stackDock->widget())) {
+	if (auto hexview = qobject_cast<QHexView *>(ui()->stackDock_->widget())) {
 		if (hexview->hasSelectedText()) {
 			return hexview->selectedBytesAddress();
 		}
@@ -1440,7 +1440,7 @@ address_t selected_stack_address() {
 // Desc: returns the size of the selection or 0
 //------------------------------------------------------------------------------
 size_t selected_stack_size() {
-	if (auto hexview = qobject_cast<QHexView *>(ui()->ui.stackDock->widget())) {
+	if (auto hexview = qobject_cast<QHexView *>(ui()->stackDock_->widget())) {
 		if (hexview->hasSelectedText()) {
 			return hexview->selectedBytesSize();
 		}
@@ -1454,7 +1454,7 @@ size_t selected_stack_size() {
 // Desc: returns the address of the selection or (address_t)-1
 //------------------------------------------------------------------------------
 address_t selected_data_address() {
-	if (auto hexview = qobject_cast<QHexView *>(ui()->ui.tabWidget->currentWidget())) {
+	if (auto hexview = qobject_cast<QHexView *>(ui()->tabWidget_->currentWidget())) {
 		if (hexview->hasSelectedText()) {
 			return hexview->selectedBytesAddress();
 		}
@@ -1468,7 +1468,7 @@ address_t selected_data_address() {
 // Desc: returns the size of the selection or 0
 //------------------------------------------------------------------------------
 size_t selected_data_size() {
-	if (auto hexview = qobject_cast<QHexView *>(ui()->ui.tabWidget->currentWidget())) {
+	if (auto hexview = qobject_cast<QHexView *>(ui()->tabWidget_->currentWidget())) {
 		if (hexview->hasSelectedText()) {
 			return hexview->selectedBytesSize();
 		}
