@@ -533,6 +533,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int statu
 	// if necessary, just ignore this event
 	if (util::contains(ignoredExceptions_, e->code())) {
 		ptraceContinue(tid, resume_code(status));
+		return nullptr;
 	}
 
 	/* NOTE(eteran): OK, so when we get an event, we generally want to stop
