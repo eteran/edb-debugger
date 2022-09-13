@@ -880,8 +880,6 @@ bool is_SIMD_PD(const Operand &operand) {
 	case X86_INS_CVTPD2PI:
 	case X86_INS_CVTPD2PS:
 	case X86_INS_VCVTPD2PS:
-	case X86_INS_VCVTPD2DQX: // FIXME: what's this?
-	case X86_INS_VCVTPD2PSX: // FIXME: what's this?
 	// case X86_INS_VCVTPD2QQ: // FIXME: Capstone seems to not support it
 	case X86_INS_VCVTPD2UDQ:
 		// case X86_INS_VCVTPD2UQQ: // FIXME: Capstone seems to not support it
