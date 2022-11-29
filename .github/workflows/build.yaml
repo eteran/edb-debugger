@@ -1,0 +1,77 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Debug
+
+jobs:
+  build_ubuntu_20:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install Dependencies
+        run: sudo apt-get install -y libcapstone-dev libgraphviz-dev
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: "5.12.8"
+
+      - name: Configure CMake
+        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+      - name: Build
+        # Build your program with the given configuration
+        run: cmake --build ${{github.workspace}}/build --parallel 4 --config ${{env.BUILD_TYPE}}
+
+  build_ubuntu_18:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Install Dependencies
+        run: sudo apt-get install -y libcapstone-dev libgraphviz-dev
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: "5.9.5"
+
+      - name: Configure CMake
+        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+      - name: Build
+        # Build your program with the given configuration
+        run: cmake --build ${{github.workspace}}/build --parallel 4 --config ${{env.BUILD_TYPE}}
+
+# Disabled until both aqinstall and install-qt-action support the fixes…
+#  build_windows:
+#    runs-on: windows-latest
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: MasterQ32/install-qt-action@master
+#      with:
+#        version: '5.15.0'
+#        host: 'windows'
+#        target: 'desktop'
+#        arch: 'win64_mingw81'
+#        install-deps: 'true'
+#        tools: 'tools_openssl_x64 qt.tools.openssl.win_x64;tools_openssl_src qt.tools.openssl'
+#    - name: build and deploy
+#      run: ./build-and-deploy.bat
+#      working-directory: ./ci/
