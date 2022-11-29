@@ -21,7 +21,8 @@ jobs:
         with:
           submodules: true
 
-      - uses: jurplel/install-qt-action@v2
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
         with:
           version: "5.12.8"
 
@@ -44,7 +45,8 @@ jobs:
         with:
           submodules: true
 
-      - uses: jurplel/install-qt-action@v2
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
         with:
           version: "5.9.5"
 
