@@ -9,7 +9,7 @@ constexpr uint32_t Signature = 0x1A736166;
 
 }
 
-// TODO(eteran): this class is generally a good candiate for more RAII
+// TODO(eteran): this class is generally a good candidate for more RAII
 // and usage of the QFile class instead of std::ifstream
 
 namespace Fas {

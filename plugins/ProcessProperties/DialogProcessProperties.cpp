@@ -110,13 +110,13 @@ QString file_type(const QString &filename) {
 }
 
 /**
- * @brief tcp_socket_prcoessor
+ * @brief tcp_socket_processor
  * @param symlink
  * @param sock
  * @param lst
  * @return
  */
-bool tcp_socket_prcoessor(QString *symlink, int sock, const QStringList &lst) {
+bool tcp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 
 	Q_ASSERT(symlink);
 
@@ -281,7 +281,7 @@ QString process_socket_tcp(QString *symlink) {
 	const QString socket_info(symlink->mid(symlink->indexOf("socket:[")));
 	const int socket_number = socket_info.mid(8).remove("]").toUInt();
 
-	return process_socket_file("/proc/net/tcp", symlink, socket_number, tcp_socket_prcoessor);
+	return process_socket_file("/proc/net/tcp", symlink, socket_number, tcp_socket_processor);
 }
 
 /**

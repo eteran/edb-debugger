@@ -84,7 +84,7 @@ void DialogReferences::doFind() {
 
 		int i = 0;
 		for (const std::shared_ptr<IRegion> &region : regions) {
-			// a short circut for speading things up
+			// a short circuit for speeding things up
 			if (region->accessible() || !ui.chkSkipNoAccess->isChecked()) {
 
 				const size_t page_count      = region->size() / page_size;

@@ -335,7 +335,7 @@ void DialogHeap::detectPointers() {
 		}
 	}
 
-	qDebug() << "[Heap Analyzer] linking blocks to taget addresses";
+	qDebug() << "[Heap Analyzer] linking blocks to target addresses";
 	for (int row = 0; row < model_->rowCount(); ++row) {
 		QModelIndex index = model_->index(row, 0);
 		processPotentialPointers(targets, index);
@@ -451,7 +451,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 					model_->addResult(r);
 				}
 
-				// avoif self referencing blocks
+				// avoid self referencing blocks
 				if (currentChunkAddress == nextChunkAddress) {
 					break;
 				}

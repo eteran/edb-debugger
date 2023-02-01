@@ -500,7 +500,7 @@ void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t a
 				set_breakpoint_state(&state, index, {true, address, 2, 3});
 				break;
 			default:
-				QMessageBox::critical(nullptr, tr("Invalid Selection Size"), tr("Please select 1, 2, 4, or 8 bytes for this type of hardward breakpoint"));
+				QMessageBox::critical(nullptr, tr("Invalid Selection Size"), tr("Please select 1, 2, 4, or 8 bytes for this type of hardware breakpoint"));
 				return;
 			}
 
