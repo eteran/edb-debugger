@@ -1195,18 +1195,18 @@ edb::address_t PlatformProcess::calculateMain() const {
 }
 
 /**
- * @brief PlatformProcess::stardardInput
+ * @brief PlatformProcess::standardInput
  * @return
  */
-QString PlatformProcess::stardardInput() const {
+QString PlatformProcess::standardInput() const {
 	return input_;
 }
 
 /**
- * @brief PlatformProcess::stardardOutput
+ * @brief PlatformProcess::standardOutput
  * @return
  */
-QString PlatformProcess::stardardOutput() const {
+QString PlatformProcess::standardOutput() const {
 	return output_;
 }
 

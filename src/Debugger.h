@@ -122,7 +122,7 @@ Q_SIGNALS:
 	void attachEvent();
 
 public Q_SLOTS:
-	// the autoconnected slots
+	// the auto-connected slots
 	void on_actionAbout_QT_triggered();
 	void on_actionApplication_Arguments_triggered();
 	void on_actionApplication_Working_Directory_triggered();

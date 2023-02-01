@@ -314,7 +314,7 @@ public:
 							qDebug() << QString("Setting breakpoint at terminator 0x%1").arg(address, 0, 16);
 							bp->setInternal(true);
 							bp->setOneTime(true); // If the 0xcc get's rm'd on next event, then
-												  // don't set it one time; we'll hande it manually
+												  // don't set it one time; we'll handle it manually
 							returnAddress_ = address;
 							return edb::DEBUG_CONTINUE;
 						} else {
@@ -414,7 +414,7 @@ Debugger::Debugger(QWidget *parent)
 #error "This doesn't initialize actions and will lead to crash"
 #endif
 
-	// Data Dump Shorcuts
+	// Data Dump Shortcuts
 	dumpFollowInCPUAction_   = createAction(tr("Follow Address In &CPU"), QKeySequence(), &Debugger::mnuDumpFollowInCPU);
 	dumpFollowInDumpAction_  = createAction(tr("Follow Address In &Dump"), QKeySequence(), &Debugger::mnuDumpFollowInDump);
 	dumpFollowInStackAction_ = createAction(tr("Follow Address In &Stack"), QKeySequence(), &Debugger::mnuDumpFollowInStack);
@@ -678,10 +678,10 @@ QString Debugger::createTty() {
 					const int rv  = select(fd + 1, &set, nullptr, nullptr, &timeout);
 					switch (rv) {
 					case -1:
-						qDebug() << "An error occured while attempting to get the TTY of the terminal sub-process";
+						qDebug() << "An error occurred while attempting to get the TTY of the terminal sub-process";
 						break;
 					case 0:
-						qDebug() << "A Timeout occured while attempting to get the TTY of the terminal sub-process";
+						qDebug() << "A Timeout occurred while attempting to get the TTY of the terminal sub-process";
 						break;
 					default:
 						if (read(fd, buf, sizeof(buf)) != -1) {
@@ -1140,8 +1140,8 @@ void Debugger::closeEvent(QCloseEvent *event) {
 	settings.setValue("window.stack.show_ascii.enabled", stackView_->showAsciiDump());
 	settings.setValue("window.stack.show_comments.enabled", stackView_->showComments());
 
-	QByteArray dissassemblyState = cpuView_->saveState();
-	settings.setValue("window.disassembly.state", dissassemblyState);
+	QByteArray disassemblyState = cpuView_->saveState();
+	settings.setValue("window.disassembly.state", disassemblyState);
 
 	QByteArray splitterState = splitter_->saveState();
 	settings.setValue("window.splitter.state", splitterState);
@@ -2488,8 +2488,8 @@ edb::EventStatus Debugger::handleEvent(const std::shared_ptr<IDebugEvent> &event
 
 	edb::EventStatus status;
 	switch (event->reason()) {
-	// either a syncronous event (STOPPED)
-	// or an asyncronous event (SIGNALED)
+	// either a synchonous event (STOPPED)
+	// or an asynchronous event (SIGNALED)
 	case IDebugEvent::EVENT_STOPPED:
 		status = handleEventStopped(event);
 		break;
@@ -3085,8 +3085,8 @@ void Debugger::on_action_Restart_triggered() {
 		workingDirectory_      = edb::v1::debugger_core->process()->currentWorkingDirectory();
 		QList<QByteArray> args = edb::v1::debugger_core->process()->arguments();
 		const QString exe      = edb::v1::debugger_core->process()->executable();
-		const QString in       = edb::v1::debugger_core->process()->stardardInput();
-		const QString out      = edb::v1::debugger_core->process()->stardardOutput();
+		const QString in       = edb::v1::debugger_core->process()->standardInput();
+		const QString out      = edb::v1::debugger_core->process()->standardOutput();
 
 		if (!args.empty()) {
 			args.removeFirst();
@@ -3136,7 +3136,7 @@ void Debugger::setupDataViews() {
 //------------------------------------------------------------------------------
 bool Debugger::commonOpen(const QString &s, const QList<QByteArray> &args, const QString &input, const QString &output) {
 
-	// ensure that the previous running process (if any) is dealth with...
+	// ensure that the previous running process (if any) is dealt with...
 	detachFromProcess(KillOnDetach);
 
 	bool ret = false;

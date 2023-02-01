@@ -44,8 +44,8 @@ public:
 	QList<QByteArray> arguments() const override;
 	QString currentWorkingDirectory() const override;
 	QString executable() const override;
-	QString stardardInput() const override;
-	QString stardardOutput() const override;
+	QString standardInput() const override;
+	QString standardOutput() const override;
 	edb::pid_t pid() const override;
 	std::shared_ptr<IProcess> parent() const override;
 	edb::address_t codeAddress() const override;

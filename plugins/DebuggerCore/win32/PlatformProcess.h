@@ -46,12 +46,12 @@ public:
 
 	QList<QByteArray> arguments() const override;
 
-	QString stardardInput() const override {
-		qDebug("TODO: implement PlatformProcess::stardardInput");
+	QString standardInput() const override {
+		qDebug("TODO: implement PlatformProcess::standardInput");
 		return QString();
 	}
 
-	QString stardardOutput() const override {
+	QString standardOutput() const override {
 		qDebug("TODO: implement PlatformProcess::currentWorkingDirectory");
 		return QString();
 	}
