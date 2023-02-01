@@ -322,7 +322,7 @@ private:
 	bool stackViewLocked_                 = false;
 
 #if defined(Q_OS_LINUX)
-	edb::address_t debugtPointer_  = 0;
+	edb::address_t debugPointer_  = 0;
 	bool dynamicInfoBreakpointSet_ = false;
 #endif
 

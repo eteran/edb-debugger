@@ -2338,11 +2338,11 @@ edb::EventStatus Debugger::handleTrap(const std::shared_ptr<IDebugEvent> &event)
 		if (bp->internal() && bp->tag == ld_loader_tag) {
 
 			if (dynamicInfoBreakpointSet_) {
-				if (debugtPointer_) {
+				if (debugPointer_) {
 					if (edb::v1::debuggeeIs32Bit()) {
-						handle_library_event<uint32_t>(process, debugtPointer_);
+						handle_library_event<uint32_t>(process, debugPointer_);
 					} else {
-						handle_library_event<uint64_t>(process, debugtPointer_);
+						handle_library_event<uint64_t>(process, debugPointer_);
 					}
 				}
 			}
@@ -2987,7 +2987,7 @@ void Debugger::setInitialDebuggerState() {
 	reenableBreakpointStep_ = nullptr;
 
 #ifdef Q_OS_LINUX
-	debugtPointer_            = 0;
+	debugPointer_            = 0;
 	dynamicInfoBreakpointSet_ = false;
 #endif
 
@@ -3546,9 +3546,9 @@ void Debugger::nextDebugEvent() {
 #if defined(Q_OS_LINUX)
 		if (!dynamicInfoBreakpointSet_) {
 			if (IProcess *process = edb::v1::debugger_core->process()) {
-				if (debugtPointer_ == 0) {
-					if ((debugtPointer_ = process->debugPointer()) != 0) {
-						edb::address_t r_brk = edb::v1::debuggeeIs32Bit() ? find_linker_hook_address<uint32_t>(process, debugtPointer_) : find_linker_hook_address<uint64_t>(process, debugtPointer_);
+				if (debugPointer_ == 0) {
+					if ((debugPointer_ = process->debugPointer()) != 0) {
+						edb::address_t r_brk = edb::v1::debuggeeIs32Bit() ? find_linker_hook_address<uint32_t>(process, debugPointer_) : find_linker_hook_address<uint64_t>(process, debugPointer_);
 
 						if (r_brk) {
 							// TODO(eteran): this is equivalent to ld-2.23.so!_dl_debug_state
