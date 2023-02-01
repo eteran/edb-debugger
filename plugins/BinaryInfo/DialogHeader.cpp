@@ -325,7 +325,7 @@ QTreeWidgetItem *create_elf_machine(const Header *header) {
 		item->setText(1, tr("Sony DSP Processor"));
 		break;
 	case EM_FX66:
-		item->setText(1, tr("Siemens FX66 microcontroller"));
+		item->setText(1, tr("Siemens FX66 micro-controller"));
 		break;
 	case EM_ST9PLUS:
 		item->setText(1, tr("STMicroelectronics ST9+ 8/16 mc"));
@@ -334,16 +334,16 @@ QTreeWidgetItem *create_elf_machine(const Header *header) {
 		item->setText(1, tr("STmicroelectronics ST7 8 bit mc"));
 		break;
 	case EM_68HC16:
-		item->setText(1, tr("Motorola MC68HC16 microcontroller"));
+		item->setText(1, tr("Motorola MC68HC16 micro-controller"));
 		break;
 	case EM_68HC11:
-		item->setText(1, tr("Motorola MC68HC11 microcontroller"));
+		item->setText(1, tr("Motorola MC68HC11 micro-controller"));
 		break;
 	case EM_68HC08:
-		item->setText(1, tr("Motorola MC68HC08 microcontroller"));
+		item->setText(1, tr("Motorola MC68HC08 micro-controller"));
 		break;
 	case EM_68HC05:
-		item->setText(1, tr("Motorola MC68HC05 microcontroller"));
+		item->setText(1, tr("Motorola MC68HC05 micro-controller"));
 		break;
 	case EM_SVX:
 		item->setText(1, tr("Silicon Graphics SVx"));
@@ -376,7 +376,7 @@ QTreeWidgetItem *create_elf_machine(const Header *header) {
 		item->setText(1, tr("SiTera Prism"));
 		break;
 	case EM_AVR:
-		item->setText(1, tr("Atmel AVR 8-bit microcontroller"));
+		item->setText(1, tr("Atmel AVR 8-bit micro-controller"));
 		break;
 	case EM_FR30:
 		item->setText(1, tr("Fujitsu FR30"));

@@ -210,7 +210,7 @@ void DialogBreakpoints::on_btnImport_clicked() {
 	QStringList errors;
 
 	// Iterate through each line; attempt to make a breakpoint for each line.
-	// Addreses should be prefixed with 0x, i.e. a hex number.
+	// Addresses should be prefixed with 0x, i.e. a hex number.
 	// Count each breakpoint successfully made.
 	int count = 0;
 	Q_FOREVER {

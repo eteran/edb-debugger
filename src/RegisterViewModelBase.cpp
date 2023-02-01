@@ -72,7 +72,7 @@ QString toString(const edb::value80 &value, NumberDisplayMode format) {
 // `resultingValue` can differ from `value` if e.g. the kernel doesn't allow to flip some
 // bits of the register, like EFLAGS on x86.
 template <typename T>
-bool set_debugee_register(const QString &name, const T &value, T &resultingValue) {
+bool set_debuggee_register(const QString &name, const T &value, T &resultingValue) {
 
 	if (IDebugger *core = edb::v1::debugger_core) {
 
@@ -476,7 +476,7 @@ void Model::setChosenSIMDSize(const QModelIndex &index, ElementSize const newSiz
 	simdCat->setChosenSize(newSize);
 	Q_EMIT SIMDDisplayFormatChanged();
 
-	// Make treeviews update root register items with default view
+	// Make tree-views update root register items with default view
 	const auto valueIndex = index.sibling(index.row(), VALUE_COLUMN);
 	Q_EMIT dataChanged(valueIndex, valueIndex);
 }
@@ -496,7 +496,7 @@ void Model::setChosenSIMDFormat(const QModelIndex &index, NumberDisplayMode cons
 	simdCat->setChosenFormat(newFormat);
 	Q_EMIT SIMDDisplayFormatChanged();
 
-	// Make treeviews update root register items with default view
+	// Make tree-views update root register items with default view
 	const auto valueIndex = index.sibling(index.row(), VALUE_COLUMN);
 	Q_EMIT dataChanged(valueIndex, valueIndex);
 }
@@ -516,7 +516,7 @@ void Model::setChosenFPUFormat(const QModelIndex &index, NumberDisplayMode const
 	fpuCat->setChosenFormat(newFormat);
 	Q_EMIT FPUDisplayFormatChanged();
 
-	// Make treeviews update root register items with default view
+	// Make tree-views update root register items with default view
 	const auto valueIndex = index.sibling(index.row(), VALUE_COLUMN);
 	Q_EMIT dataChanged(valueIndex, valueIndex);
 }
@@ -697,14 +697,14 @@ QByteArray RegisterItem<T>::rawValue() const {
 template <typename T>
 bool RegisterItem<T>::setValue(const Register &reg) {
 	assert(reg.bitSize() == 8 * sizeof(T));
-	return set_debugee_register<T>(reg.name(), reg.value<T>(), value_);
+	return set_debuggee_register<T>(reg.name(), reg.value<T>(), value_);
 }
 
 template <typename T>
 bool RegisterItem<T>::setValue(const QByteArray &newValue) {
 	T value;
 	std::memcpy(&value, newValue.constData(), newValue.size());
-	return set_debugee_register<T>(name(), value, value_);
+	return set_debuggee_register<T>(name(), value, value_);
 }
 
 template <typename T>
@@ -722,7 +722,7 @@ typename std::enable_if<sizeof(T) <= sizeof(std::uint64_t), bool>::type setValue
 		return false;
 	}
 
-	return set_debugee_register(name, value, valueToSet);
+	return set_debuggee_register(name, value, valueToSet);
 }
 
 template <typename T>

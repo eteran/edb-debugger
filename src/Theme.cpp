@@ -178,7 +178,7 @@ Theme readTheme() {
 
 	QString theme_name = edb::v1::config().theme_name;
 
-	// Handle the built-in themese
+	// Handle the built-in themes
 	if (theme_name == "System") {
 		return system;
 	} else if (theme_name == "Dark [Built-in]") {

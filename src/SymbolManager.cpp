@@ -277,7 +277,7 @@ void SymbolManager::setSymbolGenerator(ISymbolGenerator *generator) {
 //------------------------------------------------------------------------------
 // Name: setLabel
 // Desc: a label is like a symbol, but can be set/unset by users. They will take
-//       precidence over symbols (since this is the name that the user really
+//       precedence over symbols (since this is the name that the user really
 //       wants to call this address). And only apply to code
 //------------------------------------------------------------------------------
 void SymbolManager::setLabel(edb::address_t address, const QString &label) {
@@ -290,7 +290,7 @@ void SymbolManager::setLabel(edb::address_t address, const QString &label) {
 			QMessageBox::warning(
 				edb::v1::debugger_ui,
 				tr("Duplicate Label"),
-				tr("You are attempting to give two seperate addresses the same label, this is not supported."));
+				tr("You are attempting to give two separate addresses the same label, this is not supported."));
 			return;
 		}
 

@@ -141,7 +141,7 @@ void DialogBacktrace::showEvent(QShowEvent *) {
 	// Sync with the Debugger UI.
 	connect(edb::v1::debugger_ui, SIGNAL(uiUpdated()), this, SLOT(populateTable()));
 
-	// Populate the tabel with our call stack info.
+	// Populate the table with our call stack info.
 	populateTable();
 
 	table_->horizontalHeader()->resizeSections(QHeaderView::Stretch);

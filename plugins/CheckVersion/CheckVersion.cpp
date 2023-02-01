@@ -143,7 +143,7 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 		if (!initialCheck_) {
 			QMessageBox::critical(
 				nullptr,
-				tr("An Error Occured"),
+				tr("An Error Occurred"),
 				reply->errorString());
 		}
 	} else {
