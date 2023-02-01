@@ -17,6 +17,7 @@
         "METATYPE",
         "nasm",
         "Olly",
+        "Ollydbg",
         "Pixmap",
         "qgetenv",
         "qlonglong",
