@@ -73,8 +73,8 @@
     was ended.
 
     It is possible that file does not contain assembly dump at all - this
-    happens when some error occured and only the preprocessed source was
-    dumped. If error occured during the preprocessing, only the source up to
+    happens when some error occurred and only the preprocessed source was
+    dumped. If error occurred during the preprocessing, only the source up to
     the point of error is provided. In such case (and only then) the field
     at offset 44 contains zero.
 
@@ -171,10 +171,10 @@
 
   Notes:
 
-    Some of those flags are listed here just for completness, as they
+    Some of those flags are listed here just for completeness, as they
     have little use outside of the flat assembler. However the bit 0
     is important, because the symbols table contains all the labels
-    that occured in source, even if some of them were in the
+    that occurred in source, even if some of them were in the
     conditional blocks that did not get assembled.
 
 

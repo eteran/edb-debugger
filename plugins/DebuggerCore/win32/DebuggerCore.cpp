@@ -154,7 +154,7 @@ bool DebuggerCore::hasExtension(uint64_t ext) const {
  *
  * @brief DebuggerCore::waitDebugEvent
  * @param msecs
- * @return null if timeout occured
+ * @return null if timeout occurred
  */
 std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(std::chrono::milliseconds msecs) {
 	if (attached()) {

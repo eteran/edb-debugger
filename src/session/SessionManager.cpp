@@ -78,7 +78,7 @@ Result<void, SessionError> SessionManager::loadSession(const QString &filename) 
 	if (error.error != QJsonParseError::NoError) {
 		SessionError session_error;
 		session_error.err     = SessionError::UnknownError;
-		session_error.message = tr("An error occured while loading session JSON file. %1").arg(error.errorString());
+		session_error.message = tr("An error occurred while loading session JSON file. %1").arg(error.errorString());
 		return make_unexpected(session_error);
 	}
 
