@@ -174,7 +174,6 @@ the symbol is local; if uppercase, the symbol is global (external).
 
 template <class M, class Size>
 void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &symbols) {
-	Q_UNUSED(size)
 
 	using elf_addr   = typename M::elf_addr;
 	using elf_header = typename M::elf_header;
@@ -200,6 +199,10 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 
 	// collect special section addresses
 	for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
+		if (section_strings + section->sh_name < (void *)base || section_strings + section->sh_name > (void *)(base + size)) {
+			continue;
+		}
+
 		if (strcmp(&section_strings[section->sh_name], ".plt") == 0) {
 			plt_address = section->sh_addr;
 		} else if (strcmp(&section_strings[section->sh_name], ".got") == 0) {
@@ -209,6 +212,10 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 
 	// print out relocated symbols for special sections
 	for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
+		if (section_strings + section->sh_name < (void *)base || section_strings + section->sh_name > (void *)(base + size)) {
+			continue;
+		}
+			
 		elf_addr base_address = 0;
 		if (strcmp(&section_strings[section->sh_name], ".rela.plt") == 0) {
 			base_address = plt_address;
