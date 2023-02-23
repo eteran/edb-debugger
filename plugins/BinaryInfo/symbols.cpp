@@ -199,7 +199,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 
 	// collect special section addresses
 	for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
-		if (section_strings + section->sh_name < (void *)base || section_strings + section->sh_name > (void *)(base + size)) {
+		if (section_strings + section->sh_name < reinterpret_cast<void *>(base) || section_strings + section->sh_name > reinterpret_cast<void *>(base + size)) {
 			continue;
 		}
 
@@ -212,7 +212,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 
 	// print out relocated symbols for special sections
 	for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
-		if (section_strings + section->sh_name < (void *)base || section_strings + section->sh_name > (void *)(base + size)) {
+		if (section_strings + section->sh_name < reinterpret_cast<void *>(base) || section_strings + section->sh_name > reinterpret_cast<void *>(base + size)) {
 			continue;
 		}
 			
@@ -229,6 +229,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 			continue;
 		}
 
+		auto section_entries_count = section->sh_entsize ? section->sh_size / section->sh_entsize : 0;
 		switch (section->sh_type) {
 		case SHT_RELA: {
 			elf_addr n      = 0;
@@ -238,7 +239,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				break;
 			}
 
-			for (size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
+			for (size_t i = 0; i < section_entries_count; ++i) {
 
 				const size_t sym_index = M::elf_r_sym(relocation[i].r_info);
 				const elf_shdr *linked = &sections_begin[section->sh_link];
@@ -272,7 +273,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				break;
 			}
 
-			for (size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
+			for (size_t i = 0; i < section_entries_count; ++i) {
 
 				const size_t sym_index = M::elf_r_sym(relocation[i].r_info);
 				const elf_shdr *linked = &sections_begin[section->sh_link];
@@ -309,8 +310,9 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 		case SHT_DYNSYM: {
 			auto symbol_tab = reinterpret_cast<elf_sym *>(base + section->sh_offset);
 			auto string_tab = reinterpret_cast<const char *>(base + sections_begin[section->sh_link].sh_offset);
+			auto section_entries_count = section->sh_entsize ? section->sh_size / section->sh_entsize : 0;
 
-			for (size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
+			for (size_t i = 0; i < section_entries_count; ++i) {
 
 				const elf_shdr *related_section = nullptr;
 
@@ -345,8 +347,9 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 		case SHT_DYNSYM: {
 			auto symbol_tab = reinterpret_cast<elf_sym *>(base + section->sh_offset);
 			auto string_tab = reinterpret_cast<const char *>(base + sections_begin[section->sh_link].sh_offset);
+			auto section_entries_count = section->sh_entsize ? section->sh_size / section->sh_entsize : 0;
 
-			for (size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
+			for (size_t i = 0; i < section_entries_count; ++i) {
 
 				const elf_shdr *related_section = nullptr;
 
