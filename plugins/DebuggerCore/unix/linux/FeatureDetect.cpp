@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "FeatureDetect.h"
 #include "edb.h"
 
+#include <cstdint>
 #include <fcntl.h>
 #include <iomanip>
 #include <iostream>
