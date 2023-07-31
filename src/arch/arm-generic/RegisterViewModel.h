@@ -1,8 +1,8 @@
 /*
-Copyright (C) 2017 - 2017 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2017 - 2023 Evan Teran
+						  evan.teran@gmail.com
 Copyright (C) 2017 - 2017 Ruslan Kabatsayev
-                          b7.10110111@gmail.com
+						  b7.10110111@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

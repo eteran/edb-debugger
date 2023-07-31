@@ -98,7 +98,7 @@ DialogBacktrace::DialogBacktrace(QWidget *parent, Qt::WindowFlags f)
 		// Desc: Ensures that the selected item is a return address.  If so, sets a
 		//       breakpoint at that address and continues execution.
 
-		//Make sure our current item is in the RETURN_COLUMN
+		// Make sure our current item is in the RETURN_COLUMN
 		QTableWidgetItem *item = table_->currentItem();
 		if (!is_ret(item)) {
 			return;
@@ -155,40 +155,40 @@ void DialogBacktrace::showEvent(QShowEvent *) {
  */
 void DialogBacktrace::populateTable() {
 
-	//TODO: The first row should break protocol and display the current RIP/PC.
+	// TODO: The first row should break protocol and display the current RIP/PC.
 	//		It should be treated specially on "Run To Return" and do a "Step Out"
 
-	//Remove rows of the table (clearing does not remove rows)
-	//Yes, we depend on i going negative.
+	// Remove rows of the table (clearing does not remove rows)
+	// Yes, we depend on i going negative.
 	for (int i = table_->rowCount() - 1; i >= 0; i--) {
 		table_->removeRow(i);
 	}
 
-	//Get the call stack and populate the table with entries.
+	// Get the call stack and populate the table with entries.
 	CallStack call_stack;
 	const size_t size = call_stack.size();
 	for (size_t i = 0; i < size; i++) {
 
-		//Create the row to insert info
+		// Create the row to insert info
 		table_->insertRow(i);
 
-		//Get the stack frame so that we can insert its info
+		// Get the stack frame so that we can insert its info
 		CallStack::StackFrame *frame = call_stack[i];
 
-		//Get the caller & ret addresses and put them in the table
+		// Get the caller & ret addresses and put them in the table
 		QList<edb::address_t> stack_entry;
 		edb::address_t caller = frame->caller;
 		edb::address_t ret    = frame->ret;
 		stack_entry.append(caller);
 		stack_entry.append(ret);
 
-		//Put them in the table: create string from address and set item flags.
+		// Put them in the table: create string from address and set item flags.
 		for (int j = 0; j < stack_entry.size() && j < table_->columnCount(); j++) {
 
 			edb::address_t address              = stack_entry.at(j);
 			std::shared_ptr<Symbol> near_symbol = edb::v1::symbol_manager().findNearSymbol(address);
 
-			//Turn the address into a string prefixed with "0x"
+			// Turn the address into a string prefixed with "0x"
 			auto item = new QTableWidgetItem;
 			item->setData(Qt::UserRole, static_cast<qlonglong>(address));
 
@@ -200,7 +200,7 @@ void DialogBacktrace::populateTable() {
 				item->setText(tr("0x%1").arg(QString::number(address, 16)));
 			}
 
-			//Remove all flags (namely Edit), then put the flags that we want.
+			// Remove all flags (namely Edit), then put the flags that we want.
 			Qt::ItemFlags flags = Qt::NoItemFlags;
 			flags |= Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 			item->setFlags(flags);
@@ -209,8 +209,8 @@ void DialogBacktrace::populateTable() {
 		}
 	}
 
-	//1st ret is selected on every refresh so that we can just click "Return To"
-	//Turn Run To button off if no item.
+	// 1st ret is selected on every refresh so that we can just click "Return To"
+	// Turn Run To button off if no item.
 	QTableWidgetItem *item = table_->item(FirstRow, ReturnColumn);
 	if (item) {
 		table_->setCurrentItem(item);

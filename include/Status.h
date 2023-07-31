@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,10 +36,10 @@ public:
 		: error_(message) {
 	}
 
-	Status(const Status &) = default;
+	Status(const Status &)            = default;
 	Status &operator=(const Status &) = default;
 	Status(Status &&)                 = default;
-	Status &operator=(Status &&) = default;
+	Status &operator=(Status &&)      = default;
 
 public:
 	bool success() const { return error_.isEmpty(); }
@@ -63,10 +63,10 @@ class Unexpected {
 	friend Unexpected<typename std::decay<U>::type> make_unexpected(U &&);
 
 public:
-	Unexpected(const Unexpected &) = default;
+	Unexpected(const Unexpected &)            = default;
 	Unexpected &operator=(const Unexpected &) = default;
 	Unexpected(Unexpected &&)                 = default;
-	Unexpected &operator=(Unexpected &&) = default;
+	Unexpected &operator=(Unexpected &&)      = default;
 
 private:
 	template <class U>
@@ -94,10 +94,10 @@ public:
 		: value_(std::move(value)) {
 	}
 
-	Result(const Result &) = default;
+	Result(const Result &)            = default;
 	Result &operator=(const Result &) = default;
 	Result(Result &&)                 = default;
-	Result &operator=(Result &&) = default;
+	Result &operator=(Result &&)      = default;
 
 public:
 	const T *operator->() const {
@@ -139,10 +139,10 @@ public:
 		: value_(std::move(value)) {
 	}
 
-	Result(const Result &) = default;
+	Result(const Result &)            = default;
 	Result &operator=(const Result &) = default;
 	Result(Result &&)                 = default;
-	Result &operator=(Result &&) = default;
+	Result &operator=(Result &&)      = default;
 
 public:
 	bool succeeded() const { return value_.index() == 0; }

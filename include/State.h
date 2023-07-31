@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef STATE_H_20060715_
 #define STATE_H_20060715_
 
-#include <memory>
 #include "API.h"
 #include "Types.h"
+#include <memory>
 
 class IState;
 class Register;

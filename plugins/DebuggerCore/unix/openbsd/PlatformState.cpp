@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -426,7 +426,7 @@ void PlatformState::set_instruction_pointer(edb::address_t value) {
 #if defined(EDB_X86)
 	regs_.r_eip = value;
 #elif defined(EDB_X86_64)
-	regs_.r_rip = value;
+	regs_.r_rip    = value;
 #endif
 }
 

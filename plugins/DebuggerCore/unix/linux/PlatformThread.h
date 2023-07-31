@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2015 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2015 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,8 +37,8 @@ class PlatformThread final : public IThread {
 
 public:
 	PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, edb::tid_t tid);
-	~PlatformThread() override             = default;
-	PlatformThread(const PlatformThread &) = delete;
+	~PlatformThread() override                        = default;
+	PlatformThread(const PlatformThread &)            = delete;
 	PlatformThread &operator=(const PlatformThread &) = delete;
 
 public:

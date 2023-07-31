@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2016 - 2016 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2016 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2015 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2015 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -89,7 +89,7 @@ GraphWidget::GraphWidget(QWidget *parent)
 	context_ = gvContext();
 	graph_   = _agopen("GraphName", Agstrictdirected);
 
-	//Set graph attributes
+	// Set graph attributes
 	setGraphAttribute("overlap", "prism");
 	setGraphAttribute("pad", "0,2");
 	setGraphAttribute("dpi", "96,0");
@@ -98,14 +98,14 @@ GraphWidget::GraphWidget(QWidget *parent)
 	setGraphAttribute("nslimit1", "1");
 	setGraphAttribute("splines", "line"); // ugly but should be much faster
 
-	//Set default attributes for the future nodes
+	// Set default attributes for the future nodes
 	setNodeAttribute("fixedsize", "false");
 	setNodeAttribute("label", "");
 	setNodeAttribute("regular", "true");
 
-	//Divide the wanted width by the DPI to get the value in points
+	// Divide the wanted width by the DPI to get the value in points
 	QString nodePtsWidth = QString("%1").arg(NodeWidth / _agget(graph_, "dpi", "96,0").toDouble());
-	//GV uses , instead of . for the separator in floats
+	// GV uses , instead of . for the separator in floats
 	setNodeAttribute("width", nodePtsWidth.replace('.', ","));
 
 	// set font

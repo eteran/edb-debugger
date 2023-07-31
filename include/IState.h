@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ISTATE_H_20110315_
 #define ISTATE_H_20110315_
 
-#include <memory>
 #include "Register.h"
 #include "Types.h"
+#include <memory>
 
 // TODO(eteran): This file is still too taylored to x86 and family
 // we should develop a better abstraction model at some point

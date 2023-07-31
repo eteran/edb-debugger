@@ -107,8 +107,8 @@ private:
 	std::unique_ptr<QHBoxLayout> flagsAndSegments_;
 	std::vector<RegisterGroupType> visibleGroupTypes_;
 	QList<QAction *> menuItems_;
-	QMenu* hiddenGroupsMenu_;
-	QAction* hiddenGroupsAction_;
+	QMenu *hiddenGroupsMenu_;
+	QAction *hiddenGroupsAction_;
 	DialogEditGPR *dialogEditGpr_;
 	DialogEditSimdRegister *dialogEditSIMDReg_;
 	DialogEditFPU *dialogEditFpu_;

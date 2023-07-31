@@ -1,6 +1,6 @@
 /*
 Copyright (C) 2018 Ivan Sorokin
-                   vanyacpp@gmail.com
+				   vanyacpp@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -52,8 +52,8 @@ program termination (std::abort is called).
 */
 class DebugEventHandlers {
 public:
-	DebugEventHandlers()                           = default;
-	DebugEventHandlers(const DebugEventHandlers &) = delete;
+	DebugEventHandlers()                                      = default;
+	DebugEventHandlers(const DebugEventHandlers &)            = delete;
 	DebugEventHandlers &operator=(const DebugEventHandlers &) = delete;
 	~DebugEventHandlers();
 

@@ -1,9 +1,9 @@
 /*
-Copyright (C) 2012 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2012 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 Copyright (C) 1995-2003,2004,2005,2006,2007,2008,2009,2010,2011
-                   Free Software Foundation, Inc.
+				   Free Software Foundation, Inc.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,10 +38,10 @@ struct elf32_auxv_t {
 	union {
 		uint32_t a_val; /* Integer value */
 						/*
-		                We use to have pointer elements added here.  We cannot do that,
-		                though, since it does not work when using 32-bit definitions
-		                on 64-bit platforms and vice versa.
-		                */
+						We use to have pointer elements added here.  We cannot do that,
+						though, since it does not work when using 32-bit definitions
+						on 64-bit platforms and vice versa.
+						*/
 	} a_un;
 };
 
@@ -50,10 +50,10 @@ struct elf64_auxv_t {
 	union {
 		uint64_t a_val; /* Integer value */
 						/*
-		                We use to have pointer elements added here.  We cannot do that,
-		                though, since it does not work when using 32-bit definitions
-		                on 64-bit platforms and vice versa.
-		                */
+						We use to have pointer elements added here.  We cannot do that,
+						though, since it does not work when using 32-bit definitions
+						on 64-bit platforms and vice versa.
+						*/
 	} a_un;
 };
 

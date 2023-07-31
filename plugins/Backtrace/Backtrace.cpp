@@ -50,10 +50,10 @@ QMenu *Backtrace::menu(QWidget *parent) {
 
 	if (!menu_) {
 
-		//So it will appear as Plugins > Call Stack > Backtrace in the menu.
+		// So it will appear as Plugins > Call Stack > Backtrace in the menu.
 		menu_ = new QMenu(tr("Call Stack"), parent);
 
-		//Ctrl + K shortcut, reminiscent of OllyDbg
+		// Ctrl + K shortcut, reminiscent of OllyDbg
 		menu_->addAction(tr("Backtrace"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+K")));
 	}
 

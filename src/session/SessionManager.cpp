@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2017 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ Result<void, SessionError> SessionManager::loadSession(const QString &filename) 
 	}
 
 	qDebug("Loading session file");
-	loadPluginData(); //First, load the plugin-data
+	loadPluginData(); // First, load the plugin-data
 	return {};
 }
 
@@ -183,9 +183,9 @@ QVariantList SessionManager::comments() const {
 }
 
 /**
-* Adds a comment to the session_data
-* @param c (struct in Types.h)
-*/
+ * Adds a comment to the session_data
+ * @param c (struct in Types.h)
+ */
 void SessionManager::addComment(const Comment &c) {
 
 	QVariantList comments_data = sessionData_["comments"].toList();
@@ -194,7 +194,7 @@ void SessionManager::addComment(const Comment &c) {
 	comment["address"] = c.address.toHexString();
 	comment["comment"] = c.comment;
 
-	//Check if we already have an entry with the same address and overwrite it
+	// Check if we already have an entry with the same address and overwrite it
 	auto it = std::find_if(comments_data.begin(), comments_data.end(), [&comment](QVariant entry) {
 		QVariantMap data = entry.toMap();
 		return data["address"] == comment["address"];
@@ -210,9 +210,9 @@ void SessionManager::addComment(const Comment &c) {
 }
 
 /**
-* Removes a comment from the session_data
-* @param address
-*/
+ * Removes a comment from the session_data
+ * @param address
+ */
 void SessionManager::removeComment(edb::address_t address) {
 	QString hexAddressString   = address.toHexString();
 	QVariantList comments_data = sessionData_["comments"].toList();

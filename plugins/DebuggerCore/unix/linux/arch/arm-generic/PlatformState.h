@@ -1,6 +1,6 @@
 /*
 Copyright (C) 2017 Ruslan Kabatsayev
-                   b7.1010111@gmail.com
+				   b7.1010111@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

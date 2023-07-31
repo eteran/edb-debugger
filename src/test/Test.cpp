@@ -41,7 +41,7 @@ void testSignExtension() {
 	v64 = 0xffffffffffffffff;
 	TEST(v64.signExtended(8) == 0xffffffffffffffff);
 
-	//shouldn't!
+	// shouldn't!
 	v64 = 0x7f;
 	TEST(v64.signExtended(1) == 0x000000000000007f);
 

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -215,7 +215,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 		if (section_strings + section->sh_name < reinterpret_cast<void *>(base) || section_strings + section->sh_name > reinterpret_cast<void *>(base + size)) {
 			continue;
 		}
-			
+
 		elf_addr base_address = 0;
 		if (strcmp(&section_strings[section->sh_name], ".rela.plt") == 0) {
 			base_address = plt_address;
@@ -308,8 +308,8 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 		switch (section->sh_type) {
 		case SHT_SYMTAB:
 		case SHT_DYNSYM: {
-			auto symbol_tab = reinterpret_cast<elf_sym *>(base + section->sh_offset);
-			auto string_tab = reinterpret_cast<const char *>(base + sections_begin[section->sh_link].sh_offset);
+			auto symbol_tab            = reinterpret_cast<elf_sym *>(base + section->sh_offset);
+			auto string_tab            = reinterpret_cast<const char *>(base + sections_begin[section->sh_link].sh_offset);
 			auto section_entries_count = section->sh_entsize ? section->sh_size / section->sh_entsize : 0;
 
 			for (size_t i = 0; i < section_entries_count; ++i) {
@@ -345,8 +345,8 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 		switch (section->sh_type) {
 		case SHT_SYMTAB:
 		case SHT_DYNSYM: {
-			auto symbol_tab = reinterpret_cast<elf_sym *>(base + section->sh_offset);
-			auto string_tab = reinterpret_cast<const char *>(base + sections_begin[section->sh_link].sh_offset);
+			auto symbol_tab            = reinterpret_cast<elf_sym *>(base + section->sh_offset);
+			auto string_tab            = reinterpret_cast<const char *>(base + sections_begin[section->sh_link].sh_offset);
 			auto section_entries_count = section->sh_entsize ? section->sh_size / section->sh_entsize : 0;
 
 			for (size_t i = 0; i < section_entries_count; ++i) {

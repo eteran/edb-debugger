@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,8 +33,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QStringList>
 #include <QTextStream>
-
-
 
 /**
  * @brief DialogBreakpoints::DialogBreakpoints
@@ -75,7 +73,7 @@ void DialogBreakpoints::updateList() {
 
 	for (const std::shared_ptr<IBreakpoint> &bp : breakpoint_state) {
 
-		//Skip if it's an internal bp; we don't want to insert a row for it.
+		// Skip if it's an internal bp; we don't want to insert a row for it.
 		if (bp->internal()) {
 			continue;
 		}
@@ -274,26 +272,26 @@ void DialogBreakpoints::on_btnImport_clicked() {
  */
 void DialogBreakpoints::on_btnExport_clicked() {
 
-	//Get the current list of breakpoints
+	// Get the current list of breakpoints
 	const IDebugger::BreakpointList breakpoint_state = edb::v1::debugger_core->backupBreakpoints();
 
-	//Create a list for addresses to be exported at the end
+	// Create a list for addresses to be exported at the end
 	QList<edb::address_t> export_list;
 
-	//Go through our breakpoints and add for export if not one-time and not internal.
+	// Go through our breakpoints and add for export if not one-time and not internal.
 	for (const std::shared_ptr<IBreakpoint> &bp : breakpoint_state) {
 		if (!bp->oneTime() && !bp->internal()) {
 			export_list.append(bp->address());
 		}
 	}
 
-	//If there are no breakpoints, fail
+	// If there are no breakpoints, fail
 	if (export_list.isEmpty()) {
 		QMessageBox::critical(this, tr("No Breakpoints"), tr("There are no breakpoints to export."));
 		return;
 	}
 
-	//Now ask the user for a file, open it, and write each address to it.
+	// Now ask the user for a file, open it, and write each address to it.
 	QString filename = QFileDialog::getSaveFileName(this, tr("Breakpoint Export File"), QDir::homePath());
 
 	if (filename.isEmpty()) {
@@ -313,5 +311,3 @@ void DialogBreakpoints::on_btnExport_clicked() {
 
 	QMessageBox::information(this, tr("Breakpoint Export"), tr("Exported %1 breakpoints").arg(export_list.size()));
 }
-
-

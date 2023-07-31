@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class EDB_EXPORT ByteShiftArray {
 public:
 	explicit ByteShiftArray(int size);
-	ByteShiftArray(const ByteShiftArray &) = delete;
+	ByteShiftArray(const ByteShiftArray &)            = delete;
 	ByteShiftArray &operator=(const ByteShiftArray &) = delete;
 
 public:

@@ -90,7 +90,7 @@ QTreeWidgetItem *create_elf_abi(const Header *header) {
 	item->setText(0, tr("ABI"));
 	switch (header->e_ident[EI_OSABI]) {
 	case ELFOSABI_SYSV:
-		//case ELFOSABI_NONE: // alias
+		// case ELFOSABI_NONE: // alias
 		item->setText(1, tr("UNIX System V ABI"));
 		break;
 	case ELFOSABI_HPUX:

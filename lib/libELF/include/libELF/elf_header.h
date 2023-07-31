@@ -1,9 +1,9 @@
 /*
-Copyright (C) 2012 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2012 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 Copyright (C) 1995-2003,2004,2005,2006,2007,2008,2009,2010,2011
-                   Free Software Foundation, Inc.
+				   Free Software Foundation, Inc.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,12 +38,12 @@ enum {
 };
 
 #define ELFMAG0 0x7f /* Magic number byte 0 */
-#define ELFMAG1 'E' /* Magic number byte 1 */
-#define ELFMAG2 'L' /* Magic number byte 2 */
-#define ELFMAG3 'F' /* Magic number byte 3 */
+#define ELFMAG1 'E'  /* Magic number byte 1 */
+#define ELFMAG2 'L'  /* Magic number byte 2 */
+#define ELFMAG3 'F'  /* Magic number byte 3 */
 
 /* Conglomeration of the identification bytes, for easy testing as a word.  */
-#define ELFMAG "\177ELF"
+#define ELFMAG  "\177ELF"
 #define SELFMAG 4
 
 enum {

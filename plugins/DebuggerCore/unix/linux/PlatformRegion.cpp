@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ class BackupInfo : public IDebugEventHandler {
 public:
 	BackupInfo(edb::address_t address, IRegion::permissions_t perms, PlatformRegion *region);
 	~BackupInfo() override;
-	BackupInfo(const BackupInfo &) = delete;
+	BackupInfo(const BackupInfo &)            = delete;
 	BackupInfo &operator=(const BackupInfo &) = delete;
 
 public:

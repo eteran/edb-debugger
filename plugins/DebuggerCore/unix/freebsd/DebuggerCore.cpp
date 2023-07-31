@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -137,8 +137,8 @@ std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 					e->fault_code_    = siginfo.ksi_code;
 					e->fault_address_ = siginfo.ksi_addr;
 
-					//printf("ps_sig   : %d\n", siginfo.ksi_signo);
-					//printf("ps_type  : %d\n", p.p_stype);
+					// printf("ps_sig   : %d\n", siginfo.ksi_signo);
+					// printf("ps_type  : %d\n", p.p_stype);
 					kvm_close(kd);
 				} else {
 					e->fault_code_    = 0;

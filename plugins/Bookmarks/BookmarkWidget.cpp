@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ void BookmarkWidget::on_tableView_doubleClicked(const QModelIndex &index) {
 
 	if (auto item = static_cast<BookmarksModel::Bookmark *>(index.internalPointer())) {
 		switch (index.column()) {
-		case 0: //address
+		case 0: // address
 			switch (item->type) {
 			case BookmarksModel::Bookmark::Code:
 				edb::v1::jump_to_address(item->address);
@@ -79,7 +79,7 @@ void BookmarkWidget::on_tableView_doubleClicked(const QModelIndex &index) {
 				model_->setType(index, new_type);
 			}
 		} break;
-		case 2: //comment
+		case 2: // comment
 		{
 			QString old_comment = item->comment;
 			bool ok;

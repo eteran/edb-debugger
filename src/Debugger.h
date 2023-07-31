@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
+Copyright (C) 2006 - 2023 Evan Teran
 						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
@@ -323,7 +323,7 @@ private:
 	bool stackViewLocked_                 = false;
 
 #if defined(Q_OS_LINUX)
-	edb::address_t debugPointer_  = 0;
+	edb::address_t debugPointer_   = 0;
 	bool dynamicInfoBreakpointSet_ = false;
 #endif
 

@@ -29,8 +29,8 @@ private:
 	}
 
 public:
-	Operand()                = default;
-	Operand(const Operand &) = default;
+	Operand()                           = default;
+	Operand(const Operand &)            = default;
 	Operand &operator=(const Operand &) = default;
 	~Operand()                          = default;
 

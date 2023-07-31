@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ class DataViewInfo {
 public:
 	explicit DataViewInfo(const std::shared_ptr<IRegion> &r);
 	DataViewInfo();
-	DataViewInfo(const DataViewInfo &) = delete;
+	DataViewInfo(const DataViewInfo &)            = delete;
 	DataViewInfo &operator=(const DataViewInfo &) = delete;
 	~DataViewInfo()                               = default;
 

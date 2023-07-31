@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2019 Evan Teran
+Copyright (C) 2006 - 2023 Evan Teran
 						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify

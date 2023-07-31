@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 * Evan Teran evan.teran@gmail.com
-                          * darkprof dark_prof@mail.ru
+Copyright (C) 2006 - 2023 * Evan Teran evan.teran@gmail.com
+						  * darkprof dark_prof@mail.ru
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

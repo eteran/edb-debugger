@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ bool set_debug_privilege(HANDLE process, bool set) {
 	HANDLE token;
 	bool ok = false;
 
-	//process must have PROCESS_QUERY_INFORMATION
+	// process must have PROCESS_QUERY_INFORMATION
 	if (OpenProcessToken(process, TOKEN_ADJUST_PRIVILEGES, &token)) {
 
 		LUID luid;
@@ -330,7 +330,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 		CloseHandle(process_info.hThread); // We don't need the thread handle
 		set_debug_privilege(process_info.hProcess, false);
 
-		//process_info.hProcess  has PROCESS_ALL_ACCESS
+		// process_info.hProcess  has PROCESS_ALL_ACCESS
 		process_ = std::make_shared<PlatformProcess>(this, process_info.hProcess);
 
 		ok = true;

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2015 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2015 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -35,8 +35,8 @@ class PlatformProcess final : public IProcess {
 
 public:
 	PlatformProcess(DebuggerCore *core, edb::pid_t pid);
-	~PlatformProcess() override              = default;
-	PlatformProcess(const PlatformProcess &) = delete;
+	~PlatformProcess() override                         = default;
+	PlatformProcess(const PlatformProcess &)            = delete;
 	PlatformProcess &operator=(const PlatformProcess &) = delete;
 
 public:

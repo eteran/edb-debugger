@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ class DialogPlugins : public QDialog {
 
 public:
 	explicit DialogPlugins(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	DialogPlugins(const DialogPlugins &) = delete;
+	DialogPlugins(const DialogPlugins &)            = delete;
 	DialogPlugins &operator=(const DialogPlugins &) = delete;
 	~DialogPlugins() override                       = default;
 

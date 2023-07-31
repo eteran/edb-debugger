@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,8 +33,8 @@ namespace {
  */
 double read_float80(const uint8_t buffer[10]) {
 	// little-endian!
-	//80 bit floating point value according to IEEE-754:
-	//1 bit sign, 15 bit exponent, 64 bit mantissa
+	// 80 bit floating point value according to IEEE-754:
+	// 1 bit sign, 15 bit exponent, 64 bit mantissa
 
 	constexpr uint16_t SIGNBIT    = (1 << 15);
 	constexpr uint16_t EXP_BIAS   = (1 << 14) - 1; // 2^(n-1) - 1 = 16383
@@ -73,7 +73,7 @@ double read_float80(const uint8_t buffer[10]) {
 		}
 	}
 
-	//value = (-1)^s * (m / 2^63) * 2^(e - 16383)
+	// value = (-1)^s * (m / 2^63) * 2^(e - 16383)
 	double significand = (static_cast<double>(mantissa) / (1ull << 63));
 	return sign * ldexp(significand, exponent - EXP_BIAS);
 }
@@ -607,14 +607,14 @@ QByteArray PlatformState::xmm_register(int n) const {
 	if (n >= 0 && n <= 7) {
 		auto p = reinterpret_cast<const char *>(&context32_.ExtendedRegisters[(10 + n) * 16]);
 		ret    = QByteArray(p, 16);
-		std::reverse(ret.begin(), ret.end()); //little endian!
+		std::reverse(ret.begin(), ret.end()); // little endian!
 	}
 #elif defined(EDB_X86_64)
 	if (n >= 0 && n <= 15) {
 		if (isWow64_) {
 			auto p = reinterpret_cast<const char *>(&context32_.ExtendedRegisters[(10 + n) * 16]);
 			ret    = QByteArray(p, 16);
-			std::reverse(ret.begin(), ret.end()); //little endian!
+			std::reverse(ret.begin(), ret.end()); // little endian!
 		} else {
 			auto p = reinterpret_cast<const char *>(&context64_.FltSave.XmmRegisters[n]);
 			ret    = QByteArray(p, sizeof(M128A));
@@ -937,7 +937,7 @@ Register PlatformState::flagsRegister() const {
  */
 void PlatformState::getThreadState(HANDLE hThread, bool isWow64) {
 #if defined(EDB_X86)
-	context32_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
+	context32_.ContextFlags = CONTEXT_ALL; // CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
 	GetThreadContext(hThread, &context32_);
 
 	gs_base_ = 0;
@@ -957,7 +957,7 @@ void PlatformState::getThreadState(HANDLE hThread, bool isWow64) {
 	fs_base_ = 0;
 
 	if (isWow64) {
-		context32_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
+		context32_.ContextFlags = CONTEXT_ALL; // CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
 		Wow64GetThreadContext(hThread, &context32_);
 
 		WOW64_LDT_ENTRY ldt_entry;
@@ -969,7 +969,7 @@ void PlatformState::getThreadState(HANDLE hThread, bool isWow64) {
 			fs_base_ = ldt_entry.BaseLow | (ldt_entry.HighWord.Bits.BaseMid << 16) | (ldt_entry.HighWord.Bits.BaseHi << 24);
 		}
 	} else {
-		context64_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
+		context64_.ContextFlags = CONTEXT_ALL; // CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
 		GetThreadContext(hThread, &context64_);
 
 		// GetThreadSelectorEntry always returns false on x64

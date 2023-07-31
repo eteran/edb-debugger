@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -68,14 +68,14 @@ void DialogBinaryString::doFind() {
 	auto results = new DialogResults(this);
 
 	const edb::address_t align = ui.chkAlignment->isChecked() ? 1 << (ui.cmbAlignment->currentIndex() + 1) : 1;
-	const size_t sz = b.size();
+	const size_t sz            = b.size();
 	edb::v1::memory_regions().sync();
 	const QList<std::shared_ptr<IRegion>> regions = edb::v1::memory_regions().regions();
-	const size_t page_size = edb::v1::debugger_core->pageSize();
+	const size_t page_size                        = edb::v1::debugger_core->pageSize();
 
 	int i = 0;
 
-	const size_t max_number_pages = 4096;  // how many pages our read chunks are.
+	const size_t max_number_pages = 4096; // how many pages our read chunks are.
 
 	if (sz == 0) {
 		return;
@@ -102,12 +102,11 @@ void DialogBinaryString::doFind() {
 		for (size_t current_page = 0; current_page < page_count; current_page += max_number_pages - 1) {
 			const QVector<uint8_t> pages = edb::v1::read_pages(
 				region->start() + (current_page * page_size),
-				std::min(max_number_pages, page_count - current_page)
-			);
+				std::min(max_number_pages, page_count - current_page));
 
 			if (!pages.isEmpty()) {
 
-				const uint8_t *p = &pages.constFirst();
+				const uint8_t *p               = &pages.constFirst();
 				const uint8_t *const pages_end = &pages.constLast() - sz;
 
 				while (p < pages_end) {

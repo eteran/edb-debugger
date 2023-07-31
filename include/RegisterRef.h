@@ -16,8 +16,8 @@ public:
 		: name_(name), ptr_(ptr), size_(size) {
 	}
 
-	constexpr RegisterRef()          = default;
-	RegisterRef(const RegisterRef &) = default;
+	constexpr RegisterRef()                     = default;
+	RegisterRef(const RegisterRef &)            = default;
 	RegisterRef &operator=(const RegisterRef &) = default;
 
 public:

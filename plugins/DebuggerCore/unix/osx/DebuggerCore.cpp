@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -407,14 +407,14 @@ void DebuggerCore::set_state(const State &state) {
 		mach_msg_type_number_t state_count       = x86_THREAD_STATE32_COUNT;
 		const thread_state_flavor_t flavor       = x86_THREAD_STATE32;
 		const thread_state_flavor_t debug_flavor = x86_DEBUG_STATE32;
-		//const thread_state_flavor_t fpu_flavor       = x86_FLOAT_STATE32;
-		//const thread_state_flavor_t exception_flavor = x86_EXCEPTION_STATE32;
+		// const thread_state_flavor_t fpu_flavor       = x86_FLOAT_STATE32;
+		// const thread_state_flavor_t exception_flavor = x86_EXCEPTION_STATE32;
 #elif defined(EDB_X86_64)
-		mach_msg_type_number_t state_count       = x86_THREAD_STATE64_COUNT;
-		const thread_state_flavor_t flavor       = x86_THREAD_STATE64;
-		const thread_state_flavor_t debug_flavor = x86_DEBUG_STATE64;
-		//const thread_state_flavor_t fpu_flavor       = x86_FLOAT_STATE64;
-		//const thread_state_flavor_t exception_flavor = x86_EXCEPTION_STATE64;
+		mach_msg_type_number_t state_count           = x86_THREAD_STATE64_COUNT;
+		const thread_state_flavor_t flavor           = x86_THREAD_STATE64;
+		const thread_state_flavor_t debug_flavor     = x86_DEBUG_STATE64;
+		// const thread_state_flavor_t fpu_flavor       = x86_FLOAT_STATE64;
+		// const thread_state_flavor_t exception_flavor = x86_EXCEPTION_STATE64;
 #endif
 
 		// TODO Set for specific thread, not first one

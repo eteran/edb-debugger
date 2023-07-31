@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2023 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtDebug>
 
 #define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
+#define TOSTRING(x)  STRINGIFY(x)
 
 namespace {
 
@@ -98,7 +98,7 @@ void Configuration::readSettings() {
 #ifdef Q_OS_WIN32
 	const QString default_font = QFont("Courier New", 8).toString();
 #elif defined(Q_OS_MACX)
-	const QString default_font = QFont("Courier New", 10).toString();
+	const QString default_font        = QFont("Courier New", 10).toString();
 #else
 	const QString default_font = QFont("Monospace", 8).toString();
 #endif

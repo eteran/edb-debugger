@@ -42,12 +42,12 @@ public:
 
 public:
 	// all defaulted to help ensure that this is a trivially-copyable type
-	value_type_large()                         = default;
-	value_type_large(const value_type_large &) = default;
+	value_type_large()                                    = default;
+	value_type_large(const value_type_large &)            = default;
 	value_type_large &operator=(const value_type_large &) = default;
 	value_type_large(value_type_large &&)                 = default;
-	value_type_large &operator=(value_type_large &&) = default;
-	~value_type_large()                              = default;
+	value_type_large &operator=(value_type_large &&)      = default;
+	~value_type_large()                                   = default;
 
 public:
 	template <class U, class = typename std::enable_if<!std::is_arithmetic<U>::value>::type>
@@ -116,12 +116,12 @@ public:
 
 public:
 	// all defaulted to help ensure that this is a trivially-copyable type
-	value_type()                   = default;
-	value_type(const value_type &) = default;
+	value_type()                              = default;
+	value_type(const value_type &)            = default;
 	value_type &operator=(const value_type &) = default;
 	value_type(value_type &&)                 = default;
-	value_type &operator=(value_type &&) = default;
-	~value_type()                        = default;
+	value_type &operator=(value_type &&)      = default;
+	~value_type()                             = default;
 
 public:
 	template <class Integer, class = IsInteger<Integer>>
@@ -755,12 +755,12 @@ public:
 
 public:
 	// all defaulted to help ensure that this is a trivially-copyable type
-	value_type80()                     = default;
-	value_type80(const value_type80 &) = default;
+	value_type80()                                = default;
+	value_type80(const value_type80 &)            = default;
 	value_type80 &operator=(const value_type80 &) = default;
 	value_type80(value_type80 &&)                 = default;
-	value_type80 &operator=(value_type80 &&) = default;
-	~value_type80()                          = default;
+	value_type80 &operator=(value_type80 &&)      = default;
+	~value_type80()                               = default;
 
 public:
 	template <class U>

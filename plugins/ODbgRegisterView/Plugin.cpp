@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSettings>
 
 namespace ODbgRegisterView {
-//Q_DECLARE_NAMESPACE_TR(ODbgRegisterView)
+// Q_DECLARE_NAMESPACE_TR(ODbgRegisterView)
 
 namespace {
 const auto pluginName             = QLatin1String("ODbgRegisterView");
