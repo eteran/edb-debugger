@@ -42,6 +42,7 @@
     <addaction name="action_Memory_Regions"/>
     <addaction name="action_Threads"/>
     <addaction name="actionApplication_Arguments"/>
+    <addaction name="action_Breakpoints"/>
     <addaction name="separator"/>
     <addaction name="action_Debug_Logger"/>
    </widget>
@@ -433,6 +434,14 @@
    </property>
    <property name="text">
     <string>Debug Logger</string>
+   </property>
+  </action>
+  <action name="action_Breakpoints">
+   <property name="text">
+    <string>&amp;Breakpoints</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+B</string>
    </property>
   </action>
  </widget>

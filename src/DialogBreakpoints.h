@@ -22,9 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_DialogBreakpoints.h"
 #include <QDialog>
 
-namespace BreakpointManagerPlugin {
-
-class DialogBreakpoints : public QDialog {
+class DialogBreakpoints final : public QDialog {
 	Q_OBJECT
 
 public:
@@ -48,6 +46,6 @@ private:
 	Ui::DialogBreakpoints ui;
 };
 
-}
+
 
 #endif

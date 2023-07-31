@@ -146,6 +146,7 @@ public Q_SLOTS:
 	void on_action_Step_Over_Pass_Signal_To_Application_triggered();
 	void on_action_Step_Over_triggered();
 	void on_action_Threads_triggered();
+	void on_action_Breakpoints_triggered();
 
 private:
 	void toggleFlag(int);
@@ -339,6 +340,7 @@ private:
 	std::shared_ptr<QHexView> stackView_;
 	std::shared_ptr<const IDebugEvent> lastEvent_;
 	std::unique_ptr<IBinary> binaryInfo_;
+	QPointer<QDialog> breakpointDialog_ = nullptr;
 
 private:
 	QAction *gotoAddressAction_;

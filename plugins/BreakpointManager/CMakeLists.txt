@@ -12,9 +12,6 @@ find_package(Qt5 5.0.0 REQUIRED Widgets)
 add_library(${PluginName} SHARED
 	BreakpointManager.cpp
 	BreakpointManager.h
-	DialogBreakpoints.cpp
-	DialogBreakpoints.h
-	DialogBreakpoints.ui
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets edb)
