@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogArguments.h"
 #include "DialogAttach.h"
 #include "DialogMemoryRegions.h"
+#include "DialogBreakpoints.h"
 #include "DialogOpenProgram.h"
 #include "DialogOptions.h"
 #include "DialogPlugins.h"
@@ -3606,4 +3607,16 @@ void Debugger::on_action_Help_triggered() {
 //------------------------------------------------------------------------------
 QLabel *Debugger::statusLabel() const {
 	return status_;
+}
+
+//------------------------------------------------------------------------------
+// Name: on_action_Breakpoints_triggered
+// Desc:
+//------------------------------------------------------------------------------
+void Debugger::on_action_Breakpoints_triggered() {
+	if (!breakpointDialog_) {
+		breakpointDialog_ = new DialogBreakpoints(edb::v1::debugger_ui);
+	}
+
+	breakpointDialog_->show();
 }

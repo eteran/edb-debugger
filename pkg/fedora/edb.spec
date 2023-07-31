@@ -1,5 +1,5 @@
 Name:           edb
-Version:        1.3.0
+Version:        1.4.0
 Release:        2%{?dist}
 Summary:        A debugger based on the ptrace API and Qt
 
@@ -29,7 +29,7 @@ One of the main goals of this debugger is modularity.
 The interface is written in Qt and thus source portable to many platforms.
 The debugger core is a plugin and the platform specific code is isolated
 to just a few files, porting to a new OS would require porting these few
-files and implementing a plugin which implements the 
+files and implementing a plugin which implements the
 DebuggerCoreInterface interface. Also, because the plugins are based
 on the QPlugin API, and do their work through the DebuggerCoreInterface
 object, they are almost always portable with just a simple recompile.
@@ -62,6 +62,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/%{name}.a
 %{_mandir}/man1/%{name}.1*
 
 %changelog
+* Sun July 30 2023 Evan Teran <evan.teran@gmail.com> - 1.4.0
+- Version bump
+
 * Sun Dec 12 2021 Pekka Oinas <peoinas@gmail.com> - 1.3.0-2
 - Fix building on Fedora 35
 
@@ -154,7 +157,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/%{name}.a
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
 * Sun Jan  1 2012 Nicoleau Fabien <nicoleau.fabien@gmail.com> - 0.9.18-1
-- Update to 0.9.18 
+- Update to 0.9.18
 * Sat Apr 23 2011 Nicoleau Fabien <nicoleau.fabien@gmail.com> - 0.9.17-1
 - Update to 0.9.17
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.9.16-3
@@ -162,7 +165,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/%{name}.a
 * Sun Nov  7 2010 Dan Horák <dan[at]danny.cz> - 0.9.16-2
 - switch to ExclusiveArch
 * Thu Oct 28 2010 Nicoleau Fabien <nicoleau.fabien@gmail.com> - 0.9.16-1
-- Update to 0.9.16 
+- Update to 0.9.16
 * Wed Jun  2 2010 Nicoleau Fabien <nicoleau.fabien@gmail.com> 0.9.15-1
 - Update to 0.9.15
 * Sat Feb 27 2010 Nicoleau Fabien <nicoleau.fabien@gmail.com> 0.9.13-1

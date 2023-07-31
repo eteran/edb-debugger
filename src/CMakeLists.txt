@@ -42,6 +42,9 @@ set(edb_SRCS
 	DialogArguments.cpp
 	DialogArguments.h
 	DialogArguments.ui
+	DialogBreakpoints.cpp
+	DialogBreakpoints.h
+	DialogBreakpoints.ui
 	DialogAttach.cpp
 	DialogAttach.h
 	DialogAttach.ui
@@ -252,7 +255,7 @@ if(UNIX AND TARGET_ARCH_FAMILY_X86)
 		target_link_libraries(edb
 			gdtoa-desktop
 		)
-		
+
 		add_dependencies(edb gdtoa_h)
 	endif()
 endif()

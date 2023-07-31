@@ -34,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 #include <QTextStream>
 
-namespace BreakpointManagerPlugin {
+
 
 /**
  * @brief DialogBreakpoints::DialogBreakpoints
@@ -314,4 +314,4 @@ void DialogBreakpoints::on_btnExport_clicked() {
 	QMessageBox::information(this, tr("Breakpoint Export"), tr("Exported %1 breakpoints").arg(export_list.size()));
 }
 
-}
+

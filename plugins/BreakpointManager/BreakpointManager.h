@@ -40,12 +40,6 @@ public:
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
 
-public Q_SLOTS:
-	void showMenu();
-
-private:
-	QMenu *menu_              = nullptr;
-	QPointer<QDialog> dialog_ = nullptr;
 };
 
 }

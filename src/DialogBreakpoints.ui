@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <author>Evan Teran</author>
- <class>BreakpointManagerPlugin::DialogBreakpoints</class>
- <widget class="QDialog" name="BreakpointManagerPlugin::DialogBreakpoints">
+ <class>DialogBreakpoints</class>
+ <widget class="QDialog" name="DialogBreakpoints">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -174,7 +174,7 @@
   <connection>
    <sender>okButton</sender>
    <signal>clicked()</signal>
-   <receiver>BreakpointManagerPlugin::DialogBreakpoints</receiver>
+   <receiver>DialogBreakpoints</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
