@@ -639,6 +639,11 @@ QString Debugger::createTty() {
 				proc_args << "--hide-menubar"
 						  << "--title" << tr("edb output")
 						  << "--";
+			} else if (command_info.fileName() == "xfce4-terminal") {
+				proc_args << "--hide-menubar"
+						  << "--title" << tr("edb output")
+						  << "--hold"
+						  << "-x";
 			} else if (command_info.fileName() == "konsole") {
 				proc_args << "--hide-menubar"
 						  << "--title" << tr("edb output")
