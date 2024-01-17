@@ -1,6 +1,9 @@
 {
     "files.associations": {
-        "system_error": "cpp"
+        "*.go": "go",
+        "*.json": "json",
+        "system_error": "cpp",
+        "*.tcc": "cpp"
     },
     "cSpell.words": [
         "CLASSINFO",
