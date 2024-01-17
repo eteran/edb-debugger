@@ -5,13 +5,30 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns Svg)
+find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns Svg LinguistTools)
+
+qt5_add_translation(QM_FILES
+	# add translation files in /src/res/translations here
+)
+
+# Create translations QRC file - translations.qrc
+set(TRANSLATIONS_QRC "${CMAKE_CURRENT_BINARY_DIR}/translations.qrc")
+
+file(WRITE ${TRANSLATIONS_QRC} "<RCC>\n\t<qresource prefix=\"/translations\">")
+foreach(QM_FILE ${QM_FILES})
+	get_filename_component(QM_FILE_NAME ${QM_FILE} NAME)
+	file(APPEND ${TRANSLATIONS_QRC} "\n\t\t<file>${QM_FILE_NAME}</file>")
+endforeach()
+
+file(APPEND ${TRANSLATIONS_QRC} "\n\t</qresource>\n</RCC>")
+list(APPEND QRC_FILES ${TRANSLATIONS_QRC})
 
 qt5_add_resources(QRC_SOURCES
 	res/debugger.qrc
 	res/themes.qrc
 	res/breeze-edb.qrc
 	res/breeze-dark-edb.qrc
+	${TRANSLATIONS_QRC}
 )
 
 foreach(FILE IN LISTS QRC_SOURCES)

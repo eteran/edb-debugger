@@ -200,12 +200,15 @@ int start_debugger(const LaunchArguments &launch_args) {
 void load_translations() {
 	// load some translations
 	QTranslator qtTranslator;
-	qtTranslator.load("qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-	qApp->installTranslator(&qtTranslator);
+	if (qtTranslator.load(QLocale(), QLatin1String("qtbase"), QLatin1String("_"), QLibraryInfo::location(QLibraryInfo::TranslationsPath))) {
+		qApp->installTranslator(&qtTranslator);
+	}
 
-	QTranslator myappTranslator;
-	myappTranslator.load("edb_" + QLocale::system().name());
-	qApp->installTranslator(&myappTranslator);
+	QTranslator translator;
+	// look up e.g. :/translations/edb_{lang}.qm
+	if (translator.load(QLocale(), QLatin1String("edb"), QLatin1String("_"), QLatin1String(":/translations"))) {
+		qApp->installTranslator(&translator);
+	}
 }
 
 // See QtCreator: src/libs/utils/theme/theme.cpp
