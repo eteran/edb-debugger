@@ -3,7 +3,8 @@
         "*.go": "go",
         "*.json": "json",
         "system_error": "cpp",
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "atomic": "cpp"
     },
     "cSpell.words": [
         "CLASSINFO",
