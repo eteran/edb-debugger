@@ -314,8 +314,10 @@ int main(int argc, char *argv[]) {
 	QTranslator translator;
 	// look up e.g. :/translations/edb_{lang}.qm
 	if (translator.load(QLocale(), QLatin1String("edb"), QLatin1String("_"), QLatin1String(":/translations"))) {
+		qDebug() << "Translations loaded successfully for " << QLocale().bcp47Name();
 		app.installTranslator(&translator);
 	}
+
 
 	// look for some plugins..
 	load_plugins(edb::v1::config().plugin_path);
