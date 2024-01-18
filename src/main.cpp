@@ -194,23 +194,6 @@ int start_debugger(const LaunchArguments &launch_args) {
 	}
 }
 
-/**
- * @brief load_translations
- */
-void load_translations() {
-	// load some translations
-	QTranslator qtTranslator;
-	if (qtTranslator.load(QLocale(), QLatin1String("qtbase"), QLatin1String("_"), QLibraryInfo::location(QLibraryInfo::TranslationsPath))) {
-		qApp->installTranslator(&qtTranslator);
-	}
-
-	QTranslator translator;
-	// look up e.g. :/translations/edb_{lang}.qm
-	if (translator.load(QLocale(), QLatin1String("edb"), QLatin1String("_"), QLatin1String(":/translations"))) {
-		qApp->installTranslator(&translator);
-	}
-}
-
 // See QtCreator: src/libs/utils/theme/theme.cpp
 
 // If you copy QPalette, default values stay at default, even if that default is different
@@ -322,7 +305,19 @@ int main(int argc, char *argv[]) {
 	QApplication::setApplicationName("edb");
 	QApplication::setApplicationVersion(EDB_VERSION_STRING);
 
-	load_translations();
+	// load some translations
+	QTranslator qtTranslator;
+	if (qtTranslator.load(QLocale(), QLatin1String("qtbase"), QLatin1String("_"), QLibraryInfo::location(QLibraryInfo::TranslationsPath))) {
+		app.installTranslator(&qtTranslator);
+	}
+
+	QTranslator translator;
+	// look up e.g. :/translations/edb_{lang}.qm
+	if (translator.load(QLocale(), QLatin1String("edb"), QLatin1String("_"), QLatin1String(":/translations"))) {
+		qDebug() << "Translations loaded successfully for " << QLocale().bcp47Name();
+		app.installTranslator(&translator);
+	}
+
 
 	// look for some plugins..
 	load_plugins(edb::v1::config().plugin_path);
