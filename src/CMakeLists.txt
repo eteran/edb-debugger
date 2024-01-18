@@ -9,7 +9,10 @@ find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns Svg LinguistTools)
 
 qt5_add_translation(QM_FILES
 	# add translation files in /src/res/translations here
+<<<<<<< HEAD
 	res/translations/edb_zh_CN.ts
+=======
+>>>>>>> b686a498e75e043efbbd3adddef1df12b7d64536
 )
 
 # Create translations QRC file - translations.qrc

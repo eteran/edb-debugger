@@ -3,8 +3,12 @@
         "*.go": "go",
         "*.json": "json",
         "system_error": "cpp",
+<<<<<<< HEAD
         "*.tcc": "cpp",
         "atomic": "cpp"
+=======
+        "*.tcc": "cpp"
+>>>>>>> b686a498e75e043efbbd3adddef1df12b7d64536
     },
     "cSpell.words": [
         "CLASSINFO",
