@@ -187,13 +187,15 @@ bool is_fpu_taking_float(const Instruction &insn) {
 		return false;
 	}
 
-	if (!is_fpu(insn))
+	if (!is_fpu(insn)) {
 		return false;
+	}
 
 	const auto modrm = insn->detail->x86.modrm;
 
-	if (modrm > 0xbf)
+	if (modrm > 0xbf) {
 		return true; // always works with st(i) in this case
+	}
 
 	const auto ro = (modrm >> 3) & 7;
 	switch (insn->detail->x86.opcode[0]) {
@@ -214,13 +216,15 @@ bool is_fpu_taking_integer(const Instruction &insn) {
 	if (!insn) {
 		return false;
 	}
-	if (!is_fpu(insn))
+	if (!is_fpu(insn)) {
 		return false;
+	}
 
 	const auto modrm = insn->detail->x86.modrm;
 
-	if (modrm > 0xbf)
+	if (modrm > 0xbf) {
 		return false; // always works with st(i) in this case
+	}
 
 	const auto ro = (modrm >> 3) & 7;
 
@@ -244,12 +248,14 @@ bool is_fpu_taking_bcd(const Instruction &insn) {
 	if (!insn) {
 		return false;
 	}
-	if (!is_fpu(insn))
+	if (!is_fpu(insn)) {
 		return false;
+	}
 
 	const auto modrm = insn->detail->x86.modrm;
-	if (modrm > 0xbf)
+	if (modrm > 0xbf) {
 		return false; // always works with st(i) in this case
+	}
 
 	const auto ro = (modrm >> 3) & 7;
 	return insn->detail->x86.opcode[0] == 0xdf && (ro == 4 || ro == 6);

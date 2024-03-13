@@ -205,7 +205,8 @@ Status Unix::execute_process(const QString &path, const QString &cwd, const QLis
 		// if we get here...execv failed!
 		if (ret == -1) {
 			errorString = QString("execv() failed: %1").arg(strerror(errno));
-			p           = argv_pointers;
+
+			p = argv_pointers;
 			while (*p) {
 				delete[] *p++;
 			}

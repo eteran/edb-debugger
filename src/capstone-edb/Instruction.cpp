@@ -49,19 +49,24 @@ Formatter activeFormatter;
  */
 bool is_simd_register(const Operand &operand) {
 
-	if (operand->type != X86_OP_REG)
+	if (operand->type != X86_OP_REG) {
 		return false;
+	}
 
 	const auto reg = operand->reg;
 
-	if (X86_REG_MM0 <= reg && reg <= X86_REG_MM7)
+	if (X86_REG_MM0 <= reg && reg <= X86_REG_MM7) {
 		return true;
-	if (X86_REG_XMM0 <= reg && reg <= X86_REG_XMM31)
+	}
+	if (X86_REG_XMM0 <= reg && reg <= X86_REG_XMM31) {
 		return true;
-	if (X86_REG_YMM0 <= reg && reg <= X86_REG_YMM31)
+	}
+	if (X86_REG_YMM0 <= reg && reg <= X86_REG_YMM31) {
 		return true;
-	if (X86_REG_ZMM0 <= reg && reg <= X86_REG_ZMM31)
+	}
+	if (X86_REG_ZMM0 <= reg && reg <= X86_REG_ZMM31) {
 		return true;
+	}
 
 	return false;
 }
@@ -74,13 +79,16 @@ bool is_simd_register(const Operand &operand) {
  */
 bool apriori_not_simd(const Instruction &insn, const Operand &operand) {
 
-	if (!is_simd(insn))
+	if (!is_simd(insn)) {
 		return true;
+	}
 
-	if (operand->type == X86_OP_REG && !is_simd_register(operand))
+	if (operand->type == X86_OP_REG && !is_simd_register(operand)) {
 		return true;
-	if (operand->type == X86_OP_IMM)
+	}
+	if (operand->type == X86_OP_IMM) {
 		return true;
+	}
 
 	return false;
 }
@@ -358,8 +366,9 @@ Instruction::ConditionCode Instruction::conditionCode() const {
 	default:
 		if (is_conditional_gpr_move(*this) || is_conditional_jump(*this) || is_conditional_set(*this)) {
 			const uint8_t *opcode = insn_->detail->x86.opcode;
-			if (opcode[0] == 0x0f)
+			if (opcode[0] == 0x0f) {
 				return static_cast<ConditionCode>(opcode[1] & 0xf);
+			}
 			return static_cast<ConditionCode>(opcode[0] & 0xf);
 		}
 	}
@@ -512,8 +521,9 @@ void Formatter::checkCapitalize(std::string &str, bool canContainHex) const {
 }
 
 std::string Formatter::toString(const Operand &operand) const {
-	if (!operand)
+	if (!operand) {
 		return "(bad)";
+	}
 
 	std::string str;
 
@@ -564,8 +574,9 @@ bool is_SIMD_PS(const Operand &operand) {
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
 
-	if (apriori_not_simd(insn, operand))
+	if (apriori_not_simd(insn, operand)) {
 		return false;
+	}
 
 	const auto number = simdOperandNormalizedNumberInInstruction(insn, operand);
 
@@ -759,8 +770,9 @@ bool is_SIMD_PD(const Operand &operand) {
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
 
-	if (apriori_not_simd(insn, operand))
+	if (apriori_not_simd(insn, operand)) {
 		return false;
+	}
 
 	const auto number = simdOperandNormalizedNumberInInstruction(insn, operand);
 
@@ -906,10 +918,11 @@ bool is_SIMD_PD(const Operand &operand) {
 		return number != 2;
 	case X86_INS_VPERMPD: // if third operand is not imm8, then second is indices (always in VPERMPS)
 		assert(insn.operandCount() == 3);
-		if (insn[2]->type != X86_OP_IMM)
+		if (insn[2]->type != X86_OP_IMM) {
 			return number != 1;
-		else
+		} else {
 			return true;
+		}
 	case X86_INS_VPERMIL2PD: // XOP (AMD). Fourth operand is selector (?)
 		return number != 3;
 	case X86_INS_VRCP14SD:
@@ -941,8 +954,9 @@ bool is_SIMD_SS(const Operand &operand) {
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
 
-	if (apriori_not_simd(insn, operand))
+	if (apriori_not_simd(insn, operand)) {
 		return false;
+	}
 
 	const auto number = simdOperandNormalizedNumberInInstruction(insn, operand);
 
@@ -1036,8 +1050,9 @@ bool is_SIMD_SD(const Operand &operand) {
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	const Instruction &insn = *operand.owner();
 
-	if (apriori_not_simd(insn, operand))
+	if (apriori_not_simd(insn, operand)) {
 		return false;
+	}
 
 	const auto number = simdOperandNormalizedNumberInInstruction(insn, operand);
 
@@ -1192,8 +1207,9 @@ bool is_call(const Instruction &insn) {
 }
 
 bool modifies_pc(const Instruction &insn) {
-	if (is_call(insn) || is_jump(insn) || is_interrupt(insn))
+	if (is_call(insn) || is_jump(insn) || is_interrupt(insn)) {
 		return true;
+	}
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	return false;
 #elif defined(EDB_ARM32)
