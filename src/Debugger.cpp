@@ -1894,14 +1894,17 @@ void Debugger::mnuCPUFollow() {
 	const edb::address_t address = cpuView_->selectedAddress();
 	int size                     = cpuView_->selectedSize();
 	uint8_t buffer[edb::Instruction::MaxSize + 1];
-	if (!edb::v1::get_instruction_bytes(address, buffer, &size))
+	if (!edb::v1::get_instruction_bytes(address, buffer, &size)) {
 		return;
+	}
 
 	const edb::Instruction inst(buffer, buffer + size, address);
-	if (!is_call(inst) && !is_jump(inst))
+	if (!is_call(inst) && !is_jump(inst)) {
 		return;
-	if (!is_immediate(inst[0]))
+	}
+	if (!is_immediate(inst[0])) {
 		return;
+	}
 
 	const edb::address_t addressToFollow = util::to_unsigned(inst[0]->imm);
 	if (auto action = qobject_cast<QAction *>(sender())) {
@@ -2101,7 +2104,9 @@ void Debugger::runToThisLine(ExceptionResume pass_signal) {
 	std::shared_ptr<IBreakpoint> bp = edb::v1::find_breakpoint(address);
 	if (!bp) {
 		bp = edb::v1::create_breakpoint(address);
-		if (!bp) return;
+		if (!bp) {
+			return;
+		}
 		bp->setOneTime(true);
 		bp->setInternal(true);
 		bp->tag = run_to_cursor_tag;
@@ -2407,8 +2412,9 @@ edb::EventStatus Debugger::handleEventStopped(const std::shared_ptr<IDebugEvent>
 	if (event->isError()) {
 		const IDebugEvent::Message message = event->errorDescription();
 		edb::v1::set_status(message.statusMessage, 0);
-		if (edb::v1::config().enable_signals_message_box)
+		if (edb::v1::config().enable_signals_message_box) {
 			QMessageBox::information(this, message.caption, message.message);
+		}
 		return edb::DEBUG_STOP;
 	}
 
@@ -2957,10 +2963,11 @@ void Debugger::detachFromProcess(DetachAction kill) {
 	programExecutable_.clear();
 
 	if (edb::v1::debugger_core) {
-		if (kill == KillOnDetach)
+		if (kill == KillOnDetach) {
 			edb::v1::debugger_core->kill();
-		else
+		} else {
 			edb::v1::debugger_core->detach();
+		}
 	}
 
 	lastEvent_ = nullptr;

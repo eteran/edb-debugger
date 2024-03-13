@@ -616,8 +616,9 @@ AbstractRegisterItem *Category::getRegister(std::size_t i) const {
 }
 
 void Category::saveValues() {
-	for (auto &reg : registers)
+	for (auto &reg : registers) {
 		reg->saveValue();
+	}
 }
 
 // -------------------- RegisterItem impl ------------------------

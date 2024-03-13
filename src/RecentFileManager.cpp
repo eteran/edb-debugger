@@ -153,7 +153,9 @@ void RecentFileManager::update() {
 // Desc:
 //------------------------------------------------------------------------------
 RecentFileManager::RecentFile RecentFileManager::mostRecent() const {
-	if (files_.isEmpty()) return {};
+	if (files_.isEmpty()) {
+		return {};
+	}
 	return files_.front();
 }
 

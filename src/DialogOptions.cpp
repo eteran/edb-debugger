@@ -248,8 +248,9 @@ void DialogOptions::showEvent(QShowEvent *event) {
 		const auto chosen = config.default_breakpoint_type;
 		for (const auto &type : bps) {
 			combo->addItem(type.description, QVariant::fromValue(type.type));
-			if (type.type == chosen)
+			if (type.type == chosen) {
 				combo->setCurrentIndex(combo->count() - 1);
+			}
 		}
 	}
 

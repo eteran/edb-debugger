@@ -220,7 +220,9 @@ bool SymbolManager::processSymbolFile(const QString &f, edb::address_t base, con
 					std::getline(file, sym_name);
 
 					if (!file) {
-						if (!file.eof()) qWarning() << "WARNING: File" << f << "seems corrupt";
+						if (!file.eof()) {
+							qWarning() << "WARNING: File" << f << "seems corrupt";
+						}
 						break;
 					}
 

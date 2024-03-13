@@ -270,11 +270,12 @@ QPalette themePalette() {
 		const QColor themeColor = theme.palette[entry.paletteIndex];
 		// Use original color if color is not defined in theme.
 		if (themeColor.isValid()) {
-			if (entry.setColorRoleAsBrush)
+			if (entry.setColorRoleAsBrush) {
 				// TODO: Find out why sometimes setBrush is used
 				pal.setBrush(entry.paletteColorGroup, entry.paletteColorRole, themeColor);
-			else
+			} else {
 				pal.setColor(entry.paletteColorGroup, entry.paletteColorRole, themeColor);
+			}
 		}
 	}
 
@@ -308,20 +309,20 @@ int main(int argc, char *argv[]) {
 	// load some translations
 	QTranslator qtTranslator;
 	if (qtTranslator.load(QLocale(), QLatin1String("qtbase"), QLatin1String("_"), QLibraryInfo::location(QLibraryInfo::TranslationsPath))) {
-		app.installTranslator(&qtTranslator);
+		QApplication::installTranslator(&qtTranslator);
 	}
 
 	QTranslator translator;
 	// look up e.g. :/translations/edb_{lang}.qm
 	if (translator.load(QLocale(), QLatin1String("edb"), QLatin1String("_"), QLatin1String(":/translations"))) {
 		qDebug() << "Translations loaded successfully for " << QLocale().bcp47Name();
-		app.installTranslator(&translator);
+		QApplication::installTranslator(&translator);
 	}
 
 	// look for some plugins..
 	load_plugins(edb::v1::config().plugin_path);
 
-	QStringList args = app.arguments();
+	QStringList args = QApplication::arguments();
 
 	// call the parseArguments function for each plugin
 	for (QObject *plugin : edb::v1::plugin_list()) {

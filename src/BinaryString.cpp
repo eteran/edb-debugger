@@ -92,15 +92,18 @@ void BinaryString::on_keepSize_stateChanged(int state) {
 
 	Q_UNUSED(state)
 
-	if (mode_ != Mode::MemoryEditing) return;
+	if (mode_ != Mode::MemoryEditing) {
+		return;
+	}
 
 	// There's a comment in get_binary_string_from_user(), that max length must be set before value.
 	// FIXME: do we need this here? What does "truncate incorrectly" mean there?
 	// NOTE: not doing this for now
-	if (ui->keepSize->checkState() == Qt::Unchecked)
+	if (ui->keepSize->checkState() == Qt::Unchecked) {
 		setEntriesMaxLength(UnlimitedMaxLength);
-	else
+	} else {
 		setEntriesMaxLength(valueOriginalLength_);
+	}
 }
 
 /**
