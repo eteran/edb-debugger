@@ -29,13 +29,18 @@ void NavigationHistory::add(edb::address_t address) {
 	}
 
 	if (!list_.isEmpty()) {
-		if (lastop_ == LASTOP_PREV && address == list_.at(pos_))
+		if (lastop_ == LASTOP_PREV && address == list_.at(pos_)) {
 			return;
-		if (lastop_ == LASTOP_NEXT && address == list_.at(pos_ - 1))
+		}
+
+		if (lastop_ == LASTOP_NEXT && address == list_.at(pos_ - 1)) {
 			return;
+		}
+
 		for (int i = list_.size() - 1; i >= pos_; i--) {
-			if (address == list_.at(i))
+			if (address == list_.at(i)) {
 				return;
+			}
 		}
 	}
 

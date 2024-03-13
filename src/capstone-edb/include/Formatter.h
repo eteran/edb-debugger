@@ -43,7 +43,7 @@ public:
 
 private:
 	void checkCapitalize(std::string &str, bool canContainHex = true) const;
-	QString adjustInstructionText(const Instruction &instruction) const;
+	QString adjustInstructionText(const Instruction &insn) const;
 
 private:
 	FormatOptions options_ = {SyntaxIntel, LowerCase, false, true};

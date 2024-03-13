@@ -54,7 +54,7 @@ public:
 #endif
 
 public:
-	Instruction(const void *first, const void *end, uint64_t rva) noexcept;
+	Instruction(const void *first, const void *last, uint64_t rva) noexcept;
 	Instruction(const Instruction &)            = delete;
 	Instruction &operator=(const Instruction &) = delete;
 	Instruction(Instruction &&) noexcept;

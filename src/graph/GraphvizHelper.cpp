@@ -23,10 +23,11 @@ QString _agget(void *object, QString attr, QString alt) {
 	QString str = agget(object, attr.toLocal8Bit().data());
 
 	// TODO(eteran): use isNull()?
-	if (str == QString())
+	if (str == QString()) {
 		return alt;
-	else
-		return str;
+	}
+
+	return str;
 }
 
 Agsym_t *_agnodeattr(Agraph_t *g, QString name, QString value) {

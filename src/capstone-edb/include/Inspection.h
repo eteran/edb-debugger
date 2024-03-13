@@ -12,11 +12,8 @@ class Operand;
 
 EDB_EXPORT bool modifies_pc(const Instruction &insn);
 EDB_EXPORT bool is_call(const Instruction &insn);
-EDB_EXPORT bool is_conditional_jump(const Instruction &insn);
 EDB_EXPORT bool is_halt(const Instruction &insn);
-EDB_EXPORT bool is_jump(const Instruction &insn);
 EDB_EXPORT bool is_repeat(const Instruction &insn);
-EDB_EXPORT bool is_ret(const Instruction &insn);
 
 // Check that instruction is x86-64 syscall
 EDB_EXPORT bool is_syscall(const Instruction &insn);
@@ -41,7 +38,6 @@ EDB_EXPORT bool is_jump(const Instruction &insn);
 
 EDB_EXPORT bool is_nop(const Instruction &insn);
 EDB_EXPORT bool is_conditional_set(const Instruction &insn);
-EDB_EXPORT bool is_unconditional_jump(const Instruction &insn);
 EDB_EXPORT bool is_conditional_jump(const Instruction &insn);
 
 EDB_EXPORT bool is_terminator(const Instruction &insn);

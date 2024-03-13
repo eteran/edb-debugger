@@ -182,16 +182,16 @@ int start_debugger(const LaunchArguments &launch_args) {
 
 		// TODO: detect if they corrected the issue and try again
 		return -1;
-	} else {
-		// have we been asked to attach to a given program?
-		if (launch_args.attach_pid) {
-			debugger.attach(*launch_args.attach_pid);
-		} else if (!launch_args.run_app.isEmpty()) {
-			debugger.execute(launch_args.run_app, launch_args.run_args, launch_args.run_stdin, launch_args.run_stdout);
-		}
-
-		return qApp->exec();
 	}
+
+	// have we been asked to attach to a given program?
+	if (launch_args.attach_pid) {
+		debugger.attach(*launch_args.attach_pid);
+	} else if (!launch_args.run_app.isEmpty()) {
+		debugger.execute(launch_args.run_app, launch_args.run_args, launch_args.run_stdin, launch_args.run_stdout);
+	}
+
+	return qApp->exec();
 }
 
 // See QtCreator: src/libs/utils/theme/theme.cpp
@@ -317,7 +317,6 @@ int main(int argc, char *argv[]) {
 		qDebug() << "Translations loaded successfully for " << QLocale().bcp47Name();
 		app.installTranslator(&translator);
 	}
-
 
 	// look for some plugins..
 	load_plugins(edb::v1::config().plugin_path);

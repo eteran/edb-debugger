@@ -69,7 +69,7 @@ public:
 	Unexpected &operator=(Unexpected &&)      = default;
 
 private:
-	template <class U>
+	template <class U, class = typename std::enable_if<!std::is_same<U, Unexpected>::value && std::is_convertible<U, E>::value>::type>
 	Unexpected(U &&error)
 		: error_(std::forward<U>(error)) {
 	}
@@ -81,7 +81,7 @@ private:
 template <class T, class E>
 class Result {
 public:
-	template <class U, class = typename std::enable_if<std::is_convertible<U, T>::value>::type>
+	template <class U, class = typename std::enable_if<!std::is_same<U, Result>::value && std::is_convertible<U, T>::value>::type>
 	Result(U &&value)
 		: value_(std::forward<U>(value)) {
 	}
@@ -128,8 +128,7 @@ private:
 template <class E>
 class Result<void, E> {
 public:
-	Result() {
-	}
+	Result() = default;
 
 	Result(const Unexpected<E> &value)
 		: value_(value) {

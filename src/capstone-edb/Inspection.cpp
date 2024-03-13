@@ -5,8 +5,9 @@
 namespace CapstoneEDB {
 
 bool is_repeat(const Instruction &insn) {
-	if (!insn)
+	if (!insn) {
 		return false;
+	}
 	const auto &prefixes = insn->detail->x86.prefix;
 	return (prefixes[0] == X86_PREFIX_REP || prefixes[0] == X86_PREFIX_REPNE);
 }
@@ -40,7 +41,9 @@ bool is_syscall(const Instruction &insn) {
 }
 
 bool is_interrupt(const Instruction &insn) {
-	if (!insn) return false;
+	if (!insn) {
+		return false;
+	}
 	const int op = insn.operation();
 	return op == X86_INS_INT || op == X86_INS_INT1 || op == X86_INS_INT3 || op == X86_INS_INTO;
 }
@@ -54,12 +57,16 @@ bool is_int(const Instruction &insn) {
 }
 
 bool is_nop(const Instruction &insn) {
-	if (!insn) return false;
+	if (!insn) {
+		return false;
+	}
 	return insn.operation() == X86_INS_NOP;
 }
 
 bool is_conditional_set(const Instruction &insn) {
-	if (!insn) return false;
+	if (!insn) {
+		return false;
+	}
 
 	switch (insn.operation()) {
 	case X86_INS_SETAE:
@@ -89,7 +96,9 @@ bool is_unconditional_jump(const Instruction &insn) {
 }
 
 bool is_conditional_jump(const Instruction &insn) {
-	if (!insn) return false;
+	if (!insn) {
+		return false;
+	}
 
 	switch (insn.operation()) {
 	case X86_INS_JAE:
@@ -118,7 +127,9 @@ bool is_conditional_jump(const Instruction &insn) {
 }
 
 bool is_conditional_fpu_move(const Instruction &insn) {
-	if (!insn) return false;
+	if (!insn) {
+		return false;
+	}
 
 	switch (insn.operation()) {
 	case X86_INS_FCMOVBE:
@@ -136,7 +147,9 @@ bool is_conditional_fpu_move(const Instruction &insn) {
 }
 
 bool is_conditional_gpr_move(const Instruction &insn) {
-	if (!insn) return false;
+	if (!insn) {
+		return false;
+	}
 
 	switch (insn.operation()) {
 	case X86_INS_CMOVA:
@@ -170,8 +183,9 @@ bool is_conditional_move(const Instruction &insn) {
 }
 
 bool is_fpu_taking_float(const Instruction &insn) {
-	if (!insn)
+	if (!insn) {
 		return false;
+	}
 
 	if (!is_fpu(insn))
 		return false;
@@ -197,8 +211,9 @@ bool is_fpu_taking_float(const Instruction &insn) {
 }
 
 bool is_fpu_taking_integer(const Instruction &insn) {
-	if (!insn)
+	if (!insn) {
 		return false;
+	}
 	if (!is_fpu(insn))
 		return false;
 
@@ -226,8 +241,9 @@ bool is_fpu_taking_integer(const Instruction &insn) {
 }
 
 bool is_fpu_taking_bcd(const Instruction &insn) {
-	if (!insn)
+	if (!insn) {
 		return false;
+	}
 	if (!is_fpu(insn))
 		return false;
 
@@ -240,8 +256,9 @@ bool is_fpu_taking_bcd(const Instruction &insn) {
 }
 
 bool is_simd(const Instruction &insn) {
-	if (!insn)
+	if (!insn) {
 		return false;
+	}
 
 	const x86_insn_group simdGroups[] = {
 		X86_GRP_3DNOW,

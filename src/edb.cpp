@@ -774,7 +774,9 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 		//        State::operator[]() returned valid Register
 		if (reg.name() == "fs") {
 			return state["fs_base"].valueAsAddress();
-		} else if (reg.name() == "gs") {
+		}
+
+		if (reg.name() == "gs") {
 			return state["gs_base"].valueAsAddress();
 		}
 
@@ -1492,10 +1494,10 @@ std::optional<edb::address_t> eval_expression(const QString &expression) {
 	const Result<edb::address_t, ExpressionError> address = expr.evaluate();
 	if (address) {
 		return *address;
-	} else {
-		QMessageBox::critical(v1::debugger_ui, tr("Error In Expression!"), address.error().what());
-		return {};
 	}
+
+	QMessageBox::critical(v1::debugger_ui, tr("Error In Expression!"), address.error().what());
+	return {};
 }
 
 //------------------------------------------------------------------------------

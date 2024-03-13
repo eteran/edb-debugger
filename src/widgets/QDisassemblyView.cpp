@@ -97,10 +97,10 @@ struct address_format {
 //------------------------------------------------------------------------------
 template <class T>
 QString format_address(T address, bool show_separator) {
-	if (show_separator)
+	if (show_separator) {
 		return address_format<T>::format_address(address, show_separator_tag());
-	else
-		return address_format<T>::format_address(address);
+	}
+	return address_format<T>::format_address(address);
 }
 
 //------------------------------------------------------------------------------
@@ -480,10 +480,10 @@ void QDisassemblyView::setShowAddressSeparator(bool value) {
 // Desc:
 //------------------------------------------------------------------------------
 QString QDisassemblyView::formatAddress(edb::address_t address) const {
-	if (edb::v1::debuggeeIs32Bit())
+	if (edb::v1::debuggeeIs32Bit()) {
 		return format_address<quint32>(address.toUint(), showAddressSeparator_);
-	else
-		return format_address(address, showAddressSeparator_);
+	}
+	return format_address(address, showAddressSeparator_);
 }
 
 //------------------------------------------------------------------------------
@@ -592,10 +592,11 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
 				}
 
 				if (!sym.isEmpty()) {
-					if (showSymbolicAddresses)
+					if (showSymbolicAddresses) {
 						opcode.replace(addrPattern, sym);
-					else
+					} else {
 						opcode.append(QString(" <%2>").arg(sym));
+					}
 				}
 			}
 		}
@@ -1748,9 +1749,8 @@ int QDisassemblyView::autoLine2() const {
 int QDisassemblyView::line2() const {
 	if (line2_ == 0) {
 		return line1() + autoLine2();
-	} else {
-		return line2_;
 	}
+	return line2_;
 }
 
 //------------------------------------------------------------------------------
@@ -1760,9 +1760,8 @@ int QDisassemblyView::line2() const {
 int QDisassemblyView::line3() const {
 	if (line3_ == 0) {
 		return line2() + (DefaultByteWidth * 3) * fontWidth_;
-	} else {
-		return line3_;
 	}
+	return line3_;
 }
 
 //------------------------------------------------------------------------------
@@ -1772,9 +1771,8 @@ int QDisassemblyView::line3() const {
 int QDisassemblyView::line4() const {
 	if (line4_ == 0) {
 		return line3() + 50 * fontWidth_;
-	} else {
-		return line4_;
 	}
+	return line4_;
 }
 
 //------------------------------------------------------------------------------

@@ -63,9 +63,9 @@ protected:
 	void mouseDoubleClickEvent(QMouseEvent *event) override;
 
 private:
-	void setGraphAttribute(const QString name, const QString value);
-	void setNodeAttribute(const QString name, const QString value);
-	void setEdgeAttribute(const QString name, const QString value);
+	void setGraphAttribute(QString name, QString value);
+	void setNodeAttribute(QString name, QString value);
+	void setEdgeAttribute(QString name, QString value);
 
 private:
 	bool inLayout_      = false;

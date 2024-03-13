@@ -111,8 +111,9 @@ bool KxRegisterPresent(const Instruction &insn) {
  */
 std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, const Operand &operand, bool canBeNonSIMD = false) {
 
-	if (!canBeNonSIMD)
+	if (!canBeNonSIMD) {
 		assert(!apriori_not_simd(insn, operand));
+	}
 
 	size_t number             = operand.index();
 	const size_t operandCount = insn.operandCount();
@@ -290,10 +291,13 @@ Instruction::Instruction(const void *first, const void *last, uint64_t rva) noex
 }
 
 Operand Instruction::operator[](size_t n) const {
-	if (!valid())
+	if (!valid()) {
 		return Operand();
-	if (n > operandCount())
+	}
+
+	if (n > operandCount()) {
 		return Operand();
+	}
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	return Operand(this, &insn_->detail->x86.operands[n], n);
@@ -305,10 +309,13 @@ Operand Instruction::operator[](size_t n) const {
 }
 
 Operand Instruction::operand(size_t n) const {
-	if (!valid())
+	if (!valid()) {
 		return Operand();
-	if (n > operandCount())
+	}
+
+	if (n > operandCount()) {
 		return Operand();
+	}
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	return Operand(this, &insn_->detail->x86.operands[n], n);
@@ -496,7 +503,7 @@ void Formatter::checkCapitalize(std::string &str, bool canContainHex) const {
 		if (canContainHex) {
 			QString qstr = QString::fromStdString(str);
 
-			const QRegularExpression re("\\b0X([0-9A-F]+)\\b");
+			static const QRegularExpression re("\\b0X([0-9A-F]+)\\b");
 			qstr.replace(re, "0x\\1");
 
 			str = qstr.toStdString();
@@ -545,8 +552,9 @@ std::string Formatter::toString(const Operand &operand) const {
 std::string Formatter::registerName(unsigned int reg) const {
 	assert(capstoneInitialized);
 	const char *raw = cs_reg_name(csh, reg);
-	if (!raw)
+	if (!raw) {
 		return "(invalid register)";
+	}
 	std::string str(raw);
 	checkCapitalize(str, false);
 	return str;
@@ -1163,17 +1171,23 @@ bool is_SIMD_USI(const Operand &operand) {
 }
 
 bool is_return(const Instruction &insn) {
-	if (!insn) return false;
+	if (!insn) {
+		return false;
+	}
 	return cs_insn_group(csh, insn.native(), CS_GRP_RET);
 }
 
 bool is_jump(const Instruction &insn) {
-	if (!insn) return false;
+	if (!insn) {
+		return false;
+	}
 	return cs_insn_group(csh, insn.native(), CS_GRP_JUMP);
 }
 
 bool is_call(const Instruction &insn) {
-	if (!insn) return false;
+	if (!insn) {
+		return false;
+	}
 	return cs_insn_group(csh, insn.native(), CS_GRP_CALL);
 }
 

@@ -86,6 +86,7 @@ QSize RegisterViewDelegate::sizeHint(const QStyleOptionViewItem &opt, const QMod
 		optButton.rect.setSize(opt.fontMetrics.size(Qt::TextShowMnemonic, "X"));
 		const QSize buttonHint = view_->style()->sizeFromContents(QStyle::CT_PushButton, &optButton, optButton.rect.size());
 		return QSize(defaultHint.width(), buttonHint.height());
-	} else
-		return defaultHint;
+	}
+
+	return defaultHint;
 }

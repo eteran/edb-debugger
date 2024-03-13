@@ -64,12 +64,12 @@ Result<void, SessionError> SessionManager::loadSession(const QString &filename) 
 			// return success as we don't want showing error message
 			// in this case
 			return {};
-		} else {
-			SessionError session_error;
-			session_error.err     = SessionError::InvalidSessionFile;
-			session_error.message = tr("Failed to open session file. %1").arg(file.errorString());
-			return make_unexpected(session_error);
 		}
+
+		SessionError session_error;
+		session_error.err     = SessionError::InvalidSessionFile;
+		session_error.message = tr("Failed to open session file. %1").arg(file.errorString());
+		return make_unexpected(session_error);
 	}
 
 	QByteArray json = file.readAll();

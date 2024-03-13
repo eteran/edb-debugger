@@ -124,7 +124,7 @@ GraphWidget::GraphWidget(QWidget *parent)
 // Name: setGraphAttribute
 // Desc:
 //------------------------------------------------------------------------------
-void GraphWidget::setGraphAttribute(const QString name, const QString value) {
+void GraphWidget::setGraphAttribute(QString name, QString value) {
 	_agset(graph_, name, value);
 }
 
@@ -132,7 +132,7 @@ void GraphWidget::setGraphAttribute(const QString name, const QString value) {
 // Name: setNodeAttribute
 // Desc:
 //------------------------------------------------------------------------------
-void GraphWidget::setNodeAttribute(const QString name, const QString value) {
+void GraphWidget::setNodeAttribute(QString name, QString value) {
 	_agnodeattr(graph_, name, value);
 }
 
@@ -140,7 +140,7 @@ void GraphWidget::setNodeAttribute(const QString name, const QString value) {
 // Name: setEdgeAttribute
 // Desc:
 //------------------------------------------------------------------------------
-void GraphWidget::setEdgeAttribute(const QString name, const QString value) {
+void GraphWidget::setEdgeAttribute(QString name, QString value) {
 	_agedgeattr(graph_, name, value);
 }
 
