@@ -6,62 +6,62 @@
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="479"/>
         <source>move performed</source>
-        <translation type="unfinished"></translation>
+        <translation>执行的动作</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="481"/>
         <source>move NOT performed</source>
-        <translation type="unfinished"></translation>
+        <translation>未执行的动作</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="498"/>
         <source>jump taken</source>
-        <translation type="unfinished"></translation>
+        <translation>跳转</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="500"/>
         <source>jump NOT taken</source>
-        <translation type="unfinished"></translation>
+        <translation>未跳转</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="518"/>
         <source>return to %1 &lt;%2&gt;</source>
-        <translation type="unfinished">返回到%1 &lt;%2&gt;</translation>
+        <translation>返回到 %1 &lt;%2&gt;</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="520"/>
         <source>return to %1</source>
-        <translation type="unfinished">返回到%1</translation>
+        <translation>返回到 %1</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="666"/>
         <source>(Error: obtained invalid register value from State)</source>
-        <translation type="unfinished"></translation>
+        <translation>(错误：从状态获取的寄存器值无效）</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="841"/>
         <source>possible jump from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>可能从%1跳转</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="920"/>
         <source>SYSCALL: %1%2(%3)</source>
-        <translation type="unfinished"></translation>
+        <translation>SYSCALL: %1%2(%3)</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="1243"/>
         <source>failed to acquire base register from state</source>
-        <translation type="unfinished"></translation>
+        <translation>未能从状态寄存器中获取基寄存器</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="1250"/>
         <source>failed to acquire index register from state</source>
-        <translation type="unfinished"></translation>
+        <translation>无法从状态中获取索引寄存器</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="1253"/>
         <source>only general-purpose register is supported as index register</source>
-        <translation type="unfinished"></translation>
+        <translation>索引寄存器只支持通用寄存器</translation>
     </message>
 </context>
 <context>
@@ -137,33 +137,33 @@
         <location filename="../../Debugger.ui" line="31"/>
         <location filename="../../Debugger.ui" line="280"/>
         <source>&amp;Help</source>
-        <translation>&amp;帮助</translation>
+        <translation>帮助(&amp;H)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="40"/>
         <source>&amp;View</source>
-        <translation>&amp;视图</translation>
+        <translation>视图(&amp;V)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="51"/>
         <location filename="../../Debugger.ui" line="401"/>
         <source>&amp;Plugins</source>
-        <translation>&amp;插件</translation>
+        <translation>插件(&amp;P)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="58"/>
         <source>&amp;Options</source>
-        <translation>&amp;选项</translation>
+        <translation>选项(&amp;O)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="65"/>
         <source>&amp;File</source>
-        <translation>&amp;文件</translation>
+        <translation>文件(&amp;F)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="75"/>
         <source>&amp;Debug</source>
-        <translation>&amp;调试</translation>
+        <translation>调试(&amp;D)</translation>
     </message>
     <message>
         <location filename="../../Debugger.cpp" line="1041"/>
@@ -183,7 +183,7 @@
     <message>
         <location filename="../../Debugger.ui" line="127"/>
         <source>&amp;Open</source>
-        <translation>&amp;打开</translation>
+        <translation>打开(&amp;O)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="130"/>
@@ -193,7 +193,7 @@
     <message>
         <location filename="../../Debugger.ui" line="135"/>
         <source>&amp;Attach</source>
-        <translation>&amp;附加</translation>
+        <translation>附加(&amp;A)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="138"/>
@@ -203,7 +203,7 @@
     <message>
         <location filename="../../Debugger.ui" line="147"/>
         <source>E&amp;xit</source>
-        <translation>&amp;退出</translation>
+        <translation>退出(&amp;E)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="150"/>
@@ -213,7 +213,7 @@
     <message>
         <location filename="../../Debugger.ui" line="159"/>
         <source>&amp;Memory Regions</source>
-        <translation>&amp;内存区域</translation>
+        <translation>内存区域(&amp;M)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="162"/>
@@ -224,12 +224,12 @@
         <location filename="../../Debugger.ui" line="167"/>
         <location filename="../../Debugger.ui" line="241"/>
         <source>&amp;Step Into</source>
-        <translation>&amp;步进</translation>
+        <translation>步进(&amp;S)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="182"/>
         <source>&amp;Run</source>
-        <translation>&amp;运行</translation>
+        <translation>运行(&amp;R)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="185"/>
@@ -239,7 +239,7 @@
     <message>
         <location filename="../../Debugger.ui" line="197"/>
         <source>&amp;Pause</source>
-        <translation>&amp;暂停</translation>
+        <translation>暂停(&amp;P)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="200"/>
@@ -249,7 +249,7 @@
     <message>
         <location filename="../../Debugger.ui" line="212"/>
         <source>R&amp;estart</source>
-        <translation>&amp;重新启动</translation>
+        <translation>重新启动(&amp;R)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="215"/>
@@ -259,7 +259,7 @@
     <message>
         <location filename="../../Debugger.ui" line="223"/>
         <source>&amp;Detach</source>
-        <translation>&amp;断开</translation>
+        <translation>断开(&amp;D)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="226"/>
@@ -285,7 +285,7 @@
     <message>
         <location filename="../../Debugger.ui" line="268"/>
         <source>&amp;About</source>
-        <translation>&amp;关于</translation>
+        <translation>关于(&amp;A)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="283"/>
@@ -295,12 +295,12 @@
     <message>
         <location filename="../../Debugger.ui" line="292"/>
         <source>&amp;Preferences</source>
-        <translation>&amp;首选项</translation>
+        <translation>首选项(&amp;P)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="297"/>
         <source>About &amp;Qt</source>
-        <translation>关于&amp;Qt</translation>
+        <translation>关于Qt(&amp;Q)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="300"/>
@@ -311,7 +311,7 @@
     <message>
         <location filename="../../Debugger.ui" line="305"/>
         <source>&amp;Breakpoint Manager</source>
-        <translation>&amp;断点管理器</translation>
+        <translation>断点管理器(&amp;B)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="310"/>
@@ -321,7 +321,7 @@
     <message>
         <location filename="../../Debugger.ui" line="318"/>
         <source>Run &amp;Until Return</source>
-        <translation>&amp;运行直到返回</translation>
+        <translation>运行直到返回(&amp;U)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="321"/>
@@ -331,7 +331,7 @@
     <message>
         <location filename="../../Debugger.ui" line="333"/>
         <source>Step &amp;Into (Pass Signal To Application)</source>
-        <translation>&amp;步进(将参数传递给应用程序)</translation>
+        <translation>步进(将参数传递给应用程序)(&amp;I)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="336"/>
@@ -341,7 +341,7 @@
     <message>
         <location filename="../../Debugger.ui" line="348"/>
         <source>Step O&amp;ver (Pass Signal To Application)</source>
-        <translation>&amp;步过(将参数传递给应用程序)</translation>
+        <translation>步过(将参数传递给应用程序)(&amp;O)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="351"/>
@@ -351,7 +351,7 @@
     <message>
         <location filename="../../Debugger.ui" line="363"/>
         <source>Ru&amp;n (Pass Signal To Application)</source>
-        <translation>&amp;运行(将标志传递给应用程序)</translation>
+        <translation>运行(将标志传递给应用程序)(&amp;R)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="366"/>
@@ -361,7 +361,7 @@
     <message>
         <location filename="../../Debugger.ui" line="375"/>
         <source>&amp;Recent Files</source>
-        <translation>&amp;最近的文件</translation>
+        <translation>最近的文件(&amp;R)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="380"/>
@@ -371,12 +371,12 @@
     <message>
         <location filename="../../Debugger.ui" line="392"/>
         <source>&amp;Kill</source>
-        <translation>&amp;杀死</translation>
+        <translation>杀死(&amp;K)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="406"/>
         <source>&amp;Threads</source>
-        <translation>&amp;线程</translation>
+        <translation>线程(&amp;T)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="409"/>
@@ -396,17 +396,17 @@
     <message>
         <location filename="../../Debugger.ui" line="436"/>
         <source>Debug Logger</source>
-        <translation type="unfinished"></translation>
+        <translation>调试日志</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="441"/>
         <source>&amp;Breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>断点(&amp;B)</translation>
     </message>
     <message>
         <location filename="../../Debugger.ui" line="444"/>
         <source>Ctrl+B</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+B</translation>
     </message>
     <message>
         <location filename="../../Debugger.cpp" line="380"/>
@@ -481,7 +481,7 @@
     <message>
         <location filename="../../Debugger.cpp" line="388"/>
         <source>&amp;Fill with 00&apos;s</source>
-        <translation>&amp;用00填充</translation>
+        <translation>用00填充(&amp;F)</translation>
     </message>
     <message>
         <location filename="../../Debugger.cpp" line="389"/>
@@ -511,7 +511,7 @@
     <message>
         <location filename="../../Debugger.cpp" line="394"/>
         <source>&amp;Follow</source>
-        <translation>&amp;跟踪</translation>
+        <translation>跟踪(&amp;F)</translation>
     </message>
     <message>
         <location filename="../../Debugger.cpp" line="394"/>
@@ -524,7 +524,7 @@
         <location filename="../../Debugger.cpp" line="412"/>
         <location filename="../../Debugger.cpp" line="3259"/>
         <source>&amp;Set %1 to this Instruction</source>
-        <translation>&amp;将%1设置为此指令</translation>
+        <translation>将%1设置为此指令(&amp;S)</translation>
     </message>
     <message>
         <location filename="../../Debugger.cpp" line="406"/>
@@ -539,7 +539,7 @@
         <location filename="../../Debugger.cpp" line="413"/>
         <location filename="../../Debugger.cpp" line="3260"/>
         <source>&amp;Goto %1</source>
-        <translation>&amp;转到 %1</translation>
+        <translation>转到 %1(&amp;G)</translation>
     </message>
     <message>
         <location filename="../../Debugger.cpp" line="407"/>
@@ -569,7 +569,7 @@
     <message>
         <location filename="../../Debugger.cpp" line="422"/>
         <source>&amp;Save To File</source>
-        <translation>&amp;保存到文件</translation>
+        <translation>保存到文件(&amp;S)</translation>
     </message>
     <message>
         <location filename="../../Debugger.cpp" line="425"/>
@@ -677,27 +677,27 @@
     <message>
         <location filename="../../Debugger.cpp" line="976"/>
         <source>DEBUG %1</source>
-        <translation type="unfinished"></translation>
+        <translation>调试 %1</translation>
     </message>
     <message>
         <location filename="../../Debugger.cpp" line="978"/>
         <source>INFO  %1</source>
-        <translation type="unfinished"></translation>
+        <translation>信息 %1</translation>
     </message>
     <message>
         <location filename="../../Debugger.cpp" line="980"/>
         <source>WARN  %1</source>
-        <translation type="unfinished"></translation>
+        <translation>警告 %1</translation>
     </message>
     <message>
         <location filename="../../Debugger.cpp" line="982"/>
         <source>ERROR %1</source>
-        <translation type="unfinished"></translation>
+        <translation>错误 %1</translation>
     </message>
     <message>
         <location filename="../../Debugger.cpp" line="984"/>
         <source>FATAL %1</source>
-        <translation type="unfinished"></translation>
+        <translation>致命错误 %1</translation>
     </message>
     <message>
         <location filename="../../Debugger.cpp" line="1521"/>
@@ -732,12 +732,12 @@
     <message>
         <location filename="../../Debugger.cpp" line="1820"/>
         <source>&amp;Edit</source>
-        <translation>&amp;编辑</translation>
+        <translation>编辑(&amp;E)</translation>
     </message>
     <message>
         <location filename="../../Debugger.cpp" line="1971"/>
         <source>&amp;Lock Stack</source>
-        <translation>&amp;锁定栈</translation>
+        <translation>锁定栈(&amp;L)</translation>
     </message>
     <message>
         <location filename="../../Debugger.cpp" line="2020"/>
@@ -924,12 +924,12 @@
     <message>
         <location filename="../../Debugger.cpp" line="3501"/>
         <source>&amp;Set Label</source>
-        <translation>&amp;设置标签</translation>
+        <translation>设置标签(&amp;S)</translation>
     </message>
     <message>
         <location filename="../../Debugger.cpp" line="3502"/>
         <source>&amp;Clear Label</source>
-        <translation>&amp;清除标签</translation>
+        <translation>清除标签(&amp;C)</translation>
     </message>
     <message>
         <location filename="../../Debugger.cpp" line="3509"/>
@@ -1058,160 +1058,160 @@ Git Commit: &lt;a href=&quot;https://github.com/eteran/edb-debugger/commit/%3&qu
     <message>
         <location filename="../../DialogBreakpoints.ui" line="15"/>
         <source>Breakpoint Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>断点管理器</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.ui" line="21"/>
         <source>&amp;Import Breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>导入断点(&amp;I)</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.ui" line="32"/>
         <source>Set Breakpoint &amp;Condition</source>
-        <translation type="unfinished"></translation>
+        <translation>设置条件断点(&amp;C)</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.ui" line="56"/>
         <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
+        <translation>关闭(&amp;C)</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.ui" line="70"/>
         <source>&amp;Remove Breakpoint</source>
-        <translation type="unfinished"></translation>
+        <translation>删除断点(&amp;R)</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.ui" line="81"/>
         <source>&amp;Add Breakpoint</source>
-        <translation type="unfinished"></translation>
+        <translation>添加断点(&amp;A)</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.ui" line="114"/>
         <source>Address</source>
-        <translation type="unfinished"></translation>
+        <translation>地址</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.ui" line="119"/>
         <source>Condition</source>
-        <translation type="unfinished"></translation>
+        <translation>条件</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.ui" line="124"/>
         <source>Original Byte</source>
-        <translation type="unfinished"></translation>
+        <translation>原始字节</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.ui" line="129"/>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>类型</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.ui" line="134"/>
         <source>Function</source>
-        <translation type="unfinished"></translation>
+        <translation>函数</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.ui" line="155"/>
         <source>&amp;Export Breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>导出断点(&amp;E)</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="96"/>
         <source>One Time</source>
-        <translation type="unfinished"></translation>
+        <translation>一次</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="96"/>
         <source>Standard</source>
-        <translation type="unfinished"></translation>
+        <translation>标准</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="109"/>
         <source>Add Breakpoint</source>
-        <translation type="unfinished"></translation>
+        <translation>添加断点</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="109"/>
         <source>Address:</source>
-        <translation type="unfinished"></translation>
+        <translation>地址：</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="120"/>
         <source>Error In Address Expression!</source>
-        <translation type="unfinished"></translation>
+        <translation>地址表达式错误！</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="135"/>
         <location filename="../../DialogBreakpoints.cpp" line="174"/>
         <source>Set Breakpoint Condition</source>
-        <translation type="unfinished">设置断点条件</translation>
+        <translation>设置条件断点</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="135"/>
         <location filename="../../DialogBreakpoints.cpp" line="174"/>
         <source>Expression:</source>
-        <translation type="unfinished">表达式：</translation>
+        <translation>表达式：</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="194"/>
         <source>Breakpoint Import File</source>
-        <translation type="unfinished"></translation>
+        <translation>断点导入文件</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="203"/>
         <source>Error Opening File</source>
-        <translation type="unfinished"></translation>
+        <translation>打开文件错误</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="203"/>
         <source>Unable to open breakpoint file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法打开断点文件： %1</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="258"/>
         <source>Invalid Breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>无效断点</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="258"/>
         <source>The following breakpoints were not made:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>下列断点未被设置： %1</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="262"/>
         <source>Breakpoint Import</source>
-        <translation type="unfinished"></translation>
+        <translation>导入断点</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="262"/>
         <source>Imported %1 breakpoints.</source>
-        <translation type="unfinished"></translation>
+        <translation>导入 %1 断点。</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="290"/>
         <source>No Breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>无断点</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="290"/>
         <source>There are no breakpoints to export.</source>
-        <translation type="unfinished"></translation>
+        <translation>没有断点可导出。</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="295"/>
         <source>Breakpoint Export File</source>
-        <translation type="unfinished"></translation>
+        <translation>断点导出文件</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="312"/>
         <source>Breakpoint Export</source>
-        <translation type="unfinished"></translation>
+        <translation>断点导出</translation>
     </message>
     <message>
         <location filename="../../DialogBreakpoints.cpp" line="312"/>
         <source>Exported %1 breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>导出 %1 断点</translation>
     </message>
 </context>
 <context>
@@ -1848,27 +1848,27 @@ Git Commit: &lt;a href=&quot;https://github.com/eteran/edb-debugger/commit/%3&qu
     <message>
         <location filename="../../widgets/QDisassemblyView.cpp" line="589"/>
         <source>&lt;next instruction&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;下一条指令&gt;</translation>
     </message>
     <message>
         <location filename="../../widgets/QDisassemblyView.cpp" line="589"/>
         <source>next instruction</source>
-        <translation type="unfinished"></translation>
+        <translation>下一条指令</translation>
     </message>
     <message>
         <location filename="../../widgets/QDisassemblyView.cpp" line="591"/>
         <source>$</source>
-        <translation type="unfinished"></translation>
+        <translation>$</translation>
     </message>
     <message>
         <location filename="../../widgets/QDisassemblyView.cpp" line="591"/>
         <source>current instruction</source>
-        <translation type="unfinished"></translation>
+        <translation>当前指令</translation>
     </message>
     <message>
         <location filename="../../widgets/QDisassemblyView.cpp" line="1821"/>
         <source>Failed to get instruciton size</source>
-        <translation type="unfinished"></translation>
+        <translation>获取指令大小失败</translation>
     </message>
 </context>
 <context>
@@ -1876,92 +1876,92 @@ Git Commit: &lt;a href=&quot;https://github.com/eteran/edb-debugger/commit/%3&qu
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="220"/>
         <source>Set &amp;Font</source>
-        <translation type="unfinished"></translation>
+        <translation>设置字体(&amp;F)</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="223"/>
         <source>Show A&amp;ddress</source>
-        <translation type="unfinished"></translation>
+        <translation>显示地址(&amp;A)</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="227"/>
         <source>Show &amp;Hex</source>
-        <translation type="unfinished"></translation>
+        <translation>显示十六进制(&amp;H)</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="231"/>
         <source>Show &amp;Ascii</source>
-        <translation type="unfinished"></translation>
+        <translation>显示 Ascii 编码(&amp;A)</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="236"/>
         <source>Show &amp;Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>显示评论(&amp;C)</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="246"/>
         <source>Set Word Width</source>
-        <translation type="unfinished"></translation>
+        <translation>设置字宽度</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="247"/>
         <source>1 Byte</source>
-        <translation type="unfinished"></translation>
+        <translation>1 字节</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="251"/>
         <source>2 Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>2 字节</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="255"/>
         <source>4 Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>4 字节</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="259"/>
         <source>8 Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>8 字节</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="267"/>
         <source>Set Row Width</source>
-        <translation type="unfinished"></translation>
+        <translation>设置行宽度</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="268"/>
         <source>1 Word</source>
-        <translation type="unfinished"></translation>
+        <translation>1 Word</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="272"/>
         <source>2 Words</source>
-        <translation type="unfinished"></translation>
+        <translation>2 Words</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="276"/>
         <source>4 Words</source>
-        <translation type="unfinished"></translation>
+        <translation>4 Words</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="280"/>
         <source>8 Words</source>
-        <translation type="unfinished"></translation>
+        <translation>8 Words</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="284"/>
         <source>16 Words</source>
-        <translation type="unfinished"></translation>
+        <translation>16 Words</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="292"/>
         <source>&amp;Copy Selection To Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>将选区复制到剪贴板(&amp;C)</translation>
     </message>
     <message>
         <location filename="../../qhexview/qhexview.cpp" line="293"/>
         <source>&amp;Copy Address To Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>将地址复制到剪贴板(&amp;C)</translation>
     </message>
 </context>
 <context>
@@ -1990,29 +1990,29 @@ Git Commit: &lt;a href=&quot;https://github.com/eteran/edb-debugger/commit/%3&qu
         <location filename="../../arch/arm-generic/RegisterViewModel.cpp" line="57"/>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="111"/>
         <source>Rounding to nearest</source>
-        <translation type="unfinished"></translation>
+        <translation>四舍五入至最近的</translation>
     </message>
     <message>
         <location filename="../../arch/arm-generic/RegisterViewModel.cpp" line="58"/>
         <source>Rounding to Plus infinity</source>
-        <translation type="unfinished"></translation>
+        <translation>向正无穷大方向舍入</translation>
     </message>
     <message>
         <location filename="../../arch/arm-generic/RegisterViewModel.cpp" line="59"/>
         <source>Rounding to Minus infinity</source>
-        <translation type="unfinished"></translation>
+        <translation>向负无穷大方向舍入</translation>
     </message>
     <message>
         <location filename="../../arch/arm-generic/RegisterViewModel.cpp" line="60"/>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="114"/>
         <source>Rounding toward zero</source>
-        <translation type="unfinished"></translation>
+        <translation>向零舍入</translation>
     </message>
     <message>
         <location filename="../../arch/arm-generic/ArchProcessor.cpp" line="104"/>
         <location filename="../../arch/arm-generic/ArchProcessor.cpp" line="183"/>
         <source>bad operand register for instruction %1: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>指令 %1 的操作数寄存器错误： %2.</translation>
     </message>
     <message>
         <location filename="../../arch/arm-generic/ArchProcessor.cpp" line="109"/>
@@ -2020,174 +2020,174 @@ Git Commit: &lt;a href=&quot;https://github.com/eteran/edb-debugger/commit/%3&qu
         <location filename="../../arch/arm-generic/ArchProcessor.cpp" line="195"/>
         <location filename="../../arch/arm-generic/ArchProcessor.cpp" line="201"/>
         <source>failed to get register r%1.</source>
-        <translation type="unfinished"></translation>
+        <translation>获取寄存器 r%1 失败。</translation>
     </message>
     <message>
         <location filename="../../arch/arm-generic/ArchProcessor.cpp" line="129"/>
         <source>calculating effective address in modes other than ARM and Thumb is not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>不支持在 ARM 和 Thumb 以外的模式下计算有效地址。</translation>
     </message>
     <message>
         <location filename="../../arch/arm-generic/ArchProcessor.cpp" line="176"/>
         <source>operand is invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>操作数无效</translation>
     </message>
     <message>
         <location filename="../../arch/arm-generic/ArchProcessor.cpp" line="206"/>
         <source>failed to get CPSR.</source>
-        <translation type="unfinished"></translation>
+        <translation>未能获得 CPSR。</translation>
     </message>
     <message>
         <location filename="../../arch/arm-generic/ArchProcessor.cpp" line="222"/>
         <source>getting effective address for operand %1 of instruction %2 is not implemented</source>
-        <translation type="unfinished"></translation>
+        <translation>未为指令 %2 的操作数 %1 获取有效地址</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="112"/>
         <source>Rounding down</source>
-        <translation type="unfinished"></translation>
+        <translation>向下取整</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="113"/>
         <source>Rounding up</source>
-        <translation type="unfinished"></translation>
+        <translation>向上取整</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="124"/>
         <source>Single precision (24 bit complete mantissa)</source>
-        <translation type="unfinished"></translation>
+        <translation>单精度（24 位完整尾数）</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="124"/>
         <source>Double precision (53 bit complete mantissa)</source>
-        <translation type="unfinished"></translation>
+        <translation>双精度（53 位完整尾数）</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="124"/>
         <source>Extended precision (64 bit mantissa)</source>
-        <translation type="unfinished"></translation>
+        <translation>扩展精度（64位尾数）</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="147"/>
         <source>Valid</source>
-        <translation type="unfinished"></translation>
+        <translation>有效</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="148"/>
         <source>Zero</source>
-        <translation type="unfinished"></translation>
+        <translation>零</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="149"/>
         <source>Special</source>
-        <translation type="unfinished"></translation>
+        <translation>特别</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="150"/>
         <source>Empty</source>
-        <translation type="unfinished"></translation>
+        <translation>空</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="194"/>
         <source>Execution</source>
-        <translation type="unfinished"></translation>
+        <translation>执行</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="195"/>
         <source>Data Writes</source>
-        <translation type="unfinished"></translation>
+        <translation>数据写入</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="196"/>
         <source>I/O</source>
-        <translation type="unfinished"></translation>
+        <translation>输入/输出</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="197"/>
         <source>Data R/W</source>
-        <translation type="unfinished"></translation>
+        <translation>数据 R/W</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="201"/>
         <source>1 byte</source>
-        <translation type="unfinished"></translation>
+        <translation>1 字节</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="202"/>
         <source>2 bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>2 字节</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="203"/>
         <source>8 bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>8 字节</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="204"/>
         <source>4 bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>4 字节</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="266"/>
         <source>(failed to get value)</source>
-        <translation type="unfinished"></translation>
+        <translation>(未能获取值）</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="890"/>
         <source>(failed to read [esp])</source>
-        <translation type="unfinished"></translation>
+        <translation>(未读[esp]）</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="907"/>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="912"/>
         <source>(failed to obtain %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>(未能获取 %1）</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="1024"/>
         <source>Stack overflow</source>
-        <translation type="unfinished"></translation>
+        <translation>栈溢出</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="1024"/>
         <source>Stack underflow</source>
-        <translation type="unfinished"></translation>
+        <translation>栈下溢</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="1035"/>
         <source>Unordered</source>
         <comment>result of FPU comparison instruction</comment>
-        <translation type="unfinished"></translation>
+        <translation>无序</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="1042"/>
         <source>Rounded UP</source>
-        <translation type="unfinished"></translation>
+        <translation>向上取整</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="1042"/>
         <source>Rounded DOWN</source>
-        <translation type="unfinished"></translation>
+        <translation>向下取整</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="1084"/>
         <source>pseudo-denormal</source>
-        <translation type="unfinished"></translation>
+        <translation>伪常态</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="1128"/>
         <source>Insn: %1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>输入： %1 %2</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="1302"/>
         <source>failed to obtain segment base</source>
-        <translation type="unfinished"></translation>
+        <translation>无法获取段基址</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/ArchProcessor.cpp" line="1307"/>
         <source>failed to obtain CS segment base</source>
-        <translation type="unfinished"></translation>
+        <translation>无法获取CS段基址</translation>
     </message>
 </context>
 <context>
@@ -2219,53 +2219,53 @@ Git Commit: &lt;a href=&quot;https://github.com/eteran/edb-debugger/commit/%3&qu
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="377"/>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="378"/>
         <source>General Purpose</source>
-        <translation type="unfinished"></translation>
+        <translation>常规用途</translation>
     </message>
     <message>
         <location filename="../../arch/arm-generic/RegisterViewModel.cpp" line="140"/>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="379"/>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="380"/>
         <source>General Status</source>
-        <translation type="unfinished"></translation>
+        <translation>常般状态</translation>
     </message>
     <message>
         <location filename="../../arch/arm-generic/RegisterViewModel.cpp" line="141"/>
         <source>VFP</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="381"/>
         <source>Segment</source>
-        <translation type="unfinished"></translation>
+        <translation>段</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="382"/>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="383"/>
         <source>Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>调试</translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="384"/>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="385"/>
         <source>FPU</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="386"/>
         <source>MMX</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="387"/>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="388"/>
         <source>SSE</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="389"/>
         <location filename="../../arch/x86-generic/RegisterViewModel.cpp" line="390"/>
         <source>AVX</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -2298,22 +2298,22 @@ Git Commit: &lt;a href=&quot;https://github.com/eteran/edb-debugger/commit/%3&qu
     <message>
         <location filename="../../session/SessionManager.cpp" line="70"/>
         <source>Failed to open session file. %1</source>
-        <translation type="unfinished"></translation>
+        <translation>打开会话文件失败。%1</translation>
     </message>
     <message>
         <location filename="../../session/SessionManager.cpp" line="81"/>
         <source>An error occurred while loading session JSON file. %1</source>
-        <translation type="unfinished"></translation>
+        <translation>加载会话 JSON 文件时发生错误。%1</translation>
     </message>
     <message>
         <location filename="../../session/SessionManager.cpp" line="88"/>
         <source>Session file is invalid. Not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>会话文件无效。不是对象。</translation>
     </message>
     <message>
         <location filename="../../session/SessionManager.cpp" line="104"/>
         <source>Session file is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>会话文件无效。</translation>
     </message>
 </context>
 <context>
@@ -2336,11 +2336,7 @@ Git Commit: &lt;a href=&quot;https://github.com/eteran/edb-debugger/commit/%3&qu
     <message>
         <location filename="../../SymbolManager.cpp" line="293"/>
         <source>You are attempting to give two separate addresses the same label, this is not supported.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>You are attempting to give two seperate addresses the same label, this is not supported.</source>
-        <translation type="vanished">您试图给两个不同的地址相同的标签，这是不支持的。</translation>
+        <translation>您试图给两个不同的地址贴上相同的标签，这是不支持的。</translation>
     </message>
 </context>
 <context>
