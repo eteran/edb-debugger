@@ -40,7 +40,7 @@ case.
 
 This class supports adding new handlers during iteration. Removing
 during iteration is also supported, but is restricted: only the
-handler that is currectly being executed can be removed.
+handler that is currently being executed can be removed.
 
 In order to support removing handlers during iteration the iterator
 is incremented before calling corresponding handler.
@@ -63,7 +63,7 @@ public:
 
 private:
 	/*
-	list of registed handlers
+	list of registered handlers
 	*/
 	std::list<IDebugEventHandler *> handlers_;
 

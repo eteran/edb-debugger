@@ -136,8 +136,9 @@ RegisterGroup *createSIMDGroup(RegisterViewModelBase::Model *model, QWidget *par
 		const auto nameIndex = valid_index(model->index(row, ModelNameColumn, catIndex));
 		const auto name      = regNamePrefix + QString("%1").arg(row);
 		if (!valid_variant(nameIndex.data()).toString().toUpper().startsWith(regNamePrefix)) {
-			if (row == 0)
+			if (row == 0) {
 				return nullptr; // don't want empty groups
+			}
 			break;
 		}
 

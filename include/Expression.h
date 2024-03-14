@@ -89,8 +89,11 @@ public:
 
 private:
 	struct Token {
-		Token()                   = default;
-		Token(const Token &other) = default;
+		Token()                              = default;
+		Token(const Token &other)            = default;
+		Token &operator=(const Token &other) = default;
+		Token(Token &&other)                 = default;
+		Token &operator=(Token &&other)      = default;
 
 		enum Operator {
 			NONE,

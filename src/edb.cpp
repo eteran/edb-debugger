@@ -1056,7 +1056,7 @@ bool overwrite_check(address_t address, size_t size) {
 			if (firstConflict) {
 				const int ret = QMessageBox::question(
 					nullptr,
-					tr("Overwritting breakpoint"),
+					tr("Overwriting breakpoint"),
 					tr("You are attempting to modify bytes which overlap with a software breakpoint. Doing this will implicitly remove any breakpoints which are a conflict. Are you sure you want to do this?"),
 					QMessageBox::Yes | QMessageBox::No);
 

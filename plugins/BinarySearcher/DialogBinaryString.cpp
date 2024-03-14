@@ -65,7 +65,10 @@ void DialogBinaryString::doFind() {
 	// TODO: Algorithm here should be Boyer-Moore for better performance
 	const QByteArray b = ui.binaryString->value();
 
-	auto results = new DialogResults(this);
+	if (!results_) {
+		results_ = new DialogResults(this);
+		results_->setAttribute(Qt::WA_DeleteOnClose);
+	}
 
 	const edb::address_t align = ui.chkAlignment->isChecked() ? 1 << (ui.cmbAlignment->currentIndex() + 1) : 1;
 	const size_t sz            = b.size();
@@ -113,7 +116,7 @@ void DialogBinaryString::doFind() {
 					// compare values..
 					if (std::memcmp(p, b.constData(), sz) == 0) {
 						const edb::address_t addr = p - &pages[0] + region->start() + (current_page * page_size);
-						results->addResult(DialogResults::RegionType::Data, addr);
+						results_->addResult(DialogResults::RegionType::Data, addr);
 					}
 
 					// update progress bar every 64KB
@@ -128,11 +131,10 @@ void DialogBinaryString::doFind() {
 		++i;
 	}
 
-	if (results->resultCount() == 0) {
+	if (results_->resultCount() == 0) {
 		QMessageBox::information(nullptr, tr("No Results"), tr("No Results were found!"));
-		delete results;
 	} else {
-		results->show();
+		results_->show();
 	}
 }
 

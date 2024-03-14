@@ -164,8 +164,8 @@ void DialogOptions::showEvent(QShowEvent *event) {
 
 	ui.chkHexOffsets->setChecked(config.function_offsets_in_hex);
 
-	ui.rdoSytntaxATT->setChecked(config.syntax == Configuration::Att);
-	ui.rdoSytntaxIntel->setChecked(config.syntax != Configuration::Att);
+	ui.rdoSyntaxATT->setChecked(config.syntax == Configuration::Att);
+	ui.rdoSyntaxIntel->setChecked(config.syntax != Configuration::Att);
 
 	ui.rdoDetach->setChecked(config.close_behavior == Configuration::Detach);
 	ui.rdoKill->setChecked(config.close_behavior == Configuration::Kill);
@@ -281,9 +281,9 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 
 	Configuration &config = edb::v1::config();
 
-	if (ui.rdoSytntaxIntel->isChecked()) {
+	if (ui.rdoSyntaxIntel->isChecked()) {
 		config.syntax = Configuration::Intel;
-	} else if (ui.rdoSytntaxATT->isChecked()) {
+	} else if (ui.rdoSyntaxATT->isChecked()) {
 		config.syntax = Configuration::Att;
 	}
 

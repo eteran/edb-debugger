@@ -268,13 +268,13 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 // Name: previous_instructions
 // Desc: attempts to find the address of the instruction 1 instructions
 //       before <current_address>
-// Note: <current_address> is a 0 based value relative to the begining of the
+// Note: <current_address> is a 0 based value relative to the beginning of the
 //       current region, not an absolute address within the program
 //------------------------------------------------------------------------------
 int QDisassemblyView::previousInstruction(IAnalyzer *analyzer, int current_address) {
 
 	// If we have an analyzer, and the current address is within a function
-	// then first we find the begining of that function.
+	// then first we find the beginning of that function.
 	// Then, we attempt to disassemble from there until we run into
 	// the address we were on (stopping one instruction early).
 	// this allows us to identify with good accuracy where the
@@ -348,7 +348,7 @@ int QDisassemblyView::previousInstruction(IAnalyzer *analyzer, int current_addre
 // Name: previous_instructions
 // Desc: attempts to find the address of the instruction <count> instructions
 //       before <current_address>
-// Note: <current_address> is a 0 based value relative to the begining of the
+// Note: <current_address> is a 0 based value relative to the beginning of the
 //       current region, not an absolute address within the program
 //------------------------------------------------------------------------------
 int QDisassemblyView::previousInstructions(int current_address, int count) {
@@ -382,7 +382,7 @@ int QDisassemblyView::followingInstruction(int current_address) {
 
 //------------------------------------------------------------------------------
 // Name: following_instructions
-// Note: <current_address> is a 0 based value relative to the begining of the
+// Note: <current_address> is a 0 based value relative to the beginning of the
 //       current region, not an absolute address within the program
 //------------------------------------------------------------------------------
 int QDisassemblyView::followingInstructions(int current_address, int count) {
@@ -766,7 +766,6 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 	}
 	Q_ASSERT(line <= lines_to_render);
 	if (lines_to_render != line) {
-		lines_to_render  = line;
 		partialLastLine_ = false;
 	}
 
@@ -829,10 +828,10 @@ void QDisassemblyView::drawHeaderAndBackground(QPainter &painter, const DrawingC
 }
 
 //------------------------------------------------------------------------------
-// Name: drawRegiserBadges
+// Name: drawRegisterBadges
 // Desc:
 //------------------------------------------------------------------------------
-void QDisassemblyView::drawRegiserBadges(QPainter &painter, DrawingContext *ctx) {
+void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx) {
 
 	painter.save();
 	if (IProcess *process = edb::v1::debugger_core->process()) {
@@ -1607,7 +1606,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	drawHeaderAndBackground(painter, &context, binary_info);
 
 	if (edb::v1::config().show_register_badges) {
-		drawRegiserBadges(painter, &context);
+		drawRegisterBadges(painter, &context);
 	}
 
 	drawSymbolNames(painter, &context);
@@ -1615,7 +1614,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	// SELECTION, BREAKPOINT, EIP & ADDRESS
 	drawSidebarElements(painter, &context);
 
-	// INSTRUCTION BYTES AND RELJMP INDICATOR RENDERING
+	// INSTRUCTION BYTES AND REL-JMP INDICATOR RENDERING
 	drawInstructionBytes(painter, &context);
 
 	drawFunctionMarkers(painter, &context);
@@ -1816,7 +1815,7 @@ Result<int, QString> QDisassemblyView::getInstructionSize(edb::address_t address
 		}
 	}
 
-	return make_unexpected(tr("Failed to get instruciton size"));
+	return make_unexpected(tr("Failed to get instruction size"));
 }
 
 //------------------------------------------------------------------------------

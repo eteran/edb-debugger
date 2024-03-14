@@ -19,6 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef UTIL_H_20061126_
 #define UTIL_H_20061126_
 
+#include <cstddef>
+#include <cstdint>
+
 namespace util {
 
 // Used to interconvert between abstract enum defined in an interface and actual enumerators in implementation

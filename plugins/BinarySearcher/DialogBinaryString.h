@@ -21,10 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_DialogBinaryString.h"
 #include <QDialog>
+#include <QPointer>
 
 class QListWidgetItem;
 
 namespace BinarySearcherPlugin {
+
+class DialogResults;
 
 class DialogBinaryString : public QDialog {
 	Q_OBJECT
@@ -39,6 +42,7 @@ private:
 private:
 	Ui::DialogBinaryString ui;
 	QPushButton *buttonFind_ = nullptr;
+	QPointer<DialogResults> results_;
 };
 
 }

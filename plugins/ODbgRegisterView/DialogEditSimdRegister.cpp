@@ -376,14 +376,18 @@ void DialogEditSimdRegister::set_current_element(RegisterViewModelBase::Model::E
 		}
 	}
 
-	NumberEdit *edit = bytes_[0];
-
+	NumberEdit *edit;
 	if (format == NumberDisplayMode::Float) {
-		edit = floats32_[0];
-		if (size == Model::ElementSize::DWORD)
+		switch (size) {
+		case Model::ElementSize::DWORD:
 			edit = floats32_[elementIndex];
-		else if (size == Model::ElementSize::QWORD)
+			break;
+		case Model::ElementSize::QWORD:
 			edit = floats64_[elementIndex];
+			break;
+		default:
+			edit = floats32_[0];
+		}
 	} else {
 		switch (size) {
 		case Model::ElementSize::BYTE:

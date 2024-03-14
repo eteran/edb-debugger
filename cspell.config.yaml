@@ -1,0 +1,54 @@
+version: "0.2"
+ignorePaths: []
+dictionaryDefinitions: []
+dictionaries: []
+words:
+  - Antialiasing
+  - CLASSINFO
+  - debuggee
+  - demangled
+  - DEMANGLING
+  - Doubleword
+  - doublewords
+  - DWORD
+  - DWORDS
+  - ELFCLASS
+  - ELFDATA
+  - ELFOSABI
+  - eteran
+  - Fabien
+  - hexview
+  - Kabatsayev
+  - Mercês
+  - METATYPE
+  - Mohd
+  - nasm
+  - Nicoleau
+  - Noto
+  - Olly
+  - Ollydbg
+  - Opfer
+  - Pixmap
+  - Polyline
+  - qcommonstyle
+  - qgetenv
+  - qlonglong
+  - qobject
+  - qsnprintf
+  - Quadword
+  - quadwords
+  - qulonglong
+  - QWORD
+  - QWORDS
+  - Ruslan
+  - Scrollbars
+  - Shahril
+  - Sorokin
+  - tbyte
+  - Teran
+  - xmmword
+  - yasm
+  - ymmword
+  - zmmword
+ignoreWords: []
+import: []

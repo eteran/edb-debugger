@@ -132,7 +132,7 @@ private:
 
 	void drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, int y, bool selected);
 	void drawHeaderAndBackground(QPainter &painter, const DrawingContext *ctx, const std::unique_ptr<IBinary> &binary_info);
-	void drawRegiserBadges(QPainter &painter, DrawingContext *ctx);
+	void drawRegisterBadges(QPainter &painter, DrawingContext *ctx);
 	void drawSymbolNames(QPainter &painter, const DrawingContext *ctx);
 	void drawSidebarElements(QPainter &painter, const DrawingContext *ctx);
 	void drawInstructionBytes(QPainter &painter, const DrawingContext *ctx);

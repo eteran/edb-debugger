@@ -1360,8 +1360,8 @@ Git Commit: &lt;a href=&quot;https://github.com/eteran/edb-debugger/commit/%3&qu
     </message>
     <message>
         <location filename="../../DialogOptions.ui" line="34"/>
-        <source>Close Behaviour</source>
-        <translation>关闭Behaviour</translation>
+        <source>Close Behavior</source>
+        <translation>关闭Behavior</translation>
     </message>
     <message>
         <location filename="../../DialogOptions.ui" line="43"/>
