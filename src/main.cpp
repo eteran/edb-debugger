@@ -298,7 +298,7 @@ int main(int argc, char *argv[]) {
 	QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
 	QApplication app(argc, argv);
-	QApplication::setWindowIcon(QIcon(":/debugger/images/edb48-logo.png"));
+	QApplication::setWindowIcon(QIcon(":/debugger/images/edb.svg"));
 
 	// setup organization info so settings go in right place
 	QApplication::setOrganizationName("codef00.com");

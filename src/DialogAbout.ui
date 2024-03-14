@@ -22,7 +22,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="debugger.qrc">:/debugger/images/edb100-logo.png</pixmap>
+        <pixmap resource="debugger.qrc">:/debugger/images/edb.svg</pixmap>
        </property>
       </widget>
      </item>

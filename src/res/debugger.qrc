@@ -2,6 +2,7 @@
     <qresource prefix="/debugger">
         <file>images/edb100-logo.png</file>
         <file>images/edb48-logo.png</file>
+        <file>images/edb.svg</file>
         <file>xml/functions.xml</file>
         <file>xml/syscalls.xml</file>
         <file>images/arrow-right.svg</file>
