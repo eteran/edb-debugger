@@ -316,15 +316,15 @@ void Analyzer::gotoFunctionEnd() {
  * @brief Analyzer::cpuContextMenu
  * @return
  */
-QList<QAction *> Analyzer::cpuContextMenu() {
+QList<QAction *> Analyzer::cpuContextMenu(QMenu *parent) {
 
 	QList<QAction *> ret;
 
-	auto action_find                = new QAction(tr("Analyze Here"), this);
-	auto action_goto_function_start = new QAction(tr("Goto Function Start"), this);
-	auto action_goto_function_end   = new QAction(tr("Goto Function End"), this);
-	auto action_mark_function_start = new QAction(tr("Mark As Function Start"), this);
-	auto action_xrefs               = new QAction(tr("Show X-Refs"), this);
+	auto action_find                = new QAction(tr("Analyze Here"), parent);
+	auto action_goto_function_start = new QAction(tr("Goto Function Start"), parent);
+	auto action_goto_function_end   = new QAction(tr("Goto Function End"), parent);
+	auto action_mark_function_start = new QAction(tr("Mark As Function Start"), parent);
+	auto action_xrefs               = new QAction(tr("Show X-Refs"), parent);
 
 	connect(action_find, &QAction::triggered, this, &Analyzer::doViewAnalysis);
 	connect(action_goto_function_start, &QAction::triggered, this, &Analyzer::gotoFunctionStart);

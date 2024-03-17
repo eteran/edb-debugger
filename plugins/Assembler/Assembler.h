@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define ASSEMBLER_H_20130611_
 
 #include "IPlugin.h"
+#include <QAction>
 
 class QMenu;
 class QDialog;
@@ -39,7 +40,8 @@ public:
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
-	QList<QAction *> cpuContextMenu() override;
+	QList<QAction *> globalShortcuts() override;
+	QList<QAction *> cpuContextMenu(QMenu *parent) override;
 	QWidget *optionsPage() override;
 
 private:
@@ -47,6 +49,7 @@ private:
 
 private:
 	QPointer<QDialog> dialog_ = nullptr;
+	QAction action_assemble_;
 };
 
 }

@@ -197,7 +197,7 @@ void ODBRegView::showMenu(const QPoint &position, const QList<QAction *> &additi
 
 	if (model_->activeIndex().isValid()) {
 		QList<QAction *> debuggerActions;
-		QMetaObject::invokeMethod(edb::v1::debugger_ui, "currentRegisterContextMenuItems", Qt::DirectConnection, Q_RETURN_ARG(QList<QAction *>, debuggerActions));
+		QMetaObject::invokeMethod(edb::v1::debugger_ui, "currentRegisterContextMenuItems", Qt::DirectConnection, Q_RETURN_ARG(QList<QAction *>, debuggerActions), Q_ARG(QMenu *, &menu));
 		items.push_back(nullptr);
 		items.append(debuggerActions);
 	}

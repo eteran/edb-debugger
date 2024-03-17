@@ -1319,7 +1319,7 @@ QMenu *Plugin::menu(QWidget *) {
  * @brief Plugin::cpuContextMenu
  * @return
  */
-QList<QAction *> Plugin::cpuContextMenu() {
+QList<QAction *> Plugin::cpuContextMenu(QMenu *) {
 	return {menuAction_};
 }
 

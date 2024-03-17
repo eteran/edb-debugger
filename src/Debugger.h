@@ -180,7 +180,7 @@ private Q_SLOTS:
 
 private Q_SLOTS:
 	// the manually connected Register slots
-	QList<QAction *> currentRegisterContextMenuItems() const;
+	QList<QAction *> currentRegisterContextMenuItems(QMenu *parent) const;
 	void mnuRegisterFollowInDump() { followRegisterInDump(false); }
 	void mnuRegisterFollowInDumpNewTab() { followRegisterInDump(true); }
 	void mnuRegisterFollowInStack();
@@ -279,7 +279,7 @@ private:
 	Result<edb::address_t, QString> getFollowAddress(const Ptr &hexview);
 
 	template <class F>
-	QList<QAction *> getPluginContextMenuItems(const F &f) const;
+	QList<QAction *> getPluginContextMenuItems(QMenu *parent, const F &f) const;
 
 	template <class F, class T>
 	void addPluginContextMenu(const T &menu, const F &f);

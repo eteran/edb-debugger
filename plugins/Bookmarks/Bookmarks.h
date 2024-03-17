@@ -40,7 +40,7 @@ public:
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
-	QList<QAction *> cpuContextMenu() override;
+	QList<QAction *> cpuContextMenu(QMenu *parent) override;
 
 public:
 	QVariantMap saveState() const override;

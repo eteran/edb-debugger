@@ -879,11 +879,7 @@ void Debugger::finishPluginSetup() {
 			}
 
 			// setup the shortcuts for these actions
-			const QList<QAction *> register_actions = p->registerContextMenu();
-			const QList<QAction *> cpu_actions      = p->cpuContextMenu();
-			const QList<QAction *> stack_actions    = p->stackContextMenu();
-			const QList<QAction *> data_actions     = p->dataContextMenu();
-			const QList<QAction *> actions          = register_actions + cpu_actions + stack_actions + data_actions;
+			const QList<QAction *> actions = p->globalShortcuts();
 
 			for (QAction *action : actions) {
 				QKeySequence shortcut = action->shortcut();
@@ -1360,7 +1356,7 @@ Register Debugger::activeRegister() const {
 // Name: on_registerList_customContextMenuRequested
 // Desc: context menu handler for register view
 //------------------------------------------------------------------------------
-QList<QAction *> Debugger::currentRegisterContextMenuItems() const {
+QList<QAction *> Debugger::currentRegisterContextMenuItems(QMenu *parent) const {
 	QList<QAction *> allActions;
 	const auto reg = activeRegister();
 	if (reg.type() & (Register::TYPE_GPR | Register::TYPE_IP)) {
@@ -1372,7 +1368,7 @@ QList<QAction *> Debugger::currentRegisterContextMenuItems() const {
 
 		allActions.append(actions);
 	}
-	allActions.append(getPluginContextMenuItems(&IPlugin::registerContextMenu));
+	allActions.append(getPluginContextMenuItems(parent, &IPlugin::registerContextMenu));
 	return allActions;
 }
 
@@ -3361,12 +3357,12 @@ void Debugger::mnuDumpDeleteTab() {
 //       NULL pointer items mean "create separator here".
 //------------------------------------------------------------------------------
 template <class F>
-QList<QAction *> Debugger::getPluginContextMenuItems(const F &f) const {
+QList<QAction *> Debugger::getPluginContextMenuItems(QMenu *parent, const F &f) const {
 	QList<QAction *> actions;
 
 	for (QObject *plugin : edb::v1::plugin_list()) {
 		if (auto p = qobject_cast<IPlugin *>(plugin)) {
-			const QList<QAction *> acts = (p->*f)();
+			const QList<QAction *> acts = (p->*f)(parent);
 			if (!acts.isEmpty()) {
 				actions.push_back(nullptr);
 				actions.append(acts);
@@ -3384,7 +3380,7 @@ template <class F, class T>
 void Debugger::addPluginContextMenu(const T &menu, const F &f) {
 	for (QObject *plugin : edb::v1::plugin_list()) {
 		if (auto p = qobject_cast<IPlugin *>(plugin)) {
-			const QList<QAction *> acts = (p->*f)();
+			const QList<QAction *> acts = (p->*f)(menu);
 			if (!acts.isEmpty()) {
 				menu->addSeparator();
 				menu->addActions(acts);
