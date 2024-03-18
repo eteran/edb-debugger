@@ -90,7 +90,7 @@ private Q_SLOTS:
 	void setExec4();
 
 private:
-	QMenu *menu_              = nullptr;
+	QMenu *menu_ = nullptr;
 	QPointer<QDialog> dialog_;
 
 	QLineEdit *addresses_[4] = {};
