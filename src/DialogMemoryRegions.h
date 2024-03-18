@@ -55,7 +55,7 @@ private Q_SLOTS:
 	void viewInDump();
 
 private:
-	std::shared_ptr<IRegion> selectedRegion() const;
+	[[nodiscard]] std::shared_ptr<IRegion> selectedRegion() const;
 	void setPermissions(bool read, bool write, bool execute);
 
 private:

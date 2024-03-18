@@ -40,7 +40,7 @@ public Q_SLOTS:
 	void on_unsignedInput_textEdited(const QString &);
 
 public:
-	edb::reg_t value() const;
+	[[nodiscard]] edb::reg_t value() const;
 	void setValue(Register &reg);
 
 private:

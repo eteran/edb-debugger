@@ -52,23 +52,23 @@ public:
 	Register &operator=(const Register &rhs) = default;
 
 public:
-	bool operator==(const Register &rhs) const;
-	bool operator!=(const Register &rhs) const;
+	[[nodiscard]] bool operator==(const Register &rhs) const;
+	[[nodiscard]] bool operator!=(const Register &rhs) const;
 
 public:
 	bool valid() const { return type_ != TYPE_INVALID; }
 	explicit operator bool() const { return valid(); }
 
-	Type type() const { return type_; }
-	QString name() const { return name_; }
-	std::size_t bitSize() const { return bitSize_; }
-	const char *rawData() const { return reinterpret_cast<const char *>(&value_); }
+	[[nodiscard]] Type type() const { return type_; }
+	[[nodiscard]] QString name() const { return name_; }
+	[[nodiscard]] std::size_t bitSize() const { return bitSize_; }
+	[[nodiscard]] const char *rawData() const { return reinterpret_cast<const char *>(&value_); }
 
 	template <class T>
 	T value() const { return T(value_); }
 
 	// Return the value, zero-extended to address_t to be usable in address calculations
-	edb::address_t valueAsAddress() const;
+	[[nodiscard]] edb::address_t valueAsAddress() const;
 
 	uint64_t valueAsInteger() const {
 		return valueAsAddress().toUint();
@@ -97,7 +97,7 @@ public:
 		std::memcpy(to, from, bitSize_ / 8);
 	}
 
-	QString toHexString() const;
+	[[nodiscard]] QString toHexString() const;
 
 private:
 	QString name_        = tr("<unknown>");

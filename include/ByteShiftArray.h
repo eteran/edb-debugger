@@ -39,12 +39,12 @@ public:
 	ByteShiftArray &operator<<(uint8_t x);
 
 public:
-	int size() const;
+	[[nodiscard]] int size() const;
 
 public:
-	uint8_t &operator[](std::size_t i);
-	uint8_t operator[](std::size_t i) const;
-	const uint8_t *data() const;
+	[[nodiscard]] uint8_t &operator[](std::size_t i);
+	[[nodiscard]] uint8_t operator[](std::size_t i) const;
+	[[nodiscard]] const uint8_t *data() const;
 
 private:
 	QVector<uint8_t> data_;

@@ -36,9 +36,9 @@ public:
 	std::unique_ptr<IState> clone() const override;
 
 public:
-	long double fpu_register(int n) const;
-	quint64 mmx_register(int n) const;
-	QByteArray xmm_register(int n) const;
+	[[nodiscard]] long double fpu_register(int n) const;
+	[[nodiscard]] quint64 mmx_register(int n) const;
+	[[nodiscard]] QByteArray xmm_register(int n) const;
 
 public:
 	QString flagsToString() const override;

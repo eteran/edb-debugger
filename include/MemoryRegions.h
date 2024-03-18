@@ -43,8 +43,8 @@ public:
 	~MemoryRegions() override = default;
 
 public:
-	std::shared_ptr<IRegion> findRegion(edb::address_t address) const;
-	const QList<std::shared_ptr<IRegion>> &regions() const { return regions_; }
+	[[nodiscard]] std::shared_ptr<IRegion> findRegion(edb::address_t address) const;
+	[[nodiscard]] const QList<std::shared_ptr<IRegion>> &regions() const { return regions_; }
 	void clear();
 	void sync();
 

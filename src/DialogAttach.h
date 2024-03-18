@@ -52,7 +52,7 @@ public Q_SLOTS:
 	void on_processes_table_doubleClicked(const QModelIndex &index);
 
 public:
-	Result<edb::pid_t, QString> selectedPid() const;
+	[[nodiscard]] Result<edb::pid_t, QString> selectedPid() const;
 
 private:
 	Ui::DialogAttach ui;

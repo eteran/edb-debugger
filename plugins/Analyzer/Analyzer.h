@@ -71,7 +71,7 @@ public:
 	bool forFuncsInRange(edb::address_t start, edb::address_t end, std::function<bool(const Function *)> functor) const override;
 
 private:
-	bool findContainingFunction(edb::address_t address, Function *function) const;
+	[[nodiscard]] bool findContainingFunction(edb::address_t address, Function *function) const;
 	void bonusEntryPoint(RegionData *data) const;
 	void bonusMain(RegionData *data) const;
 	void bonusMarkedFunctions(RegionData *data);

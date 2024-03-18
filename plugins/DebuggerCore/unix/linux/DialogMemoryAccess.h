@@ -32,7 +32,7 @@ public:
 	~DialogMemoryAccess() override = default;
 
 public:
-	bool warnNextTime() const;
+	[[nodiscard]] bool warnNextTime() const;
 
 private:
 	Ui::DialogMemoryAccess ui;

@@ -31,8 +31,8 @@ public:
 	explicit DialogOpenProgram(QWidget *parent = nullptr, const QString &caption = QString(), const QString &directory = QString(), const QString &filter = QString());
 
 public:
-	QList<QByteArray> arguments() const;
-	QString workingDirectory() const;
+	[[nodiscard]] QList<QByteArray> arguments() const;
+	[[nodiscard]] QString workingDirectory() const;
 
 private Q_SLOTS:
 	void browsePressed();

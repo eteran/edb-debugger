@@ -325,9 +325,9 @@ public:
 	}
 
 private:
-	Register mmx_register(size_t n) const;
-	Register xmm_register(size_t n) const;
-	Register ymm_register(size_t n) const;
+	[[nodiscard]] Register mmx_register(size_t n) const;
+	[[nodiscard]] Register xmm_register(size_t n) const;
+	[[nodiscard]] Register ymm_register(size_t n) const;
 
 private:
 	// The whole AVX* state. XMM and YMM registers are lower parts of ZMM ones.
@@ -348,14 +348,14 @@ private:
 		bool mxcsrMaskFilled = false;
 
 	public:
+		[[nodiscard]] bool empty() const;
+		[[nodiscard]] edb::value128 xmm(size_t index) const;
+		[[nodiscard]] edb::value256 ymm(size_t index) const;
+		[[nodiscard]] edb::value512 zmm(size_t index) const;
 		void clear();
-		bool empty() const;
-		edb::value128 xmm(size_t index) const;
 		void setXMM(size_t index, edb::value128);
-		edb::value256 ymm(size_t index) const;
-		void setYMM(size_t index, edb::value256);
 		void setYMM(size_t index, edb::value128 low, edb::value128 high);
-		edb::value512 zmm(size_t index) const;
+		void setYMM(size_t index, edb::value256);
 		void setZMM(size_t index, edb::value512);
 	} avx;
 
@@ -384,17 +384,17 @@ private:
 
 	public:
 		void clear();
-		bool empty() const;
-		size_t stackPointer() const;
+		[[nodiscard]] bool empty() const;
+		[[nodiscard]] size_t stackPointer() const;
 		// Convert from ST(n) index n to Rx index x
-		size_t RIndexToSTIndex(size_t index) const;
-		size_t STIndexToRIndex(size_t index) const;
+		[[nodiscard]] size_t RIndexToSTIndex(size_t index) const;
+		[[nodiscard]] size_t STIndexToRIndex(size_t index) const;
 		// Restore the full FPU Tag Word from the ptrace-filtered version
 		edb::value16 restoreTagWord(uint16_t twd) const;
 		std::uint16_t reducedTagWord() const;
-		int tag(size_t n) const;
-		edb::value80 st(size_t n) const;
-		edb::value80 &st(size_t n);
+		[[nodiscard]] int tag(size_t n) const;
+		[[nodiscard]] edb::value80 st(size_t n) const;
+		[[nodiscard]] edb::value80 &st(size_t n);
 
 	private:
 		int recreateTag(const edb::value80 value) const;

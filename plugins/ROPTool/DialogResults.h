@@ -62,7 +62,7 @@ private Q_SLOTS:
 	void on_tableView_doubleClicked(const QModelIndex &index);
 
 public:
-	int resultCount() const;
+	[[nodiscard]] int resultCount() const;
 
 private:
 	Ui::DialogResults ui;

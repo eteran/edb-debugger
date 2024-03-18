@@ -39,9 +39,9 @@ public:
 
 public:
 	void addFile(const QString &file, const QList<QByteArray> &args);
-	QMenu *createMenu();
-	RecentFile mostRecent() const;
-	int entryCount() const;
+	[[nodiscard]] QMenu *createMenu();
+	[[nodiscard]] RecentFile mostRecent() const;
+	[[nodiscard]] int entryCount() const;
 
 public Q_SLOTS:
 	void clear();

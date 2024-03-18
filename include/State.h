@@ -53,31 +53,31 @@ public:
 	void swap(State &other);
 
 public:
-	[[nodiscard]] QString flagsToString() const;
-	[[nodiscard]] QString flagsToString(edb::reg_t flags) const;
-	[[nodiscard]] Register value(const QString &reg) const;
-	[[nodiscard]] Register instructionPointerRegister() const;
-	[[nodiscard]] Register flagsRegister() const;
+	[[nodiscard]] bool empty() const;
 	[[nodiscard]] edb::address_t framePointer() const;
 	[[nodiscard]] edb::address_t instructionPointer() const;
 	[[nodiscard]] edb::address_t stackPointer() const;
 	[[nodiscard]] edb::reg_t debugRegister(size_t n) const;
 	[[nodiscard]] edb::reg_t flags() const;
-	[[nodiscard]] Register gpRegister(size_t n) const;
+	[[nodiscard]] QString flagsToString() const;
+	[[nodiscard]] QString flagsToString(edb::reg_t flags) const;
 	[[nodiscard]] Register archRegister(uint64_t type, size_t n) const;
+	[[nodiscard]] Register flagsRegister() const;
+	[[nodiscard]] Register gpRegister(size_t n) const;
+	[[nodiscard]] Register instructionPointerRegister() const;
+	[[nodiscard]] Register value(const QString &reg) const;
 	void adjustStack(int bytes);
 	void clear();
-	bool empty() const;
 
 public:
 #if defined(EDB_X86) || defined(EDB_X86_64)
-	int fpuStackPointer() const;
-	edb::value80 fpuRegister(size_t n) const;
-	bool fpuRegisterIsEmpty(std::size_t n) const;
-	QString fpuRegisterTagString(std::size_t n) const;
-	edb::value16 fpuControlWord() const;
-	edb::value16 fpuStatusWord() const;
-	edb::value16 fpuTagWord() const;
+	[[nodiscard]] int fpuStackPointer() const;
+	[[nodiscard]] edb::value80 fpuRegister(size_t n) const;
+	[[nodiscard]] bool fpuRegisterIsEmpty(std::size_t n) const;
+	[[nodiscard]] QString fpuRegisterTagString(std::size_t n) const;
+	[[nodiscard]] edb::value16 fpuControlWord() const;
+	[[nodiscard]] edb::value16 fpuStatusWord() const;
+	[[nodiscard]] edb::value16 fpuTagWord() const;
 #endif
 
 public:
@@ -88,7 +88,7 @@ public:
 	void setRegister(const Register &reg);
 
 public:
-	Register operator[](const QString &reg) const;
+	[[nodiscard]] Register operator[](const QString &reg) const;
 
 private:
 	std::unique_ptr<IState> impl_;

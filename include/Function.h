@@ -49,34 +49,34 @@ public:
 public:
 	void insert(const BasicBlock &bb);
 	void addReference();
-	Type type() const;
+	[[nodiscard]] Type type() const;
 	void setType(Type t);
 
 public:
-	const_reference back() const;
-	const_reference front() const;
-	reference back();
-	reference front();
+	[[nodiscard]] const_reference back() const;
+	[[nodiscard]] const_reference front() const;
+	[[nodiscard]] reference back();
+	[[nodiscard]] reference front();
 
 public:
-	const_iterator begin() const;
-	const_iterator end() const;
-	const_reverse_iterator rbegin() const;
-	const_reverse_iterator rend() const;
-	iterator begin();
-	iterator end();
-	reverse_iterator rbegin();
-	reverse_iterator rend();
+	[[nodiscard]] const_iterator begin() const;
+	[[nodiscard]] const_iterator end() const;
+	[[nodiscard]] const_reverse_iterator rbegin() const;
+	[[nodiscard]] const_reverse_iterator rend() const;
+	[[nodiscard]] iterator begin();
+	[[nodiscard]] iterator end();
+	[[nodiscard]] reverse_iterator rbegin();
+	[[nodiscard]] reverse_iterator rend();
 
 public:
-	bool empty() const;
-	size_type size() const;
+	[[nodiscard]] bool empty() const;
+	[[nodiscard]] size_type size() const;
 
 public:
-	edb::address_t entryAddress() const;
-	edb::address_t endAddress() const;
-	edb::address_t lastInstruction() const;
-	int referenceCount() const;
+	[[nodiscard]] edb::address_t entryAddress() const;
+	[[nodiscard]] edb::address_t endAddress() const;
+	[[nodiscard]] edb::address_t lastInstruction() const;
+	[[nodiscard]] int referenceCount() const;
 
 public:
 	void swap(Function &other);

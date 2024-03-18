@@ -42,17 +42,17 @@ public:
 
 public:
 	QStringList updateInstructionInfo(edb::address_t address);
-	bool canStepOver(const edb::Instruction &inst) const;
-	bool isFilling(const edb::Instruction &inst) const;
+	[[nodiscard]] bool canStepOver(const edb::Instruction &inst) const;
+	[[nodiscard]] bool isFilling(const edb::Instruction &inst) const;
 	//! Checks whether potentially conditional instruction's condition is satisfied
-	bool isExecuted(const edb::Instruction &inst, const State &state) const;
-	Result<edb::address_t, QString> getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state) const;
-	edb::address_t getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool &ok) const;
+	[[nodiscard]] bool isExecuted(const edb::Instruction &inst, const State &state) const;
+	[[nodiscard]] Result<edb::address_t, QString> getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state) const;
+	[[nodiscard]] edb::address_t getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool &ok) const;
 	void reset();
 	void aboutToResume();
 	void setupRegisterView();
 	void updateRegisterView(const QString &default_region_name, const State &state);
-	RegisterViewModelBase::Model &registerViewModel() const;
+	[[nodiscard]] RegisterViewModelBase::Model &registerViewModel() const;
 
 private:
 	bool justAttached_ = true;

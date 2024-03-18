@@ -40,7 +40,7 @@ public:
 
 public:
 	void addResult(const Function &function);
-	int resultCount() const;
+	[[nodiscard]] int resultCount() const;
 
 public Q_SLOTS:
 	void on_tableView_doubleClicked(const QModelIndex &index);

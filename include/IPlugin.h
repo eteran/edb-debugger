@@ -44,16 +44,16 @@ public:
 
 public:
 	// optional, overload these to have there contents added to a view's context menu
-	virtual QList<QAction *> cpuContextMenu() { return {}; }
-	virtual QList<QAction *> registerContextMenu() { return {}; }
-	virtual QList<QAction *> stackContextMenu() { return {}; }
-	virtual QList<QAction *> dataContextMenu() { return {}; }
+	[[nodiscard]] virtual QList<QAction *> cpuContextMenu() { return {}; }
+	[[nodiscard]] virtual QList<QAction *> registerContextMenu() { return {}; }
+	[[nodiscard]] virtual QList<QAction *> stackContextMenu() { return {}; }
+	[[nodiscard]] virtual QList<QAction *> dataContextMenu() { return {}; }
 
 	// optional, overload this to add a page to the options dialog
-	virtual QWidget *optionsPage() { return nullptr; }
+	[[nodiscard]] virtual QWidget *optionsPage() { return nullptr; }
 
 public:
-	virtual QVariantMap saveState() const { return {}; }
+	[[nodiscard]] virtual QVariantMap saveState() const { return {}; }
 	virtual void restoreState(const QVariantMap &) {}
 
 public:
@@ -65,7 +65,7 @@ public:
 
 	// optional, command line argument processing
 	// return a string to add to "--help"
-	virtual QString extraArguments() const { return {}; }
+	[[nodiscard]] virtual QString extraArguments() const { return {}; }
 
 	// take actions based on the command line arguments
 	// you *may* remove arguments which are exclusively yours

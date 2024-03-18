@@ -50,7 +50,7 @@ public:
 	std::vector<IBreakpoint::BreakpointType> supportedBreakpointTypes() const override;
 
 protected:
-	bool attached() const;
+	[[nodiscard]] bool attached() const;
 
 protected:
 	BreakpointList breakpoints_;

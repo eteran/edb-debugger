@@ -29,8 +29,8 @@ public:
 	~NumberEdit() override = default;
 
 public:
-	int column() const;
-	int colSpan() const;
+	[[nodiscard]] int column() const;
+	[[nodiscard]] int colSpan() const;
 	void setNaturalWidthInChars(int nChars);
 
 public:

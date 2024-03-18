@@ -49,11 +49,11 @@ private Q_SLOTS:
 	void on_keepSize_stateChanged(int state);
 
 public:
+	[[nodiscard]] bool showKeepSize() const;
+	[[nodiscard]] QByteArray value() const;
 	void setMaxLength(int n);
-	QByteArray value() const;
-	void setValue(const QByteArray &);
 	void setShowKeepSize(bool visible);
-	bool showKeepSize() const;
+	void setValue(const QByteArray &);
 
 private:
 	void setEntriesMaxLength(int n);

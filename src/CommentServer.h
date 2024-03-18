@@ -29,13 +29,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class CommentServer {
 	Q_DECLARE_TR_FUNCTIONS(CommentServer)
 public:
-	void setComment(edb::address_t address, const QString &comment);
-	QString comment(edb::address_t address, int size) const;
+	[[nodiscard]] QString comment(edb::address_t address, int size) const;
 	void clear();
+	void setComment(edb::address_t address, const QString &comment);
 
 private:
-	Result<QString, QString> resolveFunctionCall(edb::address_t address) const;
-	Result<QString, QString> resolveString(edb::address_t address) const;
+	[[nodiscard]] Result<QString, QString> resolveFunctionCall(edb::address_t address) const;
+	[[nodiscard]] Result<QString, QString> resolveString(edb::address_t address) const;
 
 private:
 	QHash<quint64, QString> customComments_;

@@ -56,7 +56,7 @@ public:
 
 public:
 	void setFont(const QFont &font);
-	QFont font() const;
+	[[nodiscard]] QFont font() const;
 
 public:
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;

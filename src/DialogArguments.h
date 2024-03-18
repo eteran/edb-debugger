@@ -30,7 +30,7 @@ public:
 	~DialogArguments() override = default;
 
 public:
-	QList<QByteArray> arguments() const;
+	[[nodiscard]] QList<QByteArray> arguments() const;
 	void setArguments(const QList<QByteArray> &args);
 
 private:

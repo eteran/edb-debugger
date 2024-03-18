@@ -97,20 +97,20 @@ private:
 	};
 
 public:
-	std::shared_ptr<DataViewInfo> currentDataViewInfo() const;
+	[[nodiscard]] int currentTab() const;
+	[[nodiscard]] QLabel *statusLabel() const;
+	[[nodiscard]] Register activeRegister() const;
+	[[nodiscard]] std::shared_ptr<DataViewInfo> currentDataViewInfo() const;
 	bool dumpData(edb::address_t address, bool new_tab);
 	bool dumpDataRange(edb::address_t address, edb::address_t end_address, bool new_tab);
 	bool dumpStack(edb::address_t address, bool scroll_to);
 	bool jumpToAddress(edb::address_t address);
-	int currentTab() const;
 	void attach(edb::pid_t pid);
 	void clearData(const std::shared_ptr<DataViewInfo> &v);
 	void execute(const QString &s, const QList<QByteArray> &args, const QString &input, const QString &output);
 	void refreshUi();
 	void updateData(const std::shared_ptr<DataViewInfo> &v);
 	void updateUi();
-	QLabel *statusLabel() const;
-	Register activeRegister() const;
 
 Q_SIGNALS:
 	void uiUpdated();
@@ -229,9 +229,9 @@ public:
 
 private:
 	QString createTty();
-	QString sessionFilename() const;
+	[[nodiscard]] QString sessionFilename() const;
 	Result<edb::address_t, QString> getGotoExpression();
-	Result<edb::reg_t, QString> getFollowRegister() const;
+	[[nodiscard]] Result<edb::reg_t, QString> getFollowRegister() const;
 	bool commonOpen(const QString &s, const QList<QByteArray> &args, const QString &input, const QString &output);
 	bool isBreakpointConditionTrue(const QString &condition);
 	edb::EventStatus handleEventExited(const std::shared_ptr<IDebugEvent> &event);

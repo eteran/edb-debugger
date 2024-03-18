@@ -44,14 +44,14 @@ public:
 	}
 
 public:
-	GraphNode *from() const;
-	GraphNode *to() const;
+	[[nodiscard]] GraphNode *from() const;
+	[[nodiscard]] GraphNode *to() const;
 	void clear();
 	void syncState();
 
 public:
-	int lineThickness() const;
-	QColor lineColor() const;
+	[[nodiscard]] int lineThickness() const;
+	[[nodiscard]] QColor lineColor() const;
 
 public:
 	void updateLines();

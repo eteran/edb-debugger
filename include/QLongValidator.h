@@ -34,8 +34,8 @@ public:
 	~QLongValidator() override = default;
 
 public:
-	value_type bottom() const;
-	value_type top() const;
+	[[nodiscard]] value_type bottom() const;
+	[[nodiscard]] value_type top() const;
 	QValidator::State validate(QString &input, int &pos) const override;
 	void setRange(value_type bottom, value_type top);
 	void setBottom(value_type bottom);

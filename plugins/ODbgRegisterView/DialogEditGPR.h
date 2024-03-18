@@ -37,7 +37,7 @@ public:
 	explicit DialogEditGPR(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
 public:
-	Register value() const;
+	[[nodiscard]] Register value() const;
 	void setValue(const Register &reg);
 
 private Q_SLOTS:

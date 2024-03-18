@@ -44,7 +44,7 @@ public Q_SLOTS:
 public:
 	void shortcut(int index);
 	void addAddress(edb::address_t address, const QString &type = QString(), const QString &comment = QString());
-	QList<BookmarksModel::Bookmark> entries() const;
+	[[nodiscard]] QList<BookmarksModel::Bookmark> entries() const;
 
 private:
 	void buttonAddClicked();

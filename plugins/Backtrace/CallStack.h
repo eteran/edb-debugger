@@ -38,10 +38,10 @@ private:
 	void getCallStack();
 
 public:
-	StackFrame *operator[](size_t index);
-	size_t size() const;
-	StackFrame *top();
-	StackFrame *bottom();
+	[[nodiscard]] StackFrame *operator[](size_t index);
+	[[nodiscard]] size_t size() const;
+	[[nodiscard]] StackFrame *top();
+	[[nodiscard]] StackFrame *bottom();
 	void push(StackFrame frame);
 
 private:

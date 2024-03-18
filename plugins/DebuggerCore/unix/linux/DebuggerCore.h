@@ -96,9 +96,9 @@ private:
 	long ptraceTraceme();
 
 private:
-	Status stopThreads();
+	[[nodiscard]] long ptraceOptions() const;
 	int attachThread(edb::tid_t tid);
-	long ptraceOptions() const;
+	Status stopThreads();
 	std::shared_ptr<IDebugEvent> handleEvent(edb::tid_t tid, int status);
 	std::shared_ptr<IDebugEvent> handleThreadCreate(edb::tid_t tid, int status);
 	void detectCpuMode();

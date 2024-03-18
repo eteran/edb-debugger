@@ -113,7 +113,7 @@ public:
 	QMap<edb::address_t, Patch> patches() const override;
 
 private:
-	bool isWow64() const;
+	[[nodiscard]] bool isWow64() const;
 
 private:
 	edb::address_t startAddress_ = 0;

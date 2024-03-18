@@ -53,41 +53,41 @@ public:
 	void addReference(edb::address_t refsite, edb::address_t target);
 
 public:
-	std::vector<std::pair<edb::address_t, edb::address_t>> references() const;
+	[[nodiscard]] std::vector<std::pair<edb::address_t, edb::address_t>> references() const;
 
 public:
-	reference operator[](size_type pos);
-	const_reference operator[](size_type pos) const;
+	[[nodiscard]] reference operator[](size_type pos);
+	[[nodiscard]] const_reference operator[](size_type pos) const;
 
-	const_reference back() const;
-	const_reference front() const;
-	reference back();
-	reference front();
-
-public:
-	const_iterator begin() const;
-	const_iterator end() const;
-	const_reverse_iterator rbegin() const;
-	const_reverse_iterator rend() const;
-	iterator begin();
-	iterator end();
-	reverse_iterator rbegin();
-	reverse_iterator rend();
+	[[nodiscard]] const_reference back() const;
+	[[nodiscard]] const_reference front() const;
+	[[nodiscard]] reference back();
+	[[nodiscard]] reference front();
 
 public:
-	size_type size() const;
-	bool empty() const;
+	[[nodiscard]] const_iterator begin() const;
+	[[nodiscard]] const_iterator end() const;
+	[[nodiscard]] const_reverse_iterator rbegin() const;
+	[[nodiscard]] const_reverse_iterator rend() const;
+	[[nodiscard]] iterator begin();
+	[[nodiscard]] iterator end();
+	[[nodiscard]] reverse_iterator rbegin();
+	[[nodiscard]] reverse_iterator rend();
+
+public:
+	[[nodiscard]] size_type size() const;
+	[[nodiscard]] bool empty() const;
 
 public:
 	void swap(BasicBlock &other);
 
 public:
-	QString toString() const;
+	[[nodiscard]] QString toString() const;
 
 public:
-	size_type byteSize() const;
-	edb::address_t firstAddress() const;
-	edb::address_t lastAddress() const;
+	[[nodiscard]] size_type byteSize() const;
+	[[nodiscard]] edb::address_t firstAddress() const;
+	[[nodiscard]] edb::address_t lastAddress() const;
 
 private:
 	std::vector<instruction_pointer> instructions_;
