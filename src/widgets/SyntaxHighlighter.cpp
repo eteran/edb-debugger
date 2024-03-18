@@ -60,12 +60,12 @@ void SyntaxHighlighter::createRules() {
 
 	// expression brackets
 	rules_.emplace_back(
-		"(?:[\\(?:\\)\\[\\]])",
+		R"((?:[\(?:\)\[\]]))",
 		theme.text[Theme::Brackets]);
 
 	// math operators
 	rules_.emplace_back(
-		"\\b(?:[\\+\\-\\*])\\b",
+		R"(\b(?:[\+\-\*])\b)",
 		theme.text[Theme::Operator]);
 
 	// registers
