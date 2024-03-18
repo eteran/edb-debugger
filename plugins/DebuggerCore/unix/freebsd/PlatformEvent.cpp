@@ -18,11 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PlatformEvent.h"
 #include "edb.h"
+#include <csignal> // for the SIG* definitions
 #include <cstdio>
 #include <cstring>
 #include <fcntl.h>
 #include <kvm.h>
-#include <csignal> // for the SIG* definitions
 #include <sys/exec.h>
 #include <sys/mman.h>
 #include <sys/param.h>

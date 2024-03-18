@@ -417,7 +417,9 @@ std::size_t PlatformProcess::writeBytes(edb::address_t address, const void *buf,
 			for (std::size_t byteIndex = 0; byteIndex < len; ++byteIndex) {
 				bool ok = false;
 				ptraceWriteByte(address + byteIndex, *(reinterpret_cast<const char *>(buf) + byteIndex), &ok);
-				if (!ok) return written;
+				if (!ok) {
+					return written;
+				}
 				++written;
 			}
 		}

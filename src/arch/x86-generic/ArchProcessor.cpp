@@ -263,7 +263,9 @@ QString format_char(int pointer_level, edb::address_t arg, QChar type) {
 //------------------------------------------------------------------------------
 QString format_argument(const QString &type, const Register &arg) {
 
-	if (!arg) return QObject::tr("(failed to get value)");
+	if (!arg) {
+		return QObject::tr("(failed to get value)");
+	}
 	int pointer_level = 0;
 	for (QChar ch : type) {
 
@@ -449,10 +451,21 @@ bool is_jcc_taken(const edb::reg_t efl, edb::Instruction::ConditionCode cond) {
 //------------------------------------------------------------------------------
 bool is_jcc_taken(const State &state, edb::Instruction::ConditionCode cond) {
 
-	if (cond == edb::Instruction::CC_UNCONDITIONAL) return true;
-	if (cond == edb::Instruction::CC_RCXZ) return state.gpRegister(rCX).value<edb::value64>() == 0;
-	if (cond == edb::Instruction::CC_ECXZ) return state.gpRegister(rCX).value<edb::value32>() == 0;
-	if (cond == edb::Instruction::CC_CXZ) return state.gpRegister(rCX).value<edb::value16>() == 0;
+	if (cond == edb::Instruction::CC_UNCONDITIONAL) {
+		return true;
+	}
+
+	if (cond == edb::Instruction::CC_RCXZ) {
+		return state.gpRegister(rCX).value<edb::value64>() == 0;
+	}
+
+	if (cond == edb::Instruction::CC_ECXZ) {
+		return state.gpRegister(rCX).value<edb::value32>() == 0;
+	}
+
+	if (cond == edb::Instruction::CC_CXZ) {
+		return state.gpRegister(rCX).value<edb::value16>() == 0;
+	}
 
 	return is_jcc_taken(state.flags(), cond);
 }
@@ -534,7 +547,9 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 
 			bool ok;
 			const edb::address_t effective_address = edb::v1::arch_processor().getEffectiveAddress(inst, operand, state, ok);
-			if (!ok) return;
+			if (!ok) {
+				return;
+			}
 			const auto temp_operand = QString::fromStdString(edb::v1::formatter().toString(operand));
 
 			if (is_immediate(operand)) {
@@ -656,7 +671,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 #if 0
 					bool ok;
 					const edb::address_t effective_address = edb::v1::arch_processor().getEffectiveAddress(inst, operand, state, ok);
-					if (!ok) return;
+					if (!ok) { return; }
 					ret << QString("%1 = %2").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
 #endif
 				} else if (is_register(operand)) {
@@ -1029,10 +1044,18 @@ QString FPUComparExplain(uint16_t statusWord) {
 	const bool C0 = statusWord & (1 << 8);
 	const bool C2 = statusWord & (1 << 10);
 	const bool C3 = statusWord & (1 << 14);
-	if (C3 == 0 && C2 == 0 && C0 == 0) return "GT";
-	if (C3 == 0 && C2 == 0 && C0 == 1) return "LT";
-	if (C3 == 1 && C2 == 0 && C0 == 0) return "EQ";
-	if (C3 == 1 && C2 == 1 && C0 == 1) return QObject::tr("Unordered", "result of FPU comparison instruction");
+	if (C3 == 0 && C2 == 0 && C0 == 0) {
+		return "GT";
+	}
+	if (C3 == 0 && C2 == 0 && C0 == 1) {
+		return "LT";
+	}
+	if (C3 == 1 && C2 == 0 && C0 == 0) {
+		return "EQ";
+	}
+	if (C3 == 1 && C2 == 1 && C0 == 1) {
+		return QObject::tr("Unordered", "result of FPU comparison instruction");
+	}
 	return "";
 }
 
@@ -1299,12 +1322,16 @@ Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::In
 					}
 				}();
 
-				if (!segBase) return make_unexpected(QObject::tr("failed to obtain segment base")); // no way to reliably compute address
+				if (!segBase) {
+					return make_unexpected(QObject::tr("failed to obtain segment base"));
+				} // no way to reliably compute address
 				ret += segBase.valueAsAddress();
 			}
 		} else if (is_immediate(op)) {
 			const Register csBase = state["cs_base"];
-			if (!csBase) return make_unexpected(QObject::tr("failed to obtain CS segment base")); // no way to reliably compute address
+			if (!csBase) {
+				return make_unexpected(QObject::tr("failed to obtain CS segment base"));
+			} // no way to reliably compute address
 			ret = op->imm + csBase.valueAsAddress();
 		}
 	}
@@ -1317,7 +1344,9 @@ edb::address_t ArchProcessor::getEffectiveAddress(const edb::Instruction &inst, 
 
 	ok                = false;
 	const auto result = getEffectiveAddress(inst, op, state);
-	if (!result) return 0;
+	if (!result) {
+		return 0;
+	}
 	ok = true;
 	return result.value();
 }
@@ -1465,8 +1494,9 @@ QStringList ArchProcessor::updateInstructionInfo(edb::address_t address) {
 					// FIXME: actually only ERESTARTNOINTR guarantees reexecution. But it seems the other ERESTART* signals
 					// won't go into user space, so whatever the state of signal handlers, the tracee should never appear
 					// to see these signals. So I guess it's OK to assume that tha syscall _will_ be restarted by the kernel.
-					if (interrupted && err != EINTR)
+					if (interrupted && err != EINTR) {
 						ret << QString("Syscall will be restarted on next step/run");
+					}
 #else
 					Q_UNUSED(rax)
 #endif

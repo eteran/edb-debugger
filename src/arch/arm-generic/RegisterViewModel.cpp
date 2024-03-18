@@ -148,7 +148,9 @@ RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject *parent)
 }
 
 void invalidate(RegisterViewModelBase::Category *cat, int row, const char *nameToCheck) {
-	if (!cat) return;
+	if (!cat) {
+		return;
+	}
 	Q_ASSERT(row < cat->childCount());
 	const auto reg = cat->getRegister(row);
 	Q_ASSERT(!nameToCheck || reg->name() == nameToCheck);
@@ -189,7 +191,9 @@ void RegisterViewModel::showAll() {
 }
 
 void RegisterViewModel::setCpuMode(CpuMode newMode) {
-	if (mode == newMode) return;
+	if (mode == newMode) {
+		return;
+	}
 
 	beginResetModel();
 	mode = newMode;

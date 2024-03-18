@@ -17,11 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "PlatformProcess.h"
+#include <csignal>
 #include <fcntl.h>
 #include <kvm.h>
 #include <machine/reg.h>
 #include <paths.h>
-#include <csignal>
 #include <sys/mman.h>
 #include <sys/param.h>
 #include <sys/ptrace.h>

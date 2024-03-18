@@ -358,8 +358,14 @@ QVariant RegisterViewModel::data(const QModelIndex &index, int role) const {
 			}
 
 			if (name.startsWith("XMM") || name.startsWith("YMM")) {
-				if (mode == CpuMode::IA32) return 4;
-				if (mode == CpuMode::AMD64) return 5;
+				if (mode == CpuMode::IA32) {
+					return 4;
+				}
+
+				if (mode == CpuMode::AMD64) {
+					return 5;
+				}
+
 				return {};
 			}
 		}
@@ -562,12 +568,16 @@ void RegisterViewModel::updateDR(std::size_t i, edb::value64 value, const QStrin
 
 void RegisterViewModel::updateMMXReg(std::size_t i, edb::value64 value, const QString &comment) {
 	Q_ASSERT(i < MMX_REG_COUNT);
-	if (!mmxRegs->childCount()) return;
+	if (!mmxRegs->childCount()) {
+		return;
+	}
 	updateRegister<MMXReg>(mmxRegs, static_cast<int>(i), value, comment);
 }
 void RegisterViewModel::invalidateMMXReg(std::size_t i) {
 	Q_ASSERT(i < MMX_REG_COUNT);
-	if (!mmxRegs->childCount()) return;
+	if (!mmxRegs->childCount()) {
+		return;
+	}
 	invalidate(mmxRegs, i);
 }
 
@@ -600,7 +610,9 @@ void RegisterViewModel::updateSSEReg(std::size_t i, edb::value128 value, const Q
 	unsigned sseRegMax;
 	std::tie(sseCat, avxCat, sseRegMax) = getSSEparams();
 	Q_ASSERT(i < sseRegMax);
-	if (!sseCat->childCount()) return;
+	if (!sseCat->childCount()) {
+		return;
+	}
 	updateRegister<SSEReg>(sseCat, static_cast<int>(i), value, comment);
 	// To avoid showing stale data in case this is called when AVX state is supported
 	if (avxCat->childCount()) {
@@ -740,7 +752,9 @@ void RegisterViewModel::showGenericCategories() {
 }
 
 void RegisterViewModel::setCpuMode(CpuMode newMode) {
-	if (mode == newMode) return;
+	if (mode == newMode) {
+		return;
+	}
 
 	beginResetModel();
 	mode = newMode;

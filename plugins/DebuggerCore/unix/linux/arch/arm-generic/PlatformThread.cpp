@@ -198,7 +198,9 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 
 	State state;
 	getState(&state);
-	if (state.empty()) return Status(tr("failed to get thread state."));
+	if (state.empty()) {
+		return Status(tr("failed to get thread state."));
+	}
 	const auto pc    = state.instructionPointer();
 	const auto flags = state.flags();
 	enum {
@@ -235,17 +237,24 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 				switch (op) {
 				case ARM_INS_LDR: {
 					const auto destOperand = insn.operand(0);
-					if (!is_register(destOperand) || destOperand->reg != ARM_REG_PC)
+					if (!is_register(destOperand) || destOperand->reg != ARM_REG_PC) {
 						return Status(tr("instruction %1 with non-PC destination isn't supported yet.").arg(insn.mnemonic().c_str()));
+					}
+
 					const auto srcOperand = insn.operand(1);
-					if (!is_expression(srcOperand))
+					if (!is_expression(srcOperand)) {
 						return Status(tr("unexpected type of second operand of LDR instruction."));
+					}
+
 					const auto effAddrR = edb::v1::arch_processor().getEffectiveAddress(insn, srcOperand, state);
-					if (!effAddrR) return Status(effAddrR.error());
+					if (!effAddrR) {
+						return Status(effAddrR.error());
+					}
 
 					const auto effAddr = effAddrR.value();
-					if (process_->readBytes(effAddr, &addrAfterInsn, AddressSize) != AddressSize)
+					if (process_->readBytes(effAddr, &addrAfterInsn, AddressSize) != AddressSize) {
 						return Status(tr("failed to read memory referred to by LDR operand (address %1).").arg(effAddr.toPointerString()));
+					}
 
 					// FIXME: for ARMv5 or below (without "T" in the name) bits [1:0] are simply ignored, without any mode change
 					if (addrAfterInsn & 1)
@@ -273,7 +282,9 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 							assert(operand->access == CS_AC_WRITE);
 #endif
 							const auto sp = state.gpRegister(PlatformState::GPR::SP);
-							if (!sp) return Status(tr("failed to get value of SP register"));
+							if (!sp) {
+								return Status(tr("failed to get value of SP register"));
+							}
 							if (process_->readBytes(sp.valueAsAddress() + AddressSize * i, &addrAfterInsn, AddressSize) != AddressSize)
 								return Status(tr("failed to read thread stack"));
 							break;
@@ -305,7 +316,9 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 							return Status(tr("unpredictable instruction"));
 						// This may happen only with BX or BLX: B and BL require an immediate operand
 						const auto result = edb::v1::arch_processor().getEffectiveAddress(insn, operand, state);
-						if (!result) return Status(result.error());
+						if (!result) {
+							return Status(result.error());
+						}
 						addrAfterInsn = result.value();
 						if (addrAfterInsn & 1)
 							targetMode = IDebugger::CpuMode::Thumb;

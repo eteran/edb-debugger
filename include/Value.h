@@ -660,17 +660,17 @@ template <class T, class Integer, class = IsInteger<Integer>>
 
 // operators for value_type, value_type
 template <class T1, class T2>
-[[nodiscard]]bool operator==(const value_type<T1> &lhs, const value_type<T2> &rhs) {
+[[nodiscard]] bool operator==(const value_type<T1> &lhs, const value_type<T2> &rhs) {
 	return lhs.value_ == rhs.value_;
 }
 
 template <class T1, class T2>
-[[nodiscard]]bool operator!=(const value_type<T1> &lhs, const value_type<T2> &rhs) {
+[[nodiscard]] bool operator!=(const value_type<T1> &lhs, const value_type<T2> &rhs) {
 	return lhs.value_ != rhs.value_;
 }
 
 template <class T1, class T2>
-[[nodiscard]]auto operator+(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
+[[nodiscard]] auto operator+(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
 	using U = value_type<PromoteType<T1, T2>>;
 
@@ -680,7 +680,7 @@ template <class T1, class T2>
 }
 
 template <class T1, class T2>
-[[nodiscard]]auto operator-(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
+[[nodiscard]] auto operator-(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
 	using U = value_type<PromoteType<T1, T2>>;
 
@@ -690,7 +690,7 @@ template <class T1, class T2>
 }
 
 template <class T1, class T2>
-[[nodiscard]]auto operator*(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
+[[nodiscard]] auto operator*(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
 	using U = value_type<PromoteType<T1, T2>>;
 
@@ -700,7 +700,7 @@ template <class T1, class T2>
 }
 
 template <class T1, class T2>
-[[nodiscard]]auto operator/(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
+[[nodiscard]] auto operator/(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
 	using U = value_type<PromoteType<T1, T2>>;
 
@@ -710,7 +710,7 @@ template <class T1, class T2>
 }
 
 template <class T1, class T2>
-[[nodiscard]]auto operator%(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
+[[nodiscard]] auto operator%(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
 	using U = value_type<PromoteType<T1, T2>>;
 
@@ -720,7 +720,7 @@ template <class T1, class T2>
 }
 
 template <class T1, class T2>
-[[nodiscard]]auto operator&(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
+[[nodiscard]] auto operator&(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
 	using U = value_type<PromoteType<T1, T2>>;
 
@@ -730,7 +730,7 @@ template <class T1, class T2>
 }
 
 template <class T1, class T2>
-[[nodiscard]]auto operator|(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
+[[nodiscard]] auto operator|(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
 	using U = value_type<PromoteType<T1, T2>>;
 
@@ -740,7 +740,7 @@ template <class T1, class T2>
 }
 
 template <class T1, class T2>
-[[nodiscard]]auto operator^(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
+[[nodiscard]] auto operator^(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
 	using U = value_type<PromoteType<T1, T2>>;
 

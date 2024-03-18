@@ -18,9 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PlatformEvent.h"
 #include "edb.h"
+#include <csignal> // for the SIG* definitions
 #include <cstdio>
 #include <cstring>
-#include <csignal> // for the SIG* definitions
 #include <sys/ptrace.h>
 #include <sys/types.h>
 #include <sys/wait.h>

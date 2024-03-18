@@ -180,9 +180,13 @@ Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::In
 	if (is_register(operand)) {
 		bool ok;
 		const auto regIndex = capstoneRegToGPRIndex(operand->reg, ok);
-		if (!ok) return make_unexpected(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg));
+		if (!ok) {
+			return make_unexpected(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg));
+		}
 		const auto reg = state.gpRegister(regIndex);
-		if (!reg) return make_unexpected(QObject::tr("failed to get register r%1.").arg(regIndex));
+		if (!reg) {
+			return make_unexpected(QObject::tr("failed to get register r%1.").arg(regIndex));
+		}
 		auto value = reg.valueAsAddress();
 		return adjustR15Value(insn, regIndex, value);
 	} else if (is_expression(operand)) {
@@ -226,7 +230,9 @@ edb::address_t ArchProcessor::getEffectiveAddress(const edb::Instruction &inst, 
 
 	ok                = false;
 	const auto result = getEffectiveAddress(inst, op, state);
-	if (!result) return 0;
+	if (!result) {
+		return 0;
+	}
 	return result.value();
 }
 

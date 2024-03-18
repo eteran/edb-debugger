@@ -84,7 +84,7 @@ public:
 
 public:
 	// basic process management
-	[[nodiscard]] virtual std::shared_ptr<IDebugEvent> waitDebugEvent(std::chrono::milliseconds msecs)                                                     = 0;
+	[[nodiscard]] virtual std::shared_ptr<IDebugEvent> waitDebugEvent(std::chrono::milliseconds msecs)                                       = 0;
 	virtual Status attach(edb::pid_t pid)                                                                                                    = 0;
 	virtual Status detach()                                                                                                                  = 0;
 	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &input, const QString &output) = 0;
