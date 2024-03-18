@@ -81,7 +81,7 @@ public:
 			result = -1ll;
 			std::memcpy(&result, &value_, bitSize_ / 8);
 		}
-		return result;
+		return static_cast<int64_t>(result);
 	}
 
 	void setScalarValue(std::uint64_t newValue);

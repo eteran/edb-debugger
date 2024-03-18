@@ -71,7 +71,7 @@ public:
 	}
 
 public:
-	int operation() const { return insn_ ? insn_->id : 0; }
+	unsigned int operation() const { return insn_ ? insn_->id : 0; }
 	std::size_t operandCount() const {
 #if defined(EDB_X86) || defined(EDB_X86_64)
 		return insn_ ? insn_->detail->x86.op_count : 0;

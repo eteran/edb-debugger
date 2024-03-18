@@ -19,11 +19,13 @@ words:
   - Fabien
   - hexview
   - Kabatsayev
+  - konsole
   - Mercês
   - METATYPE
   - Mohd
   - nasm
   - Nicoleau
+  - nofork
   - Noto
   - Olly
   - Ollydbg
@@ -44,6 +46,7 @@ words:
   - Scrollbars
   - Shahril
   - Sorokin
+  - stepover
   - tbyte
   - Teran
   - xmmword

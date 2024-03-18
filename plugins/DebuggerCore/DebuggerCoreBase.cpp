@@ -102,7 +102,7 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::findTriggeredBreakpoint(edb::addr
 
 /**
  * Decrements the reference count for the breakpoint found at the given address.
- * If the refernce count goes to zero, then it is removed.
+ * If the reference count goes to zero, then it is removed.
  * This is a no-op if there is no breakpoint present.
  *
  * @brief DebuggerCoreBase::removeBreakpoint

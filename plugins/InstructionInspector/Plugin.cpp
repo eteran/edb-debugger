@@ -793,8 +793,7 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 			"--insn-width=15",
 			"--architecture=i386" + QString(bits == 64 ? ":x86-64" : ""),
 			"-M",
-			"intel,"
-			"intel-mnemonic",
+			"intel,intel-mnemonic",
 #elif defined(EDB_ARM32)
 								   "--insn-width=4",
 								   "-m",

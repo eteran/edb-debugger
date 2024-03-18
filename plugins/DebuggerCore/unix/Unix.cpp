@@ -200,18 +200,18 @@ Status Unix::execute_process(const QString &path, const QString &cwd, const QLis
 		// instead appear to launch shell
 		const int ret = execv(argv_pointers[0], argv_pointers);
 
-		// should be no need to cleanup, the process which allocated all that
-		// space no longer exists!
 		// if we get here...execv failed!
-		if (ret == -1) {
-			errorString = QString("execv() failed: %1").arg(strerror(errno));
+		// and the docs say that the return value IS -1. This behavior of execv only
+		// returning on errors confuses linters, so let's just assert what is the case
+		Q_ASSERT(ret == -1);
 
-			p = argv_pointers;
-			while (*p) {
-				delete[] *p++;
-			}
-			delete[] argv_pointers;
+		errorString = QString("execv() failed: %1").arg(strerror(errno));
+
+		p = argv_pointers;
+		while (*p) {
+			delete[] *p++;
 		}
+		delete[] argv_pointers;
 	}
 
 	// frankly, any return is technically an error I think
