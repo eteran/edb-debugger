@@ -27,10 +27,10 @@ namespace Fas {
 
 class Exception : public std::exception {
 public:
-	explicit Exception(const std::string &message);
+	explicit Exception(std::string message);
 	~Exception() noexcept override = default;
 
-	const char *what() const noexcept override;
+	[[nodiscard]] const char *what() const noexcept override;
 
 protected:
 	std::string message_;

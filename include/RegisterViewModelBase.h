@@ -180,8 +180,8 @@ protected:
 	QString name_;
 
 public:
-	RegisterViewItem(const QString &name)
-		: name_(name) {
+	RegisterViewItem(QString name)
+		: name_(std::move(name)) {
 	}
 
 	virtual ~RegisterViewItem() = default;
@@ -294,7 +294,7 @@ struct BitFieldDescriptionEx {
 
 	// Prevent compiler warnings about missing initializer: make default argument explicitly default
 	BitFieldDescriptionEx(QString name, unsigned offset, unsigned length, std::vector<QString> explanations = std::vector<QString>())
-		: name(name), offset(offset), length(length), explanations(explanations) {
+		: name(std::move(name)), offset(offset), length(length), explanations(std::move(explanations)) {
 	}
 };
 
