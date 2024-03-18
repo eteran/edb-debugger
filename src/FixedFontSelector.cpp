@@ -35,7 +35,7 @@ FixedFontSelector::FixedFontSelector(QWidget *parent, Qt::WindowFlags f)
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-QFont FixedFontSelector::currentFont() {
+QFont FixedFontSelector::currentFont() const {
 	return ui.fontCombo->currentFont();
 }
 

@@ -70,11 +70,11 @@ public:
 	}
 
 public:
-	bool operator==(const value_type_large &rhs) const { return std::memcmp(value_, rhs.value_, sizeof(T)) == 0; }
-	bool operator!=(const value_type_large &rhs) const { return std::memcmp(value_, rhs.value_, sizeof(T)) != 0; }
+	[[nodiscard]] bool operator==(const value_type_large &rhs) const { return std::memcmp(value_, rhs.value_, sizeof(T)) == 0; }
+	[[nodiscard]] bool operator!=(const value_type_large &rhs) const { return std::memcmp(value_, rhs.value_, sizeof(T)) != 0; }
 
 public:
-	QString toHexString() const {
+	[[nodiscard]] QString toHexString() const {
 		char buf[sizeof(T) * 2 + 1];
 		char *p = buf;
 
@@ -87,7 +87,7 @@ public:
 
 public:
 	template <class U>
-	static value_type_large fromZeroExtended(const U &data) {
+	[[nodiscard]] static value_type_large fromZeroExtended(const U &data) {
 
 		static_assert(sizeof(data) <= sizeof(T), "It doesn't make sense to expand a larger type into a smaller type");
 
@@ -172,7 +172,7 @@ public:
 	}
 
 public:
-	static value_type fromString(const QString &str, bool *ok = nullptr, int base = 10, bool isSigned = false) {
+	[[nodiscard]] static value_type fromString(const QString &str, bool *ok = nullptr, int base = 10, bool isSigned = false) {
 
 		const qulonglong v = isSigned ? static_cast<qulonglong>(str.toLongLong(ok, base)) : str.toULongLong(ok, base);
 
@@ -193,20 +193,20 @@ public:
 		return 0;
 	}
 
-	static value_type fromHexString(const QString &str, bool *ok = nullptr) {
+	[[nodiscard]] static value_type fromHexString(const QString &str, bool *ok = nullptr) {
 		return fromString(str, ok, 16);
 	}
 
-	static value_type fromSignedString(const QString &str, bool *ok = nullptr) {
+	[[nodiscard]] static value_type fromSignedString(const QString &str, bool *ok = nullptr) {
 		return fromString(str, ok, 10, true);
 	}
 
-	static value_type fromCString(const QString &str, bool *ok = nullptr) {
+	[[nodiscard]] static value_type fromCString(const QString &str, bool *ok = nullptr) {
 		return fromString(str, ok, 0);
 	}
 
 	template <class U>
-	static value_type fromZeroExtended(const U &data) {
+	[[nodiscard]] static value_type fromZeroExtended(const U &data) {
 		value_type created;
 
 		static_assert(sizeof(data) <= sizeof(T), "It doesn't make sense to expand a larger type into a smaller type");
@@ -227,16 +227,16 @@ public:
 	}
 
 public:
-	bool negative() const {
+	[[nodiscard]] bool negative() const {
 		return typename std::make_signed<T>::type(value_) < 0;
 	}
 
 public:
-	explicit operator bool() const { return value_ != 0; }
+	[[nodiscard]] explicit operator bool() const { return value_ != 0; }
 	bool operator!() const { return !value_; }
 	operator T() const { return value_; }
-	T toUint() const { return value_; }
-	T &asUint() { return value_; }
+	[[nodiscard]] T toUint() const { return value_; }
+	[[nodiscard]] T &asUint() { return value_; }
 
 public:
 	value_type operator++(int) {
@@ -386,37 +386,37 @@ public:
 	}
 
 public:
-	QString toPointerString(bool createdFromNativePointer = true) const {
+	[[nodiscard]] QString toPointerString(bool createdFromNativePointer = true) const {
 		if (edb::v1::debuggeeIs32Bit()) {
 			return "0x" + value_type<uint32_t>(value_).toHexString();
-		} else {
-			if (!createdFromNativePointer) { // then we don't know value of upper dword
-				return "0x????????" + value_type<uint32_t>(value_).toHexString();
-			} else {
-				return "0x" + toHexString();
-			}
 		}
+
+		if (!createdFromNativePointer) { // then we don't know value of upper dword
+			return "0x????????" + value_type<uint32_t>(value_).toHexString();
+		}
+
+		return "0x" + toHexString();
 	}
 
-	QString toHexString() const {
+	[[nodiscard]] QString toHexString() const {
 		std::ostringstream ss;
 		ss << std::setw(sizeof(value_) * 2) << std::setfill('0') << std::hex << +value_; // + to prevent printing uint8_t as a character
 		return QString::fromStdString(ss.str());
 	}
 
-	QString unsignedToString() const {
+	[[nodiscard]] QString unsignedToString() const {
 		return toString();
 	}
 
-	QString signedToString() const {
+	[[nodiscard]] QString signedToString() const {
 		return QString("%1").arg(typename std::make_signed<T>::type(value_));
 	}
 
-	QString toString() const {
+	[[nodiscard]] QString toString() const {
 		return QString("%1").arg(value_);
 	}
 
-	QVariant toQVariant() const {
+	[[nodiscard]] QVariant toQVariant() const {
 		return QVariant::fromValue(value_);
 	}
 
@@ -466,82 +466,82 @@ std::ostream &operator<<(std::ostream &os, value_type<T> &val) {
 
 // operators for value_type, Integer
 template <class T, class Integer, class = IsInteger<Integer>>
-bool operator==(const value_type<T> &lhs, Integer rhs) {
+[[nodiscard]] bool operator==(const value_type<T> &lhs, Integer rhs) {
 	using U = typename std::make_unsigned<Integer>::type;
 	return lhs.value_ == static_cast<U>(rhs);
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-bool operator!=(const value_type<T> &lhs, Integer rhs) {
+[[nodiscard]] bool operator!=(const value_type<T> &lhs, Integer rhs) {
 	using U = typename std::make_unsigned<Integer>::type;
 	return lhs.value_ != static_cast<U>(rhs);
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator+(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
+[[nodiscard]] auto operator+(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
 	value_type<T> r(lhs);
 	r += rhs;
 	return r;
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator-(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
+[[nodiscard]] auto operator-(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
 	value_type<T> r(lhs);
 	r -= rhs;
 	return r;
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator*(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
+[[nodiscard]] auto operator*(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
 	value_type<T> r(lhs);
 	r *= rhs;
 	return r;
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator/(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
+[[nodiscard]] auto operator/(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
 	value_type<T> r(lhs);
 	r /= rhs;
 	return r;
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator%(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
+[[nodiscard]] auto operator%(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
 	value_type<T> r(lhs);
 	r %= rhs;
 	return r;
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator&(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
+[[nodiscard]] auto operator&(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
 	value_type<T> r(lhs);
 	r &= rhs;
 	return r;
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator|(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
+[[nodiscard]] auto operator|(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
 	value_type<T> r(lhs);
 	r |= rhs;
 	return r;
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator^(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
+[[nodiscard]] auto operator^(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
 	value_type<T> r(lhs);
 	r ^= rhs;
 	return r;
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator>>(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
+[[nodiscard]] auto operator>>(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
 	value_type<T> r(lhs);
 	r >>= rhs;
 	return r;
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator<<(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
+[[nodiscard]] auto operator<<(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
 	value_type<T> r(lhs);
 	r <<= rhs;
 	return r;
@@ -549,17 +549,17 @@ auto operator<<(const value_type<T> &lhs, Integer rhs) -> value_type<T> {
 
 // operators for Integer, value_type
 template <class T, class Integer, class = IsInteger<Integer>>
-bool operator==(Integer lhs, const value_type<T> &rhs) {
+[[nodiscard]] bool operator==(Integer lhs, const value_type<T> &rhs) {
 	return rhs == lhs;
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-bool operator!=(Integer lhs, const value_type<T> &rhs) {
+[[nodiscard]] bool operator!=(Integer lhs, const value_type<T> &rhs) {
 	return rhs != lhs;
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator+(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
+[[nodiscard]] auto operator+(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
 
 	using U = value_type<PromoteType<T, Integer>>;
 
@@ -569,7 +569,7 @@ auto operator+(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator-(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
+[[nodiscard]] auto operator-(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
 
 	using U = value_type<PromoteType<T, Integer>>;
 
@@ -579,7 +579,7 @@ auto operator-(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator*(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
+[[nodiscard]] auto operator*(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
 
 	using U = value_type<PromoteType<T, Integer>>;
 
@@ -589,7 +589,7 @@ auto operator*(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator/(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
+[[nodiscard]] auto operator/(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
 
 	using U = value_type<PromoteType<T, Integer>>;
 
@@ -599,7 +599,7 @@ auto operator/(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator%(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
+[[nodiscard]] auto operator%(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
 
 	using U = value_type<PromoteType<T, Integer>>;
 
@@ -609,7 +609,7 @@ auto operator%(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator&(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
+[[nodiscard]] auto operator&(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
 
 	using U = value_type<PromoteType<T, Integer>>;
 
@@ -619,7 +619,7 @@ auto operator&(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator|(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
+[[nodiscard]] auto operator|(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
 
 	using U = value_type<PromoteType<T, Integer>>;
 
@@ -629,7 +629,7 @@ auto operator|(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator^(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
+[[nodiscard]] auto operator^(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
 
 	using U = value_type<PromoteType<T, Integer>>;
 
@@ -639,7 +639,7 @@ auto operator^(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator>>(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
+[[nodiscard]] auto operator>>(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
 
 	using U = value_type<PromoteType<T, Integer>>;
 
@@ -649,7 +649,7 @@ auto operator>>(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
-auto operator<<(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
+[[nodiscard]] auto operator<<(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
 
 	using U = value_type<PromoteType<T, Integer>>;
 
@@ -660,17 +660,17 @@ auto operator<<(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType
 
 // operators for value_type, value_type
 template <class T1, class T2>
-bool operator==(const value_type<T1> &lhs, const value_type<T2> &rhs) {
+[[nodiscard]]bool operator==(const value_type<T1> &lhs, const value_type<T2> &rhs) {
 	return lhs.value_ == rhs.value_;
 }
 
 template <class T1, class T2>
-bool operator!=(const value_type<T1> &lhs, const value_type<T2> &rhs) {
+[[nodiscard]]bool operator!=(const value_type<T1> &lhs, const value_type<T2> &rhs) {
 	return lhs.value_ != rhs.value_;
 }
 
 template <class T1, class T2>
-auto operator+(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
+[[nodiscard]]auto operator+(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
 	using U = value_type<PromoteType<T1, T2>>;
 
@@ -680,7 +680,7 @@ auto operator+(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_ty
 }
 
 template <class T1, class T2>
-auto operator-(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
+[[nodiscard]]auto operator-(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
 	using U = value_type<PromoteType<T1, T2>>;
 
@@ -690,7 +690,7 @@ auto operator-(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_ty
 }
 
 template <class T1, class T2>
-auto operator*(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
+[[nodiscard]]auto operator*(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
 	using U = value_type<PromoteType<T1, T2>>;
 
@@ -700,7 +700,7 @@ auto operator*(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_ty
 }
 
 template <class T1, class T2>
-auto operator/(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
+[[nodiscard]]auto operator/(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
 	using U = value_type<PromoteType<T1, T2>>;
 
@@ -710,7 +710,7 @@ auto operator/(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_ty
 }
 
 template <class T1, class T2>
-auto operator%(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
+[[nodiscard]]auto operator%(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
 	using U = value_type<PromoteType<T1, T2>>;
 
@@ -720,7 +720,7 @@ auto operator%(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_ty
 }
 
 template <class T1, class T2>
-auto operator&(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
+[[nodiscard]]auto operator&(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
 	using U = value_type<PromoteType<T1, T2>>;
 
@@ -730,7 +730,7 @@ auto operator&(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_ty
 }
 
 template <class T1, class T2>
-auto operator|(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
+[[nodiscard]]auto operator|(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
 	using U = value_type<PromoteType<T1, T2>>;
 
@@ -740,7 +740,7 @@ auto operator|(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_ty
 }
 
 template <class T1, class T2>
-auto operator^(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
+[[nodiscard]]auto operator^(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
 	using U = value_type<PromoteType<T1, T2>>;
 
@@ -788,27 +788,27 @@ public:
 	}
 
 public:
-	bool negative() const {
+	[[nodiscard]] bool negative() const {
 		return value_[9] & 0x80;
 	}
 
-	value_type<uint16_t> exponent() const {
+	[[nodiscard]] value_type<uint16_t> exponent() const {
 		value_type<uint16_t> e(value_, 8);
 		e &= 0x7fff;
 		return e;
 	}
 
-	value_type<uint64_t> mantissa() const {
+	[[nodiscard]] value_type<uint64_t> mantissa() const {
 		value_type<uint64_t> m(value_, 0);
 		return m;
 	}
 
-	bool normalized() const {
+	[[nodiscard]] bool normalized() const {
 		return value_[7] & 0x80;
 	}
 
 public:
-	long double toFloatValue() const {
+	[[nodiscard]] long double toFloatValue() const {
 #ifdef _MSC_VER
 		double d;
 		long_double_to_double(&value_, &d);
@@ -821,7 +821,7 @@ public:
 	}
 
 public:
-	QString toHexString() const {
+	[[nodiscard]] QString toHexString() const {
 		char buf[32];
 		snprintf(buf, sizeof(buf), "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
 				 value_[9],
@@ -839,8 +839,8 @@ public:
 	}
 
 public:
-	bool operator==(const value_type80 &rhs) const { return std::memcmp(value_, rhs.value_, 10) == 0; }
-	bool operator!=(const value_type80 &rhs) const { return std::memcmp(value_, rhs.value_, 10) != 0; }
+	[[nodiscard]] bool operator==(const value_type80 &rhs) const { return std::memcmp(value_, rhs.value_, 10) == 0; }
+	[[nodiscard]] bool operator!=(const value_type80 &rhs) const { return std::memcmp(value_, rhs.value_, 10) != 0; }
 
 private:
 	T value_ = {};

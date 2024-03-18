@@ -66,7 +66,7 @@ public:
 		return insn_;
 	}
 
-	explicit operator bool() const {
+	[[nodiscard]] explicit operator bool() const {
 		return valid();
 	}
 

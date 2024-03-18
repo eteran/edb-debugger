@@ -46,7 +46,7 @@ public:
 		: error_(type) {
 	}
 
-	const char *what() const noexcept {
+	[[nodiscard]] const char *what() const noexcept {
 		switch (error_) {
 		case Syntax:
 			return "Syntax Error";

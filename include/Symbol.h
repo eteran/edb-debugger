@@ -33,9 +33,9 @@ public:
 	uint32_t size;
 	char type;
 
-	bool isCode() const { return type == 't' || type == 'T' || type == 'P'; }
-	bool isData() const { return !isCode(); }
-	bool isWeak() const { return type == 'W'; }
+	[[nodiscard]] bool isCode() const { return type == 't' || type == 'T' || type == 'P'; }
+	[[nodiscard]] bool isData() const { return !isCode(); }
+	[[nodiscard]] bool isWeak() const { return type == 'W'; }
 };
 
 #endif

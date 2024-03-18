@@ -36,7 +36,7 @@ public:
 
 public:
 	[[nodiscard]] bool valid() const { return operand_; }
-	explicit operator bool() const { return valid(); }
+	[[nodiscard]] explicit operator bool() const { return valid(); }
 	const op_type *operator->() const { return operand_; }
 	[[nodiscard]] const op_type *native() const { return operand_; }
 	[[nodiscard]] size_t index() const { return index_; }

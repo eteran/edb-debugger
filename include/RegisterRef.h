@@ -24,11 +24,11 @@ public:
 	const void *data() const { return ptr_; }
 
 public:
-	bool operator==(const RegisterRef &rhs) const { return size_ == rhs.size_ && std::memcmp(ptr_, rhs.ptr_, size_) == 0; }
-	bool operator!=(const RegisterRef &rhs) const { return size_ != rhs.size_ || std::memcmp(ptr_, rhs.ptr_, size_) != 0; }
+	[[nodiscard]] bool operator==(const RegisterRef &rhs) const { return size_ == rhs.size_ && std::memcmp(ptr_, rhs.ptr_, size_) == 0; }
+	[[nodiscard]] bool operator!=(const RegisterRef &rhs) const { return size_ != rhs.size_ || std::memcmp(ptr_, rhs.ptr_, size_) != 0; }
 
 public:
-	bool valid() const { return ptr_ != nullptr; }
+	[[nodiscard]] bool valid() const { return ptr_ != nullptr; }
 
 public:
 	// The name of this register.

@@ -31,11 +31,11 @@ public:
 	~ELFXX() override = default;
 
 public:
-	bool native() const override;
-	edb::address_t entryPoint() override;
-	size_t headerSize() const override;
-	const void *header() const override;
-	std::vector<Header> headers() const override;
+	[[nodiscard]] bool native() const override;
+	[[nodiscard]] edb::address_t entryPoint() override;
+	[[nodiscard]] size_t headerSize() const override;
+	[[nodiscard]] const void *header() const override;
+	[[nodiscard]] std::vector<Header> headers() const override;
 
 private:
 	void validateHeader();

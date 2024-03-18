@@ -69,9 +69,9 @@ std::string format_register(const T &value) {
 
 	if (colorize) {
 		return Blue + hex_string(value) + Reset;
-	} else {
-		return hex_string(value);
 	}
+
+	return hex_string(value);
 }
 
 /**
@@ -87,9 +87,9 @@ std::string format_segment(const T &value) {
 
 	if (colorize) {
 		return Green + hex_string(value) + Reset;
-	} else {
-		return hex_string(value);
 	}
+
+	return hex_string(value);
 }
 
 /**
@@ -105,9 +105,9 @@ std::string format_address(const T &value) {
 
 	if (colorize) {
 		return Purple + hex_string(value) + Reset;
-	} else {
-		return hex_string(value);
 	}
+
+	return hex_string(value);
 }
 
 }
@@ -269,18 +269,22 @@ void DumpState::dumpLines(edb::address_t address, int lines) {
 
 				std::cout << hex_string(address) << " : ";
 
-				for (int j = 0x00; j < 0x04; ++j)
+				for (int j = 0x00; j < 0x04; ++j) {
 					std::cout << hex_string(buf[j]) << " ";
+				}
 				std::cout << " ";
 
-				for (int j = 0x04; j < 0x08; ++j)
+				for (int j = 0x04; j < 0x08; ++j) {
 					std::cout << hex_string(buf[j]) << " ";
+				}
 				std::cout << "- ";
-				for (int j = 0x08; j < 0x0c; ++j)
+				for (int j = 0x08; j < 0x0c; ++j) {
 					std::cout << hex_string(buf[j]) << " ";
+				}
 				std::cout << " ";
-				for (int j = 0x0c; j < 0x10; ++j)
+				for (int j = 0x0c; j < 0x10; ++j) {
 					std::cout << hex_string(buf[j]) << " ";
+				}
 
 				for (int j = 0; j < 16; ++j) {
 					// TODO(eteran): why won't this compile with MSVC?

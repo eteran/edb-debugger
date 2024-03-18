@@ -59,15 +59,15 @@ struct elf32_model : elf_model<32> {
 		QString name;
 		char type;
 
-		bool operator<(const symbol &rhs) const {
+		[[nodiscard]] bool operator<(const symbol &rhs) const {
 			return std::tie(address, name) < std::tie(rhs.address, rhs.name);
 		}
 
-		bool operator==(const symbol &rhs) const {
+		[[nodiscard]] bool operator==(const symbol &rhs) const {
 			return std::tie(address, name) == std::tie(rhs.address, rhs.name);
 		}
 
-		QString to_string() const {
+		[[nodiscard]] QString to_string() const {
 			return QString("%1 %2 %3 %4").arg(edb::value32(address).toHexString(), edb::value32(size).toHexString()).arg(type).arg(name);
 		}
 	};
@@ -88,21 +88,21 @@ struct elf64_model : elf_model<64> {
 		QString name;
 		char type;
 
-		bool operator<(const symbol &rhs) const {
+		[[nodiscard]] bool operator<(const symbol &rhs) const {
 			return std::tie(address, name) < std::tie(rhs.address, rhs.name);
 		}
 
-		bool operator==(const symbol &rhs) const {
+		[[nodiscard]] bool operator==(const symbol &rhs) const {
 			return std::tie(address, name) == std::tie(rhs.address, rhs.name);
 		}
 
-		QString to_string() const {
+		[[nodiscard]] QString to_string() const {
 			return QString("%1 %2 %3 %4").arg(edb::value64(address).toHexString(), edb::value32(size).toHexString()).arg(type).arg(name);
 		}
 	};
 };
 
-bool is_elf32(const void *ptr) {
+[[nodiscard]] bool is_elf32(const void *ptr) {
 	auto elf32_hdr = reinterpret_cast<const elf32_header *>(ptr);
 	if (std::memcmp(elf32_hdr->e_ident, ELFMAG, SELFMAG) == 0) {
 		return elf32_hdr->e_ident[EI_CLASS] == ELFCLASS32;
@@ -110,7 +110,7 @@ bool is_elf32(const void *ptr) {
 	return false;
 }
 
-bool is_elf64(const void *ptr) {
+[[nodiscard]] bool is_elf64(const void *ptr) {
 	auto elf64_hdr = reinterpret_cast<const elf64_header *>(ptr);
 	if (std::memcmp(elf64_hdr->e_ident, ELFMAG, SELFMAG) == 0) {
 		return elf64_hdr->e_ident[EI_CLASS] == ELFCLASS64;

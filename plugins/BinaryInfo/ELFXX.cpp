@@ -35,33 +35,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace BinaryInfoPlugin {
 
 class ELFBinaryException : public std::exception {
-	const char *what() const noexcept override = 0;
+	[[nodiscard]] const char *what() const noexcept override = 0;
 };
 
 class InvalidArguments : public ELFBinaryException {
 public:
-	const char *what() const noexcept override {
+	[[nodiscard]] const char *what() const noexcept override {
 		return "Invalid Arguments";
 	}
 };
 
 class ReadFailure : public ELFBinaryException {
 public:
-	const char *what() const noexcept override {
+	[[nodiscard]] const char *what() const noexcept override {
 		return "Read Failure";
 	}
 };
 
 class InvalidELF : public ELFBinaryException {
 public:
-	const char *what() const noexcept override {
+	[[nodiscard]] const char *what() const noexcept override {
 		return "Invalid ELF";
 	}
 };
 
 class InvalidArchitecture : public ELFBinaryException {
 public:
-	const char *what() const noexcept override {
+	[[nodiscard]] const char *what() const noexcept override {
 		return "Invalid Architecture";
 	}
 };

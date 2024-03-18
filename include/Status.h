@@ -42,10 +42,10 @@ public:
 	Status &operator=(Status &&)      = default;
 
 public:
-	bool success() const { return error_.isEmpty(); }
-	bool failure() const { return !success(); }
-	explicit operator bool() const { return success(); }
-	QString error() const { return error_; }
+	[[nodiscard]] bool failure() const { return !success(); }
+	[[nodiscard]] bool success() const { return error_.isEmpty(); }
+	[[nodiscard]] QString error() const { return error_; }
+	[[nodiscard]] explicit operator bool() const { return success(); }
 
 private:
 	QString error_;
@@ -105,18 +105,18 @@ public:
 		return &std::get<T>(value_);
 	}
 
-	const T &operator*() const { return value(); }
-	bool succeeded() const { return value_.index() == 0; }
-	bool failed() const { return value_.index() == 1; }
-	explicit operator bool() const { return succeeded(); }
-	bool operator!() const { return failed(); }
+	[[nodiscard]] bool failed() const { return value_.index() == 1; }
+	[[nodiscard]] bool operator!() const { return failed(); }
+	[[nodiscard]] bool succeeded() const { return value_.index() == 0; }
+	[[nodiscard]] const T &operator*() const { return value(); }
+	[[nodiscard]] explicit operator bool() const { return succeeded(); }
 
-	const E &error() const {
+	[[nodiscard]] const E &error() const {
 		Q_ASSERT(failed());
 		return std::get<Unexpected<E>>(value_).error_;
 	}
 
-	const T &value() const {
+	[[nodiscard]] const T &value() const {
 		Q_ASSERT(succeeded());
 		return std::get<T>(value_);
 	}
@@ -144,12 +144,12 @@ public:
 	Result &operator=(Result &&)      = default;
 
 public:
-	bool succeeded() const { return value_.index() == 0; }
-	bool failed() const { return value_.index() == 1; }
-	explicit operator bool() const { return succeeded(); }
-	bool operator!() const { return failed(); }
+	[[nodiscard]] bool failed() const { return value_.index() == 1; }
+	[[nodiscard]] bool operator!() const { return failed(); }
+	[[nodiscard]] bool succeeded() const { return value_.index() == 0; }
+	[[nodiscard]] explicit operator bool() const { return succeeded(); }
 
-	const E &error() const {
+	[[nodiscard]] const E &error() const {
 		Q_ASSERT(failed());
 		return std::get<Unexpected<E>>(value_).error_;
 	}

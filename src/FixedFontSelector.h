@@ -31,7 +31,7 @@ public:
 	~FixedFontSelector() override = default;
 
 public:
-	QFont currentFont();
+	[[nodiscard]] QFont currentFont() const;
 
 public Q_SLOTS:
 	void setCurrentFont(const QFont &font);

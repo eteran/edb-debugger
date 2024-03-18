@@ -56,8 +56,8 @@ public:
 	[[nodiscard]] bool operator!=(const Register &rhs) const;
 
 public:
-	bool valid() const { return type_ != TYPE_INVALID; }
-	explicit operator bool() const { return valid(); }
+	[[nodiscard]] bool valid() const { return type_ != TYPE_INVALID; }
+	[[nodiscard]] explicit operator bool() const { return valid(); }
 
 	[[nodiscard]] Type type() const { return type_; }
 	[[nodiscard]] QString name() const { return name_; }
@@ -65,16 +65,16 @@ public:
 	[[nodiscard]] const char *rawData() const { return reinterpret_cast<const char *>(&value_); }
 
 	template <class T>
-	T value() const { return T(value_); }
+	[[nodiscard]] T value() const { return T(value_); }
 
 	// Return the value, zero-extended to address_t to be usable in address calculations
 	[[nodiscard]] edb::address_t valueAsAddress() const;
 
-	uint64_t valueAsInteger() const {
+	[[nodiscard]] uint64_t valueAsInteger() const {
 		return valueAsAddress().toUint();
 	}
 
-	int64_t valueAsSignedInteger() const {
+	[[nodiscard]] int64_t valueAsSignedInteger() const {
 		uint64_t result = valueAsInteger();
 		// If MSB is set, sign extend the result
 		if (result & (1ll << (bitSize_ - 1))) {

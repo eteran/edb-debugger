@@ -35,7 +35,7 @@ public:
 
 public:
 	explicit PEBinaryException(Reason reason);
-	const char *what() const noexcept override;
+	[[nodiscard]] const char *what() const noexcept override;
 
 private:
 	Reason reason_;
@@ -47,11 +47,11 @@ public:
 	~PE32() override = default;
 
 public:
-	bool native() const override;
-	edb::address_t entryPoint() override;
-	size_t headerSize() const override;
-	const void *header() const override;
-	std::vector<Header> headers() const override;
+	[[nodiscard]] bool native() const override;
+	[[nodiscard]] edb::address_t entryPoint() override;
+	[[nodiscard]] size_t headerSize() const override;
+	[[nodiscard]] const void *header() const override;
+	[[nodiscard]] std::vector<Header> headers() const override;
 
 private:
 	std::shared_ptr<IRegion> region_;
