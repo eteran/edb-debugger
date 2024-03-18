@@ -39,7 +39,7 @@ public:
 
 public:
 	[[nodiscard]] QMenu *menu(QWidget *parent = nullptr) override;
-	QList<QAction *> stackContextMenu() override;
+	[[nodiscard]] QList<QAction *> stackContextMenu() override;
 
 public Q_SLOTS:
 	void showMenu();

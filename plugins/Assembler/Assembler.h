@@ -39,7 +39,7 @@ public:
 
 public:
 	[[nodiscard]] QMenu *menu(QWidget *parent = nullptr) override;
-	QList<QAction *> cpuContextMenu() override;
+	[[nodiscard]] QList<QAction *> cpuContextMenu() override;
 	[[nodiscard]] QWidget *optionsPage() override;
 
 private:

@@ -49,9 +49,9 @@ protected:
 public:
 	[[nodiscard]] QMenu *menu(QWidget *parent = nullptr) override;
 	edb::EventStatus handleEvent(const std::shared_ptr<IDebugEvent> &event) override;
-	QList<QAction *> cpuContextMenu() override;
-	QList<QAction *> stackContextMenu() override;
-	QList<QAction *> dataContextMenu() override;
+	[[nodiscard]] QList<QAction *> cpuContextMenu() override;
+	[[nodiscard]] QList<QAction *> stackContextMenu() override;
+	[[nodiscard]] QList<QAction *> dataContextMenu() override;
 
 public Q_SLOTS:
 	void showMenu();
