@@ -53,18 +53,18 @@ public:
 	void swap(State &other);
 
 public:
-	QString flagsToString() const;
-	QString flagsToString(edb::reg_t flags) const;
-	Register value(const QString &reg) const;
-	Register instructionPointerRegister() const;
-	Register flagsRegister() const;
-	edb::address_t framePointer() const;
-	edb::address_t instructionPointer() const;
-	edb::address_t stackPointer() const;
-	edb::reg_t debugRegister(size_t n) const;
-	edb::reg_t flags() const;
-	Register gpRegister(size_t n) const;
-	Register archRegister(uint64_t type, size_t n) const;
+	[[nodiscard]] QString flagsToString() const;
+	[[nodiscard]] QString flagsToString(edb::reg_t flags) const;
+	[[nodiscard]] Register value(const QString &reg) const;
+	[[nodiscard]] Register instructionPointerRegister() const;
+	[[nodiscard]] Register flagsRegister() const;
+	[[nodiscard]] edb::address_t framePointer() const;
+	[[nodiscard]] edb::address_t instructionPointer() const;
+	[[nodiscard]] edb::address_t stackPointer() const;
+	[[nodiscard]] edb::reg_t debugRegister(size_t n) const;
+	[[nodiscard]] edb::reg_t flags() const;
+	[[nodiscard]] Register gpRegister(size_t n) const;
+	[[nodiscard]] Register archRegister(uint64_t type, size_t n) const;
 	void adjustStack(int bytes);
 	void clear();
 	bool empty() const;

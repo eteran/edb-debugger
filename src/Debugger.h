@@ -340,7 +340,7 @@ private:
 	std::shared_ptr<QHexView> stackView_;
 	std::shared_ptr<const IDebugEvent> lastEvent_;
 	std::unique_ptr<IBinary> binaryInfo_;
-	QPointer<QDialog> breakpointDialog_ = nullptr;
+	QPointer<QDialog> breakpointDialog_;
 
 private:
 	QAction *gotoAddressAction_;

@@ -33,7 +33,7 @@ Q_SIGNALS:
 
 public:
 	void setData(int index, const QVariant &data);
-	QVariant data(int index) const;
+	[[nodiscard]] QVariant data(int index) const;
 
 protected:
 	void mousePressEvent(QMouseEvent *event) override;

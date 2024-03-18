@@ -46,7 +46,7 @@ private:
 	void showDialog();
 
 private:
-	QPointer<QDialog> dialog_ = nullptr;
+	QPointer<QDialog> dialog_;
 };
 
 }

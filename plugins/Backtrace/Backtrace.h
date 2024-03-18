@@ -45,7 +45,7 @@ public Q_SLOTS:
 
 private:
 	QMenu *menu_              = nullptr;
-	QPointer<QDialog> dialog_ = nullptr;
+	QPointer<QDialog> dialog_;
 };
 
 }

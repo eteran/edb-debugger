@@ -91,7 +91,7 @@ private Q_SLOTS:
 
 private:
 	QMenu *menu_              = nullptr;
-	QPointer<QDialog> dialog_ = nullptr;
+	QPointer<QDialog> dialog_;
 
 	QLineEdit *addresses_[4] = {};
 	QCheckBox *enabled_[4]   = {};
