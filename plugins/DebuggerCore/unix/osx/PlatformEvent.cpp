@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include <cstdio>
 #include <cstring>
-#include <signal.h> // for the SIG* definitions
+#include <csignal> // for the SIG* definitions
 #include <sys/ptrace.h>
 #include <sys/types.h>
 #include <sys/wait.h>

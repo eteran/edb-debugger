@@ -40,11 +40,11 @@ public:
 	void setGPRValue(std::uint64_t gprValue);
 	void updateGPRValue(std::uint64_t &gpr) const;
 
-	QSize minimumSizeHint() const override {
+	[[nodiscard]] QSize minimumSizeHint() const override {
 		return sizeHint();
 	}
 
-	QSize sizeHint() const override;
+	[[nodiscard]] QSize sizeHint() const override;
 
 private:
 	void setupFormat(Format newFormat);

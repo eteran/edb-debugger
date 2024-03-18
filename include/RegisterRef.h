@@ -21,7 +21,7 @@ public:
 	RegisterRef &operator=(const RegisterRef &) = default;
 
 public:
-	const void *data() const { return ptr_; }
+	[[nodiscard]] const void *data() const { return ptr_; }
 
 public:
 	[[nodiscard]] bool operator==(const RegisterRef &rhs) const { return size_ == rhs.size_ && std::memcmp(ptr_, rhs.ptr_, size_) == 0; }

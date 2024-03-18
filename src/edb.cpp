@@ -472,13 +472,13 @@ bool eval_expression(const QString &expression, address_t *value) {
 	Expression<address_t> expr(expression, get_variable, get_value);
 
 	const Result<edb::address_t, ExpressionError> address = expr.evaluate();
-	if (address) {
-		*value = *address;
-		return true;
-	} else {
+	if (!address) {
 		QMessageBox::critical(debugger_ui, tr("Error In Expression!"), address.error().what());
 		return false;
 	}
+
+	*value = *address;
+	return true;
 }
 
 //------------------------------------------------------------------------------

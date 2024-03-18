@@ -36,10 +36,10 @@ public:
 		Launch
 	};
 
-	virtual MeansOfCapture lastMeansOfCapture() const = 0;
+	[[nodiscard]] virtual MeansOfCapture lastMeansOfCapture() const = 0;
 
 public:
-	BreakpointList backupBreakpoints() const override;
+	[[nodiscard]] BreakpointList backupBreakpoints() const override;
 	std::shared_ptr<IBreakpoint> addBreakpoint(edb::address_t address) override;
 	std::shared_ptr<IBreakpoint> findBreakpoint(edb::address_t address) override;
 	std::shared_ptr<IBreakpoint> findTriggeredBreakpoint(edb::address_t address) override;
@@ -47,7 +47,7 @@ public:
 	void removeBreakpoint(edb::address_t address) override;
 	void endDebugSession() override;
 
-	std::vector<IBreakpoint::BreakpointType> supportedBreakpointTypes() const override;
+	[[nodiscard]] std::vector<IBreakpoint::BreakpointType> supportedBreakpointTypes() const override;
 
 protected:
 	[[nodiscard]] bool attached() const;

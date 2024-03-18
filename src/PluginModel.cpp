@@ -41,9 +41,9 @@ QModelIndex PluginModel::index(int row, int column, const QModelIndex &parent) c
 
 	if (row >= 0) {
 		return createIndex(row, column, const_cast<Item *>(&items_[row]));
-	} else {
-		return createIndex(row, column);
 	}
+
+	return createIndex(row, column);
 }
 
 //------------------------------------------------------------------------------

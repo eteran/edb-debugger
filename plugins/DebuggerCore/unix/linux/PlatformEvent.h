@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugEvent.h"
 
 #include <QCoreApplication>
-#include <signal.h> // for the SIG* definitions
+#include <csignal> // for the SIG* definitions
 
 namespace DebuggerCorePlugin {
 

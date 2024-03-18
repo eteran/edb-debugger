@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <kvm.h>
 #include <machine/reg.h>
 #include <paths.h>
-#include <signal.h>
+#include <csignal>
 #include <sys/exec.h>
 #include <sys/lock.h>
 #include <sys/mman.h>

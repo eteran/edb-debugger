@@ -44,8 +44,8 @@ private:
 private:
 	void detectPointers();
 	void processPotentialPointers(const QHash<edb::address_t, edb::address_t> &targets, const QModelIndex &index);
-	edb::address_t findHeapStartHeuristic(edb::address_t end_address, size_t offset) const;
-	QMap<edb::address_t, const ResultViewModel::Result *> createResultMap() const;
+	[[nodiscard]] edb::address_t findHeapStartHeuristic(edb::address_t end_address, size_t offset) const;
+	[[nodiscard]] QMap<edb::address_t, const ResultViewModel::Result *> createResultMap() const;
 
 private:
 	template <class Addr>

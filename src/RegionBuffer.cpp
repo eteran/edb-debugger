@@ -25,8 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: RegionBuffer
 // Desc:
 //------------------------------------------------------------------------------
-RegionBuffer::RegionBuffer(const std::shared_ptr<IRegion> &region)
-	: QIODevice(), region_(region) {
+RegionBuffer::RegionBuffer(std::shared_ptr<IRegion> region)
+	: region_(std::move(region)) {
 
 	setOpenMode(QIODevice::ReadOnly);
 }
@@ -35,8 +35,8 @@ RegionBuffer::RegionBuffer(const std::shared_ptr<IRegion> &region)
 // Name: RegionBuffer
 // Desc:
 //------------------------------------------------------------------------------
-RegionBuffer::RegionBuffer(const std::shared_ptr<IRegion> &region, QObject *parent)
-	: QIODevice(parent), region_(region) {
+RegionBuffer::RegionBuffer(std::shared_ptr<IRegion> region, QObject *parent)
+	: QIODevice(parent), region_(std::move(region)) {
 
 	setOpenMode(QIODevice::ReadOnly);
 }
@@ -45,8 +45,8 @@ RegionBuffer::RegionBuffer(const std::shared_ptr<IRegion> &region, QObject *pare
 // Name: set_region
 // Desc:
 //------------------------------------------------------------------------------
-void RegionBuffer::setRegion(const std::shared_ptr<IRegion> &region) {
-	region_ = region;
+void RegionBuffer::setRegion(std::shared_ptr<IRegion> region) {
+	region_ = std::move(region);
 	reset();
 }
 
@@ -71,9 +71,9 @@ qint64 RegionBuffer::readData(char *data, qint64 maxSize) {
 
 			if (process->readBytes(start, data, maxSize)) {
 				return maxSize;
-			} else {
-				return -1;
 			}
+
+			return -1;
 		}
 	}
 

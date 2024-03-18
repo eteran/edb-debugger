@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <mach/vm_region.h>
 #include <mach/vm_statistics.h>
 #include <paths.h>
-#include <signal.h>
+#include <csignal>
 #include <sys/mman.h>
 #include <sys/param.h>
 #include <sys/proc.h>

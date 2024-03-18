@@ -54,17 +54,17 @@ public:
 	~Breakpoint() override;
 
 public:
-	edb::address_t address() const override { return address_; }
-	uint64_t hitCount() const override { return hitCount_; }
-	bool enabled() const override { return enabled_; }
-	bool oneTime() const override { return oneTime_; }
-	bool internal() const override { return internal_; }
-	size_t size() const override { return originalBytes_.size(); }
-	const uint8_t *originalBytes() const override { return &originalBytes_[0]; }
-	IBreakpoint::TypeId type() const override { return type_; }
+	[[nodiscard]] edb::address_t address() const override { return address_; }
+	[[nodiscard]] uint64_t hitCount() const override { return hitCount_; }
+	[[nodiscard]] bool enabled() const override { return enabled_; }
+	[[nodiscard]] bool oneTime() const override { return oneTime_; }
+	[[nodiscard]] bool internal() const override { return internal_; }
+	[[nodiscard]] size_t size() const override { return originalBytes_.size(); }
+	[[nodiscard]] const uint8_t *originalBytes() const override { return &originalBytes_[0]; }
+	[[nodiscard]] IBreakpoint::TypeId type() const override { return type_; }
 
-	static std::vector<BreakpointType> supportedTypes();
-	static std::vector<size_t> possibleRewindSizes();
+	[[nodiscard]] static std::vector<BreakpointType> supportedTypes();
+	[[nodiscard]] static std::vector<size_t> possibleRewindSizes();
 
 public:
 	bool enable() override;

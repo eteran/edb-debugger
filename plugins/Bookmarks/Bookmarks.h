@@ -43,7 +43,7 @@ public:
 	[[nodiscard]] QList<QAction *> cpuContextMenu() override;
 
 public:
-	QVariantMap saveState() const override;
+	[[nodiscard]] QVariantMap saveState() const override;
 	void restoreState(const QVariantMap &) override;
 
 private:

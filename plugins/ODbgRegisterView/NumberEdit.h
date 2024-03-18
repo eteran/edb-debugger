@@ -34,8 +34,8 @@ public:
 	void setNaturalWidthInChars(int nChars);
 
 public:
-	QSize minimumSizeHint() const override;
-	QSize sizeHint() const override;
+	[[nodiscard]] QSize minimumSizeHint() const override;
+	[[nodiscard]] QSize sizeHint() const override;
 
 private:
 	int naturalWidthInChars_ = 17; // default roughly as in QLineEdit

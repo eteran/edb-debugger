@@ -31,7 +31,7 @@ public:
 	void setValue(edb::value80 input);
 
 public:
-	QSize sizeHint() const override;
+	[[nodiscard]] QSize sizeHint() const override;
 
 protected:
 	void focusOutEvent(QFocusEvent *e) override;

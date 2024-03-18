@@ -168,9 +168,9 @@ std::string printReg(csh csh, int reg, bool canBeZero = false) {
 
 	if (const auto regName = cs_reg_name(csh, reg)) {
 		return uppercase(regName);
-	} else {
-		return toHex(reg);
 	}
+
+	return toHex(reg);
 }
 
 #if 0

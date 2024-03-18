@@ -110,9 +110,9 @@ QModelIndex ResultsModel::index(int row, int column, const QModelIndex &parent) 
 
 	if (row >= 0) {
 		return createIndex(row, column, const_cast<Result *>(&results_[row]));
-	} else {
-		return createIndex(row, column);
 	}
+
+	return createIndex(row, column);
 }
 
 /**

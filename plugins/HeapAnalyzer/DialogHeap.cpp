@@ -67,8 +67,8 @@ struct malloc_chunk {
 	MallocChunkPtr fd; /* double links -- used only if free. */
 	MallocChunkPtr bk;
 
-	edb::address_t chunkSize() const { return edb::address_t::fromZeroExtended(size & ~(SizeBits)); }
-	bool prevInUse() const { return size & PreviousInUse; }
+	[[nodiscard]] edb::address_t chunkSize() const { return edb::address_t::fromZeroExtended(size & ~(SizeBits)); }
+	[[nodiscard]] bool prevInUse() const { return size & PreviousInUse; }
 };
 
 template <class Addr>
@@ -211,7 +211,7 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f)
 			while (!result_stack.isEmpty()) {
 				const ResultViewModel::Result *const result = result_stack.pop();
 
-				GraphNode *node = new GraphNode(graph, edb::v1::format_pointer(result->address), result->type == ResultViewModel::Result::Busy ? Qt::lightGray : Qt::red);
+				auto node = new GraphNode(graph, edb::v1::format_pointer(result->address), result->type == ResultViewModel::Result::Busy ? Qt::lightGray : Qt::red);
 
 				nodes.insert(result->address, node);
 
@@ -422,9 +422,9 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 
 						if (memcmp(bytes, "\x89\x50\x4e\x47", 4) == 0) {
 							data_type = ResultViewModel::Result::Png;
-						} else if (memcmp(bytes, "\x2f\x2a\x20\x58\x50\x4d\x20\x2a\x2f", 9) == 0) {
+						} else if (memcmp(bytes, R"(/* XPM */)", 9) == 0) {
 							data_type = ResultViewModel::Result::Xpm;
-						} else if (memcmp(bytes, "\x42\x5a", 2) == 0) {
+						} else if (memcmp(bytes, R"(BZ)", 2) == 0) {
 							data_type = ResultViewModel::Result::Bzip;
 						} else if (memcmp(bytes, "\x1f\x9d", 2) == 0) {
 							data_type = ResultViewModel::Result::Compress;

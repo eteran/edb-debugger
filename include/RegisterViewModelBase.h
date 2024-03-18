@@ -495,7 +495,7 @@ private:
 class SIMDCategory final : public Category {
 public:
 	SIMDCategory(const QString &name, int row, const std::vector<NumberDisplayMode> &validFormats);
-	~SIMDCategory();
+	~SIMDCategory() override;
 
 public:
 	[[nodiscard]] virtual Model::ElementSize chosenSize() const;
@@ -504,7 +504,7 @@ public:
 	virtual void setChosenFormat(NumberDisplayMode newFormat);
 
 public:
-	const std::vector<NumberDisplayMode> &validFormats() const;
+	[[nodiscard]] const std::vector<NumberDisplayMode> &validFormats() const;
 
 private:
 	bool sizeChanged_   = false;
@@ -520,7 +520,7 @@ public:
 	~FPUCategory() override;
 
 public:
-	NumberDisplayMode chosenFormat() const;
+	[[nodiscard]] NumberDisplayMode chosenFormat() const;
 	void setChosenFormat(NumberDisplayMode newFormat);
 
 private:

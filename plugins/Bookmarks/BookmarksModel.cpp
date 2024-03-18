@@ -130,9 +130,9 @@ QModelIndex BookmarksModel::index(int row, int column, const QModelIndex &parent
 
 	if (row >= 0) {
 		return createIndex(row, column, const_cast<Bookmark *>(&bookmarks_[row]));
-	} else {
-		return createIndex(row, column);
 	}
+
+	return createIndex(row, column);
 }
 
 /**

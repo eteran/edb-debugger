@@ -63,7 +63,7 @@ ExpressionDialog::ExpressionDialog(const QString &title, const QString &prompt, 
 
 	allLabels.append(edb::v1::symbol_manager().labels().values());
 
-	QCompleter *completer = new QCompleter(allLabels, this);
+	auto completer = new QCompleter(allLabels, this);
 	expression_->setCompleter(completer);
 	allLabels.clear();
 }

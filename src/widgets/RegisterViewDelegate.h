@@ -34,7 +34,7 @@ public:
 
 public:
 	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-	QSize sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const override;
+	[[nodiscard]] QSize sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const override;
 
 private:
 	QTreeView *view_;

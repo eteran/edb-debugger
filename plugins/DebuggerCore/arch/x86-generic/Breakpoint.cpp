@@ -103,7 +103,7 @@ void Breakpoint::setType(IBreakpoint::TypeId type) {
  * @brief Breakpoint::~Breakpoint
  */
 Breakpoint::~Breakpoint() {
-	this->disable();
+	disable();
 }
 
 /**

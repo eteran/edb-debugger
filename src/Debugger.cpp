@@ -91,7 +91,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <random>
 
 #if defined(Q_OS_UNIX)
-#include <signal.h>
+#include <csignal>
 #endif
 
 #include <sys/stat.h>

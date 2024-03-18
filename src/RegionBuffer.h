@@ -20,9 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define REGION_BUFFER_H_20101111_
 
 #include "IRegion.h"
-
 #include <QIODevice>
-
 #include <memory>
 
 class IRegion;
@@ -30,17 +28,17 @@ class IRegion;
 class RegionBuffer final : public QIODevice {
 	Q_OBJECT
 public:
-	explicit RegionBuffer(const std::shared_ptr<IRegion> &region);
-	RegionBuffer(const std::shared_ptr<IRegion> &region, QObject *parent);
+	explicit RegionBuffer(std::shared_ptr<IRegion> region);
+	RegionBuffer(std::shared_ptr<IRegion> region, QObject *parent);
 
 public:
-	void setRegion(const std::shared_ptr<IRegion> &region);
+	void setRegion(std::shared_ptr<IRegion> region);
 
 public:
 	qint64 readData(char *data, qint64 maxSize) override;
 	qint64 writeData(const char *, qint64) override;
-	qint64 size() const override { return region_ ? region_->size() : 0; }
-	bool isSequential() const override { return false; }
+	[[nodiscard]] qint64 size() const override { return region_ ? region_->size() : 0; }
+	[[nodiscard]] bool isSequential() const override { return false; }
 
 private:
 	std::shared_ptr<IRegion> region_;

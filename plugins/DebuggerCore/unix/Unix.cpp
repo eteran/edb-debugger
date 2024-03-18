@@ -1,7 +1,7 @@
 
 #include "Unix.h"
 #include <cstring>
-#include <signal.h>
+#include <csignal>
 #include <unistd.h>
 
 namespace DebuggerCorePlugin {
