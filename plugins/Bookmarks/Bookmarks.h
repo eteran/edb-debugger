@@ -39,7 +39,7 @@ public:
 	explicit Bookmarks(QObject *parent = nullptr);
 
 public:
-	QMenu *menu(QWidget *parent = nullptr) override;
+	[[nodiscard]] QMenu *menu(QWidget *parent = nullptr) override;
 	QList<QAction *> cpuContextMenu() override;
 
 public:

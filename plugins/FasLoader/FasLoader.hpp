@@ -19,7 +19,7 @@ public:
 	~FasLoader() override = default;
 
 public:
-	QMenu *menu(QWidget *parent = nullptr) override;
+	[[nodiscard]] QMenu *menu(QWidget *parent = nullptr) override;
 
 private Q_SLOTS:
 	void load();

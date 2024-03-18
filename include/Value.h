@@ -421,7 +421,7 @@ public:
 	}
 
 public:
-	value_type signExtended(size_t valueLength) const {
+	[[nodiscard]] value_type signExtended(size_t valueLength) const {
 		value_type result(value_);
 
 		if (valueLength == sizeof(value_)) {

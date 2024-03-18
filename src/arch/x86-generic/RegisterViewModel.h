@@ -59,7 +59,7 @@ public:
 	};
 
 	explicit RegisterViewModel(int CPUFeaturesPresent, QObject *parent = nullptr);
-	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+	[[nodiscard]] QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 	void setCpuMode(CpuMode mode);
 
 	// NOTE: all these functions only change data, they don't emit dataChanged!
@@ -105,8 +105,10 @@ private:
 	void show32BitModeCategories();
 	void hideGenericCategories();
 	void showGenericCategories();
-	std::tuple<RegisterViewModelBase::Category * /*sse*/, RegisterViewModelBase::Category * /*avx*/, unsigned /*maxRegs*/> getSSEparams() const;
-	RegisterViewModelBase::FPUCategory *getFPUcat() const;
+	[[nodiscard]] std::tuple<RegisterViewModelBase::Category * /*sse*/, RegisterViewModelBase::Category * /*avx*/, unsigned /*maxRegs*/> getSSEparams() const;
+	[[nodiscard]] RegisterViewModelBase::FPUCategory *getFPUcat() const;
+
+private:
 	CpuMode mode = static_cast<CpuMode>(-1); // TODO(eteran): why not CpuMode::UNKNOWN?
 };
 

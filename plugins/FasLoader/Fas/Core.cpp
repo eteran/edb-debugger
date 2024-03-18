@@ -158,7 +158,7 @@ void Core::loadSymbols() {
 
 void Core::checkAbsoluteValue(const Fas::Symbol &fasSymbol) {
 	if (fasSymbol.typeOfValue != ValueTypes::ABSOLUTE_VALUE) {
-		throw Exception(" Support only absolute value");
+		throw Exception("Support only absolute value");
 	}
 }
 
@@ -191,8 +191,15 @@ std::string Core::cstr2string(const Symbol &fasSymbol) {
 	char *c = cstr;
 	while (true) {
 		ifs_.read(c, 1);
-		if (count >= (MaxLength - 1)) break;
-		if (*c == 0) break;
+
+		if (count >= (MaxLength - 1)) {
+			break;
+		}
+
+		if (*c == 0) {
+			break;
+		}
+
 		++c;
 		++count;
 	}

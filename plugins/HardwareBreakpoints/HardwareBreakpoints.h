@@ -47,7 +47,7 @@ protected:
 	void privateFini() override;
 
 public:
-	QMenu *menu(QWidget *parent = nullptr) override;
+	[[nodiscard]] QMenu *menu(QWidget *parent = nullptr) override;
 	edb::EventStatus handleEvent(const std::shared_ptr<IDebugEvent> &event) override;
 	QList<QAction *> cpuContextMenu() override;
 	QList<QAction *> stackContextMenu() override;

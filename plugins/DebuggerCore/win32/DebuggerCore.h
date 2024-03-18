@@ -93,7 +93,7 @@ public:
 	}
 
 public:
-	std::unique_ptr<IState> createState() const override;
+	[[nodiscard]] std::unique_ptr<IState> createState() const override;
 
 private:
 	QMap<edb::pid_t, std::shared_ptr<IProcess>> enumerateProcesses() const override;

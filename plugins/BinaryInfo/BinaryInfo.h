@@ -39,11 +39,11 @@ public:
 
 private:
 	void privateInit() override;
-	QWidget *optionsPage() override;
+	[[nodiscard]] QWidget *optionsPage() override;
 
 public:
-	QMenu *menu(QWidget *parent = nullptr) override;
-	QString extraArguments() const override;
+	[[nodiscard]] QMenu *menu(QWidget *parent = nullptr) override;
+	[[nodiscard]] QString extraArguments() const override;
 	ArgumentStatus parseArguments(QStringList &args) override;
 
 public:

@@ -38,7 +38,7 @@ public:
 	~References() override;
 
 public:
-	QMenu *menu(QWidget *parent = nullptr) override;
+	[[nodiscard]] QMenu *menu(QWidget *parent = nullptr) override;
 
 public Q_SLOTS:
 	void showMenu();

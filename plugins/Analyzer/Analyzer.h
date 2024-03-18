@@ -52,12 +52,12 @@ public:
 	explicit Analyzer(QObject *parent = nullptr);
 
 public:
-	QMenu *menu(QWidget *parent = nullptr) override;
+	[[nodiscard]] QMenu *menu(QWidget *parent = nullptr) override;
 	QList<QAction *> cpuContextMenu() override;
 
 private:
 	void privateInit() override;
-	QWidget *optionsPage() override;
+	[[nodiscard]] QWidget *optionsPage() override;
 
 public:
 	AddressCategory category(edb::address_t address) const override;

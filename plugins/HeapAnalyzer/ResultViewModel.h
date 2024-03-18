@@ -62,12 +62,12 @@ public:
 	explicit ResultViewModel(QObject *parent = nullptr);
 
 public:
-	QVariant data(const QModelIndex &index, int role) const override;
-	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-	QModelIndex parent(const QModelIndex &index) const override;
-	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+	[[nodiscard]] QVariant data(const QModelIndex &index, int role) const override;
+	[[nodiscard]] QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+	[[nodiscard]] QModelIndex parent(const QModelIndex &index) const override;
+	[[nodiscard]] int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+	[[nodiscard]] int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+	[[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
 public:
 	void addResult(const Result &r);
@@ -75,7 +75,7 @@ public:
 	void setPointerData(const QModelIndex &index, const std::vector<edb::address_t> &pointers);
 
 public:
-	const QVector<Result> &results() const { return results_; }
+	[[nodiscard]] const QVector<Result> &results() const { return results_; }
 
 private:
 	QVector<Result> results_;

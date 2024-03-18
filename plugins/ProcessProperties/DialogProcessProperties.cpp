@@ -79,13 +79,17 @@ QString size_to_string(size_t n) {
 
 	if (n < KiB) {
 		return QString::number(n);
-	} else if (n < MiB) {
-		return QString::number(n / KiB) + tr(" KiB");
-	} else if (n < GiB) {
-		return QString::number(n / MiB) + tr(" MiB");
-	} else {
-		return QString::number(n / GiB) + tr(" GiB");
 	}
+
+	if (n < MiB) {
+		return QString::number(n / KiB) + tr(" KiB");
+	}
+
+	if (n < GiB) {
+		return QString::number(n / MiB) + tr(" MiB");
+	}
+
+	return QString::number(n / GiB) + tr(" GiB");
 }
 
 #if defined(Q_OS_LINUX)

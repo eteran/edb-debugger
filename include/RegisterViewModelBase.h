@@ -136,7 +136,7 @@ public:
 
 public:
 	void setActiveIndex(const QModelIndex &newActiveIndex);
-	QModelIndex activeIndex() const;
+	[[nodiscard]] QModelIndex activeIndex() const;
 
 public:
 	void setChosenSIMDSize(const QModelIndex &index, ElementSize newSize);
@@ -223,7 +223,7 @@ public:
 	}
 
 public:
-	virtual QByteArray rawValue() const = 0;
+	[[nodiscard]] virtual QByteArray rawValue() const = 0;
 };
 
 class AbstractRegisterItem : public RegisterViewItem {
@@ -255,7 +255,7 @@ protected:
 	bool prevValueKnown_ = false;
 
 protected:
-	virtual QString valueString() const;
+	[[nodiscard]] virtual QString valueString() const;
 
 public:
 	RegisterItem(const QString &name);
@@ -431,7 +431,7 @@ class SIMDRegister final : public SimpleRegister<StoredType> {
 protected:
 	std::deque<SIMDSizedElementsContainer<StoredType>> sizedElementContainers;
 
-	SIMDCategory *category() const;
+	[[nodiscard]] SIMDCategory *category() const;
 
 public:
 	SIMDRegister(const QString &name, const std::vector<NumberDisplayMode> &validFormats);
@@ -461,10 +461,10 @@ public:
 	void update(const FloatType &newValue, const QString &newComment) override;
 
 protected:
-	FPUCategory *category() const;
+	[[nodiscard]] FPUCategory *category() const;
 
 private:
-	FloatType value() const;
+	[[nodiscard]] FloatType value() const;
 
 protected:
 	std::vector<SIMDFormatItem<FloatType, FloatType>> formats;
@@ -517,7 +517,7 @@ private:
 class FPUCategory final : public Category {
 public:
 	FPUCategory(const QString &name, int row);
-	~FPUCategory();
+	~FPUCategory() override;
 
 public:
 	NumberDisplayMode chosenFormat() const;

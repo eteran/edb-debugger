@@ -492,7 +492,10 @@ void RegisterViewModel::updateFSR(edb::value16 value, const QString &comment) {
 }
 
 void invalidate(RegisterViewModelBase::Category *cat, int row, const char *nameToCheck) {
-	if (!cat) return;
+	if (!cat) {
+		return;
+	}
+
 	Q_ASSERT(row < cat->childCount());
 	const auto reg = cat->getRegister(row);
 	Q_ASSERT(!nameToCheck || reg->name() == nameToCheck);
@@ -542,17 +545,19 @@ void RegisterViewModel::updateFDS(edb::value16 value, const QString &comment) {
 
 void RegisterViewModel::updateDR(std::size_t i, edb::value32 value, const QString &comment) {
 	Q_ASSERT(i < DBG_REG_COUNT);
-	if (i < 4)
+	if (i < 4) {
 		updateRegister<EIP>(dbgRegs32, i, value, comment);
-	else if (i >= 6)
+	} else if (i >= 6) {
 		updateRegister<EFLAGS>(dbgRegs32, i - 2, value, comment);
+	}
 }
 void RegisterViewModel::updateDR(std::size_t i, edb::value64 value, const QString &comment) {
 	Q_ASSERT(i < DBG_REG_COUNT);
-	if (i < 4)
+	if (i < 4) {
 		updateRegister<RIP>(dbgRegs64, i, value, comment);
-	else if (i >= 6)
+	} else if (i >= 6) {
 		updateRegister<RFLAGS>(dbgRegs64, i - 2, value, comment);
+	}
 }
 
 void RegisterViewModel::updateMMXReg(std::size_t i, edb::value64 value, const QString &comment) {
@@ -598,17 +603,25 @@ void RegisterViewModel::updateSSEReg(std::size_t i, edb::value128 value, const Q
 	if (!sseCat->childCount()) return;
 	updateRegister<SSEReg>(sseCat, static_cast<int>(i), value, comment);
 	// To avoid showing stale data in case this is called when AVX state is supported
-	if (avxCat->childCount()) invalidate(avxCat, i);
+	if (avxCat->childCount()) {
+		invalidate(avxCat, i);
+	}
 }
 void RegisterViewModel::invalidateSSEReg(std::size_t i) {
 	RegisterViewModelBase::Category *sseCat, *avxCat;
 	std::size_t sseRegMax;
 	std::tie(sseCat, avxCat, sseRegMax) = getSSEparams();
+
 	Q_ASSERT(i < sseRegMax);
-	if (!sseCat->childCount()) return;
+	if (!sseCat->childCount()) {
+		return;
+	}
+
 	invalidate(sseCat, i);
 	// To avoid showing stale data in case this is called when AVX state is supported
-	if (avxCat->childCount()) invalidate(avxCat, i);
+	if (avxCat->childCount()) {
+		invalidate(avxCat, i);
+	}
 }
 
 void RegisterViewModel::updateAVXReg(std::size_t i, edb::value256 value, const QString &comment) {
@@ -640,16 +653,18 @@ void RegisterViewModel::updateMXCSR(edb::value32 value, const QString &comment) 
 	std::size_t avxRegMax;
 	std::tie(sseCat, avxCat, avxRegMax) = getSSEparams();
 	updateRegister<MXCSR>(sseCat, sseCat->childCount() - 1, value, comment, "MXCSR");
-	if (avxCat->childCount())
+	if (avxCat->childCount()) {
 		updateRegister<MXCSR>(avxCat, avxCat->childCount() - 1, value, comment, "MXCSR");
+	}
 }
 void RegisterViewModel::invalidateMXCSR() {
 	RegisterViewModelBase::Category *sseCat, *avxCat;
 	std::size_t avxRegMax;
 	std::tie(sseCat, avxCat, avxRegMax) = getSSEparams();
 	invalidate(sseCat, sseCat->childCount() - 1, "MXCSR");
-	if (avxCat->childCount())
+	if (avxCat->childCount()) {
 		invalidate(avxCat, avxCat->childCount() - 1, "MXCSR");
+	}
 }
 
 void RegisterViewModel::hide64BitModeCategories() {
@@ -657,8 +672,14 @@ void RegisterViewModel::hide64BitModeCategories() {
 	genStatusRegs64->hide();
 	fpuRegs64->hide();
 	dbgRegs64->hide();
-	if (sseRegs64->childCount()) sseRegs64->hide();
-	if (avxRegs64->childCount()) avxRegs64->hide();
+
+	if (sseRegs64->childCount()) {
+		sseRegs64->hide();
+	}
+
+	if (avxRegs64->childCount()) {
+		avxRegs64->hide();
+	}
 }
 
 void RegisterViewModel::hide32BitModeCategories() {
@@ -666,8 +687,14 @@ void RegisterViewModel::hide32BitModeCategories() {
 	genStatusRegs32->hide();
 	fpuRegs32->hide();
 	dbgRegs32->hide();
-	if (sseRegs32->childCount()) sseRegs32->hide();
-	if (avxRegs32->childCount()) avxRegs32->hide();
+
+	if (sseRegs32->childCount()) {
+		sseRegs32->hide();
+	}
+
+	if (avxRegs32->childCount()) {
+		avxRegs32->hide();
+	}
 }
 
 void RegisterViewModel::show64BitModeCategories() {
@@ -675,8 +702,14 @@ void RegisterViewModel::show64BitModeCategories() {
 	genStatusRegs64->show();
 	fpuRegs64->show();
 	dbgRegs64->show();
-	if (sseRegs64->childCount()) sseRegs64->show();
-	if (avxRegs64->childCount()) avxRegs64->show();
+
+	if (sseRegs64->childCount()) {
+		sseRegs64->show();
+	}
+
+	if (avxRegs64->childCount()) {
+		avxRegs64->show();
+	}
 }
 
 void RegisterViewModel::show32BitModeCategories() {
@@ -684,8 +717,14 @@ void RegisterViewModel::show32BitModeCategories() {
 	genStatusRegs32->show();
 	fpuRegs32->show();
 	dbgRegs32->show();
-	if (sseRegs32->childCount()) sseRegs32->show();
-	if (avxRegs32->childCount()) avxRegs32->show();
+
+	if (sseRegs32->childCount()) {
+		sseRegs32->show();
+	}
+
+	if (avxRegs32->childCount()) {
+		avxRegs32->show();
+	}
 }
 
 void RegisterViewModel::hideGenericCategories() {
@@ -695,7 +734,9 @@ void RegisterViewModel::hideGenericCategories() {
 
 void RegisterViewModel::showGenericCategories() {
 	segRegs->show();
-	if (mmxRegs->childCount()) mmxRegs->show();
+	if (mmxRegs->childCount()) {
+		mmxRegs->show();
+	}
 }
 
 void RegisterViewModel::setCpuMode(CpuMode newMode) {

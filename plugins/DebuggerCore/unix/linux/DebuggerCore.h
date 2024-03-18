@@ -70,7 +70,7 @@ public:
 	edb::pid_t parentPid(edb::pid_t pid) const override;
 
 public:
-	std::unique_ptr<IState> createState() const override;
+	[[nodiscard]] std::unique_ptr<IState> createState() const override;
 
 public:
 	uint64_t cpuType() const override;

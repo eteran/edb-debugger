@@ -60,57 +60,57 @@ public:
 
 public:
 	// system properties
-	virtual std::size_t pageSize() const                  = 0;
-	virtual std::size_t pointerSize() const               = 0;
-	virtual uint64_t cpuType() const                      = 0;
-	virtual CpuMode cpuMode() const                       = 0;
-	virtual bool hasExtension(uint64_t ext) const         = 0;
-	virtual QMap<qlonglong, QString> exceptions() const   = 0;
-	virtual QString exceptionName(qlonglong value)        = 0;
-	virtual qlonglong exceptionValue(const QString &name) = 0;
-	virtual uint8_t nopFillByte() const                   = 0;
+	[[nodiscard]] virtual std::size_t pageSize() const                  = 0;
+	[[nodiscard]] virtual std::size_t pointerSize() const               = 0;
+	[[nodiscard]] virtual uint64_t cpuType() const                      = 0;
+	[[nodiscard]] virtual CpuMode cpuMode() const                       = 0;
+	[[nodiscard]] virtual bool hasExtension(uint64_t ext) const         = 0;
+	[[nodiscard]] virtual QMap<qlonglong, QString> exceptions() const   = 0;
+	[[nodiscard]] virtual QString exceptionName(qlonglong value)        = 0;
+	[[nodiscard]] virtual qlonglong exceptionValue(const QString &name) = 0;
+	[[nodiscard]] virtual uint8_t nopFillByte() const                   = 0;
 
 public:
 	// important register names
-	virtual QString stackPointer() const       = 0;
-	virtual QString framePointer() const       = 0;
-	virtual QString instructionPointer() const = 0;
-	virtual QString flagRegister() const       = 0;
+	[[nodiscard]] virtual QString stackPointer() const       = 0;
+	[[nodiscard]] virtual QString framePointer() const       = 0;
+	[[nodiscard]] virtual QString instructionPointer() const = 0;
+	[[nodiscard]] virtual QString flagRegister() const       = 0;
 
 public:
 	// general process data
-	virtual edb::pid_t parentPid(edb::pid_t pid) const                             = 0;
-	virtual QMap<edb::pid_t, std::shared_ptr<IProcess>> enumerateProcesses() const = 0;
+	[[nodiscard]] virtual edb::pid_t parentPid(edb::pid_t pid) const                             = 0;
+	[[nodiscard]] virtual QMap<edb::pid_t, std::shared_ptr<IProcess>> enumerateProcesses() const = 0;
 
 public:
 	// basic process management
+	[[nodiscard]] virtual std::shared_ptr<IDebugEvent> waitDebugEvent(std::chrono::milliseconds msecs)                                                     = 0;
 	virtual Status attach(edb::pid_t pid)                                                                                                    = 0;
-	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &input, const QString &output) = 0;
-	virtual std::shared_ptr<IDebugEvent> waitDebugEvent(std::chrono::milliseconds msecs)                                                     = 0;
 	virtual Status detach()                                                                                                                  = 0;
-	virtual void kill()                                                                                                                      = 0;
+	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &input, const QString &output) = 0;
 	virtual void endDebugSession()                                                                                                           = 0;
+	virtual void kill()                                                                                                                      = 0;
 
 public:
-	// basic breakpoint managment
+	// basic breakpoint management
 	// TODO(eteran): these should be logically moved to IProcess
-	virtual BreakpointList backupBreakpoints() const                                     = 0;
-	virtual std::shared_ptr<IBreakpoint> addBreakpoint(edb::address_t address)           = 0;
-	virtual std::shared_ptr<IBreakpoint> findBreakpoint(edb::address_t address)          = 0;
-	virtual std::shared_ptr<IBreakpoint> findTriggeredBreakpoint(edb::address_t address) = 0;
-	virtual void clearBreakpoints()                                                      = 0;
-	virtual void removeBreakpoint(edb::address_t address)                                = 0;
-	virtual std::vector<IBreakpoint::BreakpointType> supportedBreakpointTypes() const    = 0;
+	[[nodiscard]] virtual BreakpointList backupBreakpoints() const                                  = 0;
+	[[nodiscard]] virtual std::vector<IBreakpoint::BreakpointType> supportedBreakpointTypes() const = 0;
+	virtual std::shared_ptr<IBreakpoint> addBreakpoint(edb::address_t address)                      = 0;
+	virtual std::shared_ptr<IBreakpoint> findBreakpoint(edb::address_t address)                     = 0;
+	virtual std::shared_ptr<IBreakpoint> findTriggeredBreakpoint(edb::address_t address)            = 0;
+	virtual void clearBreakpoints()                                                                 = 0;
+	virtual void removeBreakpoint(edb::address_t address)                                           = 0;
 
 public:
 	virtual void setIgnoredExceptions(const QList<qlonglong> &exceptions) = 0;
 
 public:
-	virtual std::unique_ptr<IState> createState() const = 0;
+	[[nodiscard]] virtual std::unique_ptr<IState> createState() const = 0;
 
 public:
 	// nullptr if not attached
-	virtual IProcess *process() const = 0;
+	[[nodiscard]] virtual IProcess *process() const = 0;
 };
 
 Q_DECLARE_INTERFACE(IDebugger, "edb.IDebugger/1.0")

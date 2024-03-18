@@ -81,7 +81,7 @@ void DialogStrings::doFind() {
 
 	QString str;
 
-	if (sel.size() == 0) {
+	if (sel.empty()) {
 		QMessageBox::critical(
 			this,
 			tr("No Region Selected"),

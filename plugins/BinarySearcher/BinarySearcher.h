@@ -38,7 +38,7 @@ public:
 	~BinarySearcher() override = default;
 
 public:
-	QMenu *menu(QWidget *parent = nullptr) override;
+	[[nodiscard]] QMenu *menu(QWidget *parent = nullptr) override;
 	QList<QAction *> stackContextMenu() override;
 
 public Q_SLOTS:

@@ -32,8 +32,7 @@ BreakpointManager::BreakpointManager(QObject *parent)
 /**
  * @brief BreakpointManager::~BreakpointManager
  */
-BreakpointManager::~BreakpointManager() {
-}
+BreakpointManager::~BreakpointManager() = default;
 
 /**
  * @brief BreakpointManager::menu

@@ -822,7 +822,7 @@ void DialogOpcodes::doFind() {
 	const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 	const QModelIndexList sel                 = selModel->selectedRows();
 
-	if (sel.size() == 0) {
+	if (sel.empty()) {
 		QMessageBox::critical(
 			this,
 			tr("No Region Selected"),

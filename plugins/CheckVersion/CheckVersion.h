@@ -40,8 +40,8 @@ public:
 	~CheckVersion() override = default;
 
 public:
-	QMenu *menu(QWidget *parent = nullptr) override;
-	QWidget *optionsPage() override;
+	[[nodiscard]] QMenu *menu(QWidget *parent = nullptr) override;
+	[[nodiscard]] QWidget *optionsPage() override;
 
 public Q_SLOTS:
 	void showMenu();

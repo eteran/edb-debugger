@@ -66,7 +66,7 @@ class Plugin : public QObject, public IPlugin {
 
 public:
 	explicit Plugin(QObject *parent = nullptr);
-	QMenu *menu(QWidget *parent = nullptr) override;
+	[[nodiscard]] QMenu *menu(QWidget *parent = nullptr) override;
 	QList<QAction *> cpuContextMenu() override;
 
 private:

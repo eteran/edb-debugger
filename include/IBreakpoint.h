@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QByteArray;
 
 class BreakpointCreationError : public std::exception {
-	const char *what() const noexcept override {
+	[[nodiscard]] const char *what() const noexcept override {
 		return "BreakpointCreationError";
 	}
 };
@@ -49,14 +49,14 @@ public:
 	};
 
 public:
-	virtual edb::address_t address() const       = 0;
-	virtual uint64_t hitCount() const            = 0;
-	virtual bool enabled() const                 = 0;
-	virtual bool oneTime() const                 = 0;
-	virtual bool internal() const                = 0;
-	virtual const uint8_t *originalBytes() const = 0;
-	virtual size_t size() const                  = 0;
-	virtual TypeId type() const                  = 0;
+	[[nodiscard]] virtual edb::address_t address() const       = 0;
+	[[nodiscard]] virtual uint64_t hitCount() const            = 0;
+	[[nodiscard]] virtual bool enabled() const                 = 0;
+	[[nodiscard]] virtual bool oneTime() const                 = 0;
+	[[nodiscard]] virtual bool internal() const                = 0;
+	[[nodiscard]] virtual const uint8_t *originalBytes() const = 0;
+	[[nodiscard]] virtual size_t size() const                  = 0;
+	[[nodiscard]] virtual TypeId type() const                  = 0;
 
 public:
 	virtual bool enable()                = 0;

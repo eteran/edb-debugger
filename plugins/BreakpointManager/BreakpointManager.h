@@ -38,7 +38,7 @@ public:
 	~BreakpointManager() override;
 
 public:
-	QMenu *menu(QWidget *parent = nullptr) override;
+	[[nodiscard]] QMenu *menu(QWidget *parent = nullptr) override;
 };
 
 }

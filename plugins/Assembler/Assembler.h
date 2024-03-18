@@ -38,9 +38,9 @@ public:
 	~Assembler() override;
 
 public:
-	QMenu *menu(QWidget *parent = nullptr) override;
+	[[nodiscard]] QMenu *menu(QWidget *parent = nullptr) override;
 	QList<QAction *> cpuContextMenu() override;
-	QWidget *optionsPage() override;
+	[[nodiscard]] QWidget *optionsPage() override;
 
 private:
 	void showDialog();
