@@ -32,14 +32,14 @@ public:
 	virtual ~IRegion() = default;
 
 public:
-	virtual IRegion *clone() const = 0;
+	[[nodiscard]] virtual IRegion *clone() const = 0;
 
 public:
-	virtual bool accessible() const = 0;
-	virtual bool readable() const   = 0;
-	virtual bool writable() const   = 0;
-	virtual bool executable() const = 0;
-	virtual size_t size() const     = 0;
+	[[nodiscard]] virtual bool accessible() const = 0;
+	[[nodiscard]] virtual bool readable() const   = 0;
+	[[nodiscard]] virtual bool writable() const   = 0;
+	[[nodiscard]] virtual bool executable() const = 0;
+	[[nodiscard]] virtual size_t size() const     = 0;
 
 public:
 	virtual void setPermissions(bool read, bool write, bool execute) = 0;
@@ -47,19 +47,19 @@ public:
 	virtual void setEnd(edb::address_t address)                      = 0;
 
 public:
-	virtual edb::address_t start() const      = 0;
-	virtual edb::address_t end() const        = 0; // NOTE: is the address of one past the last byte of the region
-	virtual edb::address_t base() const       = 0;
-	virtual QString name() const              = 0;
-	virtual permissions_t permissions() const = 0;
+	[[nodiscard]] virtual edb::address_t start() const      = 0;
+	[[nodiscard]] virtual edb::address_t end() const        = 0; // NOTE: is the address of one past the last byte of the region
+	[[nodiscard]] virtual edb::address_t base() const       = 0;
+	[[nodiscard]] virtual QString name() const              = 0;
+	[[nodiscard]] virtual permissions_t permissions() const = 0;
 
 public:
-	bool contains(edb::address_t address) const {
+	[[nodiscard]] bool contains(edb::address_t address) const {
 		return address >= start() && address < end();
 	}
 
 	template <class Pointer>
-	bool equals(const Pointer &other) const {
+	[[nodiscard]] bool equals(const Pointer &other) const {
 
 		if (!other) {
 			return false;

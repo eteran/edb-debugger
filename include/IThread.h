@@ -30,11 +30,11 @@ public:
 	virtual ~IThread() = default;
 
 public:
-	virtual edb::tid_t tid() const                    = 0;
-	virtual QString name() const                      = 0;
-	virtual int priority() const                      = 0;
-	virtual edb::address_t instructionPointer() const = 0;
-	virtual QString runState() const                  = 0;
+	[[nodiscard]] virtual edb::tid_t tid() const                    = 0;
+	[[nodiscard]] virtual QString name() const                      = 0;
+	[[nodiscard]] virtual int priority() const                      = 0;
+	[[nodiscard]] virtual edb::address_t instructionPointer() const = 0;
+	[[nodiscard]] virtual QString runState() const                  = 0;
 
 public:
 	virtual void getState(State *state)       = 0;
@@ -47,7 +47,7 @@ public:
 	virtual Status resume(edb::EventStatus status) = 0;
 
 public:
-	virtual bool isPaused() const = 0;
+	[[nodiscard]] virtual bool isPaused() const = 0;
 };
 
 #endif

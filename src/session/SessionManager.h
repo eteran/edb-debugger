@@ -43,7 +43,7 @@ public:
 public:
 	Result<void, SessionError> loadSession(const QString &filename);
 	void saveSession(const QString &filename);
-	QVariantList comments() const;
+	[[nodiscard]] QVariantList comments() const;
 	void addComment(const Comment &c);
 	void removeComment(edb::address_t address);
 

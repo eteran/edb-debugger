@@ -35,14 +35,14 @@ public:
 	~Operand()                          = default;
 
 public:
-	bool valid() const { return operand_; }
+	[[nodiscard]] bool valid() const { return operand_; }
 	explicit operator bool() const { return valid(); }
 	const op_type *operator->() const { return operand_; }
-	const op_type *native() const { return operand_; }
-	size_t index() const { return index_; }
+	[[nodiscard]] const op_type *native() const { return operand_; }
+	[[nodiscard]] size_t index() const { return index_; }
 
 public:
-	const Instruction *owner() const {
+	[[nodiscard]] const Instruction *owner() const {
 		return owner_;
 	}
 

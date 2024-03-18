@@ -2108,7 +2108,7 @@ int QDisassemblyView::removeComment(edb::address_t address) {
 // Name: get_comment
 // Desc: Returns a comment assigned for an address or a blank string if there is none.
 //------------------------------------------------------------------------------
-QString QDisassemblyView::getComment(edb::address_t address) {
+QString QDisassemblyView::getComment(edb::address_t address) const {
 	return comments_.value(address, QString(""));
 }
 

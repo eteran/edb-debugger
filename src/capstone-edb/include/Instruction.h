@@ -62,7 +62,7 @@ public:
 	~Instruction();
 
 public:
-	bool valid() const {
+	[[nodiscard]] bool valid() const {
 		return insn_;
 	}
 
@@ -71,8 +71,8 @@ public:
 	}
 
 public:
-	unsigned int operation() const { return insn_ ? insn_->id : 0; }
-	std::size_t operandCount() const {
+	[[nodiscard]] unsigned int operation() const { return insn_ ? insn_->id : 0; }
+	[[nodiscard]] std::size_t operandCount() const {
 #if defined(EDB_X86) || defined(EDB_X86_64)
 		return insn_ ? insn_->detail->x86.op_count : 0;
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
@@ -81,17 +81,17 @@ public:
 #error "What to return here?"
 #endif
 	}
-	std::size_t byteSize() const { return insn_ ? insn_->size : 1; }
-	uint64_t rva() const { return insn_ ? insn_->address : rva_; }
-	std::string mnemonic() const { return insn_ ? insn_->mnemonic : std::string(); }
-	const uint8_t *bytes() const { return insn_ ? insn_->bytes : &byte0_; }
+	[[nodiscard]] std::size_t byteSize() const { return insn_ ? insn_->size : 1; }
+	[[nodiscard]] uint64_t rva() const { return insn_ ? insn_->address : rva_; }
+	[[nodiscard]] std::string mnemonic() const { return insn_ ? insn_->mnemonic : std::string(); }
+	[[nodiscard]] const uint8_t *bytes() const { return insn_ ? insn_->bytes : &byte0_; }
 
 public:
-	Operand operator[](size_t n) const;
-	Operand operand(size_t n) const;
+	[[nodiscard]] Operand operator[](size_t n) const;
+	[[nodiscard]] Operand operand(size_t n) const;
 
 public:
-	const cs_insn *native() const {
+	[[nodiscard]] const cs_insn *native() const {
 		return insn_;
 	}
 
@@ -158,7 +158,7 @@ public:
 #endif
 	};
 
-	ConditionCode conditionCode() const;
+	[[nodiscard]] ConditionCode conditionCode() const;
 
 private:
 	cs_insn *insn_ = nullptr;

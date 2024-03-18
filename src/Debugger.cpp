@@ -406,11 +406,11 @@ Debugger::Debugger(QWidget *parent)
 	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("RIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
 	gotoRIPAction_ = createAction(tr("&Goto %1").arg("RIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #elif defined(EDB_X86)
-	setRIPAction_       = createAction(tr("&Set %1 to this Instruction").arg("EIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
-	gotoRIPAction_      = createAction(tr("&Goto %1").arg("EIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
+	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("EIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
+	gotoRIPAction_ = createAction(tr("&Goto %1").arg("EIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
-	setRIPAction_       = createAction(tr("&Set %1 to this Instruction").arg("PC"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
-	gotoRIPAction_      = createAction(tr("&Goto %1").arg("PC"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
+	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("PC"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
+	gotoRIPAction_ = createAction(tr("&Goto %1").arg("PC"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #else
 #error "This doesn't initialize actions and will lead to crash"
 #endif
@@ -527,7 +527,7 @@ QAction *Debugger::createAction(const QString &text, const QKeySequence &keySequ
 }
 
 //------------------------------------------------------------------------------
-// Name: update_menu_state
+// Name: updateMenuState
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::updateMenuState(GuiState state) {
@@ -590,7 +590,7 @@ void Debugger::updateMenuState(GuiState state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: create_tty
+// Name: createTty
 // Desc: creates a TTY object for our command line I/O
 //------------------------------------------------------------------------------
 QString Debugger::createTty() {
@@ -715,7 +715,7 @@ QString Debugger::createTty() {
 }
 
 //------------------------------------------------------------------------------
-// Name: tty_proc_finished
+// Name: ttyProcFinished
 // Desc: cleans up the data associated with a TTY when the terminal dies
 //------------------------------------------------------------------------------
 void Debugger::ttyProcFinished(int exit_code, QProcess::ExitStatus exit_status) {
@@ -726,7 +726,7 @@ void Debugger::ttyProcFinished(int exit_code, QProcess::ExitStatus exit_status) 
 }
 
 //------------------------------------------------------------------------------
-// Name: current_tab
+// Name: currentTab
 // Desc:
 //------------------------------------------------------------------------------
 int Debugger::currentTab() const {
@@ -734,7 +734,7 @@ int Debugger::currentTab() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: current_data_view_info
+// Name: currentDataViewInfo
 // Desc:
 //------------------------------------------------------------------------------
 std::shared_ptr<DataViewInfo> Debugger::currentDataViewInfo() const {
@@ -742,7 +742,7 @@ std::shared_ptr<DataViewInfo> Debugger::currentDataViewInfo() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_debugger_caption
+// Name: setDebuggerCaption
 // Desc: sets the caption part to also show the application name and pid
 //------------------------------------------------------------------------------
 void Debugger::setDebuggerCaption(const QString &appname) {
@@ -750,7 +750,7 @@ void Debugger::setDebuggerCaption(const QString &appname) {
 }
 
 //------------------------------------------------------------------------------
-// Name: delete_data_tab
+// Name: deleteDataTab
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::deleteDataTab() {
@@ -769,7 +769,7 @@ void Debugger::deleteDataTab() {
 }
 
 //------------------------------------------------------------------------------
-// Name: create_data_tab
+// Name: createDataTab
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::createDataTab() {
@@ -896,7 +896,7 @@ void Debugger::finishPluginSetup() {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_goto_expression
+// Name: getGotoExpression
 // Desc:
 //------------------------------------------------------------------------------
 Result<edb::address_t, QString> Debugger::getGotoExpression() {
@@ -904,13 +904,13 @@ Result<edb::address_t, QString> Debugger::getGotoExpression() {
 	std::optional<edb::address_t> address = edb::v2::get_expression_from_user(tr("Goto Expression"), tr("Expression:"));
 	if (address) {
 		return *address;
-	} else {
-		return make_unexpected(tr("No Address"));
 	}
+
+	return make_unexpected(tr("No Address"));
 }
 
 //------------------------------------------------------------------------------
-// Name: get_follow_register
+// Name: getFollowRegister
 // Desc:
 //------------------------------------------------------------------------------
 Result<edb::reg_t, QString> Debugger::getFollowRegister() const {
@@ -924,7 +924,7 @@ Result<edb::reg_t, QString> Debugger::getFollowRegister() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: goto_triggered
+// Name: gotoTriggered
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::gotoTriggered() {
@@ -941,7 +941,7 @@ void Debugger::gotoTriggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: setup_ui
+// Name: setupUi
 // Desc: creates the UI
 //------------------------------------------------------------------------------
 void Debugger::setupUi() {
@@ -1192,7 +1192,7 @@ void Debugger::showEvent(QShowEvent *) {
 		QScreen *screen = QGuiApplication::primaryScreen();
 		QRect sg        = screen->geometry();
 #else
-        QRect sg = desktop.screenGeometry();
+		QRect sg = desktop.screenGeometry();
 #endif
 		int x = (sg.width() - this->width()) / 2;
 		int y = (sg.height() - this->height()) / 2;
@@ -2884,7 +2884,7 @@ void Debugger::on_action_Pause_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: cleanup_debugger
+// Name: cleanupDebugger
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::cleanupDebugger() {
@@ -2914,7 +2914,7 @@ void Debugger::cleanupDebugger() {
 }
 
 //------------------------------------------------------------------------------
-// Name: session_filename
+// Name: sessionFilename
 // Desc:
 //------------------------------------------------------------------------------
 QString Debugger::sessionFilename() const {
@@ -2950,7 +2950,7 @@ QString Debugger::sessionFilename() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: detach_from_process
+// Name: detachFromProcess
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::detachFromProcess(DetachAction kill) {
@@ -2977,7 +2977,7 @@ void Debugger::detachFromProcess(DetachAction kill) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_initial_debugger_state
+// Name: setInitialDebuggerState
 // Desc: resets all of the basic data to sane defaults
 //------------------------------------------------------------------------------
 void Debugger::setInitialDebuggerState() {
@@ -2988,7 +2988,7 @@ void Debugger::setInitialDebuggerState() {
 	edb::v1::symbol_manager().clear();
 	edb::v1::memory_regions().sync();
 
-	Q_ASSERT(dataRegions_.size() > 0);
+	Q_ASSERT(!dataRegions_.empty());
 
 	dataRegions_.first()->region = edb::v1::primary_data_region();
 
