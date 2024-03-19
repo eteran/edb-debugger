@@ -1406,7 +1406,7 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 
 			const auto groupNames = getGroupNames(disassembler_->handle(), insn);
 			add({"Groups"});
-			auto *const groups = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
+			const auto groups = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
 
 			for (const auto &group : groupNames) {
 				add({group.c_str()}, groups);
@@ -1414,7 +1414,7 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 
 			{
 				add({"Regs implicitly read"});
-				auto *const regsRead = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
+				const auto regsRead = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
 				for (int r = 0; r < insn->detail->regs_read_count; ++r) {
 					add({printReg(disassembler_->handle(), insn->detail->regs_read[r]).c_str()}, regsRead);
 				}
@@ -1422,7 +1422,7 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 
 			{
 				add({"Regs implicitly written"});
-				auto *const regsWritten = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
+				const auto regsWritten = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
 				for (int r = 0; r < insn->detail->regs_write_count; ++r) {
 					add({printReg(disassembler_->handle(), insn->detail->regs_write[r]).c_str()}, regsWritten);
 				}
@@ -1439,7 +1439,7 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 			add({"ModRM", printBytes(&insn->detail->x86.modrm, 1).c_str()});
 			add({"SIB", printBytes(&insn->detail->x86.sib, 1).c_str()});
 
-			auto *const sib = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
+			const auto sib = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
 			add({"Displacement", toHex(insn->detail->x86.disp, true).c_str()}, sib);
 
 			add({"index", printReg(disassembler_->handle(), insn->detail->x86.sib_index, true).c_str()}, sib);
@@ -1467,19 +1467,19 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 #if CS_API_MAJOR >= 4
 			const auto changedEflagsNames = getChangedEFLAGSNames(insn->detail->x86.eflags);
 			add({"EFLAGS"});
-			auto *const eflags = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
+			const auto eflags = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
 			for (auto efl : changedEflagsNames) {
 				add({efl.c_str()}, eflags);
 			}
 #endif
 			add({"Operands"});
-			auto *const operands = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
+			const auto operands = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
 			for (int op = 0; op < insn->detail->x86.op_count; ++op) {
 
 				const auto &operand = insn->detail->x86.operands[op];
 				add({("#" + std::to_string(op + 1)).c_str()}, operands);
 
-				auto *const curOpItem = operands->child(op);
+				const auto curOpItem = operands->child(op);
 				add({"Type", printOpType(operand.type).c_str()}, curOpItem);
 
 				switch (operand.type) {
@@ -1523,12 +1523,12 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 			// TODO: mem_barrier
 			add({"Operands"});
 
-			auto *const operands = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
+			const auto operands = tree_->topLevelItem(tree_->topLevelItemCount() - 1);
 
 			for (int op = 0; op < insn->detail->arm.op_count; ++op) {
 				const auto &operand = insn->detail->arm.operands[op];
 				add({("#" + std::to_string(op + 1)).c_str()}, operands);
-				auto *const curOpItem = operands->child(op);
+				const auto curOpItem = operands->child(op);
 
 				if (operand.vector_index != -1) {
 					add({"Vector index", std::to_string(operand.vector_index).c_str()}, curOpItem);

@@ -69,23 +69,25 @@ public:
 
 public:
 	explicit ODBRegView(const QString &settings, QWidget *parent = nullptr);
-	void setModel(RegisterViewModelBase::Model *model);
-	QList<ValueField *> valueFields() const;
-	QList<FieldWidget *> fields() const;
-	void showMenu(const QPoint &position, const QList<QAction *> &additionalItems = {}) const;
-	void saveState(const QString &settings) const;
+
+public:
+	[[nodiscard]] DialogEditFPU *fpuEditDialog() const;
+	[[nodiscard]] DialogEditGPR *gprEditDialog() const;
+	[[nodiscard]] DialogEditSimdRegister *simdEditDialog() const;
+	[[nodiscard]] QList<FieldWidget *> fields() const;
+	[[nodiscard]] QList<ValueField *> valueFields() const;
 	void groupHidden(RegisterGroup *group);
-	DialogEditGPR *gprEditDialog() const;
-	DialogEditSimdRegister *simdEditDialog() const;
-	DialogEditFPU *fpuEditDialog() const;
+	void saveState(const QString &settings) const;
 	void selectAField();
+	void setModel(RegisterViewModelBase::Model *model);
+	void showMenu(const QPoint &position, const QList<QAction *> &additionalItems = {}) const;
 
 private:
-	RegisterGroup *makeGroup(RegisterGroupType type);
+	[[nodiscard]] RegisterGroup *makeGroup(RegisterGroupType type);
 	void restoreHiddenGroup(RegisterGroupType type);
 
 private:
-	ValueField *selectedField() const;
+	[[nodiscard]] ValueField *selectedField() const;
 	void updateFieldsPalette();
 	void keyPressEvent(QKeyEvent *event) override;
 	void mousePressEvent(QMouseEvent *event) override;

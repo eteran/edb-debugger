@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-VolatileNameField::VolatileNameField(int fieldWidth, const std::function<QString()> &valueFormatter, QWidget *parent, Qt::WindowFlags f)
-	: FieldWidget(fieldWidth, "", parent, f), valueFormatter(valueFormatter) {
+VolatileNameField::VolatileNameField(int fieldWidth, std::function<QString()> valueFormatter, QWidget *parent, Qt::WindowFlags f)
+	: FieldWidget(fieldWidth, "", parent, f), valueFormatter(std::move(valueFormatter)) {
 }
 
 QString VolatileNameField::text() const {

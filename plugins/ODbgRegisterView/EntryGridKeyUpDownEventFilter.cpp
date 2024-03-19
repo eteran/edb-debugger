@@ -29,7 +29,7 @@ bool entry_grid_key_event_filter(QWidget *parent, QObject *obj, QEvent *event) {
 
 	// Find the neighbors above/below the current entry
 	std::vector<QLineEdit *> neighbors;
-	for (auto *const child : children) {
+	for (const auto child : children) {
 		if (!child->isVisible()) {
 			continue;
 		}

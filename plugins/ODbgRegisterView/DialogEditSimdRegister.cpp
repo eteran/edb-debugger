@@ -333,10 +333,10 @@ bool DialogEditSimdRegister::eventFilter(QObject *obj, QEvent *event) {
 	return entry_grid_key_event_filter(this, obj, event);
 }
 
-void DialogEditSimdRegister::setValue(const Register &newReg) {
+void DialogEditSimdRegister::setValue(const Register &value) {
 	resetLayout();
-	assert(newReg.bitSize() <= 8 * sizeof(value_));
-	reg_ = newReg;
+	assert(value.bitSize() <= 8 * sizeof(value_));
+	reg_ = value;
 	util::mark_memory(&value_, value_.size());
 	if (QRegExp("mm[0-7]").exactMatch(reg_.name())) {
 		const auto value = reg_.value<edb::value64>();

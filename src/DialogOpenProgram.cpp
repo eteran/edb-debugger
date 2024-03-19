@@ -44,8 +44,8 @@ DialogOpenProgram::DialogOpenProgram(QWidget *parent, const QString &caption, co
 	if (layout && layout->rowCount() == 4 && layout->columnCount() == 3) {
 		setFileMode(QFileDialog::ExistingFile);
 
-		const int rowCount = layout->rowCount();
-		QPushButton *const browseDirButton(new QPushButton(tr("&Browse..."), this));
+		const int rowCount         = layout->rowCount();
+		const auto browseDirButton = new QPushButton(tr("&Browse..."), this);
 
 		const auto argsLabel = new QLabel(tr("Program &arguments:"), this);
 		argsLabel->setBuddy(argsEdit_);

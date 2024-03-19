@@ -31,7 +31,7 @@ private:
 	std::function<QString()> valueFormatter;
 
 public:
-	VolatileNameField(int fieldWidth, const std::function<QString()> &valueFormatter, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	VolatileNameField(int fieldWidth, std::function<QString()> valueFormatter, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	QString text() const override;
 };
 

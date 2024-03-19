@@ -32,7 +32,7 @@ public:
 	}
 
 protected:
-	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override {
+	[[nodiscard]] bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override {
 		QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
 		if (index.isValid()) {
 			if (auto result = reinterpret_cast<const ResultsModel::Result *>(index.internalPointer())) {

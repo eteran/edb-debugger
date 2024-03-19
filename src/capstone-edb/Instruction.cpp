@@ -920,9 +920,9 @@ bool is_SIMD_PD(const Operand &operand) {
 		assert(insn.operandCount() == 3);
 		if (insn[2]->type != X86_OP_IMM) {
 			return number != 1;
-		} else {
-			return true;
 		}
+
+		return true;
 	case X86_INS_VPERMIL2PD: // XOP (AMD). Fourth operand is selector (?)
 		return number != 3;
 	case X86_INS_VRCP14SD:

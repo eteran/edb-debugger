@@ -227,7 +227,7 @@ QString BasicBlock::toString() const {
  * @param target
  */
 void BasicBlock::addReference(edb::address_t refsite, edb::address_t target) {
-	references_.push_back(std::make_pair(refsite, target));
+	references_.emplace_back(refsite, target);
 }
 
 /**

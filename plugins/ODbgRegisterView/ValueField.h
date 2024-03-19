@@ -45,11 +45,11 @@ protected:
 
 private:
 	void init();
-	QColor fgColorForChangedField() const;
+	[[nodiscard]] QColor fgColorForChangedField() const;
 	void editNormalReg(const QModelIndex &indexToEdit, const QModelIndex &clickedIndex) const;
 
 protected:
-	RegisterViewModelBase::Model *model() const;
+	[[nodiscard]] RegisterViewModelBase::Model *model() const;
 	[[nodiscard]] bool changed() const;
 
 	void enterEvent(QEvent *) override;
@@ -63,15 +63,16 @@ protected:
 public:
 	ValueField(int fieldWidth, const QModelIndex &index_, const std::function<QString(const QString &)> &valueFormatter_, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	ValueField(int fieldWidth, const QModelIndex &index_, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	[[nodiscard]] ValueField *up() const;
+
+public:
+	[[nodiscard]] bool isSelected() const;
+	[[nodiscard]] QModelIndex regIndex() const;
 	[[nodiscard]] ValueField *down() const;
 	[[nodiscard]] ValueField *left() const;
 	[[nodiscard]] ValueField *right() const;
-
-	[[nodiscard]] bool isSelected() const;
+	[[nodiscard]] ValueField *up() const;
+	[[nodiscard]] QString text() const override;
 	void showMenu(const QPoint &position);
-	QString text() const override;
-	[[nodiscard]] QModelIndex regIndex() const;
 
 public Q_SLOTS:
 	void defaultAction();

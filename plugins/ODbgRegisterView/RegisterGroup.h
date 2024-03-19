@@ -17,16 +17,17 @@ class RegisterGroup : public QWidget {
 
 public:
 	explicit RegisterGroup(const QString &name_, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	QList<FieldWidget *> fields() const;
-	QList<ValueField *> valueFields() const;
-	void setIndices(const QList<QModelIndex> &indices);
-	void insert(int line, int column, FieldWidget *widget);
+
+public:
+	[[nodiscard]] QList<FieldWidget *> fields() const;
+	[[nodiscard]] QList<ValueField *> valueFields() const;
+	[[nodiscard]] QMargins getFieldMargins() const;
+	void appendNameValueComment(const QModelIndex &nameIndex, const QString &tooltip = "", bool insertComment = true);
 	// Insert, but without moving to its place
 	void insert(FieldWidget *widget);
+	void insert(int line, int column, FieldWidget *widget);
 	void setupPositionAndSize(int line, int column, FieldWidget *widget);
-	void appendNameValueComment(const QModelIndex &nameIndex, const QString &tooltip = "", bool insertComment = true);
 	void showMenu(const QPoint &position, const QList<QAction *> &additionalItems = {}) const;
-	QMargins getFieldMargins() const;
 
 public Q_SLOTS:
 	void adjustWidth();
@@ -35,8 +36,8 @@ protected:
 	void mousePressEvent(QMouseEvent *event) override;
 
 private:
-	int lineAfterLastField() const;
-	ODBRegView *regView() const;
+	[[nodiscard]] int lineAfterLastField() const;
+	[[nodiscard]] ODBRegView *regView() const;
 
 private:
 	QList<QAction *> menuItems_;

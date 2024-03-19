@@ -396,7 +396,7 @@ Debugger::Debugger(QWidget *parent)
 		if (qobject_cast<QDisassemblyView *>(widget)) {
 			mnuCPUFollow();
 		} else {
-			QKeyEvent *event = new QKeyEvent(QEvent::KeyPress, Qt::Key_Enter, Qt::NoModifier);
+			auto event = new QKeyEvent(QEvent::KeyPress, Qt::Key_Enter, Qt::NoModifier);
 			QCoreApplication::postEvent(widget, event);
 		}
 	});

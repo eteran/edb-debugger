@@ -86,9 +86,9 @@ void Plugin::createRegisterView(const QString &settingsGroup) {
 		registerViews_.emplace_back(regView);
 		regView->setModel(&edb::v1::arch_processor().registerViewModel());
 
-		const QString suffix          = registerViews_.size() > 1 ? dockNameSuffixTemplate.arg(registerViews_.size()) : "";
-		auto *const regViewDockWidget = new QDockWidget(dockName() + suffix, mainWindow);
-		const auto viewNumber         = registerViews_.size();
+		const QString suffix         = registerViews_.size() > 1 ? dockNameSuffixTemplate.arg(registerViews_.size()) : "";
+		const auto regViewDockWidget = new QDockWidget(dockName() + suffix, mainWindow);
+		const auto viewNumber        = registerViews_.size();
 		regViewDockWidget->setObjectName(dockObjectNameTemplate.arg(viewNumber));
 		regViewDockWidget->setWidget(regView);
 
@@ -186,7 +186,7 @@ QMenu *Plugin::menu(QWidget *parent) {
 			menu_->addAction(newRegisterView);
 		}
 		// FIXME: setChecked calls currently don't really work, since at this stage mainWindow hasn't yet restored its state
-		if (auto *const mainWindow = qobject_cast<QMainWindow *>(edb::v1::debugger_ui)) {
+		if (const auto mainWindow = qobject_cast<QMainWindow *>(edb::v1::debugger_ui)) {
 			{
 				const auto expandLeftSideUp = new QAction(tr("Expand Left-Hand Side Dock Up"), menu_);
 				expandLeftSideUp->setCheckable(true);
