@@ -38,6 +38,14 @@ void Function::insert(const BasicBlock &bb) {
 }
 
 /**
+ * @brief Function::insert
+ * @param bb
+ */
+void Function::insert(BasicBlock &&bb) {
+	blocks_[bb.firstAddress()] = std::move(bb);
+}
+
+/**
  * @brief Function::entryAddress
  * @return
  */

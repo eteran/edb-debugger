@@ -48,6 +48,7 @@ public:
 
 public:
 	void insert(const BasicBlock &bb);
+	void insert(BasicBlock &&bb);
 	void addReference();
 	[[nodiscard]] Type type() const;
 	void setType(Type t);

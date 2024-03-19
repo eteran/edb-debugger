@@ -626,7 +626,6 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 
 					// Intel's CET stuff actually helps us identify functions pretty easily
 					if (!data->knownFunctions.contains(addr)) {
-
 						fuzzy_functions[addr] = MinRefCount + 1;
 					}
 #endif
@@ -668,53 +667,52 @@ void Analyzer::analyze(const std::shared_ptr<IRegion> &region) {
 	const QByteArray md5      = (!memory.isEmpty()) ? edb::v1::get_md5(memory) : QByteArray();
 	const QByteArray prev_md5 = region_data.md5;
 
-	if (md5 != prev_md5 || fuzzy != region_data.fuzzy) {
-
-		region_data.basicBlocks.clear();
-		region_data.functions.clear();
-		region_data.fuzzyFunctions.clear();
-		region_data.knownFunctions.clear();
-
-		region_data.memory = memory;
-		region_data.region = region;
-		region_data.md5    = md5;
-		region_data.fuzzy  = fuzzy;
-
-		const struct {
-			const char *message;
-			std::function<void()> function;
-		} analysis_steps[] = {
-			{"identifying executable headers...", [this, &region_data]() { identHeader(&region_data); }},
-			{"adding entry points to the list...", [this, &region_data]() { bonusEntryPoint(&region_data); }},
-			{"attempting to add 'main' to the list...", [this, &region_data]() { bonusMain(&region_data); }},
-			{"attempting to add functions with symbols to the list...", [this, &region_data]() { bonusSymbols(&region_data); }},
-			{"attempting to add marked functions to the list...", [this, &region_data]() { bonusMarkedFunctions(&region_data); }},
-			{"attempting to collect functions with fuzzy analysis...", [this, &region_data]() { collectFuzzyFunctions(&region_data); }},
-			{"collecting basic blocks...", [this, &region_data]() { collectFunctions(&region_data); }},
-		};
-
-		const int total_steps = sizeof(analysis_steps) / sizeof(analysis_steps[0]);
-
-		Q_EMIT updateProgress(util::percentage(0, total_steps));
-		for (int i = 0; i < total_steps; ++i) {
-			qDebug("[Analyzer] %s", analysis_steps[i].message);
-			analysis_steps[i].function();
-			Q_EMIT updateProgress(util::percentage(i + 1, total_steps));
-		}
-
-		qDebug("[Analyzer] determining function types...");
-
-		set_function_types(&region_data.functions);
-
-		qDebug("[Analyzer] complete");
-		Q_EMIT updateProgress(100);
-
-		if (analyzerWidget_) {
-			analyzerWidget_->update();
-		}
-
-	} else {
+	if (md5 == prev_md5 && fuzzy == region_data.fuzzy) {
 		qDebug("[Analyzer] region unchanged, using previous analysis");
+		return;
+	}
+
+	region_data.basicBlocks.clear();
+	region_data.functions.clear();
+	region_data.fuzzyFunctions.clear();
+	region_data.knownFunctions.clear();
+
+	region_data.memory = memory;
+	region_data.region = region;
+	region_data.md5    = md5;
+	region_data.fuzzy  = fuzzy;
+
+	const struct {
+		const char *message;
+		std::function<void()> function;
+	} analysis_steps[] = {
+		{"identifying executable headers...", [this, &region_data]() { identHeader(&region_data); }},
+		{"adding entry points to the list...", [this, &region_data]() { bonusEntryPoint(&region_data); }},
+		{"attempting to add 'main' to the list...", [this, &region_data]() { bonusMain(&region_data); }},
+		{"attempting to add functions with symbols to the list...", [this, &region_data]() { bonusSymbols(&region_data); }},
+		{"attempting to add marked functions to the list...", [this, &region_data]() { bonusMarkedFunctions(&region_data); }},
+		{"attempting to collect functions with fuzzy analysis...", [this, &region_data]() { collectFuzzyFunctions(&region_data); }},
+		{"collecting basic blocks...", [this, &region_data]() { collectFunctions(&region_data); }},
+	};
+
+	const int total_steps = sizeof(analysis_steps) / sizeof(analysis_steps[0]);
+
+	Q_EMIT updateProgress(util::percentage(0, total_steps));
+	for (int i = 0; i < total_steps; ++i) {
+		qDebug("[Analyzer] %s", analysis_steps[i].message);
+		analysis_steps[i].function();
+		Q_EMIT updateProgress(util::percentage(i + 1, total_steps));
+	}
+
+	qDebug("[Analyzer] determining function types...");
+
+	set_function_types(&region_data.functions);
+
+	qDebug("[Analyzer] complete");
+	Q_EMIT updateProgress(100);
+
+	if (analyzerWidget_) {
+		analyzerWidget_->update();
 	}
 
 	qDebug("[Analyzer] elapsed: %lld ms", t.elapsed());

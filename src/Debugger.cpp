@@ -3035,7 +3035,7 @@ void Debugger::setInitialDebuggerState() {
 	binaryInfo_ = edb::v1::get_binary_info(edb::v1::primary_code_region());
 
 	commentServer_->clear();
-	commentServer_->setComment(process->entryPoint(), "<entry point>");
+	commentServer_->setComment(process->entryPoint(), QStringLiteral("<entry point>"));
 }
 
 //------------------------------------------------------------------------------

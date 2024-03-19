@@ -58,9 +58,7 @@ ByteShiftArray &ByteShiftArray::shl() {
 //------------------------------------------------------------------------------
 ByteShiftArray &ByteShiftArray::shr() {
 	if (data_.size() == maxSize_) {
-		for (int i = 0; i < data_.size() - 1; ++i) {
-			data_[i + 1] = data_[i];
-		}
+		std::rotate(data_.rbegin(), data_.rbegin() + 1, data_.rend());
 		data_.first() = 0;
 	} else {
 		data_.push_front(0);
@@ -81,7 +79,7 @@ int ByteShiftArray::size() const {
 // Desc: returns and l-value version of an element in the byte array
 //------------------------------------------------------------------------------
 uint8_t &ByteShiftArray::operator[](std::size_t i) {
-	Q_ASSERT(i < INT_MAX);
+	Q_ASSERT(i < data_.size());
 	return data_[static_cast<int>(i)];
 }
 
@@ -90,7 +88,7 @@ uint8_t &ByteShiftArray::operator[](std::size_t i) {
 // Desc: returns and r-value version of an element in the byte array
 //------------------------------------------------------------------------------
 uint8_t ByteShiftArray::operator[](std::size_t i) const {
-	Q_ASSERT(i < INT_MAX);
+	Q_ASSERT(i < data_.size());
 	return data_[static_cast<int>(i)];
 }
 
