@@ -92,31 +92,6 @@ struct SpecialValues<long double> {
 #endif
 #endif
 
-constexpr std::array<std::uint8_t, 4> SpecialValues<float>::positiveInf;
-constexpr std::array<std::uint8_t, 4> SpecialValues<float>::negativeInf;
-constexpr std::array<std::uint8_t, 4> SpecialValues<float>::positiveSNaN;
-constexpr std::array<std::uint8_t, 4> SpecialValues<float>::negativeSNaN;
-constexpr std::array<std::uint8_t, 4> SpecialValues<float>::positiveQNaN;
-constexpr std::array<std::uint8_t, 4> SpecialValues<float>::negativeQNaN;
-
-constexpr std::array<std::uint8_t, 8> SpecialValues<double>::positiveInf;
-constexpr std::array<std::uint8_t, 8> SpecialValues<double>::negativeInf;
-constexpr std::array<std::uint8_t, 8> SpecialValues<double>::positiveSNaN;
-constexpr std::array<std::uint8_t, 8> SpecialValues<double>::negativeSNaN;
-constexpr std::array<std::uint8_t, 8> SpecialValues<double>::positiveQNaN;
-constexpr std::array<std::uint8_t, 8> SpecialValues<double>::negativeQNaN;
-
-#ifndef _MSC_VER
-#if defined(EDB_X86) || defined(EDB_X86_64)
-constexpr std::array<std::uint8_t, 16> SpecialValues<long double>::positiveInf;
-constexpr std::array<std::uint8_t, 16> SpecialValues<long double>::negativeInf;
-constexpr std::array<std::uint8_t, 16> SpecialValues<long double>::positiveSNaN;
-constexpr std::array<std::uint8_t, 16> SpecialValues<long double>::negativeSNaN;
-constexpr std::array<std::uint8_t, 16> SpecialValues<long double>::positiveQNaN;
-constexpr std::array<std::uint8_t, 16> SpecialValues<long double>::negativeQNaN;
-#endif
-#endif
-
 float to_real(edb::value32 value) {
 	float result;
 	std::memcpy(&result, &value, sizeof(result));
@@ -230,7 +205,9 @@ const char *fixup_g_Yfmt(char *buffer, int digits10) {
 		if (c == '.') {
 			pointPos = i;
 			continue;
-		} else if ('0' <= c && c <= '9') {
+		}
+
+		if ('0' <= c && c <= '9') {
 			++digitCount;
 		}
 	}
@@ -355,30 +332,36 @@ FloatValueClass float_type(edb::value80 value) {
 	if (exponent == ExpMax) {
 		if (mantissa == IntegerBitOnly) {
 			return FloatValueClass::Infinity; // |S|11..11|1.000..0|
-		} else if ((mantissa & QNaN_mask) == QNaN_mask) {
-			return FloatValueClass::QNaN; // |S|11..11|1.1XX..X|
-		} else if ((mantissa & QNaN_mask) == IntegerBitOnly) {
-			return FloatValueClass::SNaN; // |S|11..11|1.0XX..X|
-		} else {
-			return FloatValueClass::Unsupported; // all exp bits set, but integer bit reset - pseudo-NaN/Inf
 		}
-	} else if (exponent == 0u) {
+
+		if ((mantissa & QNaN_mask) == QNaN_mask) {
+			return FloatValueClass::QNaN; // |S|11..11|1.1XX..X|
+		}
+
+		if ((mantissa & QNaN_mask) == IntegerBitOnly) {
+			return FloatValueClass::SNaN; // |S|11..11|1.0XX..X|
+		}
+
+		return FloatValueClass::Unsupported; // all exp bits set, but integer bit reset - pseudo-NaN/Inf
+	}
+
+	if (exponent == 0u) {
 		if (mantissa == 0u) {
 			return FloatValueClass::Zero; // |S|00..00|00..00|
-		} else {
-			if (!integerBitSet) {
-				return FloatValueClass::Denormal; // |S|00..00|0.XXXX..X|
-			} else {
-				return FloatValueClass::PseudoDenormal; // |S|00..00|1.XXXX..X|
-			}
 		}
-	} else {
-		if (integerBitSet) {
-			return FloatValueClass::Normal;
-		} else {
-			return FloatValueClass::Unsupported; // integer bit reset but exp is as if normal - unnormal
+
+		if (!integerBitSet) {
+			return FloatValueClass::Denormal; // |S|00..00|0.XXXX..X|
 		}
+
+		return FloatValueClass::PseudoDenormal; // |S|00..00|1.XXXX..X|
 	}
+
+	if (integerBitSet) {
+		return FloatValueClass::Normal;
+	}
+
+	return FloatValueClass::Unsupported; // integer bit reset but exp is as if normal - unnormal
 }
 
 template <typename Float>
