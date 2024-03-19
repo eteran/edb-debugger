@@ -731,7 +731,9 @@ std::string printAccessMode(unsigned mode) {
 QString normalizeOBJDUMP(const QString &text, int bits) {
 	auto parts = text.split('\t');
 #if defined(EDB_X86) || defined(EDB_X86_64)
-	if (parts.size() != 3) return text + " ; unexpected format";
+	if (parts.size() != 3) {
+		return text + " ; unexpected format";
+	}
 #elif defined(EDB_ARM32)
 	if (parts.size() < 3) return text + " ; unexpected format";
 #else
@@ -806,10 +808,12 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 	});
 
 	if (process.waitForFinished()) {
-		if (process.exitCode() != 0)
+		if (process.exitCode() != 0) {
 			return ("; got response: \"" + process.readAllStandardError() + "\"").constData();
-		if (process.exitStatus() != QProcess::NormalExit)
+		}
+		if (process.exitStatus() != QProcess::NormalExit) {
 			return "; process crashed";
+		}
 
 		const auto output  = QString::fromUtf8(process.readAllStandardOutput()).split('\n');
 		const auto addrStr = address.toHexString().toLower().replace(QRegExp("^0+"), "");
@@ -853,8 +857,9 @@ QString normalizeNDISASM(const QString &text, int bits) {
 	Q_ASSERT(!lines.isEmpty());
 	auto parts = lines.takeFirst().replace(QRegExp("  +"), "\t").split('\t');
 
-	if (parts.size() != 3)
+	if (parts.size() != 3) {
 		return text + " ; unexpected format 1";
+	}
 
 	auto &addr   = parts[0];
 	auto &bytes  = parts[1];
@@ -925,8 +930,9 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 		}
 
 		return normalizeNDISASM(result, bits).toStdString();
-	} else if (process.error() == QProcess::FailedToStart)
+	} else if (process.error() == QProcess::FailedToStart) {
 		return "; Failed to start " + processName;
+	}
 	return "; Unknown error while running " + processName;
 }
 
@@ -1185,10 +1191,12 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 			case LookingFor::Instruction:
 				if (line.startsWith("; ")) {
 					// Filter useless notes
-					if (line.contains("Function does not end with "))
+					if (line.contains("Function does not end with ")) {
 						continue;
-					if (line.contains("without relocation"))
+					}
+					if (line.contains("without relocation")) {
 						continue;
+					}
 
 					result += line + '\n';
 				}
@@ -1215,11 +1223,12 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 
 				if (line.contains(QRegExp("^  +db "))) {
 					auto lines = result.split('\n');
-					for (int i = 0; i < result.size(); ++i)
+					for (int i = 0; i < result.size(); ++i) {
 						if (lines[i].startsWith("; Instruction set:")) {
 							lines.removeAt(i);
 							break;
 						}
+					}
 					return (lines.join("\n") + address.toHexString().toUpper() + "   " + line.trimmed()).toStdString();
 				}
 				break;

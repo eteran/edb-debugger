@@ -27,10 +27,12 @@ FpuValueField::FpuValueField(int fieldWidth, const QModelIndex &regValueIndex, c
 	: ValueField(
 		  fieldWidth, regValueIndex,
 		  [this](const QString &str) {
-			  if (str.length() != 20)
+			  if (str.length() != 20) {
 				  return str;
-			  if (groupDigits)
+			  }
+			  if (groupDigits) {
 				  return str.left(4) + " " + str.mid(4, 8) + " " + str.right(8);
+			  }
 			  return str;
 		  },
 		  group),

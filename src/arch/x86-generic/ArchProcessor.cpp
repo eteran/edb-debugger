@@ -629,8 +629,9 @@ QString formatBCD(const edb::value80 &v) {
 
 	auto hex = v.toHexString();
 	// Low bytes which contain 18 digits must be decimal. If not, return the raw hex value.
-	if (hex.mid(2).contains(QRegExp("[A-Fa-f]")))
+	if (hex.mid(2).contains(QRegExp("[A-Fa-f]"))) {
 		return "0x" + hex;
+	}
 	hex.replace(QRegExp("^..0*"), "");
 	return (v.negative() ? '-' + hex : hex) + " (BCD)";
 }
@@ -643,7 +644,9 @@ QString formatPackedFloat(const char *data, std::size_t size) {
 
 		ValueType value;
 		std::memcpy(&value, data + offset, sizeof(value));
-		if (!str.isEmpty()) str += ", ";
+		if (!str.isEmpty()) {
+			str += ", ";
+		}
 		str += format_float(value);
 	}
 	return size == sizeof(ValueType) ? str : '{' + str + '}';
@@ -677,22 +680,22 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 				} else if (is_register(operand)) {
 					Register reg = state[QString::fromStdString(edb::v1::formatter().toString(operand))];
 					QString valueString;
-					if (!reg)
+					if (!reg) {
 						valueString = ArchProcessor::tr("(Error: obtained invalid register value from State)");
-					else {
-						if (reg.type() == Register::TYPE_FPU && reg.bitSize() == 80)
+					} else {
+						if (reg.type() == Register::TYPE_FPU && reg.bitSize() == 80) {
 							valueString = format_float(reg.value<edb::value80>());
-						else if (is_SIMD_SS(operand)) {
+						} else if (is_SIMD_SS(operand)) {
 							valueString = format_float(reg.value<edb::value32>());
 							temp_operand += "_ss";
 						} else if (is_SIMD_SD(operand)) {
 							valueString = format_float(reg.value<edb::value64>());
 							temp_operand += "_sd";
-						} else if (is_SIMD_PS(operand))
+						} else if (is_SIMD_PS(operand)) {
 							valueString = formatPackedFloat<edb::value32>(reg.rawData(), reg.bitSize() / 8);
-						else if (is_SIMD_PD(operand))
+						} else if (is_SIMD_PD(operand)) {
 							valueString = formatPackedFloat<edb::value64>(reg.rawData(), reg.bitSize() / 8);
-						else {
+						} else {
 							const bool simdSI  = is_SIMD_SI(operand);
 							const bool simdUSI = !simdSI && is_SIMD_USI(operand);
 							if ((simdSI || simdUSI) && (reg.bitSize() == 32 || reg.bitSize() == 64)) {
@@ -709,17 +712,21 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								// even across values in analysis view about its use of 0x prefix
 								// Use of hexadecimal format here is pretty much pointless since the number here is
 								// expected to be used in usual numeric computations, not as address or similar
-								if (signedValue > 9 || signedValue < -9)
+								if (signedValue > 9 || signedValue < -9) {
 									valueString += " (decimal)";
-							} else
+								}
+							} else {
 								valueString = "0x" + reg.toHexString();
+							}
 						}
 					}
 					ret << QString("%1 = %2").arg(temp_operand, valueString);
 				} else if (is_expression(operand)) {
 					bool ok;
 					const edb::address_t effective_address = edb::v1::arch_processor().getEffectiveAddress(inst, operand, state, ok);
-					if (!ok) continue;
+					if (!ok) {
+						continue;
+					}
 					edb::value256 target;
 
 					if (process->readBytes(effective_address, &target, sizeof(target))) {
@@ -738,10 +745,12 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								// Use of hexadecimal format here is pretty much pointless since the number here is
 								// expected to be used in usual numeric computations, not as address or similar
 								const std::int16_t signedValue = value;
-								if (signedValue > 9 || signedValue < -9)
+								if (signedValue > 9 || signedValue < -9) {
 									valueStr += " (decimal)";
-							} else
+								}
+							} else {
 								valueStr = "0x" + value.toHexString();
+							}
 							ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
 							break;
 						}
@@ -750,23 +759,25 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							const bool simdSI  = is_SIMD_SI(operand);
 							const bool simdUSI = !simdSI && is_SIMD_USI(operand);
 							QString valueStr;
-							if (is_fpu_taking_float(inst) || is_SIMD_SS(operand))
+							if (is_fpu_taking_float(inst) || is_SIMD_SS(operand)) {
 								valueStr = format_float(value);
-							else if (is_fpu_taking_integer(inst) || simdSI || simdUSI) {
+							} else if (is_fpu_taking_integer(inst) || simdSI || simdUSI) {
 								valueStr = util::format_int(value, simdUSI ? NumberDisplayMode::Unsigned : NumberDisplayMode::Signed);
 								// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
 								// even across values in analysis view about its use of 0x prefix
 								// Use of hexadecimal format here is pretty much pointless since the number here is
 								// expected to be used in usual numeric computations, not as address or similar
 								const std::int32_t signedValue = value;
-								if (signedValue > 9 || signedValue < -9)
+								if (signedValue > 9 || signedValue < -9) {
 									valueStr += " (decimal)";
-							} else if (is_SIMD_PS(operand))
+								}
+							} else if (is_SIMD_PS(operand)) {
 								valueStr = formatPackedFloat<edb::value32>(reinterpret_cast<const char *>(&target), sizeof(edb::value64));
-							else if (is_SIMD_PD(operand))
+							} else if (is_SIMD_PD(operand)) {
 								valueStr = formatPackedFloat<edb::value64>(reinterpret_cast<const char *>(&target), sizeof(edb::value64));
-							else
+							} else {
 								valueStr = "0x" + value.toHexString();
+							}
 							ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
 							break;
 						}
@@ -775,19 +786,21 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							const bool simdSI  = is_SIMD_SI(operand);
 							const bool simdUSI = !simdSI && is_SIMD_USI(operand);
 							QString valueStr;
-							if (is_fpu_taking_float(inst) || is_SIMD_SD(operand))
+							if (is_fpu_taking_float(inst) || is_SIMD_SD(operand)) {
 								valueStr = format_float(value);
-							else if (is_fpu_taking_integer(inst) || simdSI || simdUSI) {
+							} else if (is_fpu_taking_integer(inst) || simdSI || simdUSI) {
 								valueStr = util::format_int(value, simdUSI ? NumberDisplayMode::Unsigned : NumberDisplayMode::Signed);
 								// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
 								// even across values in analysis view about its use of 0x prefix
 								// Use of hexadecimal format here is pretty much pointless since the number here is
 								// expected to be used in usual numeric computations, not as address or similar
 								const std::int64_t signedValue = value;
-								if (signedValue > 9 || signedValue < -9)
+								if (signedValue > 9 || signedValue < -9) {
 									valueStr += " (decimal)";
-							} else
+								}
+							} else {
 								valueStr = "0x" + value.toHexString();
+							}
 							ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
 							break;
 						}
@@ -799,23 +812,25 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						}
 						case 16: {
 							QString valueString;
-							if (is_SIMD_PS(operand))
+							if (is_SIMD_PS(operand)) {
 								valueString = formatPackedFloat<edb::value32>(reinterpret_cast<const char *>(&target), sizeof(edb::value128));
-							else if (is_SIMD_PD(operand))
+							} else if (is_SIMD_PD(operand)) {
 								valueString = formatPackedFloat<edb::value64>(reinterpret_cast<const char *>(&target), sizeof(edb::value128));
-							else
+							} else {
 								valueString = "0x" + edb::value128(target).toHexString();
+							}
 							ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueString);
 							break;
 						}
 						case 32: {
 							QString valueString;
-							if (is_SIMD_PS(operand))
+							if (is_SIMD_PS(operand)) {
 								valueString = formatPackedFloat<edb::value32>(reinterpret_cast<const char *>(&target), sizeof(edb::value256));
-							else if (is_SIMD_PD(operand))
+							} else if (is_SIMD_PD(operand)) {
 								valueString = formatPackedFloat<edb::value64>(reinterpret_cast<const char *>(&target), sizeof(edb::value256));
-							else
+							} else {
 								valueString = "0x" + edb::value256(target).toHexString();
+							}
 							ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueString);
 							break;
 						}
@@ -943,10 +958,11 @@ QString gprComment(const Register &reg) {
 	QString regString;
 	int stringLength;
 	QString comment;
-	if (edb::v1::get_ascii_string_at_address(reg.valueAsAddress(), regString, edb::v1::config().min_string_length, 256, stringLength))
+	if (edb::v1::get_ascii_string_at_address(reg.valueAsAddress(), regString, edb::v1::config().min_string_length, 256, stringLength)) {
 		comment = QString("ASCII \"%1\"").arg(regString);
-	else if (edb::v1::get_utf16_string_at_address(reg.valueAsAddress(), regString, edb::v1::config().min_string_length, 256, stringLength))
+	} else if (edb::v1::get_utf16_string_at_address(reg.valueAsAddress(), regString, edb::v1::config().min_string_length, 256, stringLength)) {
 		comment = QString("UTF16 \"%1\"").arg(regString);
+	}
 	return comment;
 }
 
@@ -969,12 +985,14 @@ void updateGPRs(RegisterViewModel &model, const State &state, bool is64Bit) {
 				if (origAX != -1) {
 					comment            = "orig: " + edb::value64(origAX).toHexString();
 					const auto errName = syscallErrName(reg.value<edb::value64>());
-					if (!errName.isEmpty())
+					if (!errName.isEmpty()) {
 						comment = "-" + errName + "; " + comment;
+					}
 				}
 			}
-			if (comment.isEmpty())
+			if (comment.isEmpty()) {
 				comment = gprComment(reg);
+			}
 			model.updateGPR(i, reg.value<edb::value64>(), comment);
 		}
 	} else {
@@ -990,12 +1008,14 @@ void updateGPRs(RegisterViewModel &model, const State &state, bool is64Bit) {
 				if (origAX != -1) {
 					comment            = "orig: " + edb::value32(origAX).toHexString();
 					const auto errName = syscallErrName(reg.value<edb::value32>());
-					if (!errName.isEmpty())
+					if (!errName.isEmpty()) {
 						comment = "-" + errName + "; " + comment;
+					}
 				}
 			}
-			if (comment.isEmpty())
+			if (comment.isEmpty()) {
 				comment = gprComment(reg);
+			}
 			model.updateGPR(i, reg.value<edb::value32>(), comment);
 		}
 	}
@@ -1008,9 +1028,11 @@ QString rIPcomment(edb::address_t rIP, const QString &default_region_name) {
 
 QString eflagsComment(edb::reg_t flags) {
 	QString comment = "(";
-	for (int cond = 0; cond < 0x10; ++cond)
-		if (is_jcc_taken(flags, static_cast<edb::Instruction::ConditionCode>(cond)))
+	for (int cond = 0; cond < 0x10; ++cond) {
+		if (is_jcc_taken(flags, static_cast<edb::Instruction::ConditionCode>(cond))) {
 			comment += jumpConditionMnemonics[cond] + ',';
+		}
+	}
 	comment[comment.size() - 1] = ')';
 	return comment;
 }
@@ -1035,8 +1057,9 @@ QString FPUStackFaultDetail(uint16_t statusWord) {
 	const bool invalidOperationException = statusWord & 0x01;
 	const bool C1                        = statusWord & (1 << 9);
 	const bool stackFault                = statusWord & 0x40;
-	if (invalidOperationException && stackFault)
+	if (invalidOperationException && stackFault) {
 		return C1 ? QObject::tr("Stack overflow") : QObject::tr("Stack underflow");
+	}
 	return "";
 }
 
@@ -1075,9 +1098,13 @@ QString FSRComment(uint16_t statusWord) {
 	const auto peExplanation    = FPUExplainPE(statusWord);
 
 	auto comment = comparComment;
-	if (comment.length() && stackFaultDetail.length()) comment += ", ";
+	if (comment.length() && stackFaultDetail.length()) {
+		comment += ", ";
+	}
 	comment += stackFaultDetail;
-	if (comment.length() && peExplanation.length()) comment += ", ";
+	if (comment.length() && peExplanation.length()) {
+		comment += ", ";
+	}
 	comment += peExplanation;
 	return comment.trimmed();
 }
@@ -1090,12 +1117,13 @@ void updateSegRegs(RegisterViewModel &model, const State &state) {
 		const Register base  = state[sregs[i] + "_base"];
 		QString comment;
 		if (edb::v1::debuggeeIs32Bit() || i >= FS) {
-			if (base)
+			if (base) {
 				comment = QString("(%1)").arg(base.valueAsAddress().toHexString());
-			else if (edb::v1::debuggeeIs32Bit() && sregValue == 0)
+			} else if (edb::v1::debuggeeIs32Bit() && sregValue == 0) {
 				comment = "NULL";
-			else
+			} else {
 				comment = "(?)";
+			}
 		}
 		model.updateSegReg(i, sregValue, comment);
 	}
@@ -1113,35 +1141,39 @@ void updateFPURegs(RegisterViewModel &model, const State &state) {
 	model.updateFTR(state.fpuTagWord());
 	{
 		const Register FIS = state["FIS"];
-		if (FIS)
+		if (FIS) {
 			model.updateFIS(FIS.value<edb::value16>());
-		else
+		} else {
 			model.invalidateFIS();
+		}
 	}
 	{
 		const Register FDS = state["FDS"];
-		if (FDS)
+		if (FDS) {
 			model.updateFDS(FDS.value<edb::value16>());
-		else
+		} else {
 			model.invalidateFDS();
+		}
 	}
 	{
 		const Register FIP = state["FIP"];
-		if (FIP.bitSize() == 64)
+		if (FIP.bitSize() == 64) {
 			model.updateFIP(FIP.value<edb::value64>());
-		else if (FIP.bitSize() == 32)
+		} else if (FIP.bitSize() == 32) {
 			model.updateFIP(FIP.value<edb::value32>());
-		else
+		} else {
 			model.invalidateFIP();
+		}
 	}
 	{
 		const Register FDP = state["FDP"];
-		if (FDP.bitSize() == 64)
+		if (FDP.bitSize() == 64) {
 			model.updateFDP(FDP.value<edb::value64>());
-		else if (FDP.bitSize() == 32)
+		} else if (FDP.bitSize() == 32) {
 			model.updateFDP(FDP.value<edb::value32>());
-		else
+		} else {
 			model.invalidateFDP();
+		}
 	}
 	{
 		const Register FOP = state["fopcode"];
@@ -1150,18 +1182,20 @@ void updateFPURegs(RegisterViewModel &model, const State &state) {
 			// Yes, FOP is a big-endian view of the instruction
 			const auto comment = value > 0x7ff ? QString("?!!") : QObject::tr("Insn: %1 %2").arg((edb::value8(value >> 8) + 0xd8).toHexString(), edb::value8(value).toHexString());
 			model.updateFOP(value, comment);
-		} else
+		} else {
 			model.invalidateFOP();
+		}
 	}
 }
 
 void updateDebugRegs(RegisterViewModel &model, const State &state) {
 	for (std::size_t i = 0; i < MAX_DEBUG_REGS_COUNT; ++i) {
 		const edb::reg_t reg = state.debugRegister(i);
-		if (edb::v1::debuggeeIs32Bit())
+		if (edb::v1::debuggeeIs32Bit()) {
 			model.updateDR(i, edb::value32(reg));
-		else
+		} else {
 			model.updateDR(i, reg);
+		}
 	}
 }
 
@@ -1262,18 +1296,21 @@ Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::In
 			edb::address_t index  = 0;
 
 			if (!baseR) {
-				if (op->mem.base != X86_REG_INVALID)
+				if (op->mem.base != X86_REG_INVALID) {
 					return make_unexpected(tr("failed to acquire base register from state"));
+				}
 			} else {
 				base = baseR.valueAsAddress();
 			}
 
 			if (!indexR) {
-				if (op->mem.index != X86_REG_INVALID)
+				if (op->mem.index != X86_REG_INVALID) {
 					return make_unexpected(tr("failed to acquire index register from state"));
+				}
 			} else {
-				if (indexR.type() != Register::TYPE_GPR)
+				if (indexR.type() != Register::TYPE_GPR) {
 					return make_unexpected(tr("only general-purpose register is supported as index register"));
+				}
 				index = indexR.valueAsAddress();
 			}
 
@@ -1486,10 +1523,11 @@ QStringList ArchProcessor::updateInstructionInfo(edb::address_t address) {
 											 err == ERESTART_RESTARTBLOCK;
 
 					if (ret.size() && ret.back().startsWith("SYSCALL")) {
-						if (interrupted)
+						if (interrupted) {
 							ret.back() = "Interrupted " + ret.back();
-						else
+						} else {
 							ret.back() = "Returned from " + ret.back();
+						}
 					}
 					// FIXME: actually only ERESTARTNOINTR guarantees reexecution. But it seems the other ERESTART* signals
 					// won't go into user space, so whatever the state of signal handlers, the tracee should never appear
@@ -1514,8 +1552,9 @@ QStringList ArchProcessor::updateInstructionInfo(edb::address_t address) {
 
 				} else if (is_jump(inst) || is_call(inst)) {
 
-					if (is_conditional_jump(inst))
+					if (is_conditional_jump(inst)) {
 						analyze_jump(state, inst, ret);
+					}
 					analyze_call(state, inst, ret);
 				} else if (is_int(inst)) {
 #ifdef Q_OS_LINUX

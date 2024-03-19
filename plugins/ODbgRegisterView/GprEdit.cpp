@@ -92,8 +92,9 @@ GprEdit::GprEdit(std::size_t offsetInInteger, std::size_t integerSize, Format fo
 void GprEdit::setGPRValue(std::uint64_t gprValue) {
 	std::uint64_t value(0);
 	signBit_ = format_ == Format::Signed ? 1ull << (8 * integerSize_ - 1) : 0;
-	if ((gprValue >> 8 * offsetInInteger_) & signBit_)
+	if ((gprValue >> 8 * offsetInInteger_) & signBit_) {
 		value = -1;
+	}
 	std::memcpy(&value, reinterpret_cast<char *>(&gprValue) + offsetInInteger_, integerSize_);
 	switch (format_) {
 	case Format::Hex:

@@ -21,11 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace ODbgRegisterView {
 
 QString FieldWidget::text() const {
-	if (!index_.isValid() && !this->isEnabled())
+	if (!index_.isValid() && !this->isEnabled()) {
 		return QLabel::text();
+	}
 	const auto text = index_.data();
-	if (!text.isValid())
+	if (!text.isValid()) {
 		return QString(width() / letter_size(font()).width() - 1, QChar('?'));
+	}
 	return text.toString();
 }
 
@@ -43,8 +45,9 @@ void FieldWidget::init(int fieldWidth) {
 	setObjectName("FieldWidget");
 	const auto charSize = letter_size(font());
 	setFixedHeight(charSize.height());
-	if (fieldWidth > 0)
+	if (fieldWidth > 0) {
 		setFixedWidth(fieldWidth * charSize.width());
+	}
 	setDisabled(true);
 }
 

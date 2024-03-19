@@ -193,15 +193,18 @@ void add_puozdi(RegisterGroup *group, const QModelIndex &excRegIndex, const QMod
 
 RegisterGroup *create_eflags(RegisterViewModelBase::Model *model, QWidget *parent) {
 	const auto catIndex = find_model_category(model, tr("General Status"));
-	if (!catIndex.isValid())
+	if (!catIndex.isValid()) {
 		return nullptr;
+	}
 
 	auto nameIndex = find_model_register(catIndex, tr("RFLAGS"));
-	if (!nameIndex.isValid())
+	if (!nameIndex.isValid()) {
 		nameIndex = find_model_register(catIndex, tr("EFLAGS"));
+	}
 
-	if (!nameIndex.isValid())
+	if (!nameIndex.isValid()) {
 		return nullptr;
+	}
 
 	const auto group        = new RegisterGroup(tr("EFL"), parent);
 	constexpr int NameWidth = 3;
@@ -226,15 +229,18 @@ RegisterGroup *create_eflags(RegisterViewModelBase::Model *model, QWidget *paren
 
 RegisterGroup *create_expanded_eflags(RegisterViewModelBase::Model *model, QWidget *parent) {
 	const auto catIndex = find_model_category(model, tr("General Status"));
-	if (!catIndex.isValid())
+	if (!catIndex.isValid()) {
 		return nullptr;
+	}
 
 	auto regNameIndex = find_model_register(catIndex, "RFLAGS");
-	if (!regNameIndex.isValid())
+	if (!regNameIndex.isValid()) {
 		regNameIndex = find_model_register(catIndex, "EFLAGS");
+	}
 
-	if (!regNameIndex.isValid())
+	if (!regNameIndex.isValid()) {
 		return nullptr;
+	}
 
 	const auto group = new RegisterGroup(tr("Expanded EFL"), parent);
 
@@ -320,8 +326,9 @@ RegisterGroup *create_fpu_data(RegisterViewModelBase::Model *model, QWidget *par
 		{
 			const auto STiFormatter = [row, topIndex]() {
 				const auto topByteArray = topIndex.data(Model::RawValueRole).toByteArray();
-				if (topByteArray.isEmpty())
+				if (topByteArray.isEmpty()) {
 					return QString("R%1").arg(row);
+				}
 				const auto top = topByteArray[0];
 				assert(top >= 0);
 				Q_ASSERT(top < 8);
@@ -443,16 +450,19 @@ RegisterGroup *create_fpu_last_op(RegisterViewModelBase::Model *model, QWidget *
 	using RegisterViewModelBase::Model;
 
 	const auto catIndex = find_model_category(model, "FPU");
-	if (!catIndex.isValid())
+	if (!catIndex.isValid()) {
 		return nullptr;
+	}
 
 	const auto FIPIndex = find_model_register(catIndex, "FIP", ModelValueColumn);
-	if (!FIPIndex.isValid())
+	if (!FIPIndex.isValid()) {
 		return nullptr;
+	}
 
 	const auto FDPIndex = find_model_register(catIndex, "FDP", ModelValueColumn);
-	if (!FDPIndex.isValid())
+	if (!FDPIndex.isValid()) {
 		return nullptr;
+	}
 
 	const auto group = new RegisterGroup(tr("FPU Last Operation Registers"), parent);
 	enum { lastInsnRow,
@@ -510,35 +520,41 @@ RegisterGroup *create_fpu_last_op(RegisterViewModelBase::Model *model, QWidget *
 	bool fopRarelyUpdated                = fop_is_compatible();
 
 	const auto FOPFormatter = [FOPIndex, FSRIndex, FCRIndex, FIPIndex, fopRarelyUpdated](const QString &str) -> QString {
-		if (str.isEmpty() || str[0] == '?')
+		if (str.isEmpty() || str[0] == '?') {
 			return str;
+		}
 
 		const auto rawFCR = FCRIndex.data(Model::RawValueRole).toByteArray();
 		assert(rawFCR.size() <= long(sizeof(edb::value16)));
-		if (rawFCR.isEmpty())
+		if (rawFCR.isEmpty()) {
 			return str;
+		}
 		edb::value16 fcr(0);
 		std::memcpy(&fcr, rawFCR.constData(), rawFCR.size());
 
 		const auto rawFSR = FSRIndex.data(Model::RawValueRole).toByteArray();
 		assert(rawFSR.size() <= long(sizeof(edb::value16)));
-		if (rawFSR.isEmpty())
+		if (rawFSR.isEmpty()) {
 			return str;
+		}
 		edb::value16 fsr(0);
 		std::memcpy(&fsr, rawFSR.constData(), rawFSR.size());
 
 		const auto rawFOP = FOPIndex.data(Model::RawValueRole).toByteArray();
 		edb::value16 fop(0);
 		assert(rawFOP.size() <= long(sizeof(edb::value16)));
-		if (rawFOP.isEmpty())
+		if (rawFOP.isEmpty()) {
 			return str;
-		if (rawFOP.size() != sizeof(edb::value16))
+		}
+		if (rawFOP.size() != sizeof(edb::value16)) {
 			return QString("????");
+		}
 		std::memcpy(&fop, rawFOP.constData(), rawFOP.size());
 
 		const auto rawFIP = FIPIndex.data(Model::RawValueRole).toByteArray();
-		if (rawFIP.isEmpty())
+		if (rawFIP.isEmpty()) {
 			return str;
+		}
 		edb::address_t fip(0);
 		assert(rawFIP.size() <= long(sizeof(fip)));
 		std::memcpy(&fip, rawFIP.constData(), rawFIP.size());
@@ -546,8 +562,9 @@ RegisterGroup *create_fpu_last_op(RegisterViewModelBase::Model *model, QWidget *
 		const auto excMask           = fcr & 0x3f;
 		const auto excActive         = fsr & 0x3f;
 		const auto excActiveUnmasked = excActive & ~excMask;
-		if (fop == 0 && ((fopRarelyUpdated && !excActiveUnmasked) || fip == 0))
+		if (fop == 0 && ((fopRarelyUpdated && !excActiveUnmasked) || fip == 0)) {
 			return QString("00 00");
+		}
 		return edb::value8(0xd8 + rawFOP[1]).toHexString() + ' ' + edb::value8(rawFOP[0]).toHexString();
 	};
 
@@ -565,8 +582,9 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 	using RegisterViewModelBase::Model;
 
 	const auto catIndex = find_model_category(model, "Debug");
-	if (!catIndex.isValid())
+	if (!catIndex.isValid()) {
 		return nullptr;
+	}
 
 	const auto group = new RegisterGroup(tr("Debug Registers"), parent);
 
@@ -733,8 +751,9 @@ RegisterGroup *create_mxcsr(RegisterViewModelBase::Model *model, QWidget *parent
 	using namespace RegisterViewModelBase;
 
 	const auto catIndex = find_model_category(model, "SSE");
-	if (!catIndex.isValid())
+	if (!catIndex.isValid()) {
 		return nullptr;
+	}
 	const auto group        = new RegisterGroup("MXCSR", parent);
 	const QString mxcsrName = "MXCSR";
 

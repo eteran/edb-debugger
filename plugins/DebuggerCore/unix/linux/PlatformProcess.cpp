@@ -85,9 +85,9 @@ QStringList split_max(const QString &str, int maxparts) {
 	for (const QChar &c : str) {
 		if (c == ' ') {
 			if (prev_idx < idx) {
-				if (items.size() < maxparts - 1)
+				if (items.size() < maxparts - 1) {
 					items << str.mid(prev_idx, idx - prev_idx);
-				else {
+				} else {
 					items << str.right(str.size() - prev_idx);
 					break;
 				}
@@ -132,9 +132,15 @@ std::shared_ptr<IRegion> process_map_line(const QString &line) {
 					if (ok) {
 						const QString perms = items[1];
 						permissions         = 0;
-						if (perms[0] == 'r') permissions |= PROT_READ;
-						if (perms[1] == 'w') permissions |= PROT_WRITE;
-						if (perms[2] == 'x') permissions |= PROT_EXEC;
+						if (perms[0] == 'r') {
+							permissions |= PROT_READ;
+						}
+						if (perms[1] == 'w') {
+							permissions |= PROT_WRITE;
+						}
+						if (perms[2] == 'x') {
+							permissions |= PROT_EXEC;
+						}
 
 						if (items.size() >= 6) {
 							name = items[5];

@@ -101,8 +101,9 @@ inline QModelIndex find_model_register(QModelIndex categoryIndex, const QString 
 		const auto regIndex = model->index(row, ModelNameColumn, categoryIndex);
 		const auto name     = model->data(regIndex).toString();
 		if (name.toUpper() == regToFind) {
-			if (column == ModelNameColumn)
+			if (column == ModelNameColumn) {
 				return regIndex;
+			}
 			return regIndex.sibling(regIndex.row(), column);
 		}
 	}

@@ -21,8 +21,9 @@ MultiBitFieldWidget::MultiBitFieldWidget(const QModelIndex &index, const BitFiel
 
 			menuItems_.push_front(action);
 			valueActions_.push_front(menuItems_.front());
-		} else
+		} else {
 			valueActions_.push_front(nullptr);
+		}
 	}
 }
 
@@ -35,8 +36,9 @@ void MultiBitFieldWidget::setValue(int value) {
 	const auto regIndex = index_.parent().sibling(index_.parent().row(), ModelValueColumn);
 	auto byteArr        = regIndex.data(Model::RawValueRole).toByteArray();
 
-	if (byteArr.isEmpty())
+	if (byteArr.isEmpty()) {
 		return;
+	}
 
 	std::uint64_t word(0);
 	std::memcpy(&word, byteArr.constData(), byteArr.size());
@@ -60,12 +62,14 @@ void MultiBitFieldWidget::adjustToData() {
 
 	for (int value = 0; value < valueActions_.size(); ++value) {
 		const auto action = valueActions_[value];
-		if (!action)
+		if (!action) {
 			continue;
-		if (byteArr.isEmpty() || equal_(word, value))
+		}
+		if (byteArr.isEmpty() || equal_(word, value)) {
 			action->setVisible(false);
-		else
+		} else {
 			action->setVisible(true);
+		}
 	}
 }
 

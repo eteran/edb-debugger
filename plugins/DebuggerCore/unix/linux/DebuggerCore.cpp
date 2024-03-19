@@ -793,8 +793,9 @@ void DebuggerCore::kill() {
 		::kill(process_->pid(), SIGKILL);
 
 		pid_t ret;
-		while ((ret = Posix::waitpid(-1, nullptr, __WALL)) != process_->pid() && ret != -1)
+		while ((ret = Posix::waitpid(-1, nullptr, __WALL)) != process_->pid() && ret != -1) {
 			;
+		}
 
 		process_ = nullptr;
 		reset();

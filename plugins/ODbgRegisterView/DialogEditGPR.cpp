@@ -110,12 +110,15 @@ DialogEditGPR::DialogEditGPR(QWidget *parent, Qt::WindowFlags f)
 
 GprEdit *&DialogEditGPR::entry(DialogEditGPR::Row row, DialogEditGPR::Column col) {
 
-	if (row < ENTRY_ROWS)
+	if (row < ENTRY_ROWS) {
 		return entries_.at((row - FIRST_ENTRY_ROW) * ENTRY_COLS + (col - FIRST_ENTRY_COL));
-	if (col == GPR8H_COL)
+	}
+	if (col == GPR8H_COL) {
 		return *(entries_.end() - 2);
-	if (col == GPR8L_COL)
+	}
+	if (col == GPR8L_COL) {
 		return entries_.back();
+	}
 
 	Q_ASSERT("Invalid row&col specified" && 0);
 	return entries_.front(); // silence the compiler
@@ -198,14 +201,15 @@ void DialogEditGPR::setupEntriesAndLabels() {
 
 	const QString regName = reg_.name().toUpper();
 
-	if (bitSize_ == 64)
+	if (bitSize_ == 64) {
 		columnLabel(GPR64_COL)->setText(regName);
-	else if (bitSize_ == 32)
+	} else if (bitSize_ == 32) {
 		columnLabel(GPR32_COL)->setText(regName);
-	else if (bitSize_ == 16)
+	} else if (bitSize_ == 16) {
 		columnLabel(GPR16_COL)->setText(regName);
-	else
+	} else {
 		columnLabel(GPR8L_COL)->setText(regName);
+	}
 
 	static const auto x86GPRsWithHighBytesAddressable    = util::make_array<QString>("EAX", "ECX", "EDX", "EBX", "RAX", "RCX", "RDX", "RBX");
 	static const auto x86GPRsWithHighBytesNotAddressable = util::make_array<QString>("ESP", "EBP", "ESI", "EDI", "RSP", "RBP", "RSI", "RDI");

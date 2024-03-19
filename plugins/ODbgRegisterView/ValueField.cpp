@@ -57,8 +57,9 @@ ValueField::ValueField(int fieldWidth, const QModelIndex &index, const std::func
 // break updating of colors such as "register changed" when single-stepping frequently
 #define FLAT_STYLE_NAME "fusion"
 
-	if (!flatStyle)
+	if (!flatStyle) {
 		flatStyle = QStyleFactory::create(FLAT_STYLE_NAME);
+	}
 
 	assert(flatStyle);
 	setStyle(flatStyle);
@@ -261,8 +262,9 @@ void ValueField::defaultAction() {
 		//              I.e. set value without knowing field offset, then setData(fieldIndex,word)
 		const auto regIndex = index_.parent().sibling(index_.parent().row(), ModelValueColumn);
 		auto byteArr        = regIndex.data(Model::RawValueRole).toByteArray();
-		if (byteArr.isEmpty())
+		if (byteArr.isEmpty()) {
 			return;
+		}
 		std::uint64_t word(0);
 		std::memcpy(&word, byteArr.constData(), byteArr.size());
 		const auto offset = valid_variant(index_.data(Model::BitFieldOffsetRole)).toInt();
@@ -304,8 +306,9 @@ void ValueField::updatePalette() {
 		palette.setColor(foregroundRole(), changedFGColor);
 		palette.setColor(QPalette::HighlightedText, changedFGColor);
 		setPalette(palette);
-	} else
+	} else {
 		setPalette(QApplication::palette());
+	}
 
 	QLabel::update();
 }
@@ -398,8 +401,9 @@ void add_to_top(RegisterViewModelBase::Model *model, const QModelIndex &fsrIndex
 	// TODO: Model: make it possible to set bit field itself, without manipulating parent directly
 	//              I.e. set value without knowing field offset, then setData(fieldIndex,word)
 	auto byteArr = fsrIndex.data(Model::RawValueRole).toByteArray();
-	if (byteArr.isEmpty())
+	if (byteArr.isEmpty()) {
 		return;
+	}
 
 	std::uint16_t word(0);
 	assert(byteArr.size() == sizeof(word));

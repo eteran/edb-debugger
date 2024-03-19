@@ -58,20 +58,21 @@ long double readFloat(const QString &strInput, bool &ok) {
 	static const std::array<std::uint8_t, 16> positiveQNaN{0, 0, 0, 0, 0, 0, 0, 0xc0, 0xff, 0x7f, 0, 0, 0, 0, 0, 0};
 	static const std::array<std::uint8_t, 16> negativeQNaN{0, 0, 0, 0, 0, 0, 0, 0xc0, 0xff, 0xff, 0, 0, 0, 0, 0, 0};
 
-	if (str == "+snan" || str == "snan")
+	if (str == "+snan" || str == "snan") {
 		std::memcpy(&value, &positiveSNaN, sizeof(value));
-	else if (str == "-snan")
+	} else if (str == "-snan") {
 		std::memcpy(&value, &negativeSNaN, sizeof(value));
-	else if (str == "+qnan" || str == "qnan" || str == "nan")
+	} else if (str == "+qnan" || str == "qnan" || str == "nan") {
 		std::memcpy(&value, &positiveQNaN, sizeof(value));
-	else if (str == "-qnan")
+	} else if (str == "-qnan") {
 		std::memcpy(&value, &negativeQNaN, sizeof(value));
-	else if (str == "+inf" || str == "inf")
+	} else if (str == "+inf" || str == "inf") {
 		std::memcpy(&value, &positiveInf, sizeof(value));
-	else if (str == "-inf")
+	} else if (str == "-inf") {
 		std::memcpy(&value, &negativeInf, sizeof(value));
-	else
+	} else {
 		return 0;
+	}
 
 	ok = true;
 	return value;

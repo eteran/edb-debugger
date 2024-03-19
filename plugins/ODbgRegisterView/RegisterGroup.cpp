@@ -27,8 +27,9 @@ void RegisterGroup::adjustWidth() {
 
 	Q_FOREACH (FieldWidget *field, fields()) {
 		const auto widthToRequire = field->pos().x() + field->width();
-		if (widthToRequire > widthNeeded)
+		if (widthToRequire > widthNeeded) {
 			widthNeeded = widthToRequire;
+		}
 	}
 
 	setMinimumWidth(widthNeeded);
@@ -39,10 +40,11 @@ void RegisterGroup::showMenu(const QPoint &position, const QList<QAction *> &add
 }
 
 void RegisterGroup::mousePressEvent(QMouseEvent *event) {
-	if (event->button() == Qt::RightButton)
+	if (event->button() == Qt::RightButton) {
 		showMenu(event->globalPos(), menuItems_);
-	else
+	} else {
 		event->ignore();
+	}
 }
 
 ODBRegView *RegisterGroup::regView() const {

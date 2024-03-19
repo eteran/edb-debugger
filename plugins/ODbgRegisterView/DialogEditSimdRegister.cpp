@@ -271,8 +271,9 @@ void DialogEditSimdRegister::resetLayout() {
 		float64->show();
 	}
 
-	for (int row = ENTRIES_FIRST_ROW; row < ROW_AFTER_ENTRIES; ++row)
+	for (int row = ENTRIES_FIRST_ROW; row < ROW_AFTER_ENTRIES; ++row) {
 		layout->itemAtPosition(row, LABELS_COL)->widget()->show();
+	}
 
 	layout->removeItem(hexSignOKCancelLayout_);
 	hexSignOKCancelLayout_->setParent(nullptr);
@@ -352,8 +353,9 @@ void DialogEditSimdRegister::setValue(const Register &newReg) {
 		const auto value = reg_.value<edb::value256>();
 		std::memcpy(&value_, &value, sizeof(value));
 		hideColumns(YMM_FIRST_COL);
-	} else
+	} else {
 		qCritical() << "DialogEditSimdRegister::setValue(" << reg_.name() << "): register type unsupported";
+	}
 	setWindowTitle(tr("Modify %1").arg(reg_.name().toUpper()));
 	updateAllEntriesExcept(nullptr);
 }
@@ -493,14 +495,18 @@ void DialogEditSimdRegister::onFloat64Edited() {
 void DialogEditSimdRegister::onHexToggled(bool checked) {
 	if ((checked && intMode_ != NumberDisplayMode::Hex) || !bytes_.front()->validator()) {
 		intMode_ = NumberDisplayMode::Hex;
-		for (const auto &byte : bytes_)
+		for (const auto &byte : bytes_) {
 			byte->setValidator(byteHexValidator_);
-		for (const auto &word : words_)
+		}
+		for (const auto &word : words_) {
 			word->setValidator(wordHexValidator_);
-		for (const auto &dword : dwords_)
+		}
+		for (const auto &dword : dwords_) {
 			dword->setValidator(dwordHexValidator_);
-		for (const auto &qword : qwords_)
+		}
+		for (const auto &qword : qwords_) {
 			qword->setValidator(qwordHexValidator_);
+		}
 		updateAllEntriesExcept(nullptr);
 	}
 }
@@ -508,14 +514,18 @@ void DialogEditSimdRegister::onHexToggled(bool checked) {
 void DialogEditSimdRegister::onSignedToggled(bool checked) {
 	if ((checked && intMode_ != NumberDisplayMode::Signed) || !bytes_.front()->validator()) {
 		intMode_ = NumberDisplayMode::Signed;
-		for (const auto &byte : bytes_)
+		for (const auto &byte : bytes_) {
 			byte->setValidator(byteSignedValidator_);
-		for (const auto &word : words_)
+		}
+		for (const auto &word : words_) {
 			word->setValidator(wordSignedValidator_);
-		for (const auto &dword : dwords_)
+		}
+		for (const auto &dword : dwords_) {
 			dword->setValidator(dwordSignedValidator_);
-		for (const auto &qword : qwords_)
+		}
+		for (const auto &qword : qwords_) {
 			qword->setValidator(qwordSignedValidator_);
+		}
 		updateAllEntriesExcept(nullptr);
 	}
 }
@@ -523,14 +533,18 @@ void DialogEditSimdRegister::onSignedToggled(bool checked) {
 void DialogEditSimdRegister::onUnsignedToggled(bool checked) {
 	if ((checked && intMode_ != NumberDisplayMode::Unsigned) || !bytes_.front()->validator()) {
 		intMode_ = NumberDisplayMode::Unsigned;
-		for (const auto &byte : bytes_)
+		for (const auto &byte : bytes_) {
 			byte->setValidator(byteUnsignedValidator_);
-		for (const auto &word : words_)
+		}
+		for (const auto &word : words_) {
 			word->setValidator(wordUnsignedValidator_);
-		for (const auto &dword : dwords_)
+		}
+		for (const auto &dword : dwords_) {
 			dword->setValidator(dwordUnsignedValidator_);
-		for (const auto &qword : qwords_)
+		}
+		for (const auto &qword : qwords_) {
 			qword->setValidator(qwordUnsignedValidator_);
+		}
 		updateAllEntriesExcept(nullptr);
 	}
 }

@@ -43,9 +43,15 @@ namespace {
  */
 IRegion::permissions_t permissions_value(bool read, bool write, bool execute) {
 	IRegion::permissions_t perms = 0;
-	if (read) perms |= PROT_READ;
-	if (write) perms |= PROT_WRITE;
-	if (execute) perms |= PROT_EXEC;
+	if (read) {
+		perms |= PROT_READ;
+	}
+	if (write) {
+		perms |= PROT_WRITE;
+	}
+	if (execute) {
+		perms |= PROT_EXEC;
+	}
 	return perms;
 }
 
