@@ -123,7 +123,7 @@ ELFXX<ElfHeader>::ELFXX(const std::shared_ptr<IRegion> &region)
 
 		const QString process_executable = edb::v1::debugger_core->process()->name();
 		for (const std::shared_ptr<IRegion> &r : edb::v1::memory_regions().regions()) {
-			if (r->executable() && r->name() == region->name()) {
+			if (r->accessible() && r->name() == region->name()) {
 				lowest = std::min(lowest, r->start());
 			}
 		}

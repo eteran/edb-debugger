@@ -133,9 +133,19 @@ void set_function_types(IAnalyzer::FunctionMap *results) {
  */
 edb::address_t module_entry_point(const std::shared_ptr<IRegion> &region) {
 	// NOTE(eteran): because modern ELF files actually have the ELF header in its
-	// own, non-executable section that precedes the main one, this currently fails
+	// own, non-executable section that precedes the main one, so this may fail...
 	if (std::unique_ptr<IBinary> binary_info = edb::v1::get_binary_info(region)) {
 		return binary_info->entryPoint();
+	}
+
+	// if it does, we can just try to see if there is a region that fits the bill
+	// one page before us. it's a guess, but it's not a bad one
+	const size_t page_size  = edb::v1::debugger_core->pageSize();
+	const edb::address_t prevRegion = region->start() - page_size;
+	if (std::shared_ptr<IRegion> region = edb::v1::memory_regions().findRegion(prevRegion)) {
+		if (std::unique_ptr<IBinary> binary_info = edb::v1::get_binary_info(region)) {
+			return binary_info->entryPoint();
+		}
 	}
 
 	return 0;
