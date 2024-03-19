@@ -495,6 +495,8 @@ P4FILE = "FILE *"
 	</function>
 
 	<function type="v" name="__stack_chk_fail" noreturn="true" ></function>
+	<function type="v" name="__fortify_fail" noreturn="true" ></function>
+	<function type="v" name="__chk_fail" noreturn="true" ></function>
 
 	<function type="v" name="_dl_signal_cerror">
 		<argument type="i" name="errcode," />

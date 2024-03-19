@@ -28,13 +28,18 @@ void DialogXRefs::on_listReferences_itemDoubleClicked(QListWidgetItem *item) {
  */
 void DialogXRefs::addReference(const std::pair<edb::address_t, edb::address_t> &ref) {
 
-	int offset;
-	QString sym = edb::v1::find_function_symbol(ref.first, ref.first.toPointerString(), &offset);
+	auto it = references_.find(ref);
+	if (it == references_.end()) {
+		references_.insert(ref);
 
-	auto string = tr("%1. %2 -> %3").arg(ui.listReferences->count() + 1, 2, 10, QChar('0')).arg(sym).arg(ref.second.toPointerString());
+		int offset;
+		QString sym = edb::v1::find_function_symbol(ref.first, ref.first.toPointerString(), &offset);
 
-	auto item = new QListWidgetItem(string, ui.listReferences);
-	item->setData(Qt::UserRole, static_cast<qlonglong>(ref.first));
+		auto string = tr("%1. %2 -> %3").arg(ui.listReferences->count() + 1, 2, 10, QChar('0')).arg(sym).arg(ref.second.toPointerString());
+
+		auto item = new QListWidgetItem(string, ui.listReferences);
+		item->setData(Qt::UserRole, static_cast<qlonglong>(ref.first));
+	}
 }
 
 }

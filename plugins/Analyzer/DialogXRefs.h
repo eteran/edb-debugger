@@ -6,6 +6,7 @@
 #include "ui_DialogXRefs.h"
 
 #include <QDialog>
+#include <set>
 #include <utility>
 
 class QListWidgetItem;
@@ -27,6 +28,7 @@ public:
 
 private:
 	Ui::DialogXRefs ui;
+	std::set<std::pair<edb::address_t, edb::address_t>> references_;
 };
 
 }
