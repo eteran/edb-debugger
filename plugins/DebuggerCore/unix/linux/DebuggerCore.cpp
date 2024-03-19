@@ -691,14 +691,16 @@ int DebuggerCore::attachThread(edb::tid_t tid) {
 			}
 
 			return 0;
-		} else if (ret == -1) {
-			return errno;
-		} else {
-			return -1; // unknown error
 		}
-	} else {
-		return errno;
+
+		if (ret == -1) {
+			return errno;
+		}
+
+		return -1; // unknown error
 	}
+
+	return errno;
 }
 
 /**
@@ -827,7 +829,9 @@ void DebuggerCore::detectCpuMode() {
 			}
 			pointerSize_ = sizeof(uint32_t);
 			return;
-		} else if (cs == userCodeSegment64_) {
+		}
+
+		if (cs == userCodeSegment64_) {
 			if (pointerSize_ == sizeof(uint32_t)) {
 				qDebug() << "Debuggee is now 64 bit";
 				cpuMode_ = CpuMode::x86_64;
@@ -1085,12 +1089,13 @@ uint64_t DebuggerCore::cpuType() const {
 QString DebuggerCore::stackPointer() const {
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	if (edb::v1::debuggeeIs32Bit()) {
-		return "esp";
-	} else {
-		return "rsp";
+		return QStringLiteral("esp");
 	}
+
+	return QStringLiteral("rsp");
+
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
-	return "sp";
+	return QStringLiteral("sp");
 #else
 #error "Unsupported Architecture"
 #endif
@@ -1103,12 +1108,12 @@ QString DebuggerCore::stackPointer() const {
 QString DebuggerCore::framePointer() const {
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	if (edb::v1::debuggeeIs32Bit()) {
-		return "ebp";
-	} else {
-		return "rbp";
+		return QStringLiteral("ebp");
 	}
+
+	return QStringLiteral("rbp");
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
-	return "fp";
+	return QStringLiteral("fp");
 #else
 #error "Unsupported Architecture"
 #endif
@@ -1121,12 +1126,12 @@ QString DebuggerCore::framePointer() const {
 QString DebuggerCore::instructionPointer() const {
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	if (edb::v1::debuggeeIs32Bit()) {
-		return "eip";
-	} else {
-		return "rip";
+		return QStringLiteral("eip");
 	}
+
+	return QStringLiteral("rip");
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
-	return "pc";
+	return QStringLiteral("pc");
 #else
 #error "Unsupported Architecture"
 #endif
@@ -1139,12 +1144,12 @@ QString DebuggerCore::instructionPointer() const {
 QString DebuggerCore::flagRegister() const {
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	if (edb::v1::debuggeeIs32Bit()) {
-		return "eflags";
-	} else {
-		return "rflags";
+		return QStringLiteral("eflags");
 	}
+
+	return QStringLiteral("rflags");
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
-	return "cpsr";
+	return QStringLiteral("cpsr");
 #else
 #error "Unsupported Architecture"
 #endif

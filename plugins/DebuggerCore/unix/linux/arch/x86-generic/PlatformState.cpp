@@ -870,38 +870,38 @@ Register PlatformState::value(const QString &reg) const {
 
 	// don't return valid Register with garbage value
 	if (x86.gpr32Filled) {
-		if (reg == x86.origRAXName && x86.gpr64Filled && is64Bit()) {
-			return make_Register<64>(x86.origRAXName, x86.orig_ax, Register::TYPE_GPR);
+		if (reg == X86::origRAXName && x86.gpr64Filled && is64Bit()) {
+			return make_Register<64>(X86::origRAXName, x86.orig_ax, Register::TYPE_GPR);
 		}
-		if (reg == x86.origEAXName) {
-			return make_Register<32>(x86.origEAXName, x86.orig_ax, Register::TYPE_GPR);
+		if (reg == X86::origEAXName) {
+			return make_Register<32>(X86::origEAXName, x86.orig_ax, Register::TYPE_GPR);
 		}
-		if (x86.gpr64Filled && is64Bit() && !!(found = findRegisterValue(x86.GPReg64Names, x86.GPRegs, regName, Register::TYPE_GPR, gpr64_count()))) {
+		if (x86.gpr64Filled && is64Bit() && !!(found = findRegisterValue(X86::GPReg64Names, x86.GPRegs, regName, Register::TYPE_GPR, gpr64_count()))) {
 			return found;
 		}
-		if (!!(found = findRegisterValue<32>(x86.GPReg32Names, x86.GPRegs, regName, Register::TYPE_GPR, gpr_count()))) {
+		if (!!(found = findRegisterValue<32>(X86::GPReg32Names, x86.GPRegs, regName, Register::TYPE_GPR, gpr_count()))) {
 			return found;
 		}
-		if (!!(found = findRegisterValue<16>(x86.GPReg16Names, x86.GPRegs, regName, Register::TYPE_GPR, gpr_count()))) {
+		if (!!(found = findRegisterValue<16>(X86::GPReg16Names, x86.GPRegs, regName, Register::TYPE_GPR, gpr_count()))) {
 			return found;
 		}
-		if (!!(found = findRegisterValue<8>(x86.GPReg8LNames, x86.GPRegs, regName, Register::TYPE_GPR, gpr_low_addressable_count()))) {
+		if (!!(found = findRegisterValue<8>(X86::GPReg8LNames, x86.GPRegs, regName, Register::TYPE_GPR, gpr_low_addressable_count()))) {
 			return found;
 		}
-		if (!!(found = findRegisterValue<8>(x86.GPReg8HNames, x86.GPRegs, regName, Register::TYPE_GPR, gpr_high_addressable_count(), 8))) {
+		if (!!(found = findRegisterValue<8>(X86::GPReg8HNames, x86.GPRegs, regName, Register::TYPE_GPR, gpr_high_addressable_count(), 8))) {
 			return found;
 		}
-		if (!!(found = findRegisterValue(x86.segRegNames, x86.segRegs, regName, Register::TYPE_SEG, seg_reg_count()))) {
+		if (!!(found = findRegisterValue(X86::segRegNames, x86.segRegs, regName, Register::TYPE_SEG, seg_reg_count()))) {
 			return found;
 		}
 
 		if (regName.mid(1) == "s_base") {
 			const QString segRegName    = regName.mid(0, 2);
-			const auto end              = x86.segRegNames.end();
-			const auto regNameFoundIter = std::find(x86.segRegNames.begin(), end, segRegName);
+			const auto end              = X86::segRegNames.end();
+			const auto regNameFoundIter = std::find(X86::segRegNames.begin(), end, segRegName);
 
 			if (regNameFoundIter != end) {
-				const size_t index = regNameFoundIter - x86.segRegNames.begin();
+				const size_t index = regNameFoundIter - X86::segRegNames.begin();
 
 				if (!x86.segRegBasesFilled[index]) {
 					return Register();
@@ -917,23 +917,23 @@ Register PlatformState::value(const QString &reg) const {
 			}
 		}
 
-		if (is64Bit() && regName == x86.flags64Name) {
-			return make_Register(x86.flags64Name, x86.flags, Register::TYPE_COND);
+		if (is64Bit() && regName == X86::flags64Name) {
+			return make_Register(X86::flags64Name, x86.flags, Register::TYPE_COND);
 		}
-		if (regName == x86.flags32Name) {
-			return make_Register<32>(x86.flags32Name, x86.flags, Register::TYPE_COND);
+		if (regName == X86::flags32Name) {
+			return make_Register<32>(X86::flags32Name, x86.flags, Register::TYPE_COND);
 		}
-		if (regName == x86.flags16Name) {
-			return make_Register<16>(x86.flags16Name, x86.flags, Register::TYPE_COND);
+		if (regName == X86::flags16Name) {
+			return make_Register<16>(X86::flags16Name, x86.flags, Register::TYPE_COND);
 		}
-		if (is64Bit() && regName == x86.IP64Name) {
-			return make_Register(x86.IP64Name, x86.IP, Register::TYPE_IP);
+		if (is64Bit() && regName == X86::IP64Name) {
+			return make_Register(X86::IP64Name, x86.IP, Register::TYPE_IP);
 		}
-		if (regName == x86.IP32Name) {
-			return make_Register<32>(x86.IP32Name, x86.IP, Register::TYPE_IP);
+		if (regName == X86::IP32Name) {
+			return make_Register<32>(X86::IP32Name, x86.IP, Register::TYPE_IP);
 		}
-		if (regName == x86.IP16Name) {
-			return make_Register<16>(x86.IP16Name, x86.IP, Register::TYPE_IP);
+		if (regName == X86::IP16Name) {
+			return make_Register<16>(X86::IP16Name, x86.IP, Register::TYPE_IP);
 		}
 	}
 
@@ -1050,8 +1050,8 @@ Register PlatformState::value(const QString &reg) const {
 		}
 	}
 
-	if (avx.xmmFilledIA32 && regName == avx.mxcsrName) {
-		return make_Register(avx.mxcsrName, avx.mxcsr, Register::TYPE_COND);
+	if (avx.xmmFilledIA32 && regName == AVX::mxcsrName) {
+		return make_Register(AVX::mxcsrName, avx.mxcsr, Register::TYPE_COND);
 	}
 
 	return Register();
@@ -1064,9 +1064,9 @@ Register PlatformState::value(const QString &reg) const {
 Register PlatformState::instructionPointerRegister() const {
 
 	if (x86.gpr64Filled && is64Bit()) {
-		return make_Register(x86.IP64Name, x86.IP, Register::TYPE_GPR);
+		return make_Register(X86::IP64Name, x86.IP, Register::TYPE_GPR);
 	} else if (x86.gpr32Filled) {
-		return make_Register<32>(x86.IP32Name, x86.IP, Register::TYPE_GPR);
+		return make_Register<32>(X86::IP32Name, x86.IP, Register::TYPE_GPR);
 	}
 
 	return Register();
@@ -1112,9 +1112,9 @@ edb::reg_t PlatformState::debugRegister(size_t n) const {
  */
 Register PlatformState::flagsRegister() const {
 	if (x86.gpr64Filled && is64Bit()) {
-		return make_Register(x86.flags64Name, x86.flags, Register::TYPE_GPR);
+		return make_Register(X86::flags64Name, x86.flags, Register::TYPE_GPR);
 	} else if (x86.gpr32Filled) {
-		return make_Register<32>(x86.flags32Name, x86.flags, Register::TYPE_GPR);
+		return make_Register<32>(X86::flags32Name, x86.flags, Register::TYPE_GPR);
 	}
 
 	return Register();
@@ -1268,9 +1268,9 @@ Register PlatformState::gpRegister(size_t n) const {
 
 	if (gprIndexValid(n)) {
 		if (x86.gpr64Filled && is64Bit()) {
-			return make_Register(x86.GPReg64Names[n], x86.GPRegs[n], Register::TYPE_GPR);
+			return make_Register(X86::GPReg64Names[n], x86.GPRegs[n], Register::TYPE_GPR);
 		} else if (x86.gpr32Filled && n < IA32_GPR_COUNT) {
-			return make_Register<32>(x86.GPReg32Names[n], x86.GPRegs[n], Register::TYPE_GPR);
+			return make_Register<32>(X86::GPReg32Names[n], x86.GPRegs[n], Register::TYPE_GPR);
 		}
 	}
 
@@ -1293,10 +1293,10 @@ void PlatformState::setRegister(const Register &reg) {
 		return;
 	}
 
-	auto segRegNameFoundIter = std::find(x86.segRegNames.begin(), x86.segRegNames.end(), regName);
+	auto segRegNameFoundIter = std::find(X86::segRegNames.begin(), X86::segRegNames.end(), regName);
 
-	if (segRegNameFoundIter != x86.segRegNames.end()) {
-		size_t index       = segRegNameFoundIter - x86.segRegNames.begin();
+	if (segRegNameFoundIter != X86::segRegNames.end()) {
+		size_t index       = segRegNameFoundIter - X86::segRegNames.begin();
 		x86.segRegs[index] = reg.value<edb::seg_reg_t>();
 		return;
 	}
@@ -1311,7 +1311,7 @@ void PlatformState::setRegister(const Register &reg) {
 		return;
 	}
 
-	if (regName == avx.mxcsrName) {
+	if (regName == AVX::mxcsrName) {
 		avx.mxcsr = reg.value<edb::value32>();
 		return;
 	}

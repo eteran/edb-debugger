@@ -313,15 +313,15 @@ public:
 	}
 
 	const char *IPName() const {
-		return is64Bit() ? x86.IP64Name : x86.IP32Name;
+		return is64Bit() ? X86::IP64Name : X86::IP32Name;
 	}
 
 	const char *flagsName() const {
-		return is64Bit() ? x86.flags64Name : x86.flags32Name;
+		return is64Bit() ? X86::flags64Name : X86::flags32Name;
 	}
 
 	const std::array<const char *, MAX_GPR_COUNT> &GPRegNames() const {
-		return is64Bit() ? x86.GPReg64Names : x86.GPReg32Names;
+		return is64Bit() ? X86::GPReg64Names : X86::GPReg32Names;
 	}
 
 private:
