@@ -66,8 +66,8 @@ public:
 	BackupInfo &operator=(const BackupInfo &) = delete;
 
 public:
-	IRegion::permissions_t perms() const { return premissions_; }
-	bool locked() { return !lock_.testAndSetAcquire(0, 1); }
+	[[nodiscard]] IRegion::permissions_t perms() const { return permissions_; }
+	[[nodiscard]] bool locked() { return !lock_.testAndSetAcquire(0, 1); }
 
 public:
 	bool backup();
@@ -79,7 +79,7 @@ public:
 private:
 	QAtomicInt lock_ = 1;
 	edb::address_t address_;
-	IRegion::permissions_t premissions_;
+	IRegion::permissions_t permissions_;
 	State state_;
 	uint8_t buffer_[N];
 	PlatformRegion *const region_;
@@ -93,7 +93,7 @@ private:
  */
 template <size_t N>
 BackupInfo<N>::BackupInfo(edb::address_t address, IRegion::permissions_t perms, PlatformRegion *region)
-	: address_(address), premissions_(perms), region_(region) {
+	: address_(address), permissions_(perms), region_(region) {
 	edb::v1::add_debug_event_handler(this);
 }
 
@@ -170,8 +170,8 @@ edb::EventStatus BackupInfo<N>::handleEvent(const std::shared_ptr<IDebugEvent> &
  * @param name
  * @param permissions
  */
-PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions)
-	: start_(start), end_(end), base_(base), name_(name), permissions_(permissions) {
+PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, QString name, permissions_t permissions)
+	: start_(start), end_(end), base_(base), name_(std::move(name)), permissions_(permissions) {
 }
 
 /**

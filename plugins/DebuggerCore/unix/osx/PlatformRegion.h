@@ -29,7 +29,7 @@ class PlatformRegion : public IRegion {
 	Q_DECLARE_TR_FUNCTIONS(PlatformRegion)
 
 public:
-	PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions);
+	PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, QString name, permissions_t permissions);
 	~PlatformRegion() override = default;
 
 public:

@@ -32,7 +32,7 @@ class PlatformRegion final : public IRegion {
 	friend class BackupInfo;
 
 public:
-	PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions);
+	PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, QString name, permissions_t permissions);
 	~PlatformRegion() override = default;
 
 public:

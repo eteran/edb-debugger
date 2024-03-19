@@ -281,15 +281,15 @@ std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, std::s
 					return 1;
 				}
 				return 0;
-			} else {
-				bool ok;
-				uint8_t x = ptraceReadByte(address, &ok);
-				if (ok) {
-					*ptr = x;
-					return 1;
-				}
-				return 0;
 			}
+
+			bool ok;
+			uint8_t x = ptraceReadByte(address, &ok);
+			if (ok) {
+				*ptr = x;
+				return 1;
+			}
+			return 0;
 		}
 
 		if (readOnlyMemFile_) {
@@ -792,11 +792,13 @@ QString PlatformProcess::name() const {
 QList<Module> PlatformProcess::loadedModules() const {
 	if (edb::v1::debuggeeIs64Bit()) {
 		return get_loaded_modules<Elf64_Addr>(this);
-	} else if (edb::v1::debuggeeIs32Bit()) {
-		return get_loaded_modules<Elf32_Addr>(this);
-	} else {
-		return QList<Module>();
 	}
+
+	if (edb::v1::debuggeeIs32Bit()) {
+		return get_loaded_modules<Elf32_Addr>(this);
+	}
+
+	return QList<Module>();
 }
 
 /**
@@ -1090,7 +1092,9 @@ edb::address_t PlatformProcess::debugPointer() const {
 
 		if (edb::v1::debuggeeIs64Bit()) {
 			return get_debug_pointer<elf_model<64>>(this, phdr_memaddr, num_phdr, relocation);
-		} else if (edb::v1::debuggeeIs32Bit()) {
+		}
+
+		if (edb::v1::debuggeeIs32Bit()) {
 			return get_debug_pointer<elf_model<32>>(this, phdr_memaddr, num_phdr, relocation);
 		}
 	}

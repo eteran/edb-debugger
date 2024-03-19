@@ -29,8 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCore {
 
-PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions)
-	: start_(start), end_(end), base_(base), name_(name), permissions_(permissions) {
+PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, QString name, permissions_t permissions)
+	: start_(start), end_(end), base_(base), name_(std::move(name)), permissions_(permissions) {
 }
 
 IRegion *PlatformRegion::clone() const {
