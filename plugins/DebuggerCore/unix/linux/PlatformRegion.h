@@ -36,14 +36,14 @@ public:
 	~PlatformRegion() override = default;
 
 public:
-	IRegion *clone() const override;
+	[[nodiscard]] IRegion *clone() const override;
 
 public:
-	bool accessible() const override;
-	bool readable() const override;
-	bool writable() const override;
-	bool executable() const override;
-	size_t size() const override;
+	[[nodiscard]] bool accessible() const override;
+	[[nodiscard]] bool readable() const override;
+	[[nodiscard]] bool writable() const override;
+	[[nodiscard]] bool executable() const override;
+	[[nodiscard]] size_t size() const override;
 
 public:
 	void setPermissions(bool read, bool write, bool execute) override;
@@ -51,11 +51,11 @@ public:
 	void setEnd(edb::address_t address) override;
 
 public:
-	edb::address_t start() const override;
-	edb::address_t end() const override;
-	edb::address_t base() const override;
-	QString name() const override;
-	permissions_t permissions() const override;
+	[[nodiscard]] edb::address_t start() const override;
+	[[nodiscard]] edb::address_t end() const override;
+	[[nodiscard]] edb::address_t base() const override;
+	[[nodiscard]] QString name() const override;
+	[[nodiscard]] permissions_t permissions() const override;
 
 private:
 	void setPermissions(bool read, bool write, bool execute, edb::address_t temp_address);

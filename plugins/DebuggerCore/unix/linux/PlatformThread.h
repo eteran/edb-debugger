@@ -46,7 +46,7 @@ public:
 	[[nodiscard]] QString name() const override;
 	[[nodiscard]] int priority() const override;
 	[[nodiscard]] edb::address_t instructionPointer() const override;
-	QString runState() const override;
+	[[nodiscard]]QString runState() const override;
 
 public:
 	void getState(State *state) override;
