@@ -35,18 +35,18 @@ public:
 	SymbolManager() = default;
 
 public:
-	const std::vector<std::shared_ptr<Symbol>> symbols() const override;
-	const std::shared_ptr<Symbol> find(const QString &name) const override;
-	const std::shared_ptr<Symbol> find(edb::address_t address) const override;
-	const std::shared_ptr<Symbol> findNearSymbol(edb::address_t address) const override;
+	[[nodiscard]] QHash<edb::address_t, QString> labels() const override;
+	[[nodiscard]] QString findAddressName(edb::address_t address, bool prefixed = true) override;
+	[[nodiscard]] QStringList files() const override;
+	[[nodiscard]] std::shared_ptr<Symbol> find(const QString &name) const override;
+	[[nodiscard]] std::shared_ptr<Symbol> find(edb::address_t address) const override;
+	[[nodiscard]] std::shared_ptr<Symbol> findNearSymbol(edb::address_t address) const override;
+	[[nodiscard]] std::vector<std::shared_ptr<Symbol>> symbols() const override;
 	void addSymbol(const std::shared_ptr<Symbol> &symbol) override;
 	void clear() override;
 	void loadSymbolFile(const QString &filename, edb::address_t base) override;
-	void setSymbolGenerator(ISymbolGenerator *generator) override;
 	void setLabel(edb::address_t address, const QString &label) override;
-	QString findAddressName(edb::address_t address, bool prefixed = true) override;
-	QHash<edb::address_t, QString> labels() const override;
-	QStringList files() const override;
+	void setSymbolGenerator(ISymbolGenerator *generator) override;
 
 private:
 	bool processSymbolFile(const QString &f, edb::address_t base, const QString &library_filename, bool allow_retry);

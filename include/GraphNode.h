@@ -61,7 +61,7 @@ public:
 public:
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 	QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
-	QRectF boundingRect() const override;
+	[[nodiscard]] QRectF boundingRect() const override;
 
 protected:
 	void hoverEnterEvent(QGraphicsSceneHoverEvent *e) override;

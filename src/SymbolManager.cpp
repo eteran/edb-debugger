@@ -93,7 +93,7 @@ void SymbolManager::loadSymbolFile(const QString &filename, edb::address_t base)
 // Name: find
 // Desc:
 //------------------------------------------------------------------------------
-const std::shared_ptr<Symbol> SymbolManager::find(const QString &name) const {
+std::shared_ptr<Symbol> SymbolManager::find(const QString &name) const {
 
 	auto it = symbolsByName_.find(name);
 	if (it != symbolsByName_.end()) {
@@ -118,7 +118,7 @@ const std::shared_ptr<Symbol> SymbolManager::find(const QString &name) const {
 // Name: find
 // Desc:
 //------------------------------------------------------------------------------
-const std::shared_ptr<Symbol> SymbolManager::find(edb::address_t address) const {
+std::shared_ptr<Symbol> SymbolManager::find(edb::address_t address) const {
 	auto it = symbolsByAddress_.find(address);
 	return (it != symbolsByAddress_.end()) ? it.value() : nullptr;
 }
@@ -127,7 +127,7 @@ const std::shared_ptr<Symbol> SymbolManager::find(edb::address_t address) const 
 // Name: findNearSymbol
 // Desc:
 //------------------------------------------------------------------------------
-const std::shared_ptr<Symbol> SymbolManager::findNearSymbol(edb::address_t address) const {
+std::shared_ptr<Symbol> SymbolManager::findNearSymbol(edb::address_t address) const {
 
 	auto it = symbolsByAddress_.lowerBound(address);
 	if (it != symbolsByAddress_.end()) {
@@ -264,7 +264,7 @@ bool SymbolManager::processSymbolFile(const QString &f, edb::address_t base, con
 // Name: symbols
 // Desc:
 //------------------------------------------------------------------------------
-const std::vector<std::shared_ptr<Symbol>> SymbolManager::symbols() const {
+std::vector<std::shared_ptr<Symbol>> SymbolManager::symbols() const {
 	return symbols_;
 }
 

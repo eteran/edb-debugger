@@ -96,8 +96,8 @@ void DialogAsciiString::doFind() {
 							edb::address_t stack_address;
 
 							if (process->readBytes(stack_ptr, &stack_address, edb::v1::pointer_size())) {
-								if (process->readBytes(stack_address, &chars[0], chars.size())) {
-									if (std::memcmp(&chars[0], b.constData(), chars.size()) == 0) {
+								if (process->readBytes(stack_address, chars.data(), chars.size())) {
+									if (std::memcmp(chars.data(), b.constData(), chars.size()) == 0) {
 										results->addResult(DialogResults::RegionType::Stack, stack_ptr);
 									}
 								}

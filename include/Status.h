@@ -32,8 +32,8 @@ public:
 	Status(OkType) {
 	}
 
-	explicit Status(const QString &message)
-		: error_(message) {
+	explicit Status(QString message)
+		: error_(std::move(message)) {
 	}
 
 	Status(const Status &)            = default;

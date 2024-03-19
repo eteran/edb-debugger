@@ -48,8 +48,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolTip>
 #include <QtGlobal>
 
-#include <QDebug>
-
 #include <algorithm>
 #include <climits>
 #include <cmath>
@@ -732,7 +730,7 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 	showAddresses_.clear();
 
 	int bufsize                        = instructionBuffer_.size();
-	uint8_t *inst_buf                  = &instructionBuffer_[0];
+	uint8_t *inst_buf                  = instructionBuffer_.data();
 	const edb::address_t start_address = addressOffset_ + verticalScrollBar()->value();
 
 	if (!edb::v1::get_instruction_bytes(start_address, inst_buf, &bufsize)) {

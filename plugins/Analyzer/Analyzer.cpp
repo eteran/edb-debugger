@@ -583,7 +583,7 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 
 		QHash<edb::address_t, int> fuzzy_functions;
 
-		uint8_t *const first = &data->memory[0];
+		uint8_t *const first = (data->memory).data();
 		uint8_t *const last  = &first[data->memory.size()];
 
 		uint8_t *p = first;

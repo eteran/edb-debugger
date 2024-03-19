@@ -1117,7 +1117,7 @@ bool modify_bytes(address_t address, size_t size, QByteArray &bytes, uint8_t fil
 // Desc:
 //------------------------------------------------------------------------------
 QByteArray get_md5(const QVector<uint8_t> &bytes) {
-	return get_md5(&bytes[0], bytes.size());
+	return get_md5(bytes.data(), bytes.size());
 }
 
 //------------------------------------------------------------------------------

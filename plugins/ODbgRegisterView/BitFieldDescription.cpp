@@ -4,8 +4,8 @@
 
 namespace ODbgRegisterView {
 
-BitFieldDescription::BitFieldDescription(int textWidth, const std::vector<QString> &valueNames, const std::vector<QString> &setValueTexts, const std::function<bool(unsigned, unsigned)> &valueEqualComparator)
-	: textWidth(textWidth), valueNames(valueNames), setValueTexts(setValueTexts), valueEqualComparator(valueEqualComparator) {
+BitFieldDescription::BitFieldDescription(int textWidth, std::vector<QString> valueNames, std::vector<QString> setValueTexts, std::function<bool(unsigned, unsigned)> valueEqualComparator)
+	: textWidth(textWidth), valueNames(std::move(valueNames)), setValueTexts(std::move(setValueTexts)), valueEqualComparator(std::move(valueEqualComparator)) {
 }
 
 }

@@ -114,7 +114,7 @@ bool Breakpoint::enable() {
 	if (!enabled()) {
 		if (IProcess *process = edb::v1::debugger_core->process()) {
 			std::vector<uint8_t> prev(2);
-			if (process->readBytes(address(), &prev[0], prev.size())) {
+			if (process->readBytes(address(), prev.data(), prev.size())) {
 				originalBytes_                      = prev;
 				const std::vector<uint8_t> *bpBytes = nullptr;
 
@@ -178,7 +178,7 @@ bool Breakpoint::enable() {
 bool Breakpoint::disable() {
 	if (enabled()) {
 		if (IProcess *process = edb::v1::debugger_core->process()) {
-			if (process->writeBytes(address(), &originalBytes_[0], originalBytes_.size())) {
+			if (process->writeBytes(address(), originalBytes_.data(), originalBytes_.size())) {
 				enabled_ = false;
 				return true;
 			}

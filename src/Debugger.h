@@ -180,7 +180,7 @@ private Q_SLOTS:
 
 private Q_SLOTS:
 	// the manually connected Register slots
-	QList<QAction *> currentRegisterContextMenuItems() const;
+	[[nodiscard]] QList<QAction *> currentRegisterContextMenuItems() const;
 	void mnuRegisterFollowInDump() { followRegisterInDump(false); }
 	void mnuRegisterFollowInDumpNewTab() { followRegisterInDump(true); }
 	void mnuRegisterFollowInStack();

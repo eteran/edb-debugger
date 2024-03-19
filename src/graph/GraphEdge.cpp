@@ -122,7 +122,8 @@ QLineF GraphEdge::shortenLineToNode(QLineF line) {
 		QLineF(nodeRect.topLeft(), nodeRect.bottomLeft()),
 		QLineF(nodeRect.topLeft(), nodeRect.topRight()),
 		QLineF(nodeRect.topRight(), nodeRect.bottomRight()),
-		QLineF(nodeRect.bottomRight(), nodeRect.bottomLeft())};
+		QLineF(nodeRect.bottomRight(), nodeRect.bottomLeft()),
+	};
 
 	// for any that intersect, shorten the line appropriately
 	for (int i = 0; i < 4; ++i) {

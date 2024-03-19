@@ -60,7 +60,7 @@ public:
 	[[nodiscard]] bool oneTime() const override { return oneTime_; }
 	[[nodiscard]] bool internal() const override { return internal_; }
 	[[nodiscard]] size_t size() const override { return originalBytes_.size(); }
-	[[nodiscard]] const uint8_t *originalBytes() const override { return &originalBytes_[0]; }
+	[[nodiscard]] const uint8_t *originalBytes() const override { return originalBytes_.data(); }
 	[[nodiscard]] IBreakpoint::TypeId type() const override { return type_; }
 
 	[[nodiscard]] static std::vector<BreakpointType> supportedTypes();

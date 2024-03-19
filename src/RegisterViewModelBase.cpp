@@ -766,7 +766,7 @@ template <typename UnderlyingType>
 BitFieldItem<UnderlyingType>::BitFieldItem(const BitFieldDescriptionEx &descr)
 	: RegisterViewItem(descr.name), offset_(descr.offset), length_(descr.length), explanations(descr.explanations) {
 	Q_ASSERT(8 * sizeof(UnderlyingType) >= length_);
-	Q_ASSERT(explanations.size() == 0 || explanations.size() == 2u << (length_ - 1));
+	Q_ASSERT(explanations.empty() || explanations.size() == 2u << (length_ - 1));
 }
 
 template <typename UnderlyingType>

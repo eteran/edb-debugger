@@ -71,7 +71,7 @@ public:
 	explicit DialogEditSimdRegister(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	void setValue(const Register &value);
 	void set_current_element(RegisterViewModelBase::Model::ElementSize size, NumberDisplayMode format, int elementIndex);
-	Register value() const;
+	[[nodiscard]] Register value() const;
 
 protected:
 	bool eventFilter(QObject *, QEvent *) override;

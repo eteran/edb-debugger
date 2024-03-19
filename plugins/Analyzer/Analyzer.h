@@ -60,15 +60,15 @@ private:
 	[[nodiscard]] QWidget *optionsPage() override;
 
 public:
-	AddressCategory category(edb::address_t address) const override;
-	FunctionMap functions(const std::shared_ptr<IRegion> &region) const override;
-	FunctionMap functions() const override;
-	QSet<edb::address_t> specifiedFunctions() const override { return specifiedFunctions_; }
-	Result<edb::address_t, QString> findContainingFunction(edb::address_t address) const override;
+	[[nodiscard]] AddressCategory category(edb::address_t address) const override;
+	[[nodiscard]] FunctionMap functions() const override;
+	[[nodiscard]] FunctionMap functions(const std::shared_ptr<IRegion> &region) const override;
+	[[nodiscard]] QSet<edb::address_t> specifiedFunctions() const override { return specifiedFunctions_; }
+	[[nodiscard]] Result<edb::address_t, QString> findContainingFunction(edb::address_t address) const override;
+	bool forFuncsInRange(edb::address_t start, edb::address_t end, std::function<bool(const Function *)> functor) const override;
 	void analyze(const std::shared_ptr<IRegion> &region) override;
 	void invalidateAnalysis() override;
 	void invalidateAnalysis(const std::shared_ptr<IRegion> &region) override;
-	bool forFuncsInRange(edb::address_t start, edb::address_t end, std::function<bool(const Function *)> functor) const override;
 
 private:
 	[[nodiscard]] bool findContainingFunction(edb::address_t address, Function *function) const;

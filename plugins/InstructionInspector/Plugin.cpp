@@ -1388,7 +1388,7 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 
 		if (!insn) {
 			add({"Bad instruction", "Failed to disassemble instruction at address " + edb::v1::format_pointer(address_)});
-			add({"Bytes", printBytes(&insnBytes_[0], insnBytes_.size()).c_str()});
+			add({"Bytes", printBytes(insnBytes_.data(), insnBytes_.size()).c_str()});
 		} else {
 			add({"Address", toHex(insn->address).c_str()});
 			add({"Bytes", printBytes(insn->bytes, insn->size).c_str()});

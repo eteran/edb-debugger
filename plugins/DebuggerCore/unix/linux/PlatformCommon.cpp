@@ -129,7 +129,7 @@ int get_user_stat(const char *path, struct user_stat *user_stat) {
 					   &user_stat->exit_code);
 
 		// fill in the pid
-		r += sscanf(&line[0], "%d", &user_stat->pid);
+		r += sscanf(line.data(), "%d", &user_stat->pid);
 
 		// fill in the comm field
 		const size_t len = std::min(sizeof(user_stat->comm), (right - left) - 1);

@@ -115,13 +115,13 @@ void DialogBinaryString::doFind() {
 				while (p < pages_end) {
 					// compare values..
 					if (std::memcmp(p, b.constData(), sz) == 0) {
-						const edb::address_t addr = p - &pages[0] + region->start() + (current_page * page_size);
+						const edb::address_t addr = p - pages.data() + region->start() + (current_page * page_size);
 						results_->addResult(DialogResults::RegionType::Data, addr);
 					}
 
 					// update progress bar every 64KB
 					if ((reinterpret_cast<uint64_t>(p) & 0xFFFF) == 0) {
-						ui.progressBar->setValue(util::percentage(i, regions.size(), p - &pages[0], region_size));
+						ui.progressBar->setValue(util::percentage(i, regions.size(), p - pages.data(), region_size));
 					}
 
 					p += align;

@@ -73,9 +73,9 @@ Result<QString, QString> CommentServer::resolveFunctionCall(edb::address_t addre
 
 					if (!symname.isEmpty()) {
 						return tr("return to %1 <%2>").arg(edb::v1::format_pointer(address), symname);
-					} else {
-						return tr("return to %1").arg(edb::v1::format_pointer(address));
 					}
+
+					return tr("return to %1").arg(edb::v1::format_pointer(address));
 				}
 			}
 		}
@@ -99,7 +99,9 @@ Result<QString, QString> CommentServer::resolveString(edb::address_t address) co
 
 	if (edb::v1::get_ascii_string_at_address(address, temp, min_string_length, MaxStringLength, stringLen)) {
 		return tr("ASCII \"%1\"").arg(temp);
-	} else if (edb::v1::get_utf16_string_at_address(address, temp, min_string_length, MaxStringLength, stringLen)) {
+	}
+
+	if (edb::v1::get_utf16_string_at_address(address, temp, min_string_length, MaxStringLength, stringLen)) {
 		return tr("UTF16 \"%1\"").arg(temp);
 	}
 
@@ -124,12 +126,14 @@ QString CommentServer::comment(edb::address_t address, int size) const {
 				auto it = customComments_.find(value);
 				if (it != customComments_.end()) {
 					return it.value();
-				} else {
-					if (Result<QString, QString> ret = resolveFunctionCall(value)) {
-						return *ret;
-					} else if (Result<QString, QString> ret = resolveString(value)) {
-						return *ret;
-					}
+				}
+
+				if (Result<QString, QString> ret = resolveFunctionCall(value)) {
+					return *ret;
+				}
+
+				if (Result<QString, QString> ret = resolveString(value)) {
+					return *ret;
 				}
 			}
 		}

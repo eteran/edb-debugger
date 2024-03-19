@@ -146,20 +146,24 @@ FloatValueClass ieee_classify(FloatHolder value) {
 	if (exponent == ExpMax) {
 		if (mantissa == 0u) {
 			return FloatValueClass::Infinity; // |S|11..11|00..00|
-		} else if (mantissa & QNaN_mask) {
-			return FloatValueClass::QNaN; // |S|11..11|1XX..XX|
-		} else {
-			return FloatValueClass::SNaN; // |S|11..11|0XX..XX|
 		}
-	} else if (exponent == 0u) {
+
+		if (mantissa & QNaN_mask) {
+			return FloatValueClass::QNaN; // |S|11..11|1XX..XX|
+		}
+
+		return FloatValueClass::SNaN; // |S|11..11|0XX..XX|
+	}
+
+	if (exponent == 0u) {
 		if (mantissa == 0u) {
 			return FloatValueClass::Zero; // |S|00..00|00..00|
-		} else {
-			return FloatValueClass::Denormal; // |S|00..00|XX..XX|
 		}
-	} else {
-		return FloatValueClass::Normal;
+
+		return FloatValueClass::Denormal; // |S|00..00|XX..XX|
 	}
+
+	return FloatValueClass::Normal;
 }
 
 #if defined(HAVE_GDTOA)

@@ -99,7 +99,7 @@ uint8_t ByteShiftArray::operator[](std::size_t i) const {
 // Desc: returns a read only pointer to the data this byte array holds
 //------------------------------------------------------------------------------
 const uint8_t *ByteShiftArray::data() const {
-	return &data_[0];
+	return data_.data();
 }
 
 //------------------------------------------------------------------------------

@@ -47,7 +47,7 @@ QDataStream &operator>>(QDataStream &s, IBreakpoint::TypeId &id) {
 // Name: getDefaultPluginPath
 // Desc: return default path for plugins
 //------------------------------------------------------------------------------
-static QString getDefaultPluginPath() {
+QString getDefaultPluginPath() {
 #ifdef DEFAULT_PLUGIN_PATH
 	const QString default_plugin_path = DEFAULT_PLUGIN_PATH;
 #else

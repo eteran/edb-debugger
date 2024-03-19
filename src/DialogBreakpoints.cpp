@@ -23,13 +23,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "MemoryRegions.h"
 #include "edb.h"
 
-#include <QHeaderView>
-#include <QInputDialog>
-#include <QMessageBox>
-
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>
+#include <QHeaderView>
+#include <QInputDialog>
 #include <QMessageBox>
 #include <QStringList>
 #include <QTextStream>
@@ -254,7 +252,7 @@ void DialogBreakpoints::on_btnImport_clicked() {
 	}
 
 	// Report any errors to the user
-	if (errors.size() > 0) {
+	if (!errors.empty()) {
 		QMessageBox::warning(this, tr("Invalid Breakpoints"), tr("The following breakpoints were not made:\n%1").arg(errors.join("")));
 	}
 

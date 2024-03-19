@@ -91,8 +91,8 @@ void DialogReferences::doFind() {
 				const QVector<uint8_t> pages = edb::v1::read_pages(region->start(), page_count);
 
 				if (!pages.isEmpty()) {
-					const uint8_t *p               = &pages[0];
-					const uint8_t *const pages_end = &pages[0] + region->size();
+					const uint8_t *p               = pages.data();
+					const uint8_t *const pages_end = pages.data() + region->size();
 
 					while (p != pages_end) {
 
@@ -100,7 +100,7 @@ void DialogReferences::doFind() {
 							break;
 						}
 
-						const edb::address_t addr = p - &pages[0] + region->start();
+						const edb::address_t addr = p - pages.data() + region->start();
 
 						edb::address_t test_address(0);
 						memcpy(&test_address, p, edb::v1::pointer_size());
@@ -156,7 +156,7 @@ void DialogReferences::doFind() {
 							}
 						}
 
-						Q_EMIT updateProgress(util::percentage(i, regions.size(), p - &pages[0], region->size()));
+						Q_EMIT updateProgress(util::percentage(i, regions.size(), p - pages.data(), region->size()));
 						++p;
 					}
 				}
