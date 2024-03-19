@@ -17,12 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "FeatureDetect.h"
+#include "PlatformFile.h"
 #include "edb.h"
 
 #include <cstdint>
 #include <fcntl.h>
 #include <iomanip>
 #include <iostream>
+#include <linux/limits.h>
 #include <string>
 #include <sys/ptrace.h>
 #include <sys/types.h>
@@ -32,46 +34,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCorePlugin {
 namespace feature {
 namespace {
-
-// Custom class to work with files, since various wrappers
-// appear to be unreliable to check whether writes succeeded
-class File {
-public:
-	explicit File(const std::string &filename) {
-		fd_      = ::open(filename.c_str(), O_RDWR);
-		success_ = fd_ != -1;
-	}
-
-	ssize_t write(const void *buf, size_t count) {
-		const ssize_t result = ::write(fd_, buf, count);
-		success_             = result != -1;
-		return result;
-	}
-
-	ssize_t read(void *buf, size_t count) {
-		const ssize_t result = ::read(fd_, buf, count);
-		success_             = result != -1;
-		return result;
-	}
-
-	off_t seekp(size_t offset) {
-		const off_t result = ::lseek(fd_, offset, SEEK_SET);
-		success_           = result != -1;
-		return result;
-	}
-
-	~File() {
-		close(fd_);
-	}
-
-	explicit operator bool() {
-		return success_;
-	}
-
-private:
-	int fd_       = -1;
-	bool success_ = false;
-};
 
 /**
  * @brief kill_child
@@ -128,7 +90,10 @@ bool detect_proc_access(bool *read_broken, bool *write_broken) {
 			return false;
 		}
 
-		File file("/proc/" + std::to_string(pid) + "/mem");
+		char path[PATH_MAX];
+		snprintf(path, sizeof(path), "/proc/%d/mem", pid);
+
+		PlatformFile file(path);
 		if (!file) {
 			perror("failed to open memory file");
 			kill_child(pid);
@@ -137,41 +102,24 @@ bool detect_proc_access(bool *read_broken, bool *write_broken) {
 
 		const auto pageAlignMask = ~(sysconf(_SC_PAGESIZE) - 1);
 		const auto addr          = reinterpret_cast<uintptr_t>(&edb::v1::debugger_ui) & pageAlignMask;
-		file.seekp(addr);
-		if (!file) {
-			perror("failed to seek to address to read");
-			kill_child(pid);
-			return false;
-		}
 
 		int buf = 0x12345678;
-		{
-			file.read(&buf, sizeof(buf));
-			if (!file) {
-				*read_broken  = true;
-				*write_broken = true;
-				kill_child(pid);
-				return false;
-			}
-		}
 
-		file.seekp(addr);
-		if (!file) {
-			perror("failed to seek to address to write");
+		if (file.readAt(&buf, sizeof(buf), addr) == -1) {
+			*read_broken  = true;
+			*write_broken = true;
 			kill_child(pid);
 			return false;
 		}
 
-		{
-			file.write(&buf, sizeof(buf));
-			if (!file) {
-				*read_broken  = false;
-				*write_broken = true;
-			} else {
-				*read_broken  = false;
-				*write_broken = false;
-			}
+		if (file.writeAt(&buf, sizeof(buf), addr) == -1) {
+			*read_broken  = false;
+			*write_broken = true;
+		} else {
+			*read_broken  = false;
+			*write_broken = false;
 		}
+
 		kill_child(pid);
 		return true;
 	}

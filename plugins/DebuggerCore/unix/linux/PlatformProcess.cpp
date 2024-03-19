@@ -34,17 +34,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "libELF/elf_model.h"
 #include "linker.h"
 #include "util/Container.h"
-
 #include <QByteArray>
 #include <QDateTime>
 #include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
-
-#include <fstream>
-
 #include <elf.h>
+#include <fstream>
 #include <linux/limits.h>
 #include <pwd.h>
 #include <sys/mman.h>
@@ -222,27 +219,6 @@ QList<Module> get_loaded_modules(const IProcess *process) {
 	return ret;
 }
 
-/**
- * seeks memory file to given address, taking possible negativity of the
- * address into account
- *
- * @brief seek_addr
- * @param file
- * @param address
- */
-void seek_addr(QFile &file, edb::address_t address) {
-	if (address <= UINT64_MAX / 2) {
-		file.seek(address);
-	} else {
-		const int fd = file.handle();
-		// Seek in two parts to avoid specifying negative offset: off64_t is a signed type
-		const off64_t halfAddressTruncated = address >> 1;
-		lseek64(fd, halfAddressTruncated, SEEK_SET);
-		const off64_t secondHalfAddress = address - halfAddressTruncated;
-		lseek64(fd, secondHalfAddress, SEEK_CUR);
-	}
-}
-
 }
 
 /**
@@ -254,18 +230,15 @@ PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid)
 	: core_(core), pid_(pid) {
 
 	if (!core_->procMemReadBroken_) {
-		auto memory_file = std::make_shared<QFile>(QString("/proc/%1/mem").arg(pid_));
-
-		QIODevice::OpenMode flags = QIODevice::ReadOnly | QIODevice::Unbuffered;
+		char path[PATH_MAX];
+		snprintf(path, sizeof(path), "/proc/%d/mem", pid_);
 		if (!core_->procMemWriteBroken_) {
-			flags |= QIODevice::WriteOnly;
-		}
-
-		if (memory_file->open(flags)) {
+			auto memory_file  = std::make_shared<PlatformFile>(path);
+			readOnlyMemFile_  = memory_file;
+			readWriteMemFile_ = memory_file;
+		} else {
+			auto memory_file = std::make_shared<PlatformFile>(path, O_RDONLY);
 			readOnlyMemFile_ = memory_file;
-			if (!core_->procMemWriteBroken_) {
-				readWriteMemFile_ = memory_file;
-			}
 		}
 	}
 }
@@ -303,8 +276,7 @@ std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, std::s
 			}
 
 			if (readOnlyMemFile_) {
-				seek_addr(*readOnlyMemFile_, address);
-				read = readOnlyMemFile_->read(ptr, 1);
+				read = readOnlyMemFile_->readAt(ptr, 1, address);
 				if (read == 1) {
 					return 1;
 				}
@@ -321,8 +293,7 @@ std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, std::s
 		}
 
 		if (readOnlyMemFile_) {
-			seek_addr(*readOnlyMemFile_, address);
-			read = readOnlyMemFile_->read(ptr, len);
+			read = readOnlyMemFile_->readAt(ptr, len, address);
 			if (read == 0 || read == quint64(-1)) {
 				return 0;
 			}
@@ -413,8 +384,7 @@ std::size_t PlatformProcess::writeBytes(edb::address_t address, const void *buf,
 
 	if (len != 0) {
 		if (readWriteMemFile_) {
-			seek_addr(*readWriteMemFile_, address);
-			written = readWriteMemFile_->write(reinterpret_cast<const char *>(buf), len);
+			written = readWriteMemFile_->writeAt(reinterpret_cast<const char *>(buf), len, address);
 			if (written == 0 || written == quint64(-1)) {
 				return 0;
 			}

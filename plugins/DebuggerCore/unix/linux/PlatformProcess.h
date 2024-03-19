@@ -20,10 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PLATFORM_PROCESS_H_20150517_
 
 #include "IProcess.h"
+#include "PlatformFile.h"
 #include "Status.h"
 
 #include <QCoreApplication>
-#include <QFile>
+
 
 namespace DebuggerCorePlugin {
 
@@ -86,8 +87,8 @@ private:
 private:
 	DebuggerCore *core_ = nullptr;
 	edb::pid_t pid_;
-	std::shared_ptr<QFile> readOnlyMemFile_;
-	std::shared_ptr<QFile> readWriteMemFile_;
+	std::shared_ptr<PlatformFile> readOnlyMemFile_;
+	std::shared_ptr<PlatformFile> readWriteMemFile_;
 	QMap<edb::address_t, Patch> patches_;
 	QString input_;
 	QString output_;
