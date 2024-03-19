@@ -67,7 +67,7 @@ QDomDocument assembler_description() {
 		QXmlQuery query;
 		QString assembler_xml;
 		query.setFocus(&file);
-		query.setQuery(QString("assemblers/assembler[@name='%1']").arg(escape_html(assembler)));
+		query.setQuery(QStringLiteral("assemblers/assembler[@name='%1']").arg(escape_html(assembler)));
 		if (query.isValid()) {
 			query.evaluateTo(&assembler_xml);
 		}

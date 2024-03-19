@@ -896,8 +896,13 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 
 		QXmlQuery query;
 		query.setFocus(&file);
-		const QString arch = debuggeeIs64Bit() ? "x86-64" : "x86";
-		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='" + arch + "']/syscall[index=%1]").arg(regAX));
+
+		if (debuggeeIs64Bit()) {
+			query.setQuery(QStringLiteral("syscalls[@version='1.0']/linux[@arch='x86-64']/syscall[index=%1]").arg(regAX));
+		} else {
+			query.setQuery(QStringLiteral("syscalls[@version='1.0']/linux[@arch='x86']/syscall[index=%1]").arg(regAX));
+		}
+
 		if (query.isValid()) {
 			query.evaluateTo(&syscall_entry);
 		}

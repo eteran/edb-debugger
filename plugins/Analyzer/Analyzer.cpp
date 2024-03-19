@@ -132,6 +132,8 @@ void set_function_types(IAnalyzer::FunctionMap *results) {
  * @return
  */
 edb::address_t module_entry_point(const std::shared_ptr<IRegion> &region) {
+	// NOTE(eteran): because modern ELF files actually have the ELF header in its
+	// own, non-executable section that precedes the main one, this currently fails
 	if (std::unique_ptr<IBinary> binary_info = edb::v1::get_binary_info(region)) {
 		return binary_info->entryPoint();
 	}
@@ -607,6 +609,13 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 								fuzzy_functions[ea]++;
 							}
 						}
+					}
+				} else if (inst->id == X86_INS_ENDBR64 || inst->id == X86_INS_ENDBR32) {
+
+					// Intel's CET stuff actually helps us identify functions pretty easily
+					if (!data->knownFunctions.contains(addr)) {
+
+						fuzzy_functions[addr] = MinRefCount + 1;
 					}
 				}
 			}
