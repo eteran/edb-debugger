@@ -133,12 +133,14 @@ RegisterGroup *createSIMDGroup(RegisterViewModelBase::Model *model, QWidget *par
 	if (!catIndex.isValid()) {
 		return nullptr;
 	}
+
 	const auto group = new RegisterGroup(catName, parent);
 	for (int row = 0; row < model->rowCount(catIndex); ++row) {
 		const auto nameIndex = valid_index(model->index(row, ModelNameColumn, catIndex));
 		const auto name      = regNamePrefix + QStringLiteral("%1").arg(row);
 		if (!valid_variant(nameIndex.data()).toString().toUpper().startsWith(regNamePrefix)) {
 			if (row == 0) {
+				delete group;
 				return nullptr; // don't want empty groups
 			}
 			break;
@@ -147,6 +149,7 @@ RegisterGroup *createSIMDGroup(RegisterViewModelBase::Model *model, QWidget *par
 		group->insert(row, 0, new FieldWidget(name, group));
 		new SimdValueManager(row, nameIndex, group);
 	}
+
 	// This signal must be handled by group _after_ all `SimdValueManager`s handle their connection to this signal
 	QObject::connect(
 		model, &RegisterViewModelBase::Model::SIMDDisplayFormatChanged, group, [group]() {

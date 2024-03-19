@@ -228,99 +228,99 @@ public:
 	PlatformState();
 
 public:
-	std::unique_ptr<IState> clone() const override;
+	[[nodiscard]] std::unique_ptr<IState> clone() const override;
 
 public:
-	QString flagsToString() const override;
-	QString flagsToString(edb::reg_t flags) const override;
-	Register value(const QString &reg) const override;
-	Register instructionPointerRegister() const override;
-	Register flagsRegister() const override;
-	edb::address_t framePointer() const override;
-	edb::address_t instructionPointer() const override;
-	edb::address_t stackPointer() const override;
-	edb::reg_t debugRegister(size_t n) const override;
-	edb::reg_t flags() const override;
-	int fpuStackPointer() const override;
-	edb::value80 fpuRegister(size_t n) const override;
-	bool fpuRegisterIsEmpty(size_t n) const override;
-	QString fpuRegisterTagString(size_t n) const override;
-	edb::value16 fpuControlWord() const override;
-	edb::value16 fpuStatusWord() const override;
-	edb::value16 fpuTagWord() const override;
+	[[nodiscard]] QString flagsToString() const override;
+	[[nodiscard]] QString flagsToString(edb::reg_t flags) const override;
+	[[nodiscard]] Register value(const QString &reg) const override;
+	[[nodiscard]] Register instructionPointerRegister() const override;
+	[[nodiscard]] Register flagsRegister() const override;
+	[[nodiscard]] edb::address_t framePointer() const override;
+	[[nodiscard]] edb::address_t instructionPointer() const override;
+	[[nodiscard]] edb::address_t stackPointer() const override;
+	[[nodiscard]] edb::reg_t debugRegister(size_t n) const override;
+	[[nodiscard]] edb::reg_t flags() const override;
+	[[nodiscard]] int fpuStackPointer() const override;
+	[[nodiscard]] edb::value80 fpuRegister(size_t n) const override;
+	[[nodiscard]] bool fpuRegisterIsEmpty(size_t n) const override;
+	[[nodiscard]] QString fpuRegisterTagString(size_t n) const override;
+	[[nodiscard]] edb::value16 fpuControlWord() const override;
+	[[nodiscard]] edb::value16 fpuStatusWord() const override;
+	[[nodiscard]] edb::value16 fpuTagWord() const override;
 	void adjustStack(int bytes) override;
 	void clear() override;
-	bool empty() const override;
+	[[nodiscard]] bool empty() const override;
 	void setDebugRegister(size_t n, edb::reg_t value) override;
 	void setFlags(edb::reg_t flags) override;
 	void setInstructionPointer(edb::address_t value) override;
 	void setRegister(const Register &reg) override;
 	void setRegister(const QString &name, edb::reg_t value) override;
 
-	Register archRegister(uint64_t type, size_t n) const override;
-	Register gpRegister(size_t n) const override;
+	[[nodiscard]] Register archRegister(uint64_t type, size_t n) const override;
+	[[nodiscard]] Register gpRegister(size_t n) const override;
 
-	bool is64Bit() const {
+	[[nodiscard]] bool is64Bit() const {
 		return edb::v1::debuggeeIs64Bit();
 	}
 
-	bool is32Bit() const {
+	[[nodiscard]] bool is32Bit() const {
 		return edb::v1::debuggeeIs32Bit();
 	}
 
-	size_t dbg_reg_count() const {
+	[[nodiscard]] size_t dbg_reg_count() const {
 		return MAX_DBG_REG_COUNT;
 	}
 
-	size_t seg_reg_count() const {
+	[[nodiscard]] size_t seg_reg_count() const {
 		return MAX_SEG_REG_COUNT;
 	}
 
-	size_t fpu_reg_count() const {
+	[[nodiscard]] size_t fpu_reg_count() const {
 		return MAX_FPU_REG_COUNT;
 	}
 
-	size_t mmx_reg_count() const {
+	[[nodiscard]] size_t mmx_reg_count() const {
 		return MAX_MMX_REG_COUNT;
 	}
 
-	size_t xmm_reg_count() const {
+	[[nodiscard]] size_t xmm_reg_count() const {
 		return is64Bit() ? AMD64_XMM_REG_COUNT : IA32_XMM_REG_COUNT;
 	}
 
-	size_t ymm_reg_count() const {
+	[[nodiscard]] size_t ymm_reg_count() const {
 		return is64Bit() ? AMD64_YMM_REG_COUNT : IA32_YMM_REG_COUNT;
 	}
 
-	size_t zmm_reg_count() const {
+	[[nodiscard]] size_t zmm_reg_count() const {
 		return is64Bit() ? AMD64_ZMM_REG_COUNT : IA32_ZMM_REG_COUNT;
 	}
 
-	size_t gpr64_count() const {
+	[[nodiscard]] size_t gpr64_count() const {
 		return is64Bit() ? AMD64_GPR_COUNT : 0;
 	}
 
-	size_t gpr_count() const {
+	[[nodiscard]] size_t gpr_count() const {
 		return is64Bit() ? AMD64_GPR_COUNT : IA32_GPR_COUNT;
 	}
 
-	size_t gpr_low_addressable_count() const {
+	[[nodiscard]] size_t gpr_low_addressable_count() const {
 		return is64Bit() ? AMD64_GPR_LOW_ADDRESSABLE_COUNT : IA32_GPR_LOW_ADDRESSABLE_COUNT;
 	}
 
-	size_t gpr_high_addressable_count() const {
+	[[nodiscard]] size_t gpr_high_addressable_count() const {
 		return MAX_GPR_HIGH_ADDRESSABLE_COUNT;
 	}
 
-	const char *IPName() const {
+	[[nodiscard]] const char *IPName() const {
 		return is64Bit() ? X86::IP64Name : X86::IP32Name;
 	}
 
-	const char *flagsName() const {
+	[[nodiscard]] const char *flagsName() const {
 		return is64Bit() ? X86::flags64Name : X86::flags32Name;
 	}
 
-	const std::array<const char *, MAX_GPR_COUNT> &GPRegNames() const {
+	[[nodiscard]] const std::array<const char *, MAX_GPR_COUNT> &GPRegNames() const {
 		return is64Bit() ? X86::GPReg64Names : X86::GPReg32Names;
 	}
 
@@ -383,22 +383,22 @@ private:
 		bool opCodeFilled = false;
 
 	public:
-		void clear();
 		[[nodiscard]] bool empty() const;
+		[[nodiscard]] edb::value80 &st(size_t n);
+		[[nodiscard]] edb::value80 st(size_t n) const;
+		[[nodiscard]] int tag(size_t n) const;
 		[[nodiscard]] size_t stackPointer() const;
 		// Convert from ST(n) index n to Rx index x
 		[[nodiscard]] size_t RIndexToSTIndex(size_t index) const;
 		[[nodiscard]] size_t STIndexToRIndex(size_t index) const;
 		// Restore the full FPU Tag Word from the ptrace-filtered version
-		edb::value16 restoreTagWord(uint16_t twd) const;
-		std::uint16_t reducedTagWord() const;
-		[[nodiscard]] int tag(size_t n) const;
-		[[nodiscard]] edb::value80 st(size_t n) const;
-		[[nodiscard]] edb::value80 &st(size_t n);
+		[[nodiscard]] edb::value16 restoreTagWord(uint16_t twd) const;
+		[[nodiscard]] std::uint16_t reducedTagWord() const;
+		void clear();
 
 	private:
-		int recreateTag(const edb::value80 value) const;
-		int makeTag(size_t n, uint16_t twd) const;
+		[[nodiscard]] int recreateTag(const edb::value80 value) const;
+		[[nodiscard]] int makeTag(size_t n, uint16_t twd) const;
 	} x87;
 
 	// i386-inherited (and expanded on x86_64) state
@@ -471,34 +471,34 @@ private:
 
 	public:
 		void clear();
-		bool empty() const;
+		[[nodiscard]] bool empty() const;
 	} x86;
 
-	bool dbgIndexValid(size_t n) const {
+	[[nodiscard]] bool dbgIndexValid(size_t n) const {
 		return n < dbg_reg_count();
 	}
 
-	bool gprIndexValid(size_t n) const {
+	[[nodiscard]] bool gprIndexValid(size_t n) const {
 		return n < gpr_count();
 	}
 
-	bool fpuIndexValid(size_t n) const {
+	[[nodiscard]] bool fpuIndexValid(size_t n) const {
 		return n < fpu_reg_count();
 	}
 
-	bool mmxIndexValid(size_t n) const {
+	[[nodiscard]] bool mmxIndexValid(size_t n) const {
 		return n < mmx_reg_count();
 	}
 
-	bool xmmIndexValid(size_t n) const {
+	[[nodiscard]] bool xmmIndexValid(size_t n) const {
 		return n < xmm_reg_count();
 	}
 
-	bool ymmIndexValid(size_t n) const {
+	[[nodiscard]] bool ymmIndexValid(size_t n) const {
 		return n < ymm_reg_count();
 	}
 
-	bool zmmIndexValid(size_t n) const {
+	[[nodiscard]] bool zmmIndexValid(size_t n) const {
 		return n < zmm_reg_count();
 	}
 

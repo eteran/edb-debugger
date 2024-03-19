@@ -64,19 +64,18 @@ auto Breakpoint::supportedTypes() -> std::vector<BreakpointType> {
 	return types;
 }
 
-void Breakpoint::setType(TypeId type) {
+void Breakpoint::setType(IBreakpoint::TypeId type) {
 	disable();
+
+	if (Type{type} >= TypeId::TYPE_COUNT) {
+		throw BreakpointCreationError();
+	}
+
 	type_ = type;
+
 	if (!enable()) {
 		throw BreakpointCreationError();
 	}
-}
-
-void Breakpoint::setType(IBreakpoint::TypeId type) {
-	disable();
-	if (Type{type} >= TypeId::TYPE_COUNT)
-		throw BreakpointCreationError();
-	setType(type);
 }
 
 //------------------------------------------------------------------------------

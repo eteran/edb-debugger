@@ -30,7 +30,7 @@ namespace DebuggerCorePlugin {
 class Breakpoint final : public IBreakpoint {
 	Q_DECLARE_TR_FUNCTIONS(Breakpoint)
 public:
-	enum class TypeId {
+	enum class TypeId : int {
 		Automatic = static_cast<int>(IBreakpoint::TypeId::Automatic),
 		INT3,
 		INT1,
@@ -73,7 +73,6 @@ public:
 	void setOneTime(bool value) override;
 	void setInternal(bool value) override;
 	void setType(IBreakpoint::TypeId type) override;
-	void setType(TypeId type);
 
 private:
 	std::vector<uint8_t> originalBytes_;

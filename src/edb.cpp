@@ -152,6 +152,7 @@ namespace v1 {
 bool debuggeeIs32Bit() {
 	return pointer_size() == sizeof(std::uint32_t);
 }
+
 bool debuggeeIs64Bit() {
 	return pointer_size() == sizeof(std::uint64_t);
 }

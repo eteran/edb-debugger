@@ -66,7 +66,6 @@ public:
 	void setOneTime(bool value) override;
 	void setInternal(bool value) override;
 	void setType(IBreakpoint::TypeId type) override;
-	void setType(TypeId type);
 
 private:
 	std::vector<uint8_t> originalBytes_;
