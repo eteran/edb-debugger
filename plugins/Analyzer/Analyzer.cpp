@@ -629,9 +629,9 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 
 						fuzzy_functions[addr] = MinRefCount + 1;
 					}
+#endif
+#endif
 				}
-#endif
-#endif
 			}
 			++p;
 		}
@@ -759,7 +759,7 @@ IAnalyzer::FunctionMap Analyzer::functions() const {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
 		results.insert(it.functions);
 #else
-			results.unite(it.functions);
+		results.unite(it.functions);
 #endif
 	}
 	return results;
