@@ -1298,7 +1298,7 @@ public:
 		cs_close(&csh_);
 	}
 
-	csh handle() const {
+	[[nodiscard]] csh handle() const {
 		return csh_;
 	}
 };

@@ -199,7 +199,7 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f)
 			// seed our search with the selected blocks
 			const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 			const QModelIndexList sel                 = selModel->selectedRows();
-			if (sel.size() != 0) {
+			if (!sel.isEmpty()) {
 				for (const QModelIndex &index : sel) {
 					const QModelIndex idx = filterModel_->mapToSource(index);
 					auto item             = static_cast<ResultViewModel::Result *>(idx.internalPointer());
