@@ -138,8 +138,8 @@ using YMMWord = edb::value256;
 using ZMMWord = edb::value512;
 
 template <typename T>
-std::string register_name(const T &val) {
-	return edb::v1::formatter().registerName(val);
+QString register_name(const T &val) {
+	return QString::fromStdString(edb::v1::formatter().registerName(val));
 }
 
 template <typename T>
@@ -1301,8 +1301,8 @@ Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::In
 		if (is_register(op)) {
 			ret = state[QString::fromStdString(edb::v1::formatter().toString(op))].valueAsAddress();
 		} else if (is_expression(op)) {
-			const Register baseR  = state[QString::fromStdString(register_name(op->mem.base))];
-			const Register indexR = state[QString::fromStdString(register_name(op->mem.index))];
+			const Register baseR  = state[register_name(op->mem.base)];
+			const Register indexR = state[register_name(op->mem.index)];
 			edb::address_t base   = 0;
 			edb::address_t index  = 0;
 

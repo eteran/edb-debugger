@@ -49,12 +49,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCompleter>
 #include <QCoreApplication>
 #include <QCryptographicHash>
+#include <QDebug>
 #include <QDomDocument>
 #include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
 
-#include <QDebug>
 #include <cctype>
 
 IDebugger *edb::v1::debugger_core = nullptr;
@@ -187,9 +187,7 @@ std::shared_ptr<IRegion> current_cpu_view_region() {
 // Desc:
 //------------------------------------------------------------------------------
 void repaint_cpu_view() {
-	Debugger *const gui = ui();
-	Q_ASSERT(gui);
-	gui->cpuView_->update();
+	ui()->cpuView_->update();
 }
 
 //------------------------------------------------------------------------------
@@ -197,8 +195,8 @@ void repaint_cpu_view() {
 // Desc:
 //------------------------------------------------------------------------------
 ISymbolManager &symbol_manager() {
-	static SymbolManager g_SymbolManager;
-	return g_SymbolManager;
+	static SymbolManager symbolManager;
+	return symbolManager;
 }
 
 //------------------------------------------------------------------------------
@@ -206,8 +204,8 @@ ISymbolManager &symbol_manager() {
 // Desc:
 //------------------------------------------------------------------------------
 MemoryRegions &memory_regions() {
-	static MemoryRegions g_MemoryRegions;
-	return g_MemoryRegions;
+	static MemoryRegions memoryRegions;
+	return memoryRegions;
 }
 
 //------------------------------------------------------------------------------
@@ -215,8 +213,8 @@ MemoryRegions &memory_regions() {
 // Desc:
 //------------------------------------------------------------------------------
 ArchProcessor &arch_processor() {
-	static ArchProcessor g_ArchProcessor;
-	return g_ArchProcessor;
+	static ArchProcessor archProcessor;
+	return archProcessor;
 }
 
 //------------------------------------------------------------------------------
@@ -1255,7 +1253,7 @@ Result<address_t, QString> string_to_address(const QString &s) {
 	hex.replace("0x", "");
 
 	bool ok;
-	address_t r = edb::address_t::fromHexString(hex.left(2 * sizeof(edb::address_t)), &ok);
+	auto r = edb::address_t::fromHexString(hex.left(2 * sizeof(edb::address_t)), &ok);
 	if (ok) {
 		return r;
 	}

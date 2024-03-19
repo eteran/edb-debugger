@@ -483,10 +483,12 @@ std::string Formatter::toString(const Instruction &insn) const {
 		const auto pos = s.tellp();
 		const auto pad = pos < Tab1Size ? Tab1Size - pos : pos < Tab2Size ? Tab2Size - pos
 																		  : 1;
-		space          = std::string(pad, ' ');
+
+		space = std::string(pad, ' ');
 	}
-	if (insn.operandCount() > 0) // prevent addition of trailing whitespace
-	{
+
+	if (insn.operandCount() > 0) {
+		// prevent addition of trailing whitespace
 		s << space << adjustInstructionText(insn).toStdString();
 	} else if (insn->op_str[0] != 0) {
 		// This may happen for instructions like IT in Thumb-2: e.g. ITT NE

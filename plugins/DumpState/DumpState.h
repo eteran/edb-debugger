@@ -48,11 +48,11 @@ private:
 	[[nodiscard]] QWidget *optionsPage() override;
 
 private:
-	void dumpCode(const State &state);
-	void dumpRegisters(const State &state);
-	void dumpStack(const State &state);
-	void dumpData(edb::address_t address);
-	void dumpLines(edb::address_t address, int lines);
+	static void dumpCode(const State &state);
+	static void dumpRegisters(const State &state);
+	static void dumpStack(const State &state);
+	static void dumpData(edb::address_t address);
+	static void dumpLines(edb::address_t address, int lines);
 
 private:
 	QMenu *menu_ = nullptr;

@@ -144,9 +144,9 @@ void Bookmarks::restoreState(const QVariantMap &state) {
 	for (auto &entry : bookmarks) {
 		auto bookmark = entry.value<QVariantMap>();
 
-		edb::address_t address = edb::address_t::fromHexString(bookmark["address"].toString());
-		QString type           = bookmark["type"].toString();
-		QString comment        = bookmark["comment"].toString();
+		auto address    = edb::address_t::fromHexString(bookmark["address"].toString());
+		QString type    = bookmark["type"].toString();
+		QString comment = bookmark["comment"].toString();
 
 		qDebug() << "Restoring bookmark with address: " << address.toHexString();
 

@@ -18,7 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-#pragma once
+#ifndef FAS_EXCEPTION_H_
+#define FAS_EXCEPTION_H_
 
 #include <exception>
 #include <string>
@@ -37,3 +38,5 @@ protected:
 };
 
 }
+
+#endif

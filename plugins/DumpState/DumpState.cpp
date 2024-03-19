@@ -207,23 +207,23 @@ void DumpState::dumpRegisters(const State &state) {
 		}
 		cout << "\n";
 	} else {
-		cout << "     rax:" << format_register(state["rax"]);
+		cout << " rax:" << format_register(state["rax"]);
 		cout << " rcx:" << format_register(state["rcx"]);
-		cout << "  rdx:" << format_register(state["rdx"]);
-		cout << "  rbx:" << format_register(state["rbx"]);
-		cout << "     rflags:" << format_register(state["rflags"]);
+		cout << " rdx:" << format_register(state["rdx"]);
+		cout << " rbx:" << format_register(state["rbx"]);
+		cout << " rflags:" << format_register(state["rflags"]);
 		cout << "\n";
-		cout << "     rsp:" << format_register(state["rsp"]);
+		cout << " rsp:" << format_register(state["rsp"]);
 		cout << " rbp:" << format_register(state["rbp"]);
-		cout << "  rsi:" << format_register(state["rsi"]);
-		cout << "  rdi:" << format_register(state["rdi"]);
-		cout << "        rip:" << format_register(state["rip"]);
+		cout << " rsi:" << format_register(state["rsi"]);
+		cout << " rdi:" << format_register(state["rdi"]);
+		cout << "    rip:" << format_register(state["rip"]);
 		cout << "\n";
-		cout << "      r8:" << format_register(state["r8"]);
+		cout << "  r8:" << format_register(state["r8"]);
 		cout << "  r9:" << format_register(state["r9"]);
-		cout << "  r10:" << format_register(state["r10"]);
-		cout << "  r11:" << format_register(state["r11"]);
-		cout << "           ";
+		cout << " r10:" << format_register(state["r10"]);
+		cout << " r11:" << format_register(state["r11"]);
+		cout << "       ";
 
 		const Register rflagsR = state["rflags"];
 		if (rflagsR) {
@@ -240,12 +240,12 @@ void DumpState::dumpRegisters(const State &state) {
 		}
 
 		cout << "\n";
-		cout << "     r12:" << format_register(state["r12"]);
+		cout << " r12:" << format_register(state["r12"]);
 		cout << " r13:" << format_register(state["r13"]);
-		cout << "  r14:" << format_register(state["r14"]);
-		cout << "  r15:" << format_register(state["r15"]);
+		cout << " r14:" << format_register(state["r14"]);
+		cout << " r15:" << format_register(state["r15"]);
 		cout << "\n";
-		cout << "     es:" << format_segment(state["es"]);
+		cout << "  es:" << format_segment(state["es"]);
 		cout << "  cs:" << format_segment(state["cs"]);
 		cout << "  ss:" << format_segment(state["ss"]);
 		cout << "  ds:" << format_segment(state["ds"]);
