@@ -45,8 +45,8 @@ const QString NodeFont   = "Monospace";
 // Name: GraphNode
 // Desc:
 //------------------------------------------------------------------------------
-GraphNode::GraphNode(GraphWidget *graph, const QString &text, const QColor &color)
-	: color_(color), graph_(graph) {
+GraphNode::GraphNode(GraphWidget *graph, const QString &text, QColor color)
+	: color_(std::move(color)), graph_(graph) {
 
 	setFlag(QGraphicsItem::ItemIsMovable, true);
 	setFlag(QGraphicsItem::ItemIsSelectable, true);

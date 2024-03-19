@@ -107,7 +107,7 @@ public:
 	bool jumpToAddress(edb::address_t address);
 	void attach(edb::pid_t pid);
 	void clearData(const std::shared_ptr<DataViewInfo> &v);
-	void execute(const QString &s, const QList<QByteArray> &args, const QString &input, const QString &output);
+	void execute(const QString &program, const QList<QByteArray> &args, const QString &input, const QString &output);
 	void refreshUi();
 	void updateData(const std::shared_ptr<DataViewInfo> &v);
 	void updateUi();
@@ -251,9 +251,7 @@ private:
 	void doJumpToAddress(edb::address_t address, const std::shared_ptr<IRegion> &r, bool scroll_to);
 	void finishPluginSetup();
 	void followRegisterInDump(bool tabbed);
-	void loadSession(const QString &session_file);
 	void resumeExecution(ExceptionResume pass_exception, DebugMode mode, ResumeFlag flags);
-	void saveSession(const QString &session_file);
 	void setDebuggerCaption(const QString &appname);
 	void setInitialBreakpoint(const QString &s);
 	void setInitialDebuggerState();
@@ -270,7 +268,7 @@ private:
 
 private:
 	template <class F>
-	QAction *createAction(const QString &text, const QKeySequence &keySequence, F slotPtr);
+	QAction *createAction(const QString &text, const QKeySequence &keySequence, F func);
 
 	template <class F>
 	void followMemory(edb::address_t address, F follow_func);

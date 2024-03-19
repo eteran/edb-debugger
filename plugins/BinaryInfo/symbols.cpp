@@ -426,7 +426,7 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 
 			// if there was a debug file
 			if (debugFile) {
-				// and we sucessfully opened it
+				// and we successfully opened it
 				if (debugFile->open(QIODevice::ReadOnly)) {
 
 					// map it and include it with the symbols
@@ -442,7 +442,9 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 
 			output_symbols(symbols, os);
 			return true;
-		} else if (is_elf32(file_ptr)) {
+		}
+
+		if (is_elf32(file_ptr)) {
 
 			using symbol = typename elf32_model::symbol;
 			std::vector<symbol> symbols;
@@ -451,7 +453,7 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 
 			// if there was a debug file
 			if (debugFile) {
-				// and we sucessfully opened it
+				// and we successfully opened it
 				if (debugFile->open(QIODevice::ReadOnly)) {
 
 					// map it and include it with the symbols
@@ -467,9 +469,9 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 
 			output_symbols(symbols, os);
 			return true;
-		} else {
-			qDebug() << "unknown file type";
 		}
+
+		qDebug() << "unknown file type";
 	}
 
 	return false;

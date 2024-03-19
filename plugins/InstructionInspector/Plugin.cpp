@@ -837,7 +837,9 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 		}
 
 		return normalizeOBJDUMP(result, bits).toStdString();
-	} else if (process.error() == QProcess::FailedToStart) {
+	}
+
+	if (process.error() == QProcess::FailedToStart) {
 		return "; Failed to start " + processName;
 	}
 
@@ -930,7 +932,9 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 		}
 
 		return normalizeNDISASM(result, bits).toStdString();
-	} else if (process.error() == QProcess::FailedToStart) {
+	}
+
+	if (process.error() == QProcess::FailedToStart) {
 		return "; Failed to start " + processName;
 	}
 	return "; Unknown error while running " + processName;
@@ -1236,7 +1240,9 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 		}
 
 		return ("; Couldn't locate disassembly, stdout:\n\"" + output + "\"\nstderr:\n\"" + err + "\"").constData();
-	} else if (process.error() == QProcess::FailedToStart) {
+	}
+
+	if (process.error() == QProcess::FailedToStart) {
 		return "; Failed to start " + processName;
 	}
 
@@ -1285,9 +1291,9 @@ public:
 
 		if (cs_disasm(csh_, buf, size, address, 1, &insn_)) {
 			return insn_;
-		} else {
-			return nullptr;
 		}
+
+		return nullptr;
 	}
 
 	~Disassembler() {

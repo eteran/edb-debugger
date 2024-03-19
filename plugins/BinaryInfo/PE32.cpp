@@ -38,8 +38,8 @@ const char *PEBinaryException::what() const noexcept {
  * @brief PE32::PE32
  * @param region
  */
-PE32::PE32(const std::shared_ptr<IRegion> &region)
-	: region_(region) {
+PE32::PE32(std::shared_ptr<IRegion> region)
+	: region_(std::move(region)) {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 	constexpr WORD DosMagic = 0x5A4D;
 	constexpr LONG PeMagic  = 0x00004550;

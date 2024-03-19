@@ -282,11 +282,11 @@ public:
 				if (is_instruction_ret(address)) {
 					qDebug() << "Found ret; passing back to debugger";
 					return pass_back_to_debugger();
-				} else {
-					// If not a ret, then step so we can find the next block terminator.
-					qDebug() << "Not ret. Single-stepping";
-					return edb::DEBUG_CONTINUE_STEP;
 				}
+
+				// If not a ret, then step so we can find the next block terminator.
+				qDebug() << "Not ret. Single-stepping";
+				return edb::DEBUG_CONTINUE_STEP;
 			}
 
 			// If we stepped (either because it was the first event or because we hit a jmp/jcc),
@@ -318,12 +318,12 @@ public:
 												  // don't set it one time; we'll handle it manually
 							returnAddress_ = address;
 							return edb::DEBUG_CONTINUE;
-						} else {
-							QMessageBox::critical(edb::v1::debugger_ui,
-												  tr("Error running until return"),
-												  tr("Failed to set breakpoint on a block terminator at address %1.").arg(address.toPointerString()));
-							return pass_back_to_debugger();
 						}
+
+						QMessageBox::critical(edb::v1::debugger_ui,
+											  tr("Error running until return"),
+											  tr("Failed to set breakpoint on a block terminator at address %1.").arg(address.toPointerString()));
+						return pass_back_to_debugger();
 					}
 				} else {
 					// Invalid instruction or some other problem. Pass it back to the debugger.
@@ -406,11 +406,11 @@ Debugger::Debugger(QWidget *parent)
 	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("RIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
 	gotoRIPAction_ = createAction(tr("&Goto %1").arg("RIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #elif defined(EDB_X86)
-	setRIPAction_       = createAction(tr("&Set %1 to this Instruction").arg("EIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
-	gotoRIPAction_      = createAction(tr("&Goto %1").arg("EIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
+	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("EIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
+	gotoRIPAction_ = createAction(tr("&Goto %1").arg("EIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
-	setRIPAction_       = createAction(tr("&Set %1 to this Instruction").arg("PC"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
-	gotoRIPAction_      = createAction(tr("&Goto %1").arg("PC"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
+	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("PC"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
+	gotoRIPAction_ = createAction(tr("&Goto %1").arg("PC"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #else
 #error "This doesn't initialize actions and will lead to crash"
 #endif
@@ -1192,7 +1192,7 @@ void Debugger::showEvent(QShowEvent *) {
 		QScreen *screen = QGuiApplication::primaryScreen();
 		QRect sg        = screen->geometry();
 #else
-        QRect sg = desktop.screenGeometry();
+		QRect sg = desktop.screenGeometry();
 #endif
 		int x = (sg.width() - this->width()) / 2;
 		int y = (sg.height() - this->height()) / 2;
@@ -2360,9 +2360,9 @@ edb::EventStatus Debugger::handleTrap(const std::shared_ptr<IDebugEvent> &event)
 
 			if (edb::v1::config().break_on_library_load) {
 				return edb::DEBUG_STOP;
-			} else {
-				return edb::DEBUG_CONTINUE_BP;
 			}
+
+			return edb::DEBUG_CONTINUE_BP;
 		}
 #endif
 
@@ -2586,20 +2586,20 @@ void Debugger::clearData(const std::shared_ptr<DataViewInfo> &v) {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_jump_to_address
+// Name: doJumpToAddress
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::doJumpToAddress(edb::address_t address, const std::shared_ptr<IRegion> &r, bool scrollTo) {
+void Debugger::doJumpToAddress(edb::address_t address, const std::shared_ptr<IRegion> &r, bool scroll_to) {
 
 	cpuView_->setRegion(r);
-	if (scrollTo && !cpuView_->addressShown(address)) {
+	if (scroll_to && !cpuView_->addressShown(address)) {
 		cpuView_->scrollTo(address);
 	}
 	cpuView_->setSelectedAddress(address);
 }
 
 //------------------------------------------------------------------------------
-// Name: update_disassembly
+// Name: updateDisassembly
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::updateDisassembly(edb::address_t address, const std::shared_ptr<IRegion> &r) {
@@ -2609,7 +2609,7 @@ void Debugger::updateDisassembly(edb::address_t address, const std::shared_ptr<I
 }
 
 //------------------------------------------------------------------------------
-// Name: update_stack_view
+// Name: updateStackView
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::updateStackView(const State &state) {
@@ -2620,7 +2620,7 @@ void Debugger::updateStackView(const State &state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: update_cpu_view
+// Name: updateCpuView
 // Desc:
 //------------------------------------------------------------------------------
 std::shared_ptr<IRegion> Debugger::updateCpuView(const State &state) {
@@ -2629,16 +2629,16 @@ std::shared_ptr<IRegion> Debugger::updateCpuView(const State &state) {
 	if (std::shared_ptr<IRegion> region = edb::v1::memory_regions().findRegion(address)) {
 		updateDisassembly(address, region);
 		return region;
-	} else {
-		cpuView_->clear();
-		cpuView_->scrollTo(0);
-		listModel_->setStringList(QStringList());
-		return nullptr;
 	}
+
+	cpuView_->clear();
+	cpuView_->scrollTo(0);
+	listModel_->setStringList(QStringList());
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------
-// Name: update_data_views
+// Name: updateDataViews
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::updateDataViews() {
@@ -2656,7 +2656,7 @@ void Debugger::updateDataViews() {
 }
 
 //------------------------------------------------------------------------------
-// Name: refresh_gui
+// Name: refreshUi
 // Desc: refreshes all the different displays
 //------------------------------------------------------------------------------
 void Debugger::refreshUi() {
@@ -2682,7 +2682,7 @@ void Debugger::refreshUi() {
 }
 
 //------------------------------------------------------------------------------
-// Name: update_gui
+// Name: updateUi
 // Desc: updates all the different displays
 //------------------------------------------------------------------------------
 void Debugger::updateUi() {
@@ -2713,20 +2713,20 @@ void Debugger::updateUi() {
 }
 
 //------------------------------------------------------------------------------
-// Name: resume_status
+// Name: resumeStatus
 // Desc:
 //------------------------------------------------------------------------------
 edb::EventStatus Debugger::resumeStatus(bool pass_exception) {
 
 	if (pass_exception && lastEvent_ && lastEvent_->stopped() && !lastEvent_->isTrap()) {
 		return edb::DEBUG_EXCEPTION_NOT_HANDLED;
-	} else {
-		return edb::DEBUG_CONTINUE;
 	}
+
+	return edb::DEBUG_CONTINUE;
 }
 
 //------------------------------------------------------------------------------
-// Name: resume_execution
+// Name: resumeExecution
 // Desc: resumes execution, handles the situation of being on a breakpoint as well
 //------------------------------------------------------------------------------
 void Debugger::resumeExecution(ExceptionResume pass_exception, DebugMode mode, ResumeFlag flags) {

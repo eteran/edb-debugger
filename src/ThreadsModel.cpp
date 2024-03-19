@@ -56,9 +56,10 @@ QVariant ThreadsModel::data(const QModelIndex &index, int role) const {
 			case 0:
 				if (item.current) {
 					return tr("*%1").arg(item.thread->tid());
-				} else {
-					return QVariant::fromValue(item.thread->tid());
 				}
+
+				return QVariant::fromValue(item.thread->tid());
+
 			case 1:
 				return item.thread->priority();
 			case 2: {
@@ -67,9 +68,9 @@ QVariant ThreadsModel::data(const QModelIndex &index, int role) const {
 
 				if (!symname.isEmpty()) {
 					return QStringLiteral("%1 <%2>").arg(edb::v1::format_pointer(item.thread->instructionPointer()), symname);
-				} else {
-					return QStringLiteral("%1").arg(edb::v1::format_pointer(item.thread->instructionPointer()));
 				}
+
+				return QStringLiteral("%1").arg(edb::v1::format_pointer(item.thread->instructionPointer()));
 			}
 			case 3:
 				return item.thread->runState();

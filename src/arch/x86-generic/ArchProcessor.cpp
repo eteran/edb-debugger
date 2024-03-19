@@ -171,9 +171,9 @@ QString format_pointer(int pointer_level, edb::reg_t arg, QChar type) {
 
 	if (arg == 0) {
 		return "NULL";
-	} else {
-		return edb::v1::format_pointer(arg);
 	}
+
+	return edb::v1::format_pointer(arg);
 }
 
 //------------------------------------------------------------------------------
@@ -233,25 +233,25 @@ QString format_char(int pointer_level, edb::address_t arg, QChar type) {
 		if (pointer_level == 1) {
 			if (arg == 0) {
 				return "NULL";
-			} else {
-				QString string_param;
-				int string_length;
-
-				if (edb::v1::get_ascii_string_at_address(arg, string_param, edb::v1::config().min_string_length, 256, string_length)) {
-					return QStringLiteral("<%1> \"%2\"").arg(edb::v1::format_pointer(arg), string_param);
-				} else {
-					char character;
-					process->readBytes(arg, &character, sizeof(character));
-					if (character == '\0') {
-						return QStringLiteral("<%1> \"\"").arg(edb::v1::format_pointer(arg));
-					} else {
-						return QStringLiteral("<%1>").arg(edb::v1::format_pointer(arg));
-					}
-				}
 			}
-		} else {
-			return format_integer(pointer_level, arg, type);
+
+			QString string_param;
+			int string_length;
+
+			if (edb::v1::get_ascii_string_at_address(arg, string_param, edb::v1::config().min_string_length, 256, string_length)) {
+				return QStringLiteral("<%1> \"%2\"").arg(edb::v1::format_pointer(arg), string_param);
+			}
+
+			char ch;
+			process->readBytes(arg, &ch, sizeof(ch));
+			if (ch == '\0') {
+				return QStringLiteral("<%1> \"\"").arg(edb::v1::format_pointer(arg));
+			}
+
+			return QStringLiteral("<%1>").arg(edb::v1::format_pointer(arg));
 		}
+
+		return format_integer(pointer_level, arg, type);
 	}
 
 	return "?";
@@ -470,7 +470,7 @@ bool is_jcc_taken(const State &state, edb::Instruction::ConditionCode cond) {
 	return is_jcc_taken(state.flags(), cond);
 }
 
-static const QLatin1String jumpConditionMnemonics[] = {
+const QLatin1String jumpConditionMnemonics[] = {
 	QLatin1String("O"), QLatin1String("NO"),
 	QLatin1String("B"), QLatin1String("AE"),
 	QLatin1String("E"), QLatin1String("NE"),
@@ -935,21 +935,24 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 			if (reg) {
 				arguments << format_argument(argument_type, reg);
 				continue;
-			} else {
-				// If we failed, this may be a pair of reg32a:reg32b
-				const auto regs = argument_register.split(':');
-				if (regs.size() != 2 || regs[0].isEmpty() || regs[0][0] != 'e' || regs[1].isEmpty() || regs[1][0] != 'e') {
-					arguments << QObject::tr("(failed to obtain %1)").arg(argument_register);
-					continue;
-				}
-				const auto regHi = state[regs[0]], regLo = state[regs[1]];
-				if (!regHi || !regLo || regHi.bitSize() != 32 || regLo.bitSize() != 32) {
-					arguments << QObject::tr("(failed to obtain %1)").arg(argument_register);
-					continue;
-				}
-				const auto value = regHi.valueAsInteger() << 32 | regLo.valueAsInteger();
-				arguments << format_argument(argument_type, make_Register<64>(argument_register, value, Register::TYPE_GPR));
 			}
+
+			// If we failed, this may be a pair of reg32a:reg32b
+			const auto regs = argument_register.split(':');
+			if (regs.size() != 2 || regs[0].isEmpty() || regs[0][0] != 'e' || regs[1].isEmpty() || regs[1][0] != 'e') {
+				arguments << QObject::tr("(failed to obtain %1)").arg(argument_register);
+				continue;
+			}
+
+			const auto regHi = state[regs[0]];
+			const auto regLo = state[regs[1]];
+			if (!regHi || !regLo || regHi.bitSize() != 32 || regLo.bitSize() != 32) {
+				arguments << QObject::tr("(failed to obtain %1)").arg(argument_register);
+				continue;
+			}
+
+			const auto value = regHi.valueAsInteger() << 32 | regLo.valueAsInteger();
+			arguments << format_argument(argument_type, make_Register<64>(argument_register, value, Register::TYPE_GPR));
 		}
 
 		ret << ArchProcessor::tr("SYSCALL: %1%2(%3)").arg(isX32 ? "x32:" : "", root.attribute("name"), arguments.join(","));
@@ -1260,7 +1263,9 @@ bool falseSyscallReturn(const State &state, std::int64_t origAX) {
 			   state.gpRegister(rBP).valueAsInteger() == 0 &&
 			   state.gpRegister(rSI).valueAsInteger() == 0 &&
 			   state.gpRegister(rDI).valueAsInteger() == 0;
-	} else if (EDB_IS_64_BIT && origAX == 59) {
+	}
+
+	if (EDB_IS_64_BIT && origAX == 59) {
 		return state.gpRegister(rAX).valueAsInteger() == 0 &&
 			   state.gpRegister(rCX).valueAsInteger() == 0 &&
 			   state.gpRegister(rDX).valueAsInteger() == 0 &&
@@ -1277,6 +1282,7 @@ bool falseSyscallReturn(const State &state, std::int64_t origAX) {
 			   state.gpRegister(R14).valueAsInteger() == 0 &&
 			   state.gpRegister(R15).valueAsInteger() == 0;
 	}
+
 	return false;
 }
 
@@ -1527,7 +1533,7 @@ QStringList ArchProcessor::updateInstructionInfo(edb::address_t address) {
 											 err == ERESTARTNOHAND ||
 											 err == ERESTART_RESTARTBLOCK;
 
-					if (ret.size() && ret.back().startsWith("SYSCALL")) {
+					if (!ret.isEmpty() && ret.back().startsWith("SYSCALL")) {
 						if (interrupted) {
 							ret.back() = "Interrupted " + ret.back();
 						} else {

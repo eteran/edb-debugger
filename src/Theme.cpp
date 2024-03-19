@@ -159,10 +159,10 @@ Theme readSystemTheme() {
 	if (QApplication::palette().window().color().lightnessF() >= 0.5) {
 		QSettings settings(":/themes/system-light.ini", QSettings::IniFormat);
 		return readTheme(settings);
-	} else {
-		QSettings settings(":/themes/system-dark.ini", QSettings::IniFormat);
-		return readTheme(settings);
 	}
+
+	QSettings settings(":/themes/system-dark.ini", QSettings::IniFormat);
+	return readTheme(settings);
 }
 
 /**
@@ -181,10 +181,14 @@ Theme readTheme() {
 	// Handle the built-in themes
 	if (theme_name == "System") {
 		return system;
-	} else if (theme_name == "Dark [Built-in]") {
+	}
+
+	if (theme_name == "Dark [Built-in]") {
 		QSettings settings(":/themes/dark.ini", QSettings::IniFormat);
 		return readTheme(settings, system);
-	} else if (theme_name == "Light [Built-in]") {
+	}
+
+	if (theme_name == "Light [Built-in]") {
 		QSettings settings(":/themes/light.ini", QSettings::IniFormat);
 		return readTheme(settings, system);
 	}

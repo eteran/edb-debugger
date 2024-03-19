@@ -58,7 +58,7 @@ public:
 		};
 	};
 
-	explicit RegisterViewModel(int CPUFeaturesPresent, QObject *parent = nullptr);
+	explicit RegisterViewModel(int cpuSuppFlags, QObject *parent = nullptr);
 	[[nodiscard]] QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 	void setCpuMode(CpuMode mode);
 

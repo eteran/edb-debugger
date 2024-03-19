@@ -1496,8 +1496,8 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			// draw arrow tips
 			QPainterPath path;
 			path.moveTo(start_x, viewport()->height() - 1);
-			path.lineTo(start_x - (fontWidth_ / 2), viewport()->height() - (fontHeight_ / 3) - 1);
-			path.lineTo(start_x + (fontWidth_ / 2), viewport()->height() - (fontHeight_ / 3) - 1);
+			path.lineTo(start_x - (fontWidth_ / 2.), viewport()->height() - (fontHeight_ / 3.) - 1);
+			path.lineTo(start_x + (fontWidth_ / 2.), viewport()->height() - (fontHeight_ / 3.) - 1);
 			path.lineTo(start_x, viewport()->height() - 1);
 			painter.fillPath(path, QBrush(arrow_color));
 		}

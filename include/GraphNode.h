@@ -41,7 +41,7 @@ class GraphNode final : public QGraphicsItem {
 	friend class GraphEdge;
 
 public:
-	GraphNode(GraphWidget *graph, const QString &text, const QColor &color = Qt::white);
+	GraphNode(GraphWidget *graph, const QString &text, QColor color = Qt::white);
 	GraphNode(const GraphNode &)            = delete;
 	GraphNode &operator=(const GraphNode &) = delete;
 	~GraphNode() override;

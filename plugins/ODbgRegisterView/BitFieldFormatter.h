@@ -28,7 +28,7 @@ struct BitFieldDescription;
 class BitFieldFormatter {
 public:
 	explicit BitFieldFormatter(const BitFieldDescription &bfd);
-	QString operator()(const QString &text) const;
+	QString operator()(const QString &str) const;
 
 private:
 	std::vector<QString> valueNames;

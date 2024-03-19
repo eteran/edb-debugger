@@ -34,9 +34,9 @@ Register::Register() {
 bool Register::operator==(const Register &rhs) const {
 	if (!valid() && !rhs.valid()) {
 		return true;
-	} else {
-		return name_ == rhs.name_ && value_ == rhs.value_ && type_ == rhs.type_ && bitSize_ == rhs.bitSize_;
 	}
+
+	return name_ == rhs.name_ && value_ == rhs.value_ && type_ == rhs.type_ && bitSize_ == rhs.bitSize_;
 }
 
 /**

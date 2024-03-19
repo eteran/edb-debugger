@@ -57,9 +57,13 @@ public:
 	static Bookmark::Type bookmarkStringToType(const QString &type) {
 		if (type == tr("Code")) {
 			return Bookmark::Code;
-		} else if (type == tr("Data")) {
+		}
+
+		if (type == tr("Data")) {
 			return Bookmark::Data;
-		} else if (type == tr("Stack")) {
+		}
+
+		if (type == tr("Stack")) {
 			return Bookmark::Stack;
 		}
 

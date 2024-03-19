@@ -43,7 +43,7 @@ private:
 
 class PE32 : public IBinary {
 public:
-	explicit PE32(const std::shared_ptr<IRegion> &region);
+	explicit PE32(std::shared_ptr<IRegion> region);
 	~PE32() override = default;
 
 public:

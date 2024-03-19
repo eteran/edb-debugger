@@ -606,7 +606,8 @@ RegisterViewModel::getSSEparams() const {
 }
 
 void RegisterViewModel::updateSSEReg(std::size_t i, edb::value128 value, const QString &comment) {
-	RegisterViewModelBase::Category *sseCat, *avxCat;
+	RegisterViewModelBase::Category *sseCat;
+	RegisterViewModelBase::Category *avxCat;
 	unsigned sseRegMax;
 	std::tie(sseCat, avxCat, sseRegMax) = getSSEparams();
 	Q_ASSERT(i < sseRegMax);
@@ -620,7 +621,8 @@ void RegisterViewModel::updateSSEReg(std::size_t i, edb::value128 value, const Q
 	}
 }
 void RegisterViewModel::invalidateSSEReg(std::size_t i) {
-	RegisterViewModelBase::Category *sseCat, *avxCat;
+	RegisterViewModelBase::Category *sseCat;
+	RegisterViewModelBase::Category *avxCat;
 	std::size_t sseRegMax;
 	std::tie(sseCat, avxCat, sseRegMax) = getSSEparams();
 
@@ -637,7 +639,8 @@ void RegisterViewModel::invalidateSSEReg(std::size_t i) {
 }
 
 void RegisterViewModel::updateAVXReg(std::size_t i, edb::value256 value, const QString &comment) {
-	RegisterViewModelBase::Category *sseCat, *avxCat;
+	RegisterViewModelBase::Category *sseCat;
+	RegisterViewModelBase::Category *avxCat;
 	unsigned avxRegMax;
 	std::tie(sseCat, avxCat, avxRegMax) = getSSEparams();
 	if (i >= avxRegMax) {
@@ -650,7 +653,8 @@ void RegisterViewModel::updateAVXReg(std::size_t i, edb::value256 value, const Q
 	updateRegister<AVXReg>(avxCat, static_cast<int>(i), value, comment);
 }
 void RegisterViewModel::invalidateAVXReg(std::size_t i) {
-	RegisterViewModelBase::Category *sseCat, *avxCat;
+	RegisterViewModelBase::Category *sseCat;
+	RegisterViewModelBase::Category *avxCat;
 	std::size_t avxRegMax;
 	std::tie(sseCat, avxCat, avxRegMax) = getSSEparams();
 	Q_ASSERT(i < avxRegMax);
@@ -661,7 +665,8 @@ void RegisterViewModel::invalidateAVXReg(std::size_t i) {
 }
 
 void RegisterViewModel::updateMXCSR(edb::value32 value, const QString &comment) {
-	RegisterViewModelBase::Category *sseCat, *avxCat;
+	RegisterViewModelBase::Category *sseCat;
+	RegisterViewModelBase::Category *avxCat;
 	std::size_t avxRegMax;
 	std::tie(sseCat, avxCat, avxRegMax) = getSSEparams();
 	updateRegister<MXCSR>(sseCat, sseCat->childCount() - 1, value, comment, "MXCSR");
@@ -670,7 +675,8 @@ void RegisterViewModel::updateMXCSR(edb::value32 value, const QString &comment) 
 	}
 }
 void RegisterViewModel::invalidateMXCSR() {
-	RegisterViewModelBase::Category *sseCat, *avxCat;
+	RegisterViewModelBase::Category *sseCat;
+	RegisterViewModelBase::Category *avxCat;
 	std::size_t avxRegMax;
 	std::tie(sseCat, avxCat, avxRegMax) = getSSEparams();
 	invalidate(sseCat, sseCat->childCount() - 1, "MXCSR");

@@ -264,10 +264,10 @@ void DialogAssembler::on_buttonBox_accepted() {
 						if (ui.keepSize->isChecked()) {
 							QMessageBox::warning(this, tr("Error In Code"), tr("New instruction is too big to fit."));
 							return;
-						} else {
-							if (!edb::v1::modify_bytes(address_, replacement_size, bytes, 0x00)) {
-								return;
-							}
+						}
+
+						if (!edb::v1::modify_bytes(address_, replacement_size, bytes, 0x00)) {
+							return;
 						}
 					}
 

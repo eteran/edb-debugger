@@ -86,7 +86,7 @@ private:
 	void formatInteger(NumberEdit *edit, Integer integer) const;
 
 	void updateAllEntriesExcept(NumberEdit *notUpdated);
-	void hideColumns(EntriesCols preLast);
+	void hideColumns(EntriesCols afterLastToHide);
 	void hideRows(EntriesRows rowToHide);
 	void resetLayout();
 

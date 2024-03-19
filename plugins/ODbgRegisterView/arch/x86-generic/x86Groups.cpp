@@ -758,9 +758,12 @@ RegisterGroup *create_mxcsr(RegisterViewModelBase::Model *model, QWidget *parent
 	const QString mxcsrName = "MXCSR";
 
 	int column         = 0;
-	const int mxcsrRow = 1, fzRow = mxcsrRow, dazRow = mxcsrRow, excRow = mxcsrRow;
-	const int rndRow  = fzRow + 1;
-	const int maskRow = rndRow;
+	const int mxcsrRow = 1;
+	const int fzRow    = mxcsrRow;
+	const int dazRow   = mxcsrRow;
+	const int excRow   = mxcsrRow;
+	const int rndRow   = fzRow + 1;
+	const int maskRow  = rndRow;
 
 	group->insert(mxcsrRow, column, new FieldWidget(mxcsrName, group));
 	column += mxcsrName.length() + 1;
