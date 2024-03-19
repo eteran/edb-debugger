@@ -205,7 +205,7 @@ Status Unix::execute_process(const QString &path, const QString &cwd, const QLis
 		// returning on errors confuses linters, so let's just assert what is the case
 		Q_ASSERT(ret == -1);
 
-		errorString = QString("execv() failed: %1").arg(strerror(errno));
+		errorString = QStringLiteral("execv() failed: %1").arg(strerror(errno));
 
 		p = argv_pointers;
 		while (*p) {

@@ -198,13 +198,13 @@ RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *
 		group->insert(1, 0, geNameField);
 		for (int geIndex = 3; geIndex > -1; --geIndex) {
 			const int groupCol    = 5 + 2 * (3 - geIndex);
-			const auto tooltipStr = QString("GE%1").arg(geIndex);
+			const auto tooltipStr = QStringLiteral("GE%1").arg(geIndex);
 			{
 				const auto nameField = new FieldWidget(QString::number(geIndex), group);
 				group->insert(0, groupCol, nameField);
 				nameField->setToolTip(tooltipStr);
 			}
-			const auto indexInModel = find_model_register(regNameIndex, QString("GE%1").arg(geIndex));
+			const auto indexInModel = find_model_register(regNameIndex, QStringLiteral("GE%1").arg(geIndex));
 			if (!indexInModel.isValid())
 				continue;
 			const auto valueIndex = indexInModel.sibling(indexInModel.row(), ModelValueColumn);
@@ -236,7 +236,7 @@ RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *
 					tr("Flag marking active four-instruction IT-block"),
 				};
 			for (int i = 4; i >= 0; --i, column += 2) {
-				const auto nameIndex  = find_model_register(regNameIndex, QString("IT%1").arg(i));
+				const auto nameIndex  = find_model_register(regNameIndex, QStringLiteral("IT%1").arg(i));
 				const auto valueIndex = nameIndex.sibling(nameIndex.row(), ModelValueColumn);
 				if (!valueIndex.isValid())
 					continue;
@@ -250,7 +250,7 @@ RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *
 			}
 		}
 		{
-			const auto itBaseCondNameIndex  = find_model_register(regNameIndex, QString("ITbcond").toUpper());
+			const auto itBaseCondNameIndex  = find_model_register(regNameIndex, QStringLiteral("ITbcond").toUpper());
 			const auto itBaseCondValueIndex = itBaseCondNameIndex.sibling(itBaseCondNameIndex.row(), ModelValueColumn);
 			if (itBaseCondValueIndex.isValid()) {
 				const auto itBaseCondField = new MultiBitFieldWidget(itBaseCondValueIndex, itBaseCondDescription, group);

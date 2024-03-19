@@ -62,7 +62,7 @@ void add_result(DialogResults *resultsDialog, const InstructionList &instruction
 
 		for (; it != instructions.end(); ++it) {
 			const edb::Instruction *inst = *it;
-			instruction_string.append(QString("; %1").arg(QString::fromStdString(edb::v1::formatter().toString(*inst))));
+			instruction_string.append(QStringLiteral("; %1").arg(QString::fromStdString(edb::v1::formatter().toString(*inst))));
 		}
 
 		resultsDialog->addResult({rva, instruction_string});

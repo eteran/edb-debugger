@@ -98,13 +98,13 @@ void GprEdit::setGPRValue(std::uint64_t gprValue) {
 	std::memcpy(&value, reinterpret_cast<char *>(&gprValue) + offsetInInteger_, integerSize_);
 	switch (format_) {
 	case Format::Hex:
-		setText(QString("%1").arg(value, naturalWidthInChars_, 16, QChar('0')));
+		setText(QStringLiteral("%1").arg(value, naturalWidthInChars_, 16, QChar('0')));
 		break;
 	case Format::Signed:
-		setText(QString("%1").arg(static_cast<std::int64_t>(value)));
+		setText(QStringLiteral("%1").arg(static_cast<std::int64_t>(value)));
 		break;
 	case Format::Unsigned:
-		setText(QString("%1").arg(value));
+		setText(QStringLiteral("%1").arg(value));
 		break;
 	case Format::Character:
 		setText(QChar(static_cast<char>(value)));

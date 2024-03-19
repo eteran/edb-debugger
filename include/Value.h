@@ -54,7 +54,7 @@ public:
 	explicit value_type_large(const U &data, size_t offset = 0) {
 
 		static_assert(sizeof(data) >= sizeof(T), "value_type can only be constructed from large enough variable");
-		static_assert(std::is_trivially_copyable<U>::value, "value_type can only be constructed from trivially copiable data");
+		static_assert(std::is_trivially_copyable<U>::value, "value_type can only be constructed from trivially copyable data");
 
 		Q_ASSERT(sizeof(data) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
 
@@ -156,7 +156,7 @@ public:
 	explicit value_type(const U &data, size_t offset = 0) {
 
 		static_assert(sizeof(data) >= sizeof(T), "value_type can only be constructed from large enough variable");
-		static_assert(std::is_trivially_copyable<U>::value, "value_type can only be constructed from trivially copiable data");
+		static_assert(std::is_trivially_copyable<U>::value, "value_type can only be constructed from trivially copyable data");
 
 		Q_ASSERT(sizeof(data) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
 
@@ -409,11 +409,11 @@ public:
 	}
 
 	[[nodiscard]] QString signedToString() const {
-		return QString("%1").arg(typename std::make_signed<T>::type(value_));
+		return QStringLiteral("%1").arg(typename std::make_signed<T>::type(value_));
 	}
 
 	[[nodiscard]] QString toString() const {
-		return QString("%1").arg(value_);
+		return QStringLiteral("%1").arg(value_);
 	}
 
 	[[nodiscard]] QVariant toQVariant() const {
@@ -779,7 +779,7 @@ public:
 #else
 		static_assert(sizeof(data) >= sizeof(T), "ValueBase can only be constructed from large enough variable");
 #endif
-		static_assert(std::is_trivially_copyable<U>::value, "ValueBase can only be constructed from trivially copiable data");
+		static_assert(std::is_trivially_copyable<U>::value, "ValueBase can only be constructed from trivially copyable data");
 
 		Q_ASSERT(sizeof(data) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
 

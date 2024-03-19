@@ -725,7 +725,7 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 	bool attached;
 	do {
 		attached = false;
-		QDir proc_directory(QString("/proc/%1/task/").arg(pid));
+		QDir proc_directory(QStringLiteral("/proc/%1/task/").arg(pid));
 		for (const QString &s : proc_directory.entryList(QDir::NoDotAndDotDot | QDir::Dirs)) {
 			// this can get tricky if the threads decide to spawn new threads
 			// when we are attaching. I wish that linux had an atomic way to do this

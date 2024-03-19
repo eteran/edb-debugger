@@ -593,7 +593,7 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
 					if (showSymbolicAddresses) {
 						opcode.replace(addrPattern, sym);
 					} else {
-						opcode.append(QString(" <%2>").arg(sym));
+						opcode.append(QStringLiteral(" <%2>").arg(sym));
 					}
 				}
 			}
@@ -1176,7 +1176,7 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 			painter.setPen(palette().color(ctx->group, QPalette::Text));
 		}
 
-		QString annotation = comments_.value(address, QString(""));
+		QString annotation = comments_.value(address, QStringLiteral(""));
 		auto &&inst        = instructions_[line];
 		if (annotation.isEmpty() && inst && !is_jump(inst) && !is_call(inst)) {
 			// draw ascii representations of immediate constants
@@ -2107,7 +2107,7 @@ int QDisassemblyView::removeComment(edb::address_t address) {
 // Desc: Returns a comment assigned for an address or a blank string if there is none.
 //------------------------------------------------------------------------------
 QString QDisassemblyView::getComment(edb::address_t address) const {
-	return comments_.value(address, QString(""));
+	return comments_.value(address, QStringLiteral(""));
 }
 
 //------------------------------------------------------------------------------

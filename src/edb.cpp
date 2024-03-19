@@ -591,11 +591,11 @@ bool get_human_string_at_address(address_t address, QString &s) {
 		if (get_ascii_string_at_address(address, string_param, edb::v1::config().min_string_length, 256, string_length)) {
 			ret = true;
 			s.append(
-				QString("ASCII \"%1\" ").arg(string_param));
+				QStringLiteral("ASCII \"%1\" ").arg(string_param));
 		} else if (get_utf16_string_at_address(address, string_param, edb::v1::config().min_string_length, 256, string_length)) {
 			ret = true;
 			s.append(
-				QString("UTF16 \"%1\" ").arg(string_param));
+				QStringLiteral("UTF16 \"%1\" ").arg(string_param));
 		}
 	}
 	return ret;
@@ -714,9 +714,9 @@ QString find_function_symbol(address_t address, const QString &default_value, in
 	if (function_symbol_base(address, &symname, &off)) {
 
 		if (config().function_offsets_in_hex) {
-			symname = QString("%1+0x%2").arg(symname).arg(off, 0, 16);
+			symname = QStringLiteral("%1+0x%2").arg(symname).arg(off, 0, 16);
 		} else {
-			symname = QString("%1+%2").arg(symname).arg(off, 0, 10);
+			symname = QStringLiteral("%1+%2").arg(symname).arg(off, 0, 10);
 		}
 
 		if (offset) {

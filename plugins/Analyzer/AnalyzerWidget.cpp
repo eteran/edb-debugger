@@ -138,7 +138,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 	} else {
 		painter.setPen(QPen(Qt::white));
 		painter.drawText(rect(), Qt::AlignCenter,
-						 QString("%1: %2").arg(
+						 QStringLiteral("%1: %2").arg(
 							 region->name().split(QDir::separator()).last(),
 							 tr("No Analysis Found")));
 	}

@@ -226,7 +226,7 @@ public:
 			IDebugEvent::TRAP_REASON trap_reason = event->trapReason();
 			IDebugEvent::REASON reason           = event->reason();
 
-			qDebug() << QString("Event at address 0x%1").arg(address, 0, 16);
+			qDebug() << QStringLiteral("Event at address 0x%1").arg(address, 0, 16);
 
 			/*
 			 * An IDebugEvent::TRAP_BREAKPOINT can happen for the following reasons:
@@ -278,7 +278,7 @@ public:
 
 			// If we are on our ret (or the instr after?), then ret.
 			if (address == returnAddress_) {
-				qDebug() << QString("On our terminator at 0x%1").arg(address, 0, 16);
+				qDebug() << QStringLiteral("On our terminator at 0x%1").arg(address, 0, 16);
 				if (is_instruction_ret(address)) {
 					qDebug() << "Found ret; passing back to debugger";
 					return pass_back_to_debugger();
@@ -297,22 +297,22 @@ public:
 
 				// Get the instruction
 				edb::Instruction inst(buffer, buffer + size, 0);
-				qDebug() << QString("Scanning for terminator at 0x%1: found %2").arg(address, 0, 16).arg(inst.mnemonic().c_str());
+				qDebug() << QStringLiteral("Scanning for terminator at 0x%1: found %2").arg(address, 0, 16).arg(inst.mnemonic().c_str());
 
 				// Check if it's a proper block terminator (ret/jmp/jcc/hlt)
 				if (inst) {
 					if (is_terminator(inst)) {
-						qDebug() << QString("Found terminator %1 at 0x%2").arg(QString(inst.mnemonic().c_str())).arg(address, 0, 16);
+						qDebug() << QStringLiteral("Found terminator %1 at 0x%2").arg(QString(inst.mnemonic().c_str())).arg(address, 0, 16);
 						// If we already had a breakpoint there, then just continue.
 						if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->findBreakpoint(address)) {
-							qDebug() << QString("Already a breakpoint at terminator 0x%1").arg(address, 0, 16);
+							qDebug() << QStringLiteral("Already a breakpoint at terminator 0x%1").arg(address, 0, 16);
 							return edb::DEBUG_CONTINUE;
 						}
 
 						// Otherwise, attempt to set a breakpoint there and continue.
 						if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(address)) {
 							ownBreakpoints_.emplace_back(address, bp);
-							qDebug() << QString("Setting breakpoint at terminator 0x%1").arg(address, 0, 16);
+							qDebug() << QStringLiteral("Setting breakpoint at terminator 0x%1").arg(address, 0, 16);
 							bp->setInternal(true);
 							bp->setOneTime(true); // If the 0xcc get's rm'd on next event, then
 												  // don't set it one time; we'll handle it manually
@@ -610,7 +610,7 @@ QString Debugger::createTty() {
 			// a pipe...only ordinary files!
 			std::random_device rd;
 			std::mt19937 mt(rd());
-			const auto temp_pipe = QString("%1/edb_temp_file_%2_%3").arg(QDir::tempPath()).arg(mt()).arg(getpid());
+			const auto temp_pipe = QStringLiteral("%1/edb_temp_file_%2_%3").arg(QDir::tempPath()).arg(mt()).arg(getpid());
 
 			// make sure it isn't already there, and then make the pipe
 			::unlink(qPrintable(temp_pipe));
@@ -657,7 +657,7 @@ QString Debugger::createTty() {
 			}
 
 			proc_args << "sh"
-					  << "-c" << QString("%1").arg(shell_script);
+					  << "-c" << QStringLiteral("%1").arg(shell_script);
 
 			qDebug() << "Running Terminal: " << tty_command;
 			qDebug() << "Terminal Args: " << proc_args;

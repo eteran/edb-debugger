@@ -68,7 +68,7 @@ struct elf32_model : elf_model<32> {
 		}
 
 		[[nodiscard]] QString to_string() const {
-			return QString("%1 %2 %3 %4").arg(edb::value32(address).toHexString(), edb::value32(size).toHexString()).arg(type).arg(name);
+			return QStringLiteral("%1 %2 %3 %4").arg(edb::value32(address).toHexString(), edb::value32(size).toHexString()).arg(type).arg(name);
 		}
 	};
 };
@@ -97,7 +97,7 @@ struct elf64_model : elf_model<64> {
 		}
 
 		[[nodiscard]] QString to_string() const {
-			return QString("%1 %2 %3 %4").arg(edb::value64(address).toHexString(), edb::value32(size).toHexString()).arg(type).arg(name);
+			return QStringLiteral("%1 %2 %3 %4").arg(edb::value64(address).toHexString(), edb::value32(size).toHexString()).arg(type).arg(name);
 		}
 	};
 };
@@ -495,9 +495,9 @@ bool generate_symbols(const QString &filename, std::ostream &os) {
 
 		std::shared_ptr<QFile> debugFile;
 		if (!debugInfoPath.isEmpty()) {
-			debugFile = std::make_shared<QFile>(QString("%1/%2.debug").arg(debugInfoPath, filename));
+			debugFile = std::make_shared<QFile>(QStringLiteral("%1/%2.debug").arg(debugInfoPath, filename));
 			if (!debugFile->exists()) { // systems such as Ubuntu don't have .debug suffix, try without it
-				debugFile = std::make_shared<QFile>(QString("%1/%2").arg(debugInfoPath, filename));
+				debugFile = std::make_shared<QFile>(QStringLiteral("%1/%2").arg(debugInfoPath, filename));
 			}
 		}
 

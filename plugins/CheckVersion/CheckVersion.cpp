@@ -88,7 +88,7 @@ void CheckVersion::doCheck() {
 		connect(network_, &QNetworkAccessManager::finished, this, &CheckVersion::requestFinished);
 	}
 
-	QUrl update_url(QString("https://codef00.com/projects/debugger-latest.json?v=%1").arg(EDB_VERSION_STRING));
+	QUrl update_url(QStringLiteral("https://codef00.com/projects/debugger-latest.json?v=%1").arg(EDB_VERSION_STRING));
 	QNetworkRequest request(update_url);
 
 	setProxy(update_url);

@@ -327,13 +327,13 @@ RegisterGroup *create_fpu_data(RegisterViewModelBase::Model *model, QWidget *par
 			const auto STiFormatter = [row, topIndex]() {
 				const auto topByteArray = topIndex.data(Model::RawValueRole).toByteArray();
 				if (topByteArray.isEmpty()) {
-					return QString("R%1").arg(row);
+					return QStringLiteral("R%1").arg(row);
 				}
 				const auto top = topByteArray[0];
 				assert(top >= 0);
 				Q_ASSERT(top < 8);
 				const auto stI = (row + 8 - top) % 8;
-				return QString("ST%1").arg(stI);
+				return QStringLiteral("ST%1").arg(stI);
 			};
 			const auto field = new VolatileNameField(NameWidth, STiFormatter, group);
 			QObject::connect(model, &RegisterViewModelBase::Model::dataChanged, field, &VolatileNameField::adjustToData);
@@ -388,11 +388,11 @@ RegisterGroup *create_fpu_words(RegisterViewModelBase::Model *model, QWidget *pa
 	group->insert(FcrRow, precModeColumn - 1, new FieldWidget(",", group));
 
 	for (int condN = 3; condN >= 0; --condN) {
-		const auto name           = QString("C%1").arg(condN);
+		const auto name           = QStringLiteral("C%1").arg(condN);
 		const auto condNNameIndex = valid_index(find_model_register(fsrIndex, name));
 		const auto condNIndex     = valid_index(condNNameIndex.sibling(condNNameIndex.row(), ModelValueColumn));
 		const int column          = condPrecValColumn + 2 * (3 - condN);
-		const auto nameField      = new FieldWidget(QString("%1").arg(condN), group);
+		const auto nameField      = new FieldWidget(QStringLiteral("%1").arg(condN), group);
 		group->insert(FsrRow - 1, column, nameField);
 
 		const auto valueField = new ValueField(1, condNIndex, group);
@@ -547,7 +547,7 @@ RegisterGroup *create_fpu_last_op(RegisterViewModelBase::Model *model, QWidget *
 			return str;
 		}
 		if (rawFOP.size() != sizeof(edb::value16)) {
-			return QString("????");
+			return QStringLiteral("????");
 		}
 		std::memcpy(&fop, rawFOP.constData(), rawFOP.size());
 
@@ -563,7 +563,7 @@ RegisterGroup *create_fpu_last_op(RegisterViewModelBase::Model *model, QWidget *
 		const auto excActive         = fsr & 0x3f;
 		const auto excActiveUnmasked = excActive & ~excMask;
 		if (fop == 0 && ((fopRarelyUpdated && !excActiveUnmasked) || fip == 0)) {
-			return QString("00 00");
+			return QStringLiteral("00 00");
 		}
 		return edb::value8(0xd8 + rawFOP[1]).toHexString() + ' ' + edb::value8(rawFOP[0]).toHexString();
 	};
@@ -635,7 +635,7 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 	}
 
 	for (int drI = 0; drI < 4; ++drI, ++row) {
-		const auto name          = QString("DR%1").arg(drI);
+		const auto name          = QStringLiteral("DR%1").arg(drI);
 		const auto DRiValueIndex = valid_index(find_model_register(catIndex, name, ModelValueColumn));
 		int column               = 0;
 
@@ -644,7 +644,7 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 		group->insert(row, column, new ValueField(valueWidth, DRiValueIndex, group));
 		column += valueWidth + 2;
 		{
-			const auto BiName       = QString("B%1").arg(drI);
+			const auto BiName       = QStringLiteral("B%1").arg(drI);
 			const auto BiIndex      = valid_index(find_model_register(dr6Index, BiName, ModelValueColumn));
 			const auto BiValueField = new ValueField(1, BiIndex, group);
 			BiValueField->setToolTip(BTooltip + " (" + BiName + ")");
@@ -652,7 +652,7 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 			column += bitsSpacing + 1;
 		}
 		{
-			const auto LiName       = QString("L%1").arg(drI);
+			const auto LiName       = QStringLiteral("L%1").arg(drI);
 			const auto LiIndex      = valid_index(find_model_register(dr7Index, LiName, ModelValueColumn));
 			const auto LiValueField = new ValueField(1, LiIndex, group);
 			LiValueField->setToolTip(LTooltip + " (" + LiName + ")");
@@ -660,7 +660,7 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 			column += bitsSpacing + 1;
 		}
 		{
-			const auto GiName       = QString("G%1").arg(drI);
+			const auto GiName       = QStringLiteral("G%1").arg(drI);
 			const auto GiIndex      = valid_index(find_model_register(dr7Index, GiName, ModelValueColumn));
 			const auto GiValueField = new ValueField(1, GiIndex, group);
 			GiValueField->setToolTip(GTooltip + " (" + GiName + ")");
@@ -668,7 +668,7 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 			column += bitsSpacing + 1;
 		}
 		{
-			const auto RWiName                   = QString("R/W%1").arg(drI);
+			const auto RWiName                   = QStringLiteral("R/W%1").arg(drI);
 			const QPersistentModelIndex RWiIndex = valid_index(find_model_register(dr7Index, RWiName, ModelValueColumn));
 			const auto width                     = 5;
 			const auto RWiValueField             = new MultiBitFieldWidget(RWiIndex, debugRWDescription, group);
@@ -677,7 +677,7 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 			column += bitsSpacing + width;
 		}
 		{
-			const auto LENiName                   = QString("LEN%1").arg(drI);
+			const auto LENiName                   = QStringLiteral("LEN%1").arg(drI);
 			const QPersistentModelIndex LENiIndex = valid_index(find_model_register(dr7Index, LENiName, ModelValueColumn));
 			const auto LENiValueField             = new MultiBitFieldWidget(LENiIndex, debugLenDescription, group);
 			LENiValueField->setToolTip(lenTooltip + lenDecodedStr.arg(LENiName));

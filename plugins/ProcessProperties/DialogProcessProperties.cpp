@@ -141,7 +141,7 @@ bool tcp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 							const int inode = lst[13].toUInt(&ok, 10);
 							if (ok) {
 								if (inode == sock) {
-									*symlink = QString("TCP: %1:%2 -> %3:%4")
+									*symlink = QStringLiteral("TCP: %1:%2 -> %3:%4")
 												   .arg(QHostAddress(local_address).toString())
 												   .arg(local_port)
 												   .arg(QHostAddress(remote_address).toString())
@@ -186,7 +186,7 @@ bool udp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 							const int inode = lst[13].toUInt(&ok, 10);
 							if (ok) {
 								if (inode == sock) {
-									*symlink = QString("UDP: %1:%2 -> %3:%4")
+									*symlink = QStringLiteral("UDP: %1:%2 -> %3:%4")
 												   .arg(QHostAddress(local_address).toString())
 												   .arg(local_port)
 												   .arg(QHostAddress(remote_address).toString())
@@ -220,7 +220,7 @@ bool unix_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 		const int inode = lst[6].toUInt(&ok, 10);
 		if (ok) {
 			if (inode == sock) {
-				*symlink = QString("UNIX [%1]").arg(lst[0]);
+				*symlink = QStringLiteral("UNIX [%1]").arg(lst[0]);
 				return true;
 			}
 		}
@@ -365,7 +365,7 @@ void DialogProcessProperties::updateGeneralPage() {
 			ui.editCurrentDirectory->setText(cwd);
 			ui.editStarted->setText(process->startTime().toString("yyyy-MM-dd hh:mm:ss.z"));
 			if (parent_pid) {
-				ui.editParent->setText(QString("%1 (%2)").arg(parent_exe).arg(parent_pid));
+				ui.editParent->setText(QStringLiteral("%1 (%2)").arg(parent_exe).arg(parent_pid));
 			} else {
 				ui.editParent->setText(QString());
 			}
@@ -419,7 +419,7 @@ void DialogProcessProperties::updateMemoryPage() {
 			ui.tableMemory->insertRow(row);
 			ui.tableMemory->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(r->start()))); // address
 			ui.tableMemory->setItem(row, 1, new QTableWidgetItem(size_to_string(r->size())));           // size
-			ui.tableMemory->setItem(row, 2, new QTableWidgetItem(QString("%1%2%3")                      // protection
+			ui.tableMemory->setItem(row, 2, new QTableWidgetItem(QStringLiteral("%1%2%3")                      // protection
 																	 .arg(r->readable() ? 'r' : '-')
 																	 .arg(r->writable() ? 'w' : '-')
 																	 .arg(r->executable() ? 'x' : '-')));
@@ -452,7 +452,7 @@ void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 
 #ifdef Q_OS_LINUX
 	if (IProcess *process = edb::v1::debugger_core->process()) {
-		QFile proc_environ(QString("/proc/%1/environ").arg(process->pid()));
+		QFile proc_environ(QStringLiteral("/proc/%1/environ").arg(process->pid()));
 		if (proc_environ.open(QIODevice::ReadOnly)) {
 			QByteArray env = proc_environ.readAll();
 			char *p        = env.data();
@@ -488,7 +488,7 @@ void DialogProcessProperties::updateHandles() {
 
 #ifdef Q_OS_LINUX
 	if (IProcess *process = edb::v1::debugger_core->process()) {
-		QDir dir(QString("/proc/%1/fd/").arg(process->pid()));
+		QDir dir(QStringLiteral("/proc/%1/fd/").arg(process->pid()));
 		const QFileInfoList entries = dir.entryInfoList(QStringList() << "[0-9]*");
 		for (const QFileInfo &info : entries) {
 			if (info.isSymLink()) {

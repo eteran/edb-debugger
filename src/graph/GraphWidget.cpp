@@ -104,20 +104,20 @@ GraphWidget::GraphWidget(QWidget *parent)
 	setNodeAttribute("regular", "true");
 
 	// Divide the wanted width by the DPI to get the value in points
-	QString nodePtsWidth = QString("%1").arg(NodeWidth / _agget(graph_, "dpi", "96,0").toDouble());
+	QString nodePtsWidth = QStringLiteral("%1").arg(NodeWidth / _agget(graph_, "dpi", "96,0").toDouble());
 	// GV uses , instead of . for the separator in floats
 	setNodeAttribute("width", nodePtsWidth.replace('.', ","));
 
 	// set font
 	QFont font = QFont("Arial");
 	setGraphAttribute("fontname", font.family());
-	setGraphAttribute("fontsize", QString("%1").arg(font.pointSizeF()));
+	setGraphAttribute("fontsize", QStringLiteral("%1").arg(font.pointSizeF()));
 
 	setNodeAttribute("fontname", font.family());
-	setNodeAttribute("fontsize", QString("%1").arg(font.pointSizeF()));
+	setNodeAttribute("fontsize", QStringLiteral("%1").arg(font.pointSizeF()));
 
 	setEdgeAttribute("fontname", font.family());
-	setEdgeAttribute("fontsize", QString("%1").arg(font.pointSizeF()));
+	setEdgeAttribute("fontsize", QStringLiteral("%1").arg(font.pointSizeF()));
 }
 
 //------------------------------------------------------------------------------

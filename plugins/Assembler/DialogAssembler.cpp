@@ -192,13 +192,13 @@ void DialogAssembler::on_buttonBox_accepted() {
 				return;
 			}
 
-			QTemporaryFile source_file(QString("%1/edb_asm_temp_%2_XXXXXX.%3").arg(QDir::tempPath()).arg(QCoreApplication::applicationPid()).arg(asm_ext));
+			QTemporaryFile source_file(QStringLiteral("%1/edb_asm_temp_%2_XXXXXX.%3").arg(QDir::tempPath()).arg(QCoreApplication::applicationPid()).arg(asm_ext));
 			if (!source_file.open()) {
 				QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary source file."));
 				return;
 			}
 
-			QTemporaryFile output_file(QString("%1/edb_asm_temp_%2_XXXXXX.bin").arg(QDir::tempPath()).arg(QCoreApplication::applicationPid()));
+			QTemporaryFile output_file(QStringLiteral("%1/edb_asm_temp_%2_XXXXXX.bin").arg(QDir::tempPath()).arg(QCoreApplication::applicationPid()));
 			if (!output_file.open()) {
 				QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary object file."));
 				return;

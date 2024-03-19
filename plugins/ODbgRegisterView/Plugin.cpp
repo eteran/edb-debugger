@@ -32,8 +32,8 @@ namespace ODbgRegisterView {
 // Q_DECLARE_NAMESPACE_TR(ODbgRegisterView)
 
 namespace {
-const auto pluginName             = QLatin1String("ODbgRegisterView");
-const auto dockNameSuffixTemplate = QString(" <%1>");
+const auto pluginName             = QString("ODbgRegisterView");
+const auto dockNameSuffixTemplate = QStringLiteral(" <%1>");
 const auto dockObjectNameTemplate = QString(pluginName + "-%1");
 const auto views                  = QLatin1String("views");
 }

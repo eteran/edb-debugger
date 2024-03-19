@@ -286,9 +286,9 @@ QString gprComment(Register const &reg) {
 	int stringLength;
 	QString comment;
 	if (edb::v1::get_ascii_string_at_address(reg.valueAsAddress(), regString, edb::v1::config().min_string_length, 256, stringLength))
-		comment = QString("ASCII \"%1\"").arg(regString);
+		comment = QStringLiteral("ASCII \"%1\"").arg(regString);
 	else if (edb::v1::get_utf16_string_at_address(reg.valueAsAddress(), regString, edb::v1::config().min_string_length, 256, stringLength))
-		comment = QString("UTF16 \"%1\"").arg(regString);
+		comment = QStringLiteral("UTF16 \"%1\"").arg(regString);
 	return comment;
 }
 

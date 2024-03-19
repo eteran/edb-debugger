@@ -94,11 +94,11 @@ QVariant ResultViewModel::data(const QModelIndex &index, int role) const {
 			QStringList pointers;
 			if (edb::v1::debuggeeIs32Bit()) {
 				std::transform(result.pointers.begin(), result.pointers.end(), std::back_inserter(pointers), [](const edb::address_t pointer) -> QString {
-					return QString("dword ptr [%1]").arg(edb::v1::format_pointer(pointer));
+					return QStringLiteral("dword ptr [%1]").arg(edb::v1::format_pointer(pointer));
 				});
 			} else {
 				std::transform(result.pointers.begin(), result.pointers.end(), std::back_inserter(pointers), [](const edb::address_t pointer) -> QString {
-					return QString("qword ptr [%1]").arg(edb::v1::format_pointer(pointer));
+					return QStringLiteral("qword ptr [%1]").arg(edb::v1::format_pointer(pointer));
 				});
 			}
 			return pointers.join("|");

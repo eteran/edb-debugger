@@ -59,12 +59,12 @@ GraphNode::GraphNode(GraphWidget *graph, const QString &text, const QColor &colo
 
 	graph->scene()->addItem(this);
 
-	QString name = QString("Node%1").arg(reinterpret_cast<uintptr_t>(this));
+	QString name = QStringLiteral("Node%1").arg(reinterpret_cast<uintptr_t>(this));
 	node_        = _agnode(graph->graph_, name);
 
 	_agset(node_, "fixedsize", "0");
-	_agset(node_, "width", QString("%1").arg(boundingRect().width() / 96.0));
-	_agset(node_, "height", QString("%1").arg(boundingRect().height() / 96.0));
+	_agset(node_, "width", QStringLiteral("%1").arg(boundingRect().width() / 96.0));
+	_agset(node_, "height", QStringLiteral("%1").arg(boundingRect().height() / 96.0));
 }
 
 //------------------------------------------------------------------------------

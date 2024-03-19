@@ -430,16 +430,16 @@ template <typename Integer>
 void DialogEditSimdRegister::formatInteger(NumberEdit *const edit, Integer integer) const {
 	switch (intMode_) {
 	case NumberDisplayMode::Hex:
-		edit->setText(QString("%1").arg(integer, 2 * sizeof(integer), 16, QChar('0')));
+		edit->setText(QStringLiteral("%1").arg(integer, 2 * sizeof(integer), 16, QChar('0')));
 		break;
 	case NumberDisplayMode::Signed:
 		using Int    = typename std::remove_reference<Integer>::type;
 		using Signed = typename std::make_signed<Int>::type;
 
-		edit->setText(QString("%1").arg(static_cast<Signed>(integer)));
+		edit->setText(QStringLiteral("%1").arg(static_cast<Signed>(integer)));
 		break;
 	case NumberDisplayMode::Unsigned:
-		edit->setText(QString("%1").arg(integer));
+		edit->setText(QStringLiteral("%1").arg(integer));
 		break;
 	default:
 		Q_ASSERT("Unexpected integer display mode" && 0);

@@ -16,7 +16,7 @@ QTreeWidgetItem *create_elf_magic(const Header *header) {
 	auto item = new QTreeWidgetItem;
 
 	item->setText(0, tr("Magic"));
-	item->setText(1, QString("0x%1, %2, %3, %4")
+	item->setText(1, QStringLiteral("0x%1, %2, %3, %4")
 						 .arg(header->e_ident[EI_MAG0], 0, 16)
 						 .arg(static_cast<char>(header->e_ident[EI_MAG1]))
 						 .arg(static_cast<char>(header->e_ident[EI_MAG2]))
@@ -146,7 +146,7 @@ QTreeWidgetItem *create_elf_abi_version(const Header *header) {
 	auto item = new QTreeWidgetItem;
 
 	item->setText(0, tr("ABI Version"));
-	item->setText(1, QString("%1").arg(header->e_ident[EI_MAG0], 0, 10));
+	item->setText(1, QStringLiteral("%1").arg(header->e_ident[EI_MAG0], 0, 10));
 
 	return item;
 }
@@ -424,7 +424,7 @@ QTreeWidgetItem *create_elf_object_version(const Header *header) {
 	auto item = new QTreeWidgetItem;
 
 	item->setText(0, tr("Object File Version"));
-	item->setText(1, QString("%1").arg(header->e_version, 0, 10));
+	item->setText(1, QStringLiteral("%1").arg(header->e_version, 0, 10));
 
 	return item;
 }
@@ -435,7 +435,7 @@ QTreeWidgetItem *create_elf_entry_point(const Header *header) {
 	auto item = new QTreeWidgetItem;
 
 	item->setText(0, tr("Entry Point"));
-	item->setText(1, QString("0x%1").arg(header->e_entry, 0, 16));
+	item->setText(1, QStringLiteral("0x%1").arg(header->e_entry, 0, 16));
 
 	return item;
 }

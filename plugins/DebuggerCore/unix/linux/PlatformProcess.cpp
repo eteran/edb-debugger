@@ -424,7 +424,7 @@ std::size_t PlatformProcess::readPages(edb::address_t address, void *buf, std::s
  * @return
  */
 QDateTime PlatformProcess::startTime() const {
-	QFileInfo info(QString("/proc/%1/stat").arg(pid_));
+	QFileInfo info(QStringLiteral("/proc/%1/stat").arg(pid_));
 #if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
 	return info.birthTime();
 #else
@@ -440,7 +440,7 @@ QList<QByteArray> PlatformProcess::arguments() const {
 	QList<QByteArray> ret;
 
 	if (pid_ != 0) {
-		const QString command_line_file(QString("/proc/%1/cmdline").arg(pid_));
+		const QString command_line_file(QStringLiteral("/proc/%1/cmdline").arg(pid_));
 		QFile file(command_line_file);
 
 		if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -474,7 +474,7 @@ QList<QByteArray> PlatformProcess::arguments() const {
  * @return
  */
 QString PlatformProcess::currentWorkingDirectory() const {
-	return edb::v1::symlink_target(QString("/proc/%1/cwd").arg(pid_));
+	return edb::v1::symlink_target(QStringLiteral("/proc/%1/cwd").arg(pid_));
 }
 
 /**
@@ -482,7 +482,7 @@ QString PlatformProcess::currentWorkingDirectory() const {
  * @return
  */
 QString PlatformProcess::executable() const {
-	return edb::v1::symlink_target(QString("/proc/%1/exe").arg(pid_));
+	return edb::v1::symlink_target(QStringLiteral("/proc/%1/exe").arg(pid_));
 }
 
 /**
@@ -541,7 +541,7 @@ edb::address_t PlatformProcess::dataAddress() const {
 QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
 
 	static QList<std::shared_ptr<IRegion>> regions;
-	const QString map_file(QString("/proc/%1/maps").arg(pid_));
+	const QString map_file(QStringLiteral("/proc/%1/maps").arg(pid_));
 
 	// hash the region file to see if it changed or not
 	{
@@ -755,7 +755,7 @@ void PlatformProcess::setCurrentThread(IThread &thread) {
  */
 edb::uid_t PlatformProcess::uid() const {
 
-	const QFileInfo info(QString("/proc/%1").arg(pid_));
+	const QFileInfo info(QStringLiteral("/proc/%1").arg(pid_));
 	return info.ownerId();
 }
 
@@ -914,7 +914,7 @@ QMap<edb::address_t, Patch> PlatformProcess::patches() const {
  */
 edb::address_t PlatformProcess::entryPoint() const {
 
-	QFile auxv(QString("/proc/%1/auxv").arg(pid_));
+	QFile auxv(QStringLiteral("/proc/%1/auxv").arg(pid_));
 	if (auxv.open(QIODevice::ReadOnly)) {
 
 		if (edb::v1::debuggeeIs64Bit()) {
@@ -949,7 +949,7 @@ bool get_program_headers(const IProcess *process, edb::address_t *phdr_memaddr, 
 	*phdr_memaddr = edb::address_t{};
 	*num_phdr     = 0;
 
-	QFile auxv(QString("/proc/%1/auxv").arg(process->pid()));
+	QFile auxv(QStringLiteral("/proc/%1/auxv").arg(process->pid()));
 	if (auxv.open(QIODevice::ReadOnly)) {
 
 		if (edb::v1::debuggeeIs64Bit()) {

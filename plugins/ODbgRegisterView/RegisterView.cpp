@@ -136,7 +136,7 @@ RegisterGroup *createSIMDGroup(RegisterViewModelBase::Model *model, QWidget *par
 	const auto group = new RegisterGroup(catName, parent);
 	for (int row = 0; row < model->rowCount(catIndex); ++row) {
 		const auto nameIndex = valid_index(model->index(row, ModelNameColumn, catIndex));
-		const auto name      = regNamePrefix + QString("%1").arg(row);
+		const auto name      = regNamePrefix + QStringLiteral("%1").arg(row);
 		if (!valid_variant(nameIndex.data()).toString().toUpper().startsWith(regNamePrefix)) {
 			if (row == 0) {
 				return nullptr; // don't want empty groups
@@ -267,7 +267,7 @@ ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 		Q_FOREACH (const auto &grp, groupListV.toStringList()) {
 			const auto group = findGroup(grp);
 			if (group >= RegisterGroupType::NUM_GROUPS) {
-				qWarning() << qPrintable(QString("Warning: failed to understand group %1").arg(group));
+				qWarning() << qPrintable(QStringLiteral("Warning: failed to understand group %1").arg(group));
 				continue;
 			}
 			visibleGroupTypes_.emplace_back(group);

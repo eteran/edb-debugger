@@ -260,8 +260,8 @@ void addGPRs64(RegisterViewModelBase::Category *gprs64) {
 template <std::size_t bitSize>
 void addGenStatusRegs(RegisterViewModelBase::Category *cat) {
 	using Rs = Regs<bitSize>;
-	cat->addRegister(std::make_unique<typename Rs::IP>(Rs::namePrefix() + QString("IP")));
-	cat->addRegister(std::make_unique<typename Rs::FLAGS>(Rs::namePrefix() + QString("FLAGS"), flagsDescription));
+	cat->addRegister(std::make_unique<typename Rs::IP>(Rs::namePrefix() + QStringLiteral("IP")));
+	cat->addRegister(std::make_unique<typename Rs::FLAGS>(Rs::namePrefix() + QStringLiteral("FLAGS"), flagsDescription));
 }
 
 void addSegRegs(RegisterViewModelBase::Category *cat) {
@@ -276,7 +276,7 @@ void addSegRegs(RegisterViewModelBase::Category *cat) {
 template <std::size_t bitSize>
 void addFPURegs(RegisterViewModelBase::Category *fpuRegs) {
 	for (std::size_t i = 0; i < FPU_REG_COUNT; ++i) {
-		fpuRegs->addRegister(std::make_unique<FPUReg>(QString("R%1").arg(i)));
+		fpuRegs->addRegister(std::make_unique<FPUReg>(QStringLiteral("R%1").arg(i)));
 	}
 	fpuRegs->addRegister(std::make_unique<FPUWord>("FCR", FCRDescription));
 	fpuRegs->addRegister(std::make_unique<FPUWord>("FSR", FSRDescription));
@@ -293,11 +293,11 @@ template <std::size_t bitSize>
 void addDebugRegs(RegisterViewModelBase::Category *dbgRegs) {
 	using Rs = Regs<bitSize>;
 	for (std::size_t i = 0; i < 4; ++i) {
-		dbgRegs->addRegister(std::make_unique<typename Rs::IP>(QString("DR%1").arg(i)));
+		dbgRegs->addRegister(std::make_unique<typename Rs::IP>(QStringLiteral("DR%1").arg(i)));
 	}
 
-	dbgRegs->addRegister(std::make_unique<typename Rs::FLAGS>(QString("DR6"), DR6Description));
-	dbgRegs->addRegister(std::make_unique<typename Rs::FLAGS>(QString("DR7"), DR7Description));
+	dbgRegs->addRegister(std::make_unique<typename Rs::FLAGS>(QStringLiteral("DR6"), DR6Description));
+	dbgRegs->addRegister(std::make_unique<typename Rs::FLAGS>(QStringLiteral("DR7"), DR7Description));
 }
 
 const std::vector<NumberDisplayMode> MMXFormats = {
@@ -317,13 +317,13 @@ void addMMXRegs(RegisterViewModelBase::SIMDCategory *mmxRegs) {
 	using namespace RegisterViewModelBase;
 	// TODO: MMXReg should have possibility to be shown in byte/word/dword signed/unsigned/hex formats
 	for (std::size_t i = 0; i < MMX_REG_COUNT; ++i) {
-		mmxRegs->addRegister(std::make_unique<MMXReg>(QString("MM%1").arg(i), MMXFormats));
+		mmxRegs->addRegister(std::make_unique<MMXReg>(QStringLiteral("MM%1").arg(i), MMXFormats));
 	}
 }
 
 void addSSERegs(RegisterViewModelBase::SIMDCategory *sseRegs, unsigned regCount) {
 	for (std::size_t i = 0; i < regCount; ++i) {
-		sseRegs->addRegister(std::make_unique<SSEReg>(QString("XMM%1").arg(i), SSEAVXFormats));
+		sseRegs->addRegister(std::make_unique<SSEReg>(QStringLiteral("XMM%1").arg(i), SSEAVXFormats));
 	}
 
 	sseRegs->addRegister(std::make_unique<MXCSR>("MXCSR", MXCSRDescription));
@@ -331,7 +331,7 @@ void addSSERegs(RegisterViewModelBase::SIMDCategory *sseRegs, unsigned regCount)
 
 void addAVXRegs(RegisterViewModelBase::SIMDCategory *avxRegs, unsigned regCount) {
 	for (std::size_t i = 0; i < regCount; ++i) {
-		avxRegs->addRegister(std::make_unique<AVXReg>(QString("YMM%1").arg(i), SSEAVXFormats));
+		avxRegs->addRegister(std::make_unique<AVXReg>(QStringLiteral("YMM%1").arg(i), SSEAVXFormats));
 	}
 	avxRegs->addRegister(std::make_unique<MXCSR>("MXCSR", MXCSRDescription));
 }

@@ -333,10 +333,10 @@ void DialogROPTool::addGadget(DialogResults *results, const InstructionList &ins
 		auto it    = instructions.begin();
 		auto inst1 = *it++;
 
-		QString instruction_string = QString("%1").arg(QString::fromStdString(edb::v1::formatter().toString(*inst1)));
+		QString instruction_string = QStringLiteral("%1").arg(QString::fromStdString(edb::v1::formatter().toString(*inst1)));
 		for (; it != instructions.end(); ++it) {
 			auto inst = *it;
-			instruction_string.append(QString("; %1").arg(QString::fromStdString(edb::v1::formatter().toString(*inst))));
+			instruction_string.append(QStringLiteral("; %1").arg(QString::fromStdString(edb::v1::formatter().toString(*inst))));
 		}
 
 		if (!ui.checkUnique->isChecked() || !uniqueResults_.contains(instruction_string)) {

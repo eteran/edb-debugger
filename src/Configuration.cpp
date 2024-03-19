@@ -159,8 +159,8 @@ void Configuration::readSettings() {
 	QStringList cacheDirectories = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
 	QString cacheDirectory       = !cacheDirectories.isEmpty() ? cacheDirectories[0] : QString();
 
-	QString defaultSymbolPath  = QString("%1/%2").arg(cacheDirectory, "symbols");
-	QString defaultSessionPath = QString("%1/%2").arg(cacheDirectory, "sessions");
+	QString defaultSymbolPath  = QStringLiteral("%1/%2").arg(cacheDirectory, "symbols");
+	QString defaultSessionPath = QStringLiteral("%1/%2").arg(cacheDirectory, "sessions");
 
 	symbol_path  = settings.value("directory.symbol.path", defaultSymbolPath).toString();
 	plugin_path  = settings.value("directory.plugin.path", getDefaultPluginPath()).toString();

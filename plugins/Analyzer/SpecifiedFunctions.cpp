@@ -82,7 +82,7 @@ void SpecifiedFunctions::doFind() {
 
 	QStringList results;
 	for (edb::address_t address : functions) {
-		results << QString("%1").arg(edb::v1::format_pointer(address));
+		results << QStringLiteral("%1").arg(edb::v1::format_pointer(address));
 	}
 	model_->setStringList(results);
 }

@@ -162,7 +162,7 @@ void DialogSymbolViewer::doFind() {
 
 	const std::vector<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().symbols();
 	for (const std::shared_ptr<Symbol> &sym : symbols) {
-		results << QString("%1: %2").arg(edb::v1::format_pointer(sym->address), sym->name);
+		results << QStringLiteral("%1: %2").arg(edb::v1::format_pointer(sym->address), sym->name);
 	}
 
 	model_->setStringList(results);

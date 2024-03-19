@@ -62,7 +62,7 @@ QString toString(const edb::value80 &value, NumberDisplayMode format) {
 	case NumberDisplayMode::Hex:
 		return value.toHexString();
 	default:
-		return QString("bug: format=%1").arg(static_cast<int>(format));
+		return QStringLiteral("bug: format=%1").arg(static_cast<int>(format));
 	}
 }
 
@@ -85,7 +85,7 @@ bool set_debuggee_register(const QString &name, const T &value, T &resultingValu
 		Register reg = state[name];
 
 		if (!reg) {
-			qWarning() << qPrintable(QString("Warning: failed to get register %1 (in function `%2`)").arg(name).arg(Q_FUNC_INFO));
+			qWarning() << qPrintable(QStringLiteral("Warning: failed to get register %1 (in function `%2`)").arg(name).arg(Q_FUNC_INFO));
 			return false;
 		}
 
@@ -1090,7 +1090,7 @@ SIMDSizedElementsContainer<StoredType>::SIMDSizedElementsContainer(const QString
 	: RegisterViewItem(name) {
 
 	for (unsigned elemN = 0; elemN < sizeof(StoredType) / size; ++elemN) {
-		const auto name = QString("#%1").arg(elemN);
+		const auto name = QStringLiteral("#%1").arg(elemN);
 		switch (size) {
 		case sizeof(edb::value8):
 			addElement<edb::value8>(name, validFormats);

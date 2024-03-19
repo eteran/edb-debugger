@@ -33,7 +33,7 @@ namespace {
  */
 QString themeDirectory() {
 	static const QString configDir = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
-	return QString("%1/%2/%3").arg(configDir, QApplication::organizationName(), QLatin1String("themes"));
+	return QStringLiteral("%1/%2/%3").arg(configDir, QApplication::organizationName(), QLatin1String("themes"));
 }
 
 /**
@@ -65,11 +65,11 @@ QColor readColor(QSettings &settings, const QString &name, const QColor &default
 QTextCharFormat readFormat(QSettings &settings, const QString &name, const QTextCharFormat &defaultValue = QTextCharFormat()) {
 
 	QTextCharFormat format;
-	format.setForeground(readColor(settings, QString("%1.foreground").arg(name), defaultValue.foreground().color()));
-	format.setBackground(readColor(settings, QString("%1.background").arg(name), defaultValue.background().color()));
-	format.setFontWeight(settings.value(QString("%1.weight").arg(name), defaultValue.fontWeight()).toInt());
-	format.setFontItalic(settings.value(QString("%1.italic").arg(name), defaultValue.fontItalic()).toBool());
-	format.setFontUnderline(settings.value(QString("%1.underline").arg(name), defaultValue.fontUnderline()).toBool());
+	format.setForeground(readColor(settings, QStringLiteral("%1.foreground").arg(name), defaultValue.foreground().color()));
+	format.setBackground(readColor(settings, QStringLiteral("%1.background").arg(name), defaultValue.background().color()));
+	format.setFontWeight(settings.value(QStringLiteral("%1.weight").arg(name), defaultValue.fontWeight()).toInt());
+	format.setFontItalic(settings.value(QStringLiteral("%1.italic").arg(name), defaultValue.fontItalic()).toBool());
+	format.setFontUnderline(settings.value(QStringLiteral("%1.underline").arg(name), defaultValue.fontUnderline()).toBool());
 	return format;
 }
 

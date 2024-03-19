@@ -1478,7 +1478,7 @@ Register PlatformState::mmx_register(size_t n) const {
 	}
 
 	edb::value64 value(x87.R[n].mantissa());
-	return make_Register(QString("mm%1").arg(n), value, Register::TYPE_SIMD);
+	return make_Register(QStringLiteral("mm%1").arg(n), value, Register::TYPE_SIMD);
 }
 
 /**
@@ -1496,7 +1496,7 @@ Register PlatformState::xmm_register(size_t n) const {
 	}
 
 	edb::value128 value(avx.xmm(n));
-	return make_Register(QString("xmm%1").arg(n), value, Register::TYPE_SIMD);
+	return make_Register(QStringLiteral("xmm%1").arg(n), value, Register::TYPE_SIMD);
 }
 
 /**
@@ -1510,7 +1510,7 @@ Register PlatformState::ymm_register(size_t n) const {
 	}
 
 	edb::value256 value(avx.ymm(n));
-	return make_Register(QString("ymm%1").arg(n), value, Register::TYPE_SIMD);
+	return make_Register(QStringLiteral("ymm%1").arg(n), value, Register::TYPE_SIMD);
 }
 
 }

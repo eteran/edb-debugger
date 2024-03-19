@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace detail {
 
 inline bool is_delim(QChar ch) {
-	return QString("[]!()=+-*/%&|^~<>\t\n\r ").contains(ch);
+	return QStringLiteral("[]!()=+-*/%&|^~<>\t\n\r ").contains(ch);
 }
 
 }
