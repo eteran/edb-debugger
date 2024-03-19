@@ -898,9 +898,9 @@ address_t locate_main_function() {
 			const address_t main_func = process->calculateMain();
 			if (main_func != 0) {
 				return main_func;
-			} else {
-				return process->entryPoint();
 			}
+
+			return process->entryPoint();
 		}
 	}
 

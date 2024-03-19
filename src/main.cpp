@@ -347,10 +347,14 @@ int main(int argc, char *argv[]) {
 		if (args[i] == "--version") {
 			std::cout << "edb version: " << EDB_VERSION_STRING << std::endl;
 			return 0;
-		} else if (args[i] == "--dump-version") {
+		}
+
+		if (args[i] == "--dump-version") {
 			std::cout << EDB_VERSION_STRING << std::endl;
 			return 0;
-		} else if (args[i] == "--attach") {
+		}
+
+		if (args[i] == "--attach") {
 			++i;
 			if (i >= args.size()) {
 				usage();

@@ -99,7 +99,7 @@ public Q_SLOTS:
 private Q_SLOTS:
 	void modelReset();
 	void modelUpdated();
-	void copyAllRegisters();
+	void copyAllRegisters() const;
 	void copyRegisterToClipboard() const;
 	void settingsUpdated();
 

@@ -299,7 +299,7 @@ DialogEditFPU *ODBRegView::fpuEditDialog() const {
 	return dialogEditFpu_;
 }
 
-void ODBRegView::copyAllRegisters() {
+void ODBRegView::copyAllRegisters() const {
 	auto allFields = fields();
 	std::sort(allFields.begin(), allFields.end(), [](const FieldWidget *f1, const FieldWidget *f2) {
 		const auto f1Pos = field_position(f1);
@@ -567,8 +567,9 @@ QList<ValueField *> ODBRegView::valueFields() const {
 }
 
 void ODBRegView::updateFieldsPalette() {
-	Q_FOREACH (ValueField *field, valueFields())
+	Q_FOREACH (ValueField *field, valueFields()) {
 		field->updatePalette();
+	}
 }
 
 ValueField *ODBRegView::selectedField() const {

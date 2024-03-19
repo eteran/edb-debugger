@@ -171,11 +171,9 @@ std::vector<std::string> to_operands(QString str) {
 		// in the form (B,I,S) or (B) or (I,S). Let's find missing parts of it.
 		if (it->contains("(") && !it->contains(")")) {
 
-			std::logic_error matchFailed("failed to find matching ')'");
-
-			// the next part must exist and have continuation of SIB scheme
+						// the next part must exist and have continuation of SIB scheme
 			if (std::next(it) == betweenCommas.end()) {
-				throw matchFailed;
+				throw std::logic_error("failed to find matching ')'");
 			}
 
 			current += ",";
@@ -184,7 +182,7 @@ std::vector<std::string> to_operands(QString str) {
 			// This may still be not enough
 			if (current.contains("(") && !current.contains(")")) {
 				if (std::next(it) == betweenCommas.end()) {
-					throw matchFailed;
+					throw std::logic_error("failed to find matching ')'");
 				}
 
 				current += ",";
@@ -194,7 +192,7 @@ std::vector<std::string> to_operands(QString str) {
 			// The expected SIB string has at most three components.
 			// If we still haven't found closing parenthesis, we're screwed
 			if (current.contains("(") && !current.contains(")")) {
-				throw matchFailed;
+				throw std::logic_error("failed to find matching ')'");
 			}
 		}
 		operands.push_back(current.trimmed().toStdString());

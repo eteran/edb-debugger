@@ -630,7 +630,6 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 		const auto lenLabelField = new FieldWidget("Len", group);
 		lenLabelField->setToolTip(lenTooltip + lenDecodedStr.arg("LEN0..LEN3"));
 		group->insert(row, column, lenLabelField);
-		column += bitsSpacing + 3;
 
 		++row;
 	}
@@ -690,15 +689,18 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 		int column = 0;
 		group->insert(row, column, new FieldWidget("DR6", group));
 		column += nameWidth + 1;
+
 		group->insert(row, column, new ValueField(valueWidth, value_index(dr6Index), group));
 		column += valueWidth + 2;
-		const QString bsName   = "BS";
+
+		const QString bsName   = QStringLiteral("BS");
 		const auto bsWidth     = bsName.length();
 		const auto BSNameField = new FieldWidget(bsName, group);
 		const auto BSTooltip   = tr("Single Step") + " (BS)";
 		BSNameField->setToolTip(BSTooltip);
 		group->insert(row, column, BSNameField);
 		column += bsWidth + 1;
+
 		const auto bsIndex      = find_model_register(dr6Index, bsName, ModelValueColumn);
 		const auto BSValueField = new ValueField(1, bsIndex, group);
 		BSValueField->setToolTip(BSTooltip);
@@ -711,6 +713,7 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 		int column = 0;
 		group->insert(row, column, new FieldWidget("DR7", group));
 		column += nameWidth + 1;
+
 		group->insert(row, column, new ValueField(valueWidth, value_index(dr7Index), group));
 		column += valueWidth + 2;
 		{
@@ -721,6 +724,7 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 			LENameField->setToolTip(LETooltip);
 			group->insert(row, column, LENameField);
 			column += leWidth + 1;
+
 			const auto leIndex      = find_model_register(dr7Index, leName, ModelValueColumn);
 			const auto leValueWidth = 1;
 			const auto LEValueField = new ValueField(leValueWidth, leIndex, group);
@@ -728,6 +732,7 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 			group->insert(row, column, LEValueField);
 			column += leValueWidth + 1;
 		}
+
 		{
 			const QString geName   = "GE";
 			const auto geWidth     = geName.length();
@@ -736,12 +741,12 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 			GENameField->setToolTip(GETooltip);
 			group->insert(row, column, GENameField);
 			column += geWidth + 1;
+
 			const auto geIndex      = find_model_register(dr7Index, geName, ModelValueColumn);
 			const auto geValueWidth = 1;
 			const auto GEValueField = new ValueField(geValueWidth, geIndex, group);
 			GEValueField->setToolTip(GETooltip);
 			group->insert(row, column, GEValueField);
-			column += geValueWidth + 1;
 		}
 	}
 
