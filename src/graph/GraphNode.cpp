@@ -177,8 +177,8 @@ void GraphNode::drawLabel(const QString &text) {
 	font.setPixelSize(LabelFontSize);
 
 	if (!font.exactMatch()) {
-		QFontInfo fontinfo(font);
-		qWarning("replacing font '%s' by font '%s'", qPrintable(font.family()), qPrintable(fontinfo.family()));
+		QFontInfo fi(font);
+		qWarning("replacing font '%s' by font '%s'", qPrintable(font.family()), qPrintable(fi.family()));
 	}
 
 	painter.setFont(font);

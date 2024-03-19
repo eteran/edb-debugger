@@ -107,6 +107,8 @@ private:
 	[[nodiscard]] edb::address_t addressFromCoord(int x, int y) const;
 	[[nodiscard]] int addressLength() const;
 	[[nodiscard]] int autoLine2() const;
+	[[nodiscard]] int followingInstruction(int current_address) const;
+	[[nodiscard]] int followingInstructions(int current_address, int count) const;
 	[[nodiscard]] int getSelectedLineNumber() const;
 	[[nodiscard]] int line0() const;
 	[[nodiscard]] int line1() const;
@@ -114,15 +116,13 @@ private:
 	[[nodiscard]] int line3() const;
 	[[nodiscard]] int line4() const;
 	[[nodiscard]] int lineHeight() const;
+	[[nodiscard]] int previousInstruction(IAnalyzer *analyzer, int current_address) const;
+	[[nodiscard]] int previousInstructions(int current_address, int count) const;
 	[[nodiscard]] QString formatAddress(edb::address_t address) const;
 	[[nodiscard]] QString instructionString(const edb::Instruction &inst) const;
 	[[nodiscard]] Result<int, QString> getInstructionSize(edb::address_t address, uint8_t *buf, int *size) const;
 	[[nodiscard]] Result<int, QString> getInstructionSize(edb::address_t address) const;
 	[[nodiscard]] std::optional<unsigned int> getLineOfAddress(edb::address_t addr) const;
-	int followingInstruction(int current_address);
-	int followingInstructions(int current_address, int count);
-	int previousInstruction(IAnalyzer *analyzer, int current_address);
-	int previousInstructions(int current_address, int count);
 	int updateDisassembly(int lines_to_render);
 	void paintLineBg(QPainter &painter, QBrush brush, int line, int num_lines = 1);
 	void scrollbarActionTriggered(int action);

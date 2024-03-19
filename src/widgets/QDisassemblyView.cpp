@@ -263,13 +263,13 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: previous_instructions
+// Name: previousInstruction
 // Desc: attempts to find the address of the instruction 1 instructions
 //       before <current_address>
 // Note: <current_address> is a 0 based value relative to the beginning of the
 //       current region, not an absolute address within the program
 //------------------------------------------------------------------------------
-int QDisassemblyView::previousInstruction(IAnalyzer *analyzer, int current_address) {
+int QDisassemblyView::previousInstruction(IAnalyzer *analyzer, int current_address) const {
 
 	// If we have an analyzer, and the current address is within a function
 	// then first we find the beginning of that function.
@@ -343,13 +343,13 @@ int QDisassemblyView::previousInstruction(IAnalyzer *analyzer, int current_addre
 }
 
 //------------------------------------------------------------------------------
-// Name: previous_instructions
+// Name: previousInstructions
 // Desc: attempts to find the address of the instruction <count> instructions
 //       before <current_address>
 // Note: <current_address> is a 0 based value relative to the beginning of the
 //       current region, not an absolute address within the program
 //------------------------------------------------------------------------------
-int QDisassemblyView::previousInstructions(int current_address, int count) {
+int QDisassemblyView::previousInstructions(int current_address, int count) const {
 
 	IAnalyzer *const analyzer = edb::v1::analyzer();
 
@@ -360,7 +360,7 @@ int QDisassemblyView::previousInstructions(int current_address, int count) {
 	return current_address;
 }
 
-int QDisassemblyView::followingInstruction(int current_address) {
+int QDisassemblyView::followingInstruction(int current_address) const {
 	uint8_t buf[edb::Instruction::MaxSize + 1];
 
 	// do the longest read we can while still not passing the region end
@@ -379,11 +379,11 @@ int QDisassemblyView::followingInstruction(int current_address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: following_instructions
+// Name: followingInstructions
 // Note: <current_address> is a 0 based value relative to the beginning of the
 //       current region, not an absolute address within the program
 //------------------------------------------------------------------------------
-int QDisassemblyView::followingInstructions(int current_address, int count) {
+int QDisassemblyView::followingInstructions(int current_address, int count) const {
 
 	for (int i = 0; i < count; ++i) {
 		current_address = followingInstruction(current_address);
@@ -425,7 +425,7 @@ void QDisassemblyView::wheelEvent(QWheelEvent *e) {
 }
 
 //------------------------------------------------------------------------------
-// Name: scrollbar_action_triggered
+// Name: scrollbarActionTriggered
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::scrollbarActionTriggered(int action) {

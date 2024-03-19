@@ -29,11 +29,11 @@ void NavigationHistory::add(edb::address_t address) {
 	}
 
 	if (!list_.isEmpty()) {
-		if (lastop_ == LASTOP_PREV && address == list_.at(pos_)) {
+		if (lastOp_ == LastOp::Prev && address == list_.at(pos_)) {
 			return;
 		}
 
-		if (lastop_ == LASTOP_NEXT && address == list_.at(pos_ - 1)) {
+		if (lastOp_ == LastOp::Next && address == list_.at(pos_ - 1)) {
 			return;
 		}
 
@@ -46,7 +46,7 @@ void NavigationHistory::add(edb::address_t address) {
 
 	pos_ = list_.size();
 	list_.append(address);
-	lastop_ = LASTOP_NONE;
+	lastOp_ = LastOp::None;
 }
 
 edb::address_t NavigationHistory::getNext() {
@@ -58,7 +58,7 @@ edb::address_t NavigationHistory::getNext() {
 		++pos_;
 	}
 
-	lastop_ = LASTOP_NEXT;
+	lastOp_ = LastOp::Next;
 	return list_.at(pos_);
 }
 
@@ -71,6 +71,6 @@ edb::address_t NavigationHistory::getPrev() {
 		--pos_;
 	}
 
-	lastop_ = LASTOP_PREV;
+	lastOp_ = LastOp::Prev;
 	return list_.at(pos_);
 }

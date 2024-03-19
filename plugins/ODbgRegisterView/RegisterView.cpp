@@ -169,15 +169,17 @@ void ODBRegView::mousePressEvent(QMouseEvent *event) {
 		return;
 	}
 
-	if (event->button() == Qt::RightButton) {
+	switch (event->button()) {
+	case Qt::RightButton:
 		showMenu(event->globalPos());
-		return;
-	}
-
-	if (event->button() == Qt::LeftButton) {
+		break;
+	case Qt::LeftButton:
 		Q_FOREACH (const auto field, valueFields()) {
 			field->unselect();
 		}
+		break;
+	default:
+		break;
 	}
 }
 
@@ -342,7 +344,7 @@ void ODBRegView::copyAllRegisters() const {
 }
 
 void ODBRegView::groupHidden(RegisterGroup *group) {
-	using namespace std;
+
 	assert(util::contains(groups_, group));
 	const auto groupPtrIter = std::find(groups_.begin(), groups_.end(), group);
 	auto &groupPtr          = *groupPtrIter;
@@ -351,7 +353,7 @@ void ODBRegView::groupHidden(RegisterGroup *group) {
 
 	auto &types(visibleGroupTypes_);
 	const auto groupType = static_cast<RegisterGroupType>(groupPtrIter - groups_.begin());
-	types.erase(remove_if(types.begin(), types.end(), [=](const RegisterGroupType type) { return type == groupType; }), types.end());
+	types.erase(std::remove_if(types.begin(), types.end(), [=](const RegisterGroupType type) { return type == groupType; }), types.end());
 	hiddenGroupsMenu_->addAction(RegisterGroupTypeNames[groupType], [=] { restoreHiddenGroup(groupType); });
 	hiddenGroupsAction_->setVisible(true);
 }

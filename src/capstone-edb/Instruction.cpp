@@ -171,7 +171,7 @@ std::vector<std::string> to_operands(QString str) {
 		// in the form (B,I,S) or (B) or (I,S). Let's find missing parts of it.
 		if (it->contains("(") && !it->contains(")")) {
 
-						// the next part must exist and have continuation of SIB scheme
+			// the next part must exist and have continuation of SIB scheme
 			if (std::next(it) == betweenCommas.end()) {
 				throw std::logic_error("failed to find matching ')'");
 			}
@@ -248,20 +248,17 @@ bool init(Architecture arch) {
 }
 
 Instruction::Instruction(Instruction &&other) noexcept
-	: insn_(other.insn_), byte0_(other.byte0_), rva_(other.rva_) {
-
-	other.insn_  = nullptr;
-	other.byte0_ = 0;
-	other.rva_   = 0;
+	: insn_(std::exchange(other.insn_, nullptr)),
+	  byte0_(std::exchange(other.byte0_, 0)),
+	  rva_(std::exchange(other.rva_, 0)) {
 }
 
 Instruction &Instruction::operator=(Instruction &&rhs) noexcept {
-	insn_      = rhs.insn_;
-	byte0_     = rhs.byte0_;
-	rva_       = rhs.rva_;
-	rhs.insn_  = nullptr;
-	rhs.byte0_ = 0;
-	rhs.rva_   = 0;
+	if (this != &rhs) {
+		insn_  = std::exchange(rhs.insn_, nullptr);
+		byte0_ = std::exchange(rhs.byte0_, 0);
+		rva_   = std::exchange(rhs.rva_, 0);
+	}
 	return *this;
 }
 
@@ -273,7 +270,6 @@ Instruction::~Instruction() {
 
 Instruction::Instruction(const void *first, const void *last, uint64_t rva) noexcept
 	: rva_(rva) {
-
 	assert(capstoneInitialized);
 	auto codeBegin = static_cast<const uint8_t *>(first);
 	auto codeEnd   = static_cast<const uint8_t *>(last);
@@ -419,7 +415,6 @@ void Instruction::swap(Instruction &other) {
 }
 
 QString Formatter::adjustInstructionText(const Instruction &insn) const {
-
 	QString operands(insn->op_str);
 
 	// Remove extra spaces
@@ -463,7 +458,6 @@ void Formatter::setOptions(const Formatter::FormatOptions &options) {
 }
 
 std::string Formatter::toString(const Instruction &insn) const {
-
 	enum {
 		Tab1Size = 8,
 		Tab2Size = 11,

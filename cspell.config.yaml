@@ -38,6 +38,7 @@ words:
   - qgetenv
   - qlonglong
   - qobject
+  - qreal
   - qsnprintf
   - Quadword
   - quadwords
