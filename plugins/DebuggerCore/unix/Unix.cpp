@@ -209,7 +209,7 @@ Status Unix::execute_process(const QString &path, const QString &cwd, const QLis
 
 		p = argv_pointers;
 		while (*p) {
-			delete[] *p++;
+			delete[] * p++;
 		}
 		delete[] argv_pointers;
 	}
