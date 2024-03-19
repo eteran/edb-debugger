@@ -41,6 +41,7 @@ constexpr int ReturnColumn = 1;
  * true if successful or false, otherwise.
  */
 edb::address_t address_from_table(const QTableWidgetItem *item) {
+	static_assert(sizeof(qulonglong) >= sizeof(edb::address_t));
 	return static_cast<edb::address_t>(item->data(Qt::UserRole).value<qulonglong>());
 }
 
@@ -116,9 +117,7 @@ DialogBacktrace::DialogBacktrace(QWidget *parent, Qt::WindowFlags f)
 			}
 
 			// Using the non-debugger_core version ensures bp is set in a valid region
-			// TODO(eteran): I think it's safe to just use the return value of create_breakpoint here...
-			edb::v1::create_breakpoint(address);
-			if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->findBreakpoint(address)) {
+			if (std::shared_ptr<IBreakpoint> bp = edb::v1::create_breakpoint(address)) {
 				bp->setInternal(true);
 				bp->setOneTime(true);
 				process->resume(edb::DEBUG_CONTINUE);
@@ -211,8 +210,7 @@ void DialogBacktrace::populateTable() {
 
 	// 1st ret is selected on every refresh so that we can just click "Return To"
 	// Turn Run To button off if no item.
-	QTableWidgetItem *item = table_->item(FirstRow, ReturnColumn);
-	if (item) {
+	if (QTableWidgetItem *item = table_->item(FirstRow, ReturnColumn)) {
 		table_->setCurrentItem(item);
 		buttonReturnTo_->setEnabled(true);
 	} else {
@@ -253,11 +251,7 @@ void DialogBacktrace::on_tableWidgetCallStack_itemDoubleClicked(QTableWidgetItem
  */
 void DialogBacktrace::on_tableWidgetCallStack_cellClicked(int row, int column) {
 	Q_UNUSED(row)
-	if (is_ret(column)) {
-		buttonReturnTo_->setEnabled(true);
-	} else {
-		buttonReturnTo_->setEnabled(false);
-	}
+	buttonReturnTo_->setEnabled(is_ret(column));
 }
 
 }
