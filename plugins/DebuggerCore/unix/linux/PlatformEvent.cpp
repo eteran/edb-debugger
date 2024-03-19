@@ -283,17 +283,18 @@ IDebugEvent::Message PlatformEvent::errorDescription() const {
  * @return
  */
 IDebugEvent::REASON PlatformEvent::reason() const {
-	// this basically converts our value into a 'switchable' value for convenience
-
+	// this basically converts our event type into a 'switchable' value for convenience
 	if (stopped()) {
 		return EVENT_STOPPED;
-	} else if (terminated()) {
-		return EVENT_TERMINATED;
-	} else if (exited()) {
-		return EVENT_EXITED;
-	} else {
-		return EVENT_UNKNOWN;
 	}
+	if (terminated()) {
+		return EVENT_TERMINATED;
+	}
+	if (exited()) {
+		return EVENT_EXITED;
+	}
+
+	return EVENT_UNKNOWN;
 }
 
 /**

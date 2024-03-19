@@ -731,11 +731,13 @@ IAnalyzer::AddressCategory Analyzer::category(edb::address_t address) const {
 	if (findContainingFunction(address, &func)) {
 		if (address == func.entryAddress()) {
 			return ADDRESS_FUNC_START;
-		} else if (address == func.endAddress()) {
-			return ADDRESS_FUNC_END;
-		} else {
-			return ADDRESS_FUNC_BODY;
 		}
+
+		if (address == func.endAddress()) {
+			return ADDRESS_FUNC_END;
+		}
+
+		return ADDRESS_FUNC_BODY;
 	}
 	return ADDRESS_FUNC_UNKNOWN;
 }
@@ -913,9 +915,9 @@ Result<edb::address_t, QString> Analyzer::findContainingFunction(edb::address_t 
 	Function function;
 	if (findContainingFunction(address, &function)) {
 		return function.entryAddress();
-	} else {
-		return make_unexpected(tr("Containing Function Not Found"));
 	}
+
+	return make_unexpected(tr("Containing Function Not Found"));
 }
 
 }

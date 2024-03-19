@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QCoreApplication>
 
-
 namespace DebuggerCorePlugin {
 
 class DebuggerCore;
@@ -41,29 +40,29 @@ public:
 	PlatformProcess &operator=(const PlatformProcess &) = delete;
 
 public:
-	QDateTime startTime() const override;
-	QList<QByteArray> arguments() const override;
-	QString currentWorkingDirectory() const override;
-	QString executable() const override;
-	QString standardInput() const override;
-	QString standardOutput() const override;
-	edb::pid_t pid() const override;
-	std::shared_ptr<IProcess> parent() const override;
-	edb::address_t codeAddress() const override;
-	edb::address_t dataAddress() const override;
-	edb::address_t entryPoint() const override;
-	QList<std::shared_ptr<IRegion>> regions() const override;
-	QList<std::shared_ptr<IThread>> threads() const override;
-	std::shared_ptr<IThread> currentThread() const override;
+	[[nodiscard]] edb::address_t codeAddress() const override;
+	[[nodiscard]] edb::address_t dataAddress() const override;
+	[[nodiscard]] edb::address_t entryPoint() const override;
+	[[nodiscard]] edb::pid_t pid() const override;
+	[[nodiscard]] edb::uid_t uid() const override;
+	[[nodiscard]] QDateTime startTime() const override;
+	[[nodiscard]] QList<Module> loadedModules() const override;
+	[[nodiscard]] QList<QByteArray> arguments() const override;
+	[[nodiscard]] QList<std::shared_ptr<IRegion>> regions() const override;
+	[[nodiscard]] QList<std::shared_ptr<IThread>> threads() const override;
+	[[nodiscard]] QString currentWorkingDirectory() const override;
+	[[nodiscard]] QString executable() const override;
+	[[nodiscard]] QString name() const override;
+	[[nodiscard]] QString standardInput() const override;
+	[[nodiscard]] QString standardOutput() const override;
+	[[nodiscard]] QString user() const override;
+	[[nodiscard]] std::shared_ptr<IProcess> parent() const override;
+	[[nodiscard]] std::shared_ptr<IThread> currentThread() const override;
 	void setCurrentThread(IThread &thread) override;
-	edb::uid_t uid() const override;
-	QString user() const override;
-	QString name() const override;
-	QList<Module> loadedModules() const override;
 
 public:
-	edb::address_t debugPointer() const override;
-	edb::address_t calculateMain() const override;
+	[[nodiscard]] edb::address_t debugPointer() const override;
+	[[nodiscard]] edb::address_t calculateMain() const override;
 
 public:
 	Status pause() override;
@@ -76,7 +75,7 @@ public:
 	std::size_t patchBytes(edb::address_t address, const void *buf, size_t len) override;
 	std::size_t readBytes(edb::address_t address, void *buf, size_t len) const override;
 	std::size_t readPages(edb::address_t address, void *buf, size_t count) const override;
-	QMap<edb::address_t, Patch> patches() const override;
+	[[nodiscard]] QMap<edb::address_t, Patch> patches() const override;
 
 private:
 	bool ptracePoke(edb::address_t address, long value);

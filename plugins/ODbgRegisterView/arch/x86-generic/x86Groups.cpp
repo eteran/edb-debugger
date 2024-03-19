@@ -380,9 +380,10 @@ RegisterGroup *create_fpu_words(RegisterViewModelBase::Model *model, QWidget *pa
 	group->insert(FcrRow, condPrecLabelColumn, new FieldWidget("Prec", group));
 
 	constexpr int condPrecValColumn = condPrecLabelColumn + condPrecLabelWidth + 1;
-	constexpr int roundModeWidth = 4, precModeWidth = 2;
-	constexpr int roundModeColumn = condPrecValColumn;
-	constexpr int precModeColumn  = roundModeColumn + roundModeWidth + 1;
+	constexpr int roundModeWidth    = 4;
+	constexpr int precModeWidth     = 2;
+	constexpr int roundModeColumn   = condPrecValColumn;
+	constexpr int precModeColumn    = roundModeColumn + roundModeWidth + 1;
 
 	// This must be inserted before precision&rounding value fields, since they overlap this label
 	group->insert(FcrRow, precModeColumn - 1, new FieldWidget(",", group));
@@ -775,7 +776,8 @@ RegisterGroup *create_mxcsr(RegisterViewModelBase::Model *model, QWidget *parent
 	// XXX: Sacrificing understandability of DAZ->DZ to align PUOZDI with FPU's.
 	// Also FZ value is one char away from DAZ name, which is also no good.
 	// Maybe following OllyDbg example here isn't a good idea.
-	const QString fzName = "FZ", dazName = "DZ";
+	const QString fzName   = "FZ";
+	const QString dazName  = "DZ";
 	const auto fzColumn    = column;
 	const auto fzNameField = new FieldWidget(fzName, group);
 	group->insert(fzRow, fzColumn, fzNameField);

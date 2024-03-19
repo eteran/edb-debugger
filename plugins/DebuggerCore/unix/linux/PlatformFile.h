@@ -37,15 +37,15 @@ public:
 		::close(fd_);
 	}
 
-	ssize_t writeAt(const void *buf, size_t count, off_t offset) {
+	ssize_t writeAt(const void *buf, size_t count, off_t offset) const {
 		return ::pwrite(fd_, buf, count, offset);
 	}
 
-	ssize_t readAt(void *buf, size_t count, off_t offset) {
+	ssize_t readAt(void *buf, size_t count, off_t offset) const {
 		return ::pread(fd_, buf, count, offset);
 	}
 
-	explicit operator bool() {
+	explicit operator bool() const {
 		return fd_ != -1;
 	}
 

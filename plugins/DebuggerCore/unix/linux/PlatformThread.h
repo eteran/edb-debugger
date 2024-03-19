@@ -42,10 +42,10 @@ public:
 	PlatformThread &operator=(const PlatformThread &) = delete;
 
 public:
-	edb::tid_t tid() const override;
-	QString name() const override;
-	int priority() const override;
-	edb::address_t instructionPointer() const override;
+	[[nodiscard]] edb::tid_t tid() const override;
+	[[nodiscard]] QString name() const override;
+	[[nodiscard]] int priority() const override;
+	[[nodiscard]] edb::address_t instructionPointer() const override;
 	QString runState() const override;
 
 public:
@@ -59,7 +59,7 @@ public:
 	Status resume(edb::EventStatus status) override;
 
 public:
-	bool isPaused() const override;
+	[[nodiscard]] bool isPaused() const override;
 
 private:
 	void fillSegmentBases(PlatformState *state);
