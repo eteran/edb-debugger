@@ -140,7 +140,7 @@ edb::address_t module_entry_point(const std::shared_ptr<IRegion> &region) {
 
 	// if it does, we can just try to see if there is a region that fits the bill
 	// one page before us. it's a guess, but it's not a bad one
-	const size_t page_size  = edb::v1::debugger_core->pageSize();
+	const size_t page_size          = edb::v1::debugger_core->pageSize();
 	const edb::address_t prevRegion = region->start() - page_size;
 	if (std::shared_ptr<IRegion> region = edb::v1::memory_regions().findRegion(prevRegion)) {
 		if (std::unique_ptr<IBinary> binary_info = edb::v1::get_binary_info(region)) {
@@ -620,6 +620,8 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 							}
 						}
 					}
+#if defined(EDB_X86) || defined(EDB_X86_64)
+#if CS_API_MAJOR >= 4
 				} else if (inst->id == X86_INS_ENDBR64 || inst->id == X86_INS_ENDBR32) {
 
 					// Intel's CET stuff actually helps us identify functions pretty easily
@@ -628,6 +630,8 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 						fuzzy_functions[addr] = MinRefCount + 1;
 					}
 				}
+#endif
+#endif
 			}
 			++p;
 		}
@@ -755,7 +759,7 @@ IAnalyzer::FunctionMap Analyzer::functions() const {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
 		results.insert(it.functions);
 #else
-		results.unite(it.functions);
+			results.unite(it.functions);
 #endif
 	}
 	return results;
