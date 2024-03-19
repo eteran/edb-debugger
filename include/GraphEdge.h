@@ -30,7 +30,7 @@ class GraphicsLineItem;
 
 class GraphEdge final : public QGraphicsItemGroup {
 public:
-	GraphEdge(GraphNode *from, GraphNode *to, const QColor &color = Qt::black, QGraphicsItem *parent = nullptr);
+	GraphEdge(GraphNode *from, GraphNode *to, QColor color = Qt::black, QGraphicsItem *parent = nullptr);
 	GraphEdge(const GraphEdge &)            = delete;
 	GraphEdge &operator=(const GraphEdge &) = delete;
 	~GraphEdge() override;

@@ -55,8 +55,8 @@ QPolygonF create_arrow(QLineF line, int size) {
 // Name: GraphEdge
 // Desc:
 //------------------------------------------------------------------------------
-GraphEdge::GraphEdge(GraphNode *from, GraphNode *to, const QColor &color, QGraphicsItem *parent)
-	: QGraphicsItemGroup(parent), from_(from), to_(to), graph_(from->graph_), color_(color) {
+GraphEdge::GraphEdge(GraphNode *from, GraphNode *to, QColor color, QGraphicsItem *parent)
+	: QGraphicsItemGroup(parent), from_(from), to_(to), graph_(from->graph_), color_(std::move(color)) {
 
 	setFlag(QGraphicsItem::ItemHasNoContents, true);
 

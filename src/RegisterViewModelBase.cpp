@@ -208,9 +208,9 @@ QModelIndex Model::index(int row, int column, const QModelIndex &parent) const {
 
 	if (auto childItem = parentItem->child(row)) {
 		return createIndex(row, column, childItem);
-	} else {
-		return QModelIndex();
 	}
+
+	return QModelIndex();
 }
 
 int Model::rowCount(const QModelIndex &parent) const {

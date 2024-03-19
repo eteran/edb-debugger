@@ -372,10 +372,10 @@ int QDisassemblyView::followingInstruction(int current_address) {
 	// read in the bytes...
 	if (!edb::v1::get_instruction_bytes(addressOffset_ + current_address, buf, &buf_size)) {
 		return current_address + 1;
-	} else {
-		const edb::Instruction inst(buf, buf + buf_size, current_address);
-		return current_address + inst.byteSize();
 	}
+
+	const edb::Instruction inst(buf, buf + buf_size, current_address);
+	return current_address + inst.byteSize();
 }
 
 //------------------------------------------------------------------------------
@@ -894,7 +894,7 @@ void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx
 					QPainterPath path;
 					path.addRect(bounds);
 					path.moveTo(bounds.x() + bounds.width(), bounds.y());                   // top right
-					path.lineTo(triangle_point, bounds.y() + bounds.height() / 2);          // triangle point
+					path.lineTo(triangle_point, bounds.y() + bounds.height() / 2.);         // triangle point
 					path.lineTo(bounds.x() + bounds.width(), bounds.y() + bounds.height()); // bottom right
 					painter.fillPath(path, badgeBackgroundColor_);
 
@@ -1462,8 +1462,8 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			// draw arrow tips
 			QPainterPath path;
 			path.moveTo(end_x - dst_reg_badge_width, dst_y);
-			path.lineTo(end_x - dst_reg_badge_width - (fontWidth_ / 2), dst_y - (fontHeight_ / 3));
-			path.lineTo(end_x - dst_reg_badge_width - (fontWidth_ / 2), dst_y + (fontHeight_ / 3));
+			path.lineTo(end_x - dst_reg_badge_width - (fontWidth_ / 2.), dst_y - (fontHeight_ / 3.));
+			path.lineTo(end_x - dst_reg_badge_width - (fontWidth_ / 2.), dst_y + (fontHeight_ / 3.));
 			path.lineTo(end_x - dst_reg_badge_width, dst_y);
 			painter.fillPath(path, QBrush(arrow_color));
 
@@ -1479,8 +1479,8 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			// draw arrow tips
 			QPainterPath path;
 			path.moveTo(start_x, 0);
-			path.lineTo(start_x - (fontWidth_ / 2), fontHeight_ / 3);
-			path.lineTo(start_x + (fontWidth_ / 2), fontHeight_ / 3);
+			path.lineTo(start_x - (fontWidth_ / 2.), fontHeight_ / 3.);
+			path.lineTo(start_x + (fontWidth_ / 2.), fontHeight_ / 3.);
 			path.lineTo(start_x, 0);
 			painter.fillPath(path, QBrush(arrow_color));
 
@@ -1718,16 +1718,16 @@ int QDisassemblyView::line0() const {
 int QDisassemblyView::line1() const {
 
 	if (!edb::v1::config().show_jump_arrow) {
-
 		// allocate space for register badge
 		// 4 (maximum register name for GPR) + overhead
 		return edb::v1::config().show_register_badges ? (5 * fontWidth_ + fontWidth_ / 2) : 0;
-
-	} else if (line1_ == 0) {
-		return 15 * fontWidth_;
-	} else {
-		return line1_;
 	}
+
+	if (line1_ == 0) {
+		return 15 * fontWidth_;
+	}
+
+	return line1_;
 }
 
 //------------------------------------------------------------------------------
