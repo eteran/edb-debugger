@@ -625,7 +625,8 @@ void Category::saveValues() {
 template <class T>
 RegisterItem<T>::RegisterItem(const QString &name)
 	: AbstractRegisterItem(name) {
-	invalidate();
+
+	RegisterItem<T>::invalidate();
 }
 
 template <class T>
