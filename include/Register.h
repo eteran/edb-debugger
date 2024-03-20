@@ -86,7 +86,7 @@ public:
 
 	void setScalarValue(std::uint64_t newValue);
 
-	template <typename T>
+	template <class T>
 	void setValueFrom(const T &source) {
 		assert(bitSize_ <= 8 * sizeof(source));
 
@@ -105,11 +105,11 @@ private:
 	Type type_           = TYPE_INVALID;
 	std::size_t bitSize_ = 0;
 
-	template <std::size_t bitSize, typename T>
+	template <std::size_t bitSize, class T>
 	friend Register make_Register(const QString &name, T value, Register::Type type);
 };
 
-template <std::size_t BitSize, typename T>
+template <std::size_t BitSize, class T>
 Register make_Register(const QString &name, T value, Register::Type type) {
 
 	constexpr std::size_t bitSize = (BitSize ? BitSize : 8 * sizeof(T));
@@ -133,7 +133,7 @@ Register make_Register(const QString &name, T value, Register::Type type) {
 	return reg;
 }
 
-template <typename T>
+template <class T>
 Register make_Register(const QString &name, T value, Register::Type type) {
 	return make_Register<0>(name, value, type);
 }

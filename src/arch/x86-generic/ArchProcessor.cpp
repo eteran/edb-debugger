@@ -137,12 +137,12 @@ using XMMWord = edb::value128;
 using YMMWord = edb::value256;
 using ZMMWord = edb::value512;
 
-template <typename T>
+template <class T>
 QString register_name(const T &val) {
 	return QString::fromStdString(edb::v1::formatter().registerName(val));
 }
 
-template <typename T>
+template <class T>
 QString syscallErrName(T err) {
 #ifdef Q_OS_LINUX
 	std::size_t index = -err;
@@ -636,7 +636,7 @@ QString formatBCD(const edb::value80 &v) {
 	return (v.negative() ? '-' + hex : hex) + " (BCD)";
 }
 
-template <typename ValueType>
+template <class ValueType>
 QString formatPackedFloat(const char *data, std::size_t size) {
 
 	QString str;

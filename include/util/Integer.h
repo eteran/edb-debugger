@@ -15,12 +15,12 @@ enum class NumberDisplayMode {
 
 namespace util {
 
-template <typename T>
-constexpr typename std::make_unsigned<T>::type to_unsigned(T x) {
+template <class T>
+constexpr std::make_unsigned_t<T> to_unsigned(T x) {
 	return x;
 }
 
-template <typename T>
+template <class T>
 QString format_int(T value, NumberDisplayMode mode) {
 	switch (mode) {
 	case NumberDisplayMode::Hex:

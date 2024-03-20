@@ -169,7 +169,7 @@ Q_SIGNALS:
 };
 
 inline std::ostream &operator<<(std::ostream &os, Model::ElementSize size) {
-	os << static_cast<std::underlying_type<Model::ElementSize>::type>(size);
+	os << static_cast<std::underlying_type_t<Model::ElementSize>>(size);
 	return os;
 }
 
@@ -535,7 +535,7 @@ public:
 	CategoriesHolder();
 
 public:
-	template <typename CategoryType = Category>
+	template <class CategoryType = Category>
 	CategoryType *insert(const QString &name);
 
 	[[nodiscard]] SIMDCategory *insertSimd(const QString &name, const std::vector<NumberDisplayMode> &validFormats);

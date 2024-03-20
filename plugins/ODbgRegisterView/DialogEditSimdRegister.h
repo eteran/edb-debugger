@@ -82,7 +82,7 @@ private:
 
 	std::uint64_t readInteger(const NumberEdit *edit) const;
 
-	template <typename Integer>
+	template <class Integer>
 	void formatInteger(NumberEdit *edit, Integer integer) const;
 
 	void updateAllEntriesExcept(NumberEdit *notUpdated);
@@ -91,16 +91,16 @@ private:
 	void resetLayout();
 
 private:
-	template <typename Integer>
+	template <class Integer>
 	void onIntegerEdited(QObject *sender, const std::array<NumberEdit *, NumBytes / sizeof(Integer)> &elements);
 
-	template <typename Float>
+	template <class Float>
 	void onFloatEdited(QObject *sender, const std::array<NumberEdit *, NumBytes / sizeof(Float)> &elements);
 
-	template <typename T>
+	template <class T>
 	void updateIntegralEntries(const std::array<NumberEdit *, NumBytes / sizeof(T)> &entries, NumberEdit *notUpdated);
 
-	template <typename T>
+	template <class T>
 	void updateFloatEntries(const std::array<NumberEdit *, NumBytes / sizeof(T)> &entries, NumberEdit *notUpdated);
 
 private Q_SLOTS:

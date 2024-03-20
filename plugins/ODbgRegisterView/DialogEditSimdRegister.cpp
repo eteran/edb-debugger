@@ -195,7 +195,7 @@ DialogEditSimdRegister::DialogEditSimdRegister(QWidget *parent, Qt::WindowFlags 
 	setTabOrder(radioUnsigned_, okCancel_);
 }
 
-template <typename T>
+template <class T>
 void DialogEditSimdRegister::updateFloatEntries(const std::array<NumberEdit *, NumBytes / sizeof(T)> &entries, NumberEdit *notUpdated) {
 
 	for (std::size_t i = 0; i < entries.size(); ++i) {
@@ -209,7 +209,7 @@ void DialogEditSimdRegister::updateFloatEntries(const std::array<NumberEdit *, N
 	}
 }
 
-template <typename T>
+template <class T>
 void DialogEditSimdRegister::updateIntegralEntries(const std::array<NumberEdit *, NumBytes / sizeof(T)> &entries, NumberEdit *notUpdated) {
 
 	for (std::size_t i = 0; i < entries.size(); ++i) {
@@ -426,15 +426,15 @@ std::uint64_t DialogEditSimdRegister::readInteger(const NumberEdit *const edit) 
 	}
 }
 
-template <typename Integer>
+template <class Integer>
 void DialogEditSimdRegister::formatInteger(NumberEdit *const edit, Integer integer) const {
 	switch (intMode_) {
 	case NumberDisplayMode::Hex:
 		edit->setText(QStringLiteral("%1").arg(integer, 2 * sizeof(integer), 16, QChar('0')));
 		break;
 	case NumberDisplayMode::Signed:
-		using Int    = typename std::remove_reference<Integer>::type;
-		using Signed = typename std::make_signed<Int>::type;
+		using Int    = std::remove_reference_t<Integer>;
+		using Signed = std::make_signed_t<Int>;
 
 		edit->setText(QStringLiteral("%1").arg(static_cast<Signed>(integer)));
 		break;
@@ -447,7 +447,7 @@ void DialogEditSimdRegister::formatInteger(NumberEdit *const edit, Integer integ
 	}
 }
 
-template <typename Integer>
+template <class Integer>
 void DialogEditSimdRegister::onIntegerEdited(QObject *sender, const std::array<NumberEdit *, NumBytes / sizeof(Integer)> &elements) {
 	const auto changedElementEdit = qobject_cast<NumberEdit *>(sender);
 	std::size_t elementIndex      = std::find(elements.begin(), elements.end(), changedElementEdit) - elements.begin();
@@ -456,7 +456,7 @@ void DialogEditSimdRegister::onIntegerEdited(QObject *sender, const std::array<N
 	updateAllEntriesExcept(elements[elementIndex]);
 }
 
-template <typename Float>
+template <class Float>
 void DialogEditSimdRegister::onFloatEdited(QObject *sender, const std::array<NumberEdit *, NumBytes / sizeof(Float)> &elements) {
 	const auto changedFloatEdit = qobject_cast<NumberEdit *>(sender);
 	std::size_t floatIndex      = std::find(elements.begin(), elements.end(), changedFloatEdit) - elements.begin();

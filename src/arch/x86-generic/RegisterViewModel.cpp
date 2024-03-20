@@ -425,7 +425,7 @@ RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject *parent)
 	setCpuMode(CpuMode::UNKNOWN);
 }
 
-template <typename RegType, typename ValueType>
+template <class RegType, class ValueType>
 void updateRegister(RegisterViewModelBase::Category *cat, int row, ValueType value, const QString &comment, const char *nameToCheck = nullptr) {
 	const auto reg = cat->getRegister(row);
 	if (!dynamic_cast<RegType *>(reg)) {

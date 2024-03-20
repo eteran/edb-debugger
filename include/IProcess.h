@@ -62,18 +62,18 @@ public:
 
 public:
 	// only legal to call when attached
-	[[nodiscard]] virtual bool isPaused() const                                                        = 0;
-	[[nodiscard]] virtual QList<std::shared_ptr<IThread>> threads() const                              = 0;
-	[[nodiscard]] virtual std::shared_ptr<IThread> currentThread() const                               = 0;
-	[[nodiscard]] virtual std::size_t readBytes(edb::address_t address, void *buf, size_t len) const   = 0;
-	[[nodiscard]] virtual std::size_t readPages(edb::address_t address, void *buf, size_t count) const = 0;
-	[[nodiscard]] virtual QMap<edb::address_t, Patch> patches() const                                  = 0;
-	virtual Status pause()                                                                             = 0;
-	virtual Status resume(edb::EventStatus status)                                                     = 0;
-	virtual Status step(edb::EventStatus status)                                                       = 0;
-	virtual std::size_t patchBytes(edb::address_t address, const void *buf, size_t len)                = 0;
-	virtual std::size_t writeBytes(edb::address_t address, const void *buf, size_t len)                = 0;
-	virtual void setCurrentThread(IThread &thread)                                                     = 0;
+	[[nodiscard]] virtual bool isPaused() const                                          = 0;
+	[[nodiscard]] virtual QList<std::shared_ptr<IThread>> threads() const                = 0;
+	[[nodiscard]] virtual QMap<edb::address_t, Patch> patches() const                    = 0;
+	[[nodiscard]] virtual std::shared_ptr<IThread> currentThread() const                 = 0;
+	virtual Status pause()                                                               = 0;
+	virtual Status resume(edb::EventStatus status)                                       = 0;
+	virtual Status step(edb::EventStatus status)                                         = 0;
+	virtual std::size_t patchBytes(edb::address_t address, const void *buf, size_t len)  = 0;
+	virtual std::size_t readBytes(edb::address_t address, void *buf, size_t len) const   = 0;
+	virtual std::size_t readPages(edb::address_t address, void *buf, size_t count) const = 0;
+	virtual std::size_t writeBytes(edb::address_t address, const void *buf, size_t len)  = 0;
+	virtual void setCurrentThread(IThread &thread)                                       = 0;
 };
 
 #endif

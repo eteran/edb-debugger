@@ -24,13 +24,11 @@ class QObject;
 
 // these are global utility functions which are not part of the exported API
 
-namespace edb {
-namespace internal {
+namespace edb::internal {
 
 bool register_plugin(const QString &filename, QObject *plugin);
 void load_function_db();
 
-}
 }
 
 #endif

@@ -108,7 +108,7 @@ long double to_real(edb::value80 value) {
 	return value.toFloatValue();
 }
 
-template <unsigned MantissaLength, typename FloatHolder>
+template <unsigned MantissaLength, class FloatHolder>
 FloatValueClass ieee_classify(FloatHolder value) {
 
 	constexpr auto ExpLength = 8 * sizeof(value) - MantissaLength - 1;
@@ -364,7 +364,7 @@ FloatValueClass float_type(edb::value80 value) {
 	return FloatValueClass::Unsupported; // integer bit reset but exp is as if normal - unnormal
 }
 
-template <typename Float>
+template <class Float>
 QValidator::State FloatXValidator<Float>::validate(QString &input, int &) const {
 
 	if (input.isEmpty()) {
@@ -407,7 +407,7 @@ template QValidator::State FloatXValidator<float>::validate(QString &input, int 
 template QValidator::State FloatXValidator<double>::validate(QString &input, int &) const;
 template QValidator::State FloatXValidator<long double>::validate(QString &input, int &) const;
 
-template <typename Float>
+template <class Float>
 EDB_EXPORT QString format_float(Float value) {
 
 	const auto type    = float_type(value);
@@ -433,8 +433,8 @@ EDB_EXPORT QString format_float(Float value) {
 	case FloatValueClass::Normal:
 	case FloatValueClass::Denormal: {
 #ifdef HAVE_DOUBLE_CONVERSION
-		constexpr bool isDouble = std::is_same<Float, edb::value64>::value;
-		constexpr bool isFloat  = std::is_same<Float, edb::value32>::value;
+		constexpr bool isDouble = std::is_same_v<Float, edb::value64>;
+		constexpr bool isFloat  = std::is_same_v<Float, edb::value32>;
 		if constexpr (isDouble || isFloat) {
 			using namespace double_conversion;
 
@@ -466,7 +466,7 @@ EDB_EXPORT QString format_float(Float value) {
 		}
 #endif
 #if defined(HAVE_GDTOA)
-		if constexpr (std::is_same<Float, edb::value80>::value) {
+		if constexpr (std::is_same_v<Float, edb::value80>) {
 			char buffer[64] = {};
 			gdtoa_g_xfmt(buffer, &value, -1, sizeof buffer);
 			fixup_g_Yfmt(buffer, std::numeric_limits<long double>::digits10);

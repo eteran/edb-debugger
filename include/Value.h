@@ -3,7 +3,6 @@
 #define VALUE_H_20191119_
 
 #include "API.h"
-#include <array>
 #include <cinttypes>
 #include <cstdint>
 #include <cstring>
@@ -27,13 +26,13 @@ EDB_EXPORT bool debuggeeIs32Bit();
 namespace detail {
 
 template <class Integer>
-using IsInteger = typename std::enable_if<std::is_integral<Integer>::value>::type;
+using IsInteger = std::enable_if_t<std::is_integral_v<Integer>>;
 
 template <class T1, class T2>
-using PromoteType = typename std::conditional<
+using PromoteType = std::conditional_t<
 	sizeof(T1) >= sizeof(T2),
-	typename std::make_unsigned<T1>::type,
-	typename std::make_unsigned<T2>::type>::type;
+	std::make_unsigned_t<T1>,
+	std::make_unsigned_t<T2>>;
 
 template <size_t N>
 class value_type_large {
@@ -50,11 +49,11 @@ public:
 	~value_type_large()                                   = default;
 
 public:
-	template <class U, class = typename std::enable_if<!std::is_arithmetic<U>::value>::type>
+	template <class U, class = std::enable_if_t<!std::is_arithmetic_v<U>>>
 	explicit value_type_large(const U &data, size_t offset = 0) {
 
 		static_assert(sizeof(data) >= sizeof(T), "value_type can only be constructed from large enough variable");
-		static_assert(std::is_trivially_copyable<U>::value, "value_type can only be constructed from trivially copyable data");
+		static_assert(std::is_trivially_copyable_v<U>, "value_type can only be constructed from trivially copyable data");
 
 		Q_ASSERT(sizeof(data) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
 
@@ -152,11 +151,11 @@ public:
 	}
 
 public:
-	template <class U, class = typename std::enable_if<!std::is_arithmetic<U>::value>::type>
+	template <class U, class = std::enable_if_t<!std::is_arithmetic_v<U>>>
 	explicit value_type(const U &data, size_t offset = 0) {
 
 		static_assert(sizeof(data) >= sizeof(T), "value_type can only be constructed from large enough variable");
-		static_assert(std::is_trivially_copyable<U>::value, "value_type can only be constructed from trivially copyable data");
+		static_assert(std::is_trivially_copyable_v<U>, "value_type can only be constructed from trivially copyable data");
 
 		Q_ASSERT(sizeof(data) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
 
@@ -228,7 +227,7 @@ public:
 
 public:
 	[[nodiscard]] bool negative() const {
-		return typename std::make_signed<T>::type(value_) < 0;
+		return std::make_signed_t<T>(value_) < 0;
 	}
 
 public:
@@ -409,7 +408,7 @@ public:
 	}
 
 	[[nodiscard]] QString signedToString() const {
-		return QStringLiteral("%1").arg(typename std::make_signed<T>::type(value_));
+		return QStringLiteral("%1").arg(std::make_signed_t<T>(value_));
 	}
 
 	[[nodiscard]] QString toString() const {
@@ -467,13 +466,13 @@ std::ostream &operator<<(std::ostream &os, value_type<T> &val) {
 // operators for value_type, Integer
 template <class T, class Integer, class = IsInteger<Integer>>
 [[nodiscard]] bool operator==(const value_type<T> &lhs, Integer rhs) {
-	using U = typename std::make_unsigned<Integer>::type;
+	using U = std::make_unsigned_t<Integer>;
 	return lhs.value_ == static_cast<U>(rhs);
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
 [[nodiscard]] bool operator!=(const value_type<T> &lhs, Integer rhs) {
-	using U = typename std::make_unsigned<Integer>::type;
+	using U = std::make_unsigned_t<Integer>;
 	return lhs.value_ != static_cast<U>(rhs);
 }
 
@@ -766,7 +765,7 @@ public:
 	template <class U>
 	explicit value_type80(const U &data, size_t offset = 0) {
 #ifdef _MSC_VER
-		if constexpr (std::is_same<U, long double>::value && sizeof(U) < sizeof(T)) {
+		if constexpr (std::is_same_v<U, long double> && sizeof(U) < sizeof(T)) {
 			T temp;
 			convert_real64_to_real80(&data, &temp);
 
@@ -779,7 +778,7 @@ public:
 #else
 		static_assert(sizeof(data) >= sizeof(T), "ValueBase can only be constructed from large enough variable");
 #endif
-		static_assert(std::is_trivially_copyable<U>::value, "ValueBase can only be constructed from trivially copyable data");
+		static_assert(std::is_trivially_copyable_v<U>, "ValueBase can only be constructed from trivially copyable data");
 
 		Q_ASSERT(sizeof(data) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
 
@@ -874,24 +873,24 @@ using value256 = detail::value_type_large<256>;
 // AVX512
 using value512 = detail::value_type_large<512>;
 
-static_assert(std::is_standard_layout<value8>::value &&
-				  std::is_standard_layout<value16>::value &&
-				  std::is_standard_layout<value32>::value &&
-				  std::is_standard_layout<value64>::value &&
-				  std::is_standard_layout<value80>::value &&
-				  std::is_standard_layout<value128>::value &&
-				  std::is_standard_layout<value256>::value &&
-				  std::is_standard_layout<value512>::value,
+static_assert(std::is_standard_layout_v<value8> &&
+				  std::is_standard_layout_v<value16> &&
+				  std::is_standard_layout_v<value32> &&
+				  std::is_standard_layout_v<value64> &&
+				  std::is_standard_layout_v<value80> &&
+				  std::is_standard_layout_v<value128> &&
+				  std::is_standard_layout_v<value256> &&
+				  std::is_standard_layout_v<value512>,
 			  "Fixed-sized values are intended to have standard layout");
 
-static_assert(std::is_trivially_copyable<value8>::value &&
-				  std::is_trivially_copyable<value16>::value &&
-				  std::is_trivially_copyable<value32>::value &&
-				  std::is_trivially_copyable<value64>::value &&
-				  std::is_trivially_copyable<value80>::value &&
-				  std::is_trivially_copyable<value128>::value &&
-				  std::is_trivially_copyable<value256>::value &&
-				  std::is_trivially_copyable<value512>::value,
+static_assert(std::is_trivially_copyable_v<value8> &&
+				  std::is_trivially_copyable_v<value16> &&
+				  std::is_trivially_copyable_v<value32> &&
+				  std::is_trivially_copyable_v<value64> &&
+				  std::is_trivially_copyable_v<value80> &&
+				  std::is_trivially_copyable_v<value128> &&
+				  std::is_trivially_copyable_v<value256> &&
+				  std::is_trivially_copyable_v<value512>,
 			  "Fixed-sized values are intended to be trivially copyable");
 
 }

@@ -10,13 +10,13 @@
 
 namespace util {
 
-template <typename Float>
+template <class Float>
 std::optional<Float> full_string_to_float(const std::string &s) {
 
 	static_assert(
-		std::is_same<Float, float>::value ||
-			std::is_same<Float, double>::value ||
-			std::is_same<Float, long double>::value,
+		std::is_same_v<Float, float> ||
+			std::is_same_v<Float, double> ||
+			std::is_same_v<Float, long double>,
 		"Floating-point type not supported by this function");
 
 	// NOTE: Don't use std::istringstream: it doesn't support hexfloat.
@@ -27,11 +27,11 @@ std::optional<Float> full_string_to_float(const std::string &s) {
 	Float value;
 	errno = 0;
 
-	if constexpr (std::is_same<Float, float>::value) {
+	if constexpr (std::is_same_v<Float, float>) {
 		value = std::strtof(str, &end);
-	} else if constexpr (std::is_same<Float, double>::value) {
+	} else if constexpr (std::is_same_v<Float, double>) {
 		value = std::strtod(str, &end);
-	} else if constexpr (std::is_same<Float, long double>::value) {
+	} else if constexpr (std::is_same_v<Float, long double>) {
 		value = std::strtold(str, &end);
 	}
 

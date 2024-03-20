@@ -19,8 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef LINKER_H_20170103_
 #define LINKER_H_20170103_
 
-namespace edb {
-namespace linux_struct {
+namespace edb::linux_struct {
 
 // Bitness-templated version of struct r_debug defined in link.h
 template <class Addr>
@@ -45,7 +44,6 @@ struct link_map {
 	Addr l_next, l_prev; // struct link_map*
 };
 
-}
 }
 
 #endif

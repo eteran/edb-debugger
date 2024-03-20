@@ -158,7 +158,7 @@ void invalidate(RegisterViewModelBase::Category *cat, int row, const char *nameT
 	reg->invalidate();
 }
 
-template <typename RegType, typename ValueType>
+template <class RegType, class ValueType>
 void updateRegister(RegisterViewModelBase::Category *cat, int row, ValueType value, QString const &comment, const char *nameToCheck = 0) {
 	const auto reg = cat->getRegister(row);
 	if (!dynamic_cast<RegType *>(reg)) {

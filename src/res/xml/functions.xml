@@ -494,6 +494,8 @@ P4FILE = "FILE *"
 		<argument type="i" name="plt" />
 	</function>
 
+	<function type="v" name="_dl_fatal_printf" noreturn="true" ></function>
+
 	<function type="v" name="__stack_chk_fail" noreturn="true" ></function>
 	<function type="v" name="__fortify_fail" noreturn="true" ></function>
 	<function type="v" name="__chk_fail" noreturn="true" ></function>

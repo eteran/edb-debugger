@@ -60,8 +60,8 @@ DialogEditGPR::DialogEditGPR(QWidget *parent, Qt::WindowFlags f)
 	{
 		static const auto offsetsInInteger = util::make_array<std::size_t>(0u, 0u, 0u, 1u, 0u);
 		static const auto integerSizes     = util::make_array<std::size_t>(8u, 4u, 2u, 1u, 1u);
-		static_assert(std::tuple_size<decltype(integerSizes)>::value == DialogEditGPR::ENTRY_COLS, "integerSizes length doesn't equal ENTRY_COLS");
-		static_assert(std::tuple_size<decltype(offsetsInInteger)>::value == DialogEditGPR::ENTRY_COLS, "offsetsInInteger length doesn't equal ENTRY_COLS");
+		static_assert(std::tuple_size_v<decltype(integerSizes)> == DialogEditGPR::ENTRY_COLS, "integerSizes length doesn't equal ENTRY_COLS");
+		static_assert(std::tuple_size_v<decltype(offsetsInInteger)> == DialogEditGPR::ENTRY_COLS, "offsetsInInteger length doesn't equal ENTRY_COLS");
 		static const auto formats = util::make_array(GprEdit::Format::Hex, GprEdit::Format::Signed, GprEdit::Format::Unsigned);
 		for (std::size_t f = 0; f < formats.size(); ++f) {
 			for (std::size_t c = 0; c < ENTRY_COLS; ++c) {
@@ -171,7 +171,7 @@ void DialogEditGPR::resetLayout() {
 	}
 
 	static const auto colLabelStrings = util::make_array("R?X", "E?X", "?X", "?H", "?L");
-	static_assert(std::tuple_size<decltype(colLabelStrings)>::value == ENTRY_COLS, "Number of labels not equal to number of entry columns");
+	static_assert(std::tuple_size_v<decltype(colLabelStrings)> == ENTRY_COLS, "Number of labels not equal to number of entry columns");
 
 	for (std::size_t c = 0; c < ENTRY_COLS; ++c) {
 		columnLabel(static_cast<Column>(GPR64_COL + c))->setText(colLabelStrings[c]);

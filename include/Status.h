@@ -60,7 +60,7 @@ class Unexpected {
 	friend class Result;
 
 	template <class U>
-	friend Unexpected<typename std::decay<U>::type> make_unexpected(U &&);
+	friend Unexpected<std::decay_t<U>> make_unexpected(U &&);
 
 public:
 	Unexpected(const Unexpected &)            = default;
@@ -69,7 +69,7 @@ public:
 	Unexpected &operator=(Unexpected &&)      = default;
 
 private:
-	template <class U, class = typename std::enable_if<!std::is_same<U, Unexpected>::value && std::is_convertible<U, E>::value>::type>
+	template <class U, class = std::enable_if_t<!std::is_same_v<U, Unexpected> && std::is_convertible_v<U, E>>>
 	Unexpected(U &&error)
 		: error_(std::forward<U>(error)) {
 	}
@@ -81,7 +81,7 @@ private:
 template <class T, class E>
 class Result {
 public:
-	template <class U, class = typename std::enable_if<!std::is_same<U, Result>::value && std::is_convertible<U, T>::value>::type>
+	template <class U, class = std::enable_if_t<!std::is_same_v<U, Result> && std::is_convertible_v<U, T>>>
 	Result(U &&value)
 		: value_(std::forward<U>(value)) {
 	}
@@ -159,8 +159,8 @@ private:
 };
 
 template <class E>
-Unexpected<typename std::decay<E>::type> make_unexpected(E &&e) {
-	return Unexpected<typename std::decay<E>::type>(std::forward<E>(e));
+Unexpected<std::decay_t<E>> make_unexpected(E &&e) {
+	return Unexpected<std::decay_t<E>>(std::forward<E>(e));
 }
 
 #endif

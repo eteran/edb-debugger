@@ -219,6 +219,53 @@ QList<Module> get_loaded_modules(const IProcess *process) {
 	return ret;
 }
 
+/**
+ * @brief Get the program headers of the process
+ *
+ * @param process
+ * @param phdr_memaddr
+ * @param num_phdr
+ * @return true
+ * @return false
+ */
+bool get_program_headers(const IProcess *process, edb::address_t *phdr_memaddr, int *num_phdr) {
+
+	*phdr_memaddr = edb::address_t{};
+	*num_phdr     = 0;
+
+	QFile auxv(QStringLiteral("/proc/%1/auxv").arg(process->pid()));
+	if (auxv.open(QIODevice::ReadOnly)) {
+
+		if (edb::v1::debuggeeIs64Bit()) {
+			elf64_auxv_t entry;
+			while (auxv.read(reinterpret_cast<char *>(&entry), sizeof(entry))) {
+				switch (entry.a_type) {
+				case AT_PHDR:
+					*phdr_memaddr = entry.a_un.a_val;
+					break;
+				case AT_PHNUM:
+					*num_phdr = entry.a_un.a_val;
+					break;
+				}
+			}
+		} else if (edb::v1::debuggeeIs32Bit()) {
+			elf32_auxv_t entry;
+			while (auxv.read(reinterpret_cast<char *>(&entry), sizeof(entry))) {
+				switch (entry.a_type) {
+				case AT_PHDR:
+					*phdr_memaddr = entry.a_un.a_val;
+					break;
+				case AT_PHNUM:
+					*num_phdr = entry.a_un.a_val;
+					break;
+				}
+			}
+		}
+	}
+
+	return (*phdr_memaddr != 0 && *num_phdr != 0);
+}
+
 }
 
 /**
@@ -937,51 +984,6 @@ edb::address_t PlatformProcess::entryPoint() const {
 	}
 
 	return edb::address_t{};
-}
-
-/**
- * @brief get_program_headers
- * @param process
- * @param phdr_memaddr
- * @param num_phdr
- * @return
- */
-bool get_program_headers(const IProcess *process, edb::address_t *phdr_memaddr, int *num_phdr) {
-
-	*phdr_memaddr = edb::address_t{};
-	*num_phdr     = 0;
-
-	QFile auxv(QStringLiteral("/proc/%1/auxv").arg(process->pid()));
-	if (auxv.open(QIODevice::ReadOnly)) {
-
-		if (edb::v1::debuggeeIs64Bit()) {
-			elf64_auxv_t entry;
-			while (auxv.read(reinterpret_cast<char *>(&entry), sizeof(entry))) {
-				switch (entry.a_type) {
-				case AT_PHDR:
-					*phdr_memaddr = entry.a_un.a_val;
-					break;
-				case AT_PHNUM:
-					*num_phdr = entry.a_un.a_val;
-					break;
-				}
-			}
-		} else if (edb::v1::debuggeeIs32Bit()) {
-			elf32_auxv_t entry;
-			while (auxv.read(reinterpret_cast<char *>(&entry), sizeof(entry))) {
-				switch (entry.a_type) {
-				case AT_PHDR:
-					*phdr_memaddr = entry.a_un.a_val;
-					break;
-				case AT_PHNUM:
-					*num_phdr = entry.a_un.a_val;
-					break;
-				}
-			}
-		}
-	}
-
-	return (*phdr_memaddr != 0 && *num_phdr != 0);
 }
 
 /**

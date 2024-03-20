@@ -434,7 +434,7 @@ void ValueField::copyToClipboard() const {
 
 namespace {
 
-template <typename Op>
+template <class Op>
 void change_gpr(const QModelIndex &index, RegisterViewModelBase::Model *const model, const Op &change) {
 
 	if (index.parent().data().toString() != GprCategoryName) {

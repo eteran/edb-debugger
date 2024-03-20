@@ -922,7 +922,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 		const Status status = Unix::execute_process(path, cwd, args);
 
 #if defined __GNUG__ && __GNUC__ >= 5 || !defined __GNUG__ || defined __clang__ && __clang_major__ * 100 + __clang_minor__ >= 306
-		static_assert(std::is_trivially_copyable<QChar>::value, "Can't copy string of QChar to shared memory");
+		static_assert(std::is_trivially_copyable_v<QChar>, "Can't copy string of QChar to shared memory");
 #endif
 		QString error = status.error();
 		std::memcpy(sharedMem, error.constData(), std::min(sizeof(QChar) * error.size(), SharedMemSize - sizeof(QChar) /*prevent overwriting of last null*/));

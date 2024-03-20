@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace util {
 
 // Used to interconvert between abstract enum defined in an interface and actual enumerators in implementation
-template <typename AbstractEnum, typename ConcreteEnum>
+template <class AbstractEnum, class ConcreteEnum>
 class AbstractEnumData {
 	AbstractEnum data;
 

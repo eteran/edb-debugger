@@ -214,7 +214,7 @@ struct X86XState {
 	static constexpr size_t MAX_SIZE               = 2688;
 };
 
-static_assert(std::is_standard_layout<X86XState>::value, "X86XState struct is supposed to have standard layout");
+static_assert(std::is_standard_layout_v<X86XState>, "X86XState struct is supposed to have standard layout");
 static_assert(offsetof(X86XState, st_space) == 32, "ST space should appear at offset 32");
 static_assert(offsetof(X86XState, xmm_space) == 160, "XMM space should appear at offset 160");
 static_assert(offsetof(X86XState, xcr0) == 464, "XCR0 should appear at offset 464");

@@ -71,7 +71,7 @@ QString toString(const edb::value80 &value, NumberDisplayMode format) {
 // If succeeded, `resultingValue` is set to what the function got back after setting
 // `resultingValue` can differ from `value` if e.g. the kernel doesn't allow to flip some
 // bits of the register, like EFLAGS on x86.
-template <typename T>
+template <class T>
 bool set_debuggee_register(const QString &name, const T &value, T &resultingValue) {
 
 	if (IDebugger *core = edb::v1::debugger_core) {
@@ -165,7 +165,7 @@ RegisterViewItem *CategoriesHolder::child(int visibleRow) {
 	return nullptr;
 }
 
-template <typename CategoryType>
+template <class CategoryType>
 CategoryType *CategoriesHolder::insert(const QString &name) {
 
 	categories.emplace_back(std::make_unique<CategoryType>(name, categories.size()));
@@ -622,13 +622,13 @@ void Category::saveValues() {
 }
 
 // -------------------- RegisterItem impl ------------------------
-template <typename T>
+template <class T>
 RegisterItem<T>::RegisterItem(const QString &name)
 	: AbstractRegisterItem(name) {
 	invalidate();
 }
 
-template <typename T>
+template <class T>
 void RegisterItem<T>::invalidate() {
 
 	util::mark_memory(&value_, sizeof(value_));
@@ -639,33 +639,33 @@ void RegisterItem<T>::invalidate() {
 	prevValueKnown_ = false;
 }
 
-template <typename T>
+template <class T>
 bool RegisterItem<T>::valid() const {
 	return valueKnown_;
 }
 
-template <typename T>
+template <class T>
 bool RegisterItem<T>::changed() const {
 	return !valueKnown_ || !prevValueKnown_ || prevValue_ != value_;
 }
 
-template <typename T>
+template <class T>
 void RegisterItem<T>::saveValue() {
 	prevValue_      = value_;
 	prevValueKnown_ = valueKnown_;
 }
 
-template <typename T>
+template <class T>
 int RegisterItem<T>::childCount() const {
 	return 0;
 }
 
-template <typename T>
+template <class T>
 RegisterViewItem *RegisterItem<T>::child(int) {
 	return nullptr; // simple register item has no children
 }
 
-template <typename T>
+template <class T>
 QString RegisterItem<T>::valueString() const {
 	if (!this->valueKnown_) {
 		return "???";
@@ -674,7 +674,7 @@ QString RegisterItem<T>::valueString() const {
 	return this->value_.toHexString();
 }
 
-template <typename T>
+template <class T>
 QVariant RegisterItem<T>::data(int column) const {
 	switch (column) {
 	case Model::NAME_COLUMN:
@@ -687,7 +687,7 @@ QVariant RegisterItem<T>::data(int column) const {
 	return {};
 }
 
-template <typename T>
+template <class T>
 QByteArray RegisterItem<T>::rawValue() const {
 	if (!this->valueKnown_) {
 		return {};
@@ -695,27 +695,27 @@ QByteArray RegisterItem<T>::rawValue() const {
 	return QByteArray(reinterpret_cast<const char *>(&this->value_), sizeof(this->value_));
 }
 
-template <typename T>
+template <class T>
 bool RegisterItem<T>::setValue(const Register &reg) {
 	assert(reg.bitSize() == 8 * sizeof(T));
 	return set_debuggee_register<T>(reg.name(), reg.value<T>(), value_);
 }
 
-template <typename T>
+template <class T>
 bool RegisterItem<T>::setValue(const QByteArray &newValue) {
 	T value;
 	std::memcpy(&value, newValue.constData(), newValue.size());
 	return set_debuggee_register<T>(name(), value, value_);
 }
 
-template <typename T>
-typename std::enable_if<(sizeof(T) > sizeof(std::uint64_t)), bool>::type setValue(T & /*valueToSet*/, const QString & /*name*/, const QString & /*valueStr*/) {
+template <class T>
+std::enable_if_t<(sizeof(T) > sizeof(std::uint64_t)), bool> setValue(T & /*valueToSet*/, const QString & /*name*/, const QString & /*valueStr*/) {
 	qWarning() << "FIXME: unimplemented" << Q_FUNC_INFO;
 	return false; // TODO: maybe do set?.. would be arch-dependent then due to endianness
 }
 
-template <typename T>
-typename std::enable_if<sizeof(T) <= sizeof(std::uint64_t), bool>::type setValue(T &valueToSet, const QString &name, const QString &valueStr) {
+template <class T>
+std::enable_if_t<sizeof(T) <= sizeof(std::uint64_t), bool> setValue(T &valueToSet, const QString &name, const QString &valueStr) {
 	bool ok          = false;
 	const auto value = T::fromHexString(valueStr, &ok);
 
@@ -726,7 +726,7 @@ typename std::enable_if<sizeof(T) <= sizeof(std::uint64_t), bool>::type setValue
 	return set_debuggee_register(name, value, valueToSet);
 }
 
-template <typename T>
+template <class T>
 bool RegisterItem<T>::setValue(const QString &valueStr) {
 	// TODO: ask ArchProcessor to actually set it and return true only if done
 	return RegisterViewModelBase::setValue(value_, name(), valueStr);
@@ -741,14 +741,14 @@ template class RegisterItem<edb::value256>;
 
 // -------------------- SimpleRegister impl -----------------------
 
-template <typename T>
+template <class T>
 void SimpleRegister<T>::update(const T &value, const QString &comment) {
 	this->value_      = value;
 	this->comment_    = comment;
 	this->valueKnown_ = true;
 }
 
-template <typename T>
+template <class T>
 int SimpleRegister<T>::valueMaxLength() const {
 	return 2 * sizeof(T);
 }
@@ -762,49 +762,49 @@ template class SimpleRegister<edb::value256>;
 
 // ---------------- BitFieldItem impl -----------------------
 
-template <typename UnderlyingType>
+template <class UnderlyingType>
 BitFieldItem<UnderlyingType>::BitFieldItem(const BitFieldDescriptionEx &descr)
 	: RegisterViewItem(descr.name), offset_(descr.offset), length_(descr.length), explanations(descr.explanations) {
 	Q_ASSERT(8 * sizeof(UnderlyingType) >= length_);
 	Q_ASSERT(explanations.empty() || explanations.size() == 2u << (length_ - 1));
 }
 
-template <typename UnderlyingType>
+template <class UnderlyingType>
 FlagsRegister<UnderlyingType> *BitFieldItem<UnderlyingType>::reg() const {
 	return checked_cast<FlagsRegister<UnderlyingType>>(this->parent());
 }
 
-template <typename UnderlyingType>
+template <class UnderlyingType>
 UnderlyingType BitFieldItem<UnderlyingType>::lengthToMask() const {
 	return 2 * (1ull << (length_ - 1)) - 1;
 }
 
-template <typename UnderlyingType>
+template <class UnderlyingType>
 UnderlyingType BitFieldItem<UnderlyingType>::calcValue(UnderlyingType regVal) const {
 	return (regVal >> offset_) & lengthToMask();
 }
 
-template <typename UnderlyingType>
+template <class UnderlyingType>
 UnderlyingType BitFieldItem<UnderlyingType>::value() const {
 	return calcValue(reg()->value_);
 }
 
-template <typename UnderlyingType>
+template <class UnderlyingType>
 UnderlyingType BitFieldItem<UnderlyingType>::prevValue() const {
 	return calcValue(reg()->prevValue_);
 }
 
-template <typename UnderlyingType>
+template <class UnderlyingType>
 int BitFieldItem<UnderlyingType>::valueMaxLength() const {
 	return std::ceil(length_ / 4.); // number of nibbles
 }
 
-template <typename UnderlyingType>
+template <class UnderlyingType>
 bool BitFieldItem<UnderlyingType>::changed() const {
 	return !reg()->valueKnown_ || !reg()->prevValueKnown_ || value() != prevValue();
 }
 
-template <typename UnderlyingType>
+template <class UnderlyingType>
 QVariant BitFieldItem<UnderlyingType>::data(int column) const {
 	const auto str = reg()->valid() ? value().toHexString() : QString(sizeof(UnderlyingType) * 2, '?');
 	switch (column) {
@@ -822,25 +822,25 @@ QVariant BitFieldItem<UnderlyingType>::data(int column) const {
 	return {};
 }
 
-template <typename UnderlyingType>
+template <class UnderlyingType>
 QByteArray BitFieldItem<UnderlyingType>::rawValue() const {
 	const auto val = value();
 	return QByteArray(reinterpret_cast<const char *>(&val), sizeof(val));
 }
 
-template <typename UnderlyingType>
+template <class UnderlyingType>
 unsigned BitFieldItem<UnderlyingType>::length() const {
 	return length_;
 }
 
-template <typename UnderlyingType>
+template <class UnderlyingType>
 unsigned BitFieldItem<UnderlyingType>::offset() const {
 	return offset_;
 }
 
 // ---------------- FlagsRegister impl ------------------------
 
-template <typename StoredType>
+template <class StoredType>
 FlagsRegister<StoredType>::FlagsRegister(const QString &name, const std::vector<BitFieldDescriptionEx> &bitFields)
 	: SimpleRegister<StoredType>(name) {
 
@@ -850,12 +850,12 @@ FlagsRegister<StoredType>::FlagsRegister(const QString &name, const std::vector<
 	}
 }
 
-template <typename StoredType>
+template <class StoredType>
 int FlagsRegister<StoredType>::childCount() const {
 	return fields.size();
 }
 
-template <typename StoredType>
+template <class StoredType>
 RegisterViewItem *FlagsRegister<StoredType>::child(int row) {
 	return &fields[row];
 }
@@ -898,12 +898,12 @@ bool SIMDFormatItem<StoredType, SizingType>::changed() const {
 }
 
 template <class SizingType>
-typename std::enable_if<(sizeof(SizingType) >= sizeof(float) && sizeof(SizingType) != sizeof(edb::value80)), QString>::type toString(SizingType value, NumberDisplayMode format) {
+std::enable_if_t<(sizeof(SizingType) >= sizeof(float) && sizeof(SizingType) != sizeof(edb::value80)), QString> toString(SizingType value, NumberDisplayMode format) {
 	return format == NumberDisplayMode::Float ? format_float(value) : util::format_int(value, format);
 }
 
 template <class SizingType>
-typename std::enable_if<sizeof(SizingType) < sizeof(float), QString>::type toString(SizingType value, NumberDisplayMode format) {
+std::enable_if_t<sizeof(SizingType) < sizeof(float), QString> toString(SizingType value, NumberDisplayMode format) {
 	return format == NumberDisplayMode::Float ? "(too small element width for float)" : util::format_int(value, format);
 }
 
@@ -958,7 +958,7 @@ template <class StoredType, class SizingType>
 int SIMDFormatItem<StoredType, SizingType>::valueMaxLength() const {
 
 	using Unsigned = typename SizingType::InnerValueType;
-	using Signed   = typename std::make_signed<Unsigned>::type;
+	using Signed   = std::make_signed_t<Unsigned>;
 
 	switch (format_) {
 	case NumberDisplayMode::Hex:
