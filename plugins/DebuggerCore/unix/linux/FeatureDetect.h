@@ -19,12 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef FEATURE_DETECT_H_20191119_
 #define FEATURE_DETECT_H_20191119_
 
-namespace DebuggerCorePlugin {
-namespace feature {
+namespace DebuggerCorePlugin::feature {
 
 bool detect_proc_access(bool *read_broken, bool *write_broken);
 
-}
 }
 
 #endif

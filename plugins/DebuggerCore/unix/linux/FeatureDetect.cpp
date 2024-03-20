@@ -31,8 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/wait.h>
 #include <unistd.h>
 
-namespace DebuggerCorePlugin {
-namespace feature {
+namespace DebuggerCorePlugin::feature {
+
 namespace {
 
 /**
@@ -126,5 +126,4 @@ bool detect_proc_access(bool *read_broken, bool *write_broken) {
 	}
 }
 
-}
 }
