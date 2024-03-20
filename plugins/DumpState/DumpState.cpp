@@ -173,24 +173,24 @@ void DumpState::dumpRegisters(const State &state) {
 
 	using std::cout;
 	if (edb::v1::debuggeeIs32Bit()) { // TODO: check if state itself is 32 bit, not current debuggee. Generally it's not the same.
-		cout << "     eax:" << format_register(state["eax"]);
+		cout << "eax:" << format_register(state["eax"]);
 		cout << " ecx:" << format_register(state["ecx"]);
-		cout << "  edx:" << format_register(state["edx"]);
-		cout << "  ebx:" << format_register(state["ebx"]);
-		cout << "     eflags:" << format_register(state["eflags"]);
+		cout << " edx:" << format_register(state["edx"]);
+		cout << " ebx:" << format_register(state["ebx"]);
+		cout << " eflags:" << format_register(state["eflags"]);
 		cout << "\n";
-		cout << "     esp:" << format_register(state["esp"]);
+		cout << "esp:" << format_register(state["esp"]);
 		cout << " ebp:" << format_register(state["ebp"]);
-		cout << "  esi:" << format_register(state["esi"]);
-		cout << "  edi:" << format_register(state["edi"]);
-		cout << "     eip:" << format_register(state["eip"]);
+		cout << " esi:" << format_register(state["esi"]);
+		cout << " edi:" << format_register(state["edi"]);
+		cout << "    eip:" << format_register(state["eip"]);
 		cout << "\n";
-		cout << "     es:" << format_segment(state["es"]);
-		cout << "  cs:" << format_segment(state["cs"]);
-		cout << "  ss:" << format_segment(state["ss"]);
-		cout << "  ds:" << format_segment(state["ds"]);
-		cout << "  fs:" << format_segment(state["fs"]);
-		cout << "  gs:" << format_segment(state["gs"]);
+		cout << " es:" << format_segment(state["es"]);
+		cout << " cs:" << format_segment(state["cs"]);
+		cout << " ss:" << format_segment(state["ss"]);
+		cout << " ds:" << format_segment(state["ds"]);
+		cout << " fs:" << format_segment(state["fs"]);
+		cout << " gs:" << format_segment(state["gs"]);
 		cout << "    ";
 		const Register eflagsR = state["eflags"];
 		if (eflagsR) {
