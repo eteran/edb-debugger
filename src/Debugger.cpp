@@ -191,10 +191,14 @@ public:
 	~RunUntilRet() override {
 		edb::v1::remove_debug_event_handler(this);
 
-		for (const auto &bp : ownBreakpoints_) {
-			if (!bp.second.expired()) {
-				edb::v1::debugger_core->removeBreakpoint(bp.first);
+		try {
+			for (const auto &bp : ownBreakpoints_) {
+				if (!bp.second.expired()) {
+					edb::v1::debugger_core->removeBreakpoint(bp.first);
+				}
 			}
+		} catch (...) {
+			EDB_PRINT_AND_DIE("unexpected exception occurred");
 		}
 	}
 
