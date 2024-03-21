@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "FloatX.h"
 #include "util/Float.h"
 
+#include <array>
 #include <iomanip>
 #include <sstream>
 
