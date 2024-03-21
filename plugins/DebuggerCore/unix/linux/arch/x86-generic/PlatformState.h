@@ -389,15 +389,15 @@ private:
 		[[nodiscard]] int tag(size_t n) const;
 		[[nodiscard]] size_t stackPointer() const;
 		// Convert from ST(n) index n to Rx index x
-		[[nodiscard]] size_t RIndexToSTIndex(size_t index) const;
-		[[nodiscard]] size_t STIndexToRIndex(size_t index) const;
+		[[nodiscard]] size_t RIndexToSTIndex(size_t n) const;
+		[[nodiscard]] size_t STIndexToRIndex(size_t n) const;
 		// Restore the full FPU Tag Word from the ptrace-filtered version
 		[[nodiscard]] edb::value16 restoreTagWord(uint16_t twd) const;
 		[[nodiscard]] std::uint16_t reducedTagWord() const;
 		void clear();
 
 	private:
-		[[nodiscard]] int recreateTag(const edb::value80 value) const;
+		[[nodiscard]] int recreateTag(edb::value80 value) const;
 		[[nodiscard]] int makeTag(size_t n, uint16_t twd) const;
 	} x87;
 

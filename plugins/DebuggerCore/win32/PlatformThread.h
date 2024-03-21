@@ -51,7 +51,7 @@ public:
 	Status resume(edb::EventStatus status) override;
 
 public:
-	bool isPaused() const override;
+	[[nodiscard]] bool isPaused() const override;
 
 private:
 	DebuggerCore *core_ = nullptr;

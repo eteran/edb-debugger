@@ -68,7 +68,7 @@ public:
 	Status pause() override;
 	Status resume(edb::EventStatus status) override;
 	Status step(edb::EventStatus status) override;
-	bool isPaused() const override;
+	[[nodiscard]] bool isPaused() const override;
 
 public:
 	std::size_t writeBytes(edb::address_t address, const void *buf, size_t len) override;

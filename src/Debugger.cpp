@@ -410,11 +410,11 @@ Debugger::Debugger(QWidget *parent)
 	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("RIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
 	gotoRIPAction_ = createAction(tr("&Goto %1").arg("RIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #elif defined(EDB_X86)
-	setRIPAction_       = createAction(tr("&Set %1 to this Instruction").arg("EIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
-	gotoRIPAction_      = createAction(tr("&Goto %1").arg("EIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
+	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("EIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
+	gotoRIPAction_ = createAction(tr("&Goto %1").arg("EIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
-	setRIPAction_       = createAction(tr("&Set %1 to this Instruction").arg("PC"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
-	gotoRIPAction_      = createAction(tr("&Goto %1").arg("PC"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
+	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("PC"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
+	gotoRIPAction_ = createAction(tr("&Goto %1").arg("PC"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #else
 #error "This doesn't initialize actions and will lead to crash"
 #endif
@@ -1196,7 +1196,7 @@ void Debugger::showEvent(QShowEvent *) {
 		QScreen *screen = QGuiApplication::primaryScreen();
 		QRect sg        = screen->geometry();
 #else
-        QRect sg = desktop.screenGeometry();
+		QRect sg = desktop.screenGeometry();
 #endif
 		int x = (sg.width() - this->width()) / 2;
 		int y = (sg.height() - this->height()) / 2;
@@ -2139,7 +2139,7 @@ void Debugger::mnuCPURunToThisLine() {
 // Name: mnuCPUToggleBreakpoint
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::mnuCPUToggleBreakpoint() {
+void Debugger::mnuCPUToggleBreakpoint() const {
 	const edb::address_t address = cpuView_->selectedAddress();
 	edb::v1::toggle_breakpoint(address);
 }
@@ -2166,7 +2166,7 @@ void Debugger::mnuCPUAddConditionalBreakpoint() {
 // Name: mnuCPURemoveBreakpoint
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::mnuCPURemoveBreakpoint() {
+void Debugger::mnuCPURemoveBreakpoint() const {
 	const edb::address_t address = cpuView_->selectedAddress();
 	edb::v1::remove_breakpoint(address);
 }
@@ -2233,7 +2233,7 @@ void Debugger::mnuCPUSetEIP() {
 // Name: mnuCPUModify
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::mnuCPUModify() {
+void Debugger::mnuCPUModify() const {
 	const edb::address_t address = cpuView_->selectedAddress();
 	const unsigned int size      = cpuView_->selectedSize();
 
@@ -2540,10 +2540,10 @@ edb::EventStatus Debugger::handleEvent(const std::shared_ptr<IDebugEvent> &event
 }
 
 //------------------------------------------------------------------------------
-// Name: update_tab_caption
+// Name: updateTabCaption
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::updateTabCaption(const std::shared_ptr<QHexView> &view, edb::address_t start, edb::address_t end) {
+void Debugger::updateTabCaption(const std::shared_ptr<QHexView> &view, edb::address_t start, edb::address_t end) const {
 	const int index       = tabWidget_->indexOf(view.get());
 	const QString caption = tabWidget_->data(index).toString();
 
@@ -2555,7 +2555,7 @@ void Debugger::updateTabCaption(const std::shared_ptr<QHexView> &view, edb::addr
 }
 
 //------------------------------------------------------------------------------
-// Name: update_data
+// Name: updateData
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::updateData(const std::shared_ptr<DataViewInfo> &v) {
@@ -2572,7 +2572,7 @@ void Debugger::updateData(const std::shared_ptr<DataViewInfo> &v) {
 }
 
 //------------------------------------------------------------------------------
-// Name: clear_data
+// Name: clearData
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::clearData(const std::shared_ptr<DataViewInfo> &v) {
@@ -2593,7 +2593,7 @@ void Debugger::clearData(const std::shared_ptr<DataViewInfo> &v) {
 // Name: doJumpToAddress
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::doJumpToAddress(edb::address_t address, const std::shared_ptr<IRegion> &r, bool scroll_to) {
+void Debugger::doJumpToAddress(edb::address_t address, const std::shared_ptr<IRegion> &r, bool scroll_to) const {
 
 	cpuView_->setRegion(r);
 	if (scroll_to && !cpuView_->addressShown(address)) {

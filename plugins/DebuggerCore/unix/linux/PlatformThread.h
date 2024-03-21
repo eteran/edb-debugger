@@ -70,8 +70,8 @@ private:
 #endif
 
 private:
-	[[nodiscard]] unsigned long getDebugRegister(std::size_t n);
-	long setDebugRegister(std::size_t n, unsigned long value);
+	[[nodiscard]] unsigned long getDebugRegister(std::size_t n) const;
+	long setDebugRegister(std::size_t n, unsigned long value) const;
 
 private:
 	DebuggerCore *core_ = nullptr;

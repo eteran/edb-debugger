@@ -109,7 +109,7 @@ public:
 
 	Status resume(edb::EventStatus status) override;
 	Status step(edb::EventStatus status) override;
-	bool isPaused() const override;
+	[[nodiscard]] bool isPaused() const override;
 	QMap<edb::address_t, Patch> patches() const override;
 
 private:

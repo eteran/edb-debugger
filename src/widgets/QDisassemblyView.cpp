@@ -2163,8 +2163,9 @@ void QDisassemblyView::restoreState(const QByteArray &stateBuffer) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::restoreComments(QVariantList &comments_data) {
 	qDebug("restoreComments");
-	for (auto it = comments_data.begin(); it != comments_data.end(); ++it) {
-		QVariantMap data = it->toMap();
+
+	for (const QVariant &entry : comments_data) {
+		QVariantMap data = entry.toMap();
 		if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(data["address"].toString())) {
 			comments_.insert(*addr, data["comment"].toString());
 		}

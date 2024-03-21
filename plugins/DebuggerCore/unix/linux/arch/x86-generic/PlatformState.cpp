@@ -840,9 +840,9 @@ Register findRegisterValue(const Names &names, const Regs &regs, const QString &
 
 	if (regNameFoundIter != end) {
 		return make_Register<BitSize>(regName, regs[regNameFoundIter - names.begin()] >> shift, type);
-	} else {
-		return Register();
 	}
+
+	return Register();
 }
 
 /**

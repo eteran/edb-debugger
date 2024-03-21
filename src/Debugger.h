@@ -162,7 +162,7 @@ private Q_SLOTS:
 	void mnuCPURemoveComment();
 	void mnuCPURunToThisLine();
 	void mnuCPURunToThisLinePassSignal();
-	void mnuCPUToggleBreakpoint();
+	void mnuCPUToggleBreakpoint() const;
 	void mnuCPUAddConditionalBreakpoint();
 	void mnuCPUFillNop();
 	void mnuCPUFillZero();
@@ -171,8 +171,8 @@ private Q_SLOTS:
 	void mnuCPUFollowInStack();
 	void mnuCPUJumpToAddress();
 	void mnuCPUJumpToEIP();
-	void mnuCPUModify();
-	void mnuCPURemoveBreakpoint();
+	void mnuCPUModify() const;
+	void mnuCPURemoveBreakpoint() const;
 	void mnuCPUSetEIP();
 	void mnuCPULabelAddress();
 	void breakPointToggled_triggered(edb::address_t);
@@ -248,7 +248,7 @@ private:
 	void createDataTab();
 	void deleteDataTab();
 	void detachFromProcess(DetachAction kill);
-	void doJumpToAddress(edb::address_t address, const std::shared_ptr<IRegion> &r, bool scroll_to);
+	void doJumpToAddress(edb::address_t address, const std::shared_ptr<IRegion> &r, bool scroll_to) const;
 	void finishPluginSetup();
 	void followRegisterInDump(bool tabbed);
 	void resumeExecution(ExceptionResume pass_exception, DebugMode mode, ResumeFlag flags);
@@ -264,7 +264,7 @@ private:
 	void updateDisassembly(edb::address_t address, const std::shared_ptr<IRegion> &r);
 	void updateMenuState(GuiState state);
 	void updateStackView(const State &state);
-	void updateTabCaption(const std::shared_ptr<QHexView> &view, edb::address_t start, edb::address_t end);
+	void updateTabCaption(const std::shared_ptr<QHexView> &view, edb::address_t start, edb::address_t end) const;
 
 private:
 	template <class F>

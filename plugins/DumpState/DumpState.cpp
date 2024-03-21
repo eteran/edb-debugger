@@ -286,10 +286,11 @@ void DumpState::dumpLines(edb::address_t address, int lines) {
 					std::cout << hex_string(buf[j]) << " ";
 				}
 
-				for (int j = 0; j < 16; ++j) {
-					// TODO(eteran): why won't this compile with MSVC?
-					const uint8_t ch = buf[j].toUint();
-					std::cout << ((std::isprint(ch) || (std::isspace(ch) && (ch != '\f' && ch != '\t' && ch != '\r' && ch != '\n' && ch != '\x0b') && ch < 0x80)) ? static_cast<char>(ch) : '.');
+				for (const edb::value8 &b : buf) {
+					const uint8_t ch = b.toUint();
+					std::cout << ((std::isprint(ch) || (std::isspace(ch) && (ch != '\f' && ch != '\t' && ch != '\r' && ch != '\n' && ch != '\x0b') && ch < 0x80))
+									  ? static_cast<char>(ch)
+									  : '.');
 				}
 
 				std::cout << "\n";

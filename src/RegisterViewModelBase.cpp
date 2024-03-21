@@ -152,13 +152,13 @@ QByteArray CategoriesHolder::rawValue() const {
 RegisterViewItem *CategoriesHolder::child(int visibleRow) {
 
 	// return visible row #visibleRow
-	for (std::size_t row = 0; row < categories.size(); ++row) {
-		if (categories[row]->visible()) {
+	for (const std::unique_ptr<Category> &category : categories) {
+		if (category->visible()) {
 			--visibleRow;
 		}
 
 		if (visibleRow == -1) {
-			return categories[row].get();
+			return category.get();
 		}
 	}
 

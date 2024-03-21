@@ -6,8 +6,7 @@
 #include <chrono>
 #include <cstdint>
 
-namespace DebuggerCorePlugin {
-namespace Posix {
+namespace DebuggerCorePlugin::Posix {
 
 void initialize();
 int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
@@ -17,7 +16,6 @@ ssize_t read(int fd, void *buf, size_t count);
 ssize_t write(int fd, const void *buf, size_t count);
 bool wait_for_sigchld(std::chrono::milliseconds msecs);
 
-}
 }
 
 #endif

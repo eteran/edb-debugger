@@ -1160,8 +1160,8 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 	QFile::remove(binaryFileName);
 
 	if (success) {
-		const auto output = process.readAllStandardOutput();
-		const auto err    = process.readAllStandardError();
+		const QByteArray output = process.readAllStandardOutput();
+		const QByteArray err    = process.readAllStandardError();
 
 		if (process.exitCode() != 0) {
 			return ("; got response: \"" + err + "\"").constData();
@@ -1171,15 +1171,18 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 			return "; process crashed";
 		}
 
-		const auto lines = output.split('\n');
+		const QList<QByteArray> lines = output.split('\n');
 		QString result;
-		enum class LookingFor { FunctionBegin,
-								Instruction } mode = LookingFor::FunctionBegin;
-		const auto addrFormatted                   = address.toHexString().toUpper().replace(QRegExp("^0+"), "");
-		const auto addrTruncatedFormatted          = (address & UINT32_MAX).toHexString().toUpper().replace(QRegExp("^0+"), "");
+		enum class LookingFor {
+			FunctionBegin,
+			Instruction,
+		} mode = LookingFor::FunctionBegin;
 
-		for (int L = 0; L < lines.size(); ++L) {
-			const auto line = QString::fromUtf8(lines[L]);
+		const QString addrFormatted          = address.toHexString().toUpper().replace(QRegExp("^0+"), "");
+		const QString addrTruncatedFormatted = (address & UINT32_MAX).toHexString().toUpper().replace(QRegExp("^0+"), "");
+
+		for (const QByteArray &byteString : lines) {
+			const auto line = QString::fromUtf8(byteString);
 			switch (mode) {
 			case LookingFor::FunctionBegin:
 				if (line.contains(QRegExp("^; Instruction set:"))) {

@@ -150,10 +150,10 @@ bool PlatformThread::fillStateFromSimpleRegs(PlatformState *state) {
 		state->fillFrom(regs);
 		fillSegmentBases(state);
 		return true;
-	} else {
-		perror("PTRACE_GETREGS failed");
-		return false;
 	}
+
+	perror("PTRACE_GETREGS failed");
+	return false;
 }
 
 /**
@@ -317,7 +317,7 @@ edb::address_t PlatformThread::instructionPointer() const {
  * @param n
  * @return
  */
-unsigned long PlatformThread::getDebugRegister(std::size_t n) {
+unsigned long PlatformThread::getDebugRegister(std::size_t n) const {
 	size_t drOffset = offsetof(struct user, u_debugreg) + n * sizeof(user::u_debugreg[0]);
 	return ptrace(PTRACE_PEEKUSER, tid_, drOffset, 0);
 }
@@ -328,7 +328,7 @@ unsigned long PlatformThread::getDebugRegister(std::size_t n) {
  * @param value
  * @return
  */
-long PlatformThread::setDebugRegister(std::size_t n, unsigned long value) {
+long PlatformThread::setDebugRegister(std::size_t n, unsigned long value) const {
 	size_t drOffset = offsetof(struct user, u_debugreg) + n * sizeof(user::u_debugreg[0]);
 	return ptrace(PTRACE_POKEUSER, tid_, drOffset, value);
 }
