@@ -638,13 +638,15 @@ QString formatBCD(const edb::value80 &v) {
 }
 
 template <class ValueType>
-QString formatPackedFloat(const char *data, std::size_t size) {
+QString formatPackedFloat(const void *data, std::size_t size) {
+
+	auto ptr = static_cast<const char *>(data);
 
 	QString str;
 	for (std::size_t offset = 0; offset < size; offset += sizeof(ValueType)) {
 
 		ValueType value;
-		std::memcpy(&value, data + offset, sizeof(value));
+		std::memcpy(&value, ptr + offset, sizeof(value));
 		if (!str.isEmpty()) {
 			str += ", ";
 		}
@@ -773,9 +775,9 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 									valueStr += " (decimal)";
 								}
 							} else if (is_SIMD_PS(operand)) {
-								valueStr = formatPackedFloat<edb::value32>(reinterpret_cast<const char *>(&target), sizeof(edb::value64));
+								valueStr = formatPackedFloat<edb::value32>(&target, sizeof(edb::value64));
 							} else if (is_SIMD_PD(operand)) {
-								valueStr = formatPackedFloat<edb::value64>(reinterpret_cast<const char *>(&target), sizeof(edb::value64));
+								valueStr = formatPackedFloat<edb::value64>(&target, sizeof(edb::value64));
 							} else {
 								valueStr = "0x" + value.toHexString();
 							}
@@ -814,9 +816,9 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						case 16: {
 							QString valueString;
 							if (is_SIMD_PS(operand)) {
-								valueString = formatPackedFloat<edb::value32>(reinterpret_cast<const char *>(&target), sizeof(edb::value128));
+								valueString = formatPackedFloat<edb::value32>(&target, sizeof(edb::value128));
 							} else if (is_SIMD_PD(operand)) {
-								valueString = formatPackedFloat<edb::value64>(reinterpret_cast<const char *>(&target), sizeof(edb::value128));
+								valueString = formatPackedFloat<edb::value64>(&target, sizeof(edb::value128));
 							} else {
 								valueString = "0x" + edb::value128(target).toHexString();
 							}
@@ -826,9 +828,9 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						case 32: {
 							QString valueString;
 							if (is_SIMD_PS(operand)) {
-								valueString = formatPackedFloat<edb::value32>(reinterpret_cast<const char *>(&target), sizeof(edb::value256));
+								valueString = formatPackedFloat<edb::value32>(&target, sizeof(edb::value256));
 							} else if (is_SIMD_PD(operand)) {
-								valueString = formatPackedFloat<edb::value64>(reinterpret_cast<const char *>(&target), sizeof(edb::value256));
+								valueString = formatPackedFloat<edb::value64>(&target, sizeof(edb::value256));
 							} else {
 								valueString = "0x" + edb::value256(target).toHexString();
 							}

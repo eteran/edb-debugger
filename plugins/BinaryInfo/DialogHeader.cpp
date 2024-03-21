@@ -450,7 +450,7 @@ DialogHeader::DialogHeader(const std::shared_ptr<IRegion> &region, QWidget *pare
 
 		if (auto elf32 = dynamic_cast<ELF32 *>(binary_info.get())) {
 
-			auto header = reinterpret_cast<const elf32_header *>(elf32->header());
+			auto header = static_cast<const elf32_header *>(elf32->header());
 
 			auto root = new QTreeWidgetItem;
 			root->setText(0, tr("ELF32"));
@@ -471,7 +471,7 @@ DialogHeader::DialogHeader(const std::shared_ptr<IRegion> &region, QWidget *pare
 
 		if (auto elf64 = dynamic_cast<ELF64 *>(binary_info.get())) {
 
-			auto header = reinterpret_cast<const elf64_header *>(elf64->header());
+			auto header = static_cast<const elf64_header *>(elf64->header());
 
 			auto root = new QTreeWidgetItem;
 			root->setText(0, tr("ELF64"));
@@ -493,7 +493,7 @@ DialogHeader::DialogHeader(const std::shared_ptr<IRegion> &region, QWidget *pare
 		if (auto pe32 = dynamic_cast<PE32 *>(binary_info.get())) {
 			Q_UNUSED(pe32)
 #if 0
-			auto header = reinterpret_cast<const pe32_header *>(pe32->header());
+			auto header = static_cast<const pe32_header *>(pe32->header());
 #endif
 			auto root = new QTreeWidgetItem;
 			root->setText(0, tr("PE32"));

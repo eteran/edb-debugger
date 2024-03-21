@@ -103,7 +103,7 @@ struct elf64_model : elf_model<64> {
 };
 
 [[nodiscard]] bool is_elf32(const void *ptr) {
-	auto elf32_hdr = reinterpret_cast<const elf32_header *>(ptr);
+	auto elf32_hdr = static_cast<const elf32_header *>(ptr);
 	if (std::memcmp(elf32_hdr->e_ident, ELFMAG, SELFMAG) == 0) {
 		return elf32_hdr->e_ident[EI_CLASS] == ELFCLASS32;
 	}
@@ -111,7 +111,7 @@ struct elf64_model : elf_model<64> {
 }
 
 [[nodiscard]] bool is_elf64(const void *ptr) {
-	auto elf64_hdr = reinterpret_cast<const elf64_header *>(ptr);
+	auto elf64_hdr = static_cast<const elf64_header *>(ptr);
 	if (std::memcmp(elf64_hdr->e_ident, ELFMAG, SELFMAG) == 0) {
 		return elf64_hdr->e_ident[EI_CLASS] == ELFCLASS64;
 	}
@@ -434,7 +434,7 @@ void output_symbols(std::vector<Symbol> &symbols, std::ostream &os) {
 // Desc:
 //--------------------------------------------------------------------------
 bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, std::ostream &os) {
-	if (auto file_ptr = reinterpret_cast<void *>(file.map(0, file.size(), QFile::NoOptions))) {
+	if (auto file_ptr = static_cast<void *>(file.map(0, file.size(), QFile::NoOptions))) {
 		if (is_elf64(file_ptr)) {
 
 			using symbol = typename elf64_model::symbol;
@@ -448,7 +448,7 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 				if (debugFile->open(QIODevice::ReadOnly)) {
 
 					// map it and include it with the symbols
-					if (auto debug_ptr = reinterpret_cast<void *>(debugFile->map(0, debugFile->size(), QFile::NoOptions))) {
+					if (auto debug_ptr = static_cast<void *>(debugFile->map(0, debugFile->size(), QFile::NoOptions))) {
 
 						// this should never fail... but just being sure
 						if (is_elf64(debug_ptr)) {
@@ -475,7 +475,7 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 				if (debugFile->open(QIODevice::ReadOnly)) {
 
 					// map it and include it with the symbols
-					if (auto debug_ptr = reinterpret_cast<void *>(debugFile->map(0, debugFile->size(), QFile::NoOptions))) {
+					if (auto debug_ptr = static_cast<void *>(debugFile->map(0, debugFile->size(), QFile::NoOptions))) {
 
 						// this should never fail... but just being sure
 						if (is_elf32(debug_ptr)) {

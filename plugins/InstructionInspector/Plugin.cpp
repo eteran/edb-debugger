@@ -66,7 +66,7 @@ std::string printBytes(const void *ptr, std::size_t size, bool printZeros = true
 
 	std::ostringstream str;
 	str << std::setfill('0') << std::uppercase << std::hex;
-	const auto bytes = reinterpret_cast<const unsigned char *>(ptr);
+	const auto bytes = static_cast<const unsigned char *>(ptr);
 
 	for (std::size_t i = 0; i < size; ++i) {
 		if (!str.str().empty()) {

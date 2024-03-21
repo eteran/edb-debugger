@@ -355,7 +355,7 @@ std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, std::s
 				}
 
 				// store it
-				reinterpret_cast<char *>(buf)[index] = x;
+				static_cast<char *>(buf)[index] = x;
 
 				++read;
 			}
