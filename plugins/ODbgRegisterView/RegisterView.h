@@ -78,7 +78,7 @@ public:
 	[[nodiscard]] QList<ValueField *> valueFields() const;
 	void groupHidden(RegisterGroup *group);
 	void saveState(const QString &settings) const;
-	void selectAField();
+	void selectAField() const;
 	void setModel(RegisterViewModelBase::Model *model);
 	void showMenu(const QPoint &position, const QList<QAction *> &additionalItems = {}) const;
 
@@ -88,7 +88,7 @@ private:
 
 private:
 	[[nodiscard]] ValueField *selectedField() const;
-	void updateFieldsPalette();
+	void updateFieldsPalette() const;
 	void keyPressEvent(QKeyEvent *event) override;
 	void mousePressEvent(QMouseEvent *event) override;
 	void updateFont();

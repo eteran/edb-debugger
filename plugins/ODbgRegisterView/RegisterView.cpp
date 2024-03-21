@@ -568,7 +568,7 @@ QList<ValueField *> ODBRegView::valueFields() const {
 	return allValues;
 }
 
-void ODBRegView::updateFieldsPalette() {
+void ODBRegView::updateFieldsPalette() const {
 	Q_FOREACH (ValueField *field, valueFields()) {
 		field->updatePalette();
 	}
@@ -584,7 +584,7 @@ ValueField *ODBRegView::selectedField() const {
 	return nullptr;
 }
 
-void ODBRegView::selectAField() {
+void ODBRegView::selectAField() const {
 	const QList<ValueField *> fields = valueFields();
 	if (!fields.isEmpty()) {
 		fields.front()->select();
