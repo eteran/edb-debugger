@@ -196,6 +196,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 	elf_addr plt_address = 0;
 	elf_addr got_address = 0;
 	std::set<elf_addr> plt_addresses;
+	bool is_plt_sec = false;
 
 	// collect special section addresses
 	for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
@@ -207,6 +208,9 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 			plt_address = section->sh_addr;
 		} else if (strcmp(&section_strings[section->sh_name], ".got") == 0) {
 			got_address = section->sh_addr;
+		} else if (strcmp(&section_strings[section->sh_name], ".plt.sec") == 0) {
+			plt_address = section->sh_addr;
+			is_plt_sec  = true;
 		}
 	}
 
@@ -246,7 +250,10 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				auto symbol_tab        = reinterpret_cast<elf_sym *>(base + linked->sh_offset);
 				auto string_tab        = reinterpret_cast<const char *>(base + sections_begin[linked->sh_link].sh_offset);
 
-				const elf_addr symbol_address = base_address + ++n * M::plt_entry_size;
+				if (!is_plt_sec) {
+					++n;
+				}
+				const elf_addr symbol_address = base_address + (n * M::plt_entry_size);
 
 				const char *sym_name = &section_strings[section->sh_name];
 				if (strlen(sym_name) > (sizeof(".rela.") - 1) && memcmp(sym_name, ".rela.", (sizeof(".rela.") - 1)) == 0) {
@@ -263,6 +270,10 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				sym.name += sym_name;
 				sym.type = 'P';
 				symbols.push_back(sym);
+
+				if (is_plt_sec) {
+					++n;
+				}
 			}
 		} break;
 		case SHT_REL: {
@@ -280,7 +291,10 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				auto symbol_tab        = reinterpret_cast<elf_sym *>(base + linked->sh_offset);
 				auto string_tab        = reinterpret_cast<const char *>(base + sections_begin[linked->sh_link].sh_offset);
 
-				const elf_addr symbol_address = base_address + ++n * M::plt_entry_size;
+				if (!is_plt_sec) {
+					++n;
+				}
+				const elf_addr symbol_address = base_address + (n * M::plt_entry_size);
 
 				const char *sym_name = &section_strings[section->sh_name];
 				if (strlen(sym_name) > (sizeof(".rel.") - 1) && memcmp(sym_name, ".rel.", (sizeof(".rel.") - 1)) == 0) {
@@ -297,6 +311,10 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				sym.name += sym_name;
 				sym.type = 'P';
 				symbols.push_back(sym);
+
+				if (is_plt_sec) {
+					++n;
+				}
 			}
 		} break;
 		}
