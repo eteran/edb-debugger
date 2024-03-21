@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IState.h"
 #include "edb.h"
 
+#include <array>
+
 #include <QtAlgorithms>
 
 /**
