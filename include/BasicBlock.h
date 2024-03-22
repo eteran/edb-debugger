@@ -41,14 +41,6 @@ public:
 	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 public:
-	BasicBlock()                                 = default;
-	BasicBlock(const BasicBlock &other)          = default;
-	BasicBlock &operator=(const BasicBlock &rhs) = default;
-	BasicBlock(BasicBlock &&other)               = default;
-	BasicBlock &operator=(BasicBlock &&rhs)      = default;
-	~BasicBlock()                                = default;
-
-public:
 	void push_back(const instruction_pointer &inst);
 	void addReference(edb::address_t refsite, edb::address_t target);
 
