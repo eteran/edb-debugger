@@ -1,5 +1,5 @@
 Name:           edb
-Version:        1.4.0
+Version:        1.5.0
 Release:        2%{?dist}
 Summary:        A debugger based on the ptrace API and Qt
 
@@ -62,6 +62,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/%{name}.a
 %{_mandir}/man1/%{name}.1*
 
 %changelog
+* Sun March 22 2024 Evan Teran <evan.teran@gmail.com> - 1.5.0
+- Version bump
+
 * Sun July 30 2023 Evan Teran <evan.teran@gmail.com> - 1.4.0
 - Version bump
 
