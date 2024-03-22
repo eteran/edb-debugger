@@ -184,7 +184,6 @@ DebuggerCore::DebuggerCore()
 	  userStackSegment_(osIs64Bit_ ? 0x2b : 0x7b)
 #endif
 {
-	Posix::initialize();
 
 	feature::detect_proc_access(&procMemReadBroken_, &procMemWriteBroken_);
 
