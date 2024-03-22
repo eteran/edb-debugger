@@ -9,6 +9,8 @@
 #include <limits>
 #include <type_traits>
 
+class QString;
+
 // Only class, nothing about sign
 enum class FloatValueClass {
 	Zero,
