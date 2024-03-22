@@ -14,7 +14,9 @@ Windows ports are underway with varying degrees of functionality.
 
 edb is available under the GPL 2 license, see the COPYING for details.
 
-NOTE: This README now only covers the most essential documentation, for more
+**NOTE**: version 1.5.0 is the last version to support linux kernels older than 3.0. New development will target 3.0 and newer, and will be 2.0.0 when released.
+
+**NOTE**: This README now only covers the most essential documentation, for more
 complete documentation see the [wiki](https://github.com/eteran/edb-debugger/wiki)
 
 
