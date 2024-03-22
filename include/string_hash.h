@@ -26,20 +26,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace edb {
 namespace detail {
 
-template <std::size_t N, std::size_t n>
-constexpr std::enable_if_t<N <= 9 && n == 0, uint64_t> string_hash(const char (&)[N]) {
-	return 0;
+template <std::size_t N, std::size_t Index = N - 1>
+constexpr uint64_t string_hash(const char (&array)[N]) {
+	if constexpr (Index == 0) {
+		return 0;
+	} else {
+		return string_hash<N, Index - 1>(array) | ((array[Index - 1] & 0xffull) << (8 * (Index - 1)));
+	}
 }
 
-template <std::size_t N, std::size_t n = N - 1>
-constexpr std::enable_if_t<N <= 9 && n != 0, uint64_t> string_hash(const char (&array)[N]) {
-	return string_hash<N, n - 1>(array) | ((array[n - 1] & 0xffull) << (8 * (n - 1)));
 }
 
-}
-
-template <std::size_t N>
-constexpr std::enable_if_t<N <= 9, uint64_t> string_hash(const char (&array)[N]) {
+template <std::size_t N, class = std::enable_if_t<N <= 9>>
+constexpr uint64_t string_hash(const char (&array)[N]) {
 	return detail::string_hash(array);
 }
 
