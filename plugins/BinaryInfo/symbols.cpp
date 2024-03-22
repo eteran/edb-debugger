@@ -193,10 +193,10 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 	const elf_shdr *const sections_end = sections_begin + header->e_shnum;
 	auto section_strings               = reinterpret_cast<const char *>(base + sections_begin[header->e_shstrndx].sh_offset);
 
-	elf_addr plt_address = 0;
-	elf_addr got_address = 0;
+	elf_addr plt_address     = 0;
+	elf_addr plt_sec_address = 0;
+	elf_addr got_address     = 0;
 	std::set<elf_addr> plt_addresses;
-	bool is_plt_sec = false;
 
 	// collect special section addresses
 	for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
@@ -209,8 +209,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 		} else if (strcmp(&section_strings[section->sh_name], ".got") == 0) {
 			got_address = section->sh_addr;
 		} else if (strcmp(&section_strings[section->sh_name], ".plt.sec") == 0) {
-			plt_address = section->sh_addr;
-			is_plt_sec  = true;
+			plt_sec_address = section->sh_addr;
 		}
 	}
 
@@ -222,9 +221,9 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 
 		elf_addr base_address = 0;
 		if (strcmp(&section_strings[section->sh_name], ".rela.plt") == 0) {
-			base_address = plt_address;
+			base_address = plt_sec_address ? plt_sec_address : plt_address;
 		} else if (strcmp(&section_strings[section->sh_name], ".rel.plt") == 0) {
-			base_address = plt_address;
+			base_address = plt_sec_address ? plt_sec_address : plt_address;
 		} else if (strcmp(&section_strings[section->sh_name], ".rela.got") == 0) {
 			base_address = got_address;
 		} else if (strcmp(&section_strings[section->sh_name], ".rel.got") == 0) {
@@ -243,6 +242,10 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				break;
 			}
 
+			if (!plt_sec_address) {
+				++n;
+			}
+
 			for (size_t i = 0; i < section_entries_count; ++i) {
 
 				const size_t sym_index = M::elf_r_sym(relocation[i].r_info);
@@ -250,9 +253,6 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				auto symbol_tab        = reinterpret_cast<elf_sym *>(base + linked->sh_offset);
 				auto string_tab        = reinterpret_cast<const char *>(base + sections_begin[linked->sh_link].sh_offset);
 
-				if (!is_plt_sec) {
-					++n;
-				}
 				const elf_addr symbol_address = base_address + (n * M::plt_entry_size);
 
 				const char *sym_name = &section_strings[section->sh_name];
@@ -270,10 +270,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				sym.name += sym_name;
 				sym.type = 'P';
 				symbols.push_back(sym);
-
-				if (is_plt_sec) {
-					++n;
-				}
+				++n;
 			}
 		} break;
 		case SHT_REL: {
@@ -284,6 +281,10 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				break;
 			}
 
+			if (!plt_sec_address) {
+				++n;
+			}
+
 			for (size_t i = 0; i < section_entries_count; ++i) {
 
 				const size_t sym_index = M::elf_r_sym(relocation[i].r_info);
@@ -291,9 +292,6 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				auto symbol_tab        = reinterpret_cast<elf_sym *>(base + linked->sh_offset);
 				auto string_tab        = reinterpret_cast<const char *>(base + sections_begin[linked->sh_link].sh_offset);
 
-				if (!is_plt_sec) {
-					++n;
-				}
 				const elf_addr symbol_address = base_address + (n * M::plt_entry_size);
 
 				const char *sym_name = &section_strings[section->sh_name];
@@ -311,10 +309,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				sym.name += sym_name;
 				sym.type = 'P';
 				symbols.push_back(sym);
-
-				if (is_plt_sec) {
-					++n;
-				}
+				++n;
 			}
 		} break;
 		}
