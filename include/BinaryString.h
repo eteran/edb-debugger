@@ -58,6 +58,7 @@ public:
 private:
 	void setEntriesMaxLength(int n);
 
+private:
 	::Ui::BinaryStringWidget *ui = nullptr;
 	Mode mode_                   = Mode::MemoryEditing;
 	int requestedMaxLength_      = 0;

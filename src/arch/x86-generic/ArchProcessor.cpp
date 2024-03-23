@@ -671,7 +671,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 
 			if (operand) {
 
-				QString temp_operand = QString::fromStdString(edb::v1::formatter().toString(operand));
+				auto temp_operand = QString::fromStdString(edb::v1::formatter().toString(operand));
 
 				if (is_immediate(operand)) {
 #if 0

@@ -504,7 +504,7 @@ void Formatter::checkCapitalize(std::string &str, bool canContainHex) const {
 	if (options_.capitalization == UpperCase) {
 		std::transform(str.begin(), str.end(), str.begin(), ::toupper);
 		if (canContainHex) {
-			QString qstr = QString::fromStdString(str);
+			auto qstr = QString::fromStdString(str);
 
 			static const QRegularExpression re("\\b0X([0-9A-F]+)\\b");
 			qstr.replace(re, "0x\\1");

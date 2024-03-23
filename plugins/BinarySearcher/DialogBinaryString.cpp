@@ -91,7 +91,7 @@ void DialogBinaryString::doFind() {
 	for (const std::shared_ptr<IRegion> &region : regions) {
 		const size_t region_size = region->size();
 
-		// a short circut for speading things up
+		// a short circuit for speeding things up
 		if (ui.chkSkipNoAccess->isChecked() && !region->accessible()) {
 			ui.progressBar->setValue(util::percentage(++i, regions.size()));
 			continue;

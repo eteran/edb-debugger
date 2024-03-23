@@ -11,16 +11,16 @@ class FpuValueField final : public ValueField {
 	Q_OBJECT
 
 private:
-	int showAsRawActionIndex;
-	int showAsFloatActionIndex;
+	int showAsRawActionIndex_;
+	int showAsFloatActionIndex_;
 
-	FieldWidget *commentWidget;
-	int row;
-	int column;
+	FieldWidget *commentWidget_;
+	int row_;
+	int column_;
 
-	QPersistentModelIndex tagValueIndex;
+	QPersistentModelIndex tagValueIndex_;
 
-	bool groupDigits = false;
+	bool groupDigits_ = false;
 
 public:
 	// Will add itself and commentWidget to the group and renew their positions as needed

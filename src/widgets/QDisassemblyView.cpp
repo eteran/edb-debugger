@@ -567,7 +567,7 @@ void QDisassemblyView::scrollTo(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 QString QDisassemblyView::instructionString(const edb::Instruction &inst) const {
-	QString opcode = QString::fromStdString(edb::v1::formatter().toString(inst));
+	auto opcode = QString::fromStdString(edb::v1::formatter().toString(inst));
 
 	if (is_call(inst) || is_jump(inst)) {
 		if (inst.operandCount() == 1) {
