@@ -77,6 +77,8 @@ private:
 	void bonusMarkedFunctions(RegionData *data);
 	void bonusSymbols(RegionData *data);
 	void collectFunctions(RegionData *data);
+	void computeNonReturning(RegionData *data);
+	void splitBlocks(RegionData *data);
 	void collectFuzzyFunctions(RegionData *data);
 	void doAnalysis(const std::shared_ptr<IRegion> &region);
 	void identHeader(Analyzer::RegionData *data);

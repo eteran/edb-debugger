@@ -50,6 +50,7 @@ void Function::insert(BasicBlock &&bb) {
  * @return
  */
 edb::address_t Function::entryAddress() const {
+	Q_ASSERT(!empty());
 	return front().firstAddress();
 }
 
@@ -58,6 +59,7 @@ edb::address_t Function::entryAddress() const {
  * @return
  */
 edb::address_t Function::endAddress() const {
+	Q_ASSERT(!empty());
 	return back().lastAddress() - 1;
 }
 
@@ -66,6 +68,7 @@ edb::address_t Function::endAddress() const {
  * @return
  */
 edb::address_t Function::lastInstruction() const {
+	Q_ASSERT(!empty());
 	return back().back()->rva();
 }
 
@@ -213,4 +216,8 @@ Function::Type Function::type() const {
  */
 void Function::setType(Type t) {
 	type_ = t;
+}
+
+void Function::erase(const_iterator it) {
+	blocks_.erase(it);
 }

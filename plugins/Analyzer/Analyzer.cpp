@@ -117,13 +117,21 @@ void set_function_types(IAnalyzer::FunctionMap *results) {
 	Q_ASSERT(results);
 
 	// give bonus if we have a symbol for the address
-	std::for_each(results->begin(), results->end(), [](Function &function) {
+	for (auto it = results->begin(); it != results->end(); ++it) {
+
+		Function &function = it.value();
+
+		if (function.empty()) {
+			qDebug() << "HERE:" << it.key().toString();
+		}
+
+		Q_ASSERT(!function.empty());
 		if (is_thunk(function.entryAddress())) {
 			function.setType(Function::Thunk);
 		} else {
 			function.setType(Function::Standard);
 		}
-	});
+	}
 }
 
 /**
@@ -431,6 +439,56 @@ void Analyzer::identHeader(Analyzer::RegionData *data) {
 	Q_UNUSED(data)
 }
 
+bool split_function(Function &func) {
+
+	for (auto bb_it = func.begin(); bb_it != func.end(); ++bb_it) {
+		BasicBlock &bb = bb_it->second;
+
+		if (bb.size() <= 1) {
+			continue;
+		}
+
+		for (auto it = bb.begin(); it != bb.end(); ++it) {
+			const std::shared_ptr<edb::Instruction> &insn = *it;
+
+			// if it's a call and not the last instruction of the BB
+			// then split!
+			if (is_call(*insn) && insn != bb.back()) {
+
+				auto newBlocks = bb.splitBlock(insn);
+				func.erase(bb_it);
+
+				Q_ASSERT(!newBlocks.first.empty());
+				Q_ASSERT(!newBlocks.second.empty());
+
+				func.insert(newBlocks.first);
+				func.insert(newBlocks.second);
+
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+void Analyzer::splitBlocks(RegionData *data) {
+	Q_ASSERT(data);
+
+	for (auto it = data->functions.begin(); it != data->functions.end(); ++it) {
+		const edb::address_t function = it.key();
+		Function &func                = it.value();
+
+		while (split_function(func)) {
+			continue;
+		}
+	}
+}
+
+void Analyzer::computeNonReturning(Analyzer::RegionData *data) {
+	Q_UNUSED(data);
+}
+
 /**
  * @brief Analyzer::collectFunctions
  * @param data
@@ -693,6 +751,8 @@ void Analyzer::analyze(const std::shared_ptr<IRegion> &region) {
 		{"attempting to add marked functions to the list...", [this, &region_data]() { bonusMarkedFunctions(&region_data); }},
 		{"attempting to collect functions with fuzzy analysis...", [this, &region_data]() { collectFuzzyFunctions(&region_data); }},
 		{"collecting basic blocks...", [this, &region_data]() { collectFunctions(&region_data); }},
+		{"splitting basic blocks...", [this, &region_data]() { splitBlocks(&region_data); }},
+		{"computing non-returning functions...", [this, &region_data]() { computeNonReturning(&region_data); }},
 	};
 
 	const int total_steps = sizeof(analysis_steps) / sizeof(analysis_steps[0]);

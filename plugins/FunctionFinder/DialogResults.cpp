@@ -135,6 +135,17 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 										}
 									}
 								} else if (is_terminator(inst)) {
+								} else {
+									// if the bb's last address is another blocks first address
+									// connect them because they run into each other
+
+									auto to = nodes.find(bb.lastAddress());
+									if (to != nodes.end()) {
+										auto from = nodes.find(bb.firstAddress());
+										if (to != nodes.end() && from != nodes.end()) {
+											new GraphEdge(from.value(), to.value(), Qt::blue);
+										}
+									}
 								}
 							}
 						}

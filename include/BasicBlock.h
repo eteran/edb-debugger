@@ -81,6 +81,9 @@ public:
 	[[nodiscard]] edb::address_t firstAddress() const;
 	[[nodiscard]] edb::address_t lastAddress() const;
 
+public:
+	std::pair<BasicBlock, BasicBlock> splitBlock(const instruction_pointer &inst);
+
 private:
 	std::vector<instruction_pointer> instructions_;
 	std::vector<std::pair<edb::address_t, edb::address_t>> references_;

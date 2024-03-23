@@ -237,3 +237,36 @@ void BasicBlock::addReference(edb::address_t refsite, edb::address_t target) {
 std::vector<std::pair<edb::address_t, edb::address_t>> BasicBlock::references() const {
 	return references_;
 }
+
+/**
+ * @brief BasicBlock::references
+ * @return
+ */
+std::pair<BasicBlock, BasicBlock> BasicBlock::splitBlock(const instruction_pointer &inst) {
+	BasicBlock block1;
+	BasicBlock block2;
+
+	auto it = begin();
+	for (; it != end(); ++it) {
+
+		block1.push_back(*it);
+		if (*it == inst) {
+			++it;
+			break;
+		}
+	}
+
+	for (; it != end(); ++it) {
+		block2.push_back(*it);
+	}
+
+	for (auto it = references_.begin(); it != references_.end(); ++it) {
+		if (it->first >= block1.firstAddress() && it->first < block1.lastAddress()) {
+			block1.addReference(it->first, it->second);
+		} else {
+			block2.addReference(it->first, it->second);
+		}
+	}
+
+	return std::make_pair(block1, block2);
+}

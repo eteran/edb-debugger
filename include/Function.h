@@ -53,6 +53,8 @@ public:
 	[[nodiscard]] Type type() const;
 	void setType(Type t);
 
+	void erase(const_iterator it);
+
 public:
 	[[nodiscard]] const_reference back() const;
 	[[nodiscard]] const_reference front() const;
