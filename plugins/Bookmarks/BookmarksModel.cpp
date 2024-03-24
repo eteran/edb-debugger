@@ -68,8 +68,16 @@ QVariant BookmarksModel::data(const QModelIndex &index, int role) const {
 
 	if (role == Qt::DisplayRole) {
 		switch (index.column()) {
-		case 0:
-			return edb::v1::format_pointer(bookmark.address);
+		case 0: {
+			const QString symname = edb::v1::find_function_symbol(bookmark.address);
+			const QString address = edb::v1::format_pointer(bookmark.address);
+			
+			if (!symname.isEmpty()) {
+				return QString("%1 <%2>").arg(address, symname);
+			}
+
+			return address;
+		}
 		case 1:
 			switch (bookmark.type) {
 			case Bookmark::Code:
