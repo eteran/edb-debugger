@@ -41,6 +41,7 @@ BookmarkWidget::BookmarkWidget(QWidget *parent, Qt::WindowFlags f)
 	ui.tableView->setModel(model_);
 
 	connect(edb::v1::debugger_ui, SIGNAL(detachEvent()), model_, SLOT(clearBookmarks()));
+	connect(edb::v1::disassembly_widget(), SIGNAL(signalUpdated()), model_, SLOT(updateList()));
 	connect(ui.buttonAdd, &QPushButton::clicked, this, &BookmarkWidget::buttonAddClicked);
 	connect(ui.buttonDel, &QPushButton::clicked, this, &BookmarkWidget::buttonDelClicked);
 	connect(ui.buttonClear, &QPushButton::clicked, this, &BookmarkWidget::buttonClearClicked);

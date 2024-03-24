@@ -26,7 +26,10 @@ namespace BookmarksPlugin {
  * @param parent
  */
 BookmarksModel::BookmarksModel(QObject *parent)
-	: QAbstractItemModel(parent) {
+	: QAbstractItemModel(parent),
+	  breakpointIcon_(QLatin1String(":/debugger/images/breakpoint.svg")),
+	  currentIcon_(QLatin1String(":/debugger/images/arrow-right.svg")),
+	  currentBpIcon_(QLatin1String(":/debugger/images/arrow-right-red.svg")) {
 }
 
 /**
@@ -69,11 +72,12 @@ QVariant BookmarksModel::data(const QModelIndex &index, int role) const {
 	if (role == Qt::DisplayRole) {
 		switch (index.column()) {
 		case 0: {
+			// Return the address with symbol name, if there is one
 			const QString symname = edb::v1::find_function_symbol(bookmark.address);
 			const QString address = edb::v1::format_pointer(bookmark.address);
 			
 			if (!symname.isEmpty()) {
-				return QString("%1 <%2>").arg(address, symname);
+				return tr("%1 <%2>").arg(address, symname);
 			}
 
 			return address;
@@ -90,6 +94,36 @@ QVariant BookmarksModel::data(const QModelIndex &index, int role) const {
 			break;
 		case 2:
 			return bookmark.comment;
+		default:
+			return QVariant();
+		}
+	}
+
+	if (role == Qt::DecorationRole) {
+		switch (index.column()) {
+		case 0: {
+			// Puts the correct icon (BP, current BP, current instruction) next to the address
+
+			// TODO: This is mostly copied from QDisassemblyView::drawSidebarElements, and both
+			// should really be factored out into a common location (although this uses icons
+			// and the other uses SVG renderers and painting).
+			const bool is_eip = (bookmark.address == edb::v1::instruction_pointer_address());
+			const bool has_breakpoint = (edb::v1::find_breakpoint(bookmark.address) != nullptr);
+
+			const QIcon *icon = nullptr;
+			if (is_eip) {
+				icon = has_breakpoint ? &currentBpIcon_ : &currentIcon_;
+			} else if (has_breakpoint) {
+				icon = &breakpointIcon_;
+			}
+
+			if (icon) {
+				return *icon;
+			}
+
+			// This acts as a dummy icon so even addresses with no icon will be aligned properly
+			return QColor(0, 0, 0, 0);
+		}
 		default:
 			return QVariant();
 		}
@@ -206,6 +240,20 @@ void BookmarksModel::setType(const QModelIndex &index, const QString &type) {
 	bookmark.type = bookmarkStringToType(type);
 
 	Q_EMIT dataChanged(index, index);
+}
+
+/**
+ * @brief BookmarksModel::updateList
+ */
+void BookmarksModel::updateList() {
+	// Every time the disassembly view changes, all the bookmark data is invalidated.
+	// This is not super expensive (unless you have a million bookmarks) but is not
+	// optimal either. Ideally we could factor out eip updates with the signalUpdated
+	// signal, and breakpoint updates with the toggleBreakPoint signal, but the latter
+	// can't use the SIGNAL/SLOT macros which means Debugger.h would need to be moved
+	// into the include directory.
+	beginResetModel();
+	endResetModel();
 }
 
 /**

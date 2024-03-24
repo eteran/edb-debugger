@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 #include <QAbstractItemModel>
 #include <QVector>
+#include <QIcon>
 
 namespace BookmarksPlugin {
 
@@ -88,12 +89,16 @@ public Q_SLOTS:
 	void deleteBookmark(const QModelIndex &index);
 	void setComment(const QModelIndex &index, const QString &comment);
 	void setType(const QModelIndex &index, const QString &type);
+	void updateList();
 
 public:
 	[[nodiscard]] const QVector<Bookmark> &bookmarks() const { return bookmarks_; }
 
 private:
 	QVector<Bookmark> bookmarks_;
+	QIcon breakpointIcon_;
+	QIcon currentIcon_;
+	QIcon currentBpIcon_;
 };
 
 }
