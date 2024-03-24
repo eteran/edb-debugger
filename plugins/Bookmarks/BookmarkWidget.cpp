@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "BookmarksModel.h"
 #include "Expression.h"
 #include "edb.h"
+#include "IBreakpoint.h"
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
@@ -45,6 +46,9 @@ BookmarkWidget::BookmarkWidget(QWidget *parent, Qt::WindowFlags f)
 	connect(ui.buttonAdd, &QPushButton::clicked, this, &BookmarkWidget::buttonAddClicked);
 	connect(ui.buttonDel, &QPushButton::clicked, this, &BookmarkWidget::buttonDelClicked);
 	connect(ui.buttonClear, &QPushButton::clicked, this, &BookmarkWidget::buttonClearClicked);
+
+	toggleBreakpointAction_      = createAction(tr("&Toggle Breakpoint"), QKeySequence(tr("B")), &BookmarkWidget::toggleBreakpoint);
+	conditionalBreakpointAction_ = createAction(tr("Add &Conditional Breakpoint"), QKeySequence(tr("Shift+B")), &BookmarkWidget::addConditionalBreakpoint);
 }
 
 /**
@@ -125,6 +129,44 @@ void BookmarkWidget::buttonClearClicked() {
 }
 
 /**
+ * @brief BookmarkWidget::toggleBreakpoint
+ */
+void BookmarkWidget::toggleBreakpoint() {
+
+	const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
+	const QModelIndexList selections          = selModel->selectedRows();
+
+	for (const auto index : selections) {
+		auto item = static_cast<BookmarksModel::Bookmark *>(index.internalPointer());
+		edb::v1::toggle_breakpoint(item->address);
+	}
+}
+
+/**
+ * @brief BookmarkWidget::addConditionalBreakpoint
+ */
+void BookmarkWidget::addConditionalBreakpoint() {
+	
+	const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
+	const QModelIndexList selections          = selModel->selectedRows();
+
+	if (selections.size() == 1) {
+		bool ok;
+		const QString condition = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, QString(), &ok);
+		auto item = static_cast<BookmarksModel::Bookmark *>(selections[0].internalPointer());
+
+		if (ok) {
+			if (std::shared_ptr<IBreakpoint> bp = edb::v1::create_breakpoint(item->address)) {
+				if (!condition.isEmpty()) {
+					bp->condition = condition;
+				}
+			}
+		}
+	}
+}
+
+
+/**
  * @brief BookmarkWidget::addAddress
  * @param address
  * @param type
@@ -186,6 +228,8 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 	menu.addSeparator();
 	QAction *const actionComment = menu.addAction(tr("&Set Comment"));
 	QAction *const actionType    = menu.addAction(tr("Set &Type"));
+	menu.addAction(toggleBreakpointAction_);
+	menu.addAction(conditionalBreakpointAction_);
 	QAction *const chosen        = menu.exec(ui.tableView->mapToGlobal(pos));
 
 	if (chosen == actionAdd) {
@@ -231,6 +275,10 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 				}
 			}
 		}
+	} else if (chosen == toggleBreakpointAction_) {
+		toggleBreakpoint();
+	} else if (chosen == conditionalBreakpointAction_) {
+		addConditionalBreakpoint();
 	}
 }
 
@@ -241,6 +289,18 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 QList<BookmarksModel::Bookmark> BookmarkWidget::entries() const {
 	const QVector<BookmarksModel::Bookmark> &bookmarks = model_->bookmarks();
 	return bookmarks.toList();
+}
+
+// This is copied from Debugger::createAction, so really there should either be a class that implements
+// this that both inherit from, or this should be a generic function that takes the QObject* to act upon
+// as a parameter.
+template <class F>
+QAction *BookmarkWidget::createAction(const QString &text, const QKeySequence &keySequence, F func) {
+	auto action = new QAction(text, this);
+	action->setShortcut(keySequence);
+	addAction(action);
+	connect(action, &QAction::triggered, this, func);
+	return action;
 }
 
 }

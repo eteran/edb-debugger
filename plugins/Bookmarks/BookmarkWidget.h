@@ -50,10 +50,18 @@ private:
 	void buttonAddClicked();
 	void buttonDelClicked();
 	void buttonClearClicked();
+	void toggleBreakpoint();
+	void addConditionalBreakpoint();
+
+private:
+	template <class F>
+	QAction *createAction(const QString &text, const QKeySequence &keySequence, F func);
 
 private:
 	Ui::BookmarkWidget ui;
 	BookmarksModel *model_ = nullptr;
+	QAction *toggleBreakpointAction_;
+	QAction *conditionalBreakpointAction_;
 };
 
 }
