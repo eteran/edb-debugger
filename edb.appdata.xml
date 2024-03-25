@@ -1,19 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2014 Evan Teran <evan.teran@gmail.com> -->
-<application>
-	<id type="desktop">edb.desktop</id>
-	<metadata_license>CC0</metadata_license>
-	<project_license>GPL-2.0</project_license>
-	<name>edb</name>
-	<summary>A reverse engineer's debugger</summary>
-	<description>
-		<p>edb is a cross platform x86/x86-64 debugger. It was inspired by OllyDbg, but aims to function on x86 and x86-64 as well as multiple OS's.</p>
-		<p>Linux is the only officially supported platform at the moment, but FreeBSD, OpenBSD, OSX and Windows ports are underway with varying degrees of functionality.</p>
-	</description>
-	<screenshots>
-		<screenshot type="default" width="1121" height="839">http://codef00.com/img/debugger.png</screenshot>
-	</screenshots>
-	<url type="homepage">https://github.com/eteran/edb-debugger</url>
-	<updatecontact>evan.teran_at_gmail.com</updatecontact>
-</application>
-
+<!-- Copyright 2024 Evan Teran <evan.teran@gmail.com> -->
+<component type="desktop">
+    <id>io.github.eteran.edb-debugger</id>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-2.0</project_license>
+    <name>edb</name>
+    <summary>Reverse engineer's debugger</summary>
+<!--
+    <developer id="io.github.eteran">
+   	 <name>edb-debugger</name>
+    </developer>
+-->
+    <developer_name>edb-debugger</developer_name>
+    <description>
+		<p>edb is a cross platform x86/x86-64 debugger. It was inspired by OllyDbg, 
+		   but aims to function on x86 and x86-64 as well as multiple OS's.
+		</p>
+		<p>Linux is the only officially supported platform at the moment, but FreeBSD, 
+                   OpenBSD, OSX and Windows ports are underway with varying degrees of functionality.
+ 		</p>
+    </description>
+    <screenshots>
+        <screenshot type="default" width="1121" height="839">
+		<image>http://codef00.com/img/debugger.png</image>
+		<caption>Main Window, with disassembly, data, stack and registers</caption>
+	</screenshot>
+    </screenshots>
+    <update_contact>evan.teran_at_gmail.com</update_contact>
+    <url type="homepage">https://github.com/eteran/edb-debugger</url>
+    <launchable type="desktop-id">edb.desktop</launchable>
+    <provides>
+        <binary>edb</binary>
+    </provides>
+    <content_rating type="oars-1.1">
+        <content_attribute id="social-info">mild</content_attribute>
+    </content_rating>
+    <releases>
+	<release version="1.5.0" date="2024-03-22"></release>
+        <release version="1.4.0" date="2023-06-30"></release>
+    </releases>
+</component>
