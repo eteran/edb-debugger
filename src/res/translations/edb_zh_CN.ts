@@ -1584,7 +1584,7 @@ Git Commit: &lt;a href=&quot;https://github.com/eteran/edb-debugger/commit/%3&qu
     </message>
     <message>
         <location filename="../../DialogOptions.ui" line="575"/>
-        <source>/usr/bin/xterm</source>
+        <source>xterm</source>
         <translation></translation>
     </message>
     <message>

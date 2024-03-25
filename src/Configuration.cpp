@@ -133,7 +133,7 @@ void Configuration::readSettings() {
 	find_main               = settings.value("debugger.find_main.enabled", true).toBool();
 	min_string_length       = settings.value("debugger.string_min", 4).value<uint>();
 	tty_enabled             = settings.value("debugger.terminal.enabled", true).toBool();
-	tty_command             = settings.value("debugger.terminal.command", "/usr/bin/xterm").toString();
+	tty_command             = settings.value("debugger.terminal.command", "xterm").toString();
 	remove_stale_symbols    = settings.value("debugger.remove_stale_symbols.enabled", true).toBool();
 	disableASLR             = settings.value("debugger.disableASLR.enabled", false).toBool();
 	disableLazyBinding      = settings.value("debugger.disableLazyBinding.enabled", false).toBool();
