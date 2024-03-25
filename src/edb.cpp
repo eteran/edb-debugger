@@ -1304,6 +1304,20 @@ address_t current_data_view_address() {
 }
 
 //------------------------------------------------------------------------------
+// Name: instruction_pointer_address
+// Desc: Returns the address pointed to by the instruction pointer.
+//------------------------------------------------------------------------------
+address_t instruction_pointer_address() {
+	if (IProcess *process = debugger_core->process()) {
+		State state;
+		process->currentThread()->getState(&state);
+		return state.instructionPointer();
+	}
+
+	return address_t{};
+}
+
+//------------------------------------------------------------------------------
 // Name: set_status
 // Desc:
 //------------------------------------------------------------------------------

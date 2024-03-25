@@ -98,6 +98,7 @@ EDB_EXPORT void set_breakpoint_condition(address_t address, const QString &condi
 EDB_EXPORT void toggle_breakpoint(address_t address);
 
 EDB_EXPORT address_t current_data_view_address();
+EDB_EXPORT address_t instruction_pointer_address();
 
 // change what the various views show
 EDB_EXPORT bool dump_data_range(address_t address, address_t end_address, bool new_tab);
