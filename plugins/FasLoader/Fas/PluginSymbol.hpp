@@ -18,7 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-
 #ifndef FAS_PLUGIN_SYMBOL_H_
 #define FAS_PLUGIN_SYMBOL_H_
 

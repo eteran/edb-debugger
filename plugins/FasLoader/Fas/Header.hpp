@@ -18,7 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-
 #ifndef FAS_HEADER_H_
 #define FAS_HEADER_H_
 

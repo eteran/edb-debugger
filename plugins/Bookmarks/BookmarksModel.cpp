@@ -75,7 +75,7 @@ QVariant BookmarksModel::data(const QModelIndex &index, int role) const {
 			// Return the address with symbol name, if there is one
 			const QString symname = edb::v1::find_function_symbol(bookmark.address);
 			const QString address = edb::v1::format_pointer(bookmark.address);
-			
+
 			if (!symname.isEmpty()) {
 				return tr("%1 <%2>").arg(address, symname);
 			}
@@ -107,7 +107,7 @@ QVariant BookmarksModel::data(const QModelIndex &index, int role) const {
 			// TODO: This is mostly copied from QDisassemblyView::drawSidebarElements, and both
 			// should really be factored out into a common location (although this uses icons
 			// and the other uses SVG renderers and painting).
-			const bool is_eip = (bookmark.address == edb::v1::instruction_pointer_address());
+			const bool is_eip         = (bookmark.address == edb::v1::instruction_pointer_address());
 			const bool has_breakpoint = (edb::v1::find_breakpoint(bookmark.address) != nullptr);
 
 			const QIcon *icon = nullptr;

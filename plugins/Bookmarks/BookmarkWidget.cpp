@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "BookmarkWidget.h"
 #include "BookmarksModel.h"
 #include "Expression.h"
-#include "edb.h"
 #include "IBreakpoint.h"
+#include "edb.h"
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
@@ -146,14 +146,14 @@ void BookmarkWidget::toggleBreakpoint() {
  * @brief BookmarkWidget::addConditionalBreakpoint
  */
 void BookmarkWidget::addConditionalBreakpoint() {
-	
+
 	const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 	const QModelIndexList selections          = selModel->selectedRows();
 
 	if (selections.size() == 1) {
 		bool ok;
 		const QString condition = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, QString(), &ok);
-		auto item = static_cast<BookmarksModel::Bookmark *>(selections[0].internalPointer());
+		auto item               = static_cast<BookmarksModel::Bookmark *>(selections[0].internalPointer());
 
 		if (ok) {
 			if (std::shared_ptr<IBreakpoint> bp = edb::v1::create_breakpoint(item->address)) {
@@ -164,7 +164,6 @@ void BookmarkWidget::addConditionalBreakpoint() {
 		}
 	}
 }
-
 
 /**
  * @brief BookmarkWidget::addAddress
@@ -230,7 +229,7 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 	QAction *const actionType    = menu.addAction(tr("Set &Type"));
 	menu.addAction(toggleBreakpointAction_);
 	menu.addAction(conditionalBreakpointAction_);
-	QAction *const chosen        = menu.exec(ui.tableView->mapToGlobal(pos));
+	QAction *const chosen = menu.exec(ui.tableView->mapToGlobal(pos));
 
 	if (chosen == actionAdd) {
 		buttonAddClicked();

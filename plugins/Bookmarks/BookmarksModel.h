@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Types.h"
 #include <QAbstractItemModel>
-#include <QVector>
 #include <QIcon>
+#include <QVector>
 
 namespace BookmarksPlugin {
 
