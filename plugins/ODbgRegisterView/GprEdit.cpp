@@ -20,17 +20,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "QULongValidator.h"
 #include "util/Font.h"
 #include <QApplication>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 #include <cmath>
 #include <cstring>
 
 namespace ODbgRegisterView {
 namespace {
 
-const QRegExpValidator byteHexValidator(QRegExp("[0-9a-fA-F]{0,2}"));
-const QRegExpValidator wordHexValidator(QRegExp("[0-9a-fA-F]{0,4}"));
-const QRegExpValidator dwordHexValidator(QRegExp("[0-9a-fA-F]{0,8}"));
-const QRegExpValidator qwordHexValidator(QRegExp("[0-9a-fA-F]{0,16}"));
+const QRegularExpressionValidator byteHexValidator(QRegularExpression("[0-9a-fA-F]{0,2}"));
+const QRegularExpressionValidator wordHexValidator(QRegularExpression("[0-9a-fA-F]{0,4}"));
+const QRegularExpressionValidator dwordHexValidator(QRegularExpression("[0-9a-fA-F]{0,8}"));
+const QRegularExpressionValidator qwordHexValidator(QRegularExpression("[0-9a-fA-F]{0,16}"));
 const QLongValidator byteSignedValidator(INT8_MIN, INT8_MAX);
 const QLongValidator wordSignedValidator(INT16_MIN, INT16_MAX);
 const QLongValidator dwordSignedValidator(INT32_MIN, INT32_MAX);
@@ -40,7 +40,7 @@ const QULongValidator wordUnsignedValidator(0, UINT16_MAX);
 const QULongValidator dwordUnsignedValidator(0, UINT32_MAX);
 const QULongValidator qwordUnsignedValidator(0, UINT64_MAX);
 
-const std::map<int, const QRegExpValidator *> hexValidators = {
+const std::map<int, const QRegularExpressionValidator *> hexValidators = {
 	{1, &byteHexValidator},
 	{2, &wordHexValidator},
 	{4, &dwordHexValidator},

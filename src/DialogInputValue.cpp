@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 
 #include <QDebug>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 
 #include <limits>
 
@@ -37,7 +37,7 @@ DialogInputValue::DialogInputValue(QWidget *parent, Qt::WindowFlags f)
 	ui.setupUi(this);
 
 	// Apply some defaults
-	ui.hexInput->setValidator(new QRegExpValidator(QRegExp("[A-Fa-f0-9]{0,16}"), this));
+	ui.hexInput->setValidator(new QRegularExpressionValidator(QRegularExpression("[A-Fa-f0-9]{0,16}"), this));
 	ui.signedInput->setValidator(new QLongValidator(std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max(), this));
 	ui.unsignedInput->setValidator(new QULongValidator(0, std::numeric_limits<unsigned long long>::max(), this));
 }
@@ -72,7 +72,7 @@ void DialogInputValue::setValue(Register &reg) {
 	mask_                           = unsignedMax;
 	valueLength_                    = reg.bitSize() / 8;
 
-	ui.hexInput->setValidator(new QRegExpValidator(QRegExp(regex), this));
+	ui.hexInput->setValidator(new QRegularExpressionValidator(QRegularExpression(regex), this));
 	ui.signedInput->setValidator(new QLongValidator(signedMin, signedMax, this));
 	ui.unsignedInput->setValidator(new QULongValidator(0, unsignedMax, this));
 }

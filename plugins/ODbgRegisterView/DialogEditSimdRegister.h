@@ -31,7 +31,7 @@ class QDialogButtonBox;
 class QHBoxLayout;
 class QLongValidator;
 class QRadioButton;
-class QRegExpValidator;
+class QRegularExpressionValidator;
 class QULongValidator;
 class QValidator;
 
@@ -128,10 +128,10 @@ private:
 	std::array<NumberEdit *, NumBytes> bytes_;
 	std::array<QLabel *, NumBytes> columnLabels_;
 
-	QRegExpValidator *byteHexValidator_;
-	QRegExpValidator *wordHexValidator_;
-	QRegExpValidator *dwordHexValidator_;
-	QRegExpValidator *qwordHexValidator_;
+	QRegularExpressionValidator *byteHexValidator_;
+	QRegularExpressionValidator *wordHexValidator_;
+	QRegularExpressionValidator *dwordHexValidator_;
+	QRegularExpressionValidator *qwordHexValidator_;
 
 	QLongValidator *byteSignedValidator_;
 	QLongValidator *wordSignedValidator_;

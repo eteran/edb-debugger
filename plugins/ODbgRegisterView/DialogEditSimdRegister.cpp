@@ -31,7 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLineEdit>
 #include <QRadioButton>
 #include <QRegExp>
-#include <QRegExpValidator>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 #include <cstring>
 #include <limits>
 #include <type_traits>
@@ -56,10 +57,10 @@ void DialogEditSimdRegister::setupEntries(const QString &label, std::array<Numbe
 
 DialogEditSimdRegister::DialogEditSimdRegister(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f),
-	  byteHexValidator_(new QRegExpValidator(QRegExp("[0-9a-fA-F]{0,2}"), this)),
-	  wordHexValidator_(new QRegExpValidator(QRegExp("[0-9a-fA-F]{0,4}"), this)),
-	  dwordHexValidator_(new QRegExpValidator(QRegExp("[0-9a-fA-F]{0,8}"), this)),
-	  qwordHexValidator_(new QRegExpValidator(QRegExp("[0-9a-fA-F]{0,16}"), this)),
+	  byteHexValidator_(new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{0,2}"), this)),
+	  wordHexValidator_(new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{0,4}"), this)),
+	  dwordHexValidator_(new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{0,8}"), this)),
+	  qwordHexValidator_(new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{0,16}"), this)),
 	  byteSignedValidator_(new QLongValidator(INT8_MIN, INT8_MAX, this)),
 	  wordSignedValidator_(new QLongValidator(INT16_MIN, INT16_MAX, this)),
 	  dwordSignedValidator_(new QLongValidator(INT32_MIN, INT32_MAX, this)),

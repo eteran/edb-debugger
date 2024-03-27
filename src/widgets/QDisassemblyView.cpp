@@ -576,7 +576,7 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
 
 				const bool showSymbolicAddresses = edb::v1::config().show_symbolic_addresses;
 
-				static const QRegExp addrPattern(QLatin1String("#?0x[0-9a-fA-F]+"));
+				static const QRegularExpression addrPattern(QLatin1String("#?0x[0-9a-fA-F]+"));
 				const edb::address_t target = oper->imm;
 
 				const bool showLocalModuleNames = edb::v1::config().show_local_module_name_in_jump_targets;

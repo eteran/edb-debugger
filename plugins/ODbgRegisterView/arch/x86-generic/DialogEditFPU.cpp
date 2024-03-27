@@ -25,7 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QRegExp>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 #include <QVBoxLayout>
 #include <array>
 #include <cmath>
@@ -95,7 +96,7 @@ DialogEditFPU::DialogEditFPU(QWidget *parent, Qt::WindowFlags f)
 	connect(floatEntry_, &Float80Edit::textEdited, this, &DialogEditFPU::onFloatEdited);
 	connect(hexEntry_, &QLineEdit::textEdited, this, &DialogEditFPU::onHexEdited);
 
-	hexEntry_->setValidator(new QRegExpValidator(QRegExp("[0-9a-fA-F ]{,20}"), this));
+	hexEntry_->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F ]{,20}"), this));
 	connect(floatEntry_, &Float80Edit::defocussed, this, &DialogEditFPU::updateFloatEntry);
 
 	hexEntry_->installEventFilter(this);

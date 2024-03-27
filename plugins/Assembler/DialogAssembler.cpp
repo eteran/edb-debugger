@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QProcess>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QTemporaryFile>
 #include <QTextDocument>
@@ -104,12 +104,14 @@ QString fixup_syntax(QString insn) {
 		"tbyte",
 		"xmmword",
 		"ymmword",
-		"zmmword"};
+		"zmmword",
+	};
 
 	for (const QString &size : sizes) {
 		const QString replacement = opSizes.attribute(size);
 		if (!replacement.isEmpty()) {
-			insn.replace(QRegExp("\\b" + size + "\\b"), replacement);
+			const QRegularExpression re("\\b" + size + "\\b");
+			insn.replace(re, replacement);
 		}
 	}
 
