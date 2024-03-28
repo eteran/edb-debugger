@@ -1,11 +1,11 @@
-cmake_minimum_required (VERSION 3.1)
+cmake_minimum_required (VERSION 3.15)
 include("GNUInstallDirs")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(PluginName "DebuggerCore")
+set(PLUGIN_NAME "DebuggerCore")
 
 find_package(Qt5 5.0.0 REQUIRED Widgets)
 
@@ -53,7 +53,7 @@ elseif(TARGET_PLATFORM_WINDOWS)
 		${PLUGIN_INCLUDES}
 		win32
 	)
-	
+
 	set(DebuggerCore_SRCS
 		${DebuggerCore_SRCS}
 		win32/DebuggerCore.cpp
@@ -99,14 +99,14 @@ if(TARGET_ARCH_FAMILY_X86)
 		${PLUGIN_INCLUDES}
 		arch/x86-generic
 	)
-	
+
 	set(DebuggerCore_SRCS
 		${DebuggerCore_SRCS}
 		arch/x86-generic/Breakpoint.cpp
 		arch/x86-generic/Breakpoint.h
 	)
 
-    if(TARGET_PLATFORM_LINUX)	
+    if(TARGET_PLATFORM_LINUX)
 		set(PLUGIN_INCLUDES
 			${PLUGIN_INCLUDES}
 			unix/linux/arch/x86-generic
@@ -136,7 +136,7 @@ if(TARGET_ARCH_FAMILY_ARM)
         )
 
         if(TARGET_PLATFORM_LINUX)
-		
+
 			set(PLUGIN_INCLUDES
 				${PLUGIN_INCLUDES}
 				unix/linux/arch/arm-generic
@@ -152,21 +152,24 @@ if(TARGET_ARCH_FAMILY_ARM)
 
 endif()
 
-add_library(${PluginName} SHARED ${DebuggerCore_SRCS} )
+add_library(${PLUGIN_NAME} SHARED ${DebuggerCore_SRCS} )
 
-target_include_directories(${PluginName} PRIVATE
+target_include_directories(${PLUGIN_NAME} PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${PLUGIN_INCLUDES}
 )
 
-target_link_libraries(${PluginName} Qt5::Widgets PE ELF edb)
+target_link_libraries(${PLUGIN_NAME} Qt5::Widgets PE ELF edb)
 
-install (TARGETS ${PluginName} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
+install (TARGETS ${PLUGIN_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
 
-target_add_warnings(${PluginName})
+target_add_warnings(${PLUGIN_NAME})
 
-set_property(TARGET ${PluginName} PROPERTY CXX_EXTENSIONS OFF)
-set_property(TARGET ${PluginName} PROPERTY CXX_STANDARD 17)
-set_property(TARGET ${PluginName} PROPERTY CXX_STANDARD_REQUIRED ON)
-set_property(TARGET ${PluginName} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-set_property(TARGET ${PluginName} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+set_target_properties(${PLUGIN_NAME}
+    PROPERTIES
+    CXX_EXTENSIONS OFF
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+	LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+	RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+)

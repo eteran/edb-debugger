@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.1)
+cmake_minimum_required (VERSION 3.15)
 include("GNUInstallDirs")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

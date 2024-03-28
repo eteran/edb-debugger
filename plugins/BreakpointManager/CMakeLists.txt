@@ -1,27 +1,30 @@
-cmake_minimum_required (VERSION 3.1)
+cmake_minimum_required (VERSION 3.15)
 include("GNUInstallDirs")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(PluginName "BreakpointManager")
+set(PLUGIN_NAME "BreakpointManager")
 
 find_package(Qt5 5.0.0 REQUIRED Widgets)
 
-add_library(${PluginName} SHARED
+add_library(${PLUGIN_NAME} SHARED
 	BreakpointManager.cpp
 	BreakpointManager.h
 )
 
-target_link_libraries(${PluginName} Qt5::Widgets edb)
+target_link_libraries(${PLUGIN_NAME} Qt5::Widgets edb)
 
-install (TARGETS ${PluginName} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
+install (TARGETS ${PLUGIN_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
 
-target_add_warnings(${PluginName})
+target_add_warnings(${PLUGIN_NAME})
 
-set_property(TARGET ${PluginName} PROPERTY CXX_EXTENSIONS OFF)
-set_property(TARGET ${PluginName} PROPERTY CXX_STANDARD 17)
-set_property(TARGET ${PluginName} PROPERTY CXX_STANDARD_REQUIRED ON)
-set_property(TARGET ${PluginName} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-set_property(TARGET ${PluginName} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+set_target_properties(${PLUGIN_NAME}
+    PROPERTIES
+    CXX_EXTENSIONS OFF
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+	LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+	RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+)
