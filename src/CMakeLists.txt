@@ -121,9 +121,6 @@ set(edb_SRCS
 	capstone-edb/include/Operand.h
 	edb.cpp
 	main.cpp
-	qhexview/QHexView
-	qhexview/qhexview.cpp
-	qhexview/qhexview.h
 	session/SessionError.cpp
 	session/SessionError.h
 	session/SessionManager.cpp
@@ -282,6 +279,7 @@ if (NOT DEFINED DEFAULT_PLUGIN_DIR)
 	message(STATUS "Using default value of EDB Plugin directory")
 	set(DEFAULT_PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb")
 endif()
+
 target_compile_definitions(edb PRIVATE -DDEFAULT_PLUGIN_PATH="${DEFAULT_PLUGIN_DIR}")
 
 target_link_libraries(edb
@@ -290,25 +288,28 @@ target_link_libraries(edb
 	Qt5::Xml
 	Qt5::XmlPatterns
 	Qt5::Svg
+	QHexView
 	${DOUBLE_CONVERSION_LIBRARIES}
 )
 
 target_include_directories (edb PRIVATE
 	"capstone-edb"
-	"qhexview"
 	"widgets"
 	"session"
 )
-
 
 target_add_warnings(edb)
 
 install (TARGETS edb DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-set_property(TARGET edb PROPERTY CXX_EXTENSIONS OFF)
-set_property(TARGET edb PROPERTY CXX_STANDARD 17)
-set_property(TARGET edb PROPERTY CXX_STANDARD_REQUIRED ON)
-set_property(TARGET edb PROPERTY ENABLE_EXPORTS TRUE)
-set_property(TARGET edb PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+set_target_properties(edb
+    PROPERTIES
+    CXX_EXTENSIONS OFF
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+	ENABLE_EXPORTS TRUE
+	RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+)
 
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/test")
+add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/qhexview")
