@@ -17,7 +17,7 @@ jobs:
       - name: Install Dependencies
         run: sudo apt-get install -y libcapstone-dev libgraphviz-dev
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -39,7 +39,7 @@ jobs:
 #  build_windows:
 #    runs-on: windows-latest
 #    steps:
-#    - uses: actions/checkout@v2
+#    - uses: actions/checkout@v4
 #    - uses: MasterQ32/install-qt-action@master
 #      with:
 #        version: '5.15.0'
