@@ -377,6 +377,8 @@ Debugger::Debugger(QWidget *parent)
 	// connect the timer to the debug event
 	connect(timer_, &QTimer::timeout, this, &Debugger::nextDebugEvent);
 
+	connect(this, &Debugger::debugEventArrived, this, &Debugger::handleDebugEvent);
+
 	// create a context menu for the tab bar as well
 	connect(tabWidget_, &TabWidget::customContextMenuRequested, this, &Debugger::tabContextMenu);
 
@@ -3533,80 +3535,75 @@ void Debugger::tabContextMenu(int index, const QPoint &pos) {
 	updateUi();
 }
 
+void Debugger::handleDebugEvent(const std::shared_ptr<IDebugEvent> e) {
+	lastEvent_ = e;
+
+	// TODO(eteran): disable this in favor of only doing it on library load events
+	//               once we are confident. We should be able to just enclose it inside
+	//               an "if(!dynamic_info_bp_set_) {" test (since we still want to
+	//               do this when the hook isn't set.
+	edb::v1::memory_regions().sync();
+
+#if defined(Q_OS_LINUX)
+	if (!dynamicInfoBreakpointSet_) {
+		if (IProcess *process = edb::v1::debugger_core->process()) {
+			if (debugPointer_ == 0) {
+				if ((debugPointer_ = process->debugPointer()) != 0) {
+					edb::address_t r_brk = edb::v1::debuggeeIs32Bit() ? find_linker_hook_address<uint32_t>(process, debugPointer_) : find_linker_hook_address<uint64_t>(process, debugPointer_);
+
+					if (r_brk) {
+						// TODO(eteran): this is equivalent to ld-2.23.so!_dl_debug_state
+						// maybe we should prefer setting this by symbol if possible?
+						if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(r_brk)) {
+							bp->setInternal(true);
+							bp->tag                   = ld_loader_tag;
+							dynamicInfoBreakpointSet_ = true;
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
+
+	Q_EMIT debugEvent();
+
+	const edb::EventStatus status = edb::v1::execute_debug_event_handlers(e);
+	switch (status) {
+	case edb::DEBUG_STOP:
+		updateUi();
+		updateMenuState(edb::v1::debugger_core->process() ? Paused : Terminated);
+		break;
+	case edb::DEBUG_CONTINUE:
+		resumeExecution(IgnoreException, Run, ResumeFlag::Forced);
+		break;
+	case edb::DEBUG_CONTINUE_BP:
+		resumeExecution(IgnoreException, Run, ResumeFlag::None);
+		break;
+	case edb::DEBUG_CONTINUE_STEP:
+		resumeExecution(IgnoreException, Step, ResumeFlag::Forced);
+		break;
+	case edb::DEBUG_EXCEPTION_NOT_HANDLED:
+		resumeExecution(PassException, Run, ResumeFlag::Forced);
+		break;
+	case edb::DEBUG_NEXT_HANDLER:
+		// NOTE(eteran): I don't think this is reachable...
+		break;
+	}
+}
+
 //------------------------------------------------------------------------------
-// Name: next_debug_event
+// Name: nextDebugEvent
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::nextDebugEvent() {
 
 	using namespace std::chrono_literals;
 
-	// TODO(eteran): come up with a nice system to inject a debug event
-	//               into the system, for example on windows, we want
-	//               to deliver real "memory map updated" events, but
-	//               on linux, (at least for now), I would want to send
-	//               a fake one before every event so it is always up to
-	//               date.
-
 	Q_ASSERT(edb::v1::debugger_core);
-
-	if (std::shared_ptr<IDebugEvent> e = edb::v1::debugger_core->waitDebugEvent(10ms)) {
-
-		lastEvent_ = e;
-
-		// TODO(eteran): disable this in favor of only doing it on library load events
-		//               once we are confident. We should be able to just enclose it inside
-		//               an "if(!dynamic_info_bp_set_) {" test (since we still want to
-		//               do this when the hook isn't set.
-		edb::v1::memory_regions().sync();
-
-#if defined(Q_OS_LINUX)
-		if (!dynamicInfoBreakpointSet_) {
-			if (IProcess *process = edb::v1::debugger_core->process()) {
-				if (debugPointer_ == 0) {
-					if ((debugPointer_ = process->debugPointer()) != 0) {
-						edb::address_t r_brk = edb::v1::debuggeeIs32Bit() ? find_linker_hook_address<uint32_t>(process, debugPointer_) : find_linker_hook_address<uint64_t>(process, debugPointer_);
-
-						if (r_brk) {
-							// TODO(eteran): this is equivalent to ld-2.23.so!_dl_debug_state
-							// maybe we should prefer setting this by symbol if possible?
-							if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(r_brk)) {
-								bp->setInternal(true);
-								bp->tag                   = ld_loader_tag;
-								dynamicInfoBreakpointSet_ = true;
-							}
-						}
-					}
-				}
-			}
-		}
-#endif
-
-		Q_EMIT debugEvent();
-
-		const edb::EventStatus status = edb::v1::execute_debug_event_handlers(e);
-		switch (status) {
-		case edb::DEBUG_STOP:
-			updateUi();
-			updateMenuState(edb::v1::debugger_core->process() ? Paused : Terminated);
-			break;
-		case edb::DEBUG_CONTINUE:
-			resumeExecution(IgnoreException, Run, ResumeFlag::Forced);
-			break;
-		case edb::DEBUG_CONTINUE_BP:
-			resumeExecution(IgnoreException, Run, ResumeFlag::None);
-			break;
-		case edb::DEBUG_CONTINUE_STEP:
-			resumeExecution(IgnoreException, Step, ResumeFlag::Forced);
-			break;
-		case edb::DEBUG_EXCEPTION_NOT_HANDLED:
-			resumeExecution(PassException, Run, ResumeFlag::Forced);
-			break;
-		case edb::DEBUG_NEXT_HANDLER:
-			// NOTE(eteran): I don't think this is reachable...
-			break;
-		}
-	}
+	edb::v1::debugger_core->waitDebugEvent(10ms, [this](const std::shared_ptr<IDebugEvent> &e) {
+		Q_EMIT debugEventArrived(e);
+	});
 }
 
 //------------------------------------------------------------------------------

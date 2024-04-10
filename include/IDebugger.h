@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 #include <QtPlugin>
 #include <chrono>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -40,6 +41,7 @@ class Status;
 class IDebugger {
 public:
 	using BreakpointList = QHash<edb::address_t, std::shared_ptr<IBreakpoint>>;
+	using EventCallback  = std::function<void(const std::shared_ptr<IDebugEvent> &)>;
 
 public:
 	virtual ~IDebugger() = default;
@@ -84,7 +86,7 @@ public:
 
 public:
 	// basic process management
-	[[nodiscard]] virtual std::shared_ptr<IDebugEvent> waitDebugEvent(std::chrono::milliseconds msecs)                                       = 0;
+	virtual void waitDebugEvent(std::chrono::milliseconds msecs, const EventCallback &callback)                                              = 0;
 	virtual Status attach(edb::pid_t pid)                                                                                                    = 0;
 	virtual Status detach()                                                                                                                  = 0;
 	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &input, const QString &output) = 0;

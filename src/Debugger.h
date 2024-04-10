@@ -120,6 +120,7 @@ Q_SIGNALS:
 	void debugEvent();
 	void detachEvent();
 	void attachEvent();
+	void debugEventArrived(const std::shared_ptr<IDebugEvent> e);
 
 public Q_SLOTS:
 	// the auto-connected slots
@@ -217,6 +218,7 @@ private Q_SLOTS:
 	void openFile(const QString &filename, const QList<QByteArray> &args);
 	void tabContextMenu(int index, const QPoint &pos);
 	void ttyProcFinished(int exit_code, QProcess::ExitStatus exit_status);
+	void handleDebugEvent(const std::shared_ptr<IDebugEvent> e);
 
 private:
 	void closeEvent(QCloseEvent *event) override;

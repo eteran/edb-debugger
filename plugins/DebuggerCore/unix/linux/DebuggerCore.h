@@ -57,9 +57,9 @@ public:
 	Status attach(edb::pid_t pid) override;
 	Status detach() override;
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &input, const QString &output) override;
-	std::shared_ptr<IDebugEvent> waitDebugEvent(std::chrono::milliseconds msecs) override;
 	void kill() override;
 	void setIgnoredExceptions(const QList<qlonglong> &exceptions) override;
+	void waitDebugEvent(std::chrono::milliseconds msecs, const EventCallback &callback) override;
 
 public:
 	[[nodiscard]] QMap<qlonglong, QString> exceptions() const override;

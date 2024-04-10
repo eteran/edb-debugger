@@ -505,7 +505,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int statu
 		// if this was the last thread, return nullptr
 		// so we report it to the user.
 		// if this wasn't, then we should silently
-		// procceed.
+		// proceed.
 		if (!threads_.empty()) {
 			return nullptr;
 		}
@@ -641,13 +641,12 @@ Status DebuggerCore::stopThreads() {
 }
 
 /**
- * waits for a debug event, witha timeout specified in milliseconds
+ * @brief waits for a debug event, with a timeout specified in milliseconds
  *
- * @brief DebuggerCore::waitDebugEvent
  * @param msecs
- * @return nullptr if an error or timeout occurs
+ * @param callback
  */
-std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(std::chrono::milliseconds msecs) {
+void DebuggerCore::waitDebugEvent(std::chrono::milliseconds msecs, const EventCallback &callback) {
 
 	if (process_) {
 		if (!Posix::wait_for_sigchld(msecs)) {
@@ -655,12 +654,13 @@ std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(std::chrono::milliseco
 				int status;
 				const edb::tid_t tid = Posix::waitpid(thread->tid(), &status, __WALL | WNOHANG);
 				if (tid > 0) {
-					return handleEvent(tid, status);
+					if (std::shared_ptr<IDebugEvent> e = handleEvent(tid, status)) {
+						callback(e);
+					}
 				}
 			}
 		}
 	}
-	return nullptr;
 }
 
 /**

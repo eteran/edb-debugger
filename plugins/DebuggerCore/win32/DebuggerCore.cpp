@@ -150,13 +150,12 @@ bool DebuggerCore::hasExtension(uint64_t ext) const {
 }
 
 /**
- * waits for a debug event, secs is a timeout (but is not yet respected)
+ * @brief waits for a debug event, with a timeout specified in milliseconds
  *
- * @brief DebuggerCore::waitDebugEvent
  * @param msecs
- * @return null if timeout occurred
+ * @param callback
  */
-std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(std::chrono::milliseconds msecs) {
+void DebuggerCore::waitDebugEvent(std::chrono::milliseconds msecs, const EventCallback &callback) {
 	if (attached()) {
 		DEBUG_EVENT de;
 		while (WaitForDebugEvent(&de, msecs.count() == 0 ? INFINITE : msecs.count())) {
@@ -217,13 +216,13 @@ std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(std::chrono::milliseco
 				// normal event
 				auto e    = std::make_shared<PlatformEvent>();
 				e->event_ = de;
-				return e;
+				callback(e);
+				return;
 			}
 
 			process_->resume(edb::DEBUG_EXCEPTION_NOT_HANDLED);
 		}
 	}
-	return nullptr;
 }
 
 /**
