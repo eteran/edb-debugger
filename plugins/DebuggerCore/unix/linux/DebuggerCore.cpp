@@ -651,9 +651,17 @@ void DebuggerCore::waitDebugEvent(std::chrono::milliseconds msecs, const EventCa
 	if (process_) {
 		if (!Posix::wait_for_sigchld(msecs)) {
 			for (auto &thread : process_->threads()) {
-				int status;
-				const edb::tid_t tid = Posix::waitpid(thread->tid(), &status, __WALL | WNOHANG);
-				if (tid > 0) {
+
+				// NOTE(eteran): we loop because even though we got a single SIGCHLD, there may be
+				// more than one debug event waiting to be processed for a given TID. So we just collect
+				// as many as we can (which is usually zero or one), every time we get a signal
+				while (true) {
+					int status;
+					const edb::tid_t tid = Posix::waitpid(thread->tid(), &status, __WALL | WNOHANG);
+					if (tid <= 0) {
+						break;
+					}
+
 					if (std::shared_ptr<IDebugEvent> e = handleEvent(tid, status)) {
 						callback(e);
 					}

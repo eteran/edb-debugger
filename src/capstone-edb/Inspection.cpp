@@ -12,8 +12,23 @@ bool is_repeat(const Instruction &insn) {
 	return (prefixes[0] == X86_PREFIX_REP || prefixes[0] == X86_PREFIX_REPNE);
 }
 
+bool is_ud(const Instruction &insn) {
+	if (!insn) {
+		return false;
+	}
+
+	switch (insn.operation()) {
+	case X86_INS_UD0:
+	case X86_INS_UD2:
+	case X86_INS_UD2B:
+		return true;
+	default:
+		return false;
+	}
+}
+
 bool is_terminator(const Instruction &insn) {
-	return is_halt(insn) || is_jump(insn) || is_return(insn);
+	return is_halt(insn) || is_jump(insn) || is_return(insn) || is_ud(insn);
 }
 
 bool is_register(const Operand &operand) {

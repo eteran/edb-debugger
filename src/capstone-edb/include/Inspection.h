@@ -13,6 +13,7 @@ class Operand;
 EDB_EXPORT bool modifies_pc(const Instruction &insn);
 EDB_EXPORT bool is_call(const Instruction &insn);
 EDB_EXPORT bool is_halt(const Instruction &insn);
+EDB_EXPORT bool is_ud(const Instruction &insn);
 EDB_EXPORT bool is_repeat(const Instruction &insn);
 
 // Check that instruction is x86-64 syscall
