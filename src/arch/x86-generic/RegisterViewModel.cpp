@@ -380,20 +380,20 @@ QVariant RegisterViewModel::data(const QModelIndex &index, int role) const {
  */
 RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject *parent)
 	: RegisterViewModelBase::Model(parent),
-	  gprs32(addCategory(tr("General Purpose"))),
-	  gprs64(addCategory(tr("General Purpose"))),
-	  genStatusRegs32(addCategory(tr("General Status"))),
-	  genStatusRegs64(addCategory(tr("General Status"))),
-	  segRegs(addCategory(tr("Segment"))),
-	  dbgRegs32(addCategory(tr("Debug"))),
-	  dbgRegs64(addCategory(tr("Debug"))),
-	  fpuRegs32(addFPUCategory(tr("FPU"))),
-	  fpuRegs64(addFPUCategory(tr("FPU"))),
-	  mmxRegs(addSIMDCategory(tr("MMX"), MMXFormats)),
-	  sseRegs32(addSIMDCategory(tr("SSE"), SSEAVXFormats)),
-	  sseRegs64(addSIMDCategory(tr("SSE"), SSEAVXFormats)),
-	  avxRegs32(addSIMDCategory(tr("AVX"), SSEAVXFormats)),
-	  avxRegs64(addSIMDCategory(tr("AVX"), SSEAVXFormats)) {
+	  gprs32(addCategory("General Purpose")),
+	  gprs64(addCategory("General Purpose")),
+	  genStatusRegs32(addCategory("General Status")),
+	  genStatusRegs64(addCategory("General Status")),
+	  segRegs(addCategory("Segment")),
+	  dbgRegs32(addCategory("Debug")),
+	  dbgRegs64(addCategory("Debug")),
+	  fpuRegs32(addFPUCategory("FPU")),
+	  fpuRegs64(addFPUCategory("FPU")),
+	  mmxRegs(addSIMDCategory("MMX", MMXFormats)),
+	  sseRegs32(addSIMDCategory("SSE", SSEAVXFormats)),
+	  sseRegs64(addSIMDCategory("SSE", SSEAVXFormats)),
+	  avxRegs32(addSIMDCategory("AVX", SSEAVXFormats)),
+	  avxRegs64(addSIMDCategory("AVX", SSEAVXFormats)) {
 	addGPRs32(gprs32);
 	addGPRs64(gprs64);
 

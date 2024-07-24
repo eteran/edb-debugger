@@ -192,14 +192,14 @@ void add_puozdi(RegisterGroup *group, const QModelIndex &excRegIndex, const QMod
 }
 
 RegisterGroup *create_eflags(RegisterViewModelBase::Model *model, QWidget *parent) {
-	const auto catIndex = find_model_category(model, tr("General Status"));
+	const auto catIndex = find_model_category(model, "General Status");
 	if (!catIndex.isValid()) {
 		return nullptr;
 	}
 
-	auto nameIndex = find_model_register(catIndex, tr("RFLAGS"));
+	auto nameIndex = find_model_register(catIndex, "RFLAGS");
 	if (!nameIndex.isValid()) {
-		nameIndex = find_model_register(catIndex, tr("EFLAGS"));
+		nameIndex = find_model_register(catIndex, "EFLAGS");
 	}
 
 	if (!nameIndex.isValid()) {
@@ -228,7 +228,7 @@ RegisterGroup *create_eflags(RegisterViewModelBase::Model *model, QWidget *paren
 }
 
 RegisterGroup *create_expanded_eflags(RegisterViewModelBase::Model *model, QWidget *parent) {
-	const auto catIndex = find_model_category(model, tr("General Status"));
+	const auto catIndex = find_model_category(model, "General Status");
 	if (!catIndex.isValid()) {
 		return nullptr;
 	}
@@ -318,7 +318,7 @@ RegisterGroup *create_fpu_data(RegisterViewModelBase::Model *model, QWidget *par
 	constexpr int TagWidth    = 7;
 	const auto fsrIndex       = valid_index(find_model_register(catIndex, FsrName));
 
-	const QPersistentModelIndex topIndex = valid_index(find_model_register(fsrIndex, tr("TOP"), ModelValueColumn));
+	const QPersistentModelIndex topIndex = valid_index(find_model_register(fsrIndex, "TOP", ModelValueColumn));
 
 	for (int row = 0; row < FpuRegCount; ++row) {
 		int column           = 0;
