@@ -37,10 +37,10 @@ namespace {
 const BitFieldDescription fpuTagDescription = {
 	7,
 	{
-		tr("valid"),
-		tr("zero"),
-		tr("special"),
-		tr("empty"),
+		"valid",
+		"zero",
+		"special",
+		"empty",
 	},
 	{
 		tr("Tag as used"),
@@ -56,10 +56,10 @@ const BitFieldDescription fpuTagDescription = {
 const BitFieldDescription roundControlDescription = {
 	4,
 	{
-		tr("NEAR"),
-		tr("DOWN"),
-		tr("  UP"),
-		tr("ZERO"),
+		"NEAR",
+		"DOWN",
+		"  UP",
+		"ZERO",
 	},
 	{
 		tr("Round to nearest"),
@@ -72,10 +72,10 @@ const BitFieldDescription roundControlDescription = {
 const BitFieldDescription precisionControlDescription = {
 	2,
 	{
-		tr("24"),
-		tr("??"),
-		tr("53"),
-		tr("64"),
+		"24",
+		"??",
+		"53",
+		"64",
 	},
 	{
 		tr("Set 24-bit precision"),
@@ -88,10 +88,10 @@ const BitFieldDescription precisionControlDescription = {
 const BitFieldDescription debugRWDescription = {
 	5,
 	{
-		tr("EXEC"),
-		tr("WRITE"),
-		tr("  IO"),
-		tr(" R/W"),
+		"EXEC",
+		"WRITE",
+		"  IO",
+		" R/W",
 	},
 	{
 		tr("Break on execution"),
@@ -104,10 +104,10 @@ const BitFieldDescription debugRWDescription = {
 const BitFieldDescription debugLenDescription = {
 	1,
 	{
-		tr("1"),
-		tr("2"),
-		tr("8"),
-		tr("4"),
+		"1",
+		"2",
+		"8",
+		"4",
 	},
 	{
 		tr("Set 1-byte length"),
@@ -152,7 +152,7 @@ void add_precision_mode(RegisterGroup *group, const QModelIndex &index, int row,
 
 void add_puozdi(RegisterGroup *group, const QModelIndex &excRegIndex, const QModelIndex &maskRegIndex, int startRow, int startColumn) {
 
-	static const QString exceptions = tr("PUOZDI");
+	static const QString exceptions = "PUOZDI";
 
 	static const std::unordered_map<char, QString> excNames = {
 		{'P', tr("Precision")},
@@ -209,7 +209,7 @@ RegisterGroup *create_eflags(RegisterViewModelBase::Model *model, QWidget *paren
 	const auto group        = new RegisterGroup(tr("EFL"), parent);
 	constexpr int NameWidth = 3;
 	int column              = 0;
-	group->insert(0, column, new FieldWidget(tr("EFL"), group));
+	group->insert(0, column, new FieldWidget("EFL", group));
 
 	constexpr int ValueWidth = 8;
 	const auto valueIndex    = nameIndex.sibling(nameIndex.row(), ModelValueColumn);
