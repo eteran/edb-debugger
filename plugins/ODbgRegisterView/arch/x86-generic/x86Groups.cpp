@@ -37,10 +37,10 @@ namespace {
 const BitFieldDescription fpuTagDescription = {
 	7,
 	{
-		tr("valid"),
-		tr("zero"),
-		tr("special"),
-		tr("empty"),
+		"valid",
+		"zero",
+		"special",
+		"empty",
 	},
 	{
 		tr("Tag as used"),
@@ -56,10 +56,10 @@ const BitFieldDescription fpuTagDescription = {
 const BitFieldDescription roundControlDescription = {
 	4,
 	{
-		tr("NEAR"),
-		tr("DOWN"),
-		tr("  UP"),
-		tr("ZERO"),
+		"NEAR",
+		"DOWN",
+		"  UP",
+		"ZERO",
 	},
 	{
 		tr("Round to nearest"),
@@ -72,10 +72,10 @@ const BitFieldDescription roundControlDescription = {
 const BitFieldDescription precisionControlDescription = {
 	2,
 	{
-		tr("24"),
-		tr("??"),
-		tr("53"),
-		tr("64"),
+		"24",
+		"??",
+		"53",
+		"64",
 	},
 	{
 		tr("Set 24-bit precision"),
@@ -88,10 +88,10 @@ const BitFieldDescription precisionControlDescription = {
 const BitFieldDescription debugRWDescription = {
 	5,
 	{
-		tr("EXEC"),
-		tr("WRITE"),
-		tr("  IO"),
-		tr(" R/W"),
+		"EXEC",
+		"WRITE",
+		"  IO",
+		" R/W",
 	},
 	{
 		tr("Break on execution"),
@@ -104,10 +104,10 @@ const BitFieldDescription debugRWDescription = {
 const BitFieldDescription debugLenDescription = {
 	1,
 	{
-		tr("1"),
-		tr("2"),
-		tr("8"),
-		tr("4"),
+		"1",
+		"2",
+		"8",
+		"4",
 	},
 	{
 		tr("Set 1-byte length"),
@@ -152,7 +152,7 @@ void add_precision_mode(RegisterGroup *group, const QModelIndex &index, int row,
 
 void add_puozdi(RegisterGroup *group, const QModelIndex &excRegIndex, const QModelIndex &maskRegIndex, int startRow, int startColumn) {
 
-	static const QString exceptions = tr("PUOZDI");
+	static const QString exceptions = "PUOZDI";
 
 	static const std::unordered_map<char, QString> excNames = {
 		{'P', tr("Precision")},
@@ -192,14 +192,14 @@ void add_puozdi(RegisterGroup *group, const QModelIndex &excRegIndex, const QMod
 }
 
 RegisterGroup *create_eflags(RegisterViewModelBase::Model *model, QWidget *parent) {
-	const auto catIndex = find_model_category(model, tr("General Status"));
+	const auto catIndex = find_model_category(model, "General Status");
 	if (!catIndex.isValid()) {
 		return nullptr;
 	}
 
-	auto nameIndex = find_model_register(catIndex, tr("RFLAGS"));
+	auto nameIndex = find_model_register(catIndex, "RFLAGS");
 	if (!nameIndex.isValid()) {
-		nameIndex = find_model_register(catIndex, tr("EFLAGS"));
+		nameIndex = find_model_register(catIndex, "EFLAGS");
 	}
 
 	if (!nameIndex.isValid()) {
@@ -209,7 +209,7 @@ RegisterGroup *create_eflags(RegisterViewModelBase::Model *model, QWidget *paren
 	const auto group        = new RegisterGroup(tr("EFL"), parent);
 	constexpr int NameWidth = 3;
 	int column              = 0;
-	group->insert(0, column, new FieldWidget(tr("EFL"), group));
+	group->insert(0, column, new FieldWidget("EFL", group));
 
 	constexpr int ValueWidth = 8;
 	const auto valueIndex    = nameIndex.sibling(nameIndex.row(), ModelValueColumn);
@@ -228,7 +228,7 @@ RegisterGroup *create_eflags(RegisterViewModelBase::Model *model, QWidget *paren
 }
 
 RegisterGroup *create_expanded_eflags(RegisterViewModelBase::Model *model, QWidget *parent) {
-	const auto catIndex = find_model_category(model, tr("General Status"));
+	const auto catIndex = find_model_category(model, "General Status");
 	if (!catIndex.isValid()) {
 		return nullptr;
 	}
@@ -318,7 +318,7 @@ RegisterGroup *create_fpu_data(RegisterViewModelBase::Model *model, QWidget *par
 	constexpr int TagWidth    = 7;
 	const auto fsrIndex       = valid_index(find_model_register(catIndex, FsrName));
 
-	const QPersistentModelIndex topIndex = valid_index(find_model_register(fsrIndex, tr("TOP"), ModelValueColumn));
+	const QPersistentModelIndex topIndex = valid_index(find_model_register(fsrIndex, "TOP", ModelValueColumn));
 
 	for (int row = 0; row < FpuRegCount; ++row) {
 		int column           = 0;
