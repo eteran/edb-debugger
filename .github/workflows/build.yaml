@@ -11,8 +11,8 @@ env:
   BUILD_TYPE: Debug
 
 jobs:
-  build_ubuntu_20:
-    runs-on: ubuntu-20.04
+  build_ubuntu_24:
+    runs-on: ubuntu-24.04
     steps:
       - name: Install Dependencies
         run: sudo apt-get install -y libcapstone-dev libgraphviz-dev
@@ -22,7 +22,7 @@ jobs:
           submodules: true
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: "5.12.8"
 
@@ -34,7 +34,6 @@ jobs:
       - name: Build
         # Build your program with the given configuration
         run: cmake --build ${{github.workspace}}/build --parallel 4 --config ${{env.BUILD_TYPE}}
-
 # Disabled until both aqinstall and install-qt-action support the fixes…
 #  build_windows:
 #    runs-on: windows-latest
