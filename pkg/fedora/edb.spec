@@ -65,7 +65,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/%{name}.a
 * Sun March 22 2024 Evan Teran <evan.teran@gmail.com> - 1.5.0
 - Version bump
 
-* Sun July 30 2023 Evan Teran <evan.teran@gmail.com> - 1.4.0
+* Sun July 30 2025 Evan Teran <evan.teran@gmail.com> - 1.4.0
 - Version bump
 
 * Sun Dec 12 2021 Pekka Oinas <peoinas@gmail.com> - 1.3.0-2
