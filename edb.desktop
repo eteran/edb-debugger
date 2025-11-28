@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=edb
 GenericName="Evan's Debugger"
-Comment="edb is a cross platform x86/x86-64 debugger"
+Comment="edb is a cross platform AArch32/x86/x86-64 debugger"
 Exec=edb
 Icon=edb
 Terminal=false
