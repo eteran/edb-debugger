@@ -13,6 +13,9 @@ env:
 jobs:
   build_ubuntu_24:
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        QT_VERSION: [5.12.8, 5.15.2]
     steps:
       - name: Install Dependencies
         run: sudo apt-get install -y libcapstone-dev libgraphviz-dev
@@ -24,7 +27,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: "5.15"
+          version: ${{matrix.QT_VERSION}}
 
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.

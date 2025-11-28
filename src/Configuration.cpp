@@ -21,17 +21,6 @@
 
 namespace {
 
-QDataStream &operator<<(QDataStream &s, const IBreakpoint::TypeId &id) {
-	return s << static_cast<int>(id);
-}
-
-QDataStream &operator>>(QDataStream &s, IBreakpoint::TypeId &id) {
-	int value = 0;
-	s >> value;
-	id = static_cast<IBreakpoint::TypeId>(value);
-	return s;
-}
-
 //------------------------------------------------------------------------------
 // Name: getDefaultPluginPath
 // Desc: return default path for plugins
@@ -82,8 +71,6 @@ void Configuration::sendChangeNotification() {
 //------------------------------------------------------------------------------
 void Configuration::readSettings() {
 
-	qRegisterMetaTypeStreamOperators<IBreakpoint::TypeId>("IBreakpoint::TypeId");
-
 #ifdef Q_OS_WIN32
 	const QString default_font = QFont("Courier New", 8).toString();
 #elif defined(Q_OS_MACX)
@@ -127,7 +114,8 @@ void Configuration::readSettings() {
 	disableASLR             = settings.value("debugger.disableASLR.enabled", false).toBool();
 	disableLazyBinding      = settings.value("debugger.disableLazyBinding.enabled", false).toBool();
 	break_on_library_load   = settings.value("debugger.break_on_library_load_event.enabled", false).toBool();
-	default_breakpoint_type = settings.value("debugger.default_breakpoint_type", QVariant::fromValue(IBreakpoint::TypeId::Automatic)).value<IBreakpoint::TypeId>();
+	default_breakpoint_type = static_cast<IBreakpoint::TypeId>(settings.value("debugger.default_breakpoint_type", static_cast<int>(IBreakpoint::TypeId::Automatic)).value<int>());
+
 	settings.endGroup();
 
 	settings.beginGroup("Disassembly");
@@ -243,7 +231,7 @@ void Configuration::writeSettings() {
 	settings.setValue("debugger.disableASLR.enabled", disableASLR);
 	settings.setValue("debugger.disableLazyBinding.enabled", disableLazyBinding);
 	settings.setValue("debugger.break_on_library_load_event.enabled", break_on_library_load);
-	settings.setValue("debugger.default_breakpoint_type", QVariant::fromValue(default_breakpoint_type));
+	settings.setValue("debugger.default_breakpoint_type", static_cast<int>(default_breakpoint_type));
 	settings.endGroup();
 
 	settings.beginGroup("Disassembly");
