@@ -20,6 +20,7 @@
 
 namespace {
 
+#if 0
 QDataStream &operator<<(QDataStream &s, const IBreakpoint::TypeId &id) {
 	return s << static_cast<int>(id);
 }
@@ -30,6 +31,7 @@ QDataStream &operator>>(QDataStream &s, IBreakpoint::TypeId &id) {
 	id = static_cast<IBreakpoint::TypeId>(value);
 	return s;
 }
+#endif
 
 //------------------------------------------------------------------------------
 // Name: getDefaultPluginPath
@@ -86,7 +88,7 @@ void Configuration::readSettings() {
 #ifdef Q_OS_WIN32
 	const QString default_font = QFont("Courier New", 8).toString();
 #elif defined(Q_OS_MACX)
-	const QString default_font        = QFont("Courier New", 10).toString();
+	const QString default_font = QFont("Courier New", 10).toString();
 #else
 	const QString default_font = QFont("Monospace", 8).toString();
 #endif
