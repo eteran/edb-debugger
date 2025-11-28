@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2006 - 2025 Evan Teran <evan.teran@gmail.com>
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef REGISTER_VIEW_MODEL_BASE_H_20151206_
 #define REGISTER_VIEW_MODEL_BASE_H_20151206_

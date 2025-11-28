@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2006 - 2025 Evan Teran <evan.teran@gmail.com>
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 #ifndef DIALOG_XREFS_H_20191119_
 #define DIALOG_XREFS_H_20191119_
