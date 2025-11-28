@@ -5,6 +5,7 @@
  */
 
 #include "Configuration.h"
+#include "IBreakpoint.h"
 #include "edb.h"
 
 #include <QCoreApplication>
@@ -20,7 +21,6 @@
 
 namespace {
 
-#if 0
 QDataStream &operator<<(QDataStream &s, const IBreakpoint::TypeId &id) {
 	return s << static_cast<int>(id);
 }
@@ -31,7 +31,6 @@ QDataStream &operator>>(QDataStream &s, IBreakpoint::TypeId &id) {
 	id = static_cast<IBreakpoint::TypeId>(value);
 	return s;
 }
-#endif
 
 //------------------------------------------------------------------------------
 // Name: getDefaultPluginPath
