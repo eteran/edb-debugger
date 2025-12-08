@@ -50,7 +50,6 @@ DialogBinaryString::DialogBinaryString(QWidget *parent, Qt::WindowFlags f)
  * @brief DialogBinaryString::doFind
  */
 void DialogBinaryString::doFind() {
-	// TODO: Algorithm here should be Boyer-Moore for better performance
 	const QByteArray b = ui.binaryString->value();
 
 	if (!results_) {
