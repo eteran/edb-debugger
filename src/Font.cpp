@@ -14,8 +14,17 @@ QFont fromString(const QString &fontName) {
 	QFont font;
 	font.fromString(fontName);
 	font.setStyleName(QString());
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+	QT_WARNING_PUSH
+	QT_WARNING_DISABLE_DEPRECATED
+	// NOTE(eteran): unfortunately, this line seems to matter
+	// despite being marked as deprecated, and Qt doesn't suggest
+	// a meaningful alternative
 	font.setStyleStrategy(QFont::ForceIntegerMetrics);
+	QT_WARNING_POP
+#else
+	font.setHintingPreference(QFont::PreferFullHinting);
+	font.setStyleStrategy(QFont::NoFontMerging);
 #endif
 	return font;
 }
