@@ -159,7 +159,7 @@ void PlatformThread::getState(State *state) {
 		// may remain not updated. Also, this way we'll mark all the unfilled values.
 		state_impl->clear();
 
-		if (EDB_IS_64_BIT) {
+		if constexpr (EDB_IS_64_BIT) {
 			// 64-bit GETREGS call always returns 64-bit state, so use it
 			fillStateFromSimpleRegs(state_impl);
 		} else if (!fillStateFromPrStatus(state_impl)) {
