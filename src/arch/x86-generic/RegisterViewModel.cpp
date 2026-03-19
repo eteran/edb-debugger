@@ -309,7 +309,7 @@ void addMMXRegs(RegisterViewModelBase::SIMDCategory *mmxRegs) {
 	}
 }
 
-void addSSERegs(RegisterViewModelBase::SIMDCategory *sseRegs, unsigned regCount) {
+void addSSERegs(RegisterViewModelBase::SIMDCategory *sseRegs, int regCount) {
 	for (int i = 0; i < regCount; ++i) {
 		sseRegs->addRegister(std::make_unique<SSEReg>(QStringLiteral("XMM%1").arg(i), SSEAVXFormats));
 	}
@@ -317,7 +317,7 @@ void addSSERegs(RegisterViewModelBase::SIMDCategory *sseRegs, unsigned regCount)
 	sseRegs->addRegister(std::make_unique<MXCSR>("MXCSR", MXCSRDescription));
 }
 
-void addAVXRegs(RegisterViewModelBase::SIMDCategory *avxRegs, unsigned regCount) {
+void addAVXRegs(RegisterViewModelBase::SIMDCategory *avxRegs, int regCount) {
 	for (int i = 0; i < regCount; ++i) {
 		avxRegs->addRegister(std::make_unique<AVXReg>(QStringLiteral("YMM%1").arg(i), SSEAVXFormats));
 	}
@@ -428,12 +428,12 @@ void updateRegister(RegisterViewModelBase::Category *cat, int row, ValueType val
 
 void RegisterViewModel::updateGPR(int i, edb::value32 val, const QString &comment) {
 	Q_ASSERT(int(i) < gprs32->childCount());
-	updateRegister<GPR32>(gprs32, static_cast<int>(i), val, comment);
+	updateRegister<GPR32>(gprs32, i, val, comment);
 }
 
 void RegisterViewModel::updateGPR(int i, edb::value64 val, const QString &comment) {
 	Q_ASSERT(int(i) < gprs64->childCount());
-	updateRegister<GPR64>(gprs64, static_cast<int>(i), val, comment);
+	updateRegister<GPR64>(gprs64, i, val, comment);
 }
 
 void RegisterViewModel::updateIP(edb::value64 value, const QString &comment) {
@@ -470,7 +470,7 @@ RegisterViewModelBase::FPUCategory *RegisterViewModel::getFPUcat() const {
 void RegisterViewModel::updateFPUReg(int i, edb::value80 value, const QString &comment) {
 	const auto cat = getFPUcat();
 	Q_ASSERT(int(i) < cat->childCount());
-	updateRegister<FPUReg>(cat, static_cast<int>(i), value, comment);
+	updateRegister<FPUReg>(cat, i, value, comment);
 }
 
 void RegisterViewModel::updateFCR(edb::value16 value, const QString &comment) {
@@ -559,7 +559,7 @@ void RegisterViewModel::updateMMXReg(int i, edb::value64 value, const QString &c
 	if (!mmxRegs->childCount()) {
 		return;
 	}
-	updateRegister<MMXReg>(mmxRegs, static_cast<int>(i), value, comment);
+	updateRegister<MMXReg>(mmxRegs, i, value, comment);
 }
 void RegisterViewModel::invalidateMMXReg(int i) {
 	Q_ASSERT(i < MMX_REG_COUNT);
@@ -602,7 +602,7 @@ void RegisterViewModel::updateSSEReg(int i, edb::value128 value, const QString &
 	if (!sseCat->childCount()) {
 		return;
 	}
-	updateRegister<SSEReg>(sseCat, static_cast<int>(i), value, comment);
+	updateRegister<SSEReg>(sseCat, i, value, comment);
 	// To avoid showing stale data in case this is called when AVX state is supported
 	if (avxCat->childCount()) {
 		invalidate(avxCat, i);
@@ -636,9 +636,9 @@ void RegisterViewModel::updateAVXReg(int i, edb::value256 value, const QString &
 		return;
 	}
 	// update aliases
-	updateRegister<SSEReg>(sseCat, static_cast<int>(i), edb::value128(value), comment);
+	updateRegister<SSEReg>(sseCat, i, edb::value128(value), comment);
 	// update actual registers
-	updateRegister<AVXReg>(avxCat, static_cast<int>(i), value, comment);
+	updateRegister<AVXReg>(avxCat, i, value, comment);
 }
 void RegisterViewModel::invalidateAVXReg(int i) {
 	RegisterViewModelBase::Category *sseCat;
