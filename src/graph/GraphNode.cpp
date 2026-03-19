@@ -210,7 +210,7 @@ void GraphNode::drawLabel(const QString &text) {
 
 			line.setNumColumns(l.length());
 			line.setPosition(QPoint(0, y));
-			y += fm.lineSpacing();
+			y += static_cast<int>(fm.lineSpacing());
 		}
 
 		textLayout.endLayout();
