@@ -67,7 +67,7 @@ int ByteShiftArray::size() const {
 // Desc: returns and l-value version of an element in the byte array
 //------------------------------------------------------------------------------
 uint8_t &ByteShiftArray::operator[](std::size_t i) {
-	Q_ASSERT(i < data_.size());
+	Q_ASSERT(i < static_cast<std::size_t>(data_.size()));
 	return data_[static_cast<int>(i)];
 }
 
@@ -76,7 +76,7 @@ uint8_t &ByteShiftArray::operator[](std::size_t i) {
 // Desc: returns and r-value version of an element in the byte array
 //------------------------------------------------------------------------------
 uint8_t ByteShiftArray::operator[](std::size_t i) const {
-	Q_ASSERT(i < data_.size());
+	Q_ASSERT(i < static_cast<std::size_t>(data_.size()));
 	return data_[static_cast<int>(i)];
 }
 
