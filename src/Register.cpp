@@ -40,7 +40,7 @@ QString Register::toHexString() const {
 		return tr("(Error: bad register length %1 bits)").arg(bitSize_);
 	}
 
-	return value_.toHexString().right(bitSize_ / 4); // TODO: trimming should be moved to valueXX::toHexString()
+	return value_.toHexString().right(static_cast<int>(bitSize_ / 4)); // TODO: trimming should be moved to valueXX::toHexString()
 }
 
 /**

@@ -255,7 +255,7 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 
 	case FixedLengthRole:
 		if (index.column() == NAME_COLUMN) {
-			return item->name().size();
+			return static_cast<int>(item->name().size());
 		} else if (index.column() == VALUE_COLUMN) {
 			return item->valueMaxLength();
 		} else {
@@ -556,7 +556,7 @@ Category::Category(Category &&other) noexcept
 }
 
 int Category::childCount() const {
-	return registers.size();
+	return static_cast<int>(registers.size());
 }
 
 RegisterViewItem *Category::child(int row) {
@@ -596,7 +596,7 @@ bool Category::visible() const {
 
 void Category::addRegister(std::unique_ptr<AbstractRegisterItem> reg) {
 	registers.emplace_back(std::move(reg));
-	registers.back()->init(this, registers.size() - 1);
+	registers.back()->init(this, static_cast<int>(registers.size() - 1));
 }
 
 AbstractRegisterItem *Category::getRegister(std::size_t i) const {
@@ -785,7 +785,7 @@ UnderlyingType BitFieldItem<UnderlyingType>::prevValue() const {
 
 template <class UnderlyingType>
 int BitFieldItem<UnderlyingType>::valueMaxLength() const {
-	return std::ceil(length_ / 4.); // number of nibbles
+	return static_cast<int>((length_ + 3u) / 4u); // number of nibbles
 }
 
 template <class UnderlyingType>
@@ -801,7 +801,7 @@ QVariant BitFieldItem<UnderlyingType>::data(int column) const {
 		return name();
 	case Model::VALUE_COLUMN:
 		Q_ASSERT(str.size() > 0);
-		return str.right(std::ceil(length_ / 4.));
+		return str.right(static_cast<int>((length_ + 3u) / 4u));
 	case Model::COMMENT_COLUMN:
 		if (explanations.empty()) {
 			return {};
@@ -835,13 +835,13 @@ FlagsRegister<StoredType>::FlagsRegister(const QString &name, const std::vector<
 
 	for (auto &field : bitFields) {
 		fields.emplace_back(field);
-		fields.back().init(this, fields.size() - 1);
+		fields.back().init(this, static_cast<int>(fields.size() - 1));
 	}
 }
 
 template <class StoredType>
 int FlagsRegister<StoredType>::childCount() const {
-	return fields.size();
+	return static_cast<int>(fields.size());
 }
 
 template <class StoredType>
@@ -982,13 +982,13 @@ SIMDSizedElement<StoredType, SizingType>::SIMDSizedElement(const QString &name, 
 	for (const auto format : validFormats) {
 		if (format != NumberDisplayMode::Float || sizeof(SizingType) >= sizeof(float)) {
 			// The order must be as expected by other functions
-			Q_ASSERT(format != NumberDisplayMode::Float || formats.size() == Model::SIMD_FLOAT_ROW);
-			Q_ASSERT(format != NumberDisplayMode::Hex || formats.size() == Model::SIMD_HEX_ROW);
-			Q_ASSERT(format != NumberDisplayMode::Signed || formats.size() == Model::SIMD_SIGNED_ROW);
-			Q_ASSERT(format != NumberDisplayMode::Unsigned || formats.size() == Model::SIMD_UNSIGNED_ROW);
+			Q_ASSERT(format != NumberDisplayMode::Float || formats.size() == static_cast<size_t>(Model::SIMD_FLOAT_ROW));
+			Q_ASSERT(format != NumberDisplayMode::Hex || formats.size() == static_cast<size_t>(Model::SIMD_HEX_ROW));
+			Q_ASSERT(format != NumberDisplayMode::Signed || formats.size() == static_cast<size_t>(Model::SIMD_SIGNED_ROW));
+			Q_ASSERT(format != NumberDisplayMode::Unsigned || formats.size() == static_cast<size_t>(Model::SIMD_UNSIGNED_ROW));
 
 			formats.emplace_back(format);
-			formats.back().init(this, formats.size() - 1);
+			formats.back().init(this, static_cast<int>(formats.size() - 1));
 		}
 	}
 }
@@ -1000,7 +1000,7 @@ RegisterViewItem *SIMDSizedElement<StoredType, SizingType>::child(int row) {
 
 template <class StoredType, class SizingType>
 int SIMDSizedElement<StoredType, SizingType>::childCount() const {
-	return formats.size();
+	return static_cast<int>(formats.size());
 }
 
 template <class StoredType, class SizingType>
@@ -1113,7 +1113,7 @@ RegisterViewItem *SIMDSizedElementsContainer<StoredType>::child(int row) {
 
 template <class StoredType>
 int SIMDSizedElementsContainer<StoredType>::childCount() const {
-	return elements.size();
+	return static_cast<int>(elements.size());
 }
 
 template <class StoredType>
@@ -1179,7 +1179,7 @@ SIMDRegister<StoredType>::SIMDRegister(const QString &name, const std::vector<Nu
 
 template <class StoredType>
 int SIMDRegister<StoredType>::childCount() const {
-	return sizedElementContainers.size();
+	return static_cast<int>(sizedElementContainers.size());
 }
 
 template <class StoredType>
@@ -1242,7 +1242,7 @@ void FPURegister<FloatType>::saveValue() {
 
 template <class FloatType>
 int FPURegister<FloatType>::childCount() const {
-	return formats.size();
+	return static_cast<int>(formats.size());
 }
 
 template <class FloatType>

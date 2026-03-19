@@ -35,10 +35,10 @@ void DialogEditSimdRegister::setupEntries(const QString &label, std::array<Numbe
 
 	contentsGrid->addWidget(new QLabel(label, this), row, ENTRIES_FIRST_COL - 1);
 	for (std::size_t entryIndex = 0; entryIndex < NumEntries; ++entryIndex) {
-		auto &entry             = entries[entryIndex];
-		const int bytesPerEntry = static_cast<int>(NumBytes / NumEntries);
-		const int entryColumn   = ENTRIES_FIRST_COL + bytesPerEntry * static_cast<int>(NumEntries - 1 - entryIndex);
-		entry                   = new NumberEdit(entryColumn, bytesPerEntry, this);
+		auto &entry              = entries[entryIndex];
+		const auto bytesPerEntry = static_cast<int>(NumBytes / NumEntries);
+		const int entryColumn    = ENTRIES_FIRST_COL + bytesPerEntry * static_cast<int>(NumEntries - 1 - entryIndex);
+		entry                    = new NumberEdit(entryColumn, bytesPerEntry, this);
 		entry->setNaturalWidthInChars(naturalWidthInChars);
 		connect(entry, &NumberEdit::textEdited, this, slot);
 		entry->installEventFilter(this);
@@ -442,7 +442,7 @@ template <class Integer>
 void DialogEditSimdRegister::onIntegerEdited(QObject *sender, const std::array<NumberEdit *, NumBytes / sizeof(Integer)> &elements) {
 	const auto changedElementEdit = qobject_cast<NumberEdit *>(sender);
 	std::size_t elementIndex      = std::find(elements.begin(), elements.end(), changedElementEdit) - elements.begin();
-	Integer value                 = static_cast<Integer>(readInteger(elements[elementIndex]));
+	auto value                    = static_cast<Integer>(readInteger(elements[elementIndex]));
 	std::memcpy(&value_[elementIndex * sizeof(value)], &value, sizeof(value));
 	updateAllEntriesExcept(elements[elementIndex]);
 }
