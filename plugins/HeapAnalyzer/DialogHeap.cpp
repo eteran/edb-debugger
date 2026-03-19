@@ -34,7 +34,6 @@
 #include <QtDebug>
 #include <algorithm>
 #include <functional>
-#include <limits>
 
 namespace HeapAnalyzerPlugin {
 namespace {
@@ -385,13 +384,11 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 					QString utf16Data;
 					int asciisz;
 					int utf16sz;
-					const auto max_string_length =
-						static_cast<int>(std::min<edb::address_t>(currentChunk.chunkSize(), std::numeric_limits<int>::max()));
 					if (edb::v1::get_ascii_string_at_address(
 							block_start(currentChunkAddress),
 							asciiData,
 							min_string_length,
-							max_string_length,
+							currentChunk.chunkSize(),
 							asciisz)) {
 
 						data      = asciiData;
@@ -400,7 +397,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 								   block_start(currentChunkAddress),
 								   utf16Data,
 								   min_string_length,
-								   max_string_length,
+								   currentChunk.chunkSize(),
 								   utf16sz)) {
 						data      = utf16Data;
 						data_type = ResultViewModel::Result::Utf16;
