@@ -45,7 +45,7 @@ State::State(State &&other) noexcept
  * @brief State::swap
  * @param other
  */
-void State::swap(State &other) {
+void State::swap(State &other) noexcept {
 	using std::swap;
 	swap(impl_, other.impl_);
 }

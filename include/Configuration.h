@@ -16,7 +16,7 @@
 class EDB_EXPORT Configuration : public QObject {
 	Q_OBJECT
 public:
-	Configuration(QObject *parent = nullptr);
+	explicit Configuration(QObject *parent = nullptr);
 	~Configuration() override;
 
 public:

@@ -22,7 +22,7 @@ public:
 	ByteShiftArray &shl();
 	ByteShiftArray &shr();
 	void clear();
-	void swap(ByteShiftArray &other);
+	void swap(ByteShiftArray &other) noexcept;
 
 public:
 	ByteShiftArray &operator<<(uint8_t x);

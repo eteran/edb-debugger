@@ -59,7 +59,7 @@ public:
 	[[nodiscard]] bool empty() const;
 
 public:
-	void swap(BasicBlock &other);
+	void swap(BasicBlock &other) noexcept;
 
 public:
 	[[nodiscard]] QString toString() const;

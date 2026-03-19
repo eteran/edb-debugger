@@ -35,7 +35,6 @@ EDB_EXPORT bool debuggeeIs32Bit();
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 
-
 namespace detail {
 
 template <class Integer>
@@ -233,7 +232,7 @@ public:
 	}
 
 public:
-	void swap(value_type &other) {
+	void swap(value_type &other) noexcept {
 		using std::swap;
 		swap(value_, other.value_);
 	}

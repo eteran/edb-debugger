@@ -89,7 +89,7 @@ public:
 	const cs_insn *operator->() const { return insn_; }
 
 public:
-	void swap(Instruction &other);
+	void swap(Instruction &other) noexcept;
 
 public:
 	enum ConditionCode : uint8_t {

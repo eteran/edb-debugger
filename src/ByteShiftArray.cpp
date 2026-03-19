@@ -19,7 +19,7 @@ ByteShiftArray::ByteShiftArray(int size)
 // Name: swap
 // Desc:
 //------------------------------------------------------------------------------
-void ByteShiftArray::swap(ByteShiftArray &other) {
+void ByteShiftArray::swap(ByteShiftArray &other) noexcept {
 	using std::swap;
 	swap(data_, other.data_);
 	swap(maxSize_, other.maxSize_);
