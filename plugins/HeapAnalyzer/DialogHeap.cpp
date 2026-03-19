@@ -388,7 +388,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 							block_start(currentChunkAddress),
 							asciiData,
 							min_string_length,
-							currentChunk.chunkSize(),
+							static_cast<int>(currentChunk.chunkSize()),
 							asciisz)) {
 
 						data      = asciiData;
@@ -397,7 +397,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 								   block_start(currentChunkAddress),
 								   utf16Data,
 								   min_string_length,
-								   currentChunk.chunkSize(),
+								   static_cast<int>(currentChunk.chunkSize()),
 								   utf16sz)) {
 						data      = utf16Data;
 						data_type = ResultViewModel::Result::Utf16;
