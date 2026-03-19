@@ -52,14 +52,14 @@ public:
 
 	// NOTE: all these functions only change data, they don't emit dataChanged!
 	// Use dataUpdateFinished() to have dataChanged emitted.
-	void updateGPR(std::size_t i, edb::value32 val, const QString &comment = QString());
-	void updateGPR(std::size_t i, edb::value64 val, const QString &comment = QString());
+	void updateGPR(int i, edb::value32 val, const QString &comment = QString());
+	void updateGPR(int i, edb::value64 val, const QString &comment = QString());
 	void updateIP(edb::value32, const QString &comment = QString());
 	void updateIP(edb::value64, const QString &comment = QString());
 	void updateFlags(edb::value32, const QString &comment = QString());
 	void updateFlags(edb::value64, const QString &comment = QString());
-	void updateSegReg(std::size_t i, edb::value16, const QString &comment = QString());
-	void updateFPUReg(std::size_t i, edb::value80, const QString &comment = QString());
+	void updateSegReg(int i, edb::value16, const QString &comment = QString());
+	void updateFPUReg(int i, edb::value80, const QString &comment = QString());
 	void updateFCR(edb::value16, const QString &comment = QString());
 	void updateFSR(edb::value16, const QString &comment = QString());
 	void updateFTR(edb::value16, const QString &comment = QString());
@@ -75,14 +75,14 @@ public:
 	void updateFIS(edb::value16, const QString &comment = QString());
 	void updateFDS(edb::value16, const QString &comment = QString());
 	void updateFOP(edb::value16, const QString &comment = QString());
-	void updateDR(std::size_t i, edb::value32, const QString &comment = QString());
-	void updateDR(std::size_t i, edb::value64, const QString &comment = QString());
-	void updateMMXReg(std::size_t i, edb::value64, const QString &comment = QString());
-	void invalidateMMXReg(std::size_t i);
-	void updateSSEReg(std::size_t i, edb::value128, const QString &comment = QString());
-	void invalidateSSEReg(std::size_t i);
-	void updateAVXReg(std::size_t i, edb::value256, const QString &comment = QString());
-	void invalidateAVXReg(std::size_t i);
+	void updateDR(int i, edb::value32, const QString &comment = QString());
+	void updateDR(int i, edb::value64, const QString &comment = QString());
+	void updateMMXReg(int i, edb::value64, const QString &comment = QString());
+	void invalidateMMXReg(int i);
+	void updateSSEReg(int i, edb::value128, const QString &comment = QString());
+	void invalidateSSEReg(int i);
+	void updateAVXReg(int i, edb::value256, const QString &comment = QString());
+	void invalidateAVXReg(int i);
 	void updateMXCSR(edb::value32, const QString &comment = QString());
 	void invalidateMXCSR();
 
@@ -93,7 +93,7 @@ private:
 	void show32BitModeCategories();
 	void hideGenericCategories();
 	void showGenericCategories();
-	[[nodiscard]] std::tuple<RegisterViewModelBase::Category * /*sse*/, RegisterViewModelBase::Category * /*avx*/, unsigned /*maxRegs*/> getSSEparams() const;
+	[[nodiscard]] std::tuple<RegisterViewModelBase::Category * /*sse*/, RegisterViewModelBase::Category * /*avx*/, int /*maxRegs*/> getSSEparams() const;
 	[[nodiscard]] RegisterViewModelBase::FPUCategory *getFPUcat() const;
 
 private:
