@@ -443,11 +443,6 @@ void QDisassemblyView::scrollbarActionTriggered(int action) {
 		address     = followingInstructions(address, verticalScrollBar()->pageStep());
 		verticalScrollBar()->setSliderPosition(address);
 	} break;
-
-	case QAbstractSlider::SliderToMinimum:
-	case QAbstractSlider::SliderToMaximum:
-	case QAbstractSlider::SliderMove:
-	case QAbstractSlider::SliderNoAction:
 	default:
 		break;
 	}
