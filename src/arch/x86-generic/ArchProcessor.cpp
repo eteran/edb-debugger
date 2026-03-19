@@ -41,16 +41,16 @@
 namespace ILP32 {
 
 constexpr std::int32_t toInt(std::uint64_t x) {
-	return x;
+	return static_cast<std::int32_t>(x);
 }
 constexpr std::uint32_t toUInt(std::uint64_t x) {
-	return x;
+	return static_cast<std::uint32_t>(x);
 }
 constexpr std::int32_t toLong(std::uint64_t x) {
-	return x;
+	return static_cast<std::int32_t>(x);
 }
 constexpr std::uint32_t toULong(std::uint64_t x) {
-	return x;
+	return static_cast<std::uint32_t>(x);
 }
 
 }
@@ -58,16 +58,16 @@ constexpr std::uint32_t toULong(std::uint64_t x) {
 namespace LP64 {
 
 constexpr std::int32_t toInt(std::uint64_t x) {
-	return x;
+	return static_cast<std::int32_t>(x);
 }
 constexpr std::uint32_t toUInt(std::uint64_t x) {
-	return x;
+	return static_cast<std::uint32_t>(x);
 }
 constexpr std::int64_t toLong(std::uint64_t x) {
-	return x;
+	return static_cast<std::int64_t>(x);
 }
 constexpr std::uint64_t toULong(std::uint64_t x) {
-	return x;
+	return static_cast<std::uint64_t>(x);
 }
 
 }

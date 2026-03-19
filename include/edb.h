@@ -62,7 +62,7 @@ namespace v1 {
 EDB_EXPORT extern IDebugger *debugger_core;
 EDB_EXPORT extern QWidget *debugger_ui;
 
-// the symbol mananger
+// the symbol manager
 EDB_EXPORT ISymbolManager &symbol_manager();
 
 // the memory region manager
@@ -74,7 +74,7 @@ EDB_EXPORT ArchProcessor &arch_processor();
 // widgets
 EDB_EXPORT QAbstractScrollArea *disassembly_widget();
 
-// breakpoint managment
+// breakpoint management
 EDB_EXPORT std::shared_ptr<IBreakpoint> find_breakpoint(address_t address);
 EDB_EXPORT std::shared_ptr<IBreakpoint> find_triggered_breakpoint(address_t address);
 EDB_EXPORT QString get_breakpoint_condition(address_t address);
@@ -175,7 +175,7 @@ EDB_EXPORT void update_ui();
 
 // these are here and not members of state because
 // they may require using the debugger core plugin and
-// we don't want to force a dependancy between the two
+// we don't want to force a dependency between the two
 EDB_EXPORT void pop_value(State *state);
 EDB_EXPORT void push_value(State *state, reg_t value);
 

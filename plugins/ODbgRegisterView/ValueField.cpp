@@ -466,13 +466,13 @@ void ValueField::invert() {
 }
 
 void ValueField::setZero() {
-	change_gpr(index_, model(), [](int) {
+	change_gpr(index_, model(), [](std::uint64_t) {
 		return 0;
 	});
 }
 
 void ValueField::setToOne() {
-	change_gpr(index_, model(), [](int) {
+	change_gpr(index_, model(), [](std::uint64_t) {
 		return 1;
 	});
 }

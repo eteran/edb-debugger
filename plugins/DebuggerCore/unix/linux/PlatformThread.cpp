@@ -61,7 +61,7 @@ int PlatformThread::priority() const {
 	struct user_stat thread_stat;
 	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);
 	if (n >= 18) {
-		return thread_stat.priority;
+		return static_cast<int>(thread_stat.priority);
 	}
 
 	return 0;

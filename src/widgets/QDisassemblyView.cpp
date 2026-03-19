@@ -717,7 +717,7 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 	instructions_.clear();
 	showAddresses_.clear();
 
-	int bufsize                        = instructionBuffer_.size();
+	int bufsize                        = static_cast<int>(instructionBuffer_.size());
 	uint8_t *inst_buf                  = instructionBuffer_.data();
 	const edb::address_t start_address = addressOffset_ + verticalScrollBar()->value();
 
@@ -1765,7 +1765,7 @@ int QDisassemblyView::line4() const {
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::addressLength() const {
-	const int address_len = edb::v1::pointer_size() * CHAR_BIT / 4;
+	const int address_len = static_cast<int>(edb::v1::pointer_size() * CHAR_BIT / 4);
 	return address_len + (showAddressSeparator_ ? 1 : 0);
 }
 
@@ -1819,7 +1819,7 @@ Result<int, QString> QDisassemblyView::getInstructionSize(edb::address_t address
 	if (region_->end() != 0 && address + buf_size > region_->end()) {
 
 		if (address <= region_->end()) {
-			buf_size = region_->end() - address;
+			buf_size = static_cast<int>(region_->end() - address);
 		} else {
 			buf_size = 0;
 		}

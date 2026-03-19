@@ -175,7 +175,7 @@ int PlatformState::X87::tag(size_t n) const {
 edb::value16 PlatformState::X87::restoreTagWord(uint16_t twd) const {
 	uint16_t tagWord = 0;
 	for (size_t n = 0; n < MAX_FPU_REG_COUNT; ++n) {
-		tagWord |= makeTag(n, twd) << (2 * n);
+		tagWord |= static_cast<uint16_t>(makeTag(n, twd) << (2 * n));
 	}
 
 	return edb::value16(tagWord);
@@ -193,7 +193,7 @@ std::uint16_t PlatformState::X87::reducedTagWord() const {
 	result = (result | (result >> 2)) & 0x0f0f; // 0000123400005678
 	result = (result | (result >> 4)) & 0x00ff; // 0000000012345678
 
-	return result;
+	return static_cast<std::uint16_t>(result);
 }
 
 void PlatformState::fillFrom(const UserFPRegsStructX86 &regs) {
@@ -481,23 +481,23 @@ void PlatformState::fillStruct(UserRegsStructX86 &regs) const {
 	util::mark_memory(&regs, sizeof(regs));
 
 	if (x86.gpr32Filled) {
-		regs.eax      = x86.GPRegs[X86::EAX];
-		regs.ecx      = x86.GPRegs[X86::ECX];
-		regs.edx      = x86.GPRegs[X86::EDX];
-		regs.ebx      = x86.GPRegs[X86::EBX];
-		regs.esp      = x86.GPRegs[X86::ESP];
-		regs.ebp      = x86.GPRegs[X86::EBP];
-		regs.esi      = x86.GPRegs[X86::ESI];
-		regs.edi      = x86.GPRegs[X86::EDI];
+		regs.eax      = static_cast<std::uint32_t>(x86.GPRegs[X86::EAX]);
+		regs.ecx      = static_cast<std::uint32_t>(x86.GPRegs[X86::ECX]);
+		regs.edx      = static_cast<std::uint32_t>(x86.GPRegs[X86::EDX]);
+		regs.ebx      = static_cast<std::uint32_t>(x86.GPRegs[X86::EBX]);
+		regs.esp      = static_cast<std::uint32_t>(x86.GPRegs[X86::ESP]);
+		regs.ebp      = static_cast<std::uint32_t>(x86.GPRegs[X86::EBP]);
+		regs.esi      = static_cast<std::uint32_t>(x86.GPRegs[X86::ESI]);
+		regs.edi      = static_cast<std::uint32_t>(x86.GPRegs[X86::EDI]);
 		regs.xes      = x86.segRegs[X86::ES];
 		regs.xcs      = x86.segRegs[X86::CS];
 		regs.xss      = x86.segRegs[X86::SS];
 		regs.xds      = x86.segRegs[X86::DS];
 		regs.xfs      = x86.segRegs[X86::FS];
 		regs.xgs      = x86.segRegs[X86::GS];
-		regs.orig_eax = x86.orig_ax;
-		regs.eflags   = x86.flags;
-		regs.eip      = x86.IP;
+		regs.orig_eax = static_cast<std::uint32_t>(x86.orig_ax);
+		regs.eflags   = static_cast<std::uint32_t>(x86.flags);
+		regs.eip      = static_cast<std::uint32_t>(x86.IP);
 	}
 }
 
@@ -575,8 +575,8 @@ void PlatformState::fillStruct(UserFPRegsStructX86 &regs) const {
 		regs.swd = x87.statusWord;
 		regs.cwd = x87.controlWord;
 		regs.twd = x87.tagWord;
-		regs.fip = x87.instPtrOffset;
-		regs.foo = x87.dataPtrOffset;
+		regs.fip = static_cast<std::uint32_t>(x87.instPtrOffset);
+		regs.foo = static_cast<std::uint32_t>(x87.dataPtrOffset);
 		regs.fcs = x87.instPtrSelector;
 		regs.fos = x87.dataPtrSelector;
 		for (size_t n = 0; n < MAX_FPU_REG_COUNT; ++n) {
@@ -620,8 +620,8 @@ void PlatformState::fillStruct(UserFPXRegsStructX86 &regs) const {
 		regs.swd = x87.statusWord;
 		regs.twd = x87.reducedTagWord();
 		regs.cwd = x87.controlWord;
-		regs.fip = x87.instPtrOffset;
-		regs.foo = x87.dataPtrOffset;
+		regs.fip = static_cast<std::uint32_t>(x87.instPtrOffset);
+		regs.foo = static_cast<std::uint32_t>(x87.dataPtrOffset);
 		regs.fcs = x87.instPtrSelector;
 		regs.fos = x87.dataPtrSelector;
 		regs.fop = x87.opCode;
@@ -648,8 +648,8 @@ size_t PlatformState::fillStruct(X86XState &regs) const {
 		regs.swd   = x87.statusWord;
 		regs.cwd   = x87.controlWord;
 		regs.twd   = x87.reducedTagWord();
-		regs.fioff = x87.instPtrOffset;
-		regs.fooff = x87.dataPtrOffset;
+		regs.fioff = static_cast<std::uint32_t>(x87.instPtrOffset);
+		regs.fooff = static_cast<std::uint32_t>(x87.dataPtrOffset);
 		if (is64Bit()) {
 			std::memcpy(&regs.fiseg, reinterpret_cast<const char *>(&x87.instPtrOffset) + 4, 4);
 			std::memcpy(&regs.foseg, reinterpret_cast<const char *>(&x87.dataPtrOffset) + 4, 4);
@@ -1120,7 +1120,7 @@ edb::reg_t PlatformState::flags() const {
  * @return
  */
 int PlatformState::fpuStackPointer() const {
-	return x87.stackPointer();
+	return static_cast<int>(x87.stackPointer());
 }
 
 /**

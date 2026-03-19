@@ -14,6 +14,7 @@
 
 #include <QPushButton>
 #include <QTableWidget>
+#include <limits>
 
 namespace BacktracePlugin {
 namespace {
@@ -154,10 +155,11 @@ void DialogBacktrace::populateTable() {
 	// Get the call stack and populate the table with entries.
 	CallStack call_stack;
 	const size_t size = call_stack.size();
-	for (size_t i = 0; i < size; i++) {
+	for (size_t i = 0; i < size && i <= static_cast<size_t>(std::numeric_limits<int>::max()); i++) {
+		const int row = static_cast<int>(i);
 
 		// Create the row to insert info
-		table_->insertRow(i);
+		table_->insertRow(row);
 
 		// Get the stack frame so that we can insert its info
 		CallStack::StackFrame *frame = call_stack[i];
@@ -192,7 +194,7 @@ void DialogBacktrace::populateTable() {
 			flags |= Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 			item->setFlags(flags);
 
-			table_->setItem(i, j, item);
+			table_->setItem(row, j, item);
 		}
 	}
 

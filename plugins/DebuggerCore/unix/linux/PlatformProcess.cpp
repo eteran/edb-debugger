@@ -30,6 +30,7 @@
 #include <QTextStream>
 #include <elf.h>
 #include <fstream>
+#include <limits>
 #include <linux/limits.h>
 #include <pwd.h>
 #include <sys/mman.h>
@@ -232,7 +233,7 @@ bool get_program_headers(const IProcess *process, edb::address_t *phdr_memaddr, 
 					*phdr_memaddr = entry.a_un.a_val;
 					break;
 				case AT_PHNUM:
-					*num_phdr = entry.a_un.a_val;
+					*num_phdr = static_cast<int>(std::min<std::uint64_t>(entry.a_un.a_val, static_cast<std::uint64_t>(std::numeric_limits<int>::max())));
 					break;
 				}
 			}
@@ -244,7 +245,7 @@ bool get_program_headers(const IProcess *process, edb::address_t *phdr_memaddr, 
 					*phdr_memaddr = entry.a_un.a_val;
 					break;
 				case AT_PHNUM:
-					*num_phdr = entry.a_un.a_val;
+					*num_phdr = static_cast<int>(std::min<std::uint32_t>(entry.a_un.a_val, static_cast<std::uint32_t>(std::numeric_limits<int>::max())));
 					break;
 				}
 			}
@@ -389,8 +390,12 @@ std::size_t PlatformProcess::patchBytes(edb::address_t address, const void *buf,
 
 	Patch patch;
 	patch.address = address;
-	patch.origBytes.resize(len);
-	patch.newBytes = QByteArray(static_cast<const char *>(buf), len);
+	if (len > static_cast<size_t>(std::numeric_limits<int>::max())) {
+		return 0;
+	}
+	const int len_int = static_cast<int>(len);
+	patch.origBytes.resize(len_int);
+	patch.newBytes = QByteArray(static_cast<const char *>(buf), len_int);
 
 	size_t read_ret = readBytes(address, patch.origBytes.data(), len);
 	if (read_ret != len) {

@@ -15,16 +15,16 @@ namespace util {
 
 template <class T, size_t N, class U = T>
 constexpr void shl(std::array<T, N> &buffer, U value = T()) {
-	static_assert(std::is_convertible_v<T, U>, "U must be convertible to the type contained in the array!");
+	static_assert(std::is_convertible_v<U, T>, "U must be convertible to the type contained in the array!");
 	std::rotate(buffer.begin(), buffer.begin() + 1, buffer.end());
-	buffer[N - 1] = value;
+	buffer[N - 1] = static_cast<T>(value);
 }
 
 template <class T, size_t N, class U = T>
 constexpr void shr(std::array<T, N> &buffer, U value = T()) {
-	static_assert(std::is_convertible_v<T, U>, "U must be convertible to the type contained in the array!");
+	static_assert(std::is_convertible_v<U, T>, "U must be convertible to the type contained in the array!");
 	std::rotate(buffer.rbegin(), buffer.rbegin() + 1, buffer.rend());
-	buffer[0] = value;
+	buffer[0] = static_cast<T>(value);
 }
 
 template <class T, size_t N>

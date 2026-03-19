@@ -138,12 +138,12 @@ void BinaryString::on_txtUTF16_textEdited(const QString &text) {
 		const uint16_t ch = i.unicode();
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-		textAscii += ch & 0xff;
-		textAscii += (ch >> 8) & 0xff;
+		textAscii += static_cast<char>(ch & 0xff);
+		textAscii += static_cast<char>((ch >> 8) & 0xff);
 		textHex += QString::asprintf("%02x %02x ", ch & 0xff, (ch >> 8) & 0xff);
 #else
-		textAscii += (ch >> 8) & 0xff;
-		textAscii += ch & 0xff;
+		textAscii += static_cast<char>((ch >> 8) & 0xff);
+		textAscii += static_cast<char>(ch & 0xff);
 		textHex += QString::asprintf("%02x %02x ", (ch >> 8) & 0xff, ch & 0xff);
 #endif
 	}

@@ -32,7 +32,7 @@ DialogEditGPR::DialogEditGPR(QWidget *parent, Qt::WindowFlags f)
 		auto &label = columnLabel(static_cast<Column>(FIRST_ENTRY_COL + c));
 		label       = new QLabel(this);
 		label->setAlignment(Qt::AlignCenter);
-		allContentsGrid->addWidget(label, GPR_LABELS_ROW, FIRST_ENTRY_COL + c);
+		allContentsGrid->addWidget(label, GPR_LABELS_ROW, static_cast<int>(FIRST_ENTRY_COL + c));
 	}
 
 	{
@@ -41,7 +41,7 @@ DialogEditGPR::DialogEditGPR(QWidget *parent, Qt::WindowFlags f)
 		for (std::size_t f = 0; f < formatNames.size(); ++f) {
 			auto &label = rowLabel(static_cast<Row>(FIRST_ENTRY_ROW + f));
 			label       = new QLabel(formatNames[f], this);
-			allContentsGrid->addWidget(label, FIRST_ENTRY_ROW + f, FORMAT_LABELS_COL);
+			allContentsGrid->addWidget(label, static_cast<int>(FIRST_ENTRY_ROW + f), FORMAT_LABELS_COL);
 		}
 	}
 
@@ -58,7 +58,7 @@ DialogEditGPR::DialogEditGPR(QWidget *parent, Qt::WindowFlags f)
 				entry       = new GprEdit(offsetsInInteger[c], integerSizes[c], formats[f], this);
 				connect(entry, &GprEdit::textEdited, this, &DialogEditGPR::onTextEdited);
 				entry->installEventFilter(this);
-				allContentsGrid->addWidget(entry, FIRST_ENTRY_ROW + f, FIRST_ENTRY_COL + c);
+				allContentsGrid->addWidget(entry, static_cast<int>(FIRST_ENTRY_ROW + f), static_cast<int>(FIRST_ENTRY_COL + c));
 			}
 		}
 	}

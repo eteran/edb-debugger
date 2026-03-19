@@ -769,7 +769,7 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 		return "; Failed to create binary file";
 	}
 
-	const int size = bytes.size();
+	const qint64 size = static_cast<qint64>(bytes.size());
 
 	if (binary.write(reinterpret_cast<const char *>(bytes.data()), size) != size) {
 		return "; Failed to write to binary file";
@@ -890,7 +890,7 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 		return "; Failed to create binary file";
 	}
 
-	const int size = bytes.size();
+	const qint64 size = static_cast<qint64>(bytes.size());
 
 	if (binary.write(reinterpret_cast<const char *>(bytes.data()), size) != size) {
 		return "; Failed to write to binary file";

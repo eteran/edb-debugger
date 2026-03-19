@@ -16,6 +16,7 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QSettings>
+#include <limits>
 
 namespace ODbgRegisterView {
 // Q_DECLARE_NAMESPACE_TR(ODbgRegisterView)
@@ -54,7 +55,7 @@ void Plugin::setupDocks() {
 
 void Plugin::saveSettings() const {
 	QSettings settings;
-	const int size      = registerViews_.size();
+	const int size      = static_cast<int>(std::min(registerViews_.size(), static_cast<std::size_t>(std::numeric_limits<int>::max())));
 	const auto arrayKey = pluginName + "/" + views;
 	settings.remove(arrayKey);
 	settings.beginWriteArray(arrayKey, size);
