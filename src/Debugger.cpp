@@ -1202,7 +1202,7 @@ void Debugger::showEvent(QShowEvent *) {
 	stackView_->setShowAsciiDump(settings.value("window.stack.show_ascii.enabled", true).toBool());
 	stackView_->setShowComments(settings.value("window.stack.show_comments.enabled", true).toBool());
 
-	int row_width  = 1;
+	int row_width   = 1;
 	auto word_width = static_cast<int>(edb::v1::pointer_size());
 
 	stackView_->setRowWidth(row_width);

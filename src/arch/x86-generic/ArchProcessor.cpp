@@ -1651,7 +1651,7 @@ bool ArchProcessor::isFilling(const edb::Instruction &inst) const {
 			if (edb::v1::config().zeros_are_filling) {
 				auto lhs = QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), static_cast<int>(inst.byteSize()));
 				auto rhs = QByteArray::fromRawData("\x00\x00", 2);
-				ret = (lhs == rhs);
+				ret      = (lhs == rhs);
 			}
 		}
 	} else {
