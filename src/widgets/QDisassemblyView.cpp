@@ -467,7 +467,7 @@ void QDisassemblyView::setShowAddressSeparator(bool value) {
 //------------------------------------------------------------------------------
 QString QDisassemblyView::formatAddress(edb::address_t address) const {
 	if (edb::v1::debuggeeIs32Bit()) {
-		return format_address<quint32>(address.toUint(), showAddressSeparator_);
+		return format_address<quint32>(static_cast<quint32>(address.toUint()), showAddressSeparator_);
 	}
 	return format_address(address, showAddressSeparator_);
 }
@@ -698,7 +698,7 @@ std::optional<unsigned int> QDisassemblyView::getLineOfAddress(edb::address_t ad
 
 	if (!showAddresses_.isEmpty()) {
 		if (addr >= showAddresses_[0] && addr <= showAddresses_[showAddresses_.size() - 1]) {
-			int pos = std::find(showAddresses_.begin(), showAddresses_.end(), addr) - showAddresses_.begin();
+			auto pos = static_cast<int>(std::find(showAddresses_.begin(), showAddresses_.end(), addr) - showAddresses_.begin());
 			if (pos < showAddresses_.size()) { // address was found
 				return pos;
 			}
@@ -717,7 +717,7 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 	instructions_.clear();
 	showAddresses_.clear();
 
-	int bufsize                        = static_cast<int>(instructionBuffer_.size());
+	auto bufsize                       = static_cast<int>(instructionBuffer_.size());
 	uint8_t *inst_buf                  = instructionBuffer_.data();
 	const edb::address_t start_address = addressOffset_ + verticalScrollBar()->value();
 
@@ -744,7 +744,7 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 		showAddresses_.push_back(address);
 
 		if (instructions_[line].valid()) {
-			offset += instructions_[line].byteSize();
+			offset += static_cast<int>(instructions_[line].byteSize());
 		} else {
 			++offset;
 		}
@@ -1765,7 +1765,7 @@ int QDisassemblyView::line4() const {
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::addressLength() const {
-	const int address_len = static_cast<int>(edb::v1::pointer_size() * CHAR_BIT / 4);
+	const auto address_len = static_cast<int>(edb::v1::pointer_size() * CHAR_BIT / 4);
 	return address_len + (showAddressSeparator_ ? 1 : 0);
 }
 
