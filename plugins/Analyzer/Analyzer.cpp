@@ -368,11 +368,13 @@ void Analyzer::bonusMain(RegionData *data) const {
 
 	Q_ASSERT(data);
 
-	const QString s = edb::v1::debugger_core->process()->executable();
-	if (!s.isEmpty()) {
-		if (const edb::address_t main = edb::v1::locate_main_function()) {
-			if (data->region->contains(main)) {
-				data->knownFunctions.insert(main);
+	if (IProcess *process = edb::v1::debugger_core->process()) {
+		const QString s = process->executable();
+		if (!s.isEmpty()) {
+			if (const edb::address_t main = edb::v1::locate_main_function()) {
+				if (data->region->contains(main)) {
+					data->knownFunctions.insert(main);
+				}
 			}
 		}
 	}

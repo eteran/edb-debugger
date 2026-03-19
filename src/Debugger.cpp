@@ -738,7 +738,11 @@ std::shared_ptr<DataViewInfo> Debugger::currentDataViewInfo() const {
 // Desc: sets the caption part to also show the application name and pid
 //------------------------------------------------------------------------------
 void Debugger::setDebuggerCaption(const QString &appname) {
-	setWindowTitle(tr("edb - %1 [%2]").arg(appname).arg(edb::v1::debugger_core->process()->pid()));
+	if (IProcess *process = edb::v1::debugger_core->process()) {
+		setWindowTitle(tr("edb - %1 [%2]").arg(appname).arg(process->pid()));
+	} else {
+		setWindowTitle(tr("edb"));
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -2996,8 +3000,7 @@ void Debugger::setInitialDebuggerState() {
 	dynamicInfoBreakpointSet_ = false;
 #endif
 
-	IProcess *process = edb::v1::debugger_core->process();
-
+	IProcess *process        = edb::v1::debugger_core->process();
 	const QString executable = process ? process->executable() : QString();
 
 	setDebuggerCaption(executable);
@@ -3066,7 +3069,9 @@ void Debugger::setInitialBreakpoint(const QString &s) {
 	}
 
 	if (entryPoint == 0 || edb::v1::config().initial_breakpoint == Configuration::EntryPoint) {
-		entryPoint = edb::v1::debugger_core->process()->entryPoint();
+		if (IProcess *process = edb::v1::debugger_core->process()) {
+			entryPoint = process->entryPoint();
+		}
 	}
 
 	if (entryPoint != 0) {
@@ -3085,13 +3090,13 @@ void Debugger::setInitialBreakpoint(const QString &s) {
 void Debugger::on_action_Restart_triggered() {
 
 	Q_ASSERT(edb::v1::debugger_core);
-	if (edb::v1::debugger_core->process()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
 
-		workingDirectory_      = edb::v1::debugger_core->process()->currentWorkingDirectory();
-		QList<QByteArray> args = edb::v1::debugger_core->process()->arguments();
-		const QString exe      = edb::v1::debugger_core->process()->executable();
-		const QString in       = edb::v1::debugger_core->process()->standardInput();
-		const QString out      = edb::v1::debugger_core->process()->standardOutput();
+		workingDirectory_      = process->currentWorkingDirectory();
+		QList<QByteArray> args = process->arguments();
+		const QString exe      = process->executable();
+		const QString in       = process->standardInput();
+		const QString out      = process->standardOutput();
 
 		if (!args.empty()) {
 			args.removeFirst();
@@ -3221,17 +3226,18 @@ void Debugger::attach(edb::pid_t pid) {
 	}
 
 	if (const auto status = edb::v1::debugger_core->attach(pid)) {
+		if (IProcess *process = edb::v1::debugger_core->process()) {
 
-		workingDirectory_ = edb::v1::debugger_core->process()->currentWorkingDirectory();
+			workingDirectory_      = process->currentWorkingDirectory();
+			QList<QByteArray> args = process->arguments();
 
-		QList<QByteArray> args = edb::v1::debugger_core->process()->arguments();
+			if (!args.empty()) {
+				args.removeFirst();
+			}
 
-		if (!args.empty()) {
-			args.removeFirst();
+			argumentsDialog_->setArguments(args);
+			attachComplete();
 		}
-
-		argumentsDialog_->setArguments(args);
-		attachComplete();
 	} else {
 		QMessageBox::critical(this, tr("Attach"), tr("Failed to attach to process: %1").arg(status.error()));
 	}

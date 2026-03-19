@@ -54,7 +54,7 @@ void Plugin::setupDocks() {
 
 void Plugin::saveSettings() const {
 	QSettings settings;
-	const auto size      = static_cast<int>(registerViews_.size());
+	const auto size     = static_cast<int>(registerViews_.size());
 	const auto arrayKey = pluginName + "/" + views;
 	settings.remove(arrayKey);
 	settings.beginWriteArray(arrayKey, size);

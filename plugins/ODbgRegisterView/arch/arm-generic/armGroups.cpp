@@ -116,8 +116,7 @@ RegisterGroup *createCPSR(RegisterViewModelBase::Model *model, QWidget *parent) 
 	const auto valueWidth = 8;
 	const auto valueIndex = nameIndex.sibling(nameIndex.row(), ModelValueColumn);
 	column += nameWidth + 1;
-	group->insert(0, column, new ValueField(
-								 valueWidth, valueIndex, [](QString const &v) { return v.right(8); }, group));
+	group->insert(0, column, new ValueField(valueWidth, valueIndex, [](QString const &v) { return v.right(8); }, group));
 	const auto commentIndex = nameIndex.sibling(nameIndex.row(), ModelCommentColumn);
 	column += valueWidth + 1;
 	group->insert(0, column, new FieldWidget(0, commentIndex, group));

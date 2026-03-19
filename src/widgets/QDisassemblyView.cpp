@@ -1354,140 +1354,141 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 	}
 
 	// get current process state
-	State state;
-	IProcess *process = edb::v1::debugger_core->process();
-	process->currentThread()->getState(&state);
 
-	painter.save();
-	painter.setRenderHint(QPainter::Antialiasing, true);
+	if (IProcess *process = edb::v1::debugger_core->process()) {
+		State state;
+		process->currentThread()->getState(&state);
 
-	for (const JumpArrow &jump_arrow : jump_arrow_vec) {
+		painter.save();
+		painter.setRenderHint(QPainter::Antialiasing, true);
 
-		bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.sourceLine].rva();
+		for (const JumpArrow &jump_arrow : jump_arrow_vec) {
 
-		// horizontal line
-		int end_x   = ctx->l1 - 3;
-		int start_x = end_x - jump_arrow.horizontalLength;
+			bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.sourceLine].rva();
 
-		// vertical line
-		int src_y = jump_arrow.sourceLine * ctx->lineHeight + (fontHeight_ / 2);
-		int dst_y;
+			// horizontal line
+			int end_x   = ctx->l1 - 3;
+			int start_x = end_x - jump_arrow.horizontalLength;
 
-		if (jump_arrow.destInMiddleOfInstruction) {
-			dst_y = jump_arrow.destLine * ctx->lineHeight;
-		} else {
-			dst_y = jump_arrow.destLine * ctx->lineHeight + (fontHeight_ / 2);
-		}
+			// vertical line
+			int src_y = jump_arrow.sourceLine * ctx->lineHeight + (fontHeight_ / 2);
+			int dst_y;
 
-		QColor arrow_color = palette().color(ctx->group, QPalette::Text);
-		double arrow_width = 1.0;
-		auto arrow_style   = Qt::DashLine;
+			if (jump_arrow.destInMiddleOfInstruction) {
+				dst_y = jump_arrow.destLine * ctx->lineHeight;
+			} else {
+				dst_y = jump_arrow.destLine * ctx->lineHeight + (fontHeight_ / 2);
+			}
 
-		if (ctx->selectedLines == jump_arrow.sourceLine || ctx->selectedLines == jump_arrow.destLine) {
-			arrow_width = 2.0; // enlarge arrow width
-		}
+			QColor arrow_color = palette().color(ctx->group, QPalette::Text);
+			double arrow_width = 1.0;
+			auto arrow_style   = Qt::DashLine;
 
-		bool conditional_jmp   = is_conditional_jump(instructions_[jump_arrow.sourceLine]);
-		bool unconditional_jmp = is_unconditional_jump(instructions_[jump_arrow.sourceLine]);
+			if (ctx->selectedLines == jump_arrow.sourceLine || ctx->selectedLines == jump_arrow.destLine) {
+				arrow_width = 2.0; // enlarge arrow width
+			}
 
-		// if direct jmp, then draw in solid line
-		if (unconditional_jmp) {
-			arrow_style = Qt::SolidLine;
-		}
+			bool conditional_jmp   = is_conditional_jump(instructions_[jump_arrow.sourceLine]);
+			bool unconditional_jmp = is_unconditional_jump(instructions_[jump_arrow.sourceLine]);
 
-		// if direct jmp (src) is selected, then draw arrow in red
-		if (unconditional_jmp && ctx->selectedLines == jump_arrow.sourceLine) {
-			arrow_color = takenJumpColor_;
-		}
+			// if direct jmp, then draw in solid line
+			if (unconditional_jmp) {
+				arrow_style = Qt::SolidLine;
+			}
 
-		// if direct jmp (dst) is selected, then draw arrow in red
-		if (unconditional_jmp && ctx->selectedLines == jump_arrow.destLine) {
-			if (showAddresses_[jump_arrow.destLine] != currentAddress_) { // if eip
+			// if direct jmp (src) is selected, then draw arrow in red
+			if (unconditional_jmp && ctx->selectedLines == jump_arrow.sourceLine) {
 				arrow_color = takenJumpColor_;
 			}
-		}
 
-		// if current conditional jump is taken, then draw arrow in red
-		if (showAddresses_[jump_arrow.sourceLine] == currentAddress_) { // if eip
-			if (conditional_jmp) {
-				if (edb::v1::arch_processor().isExecuted(instructions_[jump_arrow.sourceLine], state)) {
+			// if direct jmp (dst) is selected, then draw arrow in red
+			if (unconditional_jmp && ctx->selectedLines == jump_arrow.destLine) {
+				if (showAddresses_[jump_arrow.destLine] != currentAddress_) { // if eip
 					arrow_color = takenJumpColor_;
 				}
 			}
+
+			// if current conditional jump is taken, then draw arrow in red
+			if (showAddresses_[jump_arrow.sourceLine] == currentAddress_) { // if eip
+				if (conditional_jmp) {
+					if (edb::v1::arch_processor().isExecuted(instructions_[jump_arrow.sourceLine], state)) {
+						arrow_color = takenJumpColor_;
+					}
+				}
+			}
+
+			// Align both 1px and 2px lines to pixel grid. This requires different offset in even-width and odd-width case.
+			const auto arrow_pixel_offset = std::fmod(arrow_width, 2.) == 1 ? 0.5 : 0;
+			painter.save();
+			painter.translate(arrow_pixel_offset, arrow_pixel_offset);
+
+			painter.setPen(QPen(arrow_color, arrow_width, arrow_style));
+
+			int src_reg_badge_width = 0;
+			int dst_reg_badge_width = 0;
+
+			if (ctx->lineBadgeWidth.find(jump_arrow.sourceLine) != ctx->lineBadgeWidth.end()) {
+				src_reg_badge_width = ctx->lineBadgeWidth.at(jump_arrow.sourceLine);
+			} else if (ctx->lineBadgeWidth.find(jump_arrow.destLine) != ctx->lineBadgeWidth.end()) {
+				dst_reg_badge_width = ctx->lineBadgeWidth.at(jump_arrow.destLine);
+			}
+
+			if (jump_arrow.destInViewport) {
+
+				QPoint points[] = {
+					QPoint(end_x - src_reg_badge_width, src_y),
+					QPoint(start_x, src_y),
+					QPoint(start_x, dst_y),
+					QPoint(end_x - dst_reg_badge_width - fontWidth_ / 3, dst_y)};
+
+				painter.drawPolyline(points, 4);
+
+				// draw arrow tips
+				QPainterPath path;
+				path.moveTo(end_x - dst_reg_badge_width, dst_y);
+				path.lineTo(end_x - dst_reg_badge_width - (fontWidth_ / 2.), dst_y - (fontHeight_ / 3.));
+				path.lineTo(end_x - dst_reg_badge_width - (fontWidth_ / 2.), dst_y + (fontHeight_ / 3.));
+				path.lineTo(end_x - dst_reg_badge_width, dst_y);
+				painter.fillPath(path, QBrush(arrow_color));
+
+			} else if (is_dst_upward) { // if dst out of viewport, and arrow facing upward
+
+				QPoint points[] = {
+					QPoint(end_x - src_reg_badge_width, src_y),
+					QPoint(start_x, src_y),
+					QPoint(start_x, fontWidth_ / 3)};
+
+				painter.drawPolyline(points, 3);
+
+				// draw arrow tips
+				QPainterPath path;
+				path.moveTo(start_x, 0);
+				path.lineTo(start_x - (fontWidth_ / 2.), fontHeight_ / 3.);
+				path.lineTo(start_x + (fontWidth_ / 2.), fontHeight_ / 3.);
+				path.lineTo(start_x, 0);
+				painter.fillPath(path, QBrush(arrow_color));
+
+			} else { // if dst out of viewport, and arrow facing downward
+
+				QPoint points[] = {
+					QPoint(end_x - src_reg_badge_width, src_y),
+					QPoint(start_x, src_y),
+					QPoint(start_x, viewport()->height() - fontWidth_ / 3)};
+
+				painter.drawPolyline(points, 3);
+
+				// draw arrow tips
+				QPainterPath path;
+				path.moveTo(start_x, viewport()->height() - 1);
+				path.lineTo(start_x - (fontWidth_ / 2.), viewport()->height() - (fontHeight_ / 3.) - 1);
+				path.lineTo(start_x + (fontWidth_ / 2.), viewport()->height() - (fontHeight_ / 3.) - 1);
+				path.lineTo(start_x, viewport()->height() - 1);
+				painter.fillPath(path, QBrush(arrow_color));
+			}
+
+			painter.restore();
 		}
-
-		// Align both 1px and 2px lines to pixel grid. This requires different offset in even-width and odd-width case.
-		const auto arrow_pixel_offset = std::fmod(arrow_width, 2.) == 1 ? 0.5 : 0;
-		painter.save();
-		painter.translate(arrow_pixel_offset, arrow_pixel_offset);
-
-		painter.setPen(QPen(arrow_color, arrow_width, arrow_style));
-
-		int src_reg_badge_width = 0;
-		int dst_reg_badge_width = 0;
-
-		if (ctx->lineBadgeWidth.find(jump_arrow.sourceLine) != ctx->lineBadgeWidth.end()) {
-			src_reg_badge_width = ctx->lineBadgeWidth.at(jump_arrow.sourceLine);
-		} else if (ctx->lineBadgeWidth.find(jump_arrow.destLine) != ctx->lineBadgeWidth.end()) {
-			dst_reg_badge_width = ctx->lineBadgeWidth.at(jump_arrow.destLine);
-		}
-
-		if (jump_arrow.destInViewport) {
-
-			QPoint points[] = {
-				QPoint(end_x - src_reg_badge_width, src_y),
-				QPoint(start_x, src_y),
-				QPoint(start_x, dst_y),
-				QPoint(end_x - dst_reg_badge_width - fontWidth_ / 3, dst_y)};
-
-			painter.drawPolyline(points, 4);
-
-			// draw arrow tips
-			QPainterPath path;
-			path.moveTo(end_x - dst_reg_badge_width, dst_y);
-			path.lineTo(end_x - dst_reg_badge_width - (fontWidth_ / 2.), dst_y - (fontHeight_ / 3.));
-			path.lineTo(end_x - dst_reg_badge_width - (fontWidth_ / 2.), dst_y + (fontHeight_ / 3.));
-			path.lineTo(end_x - dst_reg_badge_width, dst_y);
-			painter.fillPath(path, QBrush(arrow_color));
-
-		} else if (is_dst_upward) { // if dst out of viewport, and arrow facing upward
-
-			QPoint points[] = {
-				QPoint(end_x - src_reg_badge_width, src_y),
-				QPoint(start_x, src_y),
-				QPoint(start_x, fontWidth_ / 3)};
-
-			painter.drawPolyline(points, 3);
-
-			// draw arrow tips
-			QPainterPath path;
-			path.moveTo(start_x, 0);
-			path.lineTo(start_x - (fontWidth_ / 2.), fontHeight_ / 3.);
-			path.lineTo(start_x + (fontWidth_ / 2.), fontHeight_ / 3.);
-			path.lineTo(start_x, 0);
-			painter.fillPath(path, QBrush(arrow_color));
-
-		} else { // if dst out of viewport, and arrow facing downward
-
-			QPoint points[] = {
-				QPoint(end_x - src_reg_badge_width, src_y),
-				QPoint(start_x, src_y),
-				QPoint(start_x, viewport()->height() - fontWidth_ / 3)};
-
-			painter.drawPolyline(points, 3);
-
-			// draw arrow tips
-			QPainterPath path;
-			path.moveTo(start_x, viewport()->height() - 1);
-			path.lineTo(start_x - (fontWidth_ / 2.), viewport()->height() - (fontHeight_ / 3.) - 1);
-			path.lineTo(start_x + (fontWidth_ / 2.), viewport()->height() - (fontHeight_ / 3.) - 1);
-			path.lineTo(start_x, viewport()->height() - 1);
-			painter.fillPath(path, QBrush(arrow_color));
-		}
-
-		painter.restore();
 	}
-
 	painter.restore();
 }
 

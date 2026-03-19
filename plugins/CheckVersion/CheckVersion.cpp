@@ -101,7 +101,7 @@ void CheckVersion::setProxy(const QUrl &url) {
 	if (!proxy_str.isEmpty()) {
 		const QUrl proxy_url = QUrl::fromUserInput(proxy_str);
 		const int port       = proxy_url.port(80);
-		const auto qport  = static_cast<quint16>(qBound(0, port, 65535));
+		const auto qport     = static_cast<quint16>(qBound(0, port, 65535));
 
 		proxy = QNetworkProxy(QNetworkProxy::HttpProxy, proxy_url.host(), qport, proxy_url.userName(), proxy_url.password());
 	}

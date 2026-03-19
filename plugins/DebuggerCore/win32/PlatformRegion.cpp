@@ -113,44 +113,47 @@ size_t PlatformRegion::size() const {
  * @param execute
  */
 void PlatformRegion::setPermissions(bool read, bool write, bool execute) {
-	if (HANDLE ph = OpenProcess(PROCESS_VM_OPERATION, FALSE, edb::v1::debugger_core->process()->pid())) {
-		DWORD prot = PAGE_NOACCESS;
 
-		switch ((static_cast<int>(read) << 2) | (static_cast<int>(write) << 1) | (static_cast<int>(execute) << 0)) {
-		case 0x0:
-			prot = PAGE_NOACCESS;
-			break;
-		case 0x1:
-			prot = PAGE_EXECUTE;
-			break;
-		case 0x2:
-			prot = PAGE_WRITECOPY;
-			break;
-		case 0x3:
-			prot = PAGE_EXECUTE_WRITECOPY;
-			break;
-		case 0x4:
-			prot = PAGE_READONLY;
-			break;
-		case 0x5:
-			prot = PAGE_EXECUTE_READ;
-			break;
-		case 0x6:
-			prot = PAGE_READWRITE;
-			break;
-		case 0x7:
-			prot = PAGE_EXECUTE_READWRITE;
-			break;
+	if (IProcess *process = edb::v1::debugger_core->process()) {
+		if (HANDLE ph = OpenProcess(PROCESS_VM_OPERATION, FALSE, process->pid())) {
+			DWORD prot = PAGE_NOACCESS;
+
+			switch ((static_cast<int>(read) << 2) | (static_cast<int>(write) << 1) | (static_cast<int>(execute) << 0)) {
+			case 0x0:
+				prot = PAGE_NOACCESS;
+				break;
+			case 0x1:
+				prot = PAGE_EXECUTE;
+				break;
+			case 0x2:
+				prot = PAGE_WRITECOPY;
+				break;
+			case 0x3:
+				prot = PAGE_EXECUTE_WRITECOPY;
+				break;
+			case 0x4:
+				prot = PAGE_READONLY;
+				break;
+			case 0x5:
+				prot = PAGE_EXECUTE_READ;
+				break;
+			case 0x6:
+				prot = PAGE_READWRITE;
+				break;
+			case 0x7:
+				prot = PAGE_EXECUTE_READWRITE;
+				break;
+			}
+
+			prot |= permissions_ & ~KnownPermissions; // keep modifiers
+
+			DWORD prev_prot;
+			if (VirtualProtectEx(ph, reinterpret_cast<LPVOID>(start().toUint()), size(), prot, &prev_prot)) {
+				permissions_ = prot;
+			}
+
+			CloseHandle(ph);
 		}
-
-		prot |= permissions_ & ~KnownPermissions; // keep modifiers
-
-		DWORD prev_prot;
-		if (VirtualProtectEx(ph, reinterpret_cast<LPVOID>(start().toUint()), size(), prot, &prev_prot)) {
-			permissions_ = prot;
-		}
-
-		CloseHandle(ph);
 	}
 }
 
