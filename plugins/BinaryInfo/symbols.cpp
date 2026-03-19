@@ -280,7 +280,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				auto symbol_tab        = reinterpret_cast<elf_sym *>(base + linked->sh_offset);
 				auto string_tab        = reinterpret_cast<const char *>(base + sections_begin[linked->sh_link].sh_offset);
 
-				const elf_addr symbol_address = static_cast<elf_addr>(base_address + (n * M::plt_entry_size));
+				const auto symbol_address = static_cast<elf_addr>(base_address + (n * M::plt_entry_size));
 
 				const char *sym_name = &section_strings[section->sh_name];
 				if (strlen(sym_name) > (sizeof(".rel.") - 1) && memcmp(sym_name, ".rel.", (sizeof(".rel.") - 1)) == 0) {
