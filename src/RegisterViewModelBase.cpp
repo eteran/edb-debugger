@@ -67,9 +67,12 @@ bool set_debuggee_register(const QString &name, const T &value, T &resultingValu
 		IProcess *process = core->process();
 		Q_ASSERT(process);
 
+		std::shared_ptr<IThread> thread = process->currentThread();
+		Q_ASSERT(thread);
+
 		State state;
 		// read
-		process->currentThread()->getState(&state);
+		thread->getState(&state);
 		Register reg = state[name];
 
 		if (!reg) {
@@ -89,10 +92,10 @@ bool set_debuggee_register(const QString &name, const T &value, T &resultingValu
 
 		// write
 		state.setRegister(reg);
-		process->currentThread()->setState(state);
+		thread->setState(state);
 
 		// check
-		process->currentThread()->getState(&state);
+		thread->getState(&state);
 		const Register resultReg = state[name];
 
 		if (!resultReg) {
@@ -392,7 +395,11 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 
 			// read
 			if (IProcess *process = core->process()) {
-				process->currentThread()->getState(&state);
+				if (std::shared_ptr<IThread> thread = process->currentThread()) {
+					thread->getState(&state);
+				} else {
+					return {};
+				}
 			}
 			return QVariant::fromValue(state[name]);
 		}

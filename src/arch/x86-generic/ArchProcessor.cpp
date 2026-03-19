@@ -1488,96 +1488,99 @@ QStringList ArchProcessor::updateInstructionInfo(edb::address_t address) {
 			edb::Instruction inst(buffer, buffer + sizeof(buffer), address);
 			if (inst) {
 
-				State state;
-				process->currentThread()->getState(&state);
+				if (std::shared_ptr<IThread> thread = process->currentThread()) {
 
-				std::int64_t origAX;
-				if (debuggeeIs64Bit()) {
-					origAX = state["orig_rax"].valueAsSignedInteger();
-				} else {
-					origAX = state["orig_eax"].valueAsSignedInteger();
-				}
+					State state;
+					thread->getState(&state);
 
-				const std::uint64_t rax = state.gpRegister(rAX).valueAsSignedInteger();
+					std::int64_t origAX;
+					if (debuggeeIs64Bit()) {
+						origAX = state["orig_rax"].valueAsSignedInteger();
+					} else {
+						origAX = state["orig_eax"].valueAsSignedInteger();
+					}
 
-				if (origAX != -1 && !falseSyscallReturn(state, origAX)) {
+					const std::uint64_t rax = state.gpRegister(rAX).valueAsSignedInteger();
 
-					// FIXME: this all doesn't work correctly when we're on the first instruction of a signal handler
-					// The registers there don't correspond to arguments of the syscall, and it's not correct to say the
-					// debuggee _returned_ from the syscall, since it's just interrupted the syscall to handle the signal
-					analyze_syscall(state, inst, ret, origAX);
+					if (origAX != -1 && !falseSyscallReturn(state, origAX)) {
+
+						// FIXME: this all doesn't work correctly when we're on the first instruction of a signal handler
+						// The registers there don't correspond to arguments of the syscall, and it's not correct to say the
+						// debuggee _returned_ from the syscall, since it's just interrupted the syscall to handle the signal
+						analyze_syscall(state, inst, ret, origAX);
 #ifdef Q_OS_LINUX
-					enum {
-						// restart if no handler or if SA_RESTART is set, can be seen when interrupting e.g. waitpid
-						ERESTARTSYS = 512,
-						// restart unconditionally
-						ERESTARTNOINTR = 513,
-						// restart if no handler
-						ERESTARTNOHAND = 514,
-						// restart by sys_restart_syscall, can be seen when interrupting e.g. nanosleep
-						ERESTART_RESTARTBLOCK = 516,
-					};
-					const auto err         = rax >= -4095UL ? -rax : 0;
-					const bool interrupted = err == EINTR ||
-											 err == ERESTARTSYS ||
-											 err == ERESTARTNOINTR ||
-											 err == ERESTARTNOHAND ||
-											 err == ERESTART_RESTARTBLOCK;
+						enum {
+							// restart if no handler or if SA_RESTART is set, can be seen when interrupting e.g. waitpid
+							ERESTARTSYS = 512,
+							// restart unconditionally
+							ERESTARTNOINTR = 513,
+							// restart if no handler
+							ERESTARTNOHAND = 514,
+							// restart by sys_restart_syscall, can be seen when interrupting e.g. nanosleep
+							ERESTART_RESTARTBLOCK = 516,
+						};
+						const auto err         = rax >= -4095UL ? -rax : 0;
+						const bool interrupted = err == EINTR ||
+												 err == ERESTARTSYS ||
+												 err == ERESTARTNOINTR ||
+												 err == ERESTARTNOHAND ||
+												 err == ERESTART_RESTARTBLOCK;
 
-					if (!ret.isEmpty() && ret.back().startsWith("SYSCALL")) {
-						if (interrupted) {
-							ret.back() = "Interrupted " + ret.back();
-						} else {
-							ret.back() = "Returned from " + ret.back();
+						if (!ret.isEmpty() && ret.back().startsWith("SYSCALL")) {
+							if (interrupted) {
+								ret.back() = "Interrupted " + ret.back();
+							} else {
+								ret.back() = "Returned from " + ret.back();
+							}
 						}
-					}
-					// FIXME: actually only ERESTARTNOINTR guarantees reexecution. But it seems the other ERESTART* signals
-					// won't go into user space, so whatever the state of signal handlers, the tracee should never appear
-					// to see these signals. So I guess it's OK to assume that tha syscall _will_ be restarted by the kernel.
-					if (interrupted && err != EINTR) {
-						ret << QStringLiteral("Syscall will be restarted on next step/run");
-					}
+						// FIXME: actually only ERESTARTNOINTR guarantees reexecution. But it seems the other ERESTART* signals
+						// won't go into user space, so whatever the state of signal handlers, the tracee should never appear
+						// to see these signals. So I guess it's OK to assume that tha syscall _will_ be restarted by the kernel.
+						if (interrupted && err != EINTR) {
+							ret << QStringLiteral("Syscall will be restarted on next step/run");
+						}
 #else
-					Q_UNUSED(rax)
+						Q_UNUSED(rax)
 #endif
-				}
-
-				// figure out the instruction type and display some information about it
-				// TODO: handle SETcc, LOOPcc, REPcc OP
-				if (is_conditional_move(inst)) {
-
-					analyze_cmov(state, inst, ret);
-
-				} else if (is_ret(inst)) {
-
-					analyze_return(state, inst, ret);
-
-				} else if (is_jump(inst) || is_call(inst)) {
-
-					if (is_conditional_jump(inst)) {
-						analyze_jump(state, inst, ret);
 					}
-					analyze_call(state, inst, ret);
-				} else if (is_int(inst)) {
+
+					// figure out the instruction type and display some information about it
+					// TODO: handle SETcc, LOOPcc, REPcc OP
+					if (is_conditional_move(inst)) {
+
+						analyze_cmov(state, inst, ret);
+
+					} else if (is_ret(inst)) {
+
+						analyze_return(state, inst, ret);
+
+					} else if (is_jump(inst) || is_call(inst)) {
+
+						if (is_conditional_jump(inst)) {
+							analyze_jump(state, inst, ret);
+						}
+						analyze_call(state, inst, ret);
+					} else if (is_int(inst)) {
 #ifdef Q_OS_LINUX
-					if ((inst[0]->imm & 0xff) == 0x80) {
+						if ((inst[0]->imm & 0xff) == 0x80) {
+
+							analyze_syscall(state, inst, ret, state.gpRegister(rAX).valueAsInteger());
+						} else {
+
+							analyze_operands(state, inst, ret);
+						}
+#endif
+					} else if (is_syscall(inst) || is_sysenter(inst)) {
 
 						analyze_syscall(state, inst, ret, state.gpRegister(rAX).valueAsInteger());
+
 					} else {
 
 						analyze_operands(state, inst, ret);
 					}
-#endif
-				} else if (is_syscall(inst) || is_sysenter(inst)) {
 
-					analyze_syscall(state, inst, ret, state.gpRegister(rAX).valueAsInteger());
-
-				} else {
-
-					analyze_operands(state, inst, ret);
+					analyze_jump_targets(inst, ret);
 				}
-
-				analyze_jump_targets(inst, ret);
 			}
 		}
 
