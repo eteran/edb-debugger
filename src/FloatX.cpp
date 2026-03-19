@@ -203,7 +203,7 @@ const char *fixup_g_Yfmt(char *buffer, int digits10) {
 
 	// If point wasn't found, assume it's at the end of the number
 	if (pointPos < 0) {
-		pointPos = len;
+		pointPos = static_cast<int>(len);
 	}
 
 	const int signChars = buffer[0] == '-';
@@ -219,7 +219,7 @@ const char *fixup_g_Yfmt(char *buffer, int digits10) {
 		// The original string may contain a point, may not contain any. In the
 		// former case we must move everything including the null terminator. In
 		// the latter case only the chunk up to the original point needs moving.
-		const int lenWithNull = len + 1;
+		const auto lenWithNull = static_cast<int>(len + 1);
 
 		char next = buf[1];
 		for (int i = 0; i < lenWithNull - signChars; ++i) {
@@ -244,8 +244,8 @@ const char *fixup_g_Yfmt(char *buffer, int digits10) {
 		// Append the exponent
 		buf[len]     = 'e';
 		buf[len + 1] = '+';
-		buf[len + 2] = exp / 10 + '0';
-		buf[len + 3] = exp % 10 + '0';
+		buf[len + 2] = static_cast<char>(exp / 10 + '0');
+		buf[len + 3] = static_cast<char>(exp % 10 + '0');
 		buf[len + 4] = 0;
 	}
 

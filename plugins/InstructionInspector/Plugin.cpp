@@ -769,7 +769,7 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 		return "; Failed to create binary file";
 	}
 
-	const int size = bytes.size();
+	const auto size = static_cast<qint64>(bytes.size());
 
 	if (binary.write(reinterpret_cast<const char *>(bytes.data()), size) != size) {
 		return "; Failed to write to binary file";
@@ -777,24 +777,22 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 
 	binary.close();
 	QProcess process;
-	process.start(processName.c_str(), {
-		"-D",
-			"--target=binary",
+	process.start(processName.c_str(), {"-D",
+										"--target=binary",
 #if defined(EDB_X86) || defined(EDB_X86_64)
-			"--insn-width=15",
-			"--architecture=i386" + QString(bits == 64 ? ":x86-64" : ""),
-			"-M",
-			"intel,intel-mnemonic",
+										"--insn-width=15",
+										"--architecture=i386" + QString(bits == 64 ? ":x86-64" : ""),
+										"-M",
+										"intel,intel-mnemonic",
 #elif defined(EDB_ARM32)
-								   "--insn-width=4",
-								   "-m",
-								   "arm",
-								   edb::v1::debugger_core->cpuMode() == IDebugger::CpuMode::Thumb ? "-Mforce-thumb" : "-Mno-force-thumb",
+										"--insn-width=4",
+										"-m",
+										"arm",
+										edb::v1::debugger_core->cpuMode() == IDebugger::CpuMode::Thumb ? "-Mforce-thumb" : "-Mno-force-thumb",
 #else
 #error "Not implemented"
 #endif
-			"--adjust-vma=" + address.toPointerString(), binary.fileName()
-	});
+										"--adjust-vma=" + address.toPointerString(), binary.fileName()});
 
 	if (process.waitForFinished()) {
 		if (process.exitCode() != 0) {
@@ -890,7 +888,7 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 		return "; Failed to create binary file";
 	}
 
-	const int size = bytes.size();
+	const auto size = static_cast<qint64>(bytes.size());
 
 	if (binary.write(reinterpret_cast<const char *>(bytes.data()), size) != size) {
 		return "; Failed to write to binary file";

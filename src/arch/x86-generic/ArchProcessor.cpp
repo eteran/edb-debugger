@@ -41,16 +41,16 @@
 namespace ILP32 {
 
 constexpr std::int32_t toInt(std::uint64_t x) {
-	return x;
+	return static_cast<std::int32_t>(x);
 }
 constexpr std::uint32_t toUInt(std::uint64_t x) {
-	return x;
+	return static_cast<std::uint32_t>(x);
 }
 constexpr std::int32_t toLong(std::uint64_t x) {
-	return x;
+	return static_cast<std::int32_t>(x);
 }
 constexpr std::uint32_t toULong(std::uint64_t x) {
-	return x;
+	return static_cast<std::uint32_t>(x);
 }
 
 }
@@ -58,16 +58,16 @@ constexpr std::uint32_t toULong(std::uint64_t x) {
 namespace LP64 {
 
 constexpr std::int32_t toInt(std::uint64_t x) {
-	return x;
+	return static_cast<std::int32_t>(x);
 }
 constexpr std::uint32_t toUInt(std::uint64_t x) {
-	return x;
+	return static_cast<std::uint32_t>(x);
 }
 constexpr std::int64_t toLong(std::uint64_t x) {
-	return x;
+	return static_cast<std::int64_t>(x);
 }
 constexpr std::uint64_t toULong(std::uint64_t x) {
-	return x;
+	return static_cast<std::uint64_t>(x);
 }
 
 }
@@ -104,15 +104,15 @@ enum SegmentRegisterIndex {
 	GS,
 };
 
-constexpr size_t MAX_DEBUG_REGS_COUNT = 8;
-constexpr size_t GPR32_COUNT          = 8;
-constexpr size_t GPR64_COUNT          = 16;
-constexpr size_t SSE32_COUNT          = GPR32_COUNT;
-constexpr size_t SSE64_COUNT          = GPR64_COUNT;
-constexpr size_t AVX32_COUNT          = SSE32_COUNT;
-constexpr size_t AVX64_COUNT          = SSE64_COUNT;
-constexpr size_t MAX_FPU_REGS_COUNT   = 8;
-constexpr size_t MAX_MMX_REGS_COUNT   = MAX_FPU_REGS_COUNT;
+constexpr int MAX_DEBUG_REGS_COUNT = 8;
+constexpr int GPR32_COUNT          = 8;
+constexpr int GPR64_COUNT          = 16;
+constexpr int SSE32_COUNT          = GPR32_COUNT;
+constexpr int SSE64_COUNT          = GPR64_COUNT;
+constexpr int AVX32_COUNT          = SSE32_COUNT;
+constexpr int AVX64_COUNT          = SSE64_COUNT;
+constexpr int MAX_FPU_REGS_COUNT   = 8;
+constexpr int MAX_MMX_REGS_COUNT   = MAX_FPU_REGS_COUNT;
 
 using edb::v1::debuggeeIs32Bit;
 using edb::v1::debuggeeIs64Bit;
@@ -180,7 +180,7 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 	case 'b':
 		return arg ? "true" : "false";
 	case 'c':
-		if (arg < 0x80u && (std::isprint(arg) || std::isspace(arg))) {
+		if (arg < 0x80u && (std::isprint(static_cast<int>(arg)) || std::isspace(static_cast<int>(arg)))) {
 			return QStringLiteral("'%1'").arg(static_cast<char>(arg));
 		} else {
 			return QStringLiteral("'\\x%1'").arg(static_cast<uint16_t>(arg), 2, 16);
@@ -971,7 +971,7 @@ RegisterViewModel &getModel() {
 
 void updateGPRs(RegisterViewModel &model, const State &state, bool is64Bit) {
 	if (is64Bit) {
-		for (std::size_t i = 0; i < GPR64_COUNT; ++i) {
+		for (int i = 0; i < GPR64_COUNT; ++i) {
 			const auto reg = state.gpRegister(i);
 			if (!reg) {
 				continue;
@@ -995,7 +995,7 @@ void updateGPRs(RegisterViewModel &model, const State &state, bool is64Bit) {
 			model.updateGPR(i, reg.value<edb::value64>(), comment);
 		}
 	} else {
-		for (std::size_t i = 0; i < GPR32_COUNT; ++i) {
+		for (int i = 0; i < GPR32_COUNT; ++i) {
 			const auto reg = state.gpRegister(i);
 			if (!reg) {
 				continue;
@@ -1124,12 +1124,12 @@ void updateSegRegs(RegisterViewModel &model, const State &state) {
 				comment = "(?)";
 			}
 		}
-		model.updateSegReg(i, sregValue, comment);
+		model.updateSegReg(static_cast<int>(i), sregValue, comment);
 	}
 }
 
 void updateFPURegs(RegisterViewModel &model, const State &state) {
-	for (std::size_t i = 0; i < MAX_FPU_REGS_COUNT; ++i) {
+	for (int i = 0; i < MAX_FPU_REGS_COUNT; ++i) {
 		const auto reg     = state.fpuRegister(i);
 		const auto comment = float_type(reg) == FloatValueClass::PseudoDenormal ? QObject::tr("pseudo-denormal") : "";
 		model.updateFPUReg(i, reg, comment);
@@ -1188,7 +1188,7 @@ void updateFPURegs(RegisterViewModel &model, const State &state) {
 }
 
 void updateDebugRegs(RegisterViewModel &model, const State &state) {
-	for (std::size_t i = 0; i < MAX_DEBUG_REGS_COUNT; ++i) {
+	for (int i = 0; i < MAX_DEBUG_REGS_COUNT; ++i) {
 		const edb::reg_t reg = state.debugRegister(i);
 		if (edb::v1::debuggeeIs32Bit()) {
 			model.updateDR(i, edb::value32(reg));
@@ -1199,7 +1199,7 @@ void updateDebugRegs(RegisterViewModel &model, const State &state) {
 }
 
 void updateMMXRegs(RegisterViewModel &model, const State &state) {
-	for (std::size_t i = 0; i < MAX_MMX_REGS_COUNT; ++i) {
+	for (int i = 0; i < MAX_MMX_REGS_COUNT; ++i) {
 		const auto reg = state.archRegister(edb::string_hash("mmx"), i);
 
 		if (!!reg) {
@@ -1216,9 +1216,9 @@ void updateSSEAVXRegs(RegisterViewModel &model, const State &state, bool hasSSE,
 		return;
 	}
 
-	const std::size_t max = edb::v1::debuggeeIs32Bit() ? AVX32_COUNT : AVX64_COUNT;
+	const int max = edb::v1::debuggeeIs32Bit() ? AVX32_COUNT : AVX64_COUNT;
 
-	for (std::size_t i = 0; i < max; ++i) {
+	for (int i = 0; i < max; ++i) {
 		if (hasAVX) {
 			const auto reg = state.archRegister(edb::string_hash("ymm"), i);
 			if (!reg) {
@@ -1649,7 +1649,9 @@ bool ArchProcessor::isFilling(const edb::Instruction &inst) const {
 
 		if (!ret) {
 			if (edb::v1::config().zeros_are_filling) {
-				ret = (QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.byteSize()) == QByteArray::fromRawData("\x00\x00", 2));
+				auto lhs = QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), static_cast<int>(inst.byteSize()));
+				auto rhs = QByteArray::fromRawData("\x00\x00", 2);
+				ret      = (lhs == rhs);
 			}
 		}
 	} else {

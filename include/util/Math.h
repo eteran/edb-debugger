@@ -20,7 +20,7 @@ int percentage(N1 regions_finished, N2 regions_total, N3 bytes_done, N4 bytes_to
 	const auto region_step = 1.0f / static_cast<float>(regions_total) * 100.0f;
 
 	// how many regions are done?
-	const float regions_complete = region_step * regions_finished;
+	const float regions_complete = region_step * static_cast<float>(regions_finished);
 
 	// how much of the current region is done?
 	const float region_percent = region_step * static_cast<float>(bytes_done) / static_cast<float>(bytes_total);

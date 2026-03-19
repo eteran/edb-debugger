@@ -232,7 +232,7 @@ bool get_program_headers(const IProcess *process, edb::address_t *phdr_memaddr, 
 					*phdr_memaddr = entry.a_un.a_val;
 					break;
 				case AT_PHNUM:
-					*num_phdr = entry.a_un.a_val;
+					*num_phdr = static_cast<int>(entry.a_un.a_val);
 					break;
 				}
 			}
@@ -389,8 +389,8 @@ std::size_t PlatformProcess::patchBytes(edb::address_t address, const void *buf,
 
 	Patch patch;
 	patch.address = address;
-	patch.origBytes.resize(len);
-	patch.newBytes = QByteArray(static_cast<const char *>(buf), len);
+	patch.origBytes.resize(static_cast<int>(len));
+	patch.newBytes = QByteArray(static_cast<const char *>(buf), static_cast<int>(len));
 
 	size_t read_ret = readBytes(address, patch.origBytes.data(), len);
 	if (read_ret != len) {

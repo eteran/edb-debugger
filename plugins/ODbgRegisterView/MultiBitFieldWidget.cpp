@@ -21,7 +21,7 @@ MultiBitFieldWidget::MultiBitFieldWidget(const QModelIndex &index, const BitFiel
 		const auto &text = bfd.setValueTexts[i];
 		if (!text.isEmpty()) {
 			auto action = new_action(text, this, [this, i]() {
-				setValue(i);
+				setValue(static_cast<int>(i));
 			});
 
 			menuItems_.push_front(action);
@@ -70,7 +70,7 @@ void MultiBitFieldWidget::adjustToData() {
 		if (!action) {
 			continue;
 		}
-		if (byteArr.isEmpty() || equal_(word, value)) {
+		if (byteArr.isEmpty() || equal_(static_cast<unsigned int>(word), value)) {
 			action->setVisible(false);
 		} else {
 			action->setVisible(true);

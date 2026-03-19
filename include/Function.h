@@ -70,7 +70,7 @@ public:
 	[[nodiscard]] int referenceCount() const;
 
 public:
-	void swap(Function &other);
+	void swap(Function &other) noexcept;
 
 private:
 	int referenceCount_ = 0;

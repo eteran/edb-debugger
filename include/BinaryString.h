@@ -27,7 +27,7 @@ private:
 	};
 
 public:
-	BinaryString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit BinaryString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~BinaryString() override;
 
 private Q_SLOTS:

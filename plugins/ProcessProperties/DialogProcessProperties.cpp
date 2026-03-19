@@ -117,16 +117,16 @@ bool tcp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 		bool ok;
 		const uint32_t local_address = ntohl(lst[1].toUInt(&ok, 16));
 		if (ok) {
-			const uint16_t local_port = lst[2].toUInt(&ok, 16);
+			const auto local_port = static_cast<uint16_t>(lst[2].toUInt(&ok, 16));
 			if (ok) {
 				const uint32_t remote_address = ntohl(lst[3].toUInt(&ok, 16));
 				if (ok) {
-					const uint16_t remote_port = lst[4].toUInt(&ok, 16);
+					const auto remote_port = static_cast<uint16_t>(lst[4].toUInt(&ok, 16));
 					if (ok) {
-						const uint8_t state = lst[5].toUInt(&ok, 16);
+						const auto state = static_cast<uint8_t>(lst[5].toUInt(&ok, 16));
 						Q_UNUSED(state)
 						if (ok) {
-							const int inode = lst[13].toUInt(&ok, 10);
+							const auto inode = static_cast<int>(lst[13].toUInt(&ok, 10));
 							if (ok) {
 								if (inode == sock) {
 									*symlink = QStringLiteral("TCP: %1:%2 -> %3:%4")
@@ -162,16 +162,16 @@ bool udp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 		bool ok;
 		const uint32_t local_address = ntohl(lst[1].toUInt(&ok, 16));
 		if (ok) {
-			const uint16_t local_port = lst[2].toUInt(&ok, 16);
+			const auto local_port = static_cast<uint16_t>(lst[2].toUInt(&ok, 16));
 			if (ok) {
 				const uint32_t remote_address = ntohl(lst[3].toUInt(&ok, 16));
 				if (ok) {
-					const uint16_t remote_port = lst[4].toUInt(&ok, 16);
+					const auto remote_port = static_cast<uint16_t>(lst[4].toUInt(&ok, 16));
 					if (ok) {
-						const uint8_t state = lst[5].toUInt(&ok, 16);
+						const auto state = static_cast<uint8_t>(lst[5].toUInt(&ok, 16));
 						Q_UNUSED(state)
 						if (ok) {
-							const int inode = lst[13].toUInt(&ok, 10);
+							const auto inode = static_cast<int>(lst[13].toUInt(&ok, 10));
 							if (ok) {
 								if (inode == sock) {
 									*symlink = QStringLiteral("UDP: %1:%2 -> %3:%4")

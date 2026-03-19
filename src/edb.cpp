@@ -75,7 +75,7 @@ bool function_symbol_base(edb::address_t address, QString *value, int *offset) {
 
 	if (const std::shared_ptr<Symbol> s = edb::v1::symbol_manager().findNearSymbol(address)) {
 		*value  = s->name;
-		*offset = address - s->address;
+		*offset = static_cast<int>(address - s->address);
 		return true;
 	}
 
@@ -814,7 +814,7 @@ bool get_instruction_bytes(address_t address, uint8_t *buf, int *size) {
 	Q_ASSERT(*size >= 0);
 
 	if (IProcess *process = edb::v1::debugger_core->process()) {
-		*size = process->readBytes(address, buf, *size);
+		*size = static_cast<int>(process->readBytes(address, buf, static_cast<size_t>(*size)));
 		if (*size) {
 			return true;
 		}
@@ -996,7 +996,7 @@ std::shared_ptr<IRegion> primary_code_region() {
 //------------------------------------------------------------------------------
 void pop_value(State *state) {
 	Q_ASSERT(state);
-	state->adjustStack(pointer_size());
+	state->adjustStack(static_cast<int>(pointer_size()));
 }
 
 //------------------------------------------------------------------------------
@@ -1112,7 +1112,7 @@ QByteArray get_md5(const QVector<uint8_t> &bytes) {
 // Desc:
 //------------------------------------------------------------------------------
 QByteArray get_md5(const void *p, size_t n) {
-	auto b = QByteArray::fromRawData(reinterpret_cast<const char *>(p), n);
+	auto b = QByteArray::fromRawData(reinterpret_cast<const char *>(p), static_cast<int>(n));
 	return QCryptographicHash::hash(b, QCryptographicHash::Md5);
 }
 
@@ -1150,7 +1150,7 @@ QString symlink_target(const QString &s) {
 //------------------------------------------------------------------------------
 quint32 int_version(const QString &s) {
 
-	ulong ret              = 0;
+	quint32 ret            = 0;
 	const QStringList list = s.split(".");
 	if (list.size() == 3) {
 		bool ok[3];
@@ -1381,7 +1381,7 @@ QVector<uint8_t> read_pages(address_t address, size_t page_count) {
 		if (IProcess *process = edb::v1::debugger_core->process()) {
 			try {
 				const size_t page_size = debugger_core->pageSize();
-				QVector<uint8_t> pages(page_count * page_size);
+				QVector<uint8_t> pages(static_cast<int>(page_count * page_size));
 
 				if (process->readPages(address, pages.data(), page_count)) {
 					return pages;
@@ -1524,7 +1524,7 @@ QString format_bytes(const void *buffer, size_t count) {
 	QString bytes;
 
 	if (count != 0) {
-		bytes.reserve(count * 4);
+		bytes.reserve(static_cast<int>(count) * 4);
 
 		auto it  = static_cast<const uint8_t *>(buffer);
 		auto end = it + count;

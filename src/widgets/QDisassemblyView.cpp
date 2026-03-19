@@ -103,7 +103,7 @@ bool near_line(int x, int linex) {
 //------------------------------------------------------------------------------
 int instruction_size(const uint8_t *buffer, std::size_t size) {
 	edb::Instruction inst(buffer, buffer + size, 0);
-	return inst.byteSize();
+	return static_cast<int>(inst.byteSize());
 }
 
 //------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ int instruction_size(const uint8_t *buffer, std::size_t size) {
 // Desc:
 //------------------------------------------------------------------------------
 QString format_instruction_bytes(const edb::Instruction &inst) {
-	auto bytes = QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.byteSize());
+	auto bytes = QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), static_cast<int>(inst.byteSize()));
 	return edb::v1::format_bytes(bytes);
 }
 
@@ -189,7 +189,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 		if (selected != 0 && idx > 0 && idx < showAddresses_.size() - 1 - partialLastLine_) {
 			setSelectedAddress(showAddresses_[idx + 1]);
 		} else {
-			const int current_offset = selected - addressOffset_;
+			const auto current_offset = static_cast<int>(selected - addressOffset_);
 			if (current_offset + 1 >= static_cast<int>(region_->size())) {
 				return;
 			}
@@ -208,7 +208,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 			// we already know the previous instruction
 			setSelectedAddress(showAddresses_[idx - 1]);
 		} else {
-			const int current_offset = selected - addressOffset_;
+			const auto current_offset = static_cast<int>(selected - addressOffset_);
 			if (current_offset <= 0) {
 				return;
 			}
@@ -226,7 +226,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 		} else {
 			scrollbarActionTriggered(QAbstractSlider::SliderPageStepSub);
 		}
-		updateDisassembly(instructions_.size());
+		updateDisassembly(static_cast<int>(instructions_.size()));
 
 		if (showAddresses_.size() > selectedLine) {
 			setSelectedAddress(showAddresses_[selectedLine]);
@@ -303,7 +303,7 @@ int QDisassemblyView::previousInstruction(IAnalyzer *analyzer, int current_addre
 					}
 				}
 
-				current_address = (function_start - addressOffset_);
+				current_address = static_cast<int>(function_start - addressOffset_);
 				return current_address;
 			}
 		}
@@ -363,7 +363,7 @@ int QDisassemblyView::followingInstruction(int current_address) const {
 	}
 
 	const edb::Instruction inst(buf, buf + buf_size, current_address);
-	return current_address + inst.byteSize();
+	return static_cast<int>(current_address + inst.byteSize());
 }
 
 //------------------------------------------------------------------------------
@@ -443,11 +443,6 @@ void QDisassemblyView::scrollbarActionTriggered(int action) {
 		address     = followingInstructions(address, verticalScrollBar()->pageStep());
 		verticalScrollBar()->setSliderPosition(address);
 	} break;
-
-	case QAbstractSlider::SliderToMinimum:
-	case QAbstractSlider::SliderToMaximum:
-	case QAbstractSlider::SliderMove:
-	case QAbstractSlider::SliderNoAction:
 	default:
 		break;
 	}
@@ -467,7 +462,7 @@ void QDisassemblyView::setShowAddressSeparator(bool value) {
 //------------------------------------------------------------------------------
 QString QDisassemblyView::formatAddress(edb::address_t address) const {
 	if (edb::v1::debuggeeIs32Bit()) {
-		return format_address<quint32>(address.toUint(), showAddressSeparator_);
+		return format_address<quint32>(static_cast<quint32>(address.toUint()), showAddressSeparator_);
 	}
 	return format_address(address, showAddressSeparator_);
 }
@@ -547,7 +542,7 @@ void QDisassemblyView::setAddressOffset(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::scrollTo(edb::address_t address) {
-	verticalScrollBar()->setValue(address - addressOffset_);
+	verticalScrollBar()->setValue(static_cast<int>(address - addressOffset_));
 }
 
 //------------------------------------------------------------------------------
@@ -698,7 +693,7 @@ std::optional<unsigned int> QDisassemblyView::getLineOfAddress(edb::address_t ad
 
 	if (!showAddresses_.isEmpty()) {
 		if (addr >= showAddresses_[0] && addr <= showAddresses_[showAddresses_.size() - 1]) {
-			int pos = std::find(showAddresses_.begin(), showAddresses_.end(), addr) - showAddresses_.begin();
+			auto pos = static_cast<int>(std::find(showAddresses_.begin(), showAddresses_.end(), addr) - showAddresses_.begin());
 			if (pos < showAddresses_.size()) { // address was found
 				return pos;
 			}
@@ -717,7 +712,7 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 	instructions_.clear();
 	showAddresses_.clear();
 
-	int bufsize                        = instructionBuffer_.size();
+	auto bufsize                       = static_cast<int>(instructionBuffer_.size());
 	uint8_t *inst_buf                  = instructionBuffer_.data();
 	const edb::address_t start_address = addressOffset_ + verticalScrollBar()->value();
 
@@ -744,7 +739,7 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 		showAddresses_.push_back(address);
 
 		if (instructions_[line].valid()) {
-			offset += instructions_[line].byteSize();
+			offset += static_cast<int>(instructions_[line].byteSize());
 		} else {
 			++offset;
 		}
@@ -1681,7 +1676,7 @@ int QDisassemblyView::lineHeight() const {
 //------------------------------------------------------------------------------
 void QDisassemblyView::updateScrollbars() {
 	if (region_) {
-		const int total_lines    = region_->size();
+		const auto total_lines   = static_cast<int>(region_->size());
 		const int viewable_lines = viewport()->height() / lineHeight();
 		const int scroll_max     = (total_lines > viewable_lines) ? total_lines - 1 : 0;
 
@@ -1765,7 +1760,7 @@ int QDisassemblyView::line4() const {
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::addressLength() const {
-	const int address_len = edb::v1::pointer_size() * CHAR_BIT / 4;
+	const auto address_len = static_cast<int>(edb::v1::pointer_size() * CHAR_BIT / 4);
 	return address_len + (showAddressSeparator_ ? 1 : 0);
 }
 
@@ -1819,7 +1814,7 @@ Result<int, QString> QDisassemblyView::getInstructionSize(edb::address_t address
 	if (region_->end() != 0 && address + buf_size > region_->end()) {
 
 		if (address <= region_->end()) {
-			buf_size = region_->end() - address;
+			buf_size = static_cast<int>(region_->end() - address);
 		} else {
 			buf_size = 0;
 		}

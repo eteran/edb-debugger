@@ -66,12 +66,12 @@ constexpr auto ELF32_ST_INFO(T1 bind, T2 type) {
 /* Both Elf32_Sym and Elf64_Sym use the same one-byte st_info field.  */
 template <class T>
 constexpr uint8_t ELF64_ST_BIND(T val) {
-	return ELF32_ST_BIND(val);
+	return static_cast<uint8_t>(ELF32_ST_BIND(val));
 }
 
 template <class T>
 constexpr uint8_t ELF64_ST_TYPE(T val) {
-	return ELF32_ST_TYPE(val);
+	return static_cast<uint8_t>(ELF32_ST_TYPE(val));
 }
 
 template <class T1, class T2>

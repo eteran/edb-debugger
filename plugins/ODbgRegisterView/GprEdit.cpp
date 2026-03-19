@@ -29,19 +29,19 @@ const QULongValidator wordUnsignedValidator(0, UINT16_MAX);
 const QULongValidator dwordUnsignedValidator(0, UINT32_MAX);
 const QULongValidator qwordUnsignedValidator(0, UINT64_MAX);
 
-const std::map<int, const QRegularExpressionValidator *> hexValidators = {
+const std::map<std::size_t, const QRegularExpressionValidator *> hexValidators = {
 	{1, &byteHexValidator},
 	{2, &wordHexValidator},
 	{4, &dwordHexValidator},
 	{8, &qwordHexValidator}};
 
-const std::map<int, const QLongValidator *> signedValidators = {
+const std::map<std::size_t, const QLongValidator *> signedValidators = {
 	{1, &byteSignedValidator},
 	{2, &wordSignedValidator},
 	{4, &dwordSignedValidator},
 	{8, &qwordSignedValidator}};
 
-const std::map<int, const QULongValidator *> unsignedValidators = {
+const std::map<std::size_t, const QULongValidator *> unsignedValidators = {
 	{1, &byteUnsignedValidator},
 	{2, &wordUnsignedValidator},
 	{4, &dwordUnsignedValidator},
@@ -54,15 +54,15 @@ void GprEdit::setupFormat(Format newFormat) {
 	switch (format_) {
 	case Format::Hex:
 		setValidator(hexValidators.at(integerSize_));
-		naturalWidthInChars_ = 2 * integerSize_;
+		naturalWidthInChars_ = static_cast<int>(2 * integerSize_);
 		break;
 	case Format::Signed:
 		setValidator(signedValidators.at(integerSize_));
-		naturalWidthInChars_ = 1 + std::lround(integerSize_ * std::log10(256.));
+		naturalWidthInChars_ = static_cast<int>(1 + std::lround(static_cast<double>(integerSize_) * std::log10(256.0)));
 		break;
 	case Format::Unsigned:
 		setValidator(unsignedValidators.at(integerSize_));
-		naturalWidthInChars_ = std::lround(integerSize_ * std::log10(256.));
+		naturalWidthInChars_ = static_cast<int>(std::lround(static_cast<double>(integerSize_) * std::log10(256.0)));
 		break;
 	case Format::Character:
 		setMaxLength(1);
@@ -73,7 +73,7 @@ void GprEdit::setupFormat(Format newFormat) {
 }
 
 GprEdit::GprEdit(std::size_t offsetInInteger, std::size_t integerSize, Format format, QWidget *parent)
-	: QLineEdit(parent), naturalWidthInChars_(2 * integerSize), integerSize_(integerSize), offsetInInteger_(offsetInInteger) {
+	: QLineEdit(parent), naturalWidthInChars_(static_cast<int>(2 * integerSize)), integerSize_(integerSize), offsetInInteger_(offsetInInteger) {
 
 	setupFormat(format);
 }

@@ -157,7 +157,7 @@ void DialogBacktrace::populateTable() {
 	for (size_t i = 0; i < size; i++) {
 
 		// Create the row to insert info
-		table_->insertRow(i);
+		table_->insertRow(static_cast<int>(i));
 
 		// Get the stack frame so that we can insert its info
 		CallStack::StackFrame *frame = call_stack[i];
@@ -192,7 +192,7 @@ void DialogBacktrace::populateTable() {
 			flags |= Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 			item->setFlags(flags);
 
-			table_->setItem(i, j, item);
+			table_->setItem(static_cast<int>(i), j, item);
 		}
 	}
 

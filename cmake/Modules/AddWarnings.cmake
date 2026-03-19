@@ -14,7 +14,7 @@ function(TARGET_ADD_WARNINGS TARGET)
 			-Wunused
 			-Woverloaded-virtual
 			-pedantic
-			#-Wconversion
+			-Wconversion
 			#-Wsign-conversion
 			#-Wnull-dereference
 			-Wdouble-promotion

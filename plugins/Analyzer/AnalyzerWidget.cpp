@@ -72,7 +72,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 	const QSet<edb::address_t> specified_functions = edb::v1::analyzer()->specifiedFunctions();
 	const IAnalyzer::FunctionMap functions         = edb::v1::analyzer()->functions(region);
 
-	const auto byte_width = static_cast<float>(width()) / region->size();
+	const auto byte_width = static_cast<double>(width()) / static_cast<double>(region->size());
 
 	if (!cache_ || width() != cache_->width() || height() != cache_->height() || cacheNumFuncs_ != functions.size()) {
 
@@ -85,8 +85,8 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 		for (auto it = functions.begin(); it != functions.end(); ++it) {
 			const Function &f = it.value();
 
-			const auto first_offset = static_cast<int>((f.entryAddress() - region->start()) * byte_width);
-			const auto last_offset  = static_cast<int>((f.endAddress() - region->start()) * byte_width);
+			const auto first_offset = static_cast<int>(static_cast<double>(f.entryAddress() - region->start()) * byte_width);
+			const auto last_offset  = static_cast<int>(static_cast<double>(f.endAddress() - region->start()) * byte_width);
 
 			if (!specified_functions.contains(f.entryAddress())) {
 				painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkGreen));
@@ -97,7 +97,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 
 		// highlight header of binary (probably not going to be too noticeable but just in case)
 		if (std::unique_ptr<IBinary> binary_info = edb::v1::get_binary_info(region)) {
-			painter.fillRect(0, 0, static_cast<int>(binary_info->headerSize() * byte_width), height(), QBrush(Qt::darkBlue));
+			painter.fillRect(0, 0, static_cast<int>(static_cast<double>(binary_info->headerSize()) * byte_width), height(), QBrush(Qt::darkBlue));
 		}
 	}
 
@@ -108,7 +108,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 		if (auto scroll_area = qobject_cast<QAbstractScrollArea *>(edb::v1::disassembly_widget())) {
 			if (QScrollBar *scrollbar = scroll_area->verticalScrollBar()) {
 				QFontMetrics fm(font());
-				const auto offset = static_cast<int>(scrollbar->value() * byte_width);
+				const auto offset = static_cast<int>(static_cast<double>(scrollbar->value()) * byte_width);
 
 				const QString triangle(QChar(0x25b4));
 
@@ -148,12 +148,12 @@ void AnalyzerWidget::mousePressEvent(QMouseEvent *event) {
 	if (const std::shared_ptr<IRegion> region = edb::v1::current_cpu_view_region()) {
 		const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
 		if (region->size() != 0 && !functions.empty()) {
-			const auto byte_width = static_cast<float>(width()) / region->size();
+			const auto byte_width = static_cast<double>(width()) / static_cast<double>(region->size());
 
 			const edb::address_t start = region->start();
 			const edb::address_t end   = region->end();
 
-			edb::address_t offset = start + static_cast<int>(event->x() / byte_width);
+			edb::address_t offset = start + static_cast<std::uint64_t>(event->x() / byte_width);
 
 			const edb::address_t address = qBound<edb::address_t>(start, offset, end - 1);
 			edb::v1::jump_to_address(address);

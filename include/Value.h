@@ -28,6 +28,13 @@ namespace v1 {
 EDB_EXPORT bool debuggeeIs32Bit();
 }
 
+// TODO(eteran): honestly, this whole file is filled with conversions, so the warnings about conversions are not really helpful.
+// Of course, we should audit the code to make sure that all conversions are intentional and safe. For now, suppress the warnings
+// about conversions in this file as it's just too loud when they are enabled.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+
 namespace detail {
 
 template <class Integer>
@@ -225,7 +232,7 @@ public:
 	}
 
 public:
-	void swap(value_type &other) {
+	void swap(value_type &other) noexcept {
 		using std::swap;
 		swap(value_, other.value_);
 	}
@@ -853,6 +860,8 @@ private:
 static_assert(sizeof(value_type80) * 8 == 80, "value_type80 size is broken!");
 
 }
+
+#pragma GCC diagnostic pop
 
 // GPR on x86
 using value8  = detail::value_type<uint8_t>;

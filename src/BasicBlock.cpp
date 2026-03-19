@@ -14,7 +14,7 @@
  * @brief BasicBlock::swap
  * @param other
  */
-void BasicBlock::swap(BasicBlock &other) {
+void BasicBlock::swap(BasicBlock &other) noexcept {
 	using std::swap;
 	swap(instructions_, other.instructions_);
 	swap(references_, other.references_);

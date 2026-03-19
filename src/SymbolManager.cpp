@@ -220,7 +220,7 @@ bool SymbolManager::processSymbolFile(const QString &f, edb::address_t base, con
 					sym->name_no_prefix = QString::fromStdString(sym_name).trimmed();
 					sym->name           = QStringLiteral("%1!%2").arg(prefix, sym->name_no_prefix);
 					sym->address        = sym_start;
-					sym->size           = sym_end;
+					sym->size           = static_cast<uint32_t>(sym_end - sym_start);
 					sym->type           = sym_type;
 
 					// fixup the base address based on where it is loaded

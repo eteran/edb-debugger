@@ -10,7 +10,7 @@
  * @brief Function::swap
  * @param other
  */
-void Function::swap(Function &other) {
+void Function::swap(Function &other) noexcept {
 	using std::swap;
 	swap(referenceCount_, other.referenceCount_);
 	swap(type_, other.type_);

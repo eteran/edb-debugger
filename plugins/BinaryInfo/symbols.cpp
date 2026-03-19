@@ -39,7 +39,7 @@ struct elf32_model : elf_model<32> {
 	static constexpr uint32_t elf_r_sym(uint32_t x) { return ELF32_R_SYM(x); }
 	static constexpr uint32_t elf_r_type(uint32_t x) { return ELF32_R_TYPE(x); }
 	static constexpr uint8_t elf_st_type(uint8_t x) { return ELF32_ST_TYPE(x); }
-	static constexpr uint8_t elf_st_bind(uint8_t x) { return ELF32_ST_BIND(x); }
+	static constexpr uint8_t elf_st_bind(uint8_t x) { return static_cast<uint8_t>(ELF32_ST_BIND(x)); }
 
 	struct symbol {
 		elf_addr address;
@@ -68,7 +68,7 @@ struct elf64_model : elf_model<64> {
 	static constexpr uint64_t elf_r_sym(uint64_t x) { return ELF64_R_SYM(x); }
 	static constexpr uint64_t elf_r_type(uint64_t x) { return ELF64_R_TYPE(x); }
 	static constexpr uint8_t elf_st_type(uint8_t x) { return ELF64_ST_TYPE(x); }
-	static constexpr uint8_t elf_st_bind(uint8_t x) { return ELF64_ST_BIND(x); }
+	static constexpr uint8_t elf_st_bind(uint8_t x) { return static_cast<uint8_t>(ELF64_ST_BIND(x)); }
 
 	struct symbol {
 		elf_addr address;
@@ -241,7 +241,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				auto symbol_tab        = reinterpret_cast<elf_sym *>(base + linked->sh_offset);
 				auto string_tab        = reinterpret_cast<const char *>(base + sections_begin[linked->sh_link].sh_offset);
 
-				const elf_addr symbol_address = base_address + (n * M::plt_entry_size);
+				const auto symbol_address = static_cast<elf_addr>(base_address + (n * M::plt_entry_size));
 
 				const char *sym_name = &section_strings[section->sh_name];
 				if (strlen(sym_name) > (sizeof(".rela.") - 1) && memcmp(sym_name, ".rela.", (sizeof(".rela.") - 1)) == 0) {
@@ -280,7 +280,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				auto symbol_tab        = reinterpret_cast<elf_sym *>(base + linked->sh_offset);
 				auto string_tab        = reinterpret_cast<const char *>(base + sections_begin[linked->sh_link].sh_offset);
 
-				const elf_addr symbol_address = base_address + (n * M::plt_entry_size);
+				const auto symbol_address = static_cast<elf_addr>(base_address + (n * M::plt_entry_size));
 
 				const char *sym_name = &section_strings[section->sh_name];
 				if (strlen(sym_name) > (sizeof(".rel.") - 1) && memcmp(sym_name, ".rel.", (sizeof(".rel.") - 1)) == 0) {

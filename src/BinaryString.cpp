@@ -138,12 +138,12 @@ void BinaryString::on_txtUTF16_textEdited(const QString &text) {
 		const uint16_t ch = i.unicode();
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-		textAscii += ch & 0xff;
-		textAscii += (ch >> 8) & 0xff;
+		textAscii += static_cast<char>(ch & 0xff);
+		textAscii += static_cast<char>((ch >> 8) & 0xff);
 		textHex += QString::asprintf("%02x %02x ", ch & 0xff, (ch >> 8) & 0xff);
 #else
-		textAscii += (ch >> 8) & 0xff;
-		textAscii += ch & 0xff;
+		textAscii += static_cast<char>((ch >> 8) & 0xff);
+		textAscii += static_cast<char>(ch & 0xff);
 		textHex += QString::asprintf("%02x %02x ", (ch >> 8) & 0xff, ch & 0xff);
 #endif
 	}
@@ -172,7 +172,7 @@ void BinaryString::on_txtHex_textEdited(const QString &text) {
 
 	for (const QString &s : list1) {
 
-		const uint8_t ch = s.toUInt(nullptr, 16);
+		const auto ch = static_cast<uint8_t>(s.toUInt(nullptr, 16));
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
 		utf16Char = (utf16Char >> 8) | (ch << 8);

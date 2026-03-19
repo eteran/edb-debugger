@@ -396,7 +396,7 @@ Instruction::ConditionCode Instruction::conditionCode() const {
 #endif
 }
 
-void Instruction::swap(Instruction &other) {
+void Instruction::swap(Instruction &other) noexcept {
 	using std::swap;
 	swap(insn_, other.insn_);
 	swap(byte0_, other.byte0_);

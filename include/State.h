@@ -38,7 +38,7 @@ public:
 	~State();
 
 public:
-	void swap(State &other);
+	void swap(State &other) noexcept;
 
 public:
 	[[nodiscard]] bool empty() const;
