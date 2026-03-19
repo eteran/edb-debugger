@@ -741,38 +741,40 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 	Q_ASSERT(err);
 
 	if (IProcess *process = debugger_core->process()) {
+		if (std::shared_ptr<IThread> thread = process->currentThread()) {
 
-		State state;
-		process->currentThread()->getState(&state);
-		const Register reg = state.value(s);
-		*ok                = reg.valid();
-		if (!*ok) {
-			if (const std::shared_ptr<Symbol> sym = edb::v1::symbol_manager().find(s)) {
-				*ok = true;
-				return sym->address;
+			State state;
+			thread->getState(&state);
+			const Register reg = state.value(s);
+			*ok                = reg.valid();
+			if (!*ok) {
+				if (const std::shared_ptr<Symbol> sym = edb::v1::symbol_manager().find(s)) {
+					*ok = true;
+					return sym->address;
+				}
+
+				*err = ExpressionError(ExpressionError::UnknownVariable);
+				return 0;
 			}
 
-			*err = ExpressionError(ExpressionError::UnknownVariable);
-			return 0;
-		}
+			// FIXME: should this really return segment base, not selector?
+			// FIXME: if it's really meant to return base, then need to check whether
+			//        State::operator[]() returned valid Register
+			if (reg.name() == "fs") {
+				return state["fs_base"].valueAsAddress();
+			}
 
-		// FIXME: should this really return segment base, not selector?
-		// FIXME: if it's really meant to return base, then need to check whether
-		//        State::operator[]() returned valid Register
-		if (reg.name() == "fs") {
-			return state["fs_base"].valueAsAddress();
-		}
+			if (reg.name() == "gs") {
+				return state["gs_base"].valueAsAddress();
+			}
 
-		if (reg.name() == "gs") {
-			return state["gs_base"].valueAsAddress();
-		}
+			if (reg.bitSize() > 8 * sizeof(edb::address_t)) {
+				*err = ExpressionError(ExpressionError::UnknownVariable);
+				return 0;
+			}
 
-		if (reg.bitSize() > 8 * sizeof(edb::address_t)) {
-			*err = ExpressionError(ExpressionError::UnknownVariable);
-			return 0;
+			return reg.valueAsAddress();
 		}
-
-		return reg.valueAsAddress();
 	}
 
 	*err = ExpressionError(ExpressionError::UnknownVariable);
@@ -1297,9 +1299,11 @@ address_t current_data_view_address() {
 //------------------------------------------------------------------------------
 address_t instruction_pointer_address() {
 	if (IProcess *process = debugger_core->process()) {
-		State state;
-		process->currentThread()->getState(&state);
-		return state.instructionPointer();
+		if(std::shared_ptr<IThread> thread = process->currentThread()) {
+			State state;
+			thread->getState(&state);
+			return state.instructionPointer();
+		}
 	}
 
 	return address_t{};

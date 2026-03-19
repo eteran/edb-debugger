@@ -203,11 +203,7 @@ RegisterGroup *create_eflags(RegisterViewModelBase::Model *model, QWidget *paren
 	constexpr int ValueWidth = 8;
 	const auto valueIndex    = nameIndex.sibling(nameIndex.row(), ModelValueColumn);
 	column += NameWidth + 1;
-	group->insert(0, column, new ValueField(
-								 ValueWidth, valueIndex, [](const QString &v) {
-									 return v.right(8);
-								 },
-								 group));
+	group->insert(0, column, new ValueField(ValueWidth, valueIndex, [](const QString &v) { return v.right(8); }, group));
 
 	const auto commentIndex = nameIndex.sibling(nameIndex.row(), ModelCommentColumn);
 	column += ValueWidth + 1;

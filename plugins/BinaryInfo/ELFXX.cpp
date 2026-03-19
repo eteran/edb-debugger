@@ -109,10 +109,12 @@ ELFXX<ElfHeader>::ELFXX(const std::shared_ptr<IRegion> &region)
 		}
 	} else if (header_.e_type == ET_DYN) {
 
-		const QString process_executable = edb::v1::debugger_core->process()->name();
-		for (const std::shared_ptr<IRegion> &r : edb::v1::memory_regions().regions()) {
-			if (r->accessible() && r->name() == region->name()) {
-				lowest = std::min(lowest, r->start());
+		if (IProcess *process = edb::v1::debugger_core->process()) {
+			const QString process_executable = process->name();
+			for (const std::shared_ptr<IRegion> &r : edb::v1::memory_regions().regions()) {
+				if (r->accessible() && r->name() == region->name()) {
+					lowest = std::min(lowest, r->start());
+				}
 			}
 		}
 	}

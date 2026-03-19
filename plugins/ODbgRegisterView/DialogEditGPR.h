@@ -77,8 +77,8 @@ private:
 	void setupFocus();
 
 private:
-	std::array<QLabel *, ENTRY_COLS + ENTRY_ROWS> labels_                    = {{nullptr}};
-	std::array<GprEdit *, FULL_LENGTH_ROWS *ENTRY_COLS + CHAR_COLS> entries_ = {{nullptr}};
+	std::array<QLabel *, ENTRY_COLS + ENTRY_ROWS> labels_                     = {{nullptr}};
+	std::array<GprEdit *, FULL_LENGTH_ROWS * ENTRY_COLS + CHAR_COLS> entries_ = {{nullptr}};
 	std::uint64_t value_;
 	std::size_t bitSize_ = 0;
 	Register reg_;

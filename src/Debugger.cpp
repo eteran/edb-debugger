@@ -211,8 +211,13 @@ public:
 
 		if (IProcess *process = edb::v1::debugger_core->process()) {
 
+			std::shared_ptr<IThread> thread = process->currentThread();
+			if (!thread) {
+				return pass_back_to_debugger();
+			}
+
 			State state;
-			process->currentThread()->getState(&state);
+			thread->getState(&state);
 
 			edb::address_t address               = state.instructionPointer();
 			IDebugEvent::TRAP_REASON trap_reason = event->trapReason();
@@ -251,7 +256,7 @@ public:
 
 					// Adjust RIP since 1st byte was replaced with 0xcc and we are now 1 byte after it.
 					state.setInstructionPointer(prev_address);
-					process->currentThread()->setState(state);
+					thread->setState(state);
 					address = prev_address;
 
 					// If it wasn't internal, it was a user breakpoint. Pass back to Debugger.
@@ -738,7 +743,11 @@ std::shared_ptr<DataViewInfo> Debugger::currentDataViewInfo() const {
 // Desc: sets the caption part to also show the application name and pid
 //------------------------------------------------------------------------------
 void Debugger::setDebuggerCaption(const QString &appname) {
-	setWindowTitle(tr("edb - %1 [%2]").arg(appname).arg(edb::v1::debugger_core->process()->pid()));
+	if (IProcess *process = edb::v1::debugger_core->process()) {
+		setWindowTitle(tr("edb - %1 [%2]").arg(appname).arg(process->pid()));
+	} else {
+		setWindowTitle(tr("edb"));
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -1340,9 +1349,11 @@ Register Debugger::activeRegister() const {
 
 	if (IDebugger *core = edb::v1::debugger_core) {
 		if (IProcess *process = core->process()) {
-			State state;
-			process->currentThread()->getState(&state);
-			return state[regName];
+			if (std::shared_ptr<IThread> thread = process->currentThread()) {
+				State state;
+				thread->getState(&state);
+				return state[regName];
+			}
 		}
 	}
 	return {};
@@ -2315,8 +2326,11 @@ edb::EventStatus Debugger::handleTrap(const std::shared_ptr<IDebugEvent> &event)
 	IProcess *process = edb::v1::debugger_core->process();
 	Q_ASSERT(process);
 
+	std::shared_ptr<IThread> thread = process->currentThread();
+	Q_ASSERT(thread);
+
 	State state;
-	process->currentThread()->getState(&state);
+	thread->getState(&state);
 
 	// look it up in our breakpoint list, make sure it is one of OUR int3s!
 	// if it is, we need to backup EIP and pause ourselves
@@ -2332,7 +2346,7 @@ edb::EventStatus Debugger::handleTrap(const std::shared_ptr<IDebugEvent> &event)
 		// back up eip the size of a breakpoint, since we executed a breakpoint
 		// instead of the real code that belongs there
 		state.setInstructionPointer(previous_ip);
-		process->currentThread()->setState(state);
+		thread->setState(state);
 
 #if defined(Q_OS_LINUX)
 		// test if we have hit our internal LD hook BP. If so, read in the r_debug
@@ -2996,8 +3010,7 @@ void Debugger::setInitialDebuggerState() {
 	dynamicInfoBreakpointSet_ = false;
 #endif
 
-	IProcess *process = edb::v1::debugger_core->process();
-
+	IProcess *process        = edb::v1::debugger_core->process();
 	const QString executable = process ? process->executable() : QString();
 
 	setDebuggerCaption(executable);
@@ -3066,7 +3079,9 @@ void Debugger::setInitialBreakpoint(const QString &s) {
 	}
 
 	if (entryPoint == 0 || edb::v1::config().initial_breakpoint == Configuration::EntryPoint) {
-		entryPoint = edb::v1::debugger_core->process()->entryPoint();
+		if (IProcess *process = edb::v1::debugger_core->process()) {
+			entryPoint = process->entryPoint();
+		}
 	}
 
 	if (entryPoint != 0) {
@@ -3085,13 +3100,13 @@ void Debugger::setInitialBreakpoint(const QString &s) {
 void Debugger::on_action_Restart_triggered() {
 
 	Q_ASSERT(edb::v1::debugger_core);
-	if (edb::v1::debugger_core->process()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
 
-		workingDirectory_      = edb::v1::debugger_core->process()->currentWorkingDirectory();
-		QList<QByteArray> args = edb::v1::debugger_core->process()->arguments();
-		const QString exe      = edb::v1::debugger_core->process()->executable();
-		const QString in       = edb::v1::debugger_core->process()->standardInput();
-		const QString out      = edb::v1::debugger_core->process()->standardOutput();
+		workingDirectory_      = process->currentWorkingDirectory();
+		QList<QByteArray> args = process->arguments();
+		const QString exe      = process->executable();
+		const QString in       = process->standardInput();
+		const QString out      = process->standardOutput();
 
 		if (!args.empty()) {
 			args.removeFirst();
@@ -3221,17 +3236,18 @@ void Debugger::attach(edb::pid_t pid) {
 	}
 
 	if (const auto status = edb::v1::debugger_core->attach(pid)) {
+		if (IProcess *process = edb::v1::debugger_core->process()) {
 
-		workingDirectory_ = edb::v1::debugger_core->process()->currentWorkingDirectory();
+			workingDirectory_      = process->currentWorkingDirectory();
+			QList<QByteArray> args = process->arguments();
 
-		QList<QByteArray> args = edb::v1::debugger_core->process()->arguments();
+			if (!args.empty()) {
+				args.removeFirst();
+			}
 
-		if (!args.empty()) {
-			args.removeFirst();
+			argumentsDialog_->setArguments(args);
+			attachComplete();
 		}
-
-		argumentsDialog_->setArguments(args);
-		attachComplete();
 	} else {
 		QMessageBox::critical(this, tr("Attach"), tr("Failed to attach to process: %1").arg(status.error()));
 	}
