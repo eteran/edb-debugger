@@ -1630,8 +1630,14 @@ void QDisassemblyView::setFont(const QFont &f) {
 	QFont newFont(f);
 
 	// NOTE(eteran): fix for #414 ?
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+	QT_WARNING_PUSH
+	QT_WARNING_DISABLE_DEPRECATED
 	newFont.setStyleStrategy(QFont::ForceIntegerMetrics);
+	QT_WARNING_POP
+#else
+	newFont.setHintingPreference(QFont::PreferFullHinting);
+	newFont.setStyleStrategy(QFont::NoFontMerging);
 #endif
 
 	// TODO: assert that we are using a fixed font & find out if we care?

@@ -1189,14 +1189,10 @@ void Debugger::showEvent(QShowEvent *) {
 		break;
 	case Configuration::Centered: {
 		QDesktopWidget desktop;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
 		QScreen *screen = QGuiApplication::primaryScreen();
 		QRect sg        = screen->geometry();
-#else
-		QRect sg = desktop.screenGeometry();
-#endif
-		int x = (sg.width() - this->width()) / 2;
-		int y = (sg.height() - this->height()) / 2;
+		int x           = (sg.width() - this->width()) / 2;
+		int y           = (sg.height() - this->height()) / 2;
 		move(x, y);
 	} break;
 	case Configuration::Restore:

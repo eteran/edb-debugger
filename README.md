@@ -38,7 +38,7 @@ depends on the following packages:
 Dependency                                  | Version Required
 ------------------------------------------- | ----------------
 GCC/Clang                                   | Supporting C++17
-[Qt](http://www.qt.io/)                     | >= 5.9
+[Qt](http://www.qt.io/)                     | >= 5.15
 [Capstone](http://www.capstone-engine.org/) | >= 3.0
 [Graphviz](http://www.graphviz.org/)        | >= 2.38.0 (Optional)
 
