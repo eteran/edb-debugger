@@ -118,10 +118,6 @@ DialogBacktrace::DialogBacktrace(QWidget *parent, Qt::WindowFlags f)
 
 /**
  * @brief Connects the UI update signal and populates the call stack table when the dialog is shown.
- *
- * Ensures the column sizes are correct, connects the sig/slot for syncing with
- * the Debugger UI, then populates the Call Stack table.
- *
  */
 void DialogBacktrace::showEvent(QShowEvent *) {
 
@@ -136,9 +132,6 @@ void DialogBacktrace::showEvent(QShowEvent *) {
 
 /**
  * @brief Clears and repopulates the call stack table with current stack frame entries.
- *
- * Populates the Call Stack table with stack frame entries.
- *
  */
 void DialogBacktrace::populateTable() {
 
@@ -208,10 +201,6 @@ void DialogBacktrace::populateTable() {
 
 /**
  * @brief Disconnects the UI update signal when the dialog is hidden to avoid unnecessary table rebuilds.
- *
- * Disconnects the signal/slot when the dialog goes away so that
- * populate_table() is not called unnecessarily.
- *
  */
 void DialogBacktrace::hideEvent(QHideEvent *) {
 	disconnect(edb::v1::debugger_ui, SIGNAL(uiUpdated()), this, SLOT(populateTable()));
@@ -219,8 +208,6 @@ void DialogBacktrace::hideEvent(QHideEvent *) {
 
 /**
  * @brief Jumps the disassembly view to the address of the double-clicked call stack table entry.
- *
- * Jumps to the double-clicked address in the CPU/Disassembly view.
  *
  * @param item
  */
@@ -230,9 +217,6 @@ void DialogBacktrace::on_tableWidgetCallStack_itemDoubleClicked(QTableWidgetItem
 
 /**
  * @brief Enables or disables the "Return To" button based on whether the clicked cell is a return address column.
- *
- * Enables the "Run To Return" button if the selected cell is in the column for
- * return addresses.  Disables it, otherwise.
  *
  * @param row
  * @param column

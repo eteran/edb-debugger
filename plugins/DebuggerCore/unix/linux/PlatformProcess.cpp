@@ -92,8 +92,6 @@ QStringList split_max(const QString &str, int maxparts) {
 /**
  * @brief Parses a single line from /proc/[pid]/maps and returns the corresponding memory region.
  *
- * parses the data from a line of a memory map file
- *
  * @param line
  * @return
  */
@@ -282,8 +280,6 @@ PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid)
 /**
  * @brief Reads up to len bytes from the process at the given address, transparently patching through breakpoint bytes.
  *
- * reads <len> bytes into <buf> starting at <address>
- *
  * @param address
  * @param buf
  * @param len
@@ -370,9 +366,6 @@ std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, std::s
 /**
  * @brief Writes len bytes into the process at the given address and records the patch.
  *
- * Same as writeBytes, except that it also records the original data that was
- * found at the address being written to.
- *
  * @param address
  * @param buf
  * @param len
@@ -407,8 +400,6 @@ std::size_t PlatformProcess::patchBytes(edb::address_t address, const void *buf,
 
 /**
  * @brief Writes len bytes from buf into the process memory at the given address without recording a patch.
- *
- * writes <len> bytes from <buf> starting at <address>
  *
  * @param address
  * @param buf
@@ -446,11 +437,9 @@ std::size_t PlatformProcess::writeBytes(edb::address_t address, const void *buf,
 /**
  * @brief Reads count whole memory pages starting at the page-aligned address.
  *
- * reads <count> pages from the process starting at <address>
- *
- * @param address - must be page aligned.
- * @param buf - sizeof(buf) must be >= count * core_->page_size()
- * @param count - number of pages
+ * @param address must be page aligned.
+ * @param buf sizeof(buf) must be >= count * core_->page_size()
+ * @param count number of pages
  * @return
  */
 std::size_t PlatformProcess::readPages(edb::address_t address, void *buf, std::size_t count) const {
@@ -660,8 +649,6 @@ uint8_t PlatformProcess::ptraceReadByte(edb::address_t address, bool *ok) const 
 /**
  * @brief Writes a single byte into the process at the given address via PTRACE_POKEDATA.
  *
- * writes a single byte at a given address via ptrace API.
- *
  * @param address
  * @param value
  * @param ok
@@ -839,9 +826,7 @@ QList<Module> PlatformProcess::loadedModules() const {
 }
 
 /**
- * @brief Sends SIGSTOP to all threads to pause the process.
- *
- * stops *all* threads of a process
+ * @brief Sends SIGSTOP to ALL threads to pause the process.
  *
  * @return
  */
@@ -861,9 +846,7 @@ Status PlatformProcess::pause() {
 }
 
 /**
- * @brief Resumes all threads from their stopped state with the given event status.
- *
- * resumes ALL threads
+ * @brief Resumes ALL threads from their stopped state with the given event status.
  *
  * @param status
  * @return
@@ -910,8 +893,6 @@ Status PlatformProcess::resume(edb::EventStatus status) {
 
 /**
  * @brief Single-steps the current thread with the given event status.
- *
- * steps the currently active thread
  *
  * @param status
  * @return
@@ -1045,10 +1026,7 @@ edb::address_t get_relocation(const IProcess *process, edb::address_t phdr_memad
 /**
  * @brief Returns the address of the r_debug structure by searching the dynamic segment.
  *
- * attempts to locate the ELF debug pointer in the target process and returns
- * it, 0 of not found
- *
- * @return
+ * @return The address of the r_debug structure or 0 if not found.
  */
 edb::address_t PlatformProcess::debugPointer() const {
 

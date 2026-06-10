@@ -49,8 +49,6 @@ DialogAsciiString::DialogAsciiString(QWidget *parent, Qt::WindowFlags f)
 
 /**
  * @brief Searches stack memory for stack-aligned pointers that point to the entered ASCII string.
- *
- * find *stack aligned pointers* to exact string matches
  */
 void DialogAsciiString::doFind() {
 

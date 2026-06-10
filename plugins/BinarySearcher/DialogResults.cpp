@@ -23,8 +23,6 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 /**
  * @brief Navigates to the double-clicked result address in the appropriate view (code, stack, or data).
  *
- * follows the found item in the appropriate view
- *
  * @param item
  */
 void DialogResults::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {

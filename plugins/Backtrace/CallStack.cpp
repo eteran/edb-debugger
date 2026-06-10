@@ -26,7 +26,6 @@ CallStack::CallStack() {
 
 /**
  * @brief Walks the stack frame chain from the current frame pointer to build the list of return addresses.
- *
  */
 void CallStack::getCallStack() {
 	/*

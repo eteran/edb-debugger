@@ -108,9 +108,6 @@ QString PlatformThread::runState() const {
 /**
  * @brief Resumes this thread via ptrace, re-delivering the signal that stopped it (unless it was SIGSTOP).
  *
- * resumes this thread, passing the signal that stopped it
- * (unless the signal was SIGSTOP)
- *
  * @return
  */
 Status PlatformThread::resume() {
@@ -119,9 +116,6 @@ Status PlatformThread::resume() {
 
 /**
  * @brief Resumes this thread via ptrace, re-delivering the signal only if status is DEBUG_EXCEPTION_NOT_HANDLED.
- *
- * resumes this thread, passing the signal that stopped it
- * (unless the signal was SIGSTOP, or the passed status != DEBUG_EXCEPTION_NOT_HANDLED)
  * @param status
  * @return
  */

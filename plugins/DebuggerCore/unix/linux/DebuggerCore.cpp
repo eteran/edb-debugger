@@ -631,8 +631,6 @@ Status DebuggerCore::stopThreads() {
 /**
  * @brief Waits up to the given timeout for a debug event from any traced thread, returning the event or nullptr on timeout.
  *
- * waits for a debug event, witha timeout specified in milliseconds
- *
  * @param msecs
  * @return nullptr if an error or timeout occurs
  */

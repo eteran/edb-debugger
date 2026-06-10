@@ -357,9 +357,6 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 /**
  * @brief Single-steps this thread, re-delivering the signal that stopped it (unless it was SIGSTOP).
  *
- * steps this thread one instruction, passing the signal that stopped it
- * (unless the signal was SIGSTOP)
- *
  * @return
  */
 Status PlatformThread::step() {
@@ -368,9 +365,6 @@ Status PlatformThread::step() {
 
 /**
  * @brief Single-steps this thread, re-delivering the signal only if status is DEBUG_EXCEPTION_NOT_HANDLED.
- *
- * steps this thread one instruction, passing the signal that stopped it
- * (unless the signal was SIGSTOP, or the passed status != DEBUG_EXCEPTION_NOT_HANDLED)
  *
  * @param status
  * @return
