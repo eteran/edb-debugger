@@ -460,11 +460,7 @@ std::size_t PlatformProcess::readPages(edb::address_t address, void *buf, std::s
  */
 QDateTime PlatformProcess::startTime() const {
 	QFileInfo info(QStringLiteral("/proc/%1/stat").arg(pid_));
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
 	return info.birthTime();
-#else
-	return info.created();
-#endif
 }
 
 /**
