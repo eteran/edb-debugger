@@ -75,7 +75,7 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 						for (const auto &pair : f) {
 							const auto &[address, bb] = pair;
 							Q_UNUSED(address)
-							auto node            = new GraphNode(graph, bb.toString(), Qt::lightGray);
+							auto node = new GraphNode(graph, bb.toString(), Qt::lightGray);
 							nodes.insert(bb.firstAddress(), node);
 						}
 

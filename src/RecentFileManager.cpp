@@ -162,7 +162,7 @@ int RecentFileManager::entryCount() const {
 //------------------------------------------------------------------------------
 void RecentFileManager::itemSelected() {
 	if (auto action = qobject_cast<QAction *>(sender())) {
-		const auto file = action->data().value<RecentFile>();
+		const auto file          = action->data().value<RecentFile>();
 		const auto &[path, args] = file;
 		Q_EMIT fileSelected(path, args);
 	}

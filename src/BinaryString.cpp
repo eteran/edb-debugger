@@ -164,7 +164,6 @@ void BinaryString::on_txtHex_textEdited(const QString &text) {
 	QString textAscii;
 	QString textUTF16;
 
-
 	const QStringList list1 = text.split(" ", Qt::SkipEmptyParts);
 	for (const QString &s : list1) {
 

@@ -22,8 +22,8 @@ static constexpr int ModelCommentColumn = RegisterViewModelBase::Model::COMMENT_
 template <class T>
 T valid_index(T index) {
 	static_assert(
-			std::is_same_v<std::add_const_t<std::remove_reference_t<T>>, const QModelIndex> ||
-				std::is_same_v<std::add_const_t<std::remove_reference_t<T>>, const QPersistentModelIndex>,
+		std::is_same_v<std::add_const_t<std::remove_reference_t<T>>, const QModelIndex> ||
+			std::is_same_v<std::add_const_t<std::remove_reference_t<T>>, const QPersistentModelIndex>,
 		"Wrong type passed to valid_index");
 
 	Q_ASSERT(index.isValid());

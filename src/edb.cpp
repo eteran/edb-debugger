@@ -1296,7 +1296,7 @@ address_t current_data_view_address() {
 //------------------------------------------------------------------------------
 address_t instruction_pointer_address() {
 	if (IProcess *process = debugger_core->process()) {
-		if(std::shared_ptr<IThread> thread = process->currentThread()) {
+		if (std::shared_ptr<IThread> thread = process->currentThread()) {
 			State state;
 			thread->getState(&state);
 			return state.instructionPointer();

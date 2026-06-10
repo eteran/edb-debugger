@@ -446,7 +446,7 @@ bool split_function(Function &func) {
 			// then split!
 			if (is_call(*insn) && insn != bb.back()) {
 
-				auto && [newBlocksFirst, newBlocksSecond] = bb.splitBlock(insn);
+				auto &&[newBlocksFirst, newBlocksSecond] = bb.splitBlock(insn);
 				func.erase(bb_it);
 
 				Q_ASSERT(!newBlocksFirst.empty());
@@ -922,8 +922,8 @@ void Analyzer::bonusEntryPoint(RegionData *data) const {
  */
 void Analyzer::invalidateAnalysis(const std::shared_ptr<IRegion> &region) {
 	invalidateDynamicAnalysis(region);
-		const auto specifiedFunctionsCopy = specifiedFunctions_;
-		for (const edb::address_t addr : specifiedFunctionsCopy) {
+	const auto specifiedFunctionsCopy = specifiedFunctions_;
+	for (const edb::address_t addr : specifiedFunctionsCopy) {
 		if (addr >= region->start() && addr < region->end()) {
 			specifiedFunctions_.remove(addr);
 		}
