@@ -35,16 +35,16 @@ BinaryInfo::BinaryInfo(QObject *parent)
  */
 void BinaryInfo::privateInit() {
 
-	edb::v1::register_binary_info([](const std::shared_ptr<IRegion> &region) {
-		return std::unique_ptr<IBinary>(new ELF32(region));
+	edb::v1::register_binary_info([](const std::shared_ptr<IRegion> &region) -> std::unique_ptr<IBinary> {
+		return std::make_unique<ELF32>(region);
 	});
 
-	edb::v1::register_binary_info([](const std::shared_ptr<IRegion> &region) {
-		return std::unique_ptr<IBinary>(new ELF64(region));
+	edb::v1::register_binary_info([](const std::shared_ptr<IRegion> &region) -> std::unique_ptr<IBinary> {
+		return std::make_unique<ELF64>(region);
 	});
 
-	edb::v1::register_binary_info([](const std::shared_ptr<IRegion> &region) {
-		return std::unique_ptr<IBinary>(new PE32(region));
+	edb::v1::register_binary_info([](const std::shared_ptr<IRegion> &region) -> std::unique_ptr<IBinary> {
+		return std::make_unique<PE32>(region);
 	});
 
 	edb::v1::symbol_manager().setSymbolGenerator(this);
