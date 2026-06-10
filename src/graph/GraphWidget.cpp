@@ -170,7 +170,7 @@ void GraphWidget::layout() {
 	gvFreeLayout(context_, graph_);
 	gvLayout(context_, graph_, "dot");
 
-	Q_FOREACH (QGraphicsItem *item, items()) {
+	for (QGraphicsItem *item : items()) {
 		if (auto node = qgraphicsitem_cast<GraphNode *>(item)) {
 			qreal gheight = graph_height(graph_);
 			if (auto internalNode = node->node_) {
@@ -180,7 +180,7 @@ void GraphWidget::layout() {
 		}
 	}
 
-	Q_FOREACH (QGraphicsItem *item, items()) {
+	for (QGraphicsItem *item : items()) {
 		if (auto edge = qgraphicsitem_cast<GraphEdge *>(item)) {
 			edge->syncState();
 		}

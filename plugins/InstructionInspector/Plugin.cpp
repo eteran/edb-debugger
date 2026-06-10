@@ -947,7 +947,7 @@ std::pair<QString, std::size_t /*insnLength*/> normalizeOBJCONV(const QString &t
 
 	bytes.replace(QRegExp("[^0-9a-fA-F]"), "");
 	const std::size_t insnLength = bytes.length() / 2;
-	return std::make_pair(result, insnLength);
+	return {result, insnLength};
 }
 
 /**

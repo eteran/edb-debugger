@@ -219,7 +219,7 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f)
 				return;
 			}
 
-			Q_FOREACH (const ResultViewModel::Result *result, result_map) {
+			for (const ResultViewModel::Result *result : result_map) {
 				const edb::address_t addr = result->address;
 				if (nodes.contains(addr)) {
 					for (edb::address_t pointer : result->pointers) {

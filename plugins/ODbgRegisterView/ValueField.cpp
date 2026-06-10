@@ -132,7 +132,7 @@ RegisterViewModelBase::Model *ValueField::model() const {
 
 ValueField *ValueField::bestNeighbor(const std::function<bool(const QPoint &, const ValueField *, const QPoint &)> &firstIsBetter) const {
 	ValueField *result = nullptr;
-	Q_FOREACH (const auto neighbor, regView()->valueFields()) {
+	for (const auto neighbor : regView()->valueFields()) {
 		if (neighbor->isVisible() && firstIsBetter(field_position(neighbor), result, field_position(this))) {
 			result = neighbor;
 		}

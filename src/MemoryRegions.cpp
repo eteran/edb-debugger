@@ -44,7 +44,7 @@ void MemoryRegions::sync() {
 	if (edb::v1::debugger_core) {
 		if (IProcess *process = edb::v1::debugger_core->process()) {
 			regions = process->regions();
-			Q_FOREACH (const std::shared_ptr<IRegion> &region, regions) {
+			for (const std::shared_ptr<IRegion> &region : regions) {
 				// if the region has a name, is mapped starting
 				// at the beginning of the file, and is executable, sounds
 				// like a module mapping!
@@ -53,7 +53,7 @@ void MemoryRegions::sync() {
 
 						// NOTE(eteran): region start is not good enough, we need **module** start
 						edb::address_t base = region->start();
-						Q_FOREACH (const std::shared_ptr<IRegion> &r, regions) {
+						for (const std::shared_ptr<IRegion> &r : regions) {
 							if (r->name() == region->name()) {
 								base = std::min(base, r->start());
 							}

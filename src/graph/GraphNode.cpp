@@ -61,10 +61,9 @@ GraphNode::GraphNode(GraphWidget *graph, const QString &text, QColor color)
 //------------------------------------------------------------------------------
 GraphNode::~GraphNode() {
 
-	// NOTE(eteran): we use Q_FOREACH because it operates on a *copy*
-	// of the list, which is important because deleting an
-	// edge removes it from the list
-	Q_FOREACH (GraphEdge *const edge, edges_) {
+	// Iterate over a copy because deleting an edge removes it from edges_.
+	const auto edgesCopy = edges_;
+	for (GraphEdge *edge : edgesCopy) {
 		delete edge;
 	}
 }

@@ -125,7 +125,7 @@ void SimdValueManager::updateMenu() {
 	if (menuItems_.isEmpty()) {
 		return;
 	}
-	Q_FOREACH (auto item, menuItems_)
+	for (auto item : menuItems_)
 		item->setVisible(true);
 
 	using RegisterViewModelBase::Model;
@@ -182,7 +182,7 @@ void SimdValueManager::displayFormatChanged() {
 		intMode_ = newFormat;
 	}
 
-	Q_FOREACH (const auto elem, elements_) {
+	for (const auto elem : elements_) {
 		elem->deleteLater();
 	}
 

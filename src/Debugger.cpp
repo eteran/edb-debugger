@@ -1299,7 +1299,7 @@ void Debugger::applyDefaultFonts() {
 	}
 
 	if (font.fromString(config.data_font)) {
-		Q_FOREACH (const std::shared_ptr<DataViewInfo> &data_view, dataRegions_) {
+		for (const std::shared_ptr<DataViewInfo> &data_view : dataRegions_) {
 			data_view->view->setFont(font);
 		}
 	}
@@ -1435,7 +1435,7 @@ void Debugger::applyDefaultShowSeparator() {
 
 	cpuView_->setShowAddressSeparator(show);
 	stackView_->setShowAddressSeparator(show);
-	Q_FOREACH (const std::shared_ptr<DataViewInfo> &data_view, dataRegions_) {
+	for (const std::shared_ptr<DataViewInfo> &data_view : dataRegions_) {
 		data_view->view->setShowAddressSeparator(show);
 	}
 }
@@ -2650,7 +2650,7 @@ std::shared_ptr<IRegion> Debugger::updateCpuView(const State &state) {
 void Debugger::updateDataViews() {
 
 	// update all data views with the current region data
-	Q_FOREACH (const std::shared_ptr<DataViewInfo> &info, dataRegions_) {
+	for (const std::shared_ptr<DataViewInfo> &info : dataRegions_) {
 
 		// make sure the regions are still valid..
 		if (info->region && edb::v1::memory_regions().findRegion(info->region->start())) {
@@ -2670,7 +2670,7 @@ void Debugger::refreshUi() {
 	cpuView_->update();
 	stackView_->update();
 
-	Q_FOREACH (const std::shared_ptr<DataViewInfo> &info, dataRegions_) {
+	for (const std::shared_ptr<DataViewInfo> &info : dataRegions_) {
 		info->view->update();
 	}
 
@@ -3136,12 +3136,12 @@ void Debugger::setupDataViews() {
 	// Setup data views according to debuggee bitness
 	if (edb::v1::debuggeeIs64Bit()) {
 		stackView_->setAddressSize(QHexView::Address64);
-		Q_FOREACH (const std::shared_ptr<DataViewInfo> &data_view, dataRegions_) {
+		for (const std::shared_ptr<DataViewInfo> &data_view : dataRegions_) {
 			data_view->view->setAddressSize(QHexView::Address64);
 		}
 	} else {
 		stackView_->setAddressSize(QHexView::Address32);
-		Q_FOREACH (const std::shared_ptr<DataViewInfo> &data_view, dataRegions_) {
+		for (const std::shared_ptr<DataViewInfo> &data_view : dataRegions_) {
 			data_view->view->setAddressSize(QHexView::Address32);
 		}
 	}

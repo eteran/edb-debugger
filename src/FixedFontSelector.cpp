@@ -15,7 +15,7 @@ FixedFontSelector::FixedFontSelector(QWidget *parent, Qt::WindowFlags f)
 
 	ui.setupUi(this);
 
-	Q_FOREACH (int size, QFontDatabase::standardSizes()) {
+	for (int size : QFontDatabase::standardSizes()) {
 		ui.fontSize->addItem(QStringLiteral("%1").arg(size), size);
 	}
 }

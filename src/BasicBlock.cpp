@@ -248,13 +248,13 @@ std::pair<BasicBlock, BasicBlock> BasicBlock::splitBlock(const instruction_point
 		block2.push_back(*it);
 	}
 
-	for (auto it = references_.begin(); it != references_.end(); ++it) {
-		if (it->first >= block1.firstAddress() && it->first < block1.lastAddress()) {
-			block1.addReference(it->first, it->second);
+	for (const auto &[from, to] : references_) {
+		if (from >= block1.firstAddress() && from < block1.lastAddress()) {
+			block1.addReference(from, to);
 		} else {
-			block2.addReference(it->first, it->second);
+			block2.addReference(from, to);
 		}
 	}
 
-	return std::make_pair(block1, block2);
+	return {block1, block2};
 }

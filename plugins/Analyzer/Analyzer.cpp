@@ -413,7 +413,7 @@ void Analyzer::bonusMarkedFunctions(RegionData *data) {
 
 	Q_ASSERT(data);
 
-	Q_FOREACH (const edb::address_t addr, specifiedFunctions_) {
+	for (const edb::address_t addr : specifiedFunctions_) {
 		if (data->region->contains(addr)) {
 			qDebug("[Analyzer] adding user marked function: <%s>", qPrintable(addr.toPointerString()));
 			data->knownFunctions.insert(addr);
@@ -492,12 +492,12 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 
 	// push all known functions onto a stack
 	QStack<edb::address_t> known_functions;
-	Q_FOREACH (const edb::address_t function, data->knownFunctions) {
+	for (const edb::address_t function : data->knownFunctions) {
 		known_functions.push(function);
 	}
 
 	// push all fuzzy function too...
-	Q_FOREACH (const edb::address_t function, data->fuzzyFunctions) {
+	for (const edb::address_t function : data->fuzzyFunctions) {
 		known_functions.push(function);
 	}
 
@@ -925,7 +925,8 @@ void Analyzer::bonusEntryPoint(RegionData *data) const {
  */
 void Analyzer::invalidateAnalysis(const std::shared_ptr<IRegion> &region) {
 	invalidateDynamicAnalysis(region);
-	Q_FOREACH (const edb::address_t addr, specifiedFunctions_) {
+		const auto specifiedFunctionsCopy = specifiedFunctions_;
+		for (const edb::address_t addr : specifiedFunctionsCopy) {
 		if (addr >= region->start() && addr < region->end()) {
 			specifiedFunctions_.remove(addr);
 		}

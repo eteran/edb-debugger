@@ -163,7 +163,7 @@ void ODBRegView::mousePressEvent(QMouseEvent *event) {
 		showMenu(event->globalPos());
 		break;
 	case Qt::LeftButton:
-		Q_FOREACH (const auto field, valueFields()) {
+		for (const auto field : valueFields()) {
 			field->unselect();
 		}
 		break;
@@ -182,7 +182,7 @@ void ODBRegView::updateFont() {
 }
 
 void ODBRegView::fieldSelected() {
-	Q_FOREACH (const auto field, valueFields())
+	for (const auto field : valueFields())
 		if (sender() != field) {
 			field->unselect();
 		}
@@ -258,7 +258,7 @@ ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 	if (settings.group().isEmpty() || !groupListV.isValid()) {
 		visibleGroupTypes_ = std::vector<RegisterGroupType>(allRegisterGroups.begin(), allRegisterGroups.end());
 	} else {
-		Q_FOREACH (const auto &grp, groupListV.toStringList()) {
+		for (const auto &grp : groupListV.toStringList()) {
 			const auto group = findGroup(grp);
 			if (group >= RegisterGroupType::NUM_GROUPS) {
 				qWarning() << qPrintable(QStringLiteral("Warning: failed to understand group %1").arg(group));
@@ -468,7 +468,7 @@ void ODBRegView::modelReset() {
 	widget()->hide(); // prevent flicker while groups are added to/removed from the layout
 
 	// not all groups may be in the layout, so delete them individually
-	Q_FOREACH (const auto group, groups_) {
+	for (const auto group : groups_) {
 		if (group) {
 			group->deleteLater();
 		}
@@ -522,11 +522,11 @@ void ODBRegView::modelReset() {
 }
 
 void ODBRegView::modelUpdated() {
-	Q_FOREACH (FieldWidget *field, fields()) {
+	for (FieldWidget *field : fields()) {
 		field->adjustToData();
 	}
 
-	Q_FOREACH (RegisterGroup *group, groups_) {
+	for (RegisterGroup *group : groups_) {
 		if (group) {
 			group->adjustWidth();
 		}
@@ -558,13 +558,13 @@ QList<ValueField *> ODBRegView::valueFields() const {
 }
 
 void ODBRegView::updateFieldsPalette() const {
-	Q_FOREACH (ValueField *field, valueFields()) {
+	for (ValueField *field : valueFields()) {
 		field->updatePalette();
 	}
 }
 
 ValueField *ODBRegView::selectedField() const {
-	Q_FOREACH (ValueField *field, valueFields()) {
+	for (ValueField *field : valueFields()) {
 		if (field->isSelected()) {
 			return field;
 		}

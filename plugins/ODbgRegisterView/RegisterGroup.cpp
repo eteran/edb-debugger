@@ -30,7 +30,7 @@ void RegisterGroup::adjustWidth() {
 
 	int widthNeeded = 0;
 
-	Q_FOREACH (FieldWidget *field, fields()) {
+	for (FieldWidget *field : fields()) {
 		const auto widthToRequire = field->pos().x() + field->width();
 		if (widthToRequire > widthNeeded) {
 			widthNeeded = widthToRequire;
@@ -159,7 +159,7 @@ QList<FieldWidget *> RegisterGroup::fields() const {
 QList<ValueField *> RegisterGroup::valueFields() const {
 	QList<ValueField *> allValues;
 
-	Q_FOREACH (FieldWidget *field, fields()) {
+	for (FieldWidget *field : fields()) {
 		const auto value = qobject_cast<ValueField *>(field);
 		if (value) {
 			allValues.push_back(value);

@@ -350,7 +350,7 @@ std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, std::s
 		}
 
 		// replace any breakpoints
-		Q_FOREACH (const std::shared_ptr<IBreakpoint> &bp, core_->breakpoints_) {
+		for (const std::shared_ptr<IBreakpoint> &bp : core_->breakpoints_) {
 			auto bpBytes                = bp->originalBytes();
 			const edb::address_t bpAddr = bp->address();
 			// show the original bytes in the buffer..

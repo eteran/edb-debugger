@@ -851,7 +851,8 @@ bool get_instruction_bytes(address_t address, uint8_t *buf, size_t *size) {
 // Note: the caller is responsible for deleting the object!
 //------------------------------------------------------------------------------
 std::unique_ptr<IBinary> get_binary_info(const std::shared_ptr<IRegion> &region) {
-	Q_FOREACH (IBinary::create_func_ptr_t f, g_BinaryInfoList) {
+	const auto binaryInfoList = g_BinaryInfoList;
+	for (IBinary::create_func_ptr_t f : binaryInfoList) {
 		try {
 			std::unique_ptr<IBinary> p((*f)(region));
 			// reorder the list to put this successful plugin
@@ -908,7 +909,7 @@ const QMap<QString, QObject *> &plugin_list() {
 // Desc: gets a pointer to a plugin based on it's classname
 //------------------------------------------------------------------------------
 IPlugin *find_plugin_by_name(const QString &name) {
-	Q_FOREACH (QObject *p, g_GeneralPlugins) {
+	for (QObject *p : g_GeneralPlugins) {
 		if (name == p->metaObject()->className()) {
 			return qobject_cast<IPlugin *>(p);
 		}
