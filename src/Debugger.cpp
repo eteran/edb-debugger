@@ -180,9 +180,9 @@ public:
 		edb::v1::remove_debug_event_handler(this);
 
 		try {
-			for (const auto &bp : ownBreakpoints_) {
-				if (!bp.second.expired()) {
-					edb::v1::debugger_core->removeBreakpoint(bp.first);
+			for (const auto &[address, breakpoint] : ownBreakpoints_) {
+				if (!breakpoint.expired()) {
+					edb::v1::debugger_core->removeBreakpoint(address);
 				}
 			}
 		} catch (...) {
@@ -3121,8 +3121,9 @@ void Debugger::on_action_Restart_triggered() {
 		// a weird side effect, in that you can "restart" a process before you have
 		// run ANY, as long as your history isn't empty
 		const RecentFileManager::RecentFile file = recentFileManager_->mostRecent();
-		if (commonOpen(file.first, file.second, QString(), QString())) {
-			argumentsDialog_->setArguments(file.second);
+		const auto &[path, args]                 = file;
+		if (commonOpen(path, args, QString(), QString())) {
+			argumentsDialog_->setArguments(args);
 		}
 	}
 }
@@ -3292,7 +3293,9 @@ void Debugger::on_action_Open_triggered() {
 	// Set a sensible default dir
 	if (recentFileManager_->entryCount() > 0) {
 		const RecentFileManager::RecentFile file = recentFileManager_->mostRecent();
-		const QDir dir                           = QFileInfo(file.first).dir();
+		const auto &[path, args]                 = file;
+		Q_UNUSED(args)
+		const QDir dir = QFileInfo(path).dir();
 		if (dir.exists()) {
 			dialog->setDirectory(dir);
 		}

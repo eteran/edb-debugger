@@ -36,14 +36,15 @@ void DialogXRefs::addReference(const std::pair<edb::address_t, edb::address_t> &
 	auto it = references_.find(ref);
 	if (it == references_.end()) {
 		references_.insert(ref);
+		const auto &[from, to] = ref;
 
 		int offset;
-		QString sym = edb::v1::find_function_symbol(ref.first, ref.first.toPointerString(), &offset);
+		QString sym = edb::v1::find_function_symbol(from, from.toPointerString(), &offset);
 
-		auto string = tr("%1. %2 -> %3").arg(ui.listReferences->count() + 1, 2, 10, QChar('0')).arg(sym).arg(ref.second.toPointerString());
+		auto string = tr("%1. %2 -> %3").arg(ui.listReferences->count() + 1, 2, 10, QChar('0')).arg(sym).arg(to.toPointerString());
 
 		auto item = new QListWidgetItem(string, ui.listReferences);
-		item->setData(Qt::UserRole, static_cast<qlonglong>(ref.first));
+		item->setData(Qt::UserRole, static_cast<qlonglong>(from));
 	}
 }
 

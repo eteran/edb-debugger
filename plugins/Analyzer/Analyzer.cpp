@@ -272,9 +272,9 @@ void Analyzer::showXrefs() {
 		for (const BasicBlock &bb : data.basicBlocks) {
 			const std::vector<std::pair<edb::address_t, edb::address_t>> refs = bb.references();
 
-			for (auto it = refs.begin(); it != refs.end(); ++it) {
-				if (it->second == address) {
-					dialog->addReference(*it);
+			for (const auto &[from, to] : refs) {
+				if (to == address) {
+					dialog->addReference({from, to});
 				}
 			}
 		}
@@ -432,7 +432,8 @@ void Analyzer::identHeader(Analyzer::RegionData *data) {
 bool split_function(Function &func) {
 
 	for (auto bb_it = func.begin(); bb_it != func.end(); ++bb_it) {
-		BasicBlock &bb = bb_it->second;
+		auto &[address, bb] = *bb_it;
+		Q_UNUSED(address)
 
 		if (bb.size() <= 1) {
 			continue;
@@ -445,14 +446,14 @@ bool split_function(Function &func) {
 			// then split!
 			if (is_call(*insn) && insn != bb.back()) {
 
-				auto newBlocks = bb.splitBlock(insn);
+				auto && [newBlocksFirst, newBlocksSecond] = bb.splitBlock(insn);
 				func.erase(bb_it);
 
-				Q_ASSERT(!newBlocks.first.empty());
-				Q_ASSERT(!newBlocks.second.empty());
+				Q_ASSERT(!newBlocksFirst.empty());
+				Q_ASSERT(!newBlocksSecond.empty());
 
-				func.insert(newBlocks.first);
-				func.insert(newBlocks.second);
+				func.insert(newBlocksFirst);
+				func.insert(newBlocksSecond);
 
 				return true;
 			}

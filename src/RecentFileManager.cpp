@@ -110,8 +110,9 @@ QMenu *RecentFileManager::createMenu() {
 // Desc:
 //------------------------------------------------------------------------------
 QString RecentFileManager::formatEntry(const RecentFile &file) {
-	QString str = file.first;
-	for (const auto &arg : file.second) {
+	const auto &[path, args] = file;
+	QString str              = path;
+	for (const auto &arg : args) {
 		str += " " + QString(arg);
 	}
 	return str;
@@ -180,7 +181,9 @@ void RecentFileManager::addFile(const QString &file, const QList<QByteArray> &ar
 	// and then push the file on the front, ensuring that the recently run
 	// entries are higher in the list
 	files_.erase(std::remove_if(files_.begin(), files_.end(), [&path](const RecentFile &file) {
-					 return file.first == path;
+					 const auto &[currentPath, args] = file;
+					 Q_UNUSED(args)
+					 return currentPath == path;
 				 }),
 				 files_.end());
 

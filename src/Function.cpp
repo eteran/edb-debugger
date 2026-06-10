@@ -74,7 +74,9 @@ int Function::referenceCount() const {
  */
 Function::const_reference Function::back() const {
 	Q_ASSERT(!empty());
-	return rbegin()->second;
+	const auto &[address, block] = *rbegin();
+	Q_UNUSED(address)
+	return block;
 }
 
 /**
@@ -83,7 +85,9 @@ Function::const_reference Function::back() const {
  */
 Function::const_reference Function::front() const {
 	Q_ASSERT(!empty());
-	return begin()->second;
+	const auto &[address, block] = *begin();
+	Q_UNUSED(address)
+	return block;
 }
 
 /**
@@ -92,7 +96,9 @@ Function::const_reference Function::front() const {
  */
 Function::reference Function::back() {
 	Q_ASSERT(!empty());
-	return rbegin()->second;
+	auto &[address, block] = *rbegin();
+	Q_UNUSED(address)
+	return block;
 }
 
 /**
@@ -101,7 +107,9 @@ Function::reference Function::back() {
  */
 Function::reference Function::front() {
 	Q_ASSERT(!empty());
-	return begin()->second;
+	auto &[address, block] = *begin();
+	Q_UNUSED(address)
+	return block;
 }
 
 /**

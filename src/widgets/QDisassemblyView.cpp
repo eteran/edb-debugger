@@ -1300,17 +1300,18 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		}
 
 		// check if current arrow overlaps with register badge
-		for (const auto &each_badge : ctx->lineBadgeWidth) {
+		for (const auto &[line, badgeWidth] : ctx->lineBadgeWidth) {
+			Q_UNUSED(badgeWidth)
 
 			bool is_overlap_with_badge = isLineOverlap(
 				jump_arrow.sourceLine * ctx->lineHeight + 1,
 				jump_arrow_dst - 1,
-				each_badge.first * ctx->lineHeight,
-				(each_badge.first + 1) * ctx->lineHeight,
+				line * ctx->lineHeight,
+				(line + 1) * ctx->lineHeight,
 				true);
 
 			if (is_overlap_with_badge) {
-				badge_line = each_badge.first;
+				badge_line = line;
 				break;
 			}
 		}

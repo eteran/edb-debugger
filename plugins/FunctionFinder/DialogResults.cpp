@@ -73,14 +73,16 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 
 						// first create all of the nodes
 						for (const auto &pair : f) {
-							const BasicBlock &bb = pair.second;
+							const auto &[address, bb] = pair;
+							Q_UNUSED(address)
 							auto node            = new GraphNode(graph, bb.toString(), Qt::lightGray);
 							nodes.insert(bb.firstAddress(), node);
 						}
 
 						// then connect them!
 						for (const auto &pair : f) {
-							const BasicBlock &bb = pair.second;
+							const auto &[address, bb] = pair;
+							Q_UNUSED(address)
 
 							if (!bb.empty()) {
 
