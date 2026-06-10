@@ -17,7 +17,7 @@
 namespace AssemblerPlugin {
 
 /**
- * @brief Assembler::Assembler
+ * @brief Constructs the Assembler plugin object.
  * @param parent
  */
 Assembler::Assembler(QObject *parent)
@@ -25,14 +25,14 @@ Assembler::Assembler(QObject *parent)
 }
 
 /**
- * @brief Assembler::~Assembler
+ * @brief Destroys the Assembler plugin and frees the assembler dialog.
  */
 Assembler::~Assembler() {
 	delete dialog_;
 }
 
 /**
- * @brief Assembler::cpuContextMenu
+ * @brief Returns the CPU context menu actions contributed by the Assembler plugin.
  * @return
  */
 QList<QAction *> Assembler::cpuContextMenu() {
@@ -49,7 +49,7 @@ QList<QAction *> Assembler::cpuContextMenu() {
 }
 
 /**
- * @brief Assembler::menu
+ * @brief Returns nullptr, as the Assembler plugin contributes no top-level menu.
  * @param parent
  * @return
  */
@@ -59,7 +59,7 @@ QMenu *Assembler::menu(QWidget *parent) {
 }
 
 /**
- * @brief Assembler::showDialog
+ * @brief Opens the assembler dialog at the currently selected CPU address.
  */
 void Assembler::showDialog() {
 
@@ -77,7 +77,7 @@ void Assembler::showDialog() {
 }
 
 /**
- * @brief Assembler::optionsPage
+ * @brief Returns the plugin's configuration options widget.
  * @return
  */
 QWidget *Assembler::optionsPage() {

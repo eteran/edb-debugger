@@ -13,9 +13,7 @@
 namespace DebuggerCorePlugin {
 
 /**
- * removes all breakpoints
- *
- * @brief DebuggerCoreBase::clearBreakpoints
+ * @brief Removes all breakpoints if a process is currently attached.
  */
 void DebuggerCoreBase::clearBreakpoints() {
 	if (attached()) {
@@ -24,9 +22,8 @@ void DebuggerCoreBase::clearBreakpoints() {
 }
 
 /**
- * creates a new breakpoint (only if there isn't already one at the given address)
+ * @brief Creates a new breakpoint at the given address, or returns the existing one if already present.
  *
- * @brief DebuggerCoreBase::addBreakpoint
  * @param address
  * @return the breakpoint which was created/found
  */
@@ -51,7 +48,7 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::addBreakpoint(edb::address_t addr
 }
 
 /**
- * @brief DebuggerCoreBase::findBreakpoint
+ * @brief Returns the breakpoint at the given address, or an empty shared_ptr if none exists.
  * @param address
  * @return the breakpoint at the given address or std::shared_ptr<IBreakpoint>()
  */
@@ -66,11 +63,12 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::findBreakpoint(edb::address_t add
 }
 
 /**
- * similarly to findBreakpoint, finds a breakpoint near given address. But
+ * @brief Finds the breakpoint that triggered at the given address by checking possible rewind sizes.
+ *
+ * Similarly to findBreakpoint, finds a breakpoint near given address. But
  * unlike findBreakpoint, this function looks for a breakpoint which ends
  * up at this address after being triggered, instead of just starting there.
  *
- * @brief DebuggerCoreBase::findTriggeredBreakpoint
  * @param address
  * @return
  */
@@ -89,11 +87,8 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::findTriggeredBreakpoint(edb::addr
 }
 
 /**
- * Decrements the reference count for the breakpoint found at the given address.
- * If the reference count goes to zero, then it is removed.
- * This is a no-op if there is no breakpoint present.
+ * @brief Removes the breakpoint at the given address; this is a no-op if no breakpoint exists there.
  *
- * @brief DebuggerCoreBase::removeBreakpoint
  * @param address
  */
 void DebuggerCoreBase::removeBreakpoint(edb::address_t address) {
@@ -108,9 +103,7 @@ void DebuggerCoreBase::removeBreakpoint(edb::address_t address) {
 }
 
 /**
- * Ends debug session, detaching from or killing debuggee according to user preferences
- *
- * @brief DebuggerCoreBase::endDebugSession
+ * @brief Ends the debug session by detaching from or killing the debuggee according to user preferences.
  */
 void DebuggerCoreBase::endDebugSession() {
 	if (attached()) {
@@ -133,10 +126,8 @@ void DebuggerCoreBase::endDebugSession() {
 }
 
 /**
- * returns a copy of the BP list, these count as references to the BPs
- * preventing full removal until this list is destructed.
+ * @brief Returns a copy of the breakpoint map, keeping shared_ptr references alive until it is destroyed.
  *
- * @brief DebuggerCoreBase::backupBreakpoints
  * @return a list of shared_ptr's to the BPs
  */
 DebuggerCoreBase::BreakpointList DebuggerCoreBase::backupBreakpoints() const {
@@ -144,7 +135,7 @@ DebuggerCoreBase::BreakpointList DebuggerCoreBase::backupBreakpoints() const {
 }
 
 /**
- * @brief DebuggerCoreBase::attached
+ * @brief Returns true if a process is currently attached for debugging.
  * @return
  */
 bool DebuggerCoreBase::attached() const {
@@ -152,7 +143,7 @@ bool DebuggerCoreBase::attached() const {
 }
 
 /**
- * @brief DebuggerCoreBase::supportedBreakpointTypes
+ * @brief Returns the list of all software breakpoint types supported on x86/x86-64.
  * @return
  */
 std::vector<IBreakpoint::BreakpointType> DebuggerCoreBase::supportedBreakpointTypes() const {

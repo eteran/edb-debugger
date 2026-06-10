@@ -10,7 +10,7 @@
 namespace DebuggerCorePlugin {
 
 /**
- * @brief PlatformEvent::clone
+ * @brief Creates and returns a heap-allocated copy of this event.
  * @return
  */
 IDebugEvent *PlatformEvent::clone() const {
@@ -18,7 +18,7 @@ IDebugEvent *PlatformEvent::clone() const {
 }
 
 /**
- * @brief PlatformEvent::createUnexpectedSignalMessage
+ * @brief Constructs a generic unexpected-signal Message with the given signal name and number.
  * @param name
  * @param number
  * @return
@@ -31,7 +31,7 @@ IDebugEvent::Message PlatformEvent::createUnexpectedSignalMessage(const QString 
 }
 
 /**
- * @brief PlatformEvent::errorDescription
+ * @brief Returns a human-readable Message describing the error signal, fault address, and reason code.
  * @return
  */
 IDebugEvent::Message PlatformEvent::errorDescription() const {
@@ -267,7 +267,7 @@ IDebugEvent::Message PlatformEvent::errorDescription() const {
 }
 
 /**
- * @brief PlatformEvent::reason
+ * @brief Returns the high-level reason category (signal, trap, etc.) for this debug event.
  * @return
  */
 IDebugEvent::REASON PlatformEvent::reason() const {
@@ -286,7 +286,7 @@ IDebugEvent::REASON PlatformEvent::reason() const {
 }
 
 /**
- * @brief PlatformEvent::trapReason
+ * @brief Returns the specific trap reason (breakpoint, single-step, etc.) for a REASON_TRAP event.
  * @return
  */
 IDebugEvent::TRAP_REASON PlatformEvent::trapReason() const {
@@ -299,7 +299,7 @@ IDebugEvent::TRAP_REASON PlatformEvent::trapReason() const {
 }
 
 /**
- * @brief PlatformEvent::exited
+ * @brief Returns true if the debugged process exited normally.
  * @return
  */
 bool PlatformEvent::exited() const {
@@ -307,7 +307,7 @@ bool PlatformEvent::exited() const {
 }
 
 /**
- * @brief PlatformEvent::isError
+ * @brief Returns true if this event represents a fatal error signal (e.g. SIGSEGV, SIGILL).
  * @return
  */
 bool PlatformEvent::isError() const {
@@ -335,7 +335,7 @@ bool PlatformEvent::isError() const {
 }
 
 /**
- * @brief PlatformEvent::isKill
+ * @brief Returns true if the process was killed by a signal.
  * @return
  */
 bool PlatformEvent::isKill() const {
@@ -343,7 +343,7 @@ bool PlatformEvent::isKill() const {
 }
 
 /**
- * @brief PlatformEvent::isStop
+ * @brief Returns true if the process was stopped by delivery of a signal.
  * @return
  */
 bool PlatformEvent::isStop() const {
@@ -351,7 +351,7 @@ bool PlatformEvent::isStop() const {
 }
 
 /**
- * @brief PlatformEvent::isTrap
+ * @brief Returns true if this event is a SIGTRAP (breakpoint or single-step).
  * @return
  */
 bool PlatformEvent::isTrap() const {
@@ -359,7 +359,7 @@ bool PlatformEvent::isTrap() const {
 }
 
 /**
- * @brief PlatformEvent::terminated
+ * @brief Returns true if the process terminated due to an unhandled signal.
  * @return
  */
 bool PlatformEvent::terminated() const {
@@ -367,7 +367,7 @@ bool PlatformEvent::terminated() const {
 }
 
 /**
- * @brief PlatformEvent::stopped
+ * @brief Returns true if the process is currently stopped (but has not exited).
  * @return
  */
 bool PlatformEvent::stopped() const {
@@ -375,7 +375,7 @@ bool PlatformEvent::stopped() const {
 }
 
 /**
- * @brief PlatformEvent::process
+ * @brief Returns the PID of the process that generated this event.
  * @return
  */
 edb::pid_t PlatformEvent::process() const {
@@ -383,7 +383,7 @@ edb::pid_t PlatformEvent::process() const {
 }
 
 /**
- * @brief PlatformEvent::thread
+ * @brief Returns the TID of the thread that generated this event.
  * @return
  */
 edb::tid_t PlatformEvent::thread() const {
@@ -391,7 +391,7 @@ edb::tid_t PlatformEvent::thread() const {
 }
 
 /**
- * @brief PlatformEvent::code
+ * @brief Returns the signal number or exit code associated with this event.
  * @return
  */
 int64_t PlatformEvent::code() const {

@@ -61,7 +61,7 @@
 namespace DebuggerCorePlugin {
 
 /**
- * @brief PlatformThread::fillStateFromPrStatus
+ * @brief Fills the state from a PR_STATUS ptrace structure (currently a no-op stub for ARM).
  * @param state
  * @return
  */
@@ -71,7 +71,7 @@ bool PlatformThread::fillStateFromPrStatus(PlatformState *state) {
 }
 
 /**
- * @brief PlatformThread::fillStateFromSimpleRegs
+ * @brief Fills the state by reading the general-purpose registers via PTRACE_GETREGS.
  * @param state
  * @return
  */
@@ -89,7 +89,7 @@ bool PlatformThread::fillStateFromSimpleRegs(PlatformState *state) {
 }
 
 /**
- * @brief PlatformThread::fillStateFromVFPRegs
+ * @brief Fills the state with VFP floating-point registers via PTRACE_GETVFPREGS.
  * @param state
  * @return
  */
@@ -107,7 +107,7 @@ bool PlatformThread::fillStateFromVFPRegs(PlatformState *state) {
 }
 
 /**
- * @brief PlatformThread::getState
+ * @brief Reads the full CPU and VFP register state for this thread into the provided State object.
  * @param state
  */
 void PlatformThread::getState(State *state) {
@@ -123,7 +123,7 @@ void PlatformThread::getState(State *state) {
 }
 
 /**
- * @brief PlatformThread::setState
+ * @brief Writes the CPU and VFP register state back into the thread via ptrace.
  * @param state
  */
 void PlatformThread::setState(const State &state) {
@@ -147,7 +147,7 @@ void PlatformThread::setState(const State &state) {
 }
 
 /**
- * @brief PlatformThread::getDebugRegister
+ * @brief Returns the value of hardware debug register n (currently a stub).
  * @param n
  * @return
  */
@@ -156,7 +156,7 @@ unsigned long PlatformThread::getDebugRegister(std::size_t n) {
 }
 
 /**
- * @brief PlatformThread::setDebugRegister
+ * @brief Sets hardware debug register n to the given value (currently a stub).
  * @param n
  * @param value
  * @return
@@ -166,7 +166,7 @@ long PlatformThread::setDebugRegister(std::size_t n, long value) {
 }
 
 /**
- * @brief PlatformThread::instructionPointer
+ * @brief Returns the current instruction pointer of this thread (currently a stub).
  * @return
  */
 edb::address_t PlatformThread::instructionPointer() const {
@@ -174,7 +174,7 @@ edb::address_t PlatformThread::instructionPointer() const {
 }
 
 /**
- * @brief PlatformThread::doStep
+ * @brief Implements single-step for the given TID by injecting a breakpoint at the next instruction.
  * @param tid
  * @param status
  * @return
@@ -355,10 +355,8 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 }
 
 /**
- * steps this thread one instruction, passing the signal that stopped it
- * (unless the signal was SIGSTOP)
+ * @brief Single-steps this thread, re-delivering the signal that stopped it (unless it was SIGSTOP).
  *
- * @brief PlatformThread::step
  * @return
  */
 Status PlatformThread::step() {
@@ -366,10 +364,8 @@ Status PlatformThread::step() {
 }
 
 /**
- * steps this thread one instruction, passing the signal that stopped it
- * (unless the signal was SIGSTOP, or the passed status != DEBUG_EXCEPTION_NOT_HANDLED)
+ * @brief Single-steps this thread, re-delivering the signal only if status is DEBUG_EXCEPTION_NOT_HANDLED.
  *
- * @brief PlatformThread::step
  * @param status
  * @return
  */

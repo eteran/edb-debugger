@@ -21,7 +21,7 @@
 namespace BinarySearcherPlugin {
 
 /**
- * @brief DialogBinaryString::DialogBinaryString
+ * @brief Constructs the binary string search dialog and sets up its Find button and input widget.
  * @param parent
  * @param f
  */
@@ -47,7 +47,7 @@ DialogBinaryString::DialogBinaryString(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogBinaryString::doFind
+ * @brief Searches all mapped memory regions for occurrences of the entered binary pattern.
  */
 void DialogBinaryString::doFind() {
 	const QByteArray b = ui.binaryString->value();

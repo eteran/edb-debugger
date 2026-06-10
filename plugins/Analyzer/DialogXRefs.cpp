@@ -9,7 +9,7 @@
 namespace AnalyzerPlugin {
 
 /**
- * @brief DialogXRefs::DialogXRefs
+ * @brief Constructs the cross-references dialog and sets up its UI.
  * @param parent
  */
 DialogXRefs::DialogXRefs(QWidget *parent, Qt::WindowFlags f)
@@ -18,7 +18,7 @@ DialogXRefs::DialogXRefs(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogXRefs::on_listReferences_itemDoubleClicked
+ * @brief Jumps the disassembly view to the source address of the double-clicked cross-reference entry.
  * @param item
  */
 void DialogXRefs::on_listReferences_itemDoubleClicked(QListWidgetItem *item) {
@@ -28,7 +28,7 @@ void DialogXRefs::on_listReferences_itemDoubleClicked(QListWidgetItem *item) {
 }
 
 /**
- * @brief DialogXRefs::addReference
+ * @brief Adds a new cross-reference to the dialog, formatting the source symbol name and target address.
  * @param ref
  */
 void DialogXRefs::addReference(const std::pair<edb::address_t, edb::address_t> &ref) {

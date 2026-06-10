@@ -16,7 +16,7 @@
 namespace BinaryInfoPlugin {
 
 /**
- * @brief DialogRegions::DialogRegions
+ * @brief Constructs the memory regions dialog and sets up its table, search filter, and Explore button.
  * @param parent
  */
 DialogRegions::DialogRegions(QWidget *parent, Qt::WindowFlags f)
@@ -56,7 +56,7 @@ DialogRegions::DialogRegions(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogRegions::showEvent
+ * @brief Refreshes the region list from the current memory map when the dialog becomes visible.
  */
 void DialogRegions::showEvent(QShowEvent *) {
 	filterModel_->setFilterKeyColumn(3);

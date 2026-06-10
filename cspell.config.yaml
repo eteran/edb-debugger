@@ -35,6 +35,7 @@ words:
   - Opfer
   - Pixmap
   - Polyline
+  - PTRACE_POKEDATA
   - qcommonstyle
   - qgetenv
   - qlonglong

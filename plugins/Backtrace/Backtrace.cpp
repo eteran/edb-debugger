@@ -14,7 +14,7 @@
 namespace BacktracePlugin {
 
 /**
- * @brief Backtrace::Backtrace
+ * @brief Constructs the Backtrace plugin object.
  * @param parent
  */
 Backtrace::Backtrace(QObject *parent)
@@ -22,14 +22,14 @@ Backtrace::Backtrace(QObject *parent)
 }
 
 /**
- * @brief Backtrace::~Backtrace
+ * @brief Destroys the Backtrace plugin and frees the backtrace dialog.
  */
 Backtrace::~Backtrace() {
 	delete dialog_;
 }
 
 /**
- * @brief Backtrace::menu
+ * @brief Creates and returns the Call Stack plugin menu with a backtrace action, building it on first call.
  * @param parent
  * @return
  */
@@ -49,7 +49,7 @@ QMenu *Backtrace::menu(QWidget *parent) {
 }
 
 /**
- * @brief Backtrace::showMenu
+ * @brief Opens or raises the backtrace dialog.
  */
 void Backtrace::showMenu() {
 	if (!dialog_) {
