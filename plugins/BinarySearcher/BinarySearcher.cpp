@@ -13,7 +13,7 @@
 namespace BinarySearcherPlugin {
 
 /**
- * @brief BinarySearcher::BinarySearcher
+ * @brief Constructs the BinarySearcher plugin object.
  * @param parent
  */
 BinarySearcher::BinarySearcher(QObject *parent)
@@ -21,7 +21,7 @@ BinarySearcher::BinarySearcher(QObject *parent)
 }
 
 /**
- * @brief BinarySearcher::menu
+ * @brief Creates and returns the Binary Searcher plugin menu, building it on first call.
  * @param parent
  * @return
  */
@@ -38,7 +38,7 @@ QMenu *BinarySearcher::menu(QWidget *parent) {
 }
 
 /**
- * @brief BinarySearcher::stackContextMenu
+ * @brief Returns the stack context menu actions contributed by the BinarySearcher plugin.
  * @return
  */
 QList<QAction *> BinarySearcher::stackContextMenu() {
@@ -53,7 +53,7 @@ QList<QAction *> BinarySearcher::stackContextMenu() {
 }
 
 /**
- * @brief BinarySearcher::showMenu
+ * @brief Opens or raises the binary string search dialog.
  */
 void BinarySearcher::showMenu() {
 	static auto dialog = new DialogBinaryString(edb::v1::debugger_ui);
@@ -61,7 +61,7 @@ void BinarySearcher::showMenu() {
 }
 
 /**
- * @brief BinarySearcher::mnuStackFindAscii
+ * @brief Opens or raises the ASCII string search dialog from the stack context menu.
  */
 void BinarySearcher::mnuStackFindAscii() {
 	static auto dialog = new DialogAsciiString(edb::v1::debugger_ui);

@@ -50,7 +50,7 @@ void hash_combine(std::size_t &seed, const T &v) {
 }
 
 /**
- * @brief set_ok
+ * @brief Returns true if the ptrace long value is a valid (non-error) result.
  * @param value
  */
 bool set_ok(long value) {
@@ -58,7 +58,7 @@ bool set_ok(long value) {
 }
 
 /**
- * @brief split_max
+ * @brief Splits a whitespace-delimited string into at most maxparts parts.
  * @param str
  * @param maxparts
  * @return
@@ -90,9 +90,10 @@ QStringList split_max(const QString &str, int maxparts) {
 }
 
 /**
+ * @brief Parses a single line from /proc/[pid]/maps and returns the corresponding memory region.
+ *
  * parses the data from a line of a memory map file
  *
- * @brief process_map_line
  * @param line
  * @return
  */
@@ -141,7 +142,7 @@ std::shared_ptr<IRegion> process_map_line(const QString &line) {
 }
 
 /**
- * @brief get_loaded_modules
+ * @brief Walks the dynamic linker's link_map chain to enumerate all loaded shared libraries.
  * @param process
  * @return
  */
@@ -257,7 +258,7 @@ bool get_program_headers(const IProcess *process, edb::address_t *phdr_memaddr, 
 }
 
 /**
- * @brief PlatformProcess::PlatformProcess
+ * @brief Constructs a PlatformProcess for the given PID under the given debugger core.
  * @param core
  * @param pid
  */
@@ -279,9 +280,10 @@ PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid)
 }
 
 /**
+ * @brief Reads up to len bytes from the process at the given address, transparently patching through breakpoint bytes.
+ *
  * reads <len> bytes into <buf> starting at <address>
  *
- * @brief PlatformProcess::readBytes
  * @param address
  * @param buf
  * @param len
@@ -366,10 +368,11 @@ std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, std::s
 }
 
 /**
- * same as writeBytes, except that it also records the original data that was
+ * @brief Writes len bytes into the process at the given address and records the patch.
+ *
+ * Same as writeBytes, except that it also records the original data that was
  * found at the address being written to.
  *
- * @brief PlatformProcess::patchBytes
  * @param address
  * @param buf
  * @param len
@@ -403,9 +406,10 @@ std::size_t PlatformProcess::patchBytes(edb::address_t address, const void *buf,
 }
 
 /**
+ * @brief Writes len bytes from buf into the process memory at the given address without recording a patch.
+ *
  * writes <len> bytes from <buf> starting at <address>
  *
- * @brief PlatformProcess::writeBytes
  * @param address
  * @param buf
  * @param len
@@ -440,9 +444,10 @@ std::size_t PlatformProcess::writeBytes(edb::address_t address, const void *buf,
 }
 
 /**
+ * @brief Reads count whole memory pages starting at the page-aligned address.
+ *
  * reads <count> pages from the process starting at <address>
  *
- * @brief PlatformProcess::readPages
  * @param address - must be page aligned.
  * @param buf - sizeof(buf) must be >= count * core_->page_size()
  * @param count - number of pages
@@ -455,7 +460,7 @@ std::size_t PlatformProcess::readPages(edb::address_t address, void *buf, std::s
 }
 
 /**
- * @brief PlatformProcess::startTime
+ * @brief Returns the wall-clock start time of the process by reading /proc/[pid]/stat.
  * @return
  */
 QDateTime PlatformProcess::startTime() const {
@@ -464,7 +469,7 @@ QDateTime PlatformProcess::startTime() const {
 }
 
 /**
- * @brief PlatformProcess::arguments
+ * @brief Returns the command-line arguments of the process by reading /proc/[pid]/cmdline.
  * @return
  */
 QList<QByteArray> PlatformProcess::arguments() const {
@@ -501,7 +506,7 @@ QList<QByteArray> PlatformProcess::arguments() const {
 }
 
 /**
- * @brief PlatformProcess::currentWorkingDirectory
+ * @brief Returns the current working directory of the process by reading /proc/[pid]/cwd.
  * @return
  */
 QString PlatformProcess::currentWorkingDirectory() const {
@@ -509,7 +514,7 @@ QString PlatformProcess::currentWorkingDirectory() const {
 }
 
 /**
- * @brief PlatformProcess::executable
+ * @brief Returns the executable path of the process by reading /proc/[pid]/exe.
  * @return
  */
 QString PlatformProcess::executable() const {
@@ -517,7 +522,7 @@ QString PlatformProcess::executable() const {
 }
 
 /**
- * @brief PlatformProcess::pid
+ * @brief Returns the PID of this process.
  * @return
  */
 edb::pid_t PlatformProcess::pid() const {
@@ -525,7 +530,7 @@ edb::pid_t PlatformProcess::pid() const {
 }
 
 /**
- * @brief PlatformProcess::parent
+ * @brief Returns a shared pointer to the parent process.
  * @return
  */
 std::shared_ptr<IProcess> PlatformProcess::parent() const {
@@ -540,7 +545,7 @@ std::shared_ptr<IProcess> PlatformProcess::parent() const {
 }
 
 /**
- * @brief PlatformProcess::codeAddress
+ * @brief Returns the address of the code segment for this process.
  * @return
  */
 edb::address_t PlatformProcess::codeAddress() const {
@@ -553,7 +558,7 @@ edb::address_t PlatformProcess::codeAddress() const {
 }
 
 /**
- * @brief PlatformProcess::dataAddress
+ * @brief Returns the address of the data segment for this process.
  * @return
  */
 edb::address_t PlatformProcess::dataAddress() const {
@@ -566,7 +571,7 @@ edb::address_t PlatformProcess::dataAddress() const {
 }
 
 /**
- * @brief PlatformProcess::regions
+ * @brief Returns the list of all mapped memory regions by reading /proc/[pid]/maps.
  * @return
  */
 QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
@@ -613,7 +618,7 @@ QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
 }
 
 /**
- * @brief PlatformProcess::ptraceReadByte
+ * @brief Reads a single byte from the process using ptrace PTRACE_PEEKDATA.
  * @param address
  * @param ok
  * @return
@@ -653,9 +658,10 @@ uint8_t PlatformProcess::ptraceReadByte(edb::address_t address, bool *ok) const 
 }
 
 /**
+ * @brief Writes a single byte into the process at the given address via PTRACE_POKEDATA.
+ *
  * writes a single byte at a given address via ptrace API.
  *
- * @brief PlatformProcess::ptraceWriteByte
  * @param address
  * @param value
  * @param ok
@@ -693,7 +699,7 @@ void PlatformProcess::ptraceWriteByte(edb::address_t address, uint8_t value, boo
 }
 
 /**
- * @brief PlatformProcess::ptracePeek
+ * @brief Reads one word-sized value from the process via PTRACE_PEEKDATA.
  * @param address
  * @param ok
  * @return
@@ -722,7 +728,7 @@ long PlatformProcess::ptracePeek(edb::address_t address, bool *ok) const {
 }
 
 /**
- * @brief PlatformProcess::ptracePoke
+ * @brief Writes one word-sized value into the process via PTRACE_POKEDATA.
  * @param address
  * @param value
  * @return
@@ -743,7 +749,7 @@ bool PlatformProcess::ptracePoke(edb::address_t address, long value) {
 }
 
 /**
- * @brief PlatformProcess::threads
+ * @brief Returns the list of threads currently associated with this process.
  * @return
  */
 QList<std::shared_ptr<IThread>> PlatformProcess::threads() const {
@@ -757,7 +763,7 @@ QList<std::shared_ptr<IThread>> PlatformProcess::threads() const {
 }
 
 /**
- * @brief PlatformProcess::currentThread
+ * @brief Returns the current (active) thread for this process.
  * @return
  */
 std::shared_ptr<IThread> PlatformProcess::currentThread() const {
@@ -772,7 +778,7 @@ std::shared_ptr<IThread> PlatformProcess::currentThread() const {
 }
 
 /**
- * @brief PlatformProcess::setCurrentThread
+ * @brief Sets the active thread to the given thread.
  * @param thread
  */
 void PlatformProcess::setCurrentThread(IThread &thread) {
@@ -781,7 +787,7 @@ void PlatformProcess::setCurrentThread(IThread &thread) {
 }
 
 /**
- * @brief PlatformProcess::uid
+ * @brief Returns the numeric UID of the process owner.
  * @return
  */
 edb::uid_t PlatformProcess::uid() const {
@@ -791,7 +797,7 @@ edb::uid_t PlatformProcess::uid() const {
 }
 
 /**
- * @brief PlatformProcess::user
+ * @brief Returns the username of the process owner.
  * @return
  */
 QString PlatformProcess::user() const {
@@ -803,7 +809,7 @@ QString PlatformProcess::user() const {
 }
 
 /**
- * @brief PlatformProcess::name
+ * @brief Returns the process name (the filename part of its executable path).
  * @return
  */
 QString PlatformProcess::name() const {
@@ -817,7 +823,7 @@ QString PlatformProcess::name() const {
 }
 
 /**
- * @brief PlatformProcess::loadedModules
+ * @brief Returns the list of all loaded shared library modules by walking the dynamic linker link map.
  * @return
  */
 QList<Module> PlatformProcess::loadedModules() const {
@@ -833,9 +839,10 @@ QList<Module> PlatformProcess::loadedModules() const {
 }
 
 /**
+ * @brief Sends SIGSTOP to all threads to pause the process.
+ *
  * stops *all* threads of a process
  *
- * @brief PlatformProcess::pause
  * @return
  */
 Status PlatformProcess::pause() {
@@ -854,9 +861,10 @@ Status PlatformProcess::pause() {
 }
 
 /**
+ * @brief Resumes all threads from their stopped state with the given event status.
+ *
  * resumes ALL threads
  *
- * @brief PlatformProcess::resume
  * @param status
  * @return
  */
@@ -901,9 +909,10 @@ Status PlatformProcess::resume(edb::EventStatus status) {
 }
 
 /**
+ * @brief Single-steps the current thread with the given event status.
+ *
  * steps the currently active thread
  *
- * @brief PlatformProcess::step
  * @param status
  * @return
  */
@@ -920,7 +929,7 @@ Status PlatformProcess::step(edb::EventStatus status) {
 }
 
 /**
- * @brief PlatformProcess::isPaused
+ * @brief Returns true if all threads of this process are currently stopped.
  * @return true if ALL threads are currently in the debugger's wait list
  */
 bool PlatformProcess::isPaused() const {
@@ -934,7 +943,7 @@ bool PlatformProcess::isPaused() const {
 }
 
 /**
- * @brief PlatformProcess::patches
+ * @brief Returns the map of all applied byte patches keyed by address.
  * @return any patches applied to this process
  */
 QMap<edb::address_t, Patch> PlatformProcess::patches() const {
@@ -942,7 +951,7 @@ QMap<edb::address_t, Patch> PlatformProcess::patches() const {
 }
 
 /**
- * @brief PlatformProcess::entry_point
+ * @brief Returns the binary entry point address read from the ELF auxiliary vector.
  * @return
  */
 edb::address_t PlatformProcess::entryPoint() const {
@@ -1034,10 +1043,11 @@ edb::address_t get_relocation(const IProcess *process, edb::address_t phdr_memad
 }
 
 /**
+ * @brief Returns the address of the r_debug structure by searching the dynamic segment.
+ *
  * attempts to locate the ELF debug pointer in the target process and returns
  * it, 0 of not found
  *
- * @brief PlatformProcess::debug_pointer
  * @return
  */
 edb::address_t PlatformProcess::debugPointer() const {
@@ -1089,7 +1099,7 @@ edb::address_t PlatformProcess::debugPointer() const {
 }
 
 /**
- * @brief PlatformProcess::calculateMain
+ * @brief Attempts to locate the address of main() by following the ELF startup sequence.
  * @return
  */
 edb::address_t PlatformProcess::calculateMain() const {
@@ -1163,7 +1173,7 @@ edb::address_t PlatformProcess::calculateMain() const {
 }
 
 /**
- * @brief PlatformProcess::standardInput
+ * @brief Returns the path to the standard input file or device for this process.
  * @return
  */
 QString PlatformProcess::standardInput() const {
@@ -1171,7 +1181,7 @@ QString PlatformProcess::standardInput() const {
 }
 
 /**
- * @brief PlatformProcess::standardOutput
+ * @brief Returns the path to the standard output file or device for this process.
  * @return
  */
 QString PlatformProcess::standardOutput() const {

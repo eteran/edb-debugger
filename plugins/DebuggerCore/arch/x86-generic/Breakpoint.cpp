@@ -28,7 +28,7 @@ const std::vector<uint8_t> BreakpointInstructionUD0   = {0x0f, 0xff};
 }
 
 /**
- * @brief Breakpoint::Breakpoint
+ * @brief Constructs a breakpoint at the given address, writing the trap instruction immediately.
  * @param address
  */
 Breakpoint::Breakpoint(edb::address_t address)
@@ -40,7 +40,7 @@ Breakpoint::Breakpoint(edb::address_t address)
 }
 
 /**
- * @brief Breakpoint::supportedTypes
+ * @brief Returns the list of all software breakpoint instruction types supported on x86/x86-64.
  * @return
  */
 auto Breakpoint::supportedTypes() -> std::vector<BreakpointType> {
@@ -62,7 +62,7 @@ auto Breakpoint::supportedTypes() -> std::vector<BreakpointType> {
 }
 
 /**
- * @brief Breakpoint::setType
+ * @brief Disables the current breakpoint, changes its instruction type, and re-enables it.
  * @param type
  */
 void Breakpoint::setType(IBreakpoint::TypeId type) {
@@ -80,14 +80,14 @@ void Breakpoint::setType(IBreakpoint::TypeId type) {
 }
 
 /**
- * @brief Breakpoint::~Breakpoint
+ * @brief Destroys the breakpoint and restores the original instruction bytes.
  */
 Breakpoint::~Breakpoint() {
 	disable();
 }
 
 /**
- * @brief Breakpoint::enable
+ * @brief Writes the breakpoint instruction bytes to the target process, saving the original bytes.
  * @return
  */
 bool Breakpoint::enable() {
@@ -152,7 +152,7 @@ bool Breakpoint::enable() {
 }
 
 /**
- * @brief Breakpoint::disable
+ * @brief Restores the original instruction bytes in the target process to remove the breakpoint.
  * @return
  */
 bool Breakpoint::disable() {
@@ -168,14 +168,14 @@ bool Breakpoint::disable() {
 }
 
 /**
- * @brief Breakpoint::hit
+ * @brief Increments the breakpoint hit count.
  */
 void Breakpoint::hit() {
 	++hitCount_;
 }
 
 /**
- * @brief Breakpoint::setOneTime
+ * @brief Sets whether the breakpoint should automatically remove itself after being hit once.
  * @param value
  */
 void Breakpoint::setOneTime(bool value) {
@@ -183,7 +183,7 @@ void Breakpoint::setOneTime(bool value) {
 }
 
 /**
- * @brief Breakpoint::setInternal
+ * @brief Sets whether the breakpoint is internal (not shown to the user in the UI).
  * @param value
  */
 void Breakpoint::setInternal(bool value) {
@@ -191,7 +191,7 @@ void Breakpoint::setInternal(bool value) {
 }
 
 /**
- * @brief Breakpoint::possibleRewindSizes
+ * @brief Returns the possible instruction sizes (in bytes) to rewind the PC when a breakpoint is triggered.
  * @return
  */
 std::vector<size_t> Breakpoint::possibleRewindSizes() {

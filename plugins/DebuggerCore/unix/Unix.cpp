@@ -114,7 +114,7 @@ constexpr Exception Exceptions[] = {
 };
 
 /**
- * @brief copyString
+ * @brief Allocates a null-terminated copy of the given QByteArray string on the heap.
  * @param str
  * @return
  */
@@ -127,7 +127,7 @@ char *copyString(const QByteArray &str) {
 }
 
 /**
- * @brief Unix::exceptions
+ * @brief Returns a map of all known Unix signal numbers and their names.
  * @return
  */
 QMap<qlonglong, QString> Unix::exceptions() {
@@ -140,7 +140,7 @@ QMap<qlonglong, QString> Unix::exceptions() {
 }
 
 /**
- * @brief Unix::exception_name
+ * @brief Returns the name string for the Unix signal with the given numeric value.
  * @param value
  * @return
  */
@@ -157,7 +157,7 @@ QString Unix::exception_name(qlonglong value) {
 }
 
 /**
- * @brief Unix::exception_value
+ * @brief Returns the numeric value for the Unix signal with the given name, or -1 if not found.
  * @param name
  * @return
  */
@@ -174,7 +174,7 @@ qlonglong Unix::exception_value(const QString &name) {
 }
 
 /**
- * @brief Unix::execute_process
+ * @brief Changes to the given working directory and launches the process via execv with the provided arguments.
  * @param path
  * @param cwd
  * @param args

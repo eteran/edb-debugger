@@ -10,7 +10,7 @@
 namespace BookmarksPlugin {
 
 /**
- * @brief BookmarksModel::BookmarksModel
+ * @brief Constructs the bookmarks model and loads the breakpoint and current-instruction indicator icons.
  * @param parent
  */
 BookmarksModel::BookmarksModel(QObject *parent)
@@ -21,7 +21,7 @@ BookmarksModel::BookmarksModel(QObject *parent)
 }
 
 /**
- * @brief BookmarksModel::headerData
+ * @brief Returns the column header labels: Address, Type, and Comment.
  * @param section
  * @param orientation
  * @param role
@@ -44,7 +44,7 @@ QVariant BookmarksModel::headerData(int section, Qt::Orientation orientation, in
 }
 
 /**
- * @brief BookmarksModel::data
+ * @brief Returns display text and decoration icons for each bookmark cell based on the role.
  * @param index
  * @param role
  * @return
@@ -121,7 +121,7 @@ QVariant BookmarksModel::data(const QModelIndex &index, int role) const {
 }
 
 /**
- * @brief BookmarksModel::addBookmark
+ * @brief Appends a new bookmark entry to the list and notifies the view.
  * @param r
  */
 void BookmarksModel::addBookmark(const Bookmark &r) {
@@ -131,7 +131,7 @@ void BookmarksModel::addBookmark(const Bookmark &r) {
 }
 
 /**
- * @brief BookmarksModel::clearBookmarks
+ * @brief Removes all bookmarks from the model and notifies the view.
  */
 void BookmarksModel::clearBookmarks() {
 	beginResetModel();
@@ -140,7 +140,7 @@ void BookmarksModel::clearBookmarks() {
 }
 
 /**
- * @brief BookmarksModel::index
+ * @brief Returns the model index for the given row and column, embedding a pointer to the bookmark entry.
  * @param row
  * @param column
  * @param parent
@@ -166,7 +166,7 @@ QModelIndex BookmarksModel::index(int row, int column, const QModelIndex &parent
 }
 
 /**
- * @brief BookmarksModel::parent
+ * @brief Returns an invalid index since bookmarks form a flat list with no hierarchical parent.
  * @param index
  * @return
  */
@@ -176,7 +176,7 @@ QModelIndex BookmarksModel::parent(const QModelIndex &index) const {
 }
 
 /**
- * @brief BookmarksModel::rowCount
+ * @brief Returns the number of bookmarks currently stored in the model.
  * @param parent
  * @return
  */
@@ -186,7 +186,7 @@ int BookmarksModel::rowCount(const QModelIndex &parent) const {
 }
 
 /**
- * @brief BookmarksModel::columnCount
+ * @brief Returns 3, representing the fixed Address, Type, and Comment columns.
  * @param parent
  * @return
  */
@@ -196,7 +196,7 @@ int BookmarksModel::columnCount(const QModelIndex &parent) const {
 }
 
 /**
- * @brief BookmarksModel::setComment
+ * @brief Updates the comment string for the bookmark at the given index and notifies the view.
  * @param index
  * @param comment
  */
@@ -213,7 +213,7 @@ void BookmarksModel::setComment(const QModelIndex &index, const QString &comment
 }
 
 /**
- * @brief BookmarksModel::setType
+ * @brief Updates the bookmark type for the entry at the given index and notifies the view.
  * @param index
  * @param type
  */
@@ -231,7 +231,7 @@ void BookmarksModel::setType(const QModelIndex &index, const QString &type) {
 }
 
 /**
- * @brief BookmarksModel::updateList
+ * @brief Invalidates all displayed bookmark data and triggers a full view refresh.
  */
 void BookmarksModel::updateList() {
 	// Every time the disassembly view changes, all the bookmark data is invalidated.
@@ -245,7 +245,7 @@ void BookmarksModel::updateList() {
 }
 
 /**
- * @brief BookmarksModel::deleteBookmark
+ * @brief Removes the bookmark at the given index from the model and notifies the view.
  * @param index
  */
 void BookmarksModel::deleteBookmark(const QModelIndex &index) {

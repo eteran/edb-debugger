@@ -30,7 +30,7 @@ timespec duration_to_timespec(std::chrono::milliseconds msecs) {
 namespace detail {
 
 /**
- * @brief sigtimedwait
+ * @brief Calls the system sigtimedwait, restarting on EINTR.
  * @param set
  * @param info
  * @param timeout
@@ -47,7 +47,7 @@ int sigtimedwait(const sigset_t *set, siginfo_t *info, const struct timespec *ti
 }
 
 /**
- * @brief Posix::read
+ * @brief Calls the system read(), automatically restarting on EINTR.
  * @param fd
  * @param buf
  * @param count
@@ -62,7 +62,7 @@ ssize_t Posix::read(int fd, void *buf, size_t count) {
 }
 
 /**
- * @brief Posix::write
+ * @brief Calls the system write(), automatically restarting on EINTR.
  * @param fd
  * @param buf
  * @param count
@@ -77,7 +77,7 @@ ssize_t Posix::write(int fd, const void *buf, size_t count) {
 }
 
 /**
- * @brief Posix::select
+ * @brief Calls the system select(), automatically restarting on EINTR.
  * @param nfds
  * @param readfds
  * @param writefds
@@ -94,7 +94,7 @@ int Posix::select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds
 }
 
 /**
- * @brief Posix::waitpid
+ * @brief Calls the system waitpid(), automatically restarting on EINTR.
  * @param pid
  * @param status
  * @param options
@@ -109,7 +109,7 @@ pid_t Posix::waitpid(pid_t pid, int *status, int options) {
 }
 
 /**
- * @brief Posix::wait_for_sigchld
+ * @brief Waits up to the specified timeout for a SIGCHLD signal using sigtimedwait.
  * @param msecs
  * @return
  */
