@@ -7,7 +7,7 @@ set(CMAKE_AUTOUIC ON)
 
 set(PLUGIN_NAME "Assembler")
 
-find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns)
+find_package(Qt5 REQUIRED Widgets Xml XmlPatterns)
 
 qt5_add_resources(QRC_SOURCES
 	Assembler.qrc

@@ -5,7 +5,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns Svg LinguistTools)
+find_package(Qt5 REQUIRED Widgets Xml XmlPatterns Svg LinguistTools)
 
 qt5_add_translation(QM_FILES
 	# add translation files in /src/res/translations here
