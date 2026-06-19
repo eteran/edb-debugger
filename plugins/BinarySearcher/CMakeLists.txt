@@ -7,7 +7,7 @@ set(CMAKE_AUTOUIC ON)
 
 set(PLUGIN_NAME "BinarySearcher")
 
-find_package(Qt5 5.0.0 REQUIRED Widgets)
+find_package(Qt5 REQUIRED Widgets)
 
 add_library(${PLUGIN_NAME} SHARED
 	BinarySearcher.cpp

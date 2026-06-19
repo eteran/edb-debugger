@@ -7,7 +7,7 @@ set(CMAKE_AUTOUIC ON)
 
 set(PLUGIN_NAME "CheckVersion")
 
-find_package(Qt5 5.0.0 REQUIRED Widgets Network)
+find_package(Qt5 REQUIRED Widgets Network)
 
 add_library(${PLUGIN_NAME} SHARED
 	CheckVersion.cpp
