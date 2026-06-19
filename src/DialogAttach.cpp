@@ -27,7 +27,6 @@ int getuid() {
 #include <unistd.h>
 #endif
 
-
 /**
  * @brief Constructor for the DialogAttach class.
  * @param parent The parent widget.
