@@ -394,11 +394,11 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 	}
 }
 
-//--------------------------------------------------------------------------
-// Name: output_symbols
-// Desc: outputs the symbols to OS ensuring uniqueness and adding any
-//       needed demangling
-//--------------------------------------------------------------------------
+/**
+ * @brief Outputs the symbols to the specified stream ensuring uniqueness and adding any needed demangling.
+ * @param symbols The vector of symbols to output.
+ * @param os The output stream to write the symbols to.
+ */
 template <class Symbol>
 void output_symbols(std::vector<Symbol> &symbols, std::ostream &os) {
 	std::sort(symbols.begin(), symbols.end());
@@ -412,10 +412,13 @@ void output_symbols(std::vector<Symbol> &symbols, std::ostream &os) {
 	}
 }
 
-//--------------------------------------------------------------------------
-// Name: generate_symbols_internal
-// Desc:
-//--------------------------------------------------------------------------
+/**
+ * @brief Generates symbols for the given file and outputs them to the specified stream.
+ * @param file The file to generate symbols for.
+ * @param debugFile The debug file to include in the symbol generation.
+ * @param os The output stream to write the symbols to.
+ * @return True if the operation was successful, false otherwise.
+ */
 bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, std::ostream &os) {
 	if (auto file_ptr = static_cast<void *>(file.map(0, file.size(), QFile::NoOptions))) {
 		if (is_elf64(file_ptr)) {
@@ -481,10 +484,10 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 }
 
 /**
- * @brief generate_symbols
- * @param filename
- * @param os
- * @return
+ * @brief Generates symbols for the given file and outputs them to the specified stream.
+ * @param filename The name of the file to generate symbols for.
+ * @param os The output stream to write the symbols to.
+ * @return True if the operation was successful, false otherwise.
  */
 bool generate_symbols(const QString &filename, std::ostream &os) {
 

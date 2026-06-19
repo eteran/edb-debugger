@@ -8,16 +8,16 @@
 #include "Util.h"
 
 /**
- * @brief Register::Register
+ * @brief Constructs a new Register object.
  */
 Register::Register() {
 	util::mark_memory(&value_, sizeof(value_));
 }
 
 /**
- * @brief Register::operator ==
- * @param rhs
- * @return
+ * @brief Compares two Register objects for equality.
+ * @param rhs The right-hand side register to compare.
+ * @return True if the registers are equal, false otherwise.
  */
 bool Register::operator==(const Register &rhs) const {
 	if (!valid() && !rhs.valid()) {
@@ -28,8 +28,8 @@ bool Register::operator==(const Register &rhs) const {
 }
 
 /**
- * @brief Register::toHexString
- * @return
+ * @brief Formats the register value as a hexadecimal string.
+ * @return The formatted register value.
  */
 QString Register::toHexString() const {
 	if (!valid()) {
@@ -44,17 +44,17 @@ QString Register::toHexString() const {
 }
 
 /**
- * @brief Register::operator !=
- * @param rhs
- * @return
+ * @brief Compares two Register objects for inequality.
+ * @param rhs The right-hand side register to compare.
+ * @return True if the registers are not equal, false otherwise.
  */
 bool Register::operator!=(const Register &rhs) const {
 	return !(*this == rhs);
 }
 
 /**
- * @brief Register::setScalarValue
- * @param newValue
+ * @brief Sets the scalar value of the register.
+ * @param newValue The new scalar value to set.
  */
 void Register::setScalarValue(std::uint64_t newValue) {
 
@@ -64,8 +64,8 @@ void Register::setScalarValue(std::uint64_t newValue) {
 }
 
 /**
- * @brief Register::valueAsAddress
- * @return
+ * @brief Returns the value of the register as an address.
+ * @return The value of the register as an address.
  */
 edb::address_t Register::valueAsAddress() const {
 	// This function only makes sense for GPRs

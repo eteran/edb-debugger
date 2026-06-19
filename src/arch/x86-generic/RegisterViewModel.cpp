@@ -327,10 +327,10 @@ void addAVXRegs(RegisterViewModelBase::SIMDCategory *avxRegs, int regCount) {
 }
 
 /**
- * @brief RegisterViewModel::data
- * @param index
- * @param role
- * @return
+ * @brief Returns the data for the specified index and role.
+ * @param index The index of the item to retrieve.
+ * @param role The role of the data to retrieve.
+ * @return The data for the specified index and role.
  */
 QVariant RegisterViewModel::data(const QModelIndex &index, int role) const {
 	if (role == FixedLengthRole) {
@@ -362,9 +362,9 @@ QVariant RegisterViewModel::data(const QModelIndex &index, int role) const {
 }
 
 /**
- * @brief RegisterViewModel::RegisterViewModel
- * @param cpuSuppFlags
- * @param parent
+ * @brief Constructs the register view model and initializes its internal state.
+ * @param cpuSuppFlags The CPU support flags.
+ * @param parent The parent object for the register view model.
  */
 RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject *parent)
 	: RegisterViewModelBase::Model(parent),

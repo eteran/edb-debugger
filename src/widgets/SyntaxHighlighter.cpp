@@ -8,8 +8,8 @@
 #include "Theme.h"
 
 /**
- * @brief SyntaxHighlighter::SyntaxHighlighter
- * @param parent
+ * @brief Constructs the syntax highlighter and initializes its internal state.
+ * @param parent The parent object for the syntax highlighter.
  */
 SyntaxHighlighter::SyntaxHighlighter(QObject *parent)
 	: QObject(parent) {
@@ -18,9 +18,9 @@ SyntaxHighlighter::SyntaxHighlighter(QObject *parent)
 }
 
 /**
- * @brief SyntaxHighlighter::HighlightingRule::HighlightingRule
- * @param regex
- * @param format
+ * @brief Constructs a highlighting rule with the given regex and format.
+ * @param regex The regular expression to match.
+ * @param format The text format to apply.
  */
 SyntaxHighlighter::HighlightingRule::HighlightingRule(const QString &regex, const QTextCharFormat &fmt)
 	: pattern(regex) {
@@ -30,7 +30,7 @@ SyntaxHighlighter::HighlightingRule::HighlightingRule(const QString &regex, cons
 }
 
 /**
- * @brief SyntaxHighlighter::createRules
+ * @brief Creates the highlighting rules for the syntax highlighter.
  */
 void SyntaxHighlighter::createRules() {
 
@@ -160,9 +160,9 @@ void SyntaxHighlighter::createRules() {
 }
 
 /**
- * @brief SyntaxHighlighter::highlightBlock
- * @param text
- * @return
+ * @brief Highlights the given text and returns the formatted ranges.
+ * @param text The text to highlight.
+ * @return A vector of formatted ranges.
  */
 QVector<QTextLayout::FormatRange> SyntaxHighlighter::highlightBlock(const QString &text) {
 

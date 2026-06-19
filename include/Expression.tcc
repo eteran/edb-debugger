@@ -9,25 +9,32 @@
 
 namespace detail {
 
+/**
+ * @brief Checks if the given character is a delimiter.
+ * @param ch The character to check.
+ * @return True if the character is a delimiter, false otherwise.
+ */
 inline bool is_delim(QChar ch) {
 	return QStringLiteral("[]!()=+-*/%&|^~<>\t\n\r ").contains(ch);
 }
 
 }
 
-//------------------------------------------------------------------------------
-// Name: Expression
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Constructs a new Expression instance.
+ * @param s The expression string.
+ * @param vg The variable getter function.
+ * @param mr The memory reader function.
+ */
 template <class T>
 Expression<T>::Expression(const QString &s, variable_getter_t vg, memoryReader_t mr)
 	: expression_(s), expressionPtr_(expression_.begin()), variableReader_(vg), memoryReader_(mr) {
 }
 
-//------------------------------------------------------------------------------
-// Name: evalExp
-// Desc: private entry point with sanity check
-//------------------------------------------------------------------------------
+/**
+ * @brief Evaluates the expression and stores the result in the provided variable.
+ * @param result The variable to store the result in.
+ */
 template <class T>
 void Expression<T>::evalExp(T &result) {
 	if (token_.type_ == Token::UNKNOWN) {
@@ -57,10 +64,11 @@ void Expression<T>::evalExp(T &result) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: evalExp0
-// Desc: logic
-//------------------------------------------------------------------------------
+/**
+ * @brief Evaluates the expression at the top level.
+ * @param result The variable to store the result in.
+ * @note This handles logical operations.
+ */
 template <class T>
 void Expression<T>::evalExp0(T &result) {
 	evalExp1(result);
@@ -85,10 +93,11 @@ void Expression<T>::evalExp0(T &result) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: evalExp1
-// Desc: binary logic
-//------------------------------------------------------------------------------
+/**
+ * @brief Evaluates the expression at the binary logic level.
+ * @param result The variable to store the result in.
+ * @note This handles binary logic operations.
+ */
 template <class T>
 void Expression<T>::evalExp1(T &result) {
 	evalExp2(result);
@@ -116,10 +125,11 @@ void Expression<T>::evalExp1(T &result) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: evalExp2
-// Desc: comparisons
-//------------------------------------------------------------------------------
+/**
+ * @brief Evaluates the expression at the comparison level.
+ * @param result The variable to store the result in.
+ * @note This handles comparison operations.
+ */
 template <class T>
 void Expression<T>::evalExp2(T &result) {
 	evalExp3(result);
@@ -156,10 +166,11 @@ void Expression<T>::evalExp2(T &result) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: evalExp3
-// Desc: shifts
-//------------------------------------------------------------------------------
+/**
+ * @brief Evaluates the expression at the shift level.
+ * @param result The variable to store the result in.
+ * @note This handles shift operations.
+ */
 template <class T>
 void Expression<T>::evalExp3(T &result) {
 	evalExp4(result);
@@ -184,10 +195,11 @@ void Expression<T>::evalExp3(T &result) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: evalExp4
-// Desc: addition/subtraction
-//------------------------------------------------------------------------------
+/**
+ * @brief Evaluates the expression at the addition/subtraction level.
+ * @param result The variable to store the result in.
+ * @note This handles addition and subtraction operations.
+ */
 template <class T>
 void Expression<T>::evalExp4(T &result) {
 	evalExp5(result);
@@ -220,10 +232,11 @@ void Expression<T>::evalExp4(T &result) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: evalExp5
-// Desc: multiplication/division
-//------------------------------------------------------------------------------
+/**
+ * @brief Evaluates the expression at the multiplication/division level.
+ * @param result The variable to store the result in.
+ * @note This handles multiplication, division, and modulus operations.
+ */
 template <class T>
 void Expression<T>::evalExp5(T &result) {
 	evalExp6(result);
@@ -257,10 +270,11 @@ void Expression<T>::evalExp5(T &result) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: evalExp6
-// Desc: unary expressions
-//------------------------------------------------------------------------------
+/**
+ * @brief Evaluates the expression at the unary level.
+ * @param result The variable to store the result in.
+ * @note This handles unary operations.
+ */
 template <class T>
 void Expression<T>::evalExp6(T &result) {
 
@@ -298,10 +312,11 @@ void Expression<T>::evalExp6(T &result) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: evalExp7
-// Desc: sub-expressions
-//------------------------------------------------------------------------------
+/**
+ * @brief Evaluates the expression at the sub-expression level.
+ * @param result The variable to store the result in.
+ * @note This handles sub-expressions.
+ */
 template <class T>
 void Expression<T>::evalExp7(T &result) {
 
@@ -357,10 +372,11 @@ void Expression<T>::evalExp7(T &result) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: evalAtom
-// Desc: atoms (variables/constants)
-//------------------------------------------------------------------------------
+/**
+ * @brief Evaluates the expression at the atom level.
+ * @param result The variable to store the result in.
+ * @note This handles variables and constants.
+ */
 template <class T>
 void Expression<T>::evalAtom(T &result) {
 
