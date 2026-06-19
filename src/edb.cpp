@@ -86,10 +86,9 @@ bool function_symbol_base(edb::address_t address, QString *value, int *offset) {
 
 namespace internal {
 
-//------------------------------------------------------------------------------
-// Name: register_plugin
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool register_plugin(const QString &filename, QObject *plugin) {
 	if (!g_GeneralPlugins.contains(filename)) {
 		g_GeneralPlugins[filename] = plugin;
@@ -99,10 +98,9 @@ bool register_plugin(const QString &filename, QObject *plugin) {
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void load_function_db() {
 	QFile file(":/debugger/xml/functions.xml");
 	QDomDocument doc;
@@ -145,103 +143,91 @@ bool debuggeeIs64Bit() {
 	return pointer_size() == sizeof(std::uint64_t);
 }
 
-//------------------------------------------------------------------------------
-// Name: set_cpu_selected_address
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void set_cpu_selected_address(address_t address) {
 	ui()->cpuView_->setSelectedAddress(address);
 	ui()->cpuView_->update();
 }
 
-//------------------------------------------------------------------------------
-// Name: cpu_selected_address
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 address_t cpu_selected_address() {
 	return ui()->cpuView_->selectedAddress();
 }
 
-//------------------------------------------------------------------------------
-// Name: current_cpu_view_region
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 std::shared_ptr<IRegion> current_cpu_view_region() {
 	return ui()->cpuView_->region();
 }
 
-//------------------------------------------------------------------------------
-// Name: repaint_cpu_view
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void repaint_cpu_view() {
 	ui()->cpuView_->update();
 }
 
-//------------------------------------------------------------------------------
-// Name: symbol_manager
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 ISymbolManager &symbol_manager() {
 	static SymbolManager symbolManager;
 	return symbolManager;
 }
 
-//------------------------------------------------------------------------------
-// Name: memory_regions
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 MemoryRegions &memory_regions() {
 	static MemoryRegions memoryRegions;
 	return memoryRegions;
 }
 
-//------------------------------------------------------------------------------
-// Name: arch_processor
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 ArchProcessor &arch_processor() {
 	static ArchProcessor archProcessor;
 	return archProcessor;
 }
 
-//------------------------------------------------------------------------------
-// Name: set_analyzer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 IAnalyzer *set_analyzer(IAnalyzer *p) {
 	Q_ASSERT(p);
 	return g_Analyzer.fetchAndStoreAcquire(p);
 }
 
-//------------------------------------------------------------------------------
-// Name: analyzer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 IAnalyzer *analyzer() {
 	return g_Analyzer.loadRelaxed();
 }
 
-//------------------------------------------------------------------------------
-// Name: execute_debug_event_handlers
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 EventStatus execute_debug_event_handlers(const std::shared_ptr<IDebugEvent> &e) {
 	return g_DebugEventHandlers.execute(e);
 }
 
-//------------------------------------------------------------------------------
-// Name: add_debug_event_handler
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void add_debug_event_handler(IDebugEventHandler *p) {
 	g_DebugEventHandlers.add(p);
 }
 
-//------------------------------------------------------------------------------
-// Name: remove_debug_event_handler
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void remove_debug_event_handler(IDebugEventHandler *p) {
 	g_DebugEventHandlers.remove(p);
 }
@@ -276,10 +262,9 @@ bool dump_data_range(address_t address, address_t end_address) {
 	return dump_data_range(address, end_address, false);
 }
 
-//------------------------------------------------------------------------------
-// Name: dump_stack
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool dump_stack(address_t address) {
 	return dump_stack(address, true);
 }
@@ -312,10 +297,9 @@ bool dump_data(address_t address) {
 	return dump_data(address, false);
 }
 
-//------------------------------------------------------------------------------
-// Name: set_breakpoint_condition
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void set_breakpoint_condition(address_t address, const QString &condition) {
 
 	if (std::shared_ptr<IBreakpoint> bp = find_breakpoint(address)) {
@@ -323,10 +307,9 @@ void set_breakpoint_condition(address_t address, const QString &condition) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: get_breakpoint_condition
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString get_breakpoint_condition(address_t address) {
 	QString ret;
 
@@ -395,10 +378,9 @@ std::shared_ptr<IBreakpoint> create_breakpoint(address_t address) {
 	return bp;
 }
 
-//------------------------------------------------------------------------------
-// Name: enable_breakpoint
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 address_t enable_breakpoint(address_t address) {
 	if (address != 0) {
 		std::shared_ptr<IBreakpoint> bp = find_breakpoint(address);
@@ -409,10 +391,9 @@ address_t enable_breakpoint(address_t address) {
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name: disable_breakpoint
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 address_t disable_breakpoint(address_t address) {
 	if (address != 0) {
 		std::shared_ptr<IBreakpoint> bp = find_breakpoint(address);
@@ -444,10 +425,9 @@ void remove_breakpoint(address_t address) {
 	repaint_cpu_view();
 }
 
-//------------------------------------------------------------------------------
-// Name: eval_expression
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool eval_expression(const QString &expression, address_t *value) {
 
 	Q_ASSERT(value);
@@ -464,10 +444,9 @@ bool eval_expression(const QString &expression, address_t *value) {
 	return true;
 }
 
-//------------------------------------------------------------------------------
-// Name: get_expression_from_user
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool get_expression_from_user(const QString &title, const QString &prompt, address_t *value) {
 
 	bool retval      = false;
@@ -481,18 +460,16 @@ bool get_expression_from_user(const QString &title, const QString &prompt, addre
 	return retval;
 }
 
-//------------------------------------------------------------------------------
-// Name: get_value_from_user
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool get_value_from_user(Register &value) {
 	return get_value_from_user(value, tr("Input Value"));
 }
 
-//------------------------------------------------------------------------------
-// Name: get_value_from_user
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool get_value_from_user(Register &value, const QString &title) {
 
 	static auto dlg = new DialogInputValue(debugger_ui);
@@ -508,10 +485,9 @@ bool get_value_from_user(Register &value, const QString &title) {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: get_binary_string_from_user
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool get_binary_string_from_user(QByteArray &value, const QString &title, int max_length) {
 
 	static auto dlg = new DialogInputBinaryString(debugger_ui);
@@ -546,10 +522,9 @@ QPointer<QDialog> dialog_options() {
 	return dialog;
 }
 
-//------------------------------------------------------------------------------
-// Name: config
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 Configuration &config() {
 	static Configuration g_Configuration;
 	return g_Configuration;
@@ -685,10 +660,9 @@ bool get_utf16_string_at_address(address_t address, QString &s, int min_length, 
 	return is_string;
 }
 
-//------------------------------------------------------------------------------
-// Name: find_function_symbol
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString find_function_symbol(address_t address, const QString &default_value, int *offset) {
 
 	QString symname(default_value);
@@ -710,26 +684,23 @@ QString find_function_symbol(address_t address, const QString &default_value, in
 	return symname;
 }
 
-//------------------------------------------------------------------------------
-// Name: find_function_symbol
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString find_function_symbol(address_t address, const QString &default_value) {
 	return find_function_symbol(address, default_value, nullptr);
 }
 
-//------------------------------------------------------------------------------
-// Name: find_function_symbol
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString find_function_symbol(address_t address) {
 	return find_function_symbol(address, QString(), nullptr);
 }
 
-//------------------------------------------------------------------------------
-// Name: get_variable
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 
 	Q_ASSERT(debugger_core);
@@ -777,10 +748,9 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name: get_value
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 address_t get_value(address_t address, bool *ok, ExpressionError *err) {
 
 	Q_ASSERT(debugger_core);
@@ -892,10 +862,9 @@ address_t locate_main_function() {
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name: plugin_list
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 const QMap<QString, QObject *> &plugin_list() {
 	return g_GeneralPlugins;
 }
@@ -913,18 +882,16 @@ IPlugin *find_plugin_by_name(const QString &name) {
 	return nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: reload_symbols
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void reload_symbols() {
 	symbol_manager().clear();
 }
 
-//------------------------------------------------------------------------------
-// Name: get_function_info
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 const Prototype *get_function_info(const QString &function) {
 
 	auto it = g_FunctionDB.find(function);
@@ -989,19 +956,17 @@ std::shared_ptr<IRegion> primary_code_region() {
 	return nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: pop_value
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void pop_value(State *state) {
 	Q_ASSERT(state);
 	state->adjustStack(static_cast<int>(pointer_size()));
 }
 
-//------------------------------------------------------------------------------
-// Name: push_value
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void push_value(State *state, reg_t value) {
 	Q_ASSERT(state);
 
@@ -1011,10 +976,9 @@ void push_value(State *state, reg_t value) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: register_binary_info
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void register_binary_info(IBinary::create_func_ptr_t fptr) {
 	if (!g_BinaryInfoList.contains(fptr)) {
 		g_BinaryInfoList.push_back(fptr);
@@ -1029,10 +993,9 @@ quint32 edb_version() {
 	return int_version(EDB_VERSION_STRING);
 }
 
-//------------------------------------------------------------------------------
-// Name: overwrite_check
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool overwrite_check(address_t address, size_t size) {
 	bool firstConflict = true;
 	for (address_t addr = address; addr != (address + size); ++addr) {
@@ -1058,10 +1021,9 @@ bool overwrite_check(address_t address, size_t size) {
 	return true;
 }
 
-//------------------------------------------------------------------------------
-// Name: update_ui
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void update_ui() {
 	// force a full update
 	Debugger *const gui = ui();
@@ -1069,10 +1031,9 @@ void update_ui() {
 	gui->updateUi();
 }
 
-//------------------------------------------------------------------------------
-// Name: modify_bytes
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool modify_bytes(address_t address, size_t size, QByteArray &bytes, uint8_t fill) {
 
 	if (!edb::v1::overwrite_check(address, size)) {
@@ -1098,18 +1059,16 @@ bool modify_bytes(address_t address, size_t size, QByteArray &bytes, uint8_t fil
 	return true;
 }
 
-//------------------------------------------------------------------------------
-// Name: get_md5
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QByteArray get_md5(const QVector<uint8_t> &bytes) {
 	return get_md5(bytes.data(), bytes.size());
 }
 
-//------------------------------------------------------------------------------
-// Name: get_md5
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QByteArray get_md5(const void *p, size_t n) {
 	auto b = QByteArray::fromRawData(reinterpret_cast<const char *>(p), static_cast<int>(n));
 	return QCryptographicHash::hash(b, QCryptographicHash::Md5);
@@ -1134,10 +1093,9 @@ QByteArray get_file_md5(const QString &s) {
 	return QByteArray();
 }
 
-//------------------------------------------------------------------------------
-// Name: symlink_target
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString symlink_target(const QString &s) {
 	return QFileInfo(s).symLinkTarget();
 }
@@ -1163,10 +1121,9 @@ quint32 int_version(const QString &s) {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: parse_command_line
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QStringList parse_command_line(const QString &cmdline) {
 
 	QStringList args;
@@ -1231,10 +1188,9 @@ QStringList parse_command_line(const QString &cmdline) {
 	return args;
 }
 
-//------------------------------------------------------------------------------
-// Name: string_to_address
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 Result<address_t, QString> string_to_address(const QString &s) {
 	QString hex(s);
 	hex.replace("0x", "");
@@ -1248,44 +1204,39 @@ Result<address_t, QString> string_to_address(const QString &s) {
 	return make_unexpected(tr("Error converting string to address"));
 }
 
-//------------------------------------------------------------------------------
-// Name: format_bytes
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString format_bytes(const uint8_t *buffer, size_t count) {
 	return v2::format_bytes(buffer, count);
 }
 
-//------------------------------------------------------------------------------
-// Name: format_bytes
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString format_bytes(const QByteArray &x) {
 	return v2::format_bytes(x.data(), x.size());
 }
 
-//------------------------------------------------------------------------------
-// Name: format_bytes
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString format_bytes(uint8_t byte) {
 	char buf[4];
 	qsnprintf(buf, sizeof(buf), "%02x", byte & 0xff);
 	return QLatin1String(buf);
 }
 
-//------------------------------------------------------------------------------
-// Name: format_pointer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString format_pointer(address_t p) {
 	return p.toPointerString();
 }
 
-//------------------------------------------------------------------------------
-// Name: current_data_view_address
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 address_t current_data_view_address() {
 	return qobject_cast<QHexView *>(ui()->tabWidget_->currentWidget())->firstVisibleAddress();
 }
@@ -1306,10 +1257,9 @@ address_t instruction_pointer_address() {
 	return address_t{};
 }
 
-//------------------------------------------------------------------------------
-// Name: set_status
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void set_status(const QString &message, int timeoutMillisecs) {
 	ui()->ui.statusbar->showMessage(message, timeoutMillisecs);
 	// FIXME: For some reason, despite showMessage() calls repaint, there's some
@@ -1328,10 +1278,9 @@ void clear_status() {
 	ui()->ui.statusbar->repaint();
 }
 
-//------------------------------------------------------------------------------
-// Name: find_breakpoint
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 std::shared_ptr<IBreakpoint> find_breakpoint(address_t address) {
 	if (debugger_core) {
 		return debugger_core->findBreakpoint(address);
@@ -1339,10 +1288,9 @@ std::shared_ptr<IBreakpoint> find_breakpoint(address_t address) {
 	return nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: find_triggered_breakpoint
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 std::shared_ptr<IBreakpoint> find_triggered_breakpoint(address_t address) {
 	if (debugger_core) {
 		return debugger_core->findTriggeredBreakpoint(address);
@@ -1350,10 +1298,9 @@ std::shared_ptr<IBreakpoint> find_triggered_breakpoint(address_t address) {
 	return nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: pointer_size
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 size_t pointer_size() {
 
 	if (debugger_core) {
@@ -1364,18 +1311,16 @@ size_t pointer_size() {
 	return sizeof(void *);
 }
 
-//------------------------------------------------------------------------------
-// Name: disassembly_widget
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QAbstractScrollArea *disassembly_widget() {
 	return ui()->cpuView_;
 }
 
-//------------------------------------------------------------------------------
-// Name: read_pages
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QVector<uint8_t> read_pages(address_t address, size_t page_count) {
 
 	if (debugger_core) {
@@ -1485,10 +1430,9 @@ size_t selected_data_size() {
 
 namespace v2 {
 
-//------------------------------------------------------------------------------
-// Name: eval_expression
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 std::optional<edb::address_t> eval_expression(const QString &expression) {
 
 	Expression<address_t> expr(expression, v1::get_variable, v1::get_value);
@@ -1502,10 +1446,9 @@ std::optional<edb::address_t> eval_expression(const QString &expression) {
 	return {};
 }
 
-//------------------------------------------------------------------------------
-// Name: get_expression_from_user
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 std::optional<edb::address_t> get_expression_from_user(const QString &title, const QString &prompt) {
 
 	auto inputDialog = std::make_unique<ExpressionDialog>(title, prompt, edb::v1::debugger_ui);
@@ -1517,10 +1460,9 @@ std::optional<edb::address_t> get_expression_from_user(const QString &title, con
 	return {};
 }
 
-//------------------------------------------------------------------------------
-// Name: format_bytes
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString format_bytes(const void *buffer, size_t count) {
 	QString bytes;
 

@@ -13,10 +13,9 @@
 
 namespace DebuggerCore {
 
-//------------------------------------------------------------------------------
-// Name: PlatformState
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 PlatformState::PlatformState() {
 	memset(&thread_state_, 0, sizeof(thread_state_));
 	memset(&float_state_, 0, sizeof(float_state_));
@@ -330,10 +329,9 @@ edb::address_t PlatformState::stack_pointer() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: debug_register
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 edb::reg_t PlatformState::debug_register(int n) const {
 	switch (n) {
 	case 0:
@@ -356,10 +354,9 @@ edb::reg_t PlatformState::debug_register(int n) const {
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name: flags
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 edb::reg_t PlatformState::flags() const {
 #if defined(EDB_X86)
 	return thread_state_.REG(eflags);
@@ -368,10 +365,9 @@ edb::reg_t PlatformState::flags() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: fpu_register
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 long double PlatformState::fpu_register(int n) const {
 
 	/*
@@ -390,10 +386,9 @@ long double PlatformState::fpu_register(int n) const {
 	return 0.0;
 }
 
-//------------------------------------------------------------------------------
-// Name: adjust_stack
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void PlatformState::adjust_stack(int bytes) {
 #if defined(EDB_X86)
 	thread_state_.REG(esp) += bytes;
@@ -402,10 +397,9 @@ void PlatformState::adjust_stack(int bytes) {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: clear
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void PlatformState::clear() {
 	memset(&thread_state_, 0, sizeof(thread_state_));
 	memset(&float_state_, 0, sizeof(float_state_));
@@ -413,10 +407,9 @@ void PlatformState::clear() {
 	memset(&exception_state_, 0, sizeof(exception_state_));
 }
 
-//------------------------------------------------------------------------------
-// Name: set_debug_register
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void PlatformState::set_debug_register(int n, edb::reg_t value) {
 	switch (n) {
 	case 0:
@@ -448,10 +441,9 @@ void PlatformState::set_debug_register(int n, edb::reg_t value) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: set_flags
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void PlatformState::set_flags(edb::reg_t flags) {
 #if defined(EDB_X86)
 	thread_state_.REG(eflags) = flags;
@@ -460,10 +452,9 @@ void PlatformState::set_flags(edb::reg_t flags) {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: set_instruction_pointer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void PlatformState::set_instruction_pointer(edb::address_t value) {
 #if defined(EDB_X86)
 	thread_state_.REG(eip) = value;
@@ -472,10 +463,9 @@ void PlatformState::set_instruction_pointer(edb::address_t value) {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: set_register
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void PlatformState::set_register(const QString &name, edb::reg_t value) {
 
 	const QString lreg = name.toLower();
@@ -560,19 +550,17 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 quint64 PlatformState::mmx_register(int n) const {
 	Q_UNUSED(n)
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QByteArray PlatformState::xmm_register(int n) const {
 	Q_UNUSED(n)
 	return QByteArray();

@@ -149,9 +149,11 @@ edb::address_t find_linker_hook_address(IProcess *process, edb::address_t debug_
 	return edb::address_t(0);
 }
 
-//--------------------------------------------------------------------------
-// Name: is_instruction_ret
-//--------------------------------------------------------------------------
+/**
+ * @brief Checks if the instruction at the given address is a return instruction.
+ * @param address The address of the instruction to check.
+ * @return True if the instruction is a return, false otherwise.
+ */
 bool is_instruction_ret(edb::address_t address) {
 
 	uint8_t buffer[edb::Instruction::MaxSize];
@@ -499,10 +501,9 @@ Debugger::Debugger(QWidget *parent)
 	std::setlocale(LC_NUMERIC, "C");
 }
 
-//------------------------------------------------------------------------------
-// Name: ~Debugger
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 Debugger::~Debugger() {
 
 	for (QObject *plugin : edb::v1::plugin_list()) {
@@ -526,10 +527,9 @@ QAction *Debugger::createAction(const QString &text, const QKeySequence &keySequ
 	return action;
 }
 
-//------------------------------------------------------------------------------
-// Name: updateMenuState
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::updateMenuState(GuiState state) {
 
 	switch (state) {
@@ -1076,10 +1076,9 @@ void Debugger::setupUi() {
 	connect(cpuView_, &QDisassemblyView::customContextMenuRequested, this, &Debugger::customContextMenuRequested_triggered);
 }
 
-//------------------------------------------------------------------------------
-// Name: setup_stack_view
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::setupStackView() {
 
 	stackView_ = std::make_shared<QHexView>();
@@ -1709,34 +1708,30 @@ void Debugger::mnuStackFollowInDump() {
 	followInDump(stackView_);
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuStackFollowInCPU
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::mnuStackFollowInCPU() {
 	followInCpu(stackView_);
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuStackFollowInStack
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::mnuStackFollowInStack() {
 	followInStack(stackView_);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_actionApplication_Arguments_triggered
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::on_actionApplication_Arguments_triggered() {
 	argumentsDialog_->exec();
 }
 
-//------------------------------------------------------------------------------
-// Name: on_actionApplication_Working_Directory_triggered
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::on_actionApplication_Working_Directory_triggered() {
 	const QString new_dir = QFileDialog::getExistingDirectory(
 		this,
@@ -1749,10 +1744,9 @@ void Debugger::on_actionApplication_Working_Directory_triggered() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuStackPush
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::mnuStackPush() {
 	Register value(edb::v1::debuggeeIs32Bit() ? make_Register("", edb::value32(0), Register::TYPE_GPR) : make_Register("", edb::value64(0), Register::TYPE_GPR));
 
@@ -1775,10 +1769,9 @@ void Debugger::mnuStackPush() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuStackPop
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::mnuStackPop() {
 	if (IProcess *process = edb::v1::debugger_core->process()) {
 		if (std::shared_ptr<IThread> thread = process->currentThread()) {
@@ -1791,10 +1784,9 @@ void Debugger::mnuStackPop() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: customContextMenuRequested_triggered
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::customContextMenuRequested_triggered(const QPoint &pos) {
 	QMenu menu;
 
@@ -1869,10 +1861,9 @@ void Debugger::customContextMenuRequested_triggered(const QPoint &pos) {
 	menu.exec(cpuView_->viewport()->mapToGlobal(pos));
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuCPUFollow
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::mnuCPUFollow() {
 
 	const edb::address_t address = cpuView_->selectedAddress();
@@ -1897,10 +1888,9 @@ void Debugger::mnuCPUFollow() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuCPUFollowInDump
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::mnuCPUFollowInDump() {
 	if (auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
@@ -1910,10 +1900,9 @@ void Debugger::mnuCPUFollowInDump() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuCPUFollowInStack
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::mnuCPUFollowInStack() {
 	if (auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
@@ -1923,18 +1912,16 @@ void Debugger::mnuCPUFollowInStack() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuStackToggleLock
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::mnuStackToggleLock(bool locked) {
 	stackViewLocked_ = locked;
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuStackContextMenu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::mnuStackContextMenu(const QPoint &pos) {
 
 	QMenu *const menu = stackView_->createStandardContextMenu();
@@ -1967,10 +1954,9 @@ void Debugger::mnuStackContextMenu(const QPoint &pos) {
 	delete menu;
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuDumpContextMenu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::mnuDumpContextMenu(const QPoint &pos) {
 	auto s = qobject_cast<QHexView *>(sender());
 
@@ -1993,10 +1979,9 @@ void Debugger::mnuDumpContextMenu(const QPoint &pos) {
 	delete menu;
 }
 
-//------------------------------------------------------------------------------
-// Name: mnuDumpSaveToFile
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::mnuDumpSaveToFile() {
 	auto s = qobject_cast<QHexView *>(tabWidget_->currentWidget());
 
@@ -2777,42 +2762,37 @@ void Debugger::on_action_Run_Pass_Signal_To_Application_triggered() {
 	resumeExecution(PassException, Run, ResumeFlag::None);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_action_Step_Into_Pass_Signal_To_Application_triggered
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::on_action_Step_Into_Pass_Signal_To_Application_triggered() {
 	resumeExecution(PassException, Step, ResumeFlag::None);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_action_Run_triggered
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::on_action_Run_triggered() {
 	resumeExecution(IgnoreException, Run, ResumeFlag::None);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_action_Step_Into_triggered
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::on_action_Step_Into_triggered() {
 	resumeExecution(IgnoreException, Step, ResumeFlag::None);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_action_Detach_triggered
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::on_action_Detach_triggered() {
 	detachFromProcess(NoKillOnDetach);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_action_Kill_triggered
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::on_action_Kill_triggered() {
 	detachFromProcess(KillOnDetach);
 }
@@ -3119,10 +3099,9 @@ void Debugger::setupDataViews() {
 	stackView_->setWordWidth(static_cast<int>(edb::v1::pointer_size()));
 }
 
-//------------------------------------------------------------------------------
-// Name: common_open
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool Debugger::commonOpen(const QString &s, const QList<QByteArray> &args, const QString &input, const QString &output) {
 
 	// ensure that the previous running process (if any) is dealt with...
@@ -3149,10 +3128,9 @@ bool Debugger::commonOpen(const QString &s, const QList<QByteArray> &args, const
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: execute
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::execute(const QString &program, const QList<QByteArray> &args, const QString &input, const QString &output) {
 	if (commonOpen(program, args, input, output)) {
 		recentFileManager_->addFile(program, args);
@@ -3160,10 +3138,9 @@ void Debugger::execute(const QString &program, const QList<QByteArray> &args, co
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: open_file
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::openFile(const QString &filename, const QList<QByteArray> &args) {
 	if (!filename.isEmpty()) {
 		lastOpenDirectory_ = QFileInfo(filename).canonicalFilePath();
@@ -3172,10 +3149,9 @@ void Debugger::openFile(const QString &filename, const QList<QByteArray> &args) 
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: attach
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::attach(edb::pid_t pid) {
 #if defined(Q_OS_UNIX)
 	edb::pid_t current_pid = getpid();
@@ -3224,10 +3200,9 @@ void Debugger::attach(edb::pid_t pid) {
 	updateUi();
 }
 
-//------------------------------------------------------------------------------
-// Name: attachComplete
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::attachComplete() {
 	setInitialDebuggerState();
 
@@ -3250,10 +3225,9 @@ void Debugger::attachComplete() {
 	Q_EMIT attachEvent();
 }
 
-//------------------------------------------------------------------------------
-// Name: on_action_Open_triggered
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::on_action_Open_triggered() {
 
 	static auto dialog = new DialogOpenProgram(this, tr("Choose a file"), lastOpenDirectory_);
@@ -3351,10 +3325,11 @@ QList<QAction *> Debugger::getPluginContextMenuItems(const F &f) const {
 	return actions;
 }
 
-//------------------------------------------------------------------------------
-// Name: addPluginContextMenu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Adds context menu items for each plugin to the specified menu.
+ * @param menu The menu to add items to.
+ * @param f The function to call for each plugin.
+ */
 template <class F, class T>
 void Debugger::addPluginContextMenu(const T &menu, const F &f) {
 	for (QObject *plugin : edb::v1::plugin_list()) {
@@ -3368,19 +3343,17 @@ void Debugger::addPluginContextMenu(const T &menu, const F &f) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: on_action_Plugins_triggered
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void Debugger::on_action_Plugins_triggered() {
 	static auto dlg = new DialogPlugins(this);
 	dlg->show();
 }
 
-//------------------------------------------------------------------------------
-// Name: jump_to_address
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool Debugger::jumpToAddress(edb::address_t address) {
 
 	if (std::shared_ptr<IRegion> region = edb::v1::memory_regions().findRegion(address)) {
@@ -3391,10 +3364,9 @@ bool Debugger::jumpToAddress(edb::address_t address) {
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name: dump_data_range
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool Debugger::dumpDataRange(edb::address_t address, edb::address_t end_address, bool new_tab) {
 
 	if (std::shared_ptr<IRegion> region = edb::v1::memory_regions().findRegion(address)) {
@@ -3421,10 +3393,9 @@ bool Debugger::dumpDataRange(edb::address_t address, edb::address_t end_address,
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name: dump_data
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool Debugger::dumpData(edb::address_t address, bool new_tab) {
 
 	if (std::shared_ptr<IRegion> region = edb::v1::memory_regions().findRegion(address)) {
@@ -3445,10 +3416,9 @@ bool Debugger::dumpData(edb::address_t address, bool new_tab) {
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name: dump_stack
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool Debugger::dumpStack(edb::address_t address, bool scroll_to) {
 	const std::shared_ptr<IRegion> last_region = stackViewInfo_.region;
 	stackViewInfo_.region                      = edb::v1::memory_regions().findRegion(address);

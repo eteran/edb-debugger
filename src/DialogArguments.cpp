@@ -7,19 +7,17 @@
 #include "DialogArguments.h"
 #include <QListWidgetItem>
 
-//------------------------------------------------------------------------------
-// Name: DialogArguments
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 DialogArguments::DialogArguments(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
 	ui.setupUi(this);
 }
 
-//------------------------------------------------------------------------------
-// Name: arguments
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QList<QByteArray> DialogArguments::arguments() const {
 	QList<QByteArray> ret;
 	for (int i = 0; i < ui.listWidget->count(); ++i) {
@@ -28,10 +26,9 @@ QList<QByteArray> DialogArguments::arguments() const {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: set_arguments
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogArguments::setArguments(const QList<QByteArray> &args) {
 	ui.listWidget->clear();
 

@@ -408,10 +408,10 @@ void Expression<T>::evalAtom(T &result) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: getToken
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Gets the next token from the expression.
+ * @note This function advances the expression pointer and sets the current token.
+ */
 template <class T>
 void Expression<T>::getToken() {
 

@@ -8,10 +8,9 @@
 #include "QHexView"
 #include "RegionBuffer.h"
 
-//------------------------------------------------------------------------------
-// Name: DataViewInfo
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 DataViewInfo::DataViewInfo(const std::shared_ptr<IRegion> &r)
 	: region(r), stream(std::make_unique<RegionBuffer>(r)) {
 }
@@ -20,10 +19,9 @@ DataViewInfo::DataViewInfo()
 	: DataViewInfo(nullptr) {
 }
 
-//------------------------------------------------------------------------------
-// Name: update
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DataViewInfo::update() {
 
 	Q_ASSERT(view);

@@ -14,10 +14,9 @@
 #include <QHeaderView>
 #include <QSortFilterProxyModel>
 
-//------------------------------------------------------------------------------
-// Name: DialogThreads
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 DialogThreads::DialogThreads(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
 
@@ -36,18 +35,16 @@ DialogThreads::DialogThreads(QWidget *parent, Qt::WindowFlags f)
 	connect(edb::v1::debugger_ui, SIGNAL(attachEvent()), this, SLOT(updateThreads()));
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogThreads::showEvent(QShowEvent *) {
 	updateThreads();
 }
 
-//------------------------------------------------------------------------------
-// Name: on_thread_table_doubleClicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogThreads::on_thread_table_doubleClicked(const QModelIndex &index) {
 
 	const QModelIndex internal_index = threadsFilter_->mapToSource(index);
@@ -61,10 +58,9 @@ void DialogThreads::on_thread_table_doubleClicked(const QModelIndex &index) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: updateThreads
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogThreads::updateThreads() {
 	threadsModel_->clear();
 

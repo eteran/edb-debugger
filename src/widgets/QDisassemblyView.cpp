@@ -77,10 +77,9 @@ struct address_format {
 	}
 };
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 template <class T>
 QString format_address(T address, bool show_separator) {
 	if (show_separator) {
@@ -89,36 +88,32 @@ QString format_address(T address, bool show_separator) {
 	return address_format<T>::format_address(address);
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool near_line(int x, int linex) {
 	return std::abs(x - linex) < 3;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 int instruction_size(const uint8_t *buffer, std::size_t size) {
 	edb::Instruction inst(buffer, buffer + size, 0);
 	return static_cast<int>(inst.byteSize());
 }
 
-//------------------------------------------------------------------------------
-// Name: format_instruction_bytes
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString format_instruction_bytes(const edb::Instruction &inst) {
 	auto bytes = QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), static_cast<int>(inst.byteSize()));
 	return edb::v1::format_bytes(bytes);
 }
 
-//------------------------------------------------------------------------------
-// Name: format_instruction_bytes
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString format_instruction_bytes(const edb::Instruction &inst, int maxStringPx, const QFontMetrics &metrics) {
 	const QString byte_buffer = format_instruction_bytes(inst);
 	return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
@@ -164,9 +159,9 @@ QDisassemblyView::QDisassemblyView(QWidget *parent)
 	connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, &QDisassemblyView::scrollbarActionTriggered);
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::resetColumns() {
 	line1_ = 0;
 	line2_ = 0;
@@ -175,9 +170,9 @@ void QDisassemblyView::resetColumns() {
 	update();
 }
 
-//------------------------------------------------------------------------------
-// Name: keyPressEvent
-//------------------------------------------------------------------------------
+/**
+ * @brief Handles key press events for the disassembly view.
+ */
 void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 	if (event->matches(QKeySequence::MoveToStartOfDocument)) {
 		verticalScrollBar()->setValue(0);
@@ -380,10 +375,9 @@ int QDisassemblyView::followingInstructions(int current_address, int count) cons
 	return current_address;
 }
 
-//------------------------------------------------------------------------------
-// Name: wheelEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::wheelEvent(QWheelEvent *e) {
 
 	const int dy           = e->angleDelta().y();
@@ -412,10 +406,9 @@ void QDisassemblyView::wheelEvent(QWheelEvent *e) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: scrollbarActionTriggered
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::scrollbarActionTriggered(int action) {
 
 	if (QApplication::keyboardModifiers() & Qt::ControlModifier) {
@@ -448,18 +441,16 @@ void QDisassemblyView::scrollbarActionTriggered(int action) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: setShowAddressSeparator
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::setShowAddressSeparator(bool value) {
 	showAddressSeparator_ = value;
 }
 
-//------------------------------------------------------------------------------
-// Name: formatAddress
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString QDisassemblyView::formatAddress(edb::address_t address) const {
 	if (edb::v1::debuggeeIs32Bit()) {
 		return format_address<quint32>(static_cast<quint32>(address.toUint()), showAddressSeparator_);
@@ -467,10 +458,9 @@ QString QDisassemblyView::formatAddress(edb::address_t address) const {
 	return format_address(address, showAddressSeparator_);
 }
 
-//------------------------------------------------------------------------------
-// Name: update
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::update() {
 	viewport()->update();
 	Q_EMIT signalUpdated();
@@ -529,26 +519,23 @@ void QDisassemblyView::clear() {
 	setRegion(nullptr);
 }
 
-//------------------------------------------------------------------------------
-// Name: setAddressOffset
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::setAddressOffset(edb::address_t address) {
 	addressOffset_ = address;
 }
 
-//------------------------------------------------------------------------------
-// Name: scrollTo
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::scrollTo(edb::address_t address) {
 	verticalScrollBar()->setValue(static_cast<int>(address - addressOffset_));
 }
 
-//------------------------------------------------------------------------------
-// Name: instructionString
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString QDisassemblyView::instructionString(const edb::Instruction &inst) const {
 	auto opcode = QString::fromStdString(edb::v1::formatter().toString(inst));
 
@@ -586,10 +573,9 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
 	return opcode;
 }
 
-//------------------------------------------------------------------------------
-// Name: drawInstruction
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, int y, bool selected) {
 
 	painter.save();
@@ -754,10 +740,9 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 	return lines_to_render;
 }
 
-//------------------------------------------------------------------------------
-// Name: getSelectedLineNumber
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 int QDisassemblyView::getSelectedLineNumber() const {
 
 	for (size_t line = 0; line < instructions_.size(); ++line) {
@@ -769,10 +754,9 @@ int QDisassemblyView::getSelectedLineNumber() const {
 	return 65535; // can't accidentally hit this;
 }
 
-//------------------------------------------------------------------------------
-// Name: drawHeaderAndBackground
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::drawHeaderAndBackground(QPainter &painter, const DrawingContext *ctx, const std::unique_ptr<IBinary> &binary_info) {
 
 	painter.save();
@@ -808,10 +792,9 @@ void QDisassemblyView::drawHeaderAndBackground(QPainter &painter, const DrawingC
 	painter.restore();
 }
 
-//------------------------------------------------------------------------------
-// Name: drawRegisterBadges
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx) {
 
 	painter.save();
@@ -897,10 +880,9 @@ void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx
 	painter.restore();
 }
 
-//------------------------------------------------------------------------------
-// Name: drawSymbolNames
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::drawSymbolNames(QPainter &painter, const DrawingContext *ctx) {
 	painter.save();
 
@@ -949,10 +931,9 @@ void QDisassemblyView::drawSymbolNames(QPainter &painter, const DrawingContext *
 	painter.restore();
 }
 
-//------------------------------------------------------------------------------
-// Name: drawSidebarElements
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::drawSidebarElements(QPainter &painter, const DrawingContext *ctx) {
 
 	painter.save();
@@ -1007,10 +988,9 @@ void QDisassemblyView::drawSidebarElements(QPainter &painter, const DrawingConte
 	painter.restore();
 }
 
-//------------------------------------------------------------------------------
-// Name: drawInstructionBytes
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingContext *ctx) {
 
 	painter.save();
@@ -1051,10 +1031,9 @@ void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingCont
 	painter.restore();
 }
 
-//------------------------------------------------------------------------------
-// Name: drawFunctionMarkers
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingContext *ctx) {
 
 	painter.save();
@@ -1141,10 +1120,9 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 	painter.restore();
 }
 
-//------------------------------------------------------------------------------
-// Name: drawComments
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx) {
 
 	painter.save();
@@ -1201,10 +1179,9 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 	painter.restore();
 }
 
-//------------------------------------------------------------------------------
-// Name: drawJumpArrows
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *ctx) {
 
 	std::vector<JumpArrow> jump_arrow_vec;
@@ -1497,10 +1474,9 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 	painter.restore();
 }
 
-//------------------------------------------------------------------------------
-// Name: drawDisassembly
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::drawDisassembly(QPainter &painter, const DrawingContext *ctx) {
 
 	painter.save();
@@ -1520,10 +1496,9 @@ void QDisassemblyView::drawDisassembly(QPainter &painter, const DrawingContext *
 	painter.restore();
 }
 
-//------------------------------------------------------------------------------
-// Name: paintEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::drawDividers(QPainter &painter, const DrawingContext *ctx) {
 
 	painter.save();
@@ -1542,10 +1517,9 @@ void QDisassemblyView::drawDividers(QPainter &painter, const DrawingContext *ctx
 	painter.restore();
 }
 
-//------------------------------------------------------------------------------
-// Name: paintEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 	if (!region_) {
@@ -1657,10 +1631,9 @@ void QDisassemblyView::setFont(const QFont &f) {
 	updateScrollbars();
 }
 
-//------------------------------------------------------------------------------
-// Name: resizeEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::resizeEvent(QResizeEvent *) {
 	updateScrollbars();
 
@@ -1674,18 +1647,16 @@ void QDisassemblyView::resizeEvent(QResizeEvent *) {
 	verticalScrollBar()->setPageStep(lines_to_render - 1);
 }
 
-//------------------------------------------------------------------------------
-// Name: line_height
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 int QDisassemblyView::lineHeight() const {
 	return std::max({fontHeight_, iconHeight_});
 }
 
-//------------------------------------------------------------------------------
-// Name: updateScrollbars
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::updateScrollbars() {
 	if (region_) {
 		const auto total_lines   = static_cast<int>(region_->size());
@@ -1698,18 +1669,16 @@ void QDisassemblyView::updateScrollbars() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: line0
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 int QDisassemblyView::line0() const {
 	return line0_;
 }
 
-//------------------------------------------------------------------------------
-// Name: line1
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 int QDisassemblyView::line1() const {
 
 	if (!edb::v1::config().show_jump_arrow) {
@@ -1725,19 +1694,17 @@ int QDisassemblyView::line1() const {
 	return line1_;
 }
 
-//------------------------------------------------------------------------------
-// Name: auto_line2
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 int QDisassemblyView::autoLine2() const {
 	const int elements = addressLength();
 	return (elements * fontWidth_) + (fontWidth_ / 2) + iconWidth_ + 1;
 }
 
-//------------------------------------------------------------------------------
-// Name: line2
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 int QDisassemblyView::line2() const {
 	if (line2_ == 0) {
 		return line1() + autoLine2();
@@ -1745,10 +1712,9 @@ int QDisassemblyView::line2() const {
 	return line2_;
 }
 
-//------------------------------------------------------------------------------
-// Name: line3
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 int QDisassemblyView::line3() const {
 	if (line3_ == 0) {
 		return line2() + (DefaultByteWidth * 3) * fontWidth_;
@@ -1756,10 +1722,9 @@ int QDisassemblyView::line3() const {
 	return line3_;
 }
 
-//------------------------------------------------------------------------------
-// Name: line4
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 int QDisassemblyView::line4() const {
 	if (line4_ == 0) {
 		return line3() + 50 * fontWidth_;
@@ -1767,19 +1732,17 @@ int QDisassemblyView::line4() const {
 	return line4_;
 }
 
-//------------------------------------------------------------------------------
-// Name: address_length
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 int QDisassemblyView::addressLength() const {
 	const auto address_len = static_cast<int>(edb::v1::pointer_size() * CHAR_BIT / 4);
 	return address_len + (showAddressSeparator_ ? 1 : 0);
 }
 
-//------------------------------------------------------------------------------
-// Name: addressFromPoint
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 edb::address_t QDisassemblyView::addressFromPoint(const QPoint &pos) const {
 
 	Q_ASSERT(region_);
@@ -1791,10 +1754,9 @@ edb::address_t QDisassemblyView::addressFromPoint(const QPoint &pos) const {
 	return address;
 }
 
-//------------------------------------------------------------------------------
-// Name: get_instruction_size
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 Result<int, QString> QDisassemblyView::getInstructionSize(edb::address_t address, uint8_t *buf, int *size) const {
 
 	Q_ASSERT(buf);
@@ -1811,10 +1773,9 @@ Result<int, QString> QDisassemblyView::getInstructionSize(edb::address_t address
 	return make_unexpected(tr("Failed to get instruction size"));
 }
 
-//------------------------------------------------------------------------------
-// Name: get_instruction_size
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 Result<int, QString> QDisassemblyView::getInstructionSize(edb::address_t address) const {
 
 	Q_ASSERT(region_);
@@ -1835,10 +1796,9 @@ Result<int, QString> QDisassemblyView::getInstructionSize(edb::address_t address
 	return getInstructionSize(address, buf, &buf_size);
 }
 
-//------------------------------------------------------------------------------
-// Name: address_from_coord
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 edb::address_t QDisassemblyView::addressFromCoord(int x, int y) const {
 	Q_UNUSED(x)
 
@@ -1859,10 +1819,9 @@ edb::address_t QDisassemblyView::addressFromCoord(int x, int y) const {
 	return address;
 }
 
-//------------------------------------------------------------------------------
-// Name: mouseDoubleClickEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
 	if (region_) {
 		if (event->button() == Qt::LeftButton) {
@@ -1878,10 +1837,9 @@ void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: event
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool QDisassemblyView::event(QEvent *event) {
 
 	if (region_) {
@@ -1920,10 +1878,9 @@ bool QDisassemblyView::event(QEvent *event) {
 	return QAbstractScrollArea::event(event);
 }
 
-//------------------------------------------------------------------------------
-// Name: mouseReleaseEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::mouseReleaseEvent(QMouseEvent *event) {
 
 	Q_UNUSED(event)
@@ -1938,10 +1895,9 @@ void QDisassemblyView::mouseReleaseEvent(QMouseEvent *event) {
 	update();
 }
 
-//------------------------------------------------------------------------------
-// Name: updateSelectedAddress
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 
 	if (region_) {
@@ -1949,10 +1905,9 @@ void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: mousePressEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 	const int event_x = event->x() - line0();
 	if (region_) {
@@ -1975,10 +1930,9 @@ void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: mouseMoveEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 
 	if (region_) {
@@ -2029,18 +1983,16 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: selectedAddress
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 edb::address_t QDisassemblyView::selectedAddress() const {
 	return selectedInstructionAddress_;
 }
 
-//------------------------------------------------------------------------------
-// Name: setSelectedAddress
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::setSelectedAddress(edb::address_t address) {
 
 	if (region_) {
@@ -2059,18 +2011,16 @@ void QDisassemblyView::setSelectedAddress(edb::address_t address) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: selectedSize
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 int QDisassemblyView::selectedSize() const {
 	return selectedInstructionSize_;
 }
 
-//------------------------------------------------------------------------------
-// Name: region
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 std::shared_ptr<IRegion> QDisassemblyView::region() const {
 	return region_;
 }
@@ -2113,10 +2063,9 @@ void QDisassemblyView::clearComments() {
 	comments_.clear();
 }
 
-//------------------------------------------------------------------------------
-// Name: saveState
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QByteArray QDisassemblyView::saveState() const {
 
 	const WidgetState1 state = {
@@ -2133,10 +2082,9 @@ QByteArray QDisassemblyView::saveState() const {
 	return QByteArray(buf, sizeof(buf));
 }
 
-//------------------------------------------------------------------------------
-// Name: restoreState
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::restoreState(const QByteArray &stateBuffer) {
 
 	WidgetState1 state;
@@ -2152,10 +2100,9 @@ void QDisassemblyView::restoreState(const QByteArray &stateBuffer) {
 		}
 	}
 }
-//------------------------------------------------------------------------------
-// Name: restoreComments
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QDisassemblyView::restoreComments(QVariantList &comments_data) {
 	qDebug("restoreComments");
 

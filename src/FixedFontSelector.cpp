@@ -7,9 +7,9 @@
 #include "FixedFontSelector.h"
 #include <QtDebug>
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 FixedFontSelector::FixedFontSelector(QWidget *parent, Qt::WindowFlags f)
 	: QWidget(parent, f) {
 
@@ -20,16 +20,16 @@ FixedFontSelector::FixedFontSelector(QWidget *parent, Qt::WindowFlags f)
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QFont FixedFontSelector::currentFont() const {
 	return ui.fontCombo->currentFont();
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void FixedFontSelector::setCurrentFont(const QString &font) {
 
 	QFont f;
@@ -37,9 +37,9 @@ void FixedFontSelector::setCurrentFont(const QString &font) {
 	setCurrentFont(f);
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void FixedFontSelector::setCurrentFont(const QFont &font) {
 	ui.fontCombo->setCurrentFont(font);
 	int n = ui.fontSize->findData(font.pointSize());
@@ -48,16 +48,16 @@ void FixedFontSelector::setCurrentFont(const QFont &font) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void FixedFontSelector::on_fontCombo_currentFontChanged(const QFont &font) {
 	Q_EMIT currentFontChanged(font);
 }
 
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void FixedFontSelector::on_fontSize_currentIndexChanged(int index) {
 
 	QFont font = ui.fontCombo->currentFont();

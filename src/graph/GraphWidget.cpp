@@ -50,10 +50,9 @@ QPointF center_to_origin(const QPointF &p, qreal width, qreal height) {
 
 }
 
-//------------------------------------------------------------------------------
-// Name: GraphWidget
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 GraphWidget::GraphWidget(QWidget *parent)
 	: QGraphicsView(parent) {
 
@@ -108,34 +107,30 @@ GraphWidget::GraphWidget(QWidget *parent)
 	setEdgeAttribute("fontsize", QStringLiteral("%1").arg(font.pointSizeF()));
 }
 
-//------------------------------------------------------------------------------
-// Name: setGraphAttribute
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphWidget::setGraphAttribute(QString name, QString value) {
 	_agset(graph_, name, value);
 }
 
-//------------------------------------------------------------------------------
-// Name: setNodeAttribute
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphWidget::setNodeAttribute(QString name, QString value) {
 	_agnodeattr(graph_, name, value);
 }
 
-//------------------------------------------------------------------------------
-// Name: setEdgeAttribute
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphWidget::setEdgeAttribute(QString name, QString value) {
 	_agedgeattr(graph_, name, value);
 }
 
-//------------------------------------------------------------------------------
-// Name: layout
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphWidget::setHUDNotification(const QString &s, int duration) {
 
 	HUDLabel_->setText(s);
@@ -157,10 +152,9 @@ void GraphWidget::setHUDNotification(const QString &s, int duration) {
 	connect(animation, &QPropertyAnimation::finished, HUDLabel_, &QLabel::hide);
 }
 
-//------------------------------------------------------------------------------
-// Name: layout
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphWidget::layout() {
 
 	inLayout_ = true;
@@ -194,20 +188,18 @@ void GraphWidget::layout() {
 	inLayout_ = false;
 }
 
-//------------------------------------------------------------------------------
-// Name: ~GraphWidget
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 GraphWidget::~GraphWidget() {
 	gvFreeLayout(context_, graph_);
 	agclose(graph_);
 	gvFreeContext(context_);
 }
 
-//------------------------------------------------------------------------------
-// Name: keyPressEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphWidget::keyPressEvent(QKeyEvent *event) {
 
 	switch (event->key()) {
@@ -241,10 +233,9 @@ void GraphWidget::keyPressEvent(QKeyEvent *event) {
 	QGraphicsView::keyPressEvent(event);
 }
 
-//------------------------------------------------------------------------------
-// Name: keyReleaseEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphWidget::keyReleaseEvent(QKeyEvent *event) {
 
 	switch (event->key()) {
@@ -260,18 +251,16 @@ void GraphWidget::keyReleaseEvent(QKeyEvent *event) {
 	QGraphicsView::keyReleaseEvent(event);
 }
 
-//------------------------------------------------------------------------------
-// Name: wheelEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphWidget::wheelEvent(QWheelEvent *event) {
 	setScale(std::pow(2.0, +event->angleDelta().y() / 240.0));
 }
 
-//------------------------------------------------------------------------------
-// Name: zoom
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphWidget::setScale(qreal factor) {
 	const qreal f = std::sqrt(transform().determinant());
 	factor        = qBound(MinimumZoom / f, factor, MaximumZoom / f);
@@ -279,10 +268,9 @@ void GraphWidget::setScale(qreal factor) {
 	Q_EMIT zoomEvent(factor, f);
 }
 
-//------------------------------------------------------------------------------
-// Name: contextMenuEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphWidget::contextMenuEvent(QContextMenuEvent *event) {
 
 	QGraphicsItem *const item = itemAt(event->pos());
@@ -299,10 +287,9 @@ void GraphWidget::contextMenuEvent(QContextMenuEvent *event) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: mouseDoubleClickEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphWidget::mouseDoubleClickEvent(QMouseEvent *event) {
 
 	QGraphicsItem *const item = itemAt(event->pos());
@@ -318,10 +305,9 @@ void GraphWidget::mouseDoubleClickEvent(QMouseEvent *event) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: clear
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphWidget::clear() {
 	qDeleteAll(scene()->items());
 }

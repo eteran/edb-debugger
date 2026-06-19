@@ -51,18 +51,16 @@ DebuggerCore::DebuggerCore() {
 	page_size_ = 0x1000;
 }
 
-//------------------------------------------------------------------------------
-// Name: ~DebuggerCore
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 DebuggerCore::~DebuggerCore() {
 	detach();
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool DebuggerCore::has_extension(quint64 ext) const {
 	return false;
 }
@@ -103,10 +101,9 @@ std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 	return nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: read_data
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 
 	Q_ASSERT(ok);
@@ -125,18 +122,16 @@ long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 	return x;
 }
 
-//------------------------------------------------------------------------------
-// Name: write_data
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool DebuggerCore::write_data(edb::address_t address, long value) {
 	return ptrace(PT_WRITE_D, pid(), (char *)address, value) != -1;
 }
 
-//------------------------------------------------------------------------------
-// Name: attach
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool DebuggerCore::attach(edb::pid_t pid) {
 	detach();
 
@@ -153,10 +148,9 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 	return ret == 0;
 }
 
-//------------------------------------------------------------------------------
-// Name: detach
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DebuggerCore::detach() {
 	if (attached()) {
 
@@ -172,10 +166,9 @@ void DebuggerCore::detach() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: kill
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DebuggerCore::kill() {
 	if (attached()) {
 		clear_breakpoints();
@@ -198,10 +191,9 @@ void DebuggerCore::pause() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: resume
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DebuggerCore::resume(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 
@@ -214,10 +206,9 @@ void DebuggerCore::resume(edb::EVENT_STATUS status) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: step
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DebuggerCore::step(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 
@@ -230,10 +221,9 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: get_state
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DebuggerCore::get_state(State *state) {
 
 	Q_ASSERT(state);
@@ -351,10 +341,9 @@ void DebuggerCore::get_state(State *state) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: set_state
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DebuggerCore::set_state(const State &state) {
 
 	// TODO: assert that we are paused
@@ -438,10 +427,9 @@ void DebuggerCore::set_state(const State &state) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: open
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
 	detach();
 	pid_t pid;
@@ -501,26 +489,23 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: set_active_thread
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DebuggerCore::set_active_thread(edb::tid_t tid) {
 	Q_ASSERT(threads_.contains(tid));
 	active_thread_ = tid;
 }
 
-//------------------------------------------------------------------------------
-// Name: create_state
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 std::unique_ptr<IState> DebuggerCore::create_state() const {
 	return std::make_unique<PlatformState>();
 }
-//------------------------------------------------------------------------------
-// Name: enumerate_processes
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
 	QMap<edb::pid_t, ProcessInfo> ret;
 
@@ -546,37 +531,33 @@ QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString DebuggerCore::process_exe(edb::pid_t pid) const {
 	// TODO: implement this
 	return QString();
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString DebuggerCore::process_cwd(edb::pid_t pid) const {
 	// TODO: implement this
 	return QString();
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 	// TODO: implement this
 	return -1;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 
 #if 0
@@ -666,10 +647,9 @@ QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 	return regions;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
 	QList<QByteArray> ret;
 	if (pid != 0) {
@@ -679,47 +659,42 @@ QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 edb::address_t DebuggerCore::process_code_address() const {
 	qDebug() << "TODO: implement DebuggerCore::process_code_address";
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 edb::address_t DebuggerCore::process_data_address() const {
 	qDebug() << "TODO: implement DebuggerCore::process_data_address";
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QList<Module> DebuggerCore::loaded_modules() const {
 	QList<Module> modules;
 	qDebug() << "TODO: implement DebuggerCore::loaded_modules";
 	return modules;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 	qDebug() << "TODO: implement DebuggerCore::process_start";
 	return QDateTime();
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 quint64 DebuggerCore::cpu_type() const {
 #ifdef EDB_X86
 	return edb::string_hash<'x', '8', '6'>::value;
@@ -728,10 +703,9 @@ quint64 DebuggerCore::cpu_type() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString DebuggerCore::format_pointer(edb::address_t address) const {
 	char buf[32];
 #ifdef EDB_X86
@@ -742,10 +716,9 @@ QString DebuggerCore::format_pointer(edb::address_t address) const {
 	return buf;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString DebuggerCore::stack_pointer() const {
 #ifdef EDB_X86
 	return "esp";
@@ -754,10 +727,9 @@ QString DebuggerCore::stack_pointer() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString DebuggerCore::frame_pointer() const {
 #ifdef EDB_X86
 	return "ebp";
@@ -766,10 +738,9 @@ QString DebuggerCore::frame_pointer() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString DebuggerCore::instruction_pointer() const {
 #ifdef EDB_X86
 	return "eip";

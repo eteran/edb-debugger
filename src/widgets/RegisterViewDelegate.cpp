@@ -7,18 +7,16 @@
 #include "RegisterViewDelegate.h"
 #include <QTreeView>
 
-//------------------------------------------------------------------------------
-// Name: RegisterViewDelegate
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 RegisterViewDelegate::RegisterViewDelegate(QTreeView *view, QWidget *parent)
 	: QStyledItemDelegate(parent), view_(view) {
 }
 
-//------------------------------------------------------------------------------
-// Name: paint
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void RegisterViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
 
 	const QAbstractItemModel *const model = index.model();
@@ -63,10 +61,9 @@ void RegisterViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: sizeHint
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QSize RegisterViewDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const {
 	const QSize defaultHint = QStyledItemDelegate::sizeHint(opt, index) + QSize(2, 2);
 	if (!index.model()->parent(index).isValid()) {

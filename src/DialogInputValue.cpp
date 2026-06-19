@@ -15,10 +15,9 @@
 
 #include <limits>
 
-//------------------------------------------------------------------------------
-// Name: DialogInputValue
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 DialogInputValue::DialogInputValue(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
 
@@ -30,19 +29,17 @@ DialogInputValue::DialogInputValue(QWidget *parent, Qt::WindowFlags f)
 	ui.unsignedInput->setValidator(new QULongValidator(0, std::numeric_limits<unsigned long long>::max(), this));
 }
 
-//------------------------------------------------------------------------------
-// Name: value
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 edb::reg_t DialogInputValue::value() const {
 	bool ok;
 	return mask_ & edb::reg_t::fromHexString(ui.hexInput->text(), &ok);
 }
 
-//------------------------------------------------------------------------------
-// Name: setValue
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogInputValue::setValue(Register &reg) {
 	if (reg.bitSize() > sizeof(edb::reg_t) * 8) {
 		qWarning() << "Warning: DialogInputValue::setValue(tooLargeRegister): such large registers are not supported yet";
@@ -65,10 +62,9 @@ void DialogInputValue::setValue(Register &reg) {
 	ui.unsignedInput->setValidator(new QULongValidator(0, unsignedMax, this));
 }
 
-//------------------------------------------------------------------------------
-// Name: on_hexInput_textEdited
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogInputValue::on_hexInput_textEdited(const QString &s) {
 	bool ok;
 	auto value = edb::reg_t::fromHexString(s, &ok);
@@ -81,10 +77,9 @@ void DialogInputValue::on_hexInput_textEdited(const QString &s) {
 	ui.unsignedInput->setText(value.unsignedToString());
 }
 
-//------------------------------------------------------------------------------
-// Name: on_signedInput_textEdited
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogInputValue::on_signedInput_textEdited(const QString &s) {
 	bool ok;
 	auto value = edb::reg_t::fromSignedString(s, &ok);
@@ -97,10 +92,9 @@ void DialogInputValue::on_signedInput_textEdited(const QString &s) {
 	ui.unsignedInput->setText(value.unsignedToString());
 }
 
-//------------------------------------------------------------------------------
-// Name: on_unsignedInput_textEdited
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogInputValue::on_unsignedInput_textEdited(const QString &s) {
 	bool ok;
 	auto value = edb::reg_t::fromString(s, &ok);
