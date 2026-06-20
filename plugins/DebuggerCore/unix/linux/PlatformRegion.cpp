@@ -24,6 +24,7 @@ namespace {
 
 /**
  * @brief Converts individual read/write/execute permission booleans into the POSIX permissions_t bitmask.
+ *
  * @param read
  * @param write
  * @param execute
@@ -75,6 +76,7 @@ private:
 
 /**
  * @brief Constructs a BackupInfo handler that backs up the given number of bytes at the given address before applying temporary permission changes.
+ *
  * @param address
  * @param perms
  * @param region
@@ -95,6 +97,7 @@ BackupInfo<N>::~BackupInfo() {
 
 /**
  * @brief Saves the current register state and memory bytes at the target address.
+ *
  * @return
  */
 template <size_t N>
@@ -112,6 +115,7 @@ bool BackupInfo<N>::backup() {
 
 /**
  * @brief Restores the saved register state and memory bytes at the target address.
+ *
  * @return
  */
 template <size_t N>
@@ -130,6 +134,7 @@ bool BackupInfo<N>::restore() {
 
 /**
  * @brief Receives a debug event, unlocks the handler, and restores the backed-up memory and register state.
+ *
  * @param event
  * @return
  */
@@ -152,6 +157,7 @@ edb::EventStatus BackupInfo<N>::handleEvent(const std::shared_ptr<IDebugEvent> &
 
 /**
  * @brief Constructs a PlatformRegion with the given address range, base, name, and permission flags.
+ *
  * @param start
  * @param end
  * @param base
@@ -164,6 +170,7 @@ PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::ad
 
 /**
  * @brief Creates and returns a heap-allocated copy of this memory region.
+ *
  * @return
  */
 IRegion *PlatformRegion::clone() const {
@@ -172,6 +179,7 @@ IRegion *PlatformRegion::clone() const {
 
 /**
  * @brief Returns true if the region has any of read, write, or execute permission.
+ *
  * @return
  */
 bool PlatformRegion::accessible() const {
@@ -180,6 +188,7 @@ bool PlatformRegion::accessible() const {
 
 /**
  * @brief Returns true if the region has PROT_READ permission.
+ *
  * @return
  */
 bool PlatformRegion::readable() const {
@@ -188,6 +197,7 @@ bool PlatformRegion::readable() const {
 
 /**
  * @brief Returns true if the region has PROT_WRITE permission.
+ *
  * @return
  */
 bool PlatformRegion::writable() const {
@@ -196,6 +206,7 @@ bool PlatformRegion::writable() const {
 
 /**
  * @brief Returns true if the region has PROT_EXEC permission.
+ *
  * @return
  */
 bool PlatformRegion::executable() const {
@@ -204,6 +215,7 @@ bool PlatformRegion::executable() const {
 
 /**
  * @brief Returns the size in bytes of this memory region.
+ *
  * @return
  */
 size_t PlatformRegion::size() const {
@@ -211,6 +223,7 @@ size_t PlatformRegion::size() const {
 }
 /**
  * @brief Changes the memory protection of this region via injected shellcode, with user confirmation if removing the last executable region.
+ *
  * @param read
  * @param write
  * @param execute
@@ -259,6 +272,7 @@ void PlatformRegion::setPermissions(bool read, bool write, bool execute) {
 
 /**
  * @brief Returns the start address of this memory region.
+ *
  * @return
  */
 edb::address_t PlatformRegion::start() const {
@@ -267,6 +281,7 @@ edb::address_t PlatformRegion::start() const {
 
 /**
  * @brief Returns the end address of this memory region (exclusive).
+ *
  * @return
  */
 edb::address_t PlatformRegion::end() const {
@@ -275,6 +290,7 @@ edb::address_t PlatformRegion::end() const {
 
 /**
  * @brief Returns the base (file-mapped) address of this memory region.
+ *
  * @return
  */
 edb::address_t PlatformRegion::base() const {
@@ -283,6 +299,7 @@ edb::address_t PlatformRegion::base() const {
 
 /**
  * @brief Returns the name (filename or label) associated with this memory region.
+ *
  * @return
  */
 QString PlatformRegion::name() const {
@@ -291,6 +308,7 @@ QString PlatformRegion::name() const {
 
 /**
  * @brief Returns the raw POSIX permissions bitmask for this memory region.
+ *
  * @return
  */
 IRegion::permissions_t PlatformRegion::permissions() const {
@@ -299,6 +317,7 @@ IRegion::permissions_t PlatformRegion::permissions() const {
 
 /**
  * @brief Injects shellcode to call mprotect() and change this region's protection flags.
+ *
  * @param read
  * @param write
  * @param execute
@@ -386,6 +405,7 @@ void PlatformRegion::setPermissions(bool read, bool write, bool execute, edb::ad
 
 /**
  * @brief Updates the start address of this memory region.
+ *
  * @param address
  */
 void PlatformRegion::setStart(edb::address_t address) {
@@ -394,6 +414,7 @@ void PlatformRegion::setStart(edb::address_t address) {
 
 /**
  * @brief Updates the end address of this memory region.
+ *
  * @param address
  */
 void PlatformRegion::setEnd(edb::address_t address) {

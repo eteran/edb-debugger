@@ -29,6 +29,7 @@ const std::vector<quint8> BreakpointInstructionARM32BKPT_LE         = {0x70, 0x0
 
 /**
  * @brief Constructs a new breakpoint at the specified address.
+ *
  * @param address The address of the breakpoint.
  */
 Breakpoint::Breakpoint(edb::address_t address)
@@ -41,6 +42,7 @@ Breakpoint::Breakpoint(edb::address_t address)
 
 /**
  * @brief Returns the list of supported breakpoint types.
+ *
  * @return A vector of supported breakpoint types.
  */
 auto Breakpoint::supportedTypes() -> std::vector<BreakpointType> {
@@ -79,6 +81,7 @@ Breakpoint::~Breakpoint() {
 
 /**
  * @brief Enables the breakpoint.
+ *
  * @return True if the breakpoint was successfully enabled, false otherwise.
  */
 bool Breakpoint::enable() {
@@ -135,6 +138,7 @@ bool Breakpoint::enable() {
 
 /**
  * @brief Disables the breakpoint.
+ *
  * @return True if the breakpoint was successfully disabled, false otherwise.
  */
 bool Breakpoint::disable() {
@@ -158,6 +162,7 @@ void Breakpoint::hit() {
 
 /**
  * @brief Sets the one-time flag for the breakpoint.
+ *
  * @param value The value to set the one-time flag to.
  */
 void Breakpoint::setOneTime(bool value) {
@@ -166,6 +171,7 @@ void Breakpoint::setOneTime(bool value) {
 
 /**
  * @brief Sets the internal flag for the breakpoint.
+ *
  * @param value The value to set the internal flag to.
  */
 void Breakpoint::setInternal(bool value) {
@@ -174,6 +180,7 @@ void Breakpoint::setInternal(bool value) {
 
 /**
  * @brief Returns the possible rewind sizes for the breakpoint.
+ *
  * @return A vector of possible rewind sizes.
  */
 std::vector<size_t> Breakpoint::possibleRewindSizes() {

@@ -128,10 +128,11 @@ bool target_is_local(edb::address_t targetAddress, edb::address_t insnAddress) {
 
 }
 
-//------------------------------------------------------------------------------
-// Name: QDisassemblyView
-// Desc: constructor
-//------------------------------------------------------------------------------
+/**
+ * @brief Constructs a QDisassemblyView object with the given parent widget.
+ *
+ * @param parent The parent widget of the QDisassemblyView.
+ */
 QDisassemblyView::QDisassemblyView(QWidget *parent)
 	: QAbstractScrollArea(parent),
 	  highlighter_(new SyntaxHighlighter(this)),
@@ -245,13 +246,15 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: previousInstruction
-// Desc: attempts to find the address of the instruction 1 instructions
-//       before <current_address>
-// Note: <current_address> is a 0 based value relative to the beginning of the
-//       current region, not an absolute address within the program
-//------------------------------------------------------------------------------
+/**
+ * @brief Attempts to find the address of the instruction one instruction before the given current address.
+ *
+ * @param analyzer A pointer to the IAnalyzer instance used for analysis.
+ * @param current_address The current address (0-based value relative to the beginning of the current region).
+ * @return The address of the previous instruction, or the current address minus one if no previous instruction could be found.
+ *
+ * @note <current_address> is a 0 based value relative to the beginning of the current region, not an absolute address within the program.
+ */
 int QDisassemblyView::previousInstruction(IAnalyzer *analyzer, int current_address) const {
 
 	// If we have an analyzer, and the current address is within a function
@@ -325,13 +328,15 @@ int QDisassemblyView::previousInstruction(IAnalyzer *analyzer, int current_addre
 	return current_address - 1;
 }
 
-//------------------------------------------------------------------------------
-// Name: previousInstructions
-// Desc: attempts to find the address of the instruction <count> instructions
-//       before <current_address>
-// Note: <current_address> is a 0 based value relative to the beginning of the
-//       current region, not an absolute address within the program
-//------------------------------------------------------------------------------
+/**
+ * @brief Attempts to find the address of the instruction <count> instructions before <current_address>.
+ *
+ * @param current_address The current address (0-based value relative to the beginning of the current region).
+ * @param count The number of instructions to go back.
+ * @return The address of the instruction <count> instructions before <current_address>.
+ *
+ * @note <current_address> is a 0 based value relative to the beginning of the current region, not an absolute address within the program.
+ */
 int QDisassemblyView::previousInstructions(int current_address, int count) const {
 
 	IAnalyzer *const analyzer = edb::v1::analyzer();
@@ -343,6 +348,12 @@ int QDisassemblyView::previousInstructions(int current_address, int count) const
 	return current_address;
 }
 
+/**
+ * @brief Attempts to find the address of the instruction one instruction after the given current address.
+ *
+ * @param current_address The current address (0-based value relative to the beginning of the current region).
+ * @return The address of the next instruction, or the current address plus one if no next
+ */
 int QDisassemblyView::followingInstruction(int current_address) const {
 	uint8_t buf[edb::Instruction::MaxSize + 1];
 
@@ -361,11 +372,13 @@ int QDisassemblyView::followingInstruction(int current_address) const {
 	return static_cast<int>(current_address + inst.byteSize());
 }
 
-//------------------------------------------------------------------------------
-// Name: followingInstructions
-// Note: <current_address> is a 0 based value relative to the beginning of the
-//       current region, not an absolute address within the program
-//------------------------------------------------------------------------------
+/**
+ * @brief Attempts to find the address of the instruction <count> instructions after <current_address>.
+ *
+ * @param current_address The current address (0-based value relative to the beginning of the current region).
+ * @param count The number of instructions to go forward.
+ * @return The address of the instruction <count> instructions after <current_address>.
+ */
 int QDisassemblyView::followingInstructions(int current_address, int count) const {
 
 	for (int i = 0; i < count; ++i) {
@@ -376,7 +389,8 @@ int QDisassemblyView::followingInstructions(int current_address, int count) cons
 }
 
 /**
- * @brief
+ * @brief Handles wheel events for scrolling the disassembly view.
+ * @param e The wheel event.
  */
 void QDisassemblyView::wheelEvent(QWheelEvent *e) {
 
@@ -466,10 +480,12 @@ void QDisassemblyView::update() {
 	Q_EMIT signalUpdated();
 }
 
-//------------------------------------------------------------------------------
-// Name: addressShown
-// Desc: returns true if a given address is in the visible range
-//------------------------------------------------------------------------------
+/**
+ * @brief Checks if the given address is currently visible in the disassembly view.
+ *
+ * @param address The address to check.
+ * @return true if the address is visible, false otherwise.
+ */
 bool QDisassemblyView::addressShown(edb::address_t address) const {
 	const auto idx = showAddresses_.indexOf(address);
 	// if the last line is only partially rendered, consider it outside the
@@ -477,18 +493,20 @@ bool QDisassemblyView::addressShown(edb::address_t address) const {
 	return (idx > 0 && idx < showAddresses_.size() - 1 - partialLastLine_);
 }
 
-//------------------------------------------------------------------------------
-// Name: setCurrentAddress
-// Desc: sets the 'current address' (where EIP is usually)
-//------------------------------------------------------------------------------
+/**
+ * @brief Sets the current address in the disassembly view (where EIP is usually).
+ *
+ * @param address The address to set as the current address.
+ */
 void QDisassemblyView::setCurrentAddress(edb::address_t address) {
 	currentAddress_ = address;
 }
 
-//------------------------------------------------------------------------------
-// Name: setRegion
-// Desc: sets the memory region we are viewing
-//------------------------------------------------------------------------------
+/**
+ * @brief Sets the memory region to be viewed in the disassembly view.
+ *
+ * @param r A shared pointer to the IRegion representing the memory region to be viewed.
+ */
 void QDisassemblyView::setRegion(const std::shared_ptr<IRegion> &r) {
 
 	// You may wonder when we use r's compare instead of region_
@@ -511,23 +529,26 @@ void QDisassemblyView::setRegion(const std::shared_ptr<IRegion> &r) {
 	update();
 }
 
-//------------------------------------------------------------------------------
-// Name: clear
-// Desc: clears the display
-//------------------------------------------------------------------------------
+/**
+ * @brief Clears the disassembly view.
+ */
 void QDisassemblyView::clear() {
 	setRegion(nullptr);
 }
 
 /**
- * @brief
+ * @brief Sets the address offset for the disassembly view.
+ *
+ * @param address The address offset to set.
  */
 void QDisassemblyView::setAddressOffset(edb::address_t address) {
 	addressOffset_ = address;
 }
 
 /**
- * @brief
+ * @brief Scrolls the disassembly view to the specified address.
+ *
+ * @param address The address to scroll to.
  */
 void QDisassemblyView::scrollTo(edb::address_t address) {
 	verticalScrollBar()->setValue(static_cast<int>(address - addressOffset_));
@@ -660,21 +681,25 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 	painter.restore();
 }
 
-//------------------------------------------------------------------------------
-// Name: paint_line_bg
-// Desc: A helper function for painting a rectangle representing a background
-// color of one or more lines in the disassembly view.
-//------------------------------------------------------------------------------
+/**
+ * @brief Paints the background of one or more lines in the disassembly view with the specified brush.
+ *
+ * @param painter The QPainter object used for painting.
+ * @param brush The QBrush object specifying the background color or pattern.
+ * @param line The starting line number to paint the background.
+ * @param num_lines The number of lines to paint the background.
+ */
 void QDisassemblyView::paintLineBg(QPainter &painter, QBrush brush, int line, int num_lines) {
 	const auto lh = lineHeight();
 	painter.fillRect(0, lh * line, width(), lh * num_lines, brush);
 }
 
-//------------------------------------------------------------------------------
-// Name: get_line_of_address
-// Desc: A helper function which sets line to the line on which addr appears,
-// or returns false if that line does not appear to exist.
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns the line number corresponding to the given address in the disassembly view, if it exists.
+ *
+ * @param addr The address to find the corresponding line number for.
+ * @return An optional containing the line number if the address is found, or an empty optional if the address is not found in the disassembly view.
+ */
 std::optional<unsigned int> QDisassemblyView::getLineOfAddress(edb::address_t addr) const {
 
 	if (!showAddresses_.isEmpty()) {
@@ -689,11 +714,12 @@ std::optional<unsigned int> QDisassemblyView::getLineOfAddress(edb::address_t ad
 	return {};
 }
 
-//------------------------------------------------------------------------------
-// Name: updateDisassembly
-// Desc: Updates instructions_, show_addresses_, partial_last_line_
-//		 Returns update for number of lines_to_render
-//------------------------------------------------------------------------------
+/**
+ * @brief Updates the disassembly view by reading instruction bytes from memory and populating the instructions_ and showAddresses_ vectors.
+ *
+ * @param lines_to_render The number of lines to render in the disassembly view.
+ * @return The actual number of lines rendered after updating the disassembly view.
+ */
 int QDisassemblyView::updateDisassembly(int lines_to_render) {
 	instructions_.clear();
 	showAddresses_.clear();
@@ -1594,10 +1620,11 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: setFont
-// Desc: overloaded version of setFont, calculates font metrics for later
-//------------------------------------------------------------------------------
+/**
+ * @brief Sets the font for the disassembly view and recalculates metrics.
+ *
+ * @param f The new font to set for the disassembly view.
+ */
 void QDisassemblyView::setFont(const QFont &f) {
 	syntaxCache_.clear();
 
@@ -2025,12 +2052,13 @@ std::shared_ptr<IRegion> QDisassemblyView::region() const {
 	return region_;
 }
 
-//------------------------------------------------------------------------------
-// Name: add_comment
-// Desc: Adds a comment to the comment hash.
-//------------------------------------------------------------------------------
+/**
+ * @brief Adds a comment to the comment hash and persists it in the session manager.
+ *
+ * @param address The address to associate the comment with.
+ * @param comment The comment text to add.
+ */
 void QDisassemblyView::addComment(edb::address_t address, QString comment) {
-	qDebug("Insert Comment");
 	Comment temp_comment = {
 		address,
 		comment};
@@ -2038,27 +2066,31 @@ void QDisassemblyView::addComment(edb::address_t address, QString comment) {
 	comments_.insert(address, comment);
 }
 
-//------------------------------------------------------------------------------
-// Name: remove_comment
-// Desc: Removes a comment from the comment hash and returns the number of comments removed.
-//------------------------------------------------------------------------------
+/**
+ * @brief Removes a comment associated with the given address from the comment hash and the session manager.
+ *
+ * @param address The address of the comment to remove.
+ * @return The number of comments removed (0 if no comment was found for the address, 1 if a comment was successfully removed).
+ */
 int QDisassemblyView::removeComment(edb::address_t address) {
 	SessionManager::instance().removeComment(address);
 	return comments_.remove(address);
 }
 
-//------------------------------------------------------------------------------
-// Name: get_comment
-// Desc: Returns a comment assigned for an address or a blank string if there is none.
-//------------------------------------------------------------------------------
+/**
+ * @brief Retrieves the comment associated with the specified address.
+ *
+ * @param address The address for which to retrieve the comment.
+ * @return The comment string associated with the address, or an empty string if no comment exists for that address.
+ */
 QString QDisassemblyView::getComment(edb::address_t address) const {
 	return comments_.value(address, QStringLiteral(""));
 }
 
-//------------------------------------------------------------------------------
-// Name: clear_comments
-// Desc: Clears all comments in the comment hash.
-//------------------------------------------------------------------------------
+/**
+ * @brief Clears all comments from the comment hash and the session manager.
+ *
+ */
 void QDisassemblyView::clearComments() {
 	comments_.clear();
 }

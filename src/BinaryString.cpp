@@ -22,6 +22,7 @@ constexpr auto UnlimitedMaxLength = 32767 / CharHexLength;
 
 /**
  * @brief BinaryString::setEntriesMaxLength
+ *
  * @param n
  */
 void BinaryString::setEntriesMaxLength(int n) {
@@ -33,6 +34,7 @@ void BinaryString::setEntriesMaxLength(int n) {
 
 /**
  * @brief BinaryString::setMaxLength
+ *
  * @param n
  */
 void BinaryString::setMaxLength(int n) {
@@ -50,6 +52,7 @@ void BinaryString::setMaxLength(int n) {
 
 /**
  * @brief BinaryString::BinaryString
+ *
  * @param parent
  * @param f
  */
@@ -74,6 +77,7 @@ BinaryString::~BinaryString() {
 
 /**
  * @brief BinaryString::on_keepSize_stateChanged
+ *
  * @param state
  */
 void BinaryString::on_keepSize_stateChanged(int state) {
@@ -96,6 +100,7 @@ void BinaryString::on_keepSize_stateChanged(int state) {
 
 /**
  * @brief BinaryString::on_txtAscii_textEdited
+ *
  * @param text
  */
 void BinaryString::on_txtAscii_textEdited(const QString &text) {
@@ -126,6 +131,7 @@ void BinaryString::on_txtAscii_textEdited(const QString &text) {
 
 /**
  * @brief BinaryString::on_txtUTF16_textEdited
+ *
  * @param text
  */
 void BinaryString::on_txtUTF16_textEdited(const QString &text) {
@@ -154,6 +160,7 @@ void BinaryString::on_txtUTF16_textEdited(const QString &text) {
 
 /**
  * @brief BinaryString::on_txtHex_textEdited
+ *
  * @param text
  */
 void BinaryString::on_txtHex_textEdited(const QString &text) {
@@ -188,6 +195,7 @@ void BinaryString::on_txtHex_textEdited(const QString &text) {
 
 /**
  * @brief BinaryString::value
+ *
  * @return
  */
 QByteArray BinaryString::value() const {
@@ -203,6 +211,7 @@ QByteArray BinaryString::value() const {
 
 /**
  * @brief BinaryString::setValue
+ *
  * @param data
  */
 void BinaryString::setValue(const QByteArray &data) {
@@ -217,6 +226,7 @@ void BinaryString::setValue(const QByteArray &data) {
 
 /**
  * @brief BinaryString::setShowKeepSize
+ *
  * @param visible
  */
 void BinaryString::setShowKeepSize(bool visible) {
@@ -225,6 +235,7 @@ void BinaryString::setShowKeepSize(bool visible) {
 
 /**
  * @brief BinaryString::showKeepSize
+ *
  * @return
  */
 bool BinaryString::showKeepSize() const {

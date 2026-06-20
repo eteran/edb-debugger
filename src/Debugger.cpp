@@ -151,6 +151,7 @@ edb::address_t find_linker_hook_address(IProcess *process, edb::address_t debug_
 
 /**
  * @brief Checks if the instruction at the given address is a return instruction.
+ *
  * @param address The address of the instruction to check.
  * @return True if the instruction is a return, false otherwise.
  */
@@ -359,6 +360,7 @@ private:
 
 /**
  * @brief Constructs a new Debugger instance.
+ *
  * @param parent The parent widget.
  */
 Debugger::Debugger(QWidget *parent)
@@ -591,6 +593,7 @@ void Debugger::updateMenuState(GuiState state) {
 
 /**
  * @brief Creates a TTY for command line I/O.
+ *
  * @return The path to the created TTY.
  */
 QString Debugger::createTty() {
@@ -716,6 +719,7 @@ QString Debugger::createTty() {
 
 /**
  * @brief Called when the TTY process finishes.
+ *
  * @param exit_code The exit code of the process.
  * @param exit_status The exit status of the process.
  */
@@ -728,6 +732,7 @@ void Debugger::ttyProcFinished(int exit_code, QProcess::ExitStatus exit_status) 
 
 /**
  * @brief Returns the index of the currently selected tab.
+ *
  * @return The index of the current tab.
  */
 int Debugger::currentTab() const {
@@ -736,6 +741,7 @@ int Debugger::currentTab() const {
 
 /**
  * @brief Returns the data view info for the currently selected tab.
+ *
  * @return A shared pointer to the data view info.
  */
 std::shared_ptr<DataViewInfo> Debugger::currentDataViewInfo() const {
@@ -744,6 +750,7 @@ std::shared_ptr<DataViewInfo> Debugger::currentDataViewInfo() const {
 
 /**
  * @brief Sets the caption of the debugger window.
+ *
  * @param appname The name of the application.
  */
 void Debugger::setDebuggerCaption(const QString &appname) {
@@ -898,6 +905,7 @@ void Debugger::finishPluginSetup() {
 
 /**
  * @brief Gets the address expression from the user.
+ *
  * @return A result containing the address or an error message.
  */
 Result<edb::address_t, QString> Debugger::getGotoExpression() {
@@ -912,6 +920,7 @@ Result<edb::address_t, QString> Debugger::getGotoExpression() {
 
 /**
  * @brief Gets the register value to follow.
+ *
  * @return A result containing the register value or an error message.
  */
 Result<edb::reg_t, QString> Debugger::getFollowRegister() const {
@@ -1112,6 +1121,7 @@ void Debugger::setupStackView() {
 
 /**
  * @brief Handles the close event for the main window.
+ *
  * @param event The close event.
  */
 void Debugger::closeEvent(QCloseEvent *event) {
@@ -1156,6 +1166,7 @@ void Debugger::closeEvent(QCloseEvent *event) {
 
 /**
  * @brief Handles the show event for the main window.
+ *
  * @param event The show event.
  */
 void Debugger::showEvent(QShowEvent *) {
@@ -1224,6 +1235,7 @@ void Debugger::showEvent(QShowEvent *) {
 
 /**
  * @brief Handles the drag enter event for the main window.
+ *
  * @param event The drag enter event.
  */
 void Debugger::dragEnterEvent(QDragEnterEvent *event) {
@@ -1243,6 +1255,7 @@ void Debugger::dragEnterEvent(QDragEnterEvent *event) {
 
 /**
  * @brief Handles the drop event for the main window. If a file is dropped, it will be opened.
+ *
  * @param event The drop event.
  */
 void Debugger::dropEvent(QDropEvent *event) {
@@ -1324,6 +1337,7 @@ void Debugger::setupTabButtons() {
 
 /**
  * @brief Debugger::activeRegister
+ *
  * @return
  */
 Register Debugger::activeRegister() const {
@@ -1352,6 +1366,7 @@ Register Debugger::activeRegister() const {
 
 /**
  * @brief Returns the context menu items for the active register.
+ *
  * @return A list of QAction pointers representing the context menu items.
  */
 QList<QAction *> Debugger::currentRegisterContextMenuItems() const {
@@ -1374,6 +1389,7 @@ QList<QAction *> Debugger::currentRegisterContextMenuItems() const {
 
 /**
  * @brief Toggles the flag register at the specified bit position.
+ *
  * @param pos The position of the flag bit to toggle.
  */
 void Debugger::toggleFlag(int pos) {
@@ -1399,6 +1415,7 @@ void Debugger::toggleFlag(int pos) {
 
 /**
  * @brief Handles the toggle breakpoint event.
+ *
  * @param address The address of the breakpoint to toggle.
  */
 void Debugger::breakPointToggled_triggered(edb::address_t address) {
@@ -1453,6 +1470,7 @@ void Debugger::on_action_Configure_Debugger_triggered() {
 
 /**
  * @brief Steps over the current instruction.
+ *
  * @param run_func The function to run the process.
  * @param step_func The function to step into the process.
  */
@@ -1490,6 +1508,7 @@ void Debugger::stepOver(F1 run_func, F2 step_func) {
 
 /**
  * @brief Follows the memory at the specified address.
+ *
  * @param address The address of the memory to follow.
  * @param follow_func The function to follow the memory.
  */
@@ -1504,6 +1523,7 @@ void Debugger::followMemory(edb::address_t address, F follow_func) {
 
 /**
  * @brief Follows the register in the dump view.
+ *
  * @param tabbed Whether to open the dump in a new tab.
  */
 void Debugger::followRegisterInDump(bool tabbed) {
@@ -1610,6 +1630,7 @@ void Debugger::mnuRegisterFollowInStack() {
 
 /**
  * @brief Gets the address to follow from the selected text in the hex view.
+ *
  * @param hexview The hex view to get the address from.
  * @return The address to follow or an error message.
  */
@@ -1640,6 +1661,7 @@ Result<edb::address_t, QString> Debugger::getFollowAddress(const Ptr &hexview) {
 
 /**
  * @brief Follows the address in the stack view.
+ *
  * @param hexview The hex view to get the address from.
  */
 template <class Ptr>
@@ -1654,6 +1676,7 @@ void Debugger::followInStack(const Ptr &hexview) {
 
 /**
  * @brief Follows the address in the dump view.
+ *
  * @param hexview The hex view to get the address from.
  */
 template <class Ptr>
@@ -1668,6 +1691,7 @@ void Debugger::followInDump(const Ptr &hexview) {
 
 /**
  * @brief Follows the address in the CPU view.
+ *
  * @param hexview The hex view to get the address from.
  */
 template <class Ptr>
@@ -2003,6 +2027,7 @@ void Debugger::mnuDumpSaveToFile() {
 
 /**
  * @brief Fills the selected area in the CPU view with the specified byte.
+ *
  * @param byte The byte to fill with.
  */
 void Debugger::cpuFill(uint8_t byte) {
@@ -2055,6 +2080,7 @@ void Debugger::mnuCPUEditComment() {
 
 /**
  * @brief Removes a comment at the selected address in the CPU view.
+ *
  * @param address The address of the comment to remove.
  */
 void Debugger::mnuCPURemoveComment() {
@@ -2065,6 +2091,7 @@ void Debugger::mnuCPURemoveComment() {
 
 /**
  * @brief Runs the debugger to the selected line in the CPU view.
+ *
  * @param pass_signal Whether to pass the exception or ignore it.
  */
 void Debugger::runToThisLine(ExceptionResume pass_signal) {
@@ -2124,6 +2151,7 @@ void Debugger::mnuCPUAddConditionalBreakpoint() {
 
 /**
  * @brief Removes a breakpoint at the selected address in the CPU view.
+ *
  * @param address The address of the breakpoint to remove.
  */
 void Debugger::mnuCPURemoveBreakpoint() const {
@@ -2209,6 +2237,7 @@ void Debugger::mnuCPUModify() const {
 
 /**
  * @brief Modifies the selected bytes in the given hex view.
+ *
  * @param hexview The hex view to modify.
  */
 template <class Ptr>
@@ -2255,6 +2284,7 @@ void Debugger::mnuStackModify() {
 
 /**
  * @brief Checks if the breakpoint condition is true.
+ *
  * @param condition The condition to evaluate.
  * @return True if the condition is true, false otherwise.
  */
@@ -2268,6 +2298,7 @@ bool Debugger::isBreakpointConditionTrue(const QString &condition) {
 
 /**
  * @brief Handles a trap event.
+ *
  * @param event The trap event to handle.
  * @return True if we should resume as if this trap never happened
  */
@@ -2349,6 +2380,7 @@ edb::EventStatus Debugger::handleTrap(const std::shared_ptr<IDebugEvent> &event)
 
 /**
  * @brief Handles a stopped event.
+ *
  * @param event The stopped event to handle.
  * @return The status of the event.
  */
@@ -2426,6 +2458,7 @@ edb::EventStatus Debugger::handleEventStopped(const std::shared_ptr<IDebugEvent>
 
 /**
  * @brief Handles a terminated event.
+ *
  * @param event The terminated event to handle.
  * @return The status of the event.
  */
@@ -2441,6 +2474,7 @@ edb::EventStatus Debugger::handleEventTerminated(const std::shared_ptr<IDebugEve
 
 /**
  * @brief Handles a exited event.
+ *
  * @param event The exited event to handle.
  * @return The status of the event.
  */
@@ -2456,6 +2490,7 @@ edb::EventStatus Debugger::handleEventExited(const std::shared_ptr<IDebugEvent> 
 
 /**
  * @brief Handles a debug event.
+ *
  * @param event The debug event to handle.
  * @return The status of the event.
  */
@@ -2502,6 +2537,7 @@ edb::EventStatus Debugger::handleEvent(const std::shared_ptr<IDebugEvent> &event
 
 /**
  * @brief Updates the caption of a tab.
+ *
  * @param view The hex view to update.
  * @param start The start address of the region.
  * @param end The end address of the region.
@@ -2519,6 +2555,7 @@ void Debugger::updateTabCaption(const std::shared_ptr<QHexView> &view, edb::addr
 
 /**
  * @brief Updates the data in a view.
+ *
  * @param v The data view info to update.
  */
 void Debugger::updateData(const std::shared_ptr<DataViewInfo> &v) {
@@ -2536,6 +2573,7 @@ void Debugger::updateData(const std::shared_ptr<DataViewInfo> &v) {
 
 /**
  * @brief Clears the data in a view.
+ *
  * @param v The data view info to clear.
  */
 void Debugger::clearData(const std::shared_ptr<DataViewInfo> &v) {
@@ -2554,6 +2592,7 @@ void Debugger::clearData(const std::shared_ptr<DataViewInfo> &v) {
 
 /**
  * @brief Jumps to a specific address in the CPU view.
+ *
  * @param address The address to jump to.
  * @param r The region to set.
  * @param scroll_to Whether to scroll to the address.
@@ -2569,6 +2608,7 @@ void Debugger::doJumpToAddress(edb::address_t address, const std::shared_ptr<IRe
 
 /**
  * @brief Updates the disassembly view.
+ *
  * @param address The address to update.
  * @param r The region to use.
  */
@@ -2580,6 +2620,7 @@ void Debugger::updateDisassembly(edb::address_t address, const std::shared_ptr<I
 
 /**
  * @brief Updates the stack view.
+ *
  * @param state The state to use for the update.
  */
 void Debugger::updateStackView(const State &state) {
@@ -2591,6 +2632,7 @@ void Debugger::updateStackView(const State &state) {
 
 /**
  * @brief Updates the CPU view.
+ *
  * @param state The state to use for the update.
  * @return The updated region or nullptr if not found.
  */
@@ -2682,6 +2724,7 @@ void Debugger::updateUi() {
 
 /**
  * @brief Determines the status for resuming execution.
+ *
  * @param pass_exception Whether to pass the exception to the application.
  * @return The event status for resuming.
  */
@@ -2696,6 +2739,7 @@ edb::EventStatus Debugger::resumeStatus(bool pass_exception) {
 
 /**
  * @brief Resumes execution.
+ *
  * @param pass_exception Whether to pass the exception to the application.
  * @param mode The debug mode.
  * @param flags The resume flags.
@@ -2874,6 +2918,7 @@ void Debugger::cleanupDebugger() {
 
 /**
  * @brief Returns the filename for the current session.
+ *
  * @return The session filename or an empty string if no session path is specified.
  */
 QString Debugger::sessionFilename() const {
@@ -2910,6 +2955,7 @@ QString Debugger::sessionFilename() const {
 
 /**
  * @brief Detaches the debugger from the current process.
+ *
  * @param kill Whether to kill the process or just detach.
  */
 void Debugger::detachFromProcess(DetachAction kill) {
@@ -3011,6 +3057,7 @@ void Debugger::testNativeBinary() {
 
 /**
  * @brief Sets the initial breakpoint so we can stop at the entry point of the application.
+ *
  * @param s The path to the executable.
  */
 void Debugger::setInitialBreakpoint(const QString &s) {
@@ -3327,6 +3374,7 @@ QList<QAction *> Debugger::getPluginContextMenuItems(const F &f) const {
 
 /**
  * @brief Adds context menu items for each plugin to the specified menu.
+ *
  * @param menu The menu to add items to.
  * @param f The function to call for each plugin.
  */
@@ -3446,6 +3494,7 @@ bool Debugger::dumpStack(edb::address_t address, bool scroll_to) {
 
 /**
  * @brief Shows the context menu for a tab.
+ *
  * @param index The index of the tab.
  * @param pos The position of the mouse click.
  */
@@ -3559,6 +3608,7 @@ void Debugger::on_action_Help_triggered() {
 
 /**
  * @brief Returns the status label.
+ *
  * @return A pointer to the status label.
  */
 QLabel *Debugger::statusLabel() const {

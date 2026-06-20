@@ -29,6 +29,7 @@ int getuid() {
 
 /**
  * @brief Constructor for the DialogAttach class.
+ *
  * @param parent The parent widget.
  * @param f The window flags.
  */

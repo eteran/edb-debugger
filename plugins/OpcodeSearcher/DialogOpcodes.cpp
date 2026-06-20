@@ -36,6 +36,7 @@ using OpcodeData = std::array<uint8_t, sizeof(uint64_t)>;
 
 /**
  * @brief add_result
+ *
  * @param resultsDialog
  * @param instructions
  * @param rva
@@ -59,6 +60,7 @@ void add_result(DialogResults *resultsDialog, const InstructionList &instruction
 
 /**
  * @brief test_deref_reg_to_ip
+ *
  * @param resultsDialog
  * @param data
  * @param start_address
@@ -95,6 +97,7 @@ void test_deref_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, 
 
 /**
  * @brief test_reg_to_ip
+ *
  * @param resultsDialog
  * @param data
  * @param start_address
@@ -168,6 +171,7 @@ void test_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 
 /**
  * @brief test_esp_add_0
+ *
  * @param resultsDialog
  * @param data
  * @param start_address
@@ -235,6 +239,7 @@ void test_esp_add_0(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 
 /**
  * @brief test_esp_add_regx1
+ *
  * @param resultsDialog
  * @param data
  * @param start_address
@@ -320,6 +325,7 @@ void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 
 /**
  * @brief test_esp_add_regx2
+ *
  * @param resultsDialog
  * @param data
  * @param start_address
@@ -420,6 +426,7 @@ void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, ed
 
 /**
  * @brief test_esp_sub_regx1
+ *
  * @param resultsDialog
  * @param data
  * @param start_address
@@ -494,6 +501,7 @@ void test_esp_sub_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 
 /**
  * @brief run_tests
+ *
  * @param resultsDialog
  * @param classtype
  * @param opcode
@@ -697,6 +705,7 @@ void run_tests(DialogResults *resultsDialog, int classtype, const OpcodeData &op
 
 /**
  * @brief DialogOpcodes::DialogOpcodes
+ *
  * @param parent
  * @param f
  */

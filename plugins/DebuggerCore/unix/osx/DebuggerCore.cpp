@@ -43,41 +43,45 @@ int resume_code(int status) {
 }
 }
 
-//------------------------------------------------------------------------------
-// Name: DebuggerCore
-// Desc: constructor
-//------------------------------------------------------------------------------
+/**
+ * @brief Constructor for DebuggerCore
+ */
 DebuggerCore::DebuggerCore() {
 	page_size_ = 0x1000;
 }
 
 /**
- * @brief
+ * @brief Destructor for DebuggerCore
  */
 DebuggerCore::~DebuggerCore() {
 	detach();
 }
 
 /**
- * @brief
+ * @brief Checks if the debugger has a specific extension
+ *
+ * @param ext The extension to check for
+ * @return true if the extension is available, false otherwise
  */
 bool DebuggerCore::has_extension(quint64 ext) const {
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name: page_size
-// Desc: returns the size of a page on this system
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns the size of a page on this system
+ *
+ * @return The page size
+ */
 size_t DebuggerCore::page_size() const {
 	return page_size_;
 }
 
-//------------------------------------------------------------------------------
-// Name: wait_debug_event
-// Desc: waits for a debug event, secs is a timeout (but is not yet respected)
-//       ok will be set to false if the timeout expires
-//------------------------------------------------------------------------------
+/**
+ * @brief Waits for a debug event
+ *
+ * @param msecs The timeout in milliseconds
+ * @return A shared pointer to the debug event, or nullptr if no event is received
+ */
 std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 	if (attached()) {
 		int status;
@@ -102,7 +106,11 @@ std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 }
 
 /**
- * @brief
+ * @brief Reads data from the target process
+ *
+ * @param address The address to read from
+ * @param ok A pointer to a boolean to indicate success
+ * @return The read data
  */
 long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 
@@ -123,14 +131,21 @@ long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 }
 
 /**
- * @brief
+ * @brief Writes data to the target process
+ *
+ * @param address The address to write to
+ * @param value The value to write
+ * @return true if the write was successful, false otherwise
  */
 bool DebuggerCore::write_data(edb::address_t address, long value) {
 	return ptrace(PT_WRITE_D, pid(), (char *)address, value) != -1;
 }
 
 /**
- * @brief
+ * @brief Attaches to a process
+ *
+ * @param pid The process ID to attach to
+ * @return true if the attachment was successful, false otherwise
  */
 bool DebuggerCore::attach(edb::pid_t pid) {
 	detach();
@@ -149,7 +164,7 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 }
 
 /**
- * @brief
+ * @brief Detaches from the target process
  */
 void DebuggerCore::detach() {
 	if (attached()) {
@@ -167,7 +182,7 @@ void DebuggerCore::detach() {
 }
 
 /**
- * @brief
+ * @brief Kills the target process
  */
 void DebuggerCore::kill() {
 	if (attached()) {
@@ -179,10 +194,9 @@ void DebuggerCore::kill() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: pause
-// Desc: stops *all* threads of a process
-//------------------------------------------------------------------------------
+/**
+ * @brief Pauses the target process
+ */
 void DebuggerCore::pause() {
 	if (attached()) {
 		for (auto it = threads_.begin(); it != threads_.end(); ++it) {
@@ -192,7 +206,9 @@ void DebuggerCore::pause() {
 }
 
 /**
- * @brief
+ * @brief Resumes the target process
+ *
+ * @param status The event status
  */
 void DebuggerCore::resume(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
@@ -207,7 +223,9 @@ void DebuggerCore::resume(edb::EVENT_STATUS status) {
 }
 
 /**
- * @brief
+ * @brief Steps through the target process
+ *
+ * @param status The event status
  */
 void DebuggerCore::step(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
@@ -222,7 +240,9 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 }
 
 /**
- * @brief
+ * @brief Gets the state of the target process
+ *
+ * @param state The state object to populate
  */
 void DebuggerCore::get_state(State *state) {
 
@@ -342,7 +362,9 @@ void DebuggerCore::get_state(State *state) {
 }
 
 /**
- * @brief
+ * @brief Sets the state of the target process
+ *
+ * @param state The state object containing the new state
  */
 void DebuggerCore::set_state(const State &state) {
 
@@ -428,7 +450,13 @@ void DebuggerCore::set_state(const State &state) {
 }
 
 /**
- * @brief
+ * @brief Opens a process for debugging
+ *
+ * @param path The path to the executable
+ * @param cwd The current working directory
+ * @param args The command line arguments
+ * @param tty The terminal device to use for I/O redirection
+ * @return true if the process was opened successfully, false otherwise
  */
 bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
 	detach();
@@ -490,7 +518,9 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 }
 
 /**
- * @brief
+ * @brief Sets the active thread
+ *
+ * @param tid The thread ID
  */
 void DebuggerCore::set_active_thread(edb::tid_t tid) {
 	Q_ASSERT(threads_.contains(tid));
@@ -498,13 +528,18 @@ void DebuggerCore::set_active_thread(edb::tid_t tid) {
 }
 
 /**
- * @brief
+ * @brief Creates a new state object
+ *
+ * @return A unique pointer to the new state object
  */
 std::unique_ptr<IState> DebuggerCore::create_state() const {
 	return std::make_unique<PlatformState>();
 }
+
 /**
- * @brief
+ * @brief Enumerates all running processes
+ *
+ * @return A map of process IDs to process information
  */
 QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
 	QMap<edb::pid_t, ProcessInfo> ret;
@@ -532,7 +567,10 @@ QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
 }
 
 /**
- * @brief
+ * @brief Gets the executable path of a process
+ *
+ * @param pid The process ID
+ * @return The executable path
  */
 QString DebuggerCore::process_exe(edb::pid_t pid) const {
 	// TODO: implement this
@@ -540,7 +578,10 @@ QString DebuggerCore::process_exe(edb::pid_t pid) const {
 }
 
 /**
- * @brief
+ * @brief Gets the current working directory of a process
+ *
+ * @param pid The process ID
+ * @return The current working directory
  */
 QString DebuggerCore::process_cwd(edb::pid_t pid) const {
 	// TODO: implement this
@@ -548,7 +589,10 @@ QString DebuggerCore::process_cwd(edb::pid_t pid) const {
 }
 
 /**
- * @brief
+ * @brief Gets the parent process ID of a process
+ *
+ * @param pid The process ID
+ * @return The parent process ID
  */
 edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 	// TODO: implement this
@@ -556,7 +600,9 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 }
 
 /**
- * @brief
+ * @brief Gets the memory regions of the target process
+ *
+ * @return A list of shared pointers to the memory regions
  */
 QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 
@@ -648,7 +694,10 @@ QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 }
 
 /**
- * @brief
+ * @brief Gets the command line arguments of a process
+ *
+ * @param pid The process ID
+ * @return A list of command line arguments
  */
 QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
 	QList<QByteArray> ret;
@@ -660,7 +709,9 @@ QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
 }
 
 /**
- * @brief
+ * @brief Gets the code address of a process
+ *
+ * @return The code address
  */
 edb::address_t DebuggerCore::process_code_address() const {
 	qDebug() << "TODO: implement DebuggerCore::process_code_address";
@@ -668,7 +719,9 @@ edb::address_t DebuggerCore::process_code_address() const {
 }
 
 /**
- * @brief
+ * @brief Gets the data address of a process
+ *
+ * @return The data address
  */
 edb::address_t DebuggerCore::process_data_address() const {
 	qDebug() << "TODO: implement DebuggerCore::process_data_address";
@@ -676,7 +729,9 @@ edb::address_t DebuggerCore::process_data_address() const {
 }
 
 /**
- * @brief
+ * @brief Gets the loaded modules of a process
+ *
+ * @return A list of loaded modules
  */
 QList<Module> DebuggerCore::loaded_modules() const {
 	QList<Module> modules;
@@ -685,7 +740,9 @@ QList<Module> DebuggerCore::loaded_modules() const {
 }
 
 /**
- * @brief
+ * @brief Gets the start time of a process
+ *
+ * @param pid The process ID
  */
 QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 	qDebug() << "TODO: implement DebuggerCore::process_start";
@@ -693,7 +750,9 @@ QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 }
 
 /**
- * @brief
+ * @brief Gets the CPU type of the target process
+ *
+ * @return The CPU type
  */
 quint64 DebuggerCore::cpu_type() const {
 #ifdef EDB_X86
@@ -704,7 +763,10 @@ quint64 DebuggerCore::cpu_type() const {
 }
 
 /**
- * @brief
+ * @brief Formats a pointer value as a string
+ *
+ * @param address The pointer value to format
+ * @return The formatted pointer string
  */
 QString DebuggerCore::format_pointer(edb::address_t address) const {
 	char buf[32];
@@ -717,7 +779,9 @@ QString DebuggerCore::format_pointer(edb::address_t address) const {
 }
 
 /**
- * @brief
+ * @brief Gets the name of the stack pointer register
+ *
+ * @return The stack pointer register name
  */
 QString DebuggerCore::stack_pointer() const {
 #ifdef EDB_X86
@@ -728,7 +792,9 @@ QString DebuggerCore::stack_pointer() const {
 }
 
 /**
- * @brief
+ * @brief Gets the name of the frame pointer register
+ *
+ * @return The frame pointer register name
  */
 QString DebuggerCore::frame_pointer() const {
 #ifdef EDB_X86
@@ -739,7 +805,9 @@ QString DebuggerCore::frame_pointer() const {
 }
 
 /**
- * @brief
+ * @brief Gets the name of the instruction pointer register
+ *
+ * @return The instruction pointer register name
  */
 QString DebuggerCore::instruction_pointer() const {
 #ifdef EDB_X86

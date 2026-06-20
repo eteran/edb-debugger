@@ -396,6 +396,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 
 /**
  * @brief Outputs the symbols to the specified stream ensuring uniqueness and adding any needed demangling.
+ *
  * @param symbols The vector of symbols to output.
  * @param os The output stream to write the symbols to.
  */
@@ -414,6 +415,7 @@ void output_symbols(std::vector<Symbol> &symbols, std::ostream &os) {
 
 /**
  * @brief Generates symbols for the given file and outputs them to the specified stream.
+ *
  * @param file The file to generate symbols for.
  * @param debugFile The debug file to include in the symbol generation.
  * @param os The output stream to write the symbols to.
@@ -485,6 +487,7 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 
 /**
  * @brief Generates symbols for the given file and outputs them to the specified stream.
+ *
  * @param filename The name of the file to generate symbols for.
  * @param os The output stream to write the symbols to.
  * @return True if the operation was successful, false otherwise.

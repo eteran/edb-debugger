@@ -25,6 +25,7 @@ const auto SessionFileIdString   = QLatin1String("edb-session");
 
 /**
  * @brief Returns the instance of the session manager.
+ *
  * @return A reference to the session manager instance.
  */
 SessionManager &SessionManager::instance() {
@@ -34,6 +35,7 @@ SessionManager &SessionManager::instance() {
 
 /**
  * @brief Loads a session from the specified file.
+ *
  * @param filename The path to the session file to load.
  * @return A result indicating success or an error.
  */
@@ -100,6 +102,7 @@ Result<void, SessionError> SessionManager::loadSession(const QString &filename) 
 
 /**
  * @brief Saves the current session to the specified file.
+ *
  * @param filename The path to the session file to save.
  */
 void SessionManager::saveSession(const QString &filename) {
@@ -164,6 +167,7 @@ void SessionManager::loadPluginData() {
 
 /**
  * @brief Returns all comments in the session
+ *
  * @return A list of all comments in the session.
  */
 QVariantList SessionManager::comments() const {
@@ -172,6 +176,7 @@ QVariantList SessionManager::comments() const {
 
 /**
  * @brief Adds a comment to the session
+ *
  * @param c The comment to add.
  */
 void SessionManager::addComment(const Comment &c) {
@@ -199,6 +204,7 @@ void SessionManager::addComment(const Comment &c) {
 
 /**
  * @brief Removes a comment from the session_data
+ *
  * @param address The address of the comment to remove.
  */
 void SessionManager::removeComment(edb::address_t address) {

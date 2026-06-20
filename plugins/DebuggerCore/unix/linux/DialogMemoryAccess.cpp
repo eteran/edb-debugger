@@ -10,6 +10,7 @@ namespace DebuggerCorePlugin {
 
 /**
  * @brief Constructs the proc/mem access warning dialog and fixes its size.
+ *
  * @param parent
  * @param f
  */
@@ -23,6 +24,7 @@ DialogMemoryAccess::DialogMemoryAccess(QWidget *parent, Qt::WindowFlags f)
 
 /**
  * @brief Returns true if the warning dialog should be shown again on the next run.
+ *
  * @return
  */
 bool DialogMemoryAccess::warnNextTime() const {

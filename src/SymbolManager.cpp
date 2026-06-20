@@ -147,6 +147,7 @@ void SymbolManager::addSymbol(const std::shared_ptr<Symbol> &symbol) {
 
 /**
  * @brief Processes a symbol file and loads its contents.
+ *
  * @param f The path to the symbol file.
  * @param base The base address for the symbols.
  * @param library_filename The name of the library for which to load symbols.
@@ -290,6 +291,7 @@ void SymbolManager::setLabel(edb::address_t address, const QString &label) {
 
 /**
  * @brief Finds the name of an address, either with or without a prefix.
+ *
  * @param address The address to find.
  * @param prefixed Whether to include the prefix.
  * @return The name of the address.
@@ -309,6 +311,7 @@ QString SymbolManager::findAddressName(edb::address_t address, bool prefixed) {
 
 /**
  * @brief Gets the labels for all addresses.
+ *
  * @return The labels for all addresses.
  */
 QHash<edb::address_t, QString> SymbolManager::labels() const {
@@ -317,6 +320,7 @@ QHash<edb::address_t, QString> SymbolManager::labels() const {
 
 /**
  * @brief Gets the list of all symbol files.
+ *
  * @return The list of all symbol files.
  */
 QStringList SymbolManager::files() const {

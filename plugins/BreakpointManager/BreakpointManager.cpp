@@ -11,6 +11,7 @@ namespace BreakpointManagerPlugin {
 
 /**
  * @brief Constructs the BreakpointManager plugin object.
+ *
  * @param parent
  */
 BreakpointManager::BreakpointManager(QObject *parent)
@@ -24,6 +25,7 @@ BreakpointManager::~BreakpointManager() = default;
 
 /**
  * @brief Returns nullptr, as the BreakpointManager plugin contributes no top-level menu.
+ *
  * @param parent
  * @return
  */

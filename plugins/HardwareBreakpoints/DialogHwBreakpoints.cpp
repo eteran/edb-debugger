@@ -16,6 +16,7 @@ namespace HardwareBreakpointsPlugin {
 
 /**
  * @brief DialogHwBreakpoints::DialogHwBreakpoints
+ *
  * @param parent
  * @param f
  */
@@ -32,6 +33,7 @@ DialogHwBreakpoints::DialogHwBreakpoints(QWidget *parent, Qt::WindowFlags f)
 
 /**
  * @brief DialogHwBreakpoints::type1IndexChanged
+ *
  * @param index
  */
 void DialogHwBreakpoints::type1IndexChanged(int index) {
@@ -40,6 +42,7 @@ void DialogHwBreakpoints::type1IndexChanged(int index) {
 
 /**
  * @brief DialogHwBreakpoints::type2IndexChanged
+ *
  * @param index
  */
 void DialogHwBreakpoints::type2IndexChanged(int index) {
@@ -48,6 +51,7 @@ void DialogHwBreakpoints::type2IndexChanged(int index) {
 
 /**
  * @brief DialogHwBreakpoints::type3IndexChanged
+ *
  * @param index
  */
 void DialogHwBreakpoints::type3IndexChanged(int index) {
@@ -56,6 +60,7 @@ void DialogHwBreakpoints::type3IndexChanged(int index) {
 
 /**
  * @brief DialogHwBreakpoints::type4IndexChanged
+ *
  * @param index
  */
 void DialogHwBreakpoints::type4IndexChanged(int index) {
@@ -64,6 +69,7 @@ void DialogHwBreakpoints::type4IndexChanged(int index) {
 
 /**
  * @brief DialogHwBreakpoints::showEvent
+ *
  * @param event
  */
 void DialogHwBreakpoints::showEvent(QShowEvent *event) {

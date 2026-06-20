@@ -14,6 +14,7 @@ namespace BinarySearcherPlugin {
 
 /**
  * @brief Constructs the BinarySearcher plugin object.
+ *
  * @param parent
  */
 BinarySearcher::BinarySearcher(QObject *parent)
@@ -22,6 +23,7 @@ BinarySearcher::BinarySearcher(QObject *parent)
 
 /**
  * @brief Creates and returns the Binary Searcher plugin menu, building it on first call.
+ *
  * @param parent
  * @return
  */
@@ -39,6 +41,7 @@ QMenu *BinarySearcher::menu(QWidget *parent) {
 
 /**
  * @brief Returns the stack context menu actions contributed by the BinarySearcher plugin.
+ *
  * @return
  */
 QList<QAction *> BinarySearcher::stackContextMenu() {

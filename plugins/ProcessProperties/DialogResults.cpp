@@ -12,6 +12,7 @@ namespace ProcessPropertiesPlugin {
 
 /**
  * @brief DialogResults::DialogResults
+ *
  * @param parent
  * @param f
  */
@@ -32,6 +33,7 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 
 /**
  * @brief DialogResults::addResult
+ *
  * @param result
  */
 void DialogResults::addResult(const ResultsModel::Result &result) {
@@ -40,6 +42,7 @@ void DialogResults::addResult(const ResultsModel::Result &result) {
 
 /**
  * @brief DialogResults::on_tableView_doubleClicked
+ *
  * @param index
  */
 void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
@@ -55,6 +58,7 @@ void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
 
 /**
  * @brief DialogResults::resultCount
+ *
  * @return
  */
 int DialogResults::resultCount() const {

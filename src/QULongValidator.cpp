@@ -29,6 +29,7 @@ QULongValidator::value_type QULongValidator::bottom() const {
 
 /**
  * @brief Sets the minimum value for the validator.
+ *
  * @param bottom The new minimum value.
  */
 void QULongValidator::setBottom(QULongValidator::value_type bottom) {

@@ -11,6 +11,7 @@ namespace CheckVersionPlugin {
 
 /**
  * @brief Constructs the CheckVersion options page and sets up its UI.
+ *
  * @param parent
  * @param f
  */
@@ -22,6 +23,7 @@ OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
 
 /**
  * @brief Loads the check-on-start setting into the checkbox when the page becomes visible.
+ *
  * @param event
  */
 void OptionsPage::showEvent(QShowEvent *event) {
@@ -33,6 +35,7 @@ void OptionsPage::showEvent(QShowEvent *event) {
 
 /**
  * @brief Saves the check-on-start setting to persistent storage when the checkbox is toggled.
+ *
  * @param checked
  */
 void OptionsPage::on_checkBox_toggled(bool checked) {

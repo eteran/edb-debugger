@@ -24,6 +24,7 @@ constexpr int ReturnColumn = 1;
 
 /**
  * @brief Extracts the edb::address_t stored in the UserRole data of the given table widget item.
+ *
  * @param item
  * @return the edb::address_t represented by the given *item and sets *ok to
  * true if successful or false, otherwise.
@@ -35,6 +36,7 @@ edb::address_t address_from_table(const QTableWidgetItem *item) {
 
 /**
  * @brief Returns true if the given column number corresponds to the return address column.
+ *
  * @param column
  * @return true if the column number is the one dedicated to return addresses.
  * otherwise, false.
@@ -45,6 +47,7 @@ bool is_ret(int column) {
 
 /**
  * @brief Returns true if the given table widget item resides in the return address column.
+ *
  * @param item
  * @return true if the selected item is in the column for return addresses.
  * otherwise, false.

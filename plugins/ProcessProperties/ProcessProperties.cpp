@@ -14,6 +14,7 @@ namespace ProcessPropertiesPlugin {
 
 /**
  * @brief ProcessProperties::ProcessProperties
+ *
  * @param parent
  */
 ProcessProperties::ProcessProperties(QObject *parent)
@@ -33,6 +34,7 @@ ProcessProperties::~ProcessProperties() {
 
 /**
  * @brief ProcessProperties::menu
+ *
  * @param parent
  * @return
  */

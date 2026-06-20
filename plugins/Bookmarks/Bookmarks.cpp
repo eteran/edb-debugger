@@ -17,6 +17,7 @@ namespace BookmarksPlugin {
 
 /**
  * @brief Constructs the Bookmarks plugin object.
+ *
  * @param parent
  */
 Bookmarks::Bookmarks(QObject *parent)
@@ -25,6 +26,7 @@ Bookmarks::Bookmarks(QObject *parent)
 
 /**
  * @brief Creates the Bookmarks dock widget, registers Ctrl+0–9 shortcuts, and builds the menu on first call.
+ *
  * @param parent
  * @return
  */
@@ -81,6 +83,7 @@ QMenu *Bookmarks::menu(QWidget *parent) {
 
 /**
  * @brief Returns the CPU context menu actions contributed by the Bookmarks plugin.
+ *
  * @return
  */
 QList<QAction *> Bookmarks::cpuContextMenu() {
@@ -103,6 +106,7 @@ void Bookmarks::addBookmarkMenu() {
 
 /**
  * @brief Serializes the current bookmark list to a QVariantMap for session state persistence.
+ *
  * @return
  */
 QVariantMap Bookmarks::saveState() const {
@@ -124,6 +128,7 @@ QVariantMap Bookmarks::saveState() const {
 
 /**
  * @brief Restores the bookmark list from a previously serialized QVariantMap session state.
+ *
  * @param state
  */
 void Bookmarks::restoreState(const QVariantMap &state) {

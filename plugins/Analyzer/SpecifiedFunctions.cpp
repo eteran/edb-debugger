@@ -18,6 +18,7 @@ namespace AnalyzerPlugin {
 
 /**
  * @brief Constructs the specified functions dialog and sets up its list model, filter, and refresh button.
+ *
  * @param parent
  * @param f
  */

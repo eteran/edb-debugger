@@ -21,6 +21,7 @@ namespace DebuggerCorePlugin {
 
 /**
  * @brief Constructs a PlatformThread for the given core, process, and thread ID.
+ *
  * @param core
  * @param process
  * @param tid
@@ -33,6 +34,7 @@ PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &pr
 
 /**
  * @brief Returns the thread ID of this thread.
+ *
  * @return
  */
 edb::tid_t PlatformThread::tid() const {
@@ -41,6 +43,7 @@ edb::tid_t PlatformThread::tid() const {
 
 /**
  * @brief Returns the thread's comm name by reading /proc/[pid]/task/[tid]/stat.
+ *
  * @return
  */
 QString PlatformThread::name() const {
@@ -55,6 +58,7 @@ QString PlatformThread::name() const {
 
 /**
  * @brief Returns the thread's scheduling priority by reading /proc/[pid]/task/[tid]/stat.
+ *
  * @return
  */
 int PlatformThread::priority() const {
@@ -69,6 +73,7 @@ int PlatformThread::priority() const {
 
 /**
  * @brief Returns a human-readable run state string for this thread.
+ *
  * @return
  */
 QString PlatformThread::runState() const {
@@ -116,6 +121,7 @@ Status PlatformThread::resume() {
 
 /**
  * @brief Resumes this thread via ptrace, re-delivering the signal only if status is DEBUG_EXCEPTION_NOT_HANDLED.
+ *
  * @param status
  * @return
  */
@@ -126,6 +132,7 @@ Status PlatformThread::resume(edb::EventStatus status) {
 
 /**
  * @brief Returns true if this thread is currently in the debugger's waited-thread set.
+ *
  * @return true if this thread is currently in the debugger's wait list
  */
 bool PlatformThread::isPaused() const {

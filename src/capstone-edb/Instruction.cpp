@@ -33,6 +33,7 @@ Formatter activeFormatter;
 #if defined(EDB_X86) || defined(EDB_X86_64)
 /**
  * @brief is_simd_register
+ *
  * @param operand
  * @return
  */
@@ -62,6 +63,7 @@ bool is_simd_register(const Operand &operand) {
 
 /**
  * @brief apriori_not_simd
+ *
  * @param insn
  * @param operand
  * @return
@@ -84,6 +86,7 @@ bool apriori_not_simd(const Instruction &insn, const Operand &operand) {
 
 /**
  * @brief KxRegisterPresent
+ *
  * @param insn
  * @return
  */
@@ -101,6 +104,7 @@ bool KxRegisterPresent(const Instruction &insn) {
 
 /**
  * @brief simdOperandNormalizedNumberInInstruction
+ *
  * @param insn
  * @param operand
  * @param canBeNonSIMD
@@ -131,6 +135,7 @@ std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, co
 
 /**
  * @brief isX86_64
+ *
  * @return
  */
 bool isX86_64() {
@@ -139,6 +144,7 @@ bool isX86_64() {
 
 /**
  * @brief to_operands
+ *
  * @param str
  * @return
  */

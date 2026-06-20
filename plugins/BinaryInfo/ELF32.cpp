@@ -13,6 +13,7 @@ namespace BinaryInfoPlugin {
 
 /**
  * @brief Returns true if this 32-bit ELF binary matches the architecture edb was built for.
+ *
  * @return true if this binary is native to the arch edb was built for
  */
 template <>

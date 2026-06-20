@@ -25,6 +25,7 @@ namespace CheckVersionPlugin {
 
 /**
  * @brief Constructs the CheckVersion plugin object.
+ *
  * @param parent
  */
 CheckVersion::CheckVersion(QObject *parent)
@@ -43,6 +44,7 @@ void CheckVersion::privateInit() {
 
 /**
  * @brief Returns the plugin's configuration options widget.
+ *
  * @return
  */
 QWidget *CheckVersion::optionsPage() {
@@ -51,6 +53,7 @@ QWidget *CheckVersion::optionsPage() {
 
 /**
  * @brief Creates and returns the CheckVersion plugin menu, building it on first call.
+ *
  * @param parent
  * @return
  */
@@ -85,6 +88,7 @@ void CheckVersion::doCheck() {
 
 /**
  * @brief Configures the network manager's proxy from the HTTP_PROXY environment variable or system settings.
+ *
  * @param url
  */
 void CheckVersion::setProxy(const QUrl &url) {
@@ -125,6 +129,7 @@ void CheckVersion::showMenu() {
 
 /**
  * @brief Handles the HTTP version check response, showing a notification dialog if a newer version is available.
+ *
  * @param reply
  */
 void CheckVersion::requestFinished(QNetworkReply *reply) {

@@ -19,6 +19,7 @@ constexpr int MaxRecentFiles = 8;
 
 /**
  * @brief Constructor for the RecentFileManager class.
+ *
  * @param parent The parent widget.
  * @param f The window flags.
  */
@@ -92,6 +93,7 @@ void RecentFileManager::clear() {
 
 /**
  * @brief Creates the menu for the recent file list.
+ *
  * @return The created menu.
  */
 QMenu *RecentFileManager::createMenu() {
@@ -106,6 +108,7 @@ QMenu *RecentFileManager::createMenu() {
 
 /**
  * @brief Formats a recent file entry for display.
+ *
  * @param file The recent file to format.
  * @return The formatted string.
  */
@@ -138,6 +141,7 @@ void RecentFileManager::update() {
 
 /**
  * @brief Gets the most recent file from the list.
+ *
  * @return The most recent file.
  */
 RecentFileManager::RecentFile RecentFileManager::mostRecent() const {
@@ -149,6 +153,7 @@ RecentFileManager::RecentFile RecentFileManager::mostRecent() const {
 
 /**
  * @brief Gets the number of entries in the recent file list.
+ *
  * @return The number of entries.
  */
 int RecentFileManager::entryCount() const {
@@ -168,6 +173,7 @@ void RecentFileManager::itemSelected() {
 
 /**
  * @brief Adds a file to the recent file list.
+ *
  * @param file The file to add.
  * @param args The arguments for the file.
  */

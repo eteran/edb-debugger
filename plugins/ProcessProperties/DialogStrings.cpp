@@ -22,6 +22,7 @@ namespace ProcessPropertiesPlugin {
 
 /**
  * @brief DialogStrings::DialogStrings
+ *
  * @param parent
  * @param f
  */

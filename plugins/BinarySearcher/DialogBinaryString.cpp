@@ -22,6 +22,7 @@ namespace BinarySearcherPlugin {
 
 /**
  * @brief Constructs the binary string search dialog and sets up its Find button and input widget.
+ *
  * @param parent
  * @param f
  */

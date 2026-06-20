@@ -13,6 +13,7 @@ namespace HeapAnalyzerPlugin {
 
 /**
  * @brief HeapAnalyzer::HeapAnalyzer
+ *
  * @param parent
  */
 HeapAnalyzer::HeapAnalyzer(QObject *parent)
@@ -28,6 +29,7 @@ HeapAnalyzer::~HeapAnalyzer() {
 
 /**
  * @brief HeapAnalyzer::menu
+ *
  * @param parent
  * @return
  */

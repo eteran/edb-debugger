@@ -12,6 +12,7 @@ namespace HeapAnalyzerPlugin {
 
 /**
  * @brief ResultViewModel::ResultViewModel
+ *
  * @param parent
  */
 ResultViewModel::ResultViewModel(QObject *parent)
@@ -20,6 +21,7 @@ ResultViewModel::ResultViewModel(QObject *parent)
 
 /**
  * @brief ResultViewModel::headerData
+ *
  * @param section
  * @param orientation
  * @param role
@@ -45,6 +47,7 @@ QVariant ResultViewModel::headerData(int section, Qt::Orientation orientation, i
 
 /**
  * @brief ResultViewModel::data
+ *
  * @param index
  * @param role
  * @return
@@ -117,6 +120,7 @@ QVariant ResultViewModel::data(const QModelIndex &index, int role) const {
 
 /**
  * @brief ResultViewModel::addResult
+ *
  * @param r
  */
 void ResultViewModel::addResult(const Result &r) {
@@ -136,6 +140,7 @@ void ResultViewModel::clearResults() {
 
 /**
  * @brief ResultViewModel::index
+ *
  * @param row
  * @param column
  * @param parent
@@ -162,6 +167,7 @@ QModelIndex ResultViewModel::index(int row, int column, const QModelIndex &paren
 
 /**
  * @brief ResultViewModel::parent
+ *
  * @param index
  * @return
  */
@@ -172,6 +178,7 @@ QModelIndex ResultViewModel::parent(const QModelIndex &index) const {
 
 /**
  * @brief ResultViewModel::rowCount
+ *
  * @param parent
  * @return
  */
@@ -182,6 +189,7 @@ int ResultViewModel::rowCount(const QModelIndex &parent) const {
 
 /**
  * @brief ResultViewModel::columnCount
+ *
  * @param parent
  * @return
  */
@@ -192,6 +200,7 @@ int ResultViewModel::columnCount(const QModelIndex &parent) const {
 
 /**
  * @brief ResultViewModel::setPointerData
+ *
  * @param index
  * @param data
  */

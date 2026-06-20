@@ -13,6 +13,7 @@ namespace SymbolViewerPlugin {
 
 /**
  * @brief SymbolViewer::SymbolViewer
+ *
  * @param parent
  */
 SymbolViewer::SymbolViewer(QObject *parent)
@@ -28,6 +29,7 @@ SymbolViewer::~SymbolViewer() {
 
 /**
  * @brief SymbolViewer::menu
+ *
  * @param parent
  * @return
  */

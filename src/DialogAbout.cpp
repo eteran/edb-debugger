@@ -9,6 +9,7 @@
 
 /**
  * @brief Constructor for the DialogAbout class.
+ *
  * @param parent The parent widget.
  * @param f The window flags.
  */

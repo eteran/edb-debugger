@@ -205,21 +205,28 @@ IAnalyzer *set_analyzer(IAnalyzer *p) {
 }
 
 /**
- * @brief
+ * @brief Returns the current active analyzer instance.
+ *
+ * @return A pointer to the current active analyzer instance, or nullptr if no analyzer is set.
  */
 IAnalyzer *analyzer() {
 	return g_Analyzer.loadRelaxed();
 }
 
 /**
- * @brief
+ * @brief Executes all registered debug event handlers for the given debug event.
+ *
+ * @param e The debug event to execute handlers for.
+ * @return The status of the event execution.
  */
 EventStatus execute_debug_event_handlers(const std::shared_ptr<IDebugEvent> &e) {
 	return g_DebugEventHandlers.execute(e);
 }
 
 /**
- * @brief
+ * @brief Adds a debug event handler to the list of registered handlers.
+ *
+ * @param p The debug event handler to add.
  */
 void add_debug_event_handler(IDebugEventHandler *p) {
 	g_DebugEventHandlers.add(p);
@@ -232,73 +239,94 @@ void remove_debug_event_handler(IDebugEventHandler *p) {
 	g_DebugEventHandlers.remove(p);
 }
 
-//------------------------------------------------------------------------------
-// Name: jump_to_address
-// Desc: sets the disassembly display to a given address, returning success
-//       status
-//------------------------------------------------------------------------------
+/**
+ * @brief Jumps to a specific address in the debugger UI.
+ *
+ * @param address The address to jump to.
+ * @return true if the jump was successful, false otherwise.
+ */
 bool jump_to_address(address_t address) {
 	Debugger *const gui = ui();
 	Q_ASSERT(gui);
 	return gui->jumpToAddress(address);
 }
 
-//------------------------------------------------------------------------------
-// Name: dump_data_range
-// Desc: shows a given address through a given end address in the data view,
-//       optionally in a new tab
-//------------------------------------------------------------------------------
+/**
+ * @brief Shows a given address through a given end address in the data view, optionally in a new tab.
+ *
+ * @param address The starting address to dump.
+ * @param end_address The ending address to dump.
+ * @param new_tab If true, opens the dump in a new tab; otherwise, uses the current tab.
+ * @return true if the dump was successful, false otherwise.
+ */
 bool dump_data_range(address_t address, address_t end_address, bool new_tab) {
 	Debugger *const gui = ui();
 	Q_ASSERT(gui);
 	return gui->dumpDataRange(address, end_address, new_tab);
 }
 
-//------------------------------------------------------------------------------
-// Name: dump_data_range
-// Desc: shows a given address through a given end address in the data view
-//------------------------------------------------------------------------------
+/**
+ * @brief Shows a given address through a given end address in the data view.
+ *
+ * @param address The starting address to dump.
+ * @param end_address The ending address to dump.
+ * @return true if the dump was successful, false otherwise.
+ */
 bool dump_data_range(address_t address, address_t end_address) {
 	return dump_data_range(address, end_address, false);
 }
 
 /**
- * @brief
+ * @brief Shows a given address in the stack view.
+ *
+ * @param address The address to dump.
+ * @return true if the dump was successful, false otherwise.
  */
 bool dump_stack(address_t address) {
 	return dump_stack(address, true);
 }
 
-//------------------------------------------------------------------------------
-// Name: dump_stack
-// Desc: shows a given address in the stack view
-//------------------------------------------------------------------------------
+/**
+ * @brief Shows a given address in the stack view, optionally scrolling to it.
+ *
+ * @param address The address to dump.
+ * @param scroll_to If true, scrolls to the address in the stack view; otherwise, does not scroll.
+ * @return true if the dump was successful, false otherwise.
+ */
 bool dump_stack(address_t address, bool scroll_to) {
 	Debugger *const gui = ui();
 	Q_ASSERT(gui);
 	return gui->dumpStack(address, scroll_to);
 }
 
-//------------------------------------------------------------------------------
-// Name: dump_data
-// Desc: shows a given address in the data view, optionally in a new tab
-//------------------------------------------------------------------------------
+/**
+ * @brief Shows a given address in the data view, optionally in a new tab.
+ *
+ * @param address The address to dump.
+ * @param new_tab If true, opens the dump in a new tab; otherwise, uses the current tab.
+ * @return true if the dump was successful, false otherwise.
+ */
 bool dump_data(address_t address, bool new_tab) {
 	Debugger *const gui = ui();
 	Q_ASSERT(gui);
 	return gui->dumpData(address, new_tab);
 }
 
-//------------------------------------------------------------------------------
-// Name: dump_data
-// Desc: shows a given address in the data view
-//------------------------------------------------------------------------------
+/**
+ * @brief Shows a given address in the data view.
+ *
+ * @param address The address to dump.
+ * @return true if the dump was successful, false otherwise.
+ */
 bool dump_data(address_t address) {
 	return dump_data(address, false);
 }
 
 /**
- * @brief
+ * @brief Sets the condition for a breakpoint at a given address.
+ *
+ * @param address The address of the breakpoint.
+ * @param condition The condition to set.
  */
 void set_breakpoint_condition(address_t address, const QString &condition) {
 
@@ -308,7 +336,10 @@ void set_breakpoint_condition(address_t address, const QString &condition) {
 }
 
 /**
- * @brief
+ * @brief Returns the condition of a breakpoint at a given address.
+ *
+ * @param address The address of the breakpoint.
+ * @return The condition of the breakpoint, or an empty string if no breakpoint exists at the address.
  */
 QString get_breakpoint_condition(address_t address) {
 	QString ret;
@@ -320,10 +351,12 @@ QString get_breakpoint_condition(address_t address) {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: create_breakpoint
-// Desc: adds a breakpoint at a given address
-//------------------------------------------------------------------------------
+/**
+ * @brief Creates a breakpoint at the specified address, with user confirmation if necessary.
+ *
+ * @param address The address at which to create the breakpoint.
+ * @return A shared pointer to the created breakpoint, or nullptr if the breakpoint was not created
+ */
 std::shared_ptr<IBreakpoint> create_breakpoint(address_t address) {
 
 	std::shared_ptr<IBreakpoint> bp;
@@ -379,7 +412,10 @@ std::shared_ptr<IBreakpoint> create_breakpoint(address_t address) {
 }
 
 /**
- * @brief
+ * @brief Enables a breakpoint at the specified address.
+ *
+ * @param address The address of the breakpoint to enable.
+ * @return The address of the enabled breakpoint, or 0 if the breakpoint could not be enabled.
  */
 address_t enable_breakpoint(address_t address) {
 	if (address != 0) {
@@ -392,7 +428,10 @@ address_t enable_breakpoint(address_t address) {
 }
 
 /**
- * @brief
+ * @brief Disables a breakpoint at the specified address.
+ *
+ * @param address The address of the breakpoint to disable.
+ * @return The address of the disabled breakpoint, or 0 if the breakpoint was not found
  */
 address_t disable_breakpoint(address_t address) {
 	if (address != 0) {
@@ -404,10 +443,11 @@ address_t disable_breakpoint(address_t address) {
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name: toggle_breakpoint
-// Desc: toggles the existence of a breakpoint at a given address
-//------------------------------------------------------------------------------
+/**
+ * @brief Toggles the existence of a breakpoint at a given address.
+ *
+ * @param address The address at which to toggle the breakpoint.
+ */
 void toggle_breakpoint(address_t address) {
 	if (find_breakpoint(address)) {
 		remove_breakpoint(address);
@@ -416,17 +456,22 @@ void toggle_breakpoint(address_t address) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: remove_breakpoint
-// Desc: removes a breakpoint
-//------------------------------------------------------------------------------
+/**
+ * @brief Removes a breakpoint at the specified address.
+ *
+ * @param address The address of the breakpoint to remove.
+ */
 void remove_breakpoint(address_t address) {
 	debugger_core->removeBreakpoint(address);
 	repaint_cpu_view();
 }
 
 /**
- * @brief
+ * @brief Evaluates an expression and returns the result.
+ *
+ * @param expression The expression to evaluate.
+ * @param value A pointer to the variable where the result will be stored.
+ * @return true if the expression was evaluated successfully, false otherwise.
  */
 bool eval_expression(const QString &expression, address_t *value) {
 
@@ -445,7 +490,12 @@ bool eval_expression(const QString &expression, address_t *value) {
 }
 
 /**
- * @brief
+ * @brief Gets an expression from the user and evaluates it.
+ *
+ * @param title The title of the input dialog.
+ * @param prompt The prompt for the input dialog.
+ * @param value A pointer to the variable where the result will be stored.
+ * @return true if the expression was evaluated successfully, false otherwise.
  */
 bool get_expression_from_user(const QString &title, const QString &prompt, address_t *value) {
 
@@ -461,14 +511,21 @@ bool get_expression_from_user(const QString &title, const QString &prompt, addre
 }
 
 /**
- * @brief
+ * @brief Gets a value from the user.
+ *
+ * @param value A reference to the register where the value will be stored.
+ * @return true if the value was obtained successfully, false otherwise.
  */
 bool get_value_from_user(Register &value) {
 	return get_value_from_user(value, tr("Input Value"));
 }
 
 /**
- * @brief
+ * @brief Gets a value from the user with a custom title.
+ *
+ * @param value A reference to the register where the value will be stored.
+ * @param title The title of the input dialog.
+ * @return true if the value was obtained successfully, false otherwise.
  */
 bool get_value_from_user(Register &value, const QString &title) {
 
@@ -486,7 +543,12 @@ bool get_value_from_user(Register &value, const QString &title) {
 }
 
 /**
- * @brief
+ * @brief Gets a binary string from the user.
+ *
+ * @param value A reference to the QByteArray where the value will be stored.
+ * @param title The title of the input dialog.
+ * @param max_length The maximum length of the binary string.
+ * @return true if the value was obtained successfully, false otherwise.
  */
 bool get_binary_string_from_user(QByteArray &value, const QString &title, int max_length) {
 
@@ -513,33 +575,38 @@ bool get_binary_string_from_user(QByteArray &value, const QString &title, int ma
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: dialog_options
-// Desc: returns a pointer to the options dialog
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns a pointer to the options dialog, creating it if it doesn't exist.
+ *
+ * @return A pointer to the options dialog.
+ */
 QPointer<QDialog> dialog_options() {
 	static QPointer<QDialog> dialog = new DialogOptions(debugger_ui);
 	return dialog;
 }
 
 /**
- * @brief
+ * @brief Returns a reference to the global configuration object.
+ *
+ * @return A reference to the global configuration object.
  */
 Configuration &config() {
 	static Configuration g_Configuration;
 	return g_Configuration;
 }
 
-//------------------------------------------------------------------------------
-// Name: get_human_string_at_address
-// Desc: attempts to create a summary of the content at address appropriate for
-// display in a user interface.
-// Note: strings are comprised of printable characters and whitespace.
-// Note: found_length is needed because we replace characters which need an
-//       escape char with the escape sequence (thus the resultant string may be
-//       longer than the original). found_length is the original length.
-//------------------------------------------------------------------------------
-
+/**
+ * @brief Attempts to create a summary of the content at the specified address, suitable for display in a user interface.
+ *
+ * @param address The address to examine.
+ * @param s A reference to a QString where the summary will be stored.
+ * @return true if a human-readable string was found at the address, false otherwise.
+ *
+ * @note Strings are comprised of printable characters and whitespace.
+ * @note The found_length parameter is needed because characters that require an escape
+ * sequence may result in a longer resultant string. The found_length represents the
+ * original length of the string.
+ */
 bool get_human_string_at_address(address_t address, QString &s) {
 	bool ret = false;
 	if (address > 0x10000ULL) { // FIXME use page size
@@ -559,15 +626,21 @@ bool get_human_string_at_address(address_t address, QString &s) {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: get_ascii_string_at_address
-// Desc: attempts to get a string at a given address whose length is >= min_length
-//       and < max_length
-// Note: strings are comprised of printable characters and whitespace.
-// Note: found_length is needed because we replace characters which need an
-//       escape char with the escape sequence (thus the resultant string may be
-//       longer than the original). found_length is the original length.
-//------------------------------------------------------------------------------
+/**
+ * @brief Attempts to get an ASCII string at a given address whose length is >= min_length and < max_length.
+ *
+ * @param address The address to read the string from.
+ * @param s A reference to a QString where the found string will be stored.
+ * @param min_length The minimum length of the string to be considered valid.
+ * @param max_length The maximum length of the string to be considered valid.
+ * @param found_length A reference to an integer where the original length of the found string will be stored.
+ * @return true if a valid ASCII string was found, false otherwise.
+ *
+ * @note Strings are comprised of printable characters and whitespace.
+ * @note The found_length parameter is needed because characters that require an escape
+ * sequence may result in a longer resultant string. The found_length represents the
+ * original length of the string.
+ */
 bool get_ascii_string_at_address(address_t address, QString &s, int min_length, int max_length, int &found_length) {
 
 	bool is_string = false;
@@ -608,15 +681,21 @@ bool get_ascii_string_at_address(address_t address, QString &s, int min_length, 
 	return is_string;
 }
 
-//------------------------------------------------------------------------------
-// Name: get_utf16_string_at_address
-// Desc: attempts to get a string at a given address whose length os >= min_length
-//       and < max_length
-// Note: strings are comprised of printable characters and whitespace.
-// Note: found_length is needed because we replace characters which need an
-//       escape char with the escape sequence (thus the resultant string may be
-//       longer than the original). found_length is the original length.
-//------------------------------------------------------------------------------
+/**
+ * @brief Attempts to get a UTF-16 string at a given address whose length is >= min_length and < max_length.
+ *
+ * @param address The address to read the string from.
+ * @param s A reference to a QString where the found string will be stored.
+ * @param min_length The minimum length of the string to be considered valid.
+ * @param max_length The maximum length of the string to be considered valid.
+ * @param found_length A reference to an integer where the original length of the found string will be stored.
+ * @return true if a valid UTF-16 string was found, false otherwise.
+ *
+ * @note Strings are comprised of printable characters and whitespace.
+ * @note The found_length parameter is needed because characters that require an escape
+ * sequence may result in a longer resultant string. The found_length represents the
+ * original length of the string.
+ */
 bool get_utf16_string_at_address(address_t address, QString &s, int min_length, int max_length, int &found_length) {
 	bool is_string = false;
 	if (debugger_core) {
@@ -771,10 +850,15 @@ address_t get_value(address_t address, bool *ok, ExpressionError *err) {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: get_instruction_bytes
-// Desc: attempts to read at most size bytes.
-//------------------------------------------------------------------------------
+/**
+ * @brief Attempts to read instruction bytes from a given address into a buffer.
+ *
+ * @param address The address to read the instruction bytes from.
+ * @param buf A pointer to the buffer where the instruction bytes will be stored.
+ * @param size A pointer to an integer representing the maximum number of bytes to read.
+ *             On success, this will be updated to the actual number of bytes read.
+ * @return true if instruction bytes were successfully read, false otherwise.
+ */
 bool get_instruction_bytes(address_t address, uint8_t *buf, int *size) {
 
 	Q_ASSERT(debugger_core);
@@ -791,10 +875,15 @@ bool get_instruction_bytes(address_t address, uint8_t *buf, int *size) {
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name: get_instruction_bytes
-// Desc: attempts to read at most size bytes.
-//------------------------------------------------------------------------------
+/**
+ * @brief Attempts to read instruction bytes from a given address into a buffer.
+ *
+ * @param address The address to read the instruction bytes from.
+ * @param buf A pointer to the buffer where the instruction bytes will be stored.
+ * @param size A pointer to an integer representing the maximum number of bytes to read.
+ *             On success, this will be updated to the actual number of bytes read.
+ * @return true if instruction bytes were successfully read, false otherwise.
+ */
 bool get_instruction_bytes(address_t address, uint8_t *buf, size_t *size) {
 
 	Q_ASSERT(debugger_core);
@@ -810,12 +899,12 @@ bool get_instruction_bytes(address_t address, uint8_t *buf, size_t *size) {
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name: get_binary_info
-// Desc: gets an object which knows how to analyze the binary file provided
-//       or NULL if none-found.
-// Note: the caller is responsible for deleting the object!
-//------------------------------------------------------------------------------
+/**
+ * @brief Gets an object which knows how to analyze the binary file provided.
+ *
+ * @param region The memory region representing the binary file to analyze.
+ * @return A unique pointer to an IBinary object that can analyze the binary file, or nullptr if no suitable analyzer was found.
+ */
 std::unique_ptr<IBinary> get_binary_info(const std::shared_ptr<IRegion> &region) {
 	const auto binaryInfoList = g_BinaryInfoList;
 	for (IBinary::create_func_ptr_t f : binaryInfoList) {
@@ -841,11 +930,13 @@ std::unique_ptr<IBinary> get_binary_info(const std::shared_ptr<IRegion> &region)
 	return nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: locate_main_function
-// Desc:
-// Note: this currently only works for glibc linked elf files
-//------------------------------------------------------------------------------
+/**
+ * @brief Locates the main function in the debugged process.
+ *
+ * @return The address of the main function, or 0 if not found.
+ *
+ * @note This function currently only works for glibc linked ELF files.
+ */
 address_t locate_main_function() {
 
 	if (debugger_core) {
@@ -863,16 +954,20 @@ address_t locate_main_function() {
 }
 
 /**
- * @brief
+ * @brief Returns a reference to the global list of loaded plugins.
+ *
+ * @return A QMap containing the loaded plugins, where the key is the plugin filename and the value is a pointer to the plugin object.
  */
 const QMap<QString, QObject *> &plugin_list() {
 	return g_GeneralPlugins;
 }
 
-//------------------------------------------------------------------------------
-// Name: find_plugin_by_name
-// Desc: gets a pointer to a plugin based on it's classname
-//------------------------------------------------------------------------------
+/**
+ * @brief Finds a plugin by its class name.
+ *
+ * @param name The class name of the plugin to find.
+ * @return A pointer to the IPlugin interface of the found plugin, or nullptr if no plugin with the specified class name was found.
+ */
 IPlugin *find_plugin_by_name(const QString &name) {
 	for (QObject *p : g_GeneralPlugins) {
 		if (name == p->metaObject()->className()) {
@@ -883,14 +978,17 @@ IPlugin *find_plugin_by_name(const QString &name) {
 }
 
 /**
- * @brief
+ * @brief Reloads the symbol information.
  */
 void reload_symbols() {
 	symbol_manager().clear();
 }
 
 /**
- * @brief
+ * @brief Gets information about a function.
+ *
+ * @param function The name of the function.
+ * @return A pointer to the function's prototype, or nullptr if not found.
  */
 const Prototype *get_function_info(const QString &function) {
 
@@ -902,12 +1000,13 @@ const Prototype *get_function_info(const QString &function) {
 	return nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: primary_data_region
-// Desc: returns the main .data section of the main executable module
-// Note: make sure that memory regions has been sync'd first or you will likely
-//       get a null-region result
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns the primary data region of the main executable module.
+ *
+ * @return A shared pointer to the primary data region, or nullptr if not found.
+ *
+ * @note Make sure that memory regions have been synchronized first, or you may get a null-region result.
+ */
 std::shared_ptr<IRegion> primary_data_region() {
 
 	if (debugger_core) {
@@ -924,12 +1023,13 @@ std::shared_ptr<IRegion> primary_data_region() {
 	return nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: primary_code_region
-// Desc: returns the main .text section of the main executable module
-// Note: make sure that memory regions has been sync'd first or you will likely
-//       get a null-region result
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns the primary code region of the main executable module.
+ *
+ * @return A shared pointer to the primary code region, or nullptr if not found.
+ *
+ * @note Make sure that memory regions have been synchronized first, or you may get a null-region result.
+ */
 std::shared_ptr<IRegion> primary_code_region() {
 
 #if defined(Q_OS_LINUX)
@@ -957,7 +1057,9 @@ std::shared_ptr<IRegion> primary_code_region() {
 }
 
 /**
- * @brief
+ * @brief Pops a value from the stack of the given state.
+ *
+ * @param state A pointer to the State object from which to pop the value.
  */
 void pop_value(State *state) {
 	Q_ASSERT(state);
@@ -965,7 +1067,10 @@ void pop_value(State *state) {
 }
 
 /**
- * @brief
+ * @brief Pushes a value onto the stack of the given state.
+ *
+ * @param state A pointer to the State object onto which to push the value.
+ * @param value The value to push onto the stack.
  */
 void push_value(State *state, reg_t value) {
 	Q_ASSERT(state);
@@ -977,7 +1082,9 @@ void push_value(State *state, reg_t value) {
 }
 
 /**
- * @brief
+ * @brief Registers a binary information creation function pointer to the global list of binary info creators.
+ *
+ * @param fptr A function pointer that creates an instance of IBinary for analyzing binary files.
  */
 void register_binary_info(IBinary::create_func_ptr_t fptr) {
 	if (!g_BinaryInfoList.contains(fptr)) {
@@ -985,16 +1092,22 @@ void register_binary_info(IBinary::create_func_ptr_t fptr) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: edb_version
-// Desc: returns an integer comparable version of our current version string
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns an integer representation of the current EDB version string.
+ *
+ * @return A 32-bit unsigned integer representing the EDB version,
+ * where the major, minor, and revision numbers are packed into the integer.
+ */
 quint32 edb_version() {
 	return int_version(EDB_VERSION_STRING);
 }
 
 /**
- * @brief
+ * @brief Checks if overwriting bytes at a given address would conflict with existing breakpoints.
+ *
+ * @param address The address of the bytes to be overwritten.
+ * @param size The number of bytes to be overwritten.
+ * @return True if the overwrite is safe, false otherwise.
  */
 bool overwrite_check(address_t address, size_t size) {
 	bool firstConflict = true;
@@ -1022,7 +1135,7 @@ bool overwrite_check(address_t address, size_t size) {
 }
 
 /**
- * @brief
+ * @brief Updates the user interface.
  */
 void update_ui() {
 	// force a full update
@@ -1032,7 +1145,13 @@ void update_ui() {
 }
 
 /**
- * @brief
+ * @brief Modifies bytes at a given address with the provided byte array, filling any remaining space with a specified fill byte.
+ *
+ * @param address The starting address where the bytes will be modified.
+ * @param size The number of bytes to modify.
+ * @param bytes A reference to a QByteArray containing the new byte values to write.
+ * @param fill The byte value to use for filling any remaining space if the provided byte array is smaller than the specified size.
+ * @return true if the bytes were successfully modified, false otherwise.
  */
 bool modify_bytes(address_t address, size_t size, QByteArray &bytes, uint8_t fill) {
 
@@ -1074,10 +1193,12 @@ QByteArray get_md5(const void *p, size_t n) {
 	return QCryptographicHash::hash(b, QCryptographicHash::Md5);
 }
 
-//------------------------------------------------------------------------------
-// Name: get_file_md5
-// Desc: returns a byte array representing the MD5 of a file
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns a byte array representing the MD5 of a file.
+ *
+ * @param s The path to the file.
+ * @return A QByteArray containing the MD5 hash of the file.
+ */
 QByteArray get_file_md5(const QString &s) {
 
 	QFile file(s);
@@ -1094,17 +1215,21 @@ QByteArray get_file_md5(const QString &s) {
 }
 
 /**
- * @brief
+ * @brief Returns the target of a symbolic link.
+ *
+ * @param s The path to the symbolic link.
+ * @return The path to the target of the symbolic link.
  */
 QString symlink_target(const QString &s) {
 	return QFileInfo(s).symLinkTarget();
 }
 
-//------------------------------------------------------------------------------
-// Name: int_version
-// Desc: returns an integer comparable version of a version string in x.y.z
-//       format, or 0 if error
-//------------------------------------------------------------------------------
+/**
+ * @brief Converts a version string in the format "x.y.z" into a 32-bit unsigned integer representation.
+ *
+ * @param s The version string.
+ * @return The integer representation of the version string.
+ */
 quint32 int_version(const QString &s) {
 
 	quint32 ret            = 0;
@@ -1122,7 +1247,10 @@ quint32 int_version(const QString &s) {
 }
 
 /**
- * @brief
+ * @brief Parses a command line string into a list of arguments.
+ *
+ * @param cmdline The command line string to parse.
+ * @return A QStringList containing the parsed arguments.
  */
 QStringList parse_command_line(const QString &cmdline) {
 
@@ -1241,10 +1369,11 @@ address_t current_data_view_address() {
 	return qobject_cast<QHexView *>(ui()->tabWidget_->currentWidget())->firstVisibleAddress();
 }
 
-//------------------------------------------------------------------------------
-// Name: instruction_pointer_address
-// Desc: Returns the address pointed to by the instruction pointer.
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns the address of the instruction pointer of the current thread in the debugged process.
+ *
+ * @return The address of the instruction pointer, or an empty address_t if the process or thread is not available.
+ */
 address_t instruction_pointer_address() {
 	if (IProcess *process = debugger_core->process()) {
 		if (std::shared_ptr<IThread> thread = process->currentThread()) {
@@ -1258,7 +1387,10 @@ address_t instruction_pointer_address() {
 }
 
 /**
- * @brief
+ * @brief Sets the status message in the status bar.
+ *
+ * @param message The message to display.
+ * @param timeoutMillisecs The timeout for the message in milliseconds.
  */
 void set_status(const QString &message, int timeoutMillisecs) {
 	ui()->ui.statusbar->showMessage(message, timeoutMillisecs);
@@ -1271,6 +1403,9 @@ void set_status(const QString &message, int timeoutMillisecs) {
 	ui()->ui.statusbar->repaint();
 }
 
+/**
+ * @brief Clears the status message in the status bar.
+ */
 void clear_status() {
 	ui()->ui.statusbar->clearMessage();
 	// FIXME: same comment applies as in set_status()
@@ -1279,7 +1414,10 @@ void clear_status() {
 }
 
 /**
- * @brief
+ * @brief Finds a breakpoint at the specified address.
+ *
+ * @param address The address to search for.
+ * @return A shared pointer to the breakpoint, or nullptr if not found.
  */
 std::shared_ptr<IBreakpoint> find_breakpoint(address_t address) {
 	if (debugger_core) {
@@ -1289,7 +1427,10 @@ std::shared_ptr<IBreakpoint> find_breakpoint(address_t address) {
 }
 
 /**
- * @brief
+ * @brief Finds a triggered breakpoint at the specified address.
+ *
+ * @param address The address to search for.
+ * @return A shared pointer to the triggered breakpoint, or nullptr if not found.
  */
 std::shared_ptr<IBreakpoint> find_triggered_breakpoint(address_t address) {
 	if (debugger_core) {
@@ -1345,10 +1486,12 @@ QVector<uint8_t> read_pages(address_t address, size_t page_count) {
 	return {};
 }
 
-//------------------------------------------------------------------------------
-// Name: disassemble_address
-// Desc: will return a QString where isNull is true on failure
-//------------------------------------------------------------------------------
+/**
+ * @brief Disassembles the instruction at the specified address and returns a human-readable string representation of it.
+ *
+ * @param address The address of the instruction to disassemble.
+ * @return A QString containing the disassembled instruction, or an empty QString if disassembly failed.
+ */
 QString disassemble_address(address_t address) {
 	uint8_t buffer[edb::Instruction::MaxSize];
 	if (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
@@ -1361,18 +1504,20 @@ QString disassemble_address(address_t address) {
 	return {};
 }
 
-//------------------------------------------------------------------------------
-// Name: formatter
-// Desc: returns a reference to the global instruction formatter
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns a reference to the global instruction formatter.
+ *
+ * @return A reference to the global instruction formatter.
+ */
 CapstoneEDB::Formatter &formatter() {
 	return g_Formatter;
 }
 
-//------------------------------------------------------------------------------
-// Name: selected_stack_address
-// Desc: returns the address of the selection or (address_t)-1
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns the address of the selected bytes in the stack view, or (address_t)-1 if no selection exists.
+ *
+ * @return The address of the selected bytes in the stack view, or (address_t)-1 if no selection exists.
+ */
 address_t selected_stack_address() {
 
 	if (auto hexview = qobject_cast<QHexView *>(ui()->stackDock_->widget())) {
@@ -1384,10 +1529,11 @@ address_t selected_stack_address() {
 	return address_t(-1);
 }
 
-//------------------------------------------------------------------------------
-// Name: selected_stack_size
-// Desc: returns the size of the selection or 0
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns the size of the selected bytes in the stack view, or 0 if no selection exists.
+ *
+ * @return The size of the selected bytes in the stack view, or 0 if no selection exists.
+ */
 size_t selected_stack_size() {
 	if (auto hexview = qobject_cast<QHexView *>(ui()->stackDock_->widget())) {
 		if (hexview->hasSelectedText()) {
@@ -1398,10 +1544,11 @@ size_t selected_stack_size() {
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name: selected_stack_address
-// Desc: returns the address of the selection or (address_t)-1
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns the address of the selected data in the current widget, or (address_t)-1 if no selection exists.
+ *
+ * @return The address of the selected data in the current widget, or (address_t)-1 if no selection exists.
+ */
 address_t selected_data_address() {
 	if (auto hexview = qobject_cast<QHexView *>(ui()->tabWidget_->currentWidget())) {
 		if (hexview->hasSelectedText()) {
@@ -1412,10 +1559,11 @@ address_t selected_data_address() {
 	return address_t(-1);
 }
 
-//------------------------------------------------------------------------------
-// Name: selected_data_size
-// Desc: returns the size of the selection or 0
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns the size of the selected data in the current widget.
+ *
+ * @return The size of the selected data, or 0 if nothing is selected.
+ */
 size_t selected_data_size() {
 	if (auto hexview = qobject_cast<QHexView *>(ui()->tabWidget_->currentWidget())) {
 		if (hexview->hasSelectedText()) {
@@ -1431,7 +1579,11 @@ size_t selected_data_size() {
 namespace v2 {
 
 /**
- * @brief
+ * @brief Evaluates a given expression and returns the resulting address if successful.
+ *
+ * @param expression The expression to evaluate.
+ * @return An optional containing the evaluated address if successful, or an empty optional if the evaluation failed.
+ * If the evaluation fails, an error message is displayed to the user.
  */
 std::optional<edb::address_t> eval_expression(const QString &expression) {
 
@@ -1447,7 +1599,12 @@ std::optional<edb::address_t> eval_expression(const QString &expression) {
 }
 
 /**
- * @brief
+ * @brief Gets an expression from the user and evaluates it.
+ *
+ * @param title The title of the input dialog.
+ * @param prompt The prompt for the input dialog.
+ * @return An optional containing the evaluated address if successful, or an empty optional
+ * if the user canceled the input dialog or if the evaluation failed.
  */
 std::optional<edb::address_t> get_expression_from_user(const QString &title, const QString &prompt) {
 
@@ -1461,7 +1618,11 @@ std::optional<edb::address_t> get_expression_from_user(const QString &title, con
 }
 
 /**
- * @brief
+ * @brief Formats a sequence of bytes into a human-readable string.
+ *
+ * @param buffer The buffer containing the bytes to format.
+ * @param count The number of bytes to format.
+ * @return A QString containing the formatted bytes.
  */
 QString format_bytes(const void *buffer, size_t count) {
 	QString bytes;

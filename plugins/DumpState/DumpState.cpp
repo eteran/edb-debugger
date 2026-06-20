@@ -28,6 +28,7 @@ namespace {
 
 /**
  * @brief hex_string
+ *
  * @param value
  * @return
  */
@@ -46,6 +47,7 @@ constexpr const char Purple[] = "\x1B[95m";
 
 /**
  * @brief format_register
+ *
  * @param value
  * @return
  */
@@ -64,6 +66,7 @@ std::string format_register(const T &value) {
 
 /**
  * @brief format_segment
+ *
  * @param value
  * @return
  */
@@ -82,6 +85,7 @@ std::string format_segment(const T &value) {
 
 /**
  * @brief format_address
+ *
  * @param value
  * @return
  */
@@ -102,6 +106,7 @@ std::string format_address(const T &value) {
 
 /**
  * @brief DumpState::DumpState
+ *
  * @param parent
  */
 DumpState::DumpState(QObject *parent)
@@ -110,6 +115,7 @@ DumpState::DumpState(QObject *parent)
 
 /**
  * @brief DumpState::menu
+ *
  * @param parent
  * @return
  */
@@ -127,6 +133,7 @@ QMenu *DumpState::menu(QWidget *parent) {
 
 /**
  * @brief DumpState::dumpCode
+ *
  * @param state
  */
 void DumpState::dumpCode(const State &state) {
@@ -155,6 +162,7 @@ void DumpState::dumpCode(const State &state) {
 
 /**
  * @brief DumpState::dumpRegisters
+ *
  * @param state
  */
 void DumpState::dumpRegisters(const State &state) {
@@ -245,6 +253,7 @@ void DumpState::dumpRegisters(const State &state) {
 
 /**
  * @brief DumpState::dumpLines
+ *
  * @param address
  * @param lines
  */
@@ -292,6 +301,7 @@ void DumpState::dumpLines(edb::address_t address, int lines) {
 
 /**
  * @brief DumpState::dumpStack
+ *
  * @param state
  */
 void DumpState::dumpStack(const State &state) {
@@ -300,6 +310,7 @@ void DumpState::dumpStack(const State &state) {
 
 /**
  * @brief DumpState::dumpData
+ *
  * @param address
  */
 void DumpState::dumpData(edb::address_t address) {
@@ -333,6 +344,7 @@ void DumpState::showMenu() {
 
 /**
  * @brief DumpState::optionsPage
+ *
  * @return
  */
 QWidget *DumpState::optionsPage() {

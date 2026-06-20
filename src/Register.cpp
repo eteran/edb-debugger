@@ -16,6 +16,7 @@ Register::Register() {
 
 /**
  * @brief Compares two Register objects for equality.
+ *
  * @param rhs The right-hand side register to compare.
  * @return True if the registers are equal, false otherwise.
  */
@@ -29,6 +30,7 @@ bool Register::operator==(const Register &rhs) const {
 
 /**
  * @brief Formats the register value as a hexadecimal string.
+ *
  * @return The formatted register value.
  */
 QString Register::toHexString() const {
@@ -45,6 +47,7 @@ QString Register::toHexString() const {
 
 /**
  * @brief Compares two Register objects for inequality.
+ *
  * @param rhs The right-hand side register to compare.
  * @return True if the registers are not equal, false otherwise.
  */
@@ -54,6 +57,7 @@ bool Register::operator!=(const Register &rhs) const {
 
 /**
  * @brief Sets the scalar value of the register.
+ *
  * @param newValue The new scalar value to set.
  */
 void Register::setScalarValue(std::uint64_t newValue) {
@@ -65,6 +69,7 @@ void Register::setScalarValue(std::uint64_t newValue) {
 
 /**
  * @brief Returns the value of the register as an address.
+ *
  * @return The value of the register as an address.
  */
 edb::address_t Register::valueAsAddress() const {

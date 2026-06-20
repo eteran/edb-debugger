@@ -11,6 +11,7 @@
 
 /**
  * @brief Constructor for the GraphicsScene class.
+ *
  * @param parent The parent object.
  */
 GraphicsScene::GraphicsScene(QObject *parent)
@@ -19,6 +20,7 @@ GraphicsScene::GraphicsScene(QObject *parent)
 
 /**
  * @brief Constructor for the GraphicsScene class.
+ *
  * @param sceneRect The rectangle of the scene.
  * @param parent The parent object.
  */
@@ -28,6 +30,7 @@ GraphicsScene::GraphicsScene(const QRectF &sceneRect, QObject *parent)
 
 /**
  * @brief Constructor for the GraphicsScene class.
+ *
  * @param x The x-coordinate of the scene.
  * @param y The y-coordinate of the scene.
  * @param width The width of the scene.
@@ -40,6 +43,7 @@ GraphicsScene::GraphicsScene(qreal x, qreal y, qreal width, qreal height, QObjec
 
 /**
  * @brief Handles the help event for the scene.
+ *
  * @param helpEvent The help event.
  */
 void GraphicsScene::helpEvent(QGraphicsSceneHelpEvent *helpEvent) {

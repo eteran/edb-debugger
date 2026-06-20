@@ -34,6 +34,7 @@ namespace {
 
 /**
  * @brief Returns an HTML-escaped copy of the given string.
+ *
  * @param str
  * @return
  */
@@ -43,6 +44,7 @@ QString escape_html(const QString &str) {
 
 /**
  * @brief Loads and returns the XML description for the currently configured assembler helper.
+ *
  * @return
  */
 QDomDocument assembler_description() {
@@ -69,6 +71,7 @@ QDomDocument assembler_description() {
 
 /**
  * @brief Translates operand size keywords in an instruction string to the syntax expected by the active assembler.
+ *
  * @param insn
  * @return
  */
@@ -110,6 +113,7 @@ QString fixup_syntax(QString insn) {
 
 /**
  * @brief Constructs the assembler dialog and configures focus policies on its button widgets.
+ *
  * @param parent
  * @param f
  */
@@ -125,6 +129,7 @@ DialogAssembler::DialogAssembler(QWidget *parent, Qt::WindowFlags f)
 
 /**
  * @brief Sets the target address and pre-fills the assembly input with the current instruction's text.
+ *
  * @param address
  */
 void DialogAssembler::setAddress(edb::address_t address) {
@@ -277,6 +282,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 
 /**
  * @brief Updates the assembler label and focuses the assembly input when the dialog becomes visible.
+ *
  * @param event
  */
 void DialogAssembler::showEvent(QShowEvent *event) {

@@ -9,7 +9,7 @@
 namespace DebuggerCore {
 
 /**
- * @brief
+ * @brief Constructor for PlatformState.
  */
 PlatformState::PlatformState() {
 	memset(&regs_, 0, sizeof(regs_));
@@ -19,18 +19,21 @@ PlatformState::PlatformState() {
 	gs_base = 0;
 }
 
-//------------------------------------------------------------------------------
-// Name: PlatformState::clone
-// Desc: makes a copy of the state object
-//------------------------------------------------------------------------------
+/**
+ * @brief Creates a copy of the PlatformState object.
+ *
+ * @return A unique pointer to the cloned object.
+ */
 std::unique_ptr<IState> PlatformState::clone() const {
 	return std::make_unique<PlatformState>(*this);
 }
 
-//------------------------------------------------------------------------------
-// Name: flags_to_string
-// Desc: returns the flags in a string form appropriate for this platform
-//------------------------------------------------------------------------------
+/**
+ * @brief Converts the flags to a string representation.
+ *
+ * @param flags The flags to convert.
+ * @return The string representation of the flags.
+ */
 QString PlatformState::flags_to_string(edb::reg_t flags) const {
 	char buf[14];
 	qsnprintf(
@@ -48,19 +51,21 @@ QString PlatformState::flags_to_string(edb::reg_t flags) const {
 	return buf;
 }
 
-//------------------------------------------------------------------------------
-// Name: flags_to_string
-// Desc: returns the flags in a string form appropriate for this platform
-//------------------------------------------------------------------------------
+/**
+ * @brief Converts the flags to a string representation.
+ *
+ * @return The string representation of the flags.
+ */
 QString PlatformState::flags_to_string() const {
 	return flags_to_string(flags());
 }
 
-//------------------------------------------------------------------------------
-// Name: value
-// Desc: returns a Register object which represents the register with the name
-//       supplied
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns the value of a register with the specified name.
+ *
+ * @param reg The name of the register.
+ * @return The Register object representing the register.
+ */
 Register PlatformState::value(const QString &reg) const {
 	const QString lreg = reg.toLower();
 
@@ -295,10 +300,11 @@ Register PlatformState::value(const QString &reg) const {
 	return Register();
 }
 
-//------------------------------------------------------------------------------
-// Name: frame_pointer
-// Desc: returns what is conceptually the frame pointer for this platform
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns the frame pointer for this platform
+ *
+ * @return The frame pointer
+ */
 edb::address_t PlatformState::frame_pointer() const {
 #if defined(EDB_X86)
 	return regs_.r_ebp;
@@ -307,10 +313,11 @@ edb::address_t PlatformState::frame_pointer() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: instruction_pointer
-// Desc: returns the instruction pointer for this platform
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns the instruction pointer for this platform
+ *
+ * @return The instruction pointer
+ */
 edb::address_t PlatformState::instruction_pointer() const {
 #if defined(EDB_X86)
 	return regs_.r_eip;
@@ -319,10 +326,11 @@ edb::address_t PlatformState::instruction_pointer() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: stack_pointer
-// Desc: returns the stack pointer for this platform
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns the stack pointer for this platform
+ *
+ * @return The stack pointer
+ */
 edb::address_t PlatformState::stack_pointer() const {
 #if defined(EDB_X86)
 	return regs_.r_esp;
@@ -332,14 +340,19 @@ edb::address_t PlatformState::stack_pointer() const {
 }
 
 /**
- * @brief
+ * @brief Returns the value of a debug register
+ *
+ * @param n The debug register number
+ * @return The value of the debug register
  */
 edb::reg_t PlatformState::debug_register(int n) const {
 	return dr_[n];
 }
 
 /**
- * @brief
+ * @brief Returns the flags register
+ *
+ * @return The flags register
  */
 edb::reg_t PlatformState::flags() const {
 #if defined(EDB_X86)
@@ -350,14 +363,19 @@ edb::reg_t PlatformState::flags() const {
 }
 
 /**
- * @brief
+ * @brief Returns the value of an FPU register
+ *
+ * @param n The FPU register number
+ * @return The value of the FPU register
  */
 long double PlatformState::fpu_register(int n) const {
 	return reinterpret_cast<const long double *>(&fpregs_)[n];
 }
 
 /**
- * @brief
+ * @brief Adjusts the stack pointer
+ *
+ * @param bytes The number of bytes to adjust the stack pointer by
  */
 void PlatformState::adjust_stack(int bytes) {
 #if defined(EDB_X86)
@@ -368,7 +386,7 @@ void PlatformState::adjust_stack(int bytes) {
 }
 
 /**
- * @brief
+ * @brief Clears all register values
  */
 void PlatformState::clear() {
 	memset(&regs_, 0, sizeof(regs_));
@@ -381,14 +399,19 @@ void PlatformState::clear() {
 }
 
 /**
- * @brief
+ * @brief Sets the value of a debug register
+ *
+ * @param n The debug register number
+ * @param value The value to set
  */
 void PlatformState::set_debug_register(int n, edb::reg_t value) {
 	dr_[n] = value;
 }
 
 /**
- * @brief
+ * @brief Sets the flags register
+ *
+ * @param flags The flags to set
  */
 void PlatformState::set_flags(edb::reg_t flags) {
 #if defined(EDB_X86)
@@ -399,7 +422,9 @@ void PlatformState::set_flags(edb::reg_t flags) {
 }
 
 /**
- * @brief
+ * @brief Sets the instruction pointer
+ *
+ * @param value The value to set
  */
 void PlatformState::set_instruction_pointer(edb::address_t value) {
 #if defined(EDB_X86)
@@ -410,7 +435,10 @@ void PlatformState::set_instruction_pointer(edb::address_t value) {
 }
 
 /**
- * @brief
+ * @brief Sets the value of a register
+ *
+ * @param name The register name
+ * @param value The value to set
  */
 void PlatformState::set_register(const QString &name, edb::reg_t value) {
 
@@ -503,7 +531,10 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 }
 
 /**
- * @brief
+ * @brief Returns the value of an MMX register
+ *
+ * @param n The MMX register number
+ * @return The value of the MMX register
  */
 quint64 PlatformState::mmx_register(int n) const {
 	Q_UNUSED(n)
@@ -511,7 +542,10 @@ quint64 PlatformState::mmx_register(int n) const {
 }
 
 /**
- * @brief
+ * @brief Returns the value of an XMM register
+ *
+ * @param n The XMM register number
+ * @return The value of the XMM register
  */
 QByteArray PlatformState::xmm_register(int n) const {
 	Q_UNUSED(n)

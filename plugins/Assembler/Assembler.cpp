@@ -18,6 +18,7 @@ namespace AssemblerPlugin {
 
 /**
  * @brief Constructs the Assembler plugin object.
+ *
  * @param parent
  */
 Assembler::Assembler(QObject *parent)
@@ -33,6 +34,7 @@ Assembler::~Assembler() {
 
 /**
  * @brief Returns the CPU context menu actions contributed by the Assembler plugin.
+ *
  * @return
  */
 QList<QAction *> Assembler::cpuContextMenu() {
@@ -50,6 +52,7 @@ QList<QAction *> Assembler::cpuContextMenu() {
 
 /**
  * @brief Returns nullptr, as the Assembler plugin contributes no top-level menu.
+ *
  * @param parent
  * @return
  */
@@ -78,6 +81,7 @@ void Assembler::showDialog() {
 
 /**
  * @brief Returns the plugin's configuration options widget.
+ *
  * @return
  */
 QWidget *Assembler::optionsPage() {

@@ -11,6 +11,7 @@ namespace util {
 
 /**
  * @brief Calculates the percentage of a multi-region byte search that has been completed.
+ *
  * @param regions_finished The number of regions that have been completed.
  * @param regions_total The total number of regions.
  * @param bytes_done The number of bytes that have been processed in the current region.
@@ -34,6 +35,7 @@ int percentage(N1 regions_finished, N2 regions_total, N3 bytes_done, N4 bytes_to
 
 /**
  * @brief Calculates the percentage of a single-region byte search that has been completed.
+ *
  * @param bytes_done The number of bytes that have been processed.
  * @param bytes_total The total number of bytes in the region.
  * @return The percentage of the search that has been completed.

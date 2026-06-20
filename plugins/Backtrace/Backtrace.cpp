@@ -15,6 +15,7 @@ namespace BacktracePlugin {
 
 /**
  * @brief Constructs the Backtrace plugin object.
+ *
  * @param parent
  */
 Backtrace::Backtrace(QObject *parent)
@@ -30,6 +31,7 @@ Backtrace::~Backtrace() {
 
 /**
  * @brief Creates and returns the Call Stack plugin menu with a backtrace action, building it on first call.
+ *
  * @param parent
  * @return
  */

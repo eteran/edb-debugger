@@ -27,6 +27,7 @@ namespace BinarySearcherPlugin {
 
 /**
  * @brief Constructs the ASCII string search dialog and sets up its Find button.
+ *
  * @param parent
  * @param f
  */
@@ -113,6 +114,7 @@ void DialogAsciiString::doFind() {
 
 /**
  * @brief Focuses the ASCII input field when the dialog becomes visible.
+ *
  * @param event
  */
 void DialogAsciiString::showEvent(QShowEvent *event) {

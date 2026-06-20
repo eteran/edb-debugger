@@ -23,6 +23,7 @@ namespace {
 
 /**
  * @brief Returns the default path for plugins.
+ *
  * @return The default plugin path.
  */
 QString getDefaultPluginPath() {
@@ -42,6 +43,7 @@ QString getDefaultPluginPath() {
 
 /**
  * @brief Constructor for the Configuration class.
+ *
  * @param parent The parent object.
  */
 Configuration::Configuration(QObject *parent)

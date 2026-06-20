@@ -11,6 +11,7 @@ namespace DumpStatePlugin {
 
 /**
  * @brief OptionsPage::OptionsPage
+ *
  * @param parent
  * @param f
  */
@@ -22,6 +23,7 @@ OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
 
 /**
  * @brief OptionsPage::showEvent
+ *
  * @param event
  */
 void OptionsPage::showEvent(QShowEvent *event) {
@@ -35,6 +37,7 @@ void OptionsPage::showEvent(QShowEvent *event) {
 
 /**
  * @brief OptionsPage::on_instructionsBeforeIP_valueChanged
+ *
  * @param i
  */
 void OptionsPage::on_instructionsBeforeIP_valueChanged(int i) {
@@ -44,6 +47,7 @@ void OptionsPage::on_instructionsBeforeIP_valueChanged(int i) {
 
 /**
  * @brief OptionsPage::on_instructionsAfterIP_valueChanged
+ *
  * @param i
  */
 void OptionsPage::on_instructionsAfterIP_valueChanged(int i) {
@@ -53,6 +57,7 @@ void OptionsPage::on_instructionsAfterIP_valueChanged(int i) {
 
 /**
  * @brief OptionsPage::on_colorizeOutput_toggled
+ *
  * @param value
  */
 void OptionsPage::on_colorizeOutput_toggled(bool value) {

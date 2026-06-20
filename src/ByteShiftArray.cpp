@@ -9,6 +9,7 @@
 
 /**
  * @brief Constructor for the ByteShiftArray class.
+ *
  * @param size The maximum size of the array.
  */
 ByteShiftArray::ByteShiftArray(int size)
@@ -17,6 +18,7 @@ ByteShiftArray::ByteShiftArray(int size)
 
 /**
  * @brief Swaps the contents of this array with another array.
+ *
  * @param other The other array to swap with.
  */
 void ByteShiftArray::swap(ByteShiftArray &other) noexcept {
@@ -27,6 +29,7 @@ void ByteShiftArray::swap(ByteShiftArray &other) noexcept {
 
 /**
  * @brief Shifts the data left by one byte, inserting a 0 at the end.
+ *
  * @return A reference to this array.
  */
 ByteShiftArray &ByteShiftArray::shl() {
@@ -42,6 +45,7 @@ ByteShiftArray &ByteShiftArray::shl() {
 
 /**
  * @brief Shifts the data right by one byte and shifts in a 0.
+ *
  * @return A reference to this array.
  */
 ByteShiftArray &ByteShiftArray::shr() {
@@ -56,6 +60,7 @@ ByteShiftArray &ByteShiftArray::shr() {
 
 /**
  * @brief Returns the size of this byte array.
+ *
  * @return The size of the array.
  */
 int ByteShiftArray::size() const {
@@ -64,6 +69,7 @@ int ByteShiftArray::size() const {
 
 /**
  * @brief Returns a reference to the element at the specified index.
+ *
  * @param i The index of the element to return.
  * @return A reference to the element at the specified index.
  */
@@ -74,6 +80,7 @@ uint8_t &ByteShiftArray::operator[](std::size_t i) {
 
 /**
  * @brief Returns the byte at the specified index.
+ *
  * @param i The index of the byte to return.
  * @return The byte at the specified index.
  */
@@ -84,6 +91,7 @@ uint8_t ByteShiftArray::operator[](std::size_t i) const {
 
 /**
  * @brief Returns a pointer to the data this byte array holds.
+ *
  * @return A pointer to the data.
  */
 const uint8_t *ByteShiftArray::data() const {
@@ -99,6 +107,7 @@ void ByteShiftArray::clear() {
 
 /**
  * @brief Shifts the data left by one byte and inserts the specified byte at the end.
+ *
  * @param x The byte to insert at the end.
  * @return A reference to this array.
  */

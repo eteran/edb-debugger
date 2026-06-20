@@ -130,6 +130,7 @@ ELFXX<ElfHeader>::ELFXX(const std::shared_ptr<IRegion> &region)
 template <class ElfHeader>
 /**
  * @brief ELFXX<ElfHeader>::headerSize
+ *
  * @return the number of bytes in this executable's header
  */
 size_t ELFXX<ElfHeader>::headerSize() const {
@@ -143,6 +144,7 @@ size_t ELFXX<ElfHeader>::headerSize() const {
 
 /**
  * @brief ELFXX<ElfHeader>::headers
+ *
  * @return a list of all headers in this binary
  */
 template <class ElfHeader>
@@ -167,6 +169,7 @@ void ELFXX<ElfHeader>::validateHeader() {
 
 /**
  * @brief ELFXX<ElfHeader>::entryPoint
+ *
  * @return the entry point if any of the binary
  */
 template <class ElfHeader>
@@ -176,6 +179,7 @@ edb::address_t ELFXX<ElfHeader>::entryPoint() {
 
 /**
  * @brief ELFXX<ElfHeader>::header
+ *
  * @return a copy of the file header or nullptr if the region wasn't a valid,
  * known binary type
  */

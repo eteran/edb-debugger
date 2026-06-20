@@ -8,6 +8,7 @@
 
 /**
  * @brief Constructor for the DialogInputBinaryString class.
+ *
  * @param parent The parent widget.
  * @param f The window flags.
  */
@@ -19,6 +20,7 @@ DialogInputBinaryString::DialogInputBinaryString(QWidget *parent, Qt::WindowFlag
 
 /**
  * @brief Returns the binary string we wrap around.
+ *
  * @return A pointer to the binary string.
  */
 BinaryString *DialogInputBinaryString::binaryString() const {

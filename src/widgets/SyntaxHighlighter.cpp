@@ -9,6 +9,7 @@
 
 /**
  * @brief Constructs the syntax highlighter and initializes its internal state.
+ *
  * @param parent The parent object for the syntax highlighter.
  */
 SyntaxHighlighter::SyntaxHighlighter(QObject *parent)
@@ -19,6 +20,7 @@ SyntaxHighlighter::SyntaxHighlighter(QObject *parent)
 
 /**
  * @brief Constructs a highlighting rule with the given regex and format.
+ *
  * @param regex The regular expression to match.
  * @param format The text format to apply.
  */
@@ -161,6 +163,7 @@ void SyntaxHighlighter::createRules() {
 
 /**
  * @brief Highlights the given text and returns the formatted ranges.
+ *
  * @param text The text to highlight.
  * @return A vector of formatted ranges.
  */

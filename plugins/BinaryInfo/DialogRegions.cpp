@@ -17,6 +17,7 @@ namespace BinaryInfoPlugin {
 
 /**
  * @brief Constructs the memory regions dialog and sets up its table, search filter, and Explore button.
+ *
  * @param parent
  */
 DialogRegions::DialogRegions(QWidget *parent, Qt::WindowFlags f)

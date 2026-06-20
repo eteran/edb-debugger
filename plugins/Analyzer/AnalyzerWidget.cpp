@@ -28,6 +28,7 @@ namespace AnalyzerPlugin {
 
 /**
  * @brief Constructs the analyzer overview bar widget and connects it to the disassembly scroll view.
+ *
  * @param parent
  * @param f
  */
@@ -56,6 +57,7 @@ AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f)
 
 /**
  * @brief Renders a proportional color-coded map of analyzed functions across the current memory region.
+ *
  * @param event
  */
 void AnalyzerWidget::paintEvent(QPaintEvent *event) {
@@ -139,6 +141,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 
 /**
  * @brief Handles a click on the overview bar by jumping the disassembly view to the corresponding address.
+ *
  * @param event
  */
 void AnalyzerWidget::mousePressEvent(QMouseEvent *event) {
@@ -163,6 +166,7 @@ void AnalyzerWidget::mousePressEvent(QMouseEvent *event) {
 
 /**
  * @brief Clears the mouse-pressed tracking state when the mouse button is released.
+ *
  * @param event
  */
 void AnalyzerWidget::mouseReleaseEvent(QMouseEvent *event) {
@@ -172,6 +176,7 @@ void AnalyzerWidget::mouseReleaseEvent(QMouseEvent *event) {
 
 /**
  * @brief Forwards mouse drag events to mousePressEvent to keep the disassembly view in sync with the cursor.
+ *
  * @param event
  */
 void AnalyzerWidget::mouseMoveEvent(QMouseEvent *event) {

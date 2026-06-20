@@ -11,6 +11,7 @@ namespace BinarySearcherPlugin {
 
 /**
  * @brief Constructs the search results dialog and sets up its UI.
+ *
  * @param parent
  * @param f
  */
@@ -42,6 +43,7 @@ void DialogResults::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
 
 /**
  * @brief Adds a search result entry with the given region type and address to the results list.
+ *
  * @param address
  */
 void DialogResults::addResult(RegionType region, edb::address_t address) {
@@ -53,6 +55,7 @@ void DialogResults::addResult(RegionType region, edb::address_t address) {
 
 /**
  * @brief Returns the total number of results currently shown in the list.
+ *
  * @return
  */
 int DialogResults::resultCount() const {

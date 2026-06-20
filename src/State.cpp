@@ -27,6 +27,7 @@ State::~State() = default;
 
 /**
  * @brief Constructs a new State object as a copy of another.
+ *
  * @param other The State to copy.
  */
 State::State(const State &other)
@@ -35,6 +36,7 @@ State::State(const State &other)
 
 /**
  * @brief Constructs a new State object as a move of another.
+ *
  * @param other The State to move.
  */
 State::State(State &&other) noexcept
@@ -43,6 +45,7 @@ State::State(State &&other) noexcept
 
 /**
  * @brief Swaps the contents of this State with another.
+ *
  * @param other The State to swap with.
  */
 void State::swap(State &other) noexcept {
@@ -52,6 +55,7 @@ void State::swap(State &other) noexcept {
 
 /**
  * @brief Moves the contents of another State to this one.
+ *
  * @param rhs The State to move.
  * @return A reference to this State.
  */
@@ -64,6 +68,7 @@ State &State::operator=(State &&rhs) noexcept {
 
 /**
  * @brief Copies the contents of another State to this one.
+ *
  * @param rhs The State to copy.
  * @return A reference to this State.
  */
@@ -85,6 +90,7 @@ void State::clear() {
 
 /**
  * @brief Checks if the state is empty.
+ *
  * @return true if the state is empty, false otherwise.
  */
 bool State::empty() const {
@@ -96,6 +102,7 @@ bool State::empty() const {
 
 /**
  * @brief Returns the instruction pointer register.
+ *
  * @return The instruction pointer register.
  */
 Register State::instructionPointerRegister() const {
@@ -107,6 +114,7 @@ Register State::instructionPointerRegister() const {
 
 /**
  * @brief Returns the instruction pointer.
+ *
  * @return The instruction pointer.
  * @note This is often more efficient than reading the whole context and fetching the instruction pointer from it.
  */
@@ -119,6 +127,7 @@ edb::address_t State::instructionPointer() const {
 
 /**
  * @brief Returns the stack pointer.
+ *
  * @return The stack pointer.
  * @note This is often more efficient than reading the whole context and fetching the stack pointer from it.
  */
@@ -131,6 +140,7 @@ edb::address_t State::stackPointer() const {
 
 /**
  * @brief Returns the frame pointer.
+ *
  * @return The frame pointer.
  * @note This is often more efficient than reading the whole context and fetching the frame pointer from it.
  */
@@ -143,6 +153,7 @@ edb::address_t State::framePointer() const {
 
 /**
  * @brief Returns the flags register.
+ *
  * @return The flags register.
  */
 Register State::flagsRegister() const {
@@ -154,6 +165,7 @@ Register State::flagsRegister() const {
 
 /**
  * @brief Returns the flags.
+ *
  * @return The flags.
  */
 edb::reg_t State::flags() const {
@@ -165,6 +177,7 @@ edb::reg_t State::flags() const {
 
 /**
  * @brief Returns the value of a register based on its name.
+ *
  * @param reg The name of the register.
  * @return The value of the register.
  */
@@ -177,6 +190,7 @@ Register State::value(const QString &reg) const {
 
 /**
  * @brief Returns the value of a register based on its name.
+ *
  * @param reg The name of the register.
  * @return The value of the register.
  */
@@ -189,6 +203,7 @@ Register State::operator[](const QString &reg) const {
 
 /**
  * @brief Sets the value of a register.
+ *
  * @param reg The register to set.
  */
 void State::setRegister(const Register &reg) {
@@ -199,6 +214,7 @@ void State::setRegister(const Register &reg) {
 
 /**
  * @brief Sets the value of a register.
+ *
  * @param name The name of the register.
  * @param value The value to set.
  */
@@ -210,6 +226,7 @@ void State::setRegister(const QString &name, edb::reg_t value) {
 
 /**
  * @brief Adjusts the stack pointer.
+ *
  * @param bytes The number of bytes to adjust the stack by.
  */
 void State::adjustStack(int bytes) {
@@ -220,6 +237,7 @@ void State::adjustStack(int bytes) {
 
 /**
  * @brief Sets the instruction pointer.
+ *
  * @param value The value to set the instruction pointer to.
  */
 void State::setInstructionPointer(edb::address_t value) {
@@ -230,6 +248,7 @@ void State::setInstructionPointer(edb::address_t value) {
 
 /**
  * @brief Formats the flags as a string.
+ *
  * @return The formatted flags.
  */
 QString State::flagsToString() const {
@@ -241,6 +260,7 @@ QString State::flagsToString() const {
 
 /**
  * @brief Formats the flags as a string.
+ *
  * @param flags The flags to format.
  * @return The formatted flags.
  */
@@ -253,6 +273,7 @@ QString State::flagsToString(edb::reg_t flags) const {
 
 /**
  * @brief Sets the flags.
+ *
  * @param flags The flags to set.
  */
 void State::setFlags(edb::reg_t flags) {
@@ -263,6 +284,7 @@ void State::setFlags(edb::reg_t flags) {
 
 /**
  * @brief Returns the value of a debug register.
+ *
  * @param n The index of the debug register.
  * @return The value of the debug register.
  */
@@ -275,6 +297,7 @@ edb::reg_t State::debugRegister(size_t n) const {
 
 /**
  * @brief Sets the value of a debug register.
+ *
  * @param n The index of the debug register.
  * @param value The value to set.
  */
@@ -286,6 +309,7 @@ void State::setDebugRegister(size_t n, edb::reg_t value) {
 
 /**
  * @brief Returns the value of an architecture specific register.
+ *
  * @param type The type of the architecture register.
  * @param n The index of the architecture register.
  * @return The value of the architecture register.
@@ -300,6 +324,7 @@ Register State::archRegister(uint64_t type, size_t n) const {
 #if defined(EDB_X86) || defined(EDB_X86_64)
 /**
  * @brief Returns the value of the FPU stack pointer.
+ *
  * @return The value of the FPU stack pointer.
  */
 int State::fpuStackPointer() const {
@@ -311,6 +336,7 @@ int State::fpuStackPointer() const {
 
 /**
  * @brief Returns the value of an FPU register.
+ *
  * @param n The index of the FPU register.
  * @return The value of the FPU register.
  */
@@ -323,6 +349,7 @@ edb::value80 State::fpuRegister(size_t n) const {
 
 /**
  * @brief Returns whether an FPU register is empty.
+ *
  * @param n The index of the FPU register.
  * @return True if the FPU register is empty, false otherwise.
  */
@@ -335,6 +362,7 @@ bool State::fpuRegisterIsEmpty(std::size_t n) const {
 
 /**
  * @brief Returns the FPU status word.
+ *
  * @return The FPU status word.
  */
 edb::value16 State::fpuStatusWord() const {
@@ -346,6 +374,7 @@ edb::value16 State::fpuStatusWord() const {
 
 /**
  * @brief Returns the FPU control word.
+ *
  * @return The FPU control word.
  */
 edb::value16 State::fpuControlWord() const {
@@ -357,6 +386,7 @@ edb::value16 State::fpuControlWord() const {
 
 /**
  * @brief Returns the FPU tag word.
+ *
  * @return The FPU tag word.
  */
 edb::value16 State::fpuTagWord() const {
@@ -368,6 +398,7 @@ edb::value16 State::fpuTagWord() const {
 
 /**
  * @brief Returns the tag string for an FPU register.
+ *
  * @param n The index of the FPU register.
  * @return The tag string for the FPU register.
  */
@@ -381,6 +412,7 @@ QString State::fpuRegisterTagString(std::size_t n) const {
 
 /**
  * @brief Returns the value of a general purpose register.
+ *
  * @param n The index of the general purpose register.
  * @return The value of the general purpose register.
  */

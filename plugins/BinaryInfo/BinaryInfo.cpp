@@ -24,6 +24,7 @@ namespace BinaryInfoPlugin {
 
 /**
  * @brief Constructs the BinaryInfo plugin object.
+ *
  * @param parent
  */
 BinaryInfo::BinaryInfo(QObject *parent)
@@ -52,6 +53,7 @@ void BinaryInfo::privateInit() {
 
 /**
  * @brief Returns the plugin's configuration options widget.
+ *
  * @return
  */
 QWidget *BinaryInfo::optionsPage() {
@@ -60,6 +62,7 @@ QWidget *BinaryInfo::optionsPage() {
 
 /**
  * @brief Creates and returns the Binary Info plugin menu, building it on first call.
+ *
  * @param parent
  * @return
  */
@@ -85,6 +88,7 @@ void BinaryInfo::exploreHeader() {
 
 /**
  * @brief Returns the extra command-line argument description string for the --symbols option.
+ *
  * @return
  */
 QString BinaryInfo::extraArguments() const {
@@ -93,6 +97,7 @@ QString BinaryInfo::extraArguments() const {
 
 /**
  * @brief Handles the --symbols command-line argument to generate symbol files, returning ARG_EXIT if processed.
+ *
  * @param args
  * @return
  */
@@ -108,6 +113,7 @@ IPlugin::ArgumentStatus BinaryInfo::parseArguments(QStringList &args) {
 
 /**
  * @brief Generates a symbol file for the given binary and writes it to the specified output path.
+ *
  * @param filename
  * @param symbol_file
  * @return

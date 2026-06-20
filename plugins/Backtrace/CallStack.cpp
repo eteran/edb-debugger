@@ -107,6 +107,7 @@ CallStack::StackFrame *CallStack::operator[](size_t index) {
 
 /**
  * @brief Returns the number of frames captured in the call stack.
+ *
  * @return the number of frames in the call stack.
  */
 size_t CallStack::size() const {
@@ -115,6 +116,7 @@ size_t CallStack::size() const {
 
 /**
  * @brief Returns a pointer to the topmost (most recent) stack frame, or nullptr if the stack is empty.
+ *
  * @return a pointer to the frame at the top of the call stack or nullptr
  * if there are no frames on the stack
  */
@@ -128,6 +130,7 @@ CallStack::StackFrame *CallStack::top() {
 
 /**
  * @brief Returns a pointer to the bottommost (oldest) stack frame, or nullptr if the stack is empty.
+ *
  * @return a pointer to the frame at the bottom of the call stack or nullptr
  * if there are no frames on the stack
  */

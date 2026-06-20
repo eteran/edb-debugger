@@ -11,6 +11,7 @@ namespace DebuggerCorePlugin {
 
 /**
  * @brief PlatformEvent::clone
+ *
  * @return
  */
 PlatformEvent *PlatformEvent::clone() const {
@@ -19,6 +20,7 @@ PlatformEvent *PlatformEvent::clone() const {
 
 /**
  * @brief PlatformEvent::errorDescription
+ *
  * @return
  */
 IDebugEvent::Message PlatformEvent::errorDescription() const {
@@ -166,6 +168,7 @@ IDebugEvent::Message PlatformEvent::errorDescription() const {
 
 /**
  * @brief PlatformEvent::reason
+ *
  * @return
  */
 IDebugEvent::REASON PlatformEvent::reason() const {
@@ -194,6 +197,7 @@ IDebugEvent::REASON PlatformEvent::reason() const {
 
 /**
  * @brief PlatformEvent::trapReason
+ *
  * @return
  */
 IDebugEvent::TRAP_REASON PlatformEvent::trapReason() const {
@@ -211,6 +215,7 @@ IDebugEvent::TRAP_REASON PlatformEvent::trapReason() const {
 
 /**
  * @brief PlatformEvent::exited
+ *
  * @return
  */
 bool PlatformEvent::exited() const {
@@ -219,6 +224,7 @@ bool PlatformEvent::exited() const {
 
 /**
  * @brief PlatformEvent::isError
+ *
  * @return
  */
 bool PlatformEvent::isError() const {
@@ -265,6 +271,7 @@ bool PlatformEvent::isError() const {
 
 /**
  * @brief PlatformEvent::isKill
+ *
  * @return
  */
 bool PlatformEvent::isKill() const {
@@ -273,6 +280,7 @@ bool PlatformEvent::isKill() const {
 
 /**
  * @brief PlatformEvent::isStop
+ *
  * @return
  */
 bool PlatformEvent::isStop() const {
@@ -281,6 +289,7 @@ bool PlatformEvent::isStop() const {
 
 /**
  * @brief PlatformEvent::isTrap
+ *
  * @return
  */
 bool PlatformEvent::isTrap() const {
@@ -298,6 +307,7 @@ bool PlatformEvent::isTrap() const {
 
 /**
  * @brief PlatformEvent::terminated
+ *
  * @return
  */
 bool PlatformEvent::terminated() const {
@@ -306,6 +316,7 @@ bool PlatformEvent::terminated() const {
 
 /**
  * @brief PlatformEvent::stopped
+ *
  * @return
  */
 bool PlatformEvent::stopped() const {
@@ -314,6 +325,7 @@ bool PlatformEvent::stopped() const {
 
 /**
  * @brief PlatformEvent::process
+ *
  * @return
  */
 edb::pid_t PlatformEvent::process() const {
@@ -322,6 +334,7 @@ edb::pid_t PlatformEvent::process() const {
 
 /**
  * @brief PlatformEvent::thread
+ *
  * @return
  */
 edb::tid_t PlatformEvent::thread() const {
@@ -330,6 +343,7 @@ edb::tid_t PlatformEvent::thread() const {
 
 /**
  * @brief PlatformEvent::code
+ *
  * @return
  */
 int64_t PlatformEvent::code() const {

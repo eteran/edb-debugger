@@ -12,6 +12,7 @@
 
 /**
  * @brief BasicBlock::swap
+ *
  * @param other
  */
 void BasicBlock::swap(BasicBlock &other) noexcept {
@@ -22,6 +23,7 @@ void BasicBlock::swap(BasicBlock &other) noexcept {
 
 /**
  * @brief BasicBlock::push_back
+ *
  * @param inst
  */
 void BasicBlock::push_back(const instruction_pointer &inst) {
@@ -30,6 +32,7 @@ void BasicBlock::push_back(const instruction_pointer &inst) {
 
 /**
  * @brief BasicBlock::begin
+ *
  * @return
  */
 BasicBlock::const_iterator BasicBlock::begin() const {
@@ -38,6 +41,7 @@ BasicBlock::const_iterator BasicBlock::begin() const {
 
 /**
  * @brief BasicBlock::end
+ *
  * @return
  */
 BasicBlock::const_iterator BasicBlock::end() const {
@@ -46,6 +50,7 @@ BasicBlock::const_iterator BasicBlock::end() const {
 
 /**
  * @brief BasicBlock::begin
+ *
  * @return
  */
 BasicBlock::iterator BasicBlock::begin() {
@@ -54,6 +59,7 @@ BasicBlock::iterator BasicBlock::begin() {
 
 /**
  * @brief BasicBlock::end
+ *
  * @return
  */
 BasicBlock::iterator BasicBlock::end() {
@@ -62,6 +68,7 @@ BasicBlock::iterator BasicBlock::end() {
 
 /**
  * @brief BasicBlock::rbegin
+ *
  * @return
  */
 BasicBlock::const_reverse_iterator BasicBlock::rbegin() const {
@@ -70,6 +77,7 @@ BasicBlock::const_reverse_iterator BasicBlock::rbegin() const {
 
 /**
  * @brief BasicBlock::rend
+ *
  * @return
  */
 BasicBlock::const_reverse_iterator BasicBlock::rend() const {
@@ -78,6 +86,7 @@ BasicBlock::const_reverse_iterator BasicBlock::rend() const {
 
 /**
  * @brief BasicBlock::rbegin
+ *
  * @return
  */
 BasicBlock::reverse_iterator BasicBlock::rbegin() {
@@ -86,6 +95,7 @@ BasicBlock::reverse_iterator BasicBlock::rbegin() {
 
 /**
  * @brief BasicBlock::rend
+ *
  * @return
  */
 BasicBlock::reverse_iterator BasicBlock::rend() {
@@ -94,6 +104,7 @@ BasicBlock::reverse_iterator BasicBlock::rend() {
 
 /**
  * @brief BasicBlock::size
+ *
  * @return
  */
 BasicBlock::size_type BasicBlock::size() const {
@@ -102,6 +113,7 @@ BasicBlock::size_type BasicBlock::size() const {
 
 /**
  * @brief BasicBlock::empty
+ *
  * @return
  */
 bool BasicBlock::empty() const {
@@ -110,6 +122,7 @@ bool BasicBlock::empty() const {
 
 /**
  * @brief BasicBlock::operator []
+ *
  * @param pos
  * @return
  */
@@ -120,6 +133,7 @@ BasicBlock::reference BasicBlock::operator[](size_type pos) {
 
 /**
  * @brief BasicBlock::operator []
+ *
  * @param pos
  * @return
  */
@@ -130,6 +144,7 @@ BasicBlock::const_reference BasicBlock::operator[](size_type pos) const {
 
 /**
  * @brief BasicBlock::front
+ *
  * @return
  */
 BasicBlock::reference BasicBlock::front() {
@@ -139,6 +154,7 @@ BasicBlock::reference BasicBlock::front() {
 
 /**
  * @brief BasicBlock::front
+ *
  * @return
  */
 BasicBlock::const_reference BasicBlock::front() const {
@@ -148,6 +164,7 @@ BasicBlock::const_reference BasicBlock::front() const {
 
 /**
  * @brief BasicBlock::back
+ *
  * @return
  */
 BasicBlock::reference BasicBlock::back() {
@@ -157,6 +174,7 @@ BasicBlock::reference BasicBlock::back() {
 
 /**
  * @brief BasicBlock::back
+ *
  * @return
  */
 BasicBlock::const_reference BasicBlock::back() const {
@@ -166,6 +184,7 @@ BasicBlock::const_reference BasicBlock::back() const {
 
 /**
  * @brief BasicBlock::byteSize
+ *
  * @return
  */
 BasicBlock::size_type BasicBlock::byteSize() const {
@@ -178,6 +197,7 @@ BasicBlock::size_type BasicBlock::byteSize() const {
 
 /**
  * @brief BasicBlock::firstAddress
+ *
  * @return
  */
 edb::address_t BasicBlock::firstAddress() const {
@@ -187,6 +207,7 @@ edb::address_t BasicBlock::firstAddress() const {
 
 /**
  * @brief BasicBlock::lastAddress
+ *
  * @return
  */
 edb::address_t BasicBlock::lastAddress() const {
@@ -196,6 +217,7 @@ edb::address_t BasicBlock::lastAddress() const {
 
 /**
  * @brief BasicBlock::toString
+ *
  * @return
  */
 QString BasicBlock::toString() const {
@@ -211,6 +233,7 @@ QString BasicBlock::toString() const {
 
 /**
  * @brief BasicBlock::addReference
+ *
  * @param refsite
  * @param target
  */
@@ -220,6 +243,7 @@ void BasicBlock::addReference(edb::address_t refsite, edb::address_t target) {
 
 /**
  * @brief BasicBlock::references
+ *
  * @return
  */
 std::vector<std::pair<edb::address_t, edb::address_t>> BasicBlock::references() const {
@@ -228,6 +252,7 @@ std::vector<std::pair<edb::address_t, edb::address_t>> BasicBlock::references() 
 
 /**
  * @brief BasicBlock::references
+ *
  * @return
  */
 std::pair<BasicBlock, BasicBlock> BasicBlock::splitBlock(const instruction_pointer &inst) {

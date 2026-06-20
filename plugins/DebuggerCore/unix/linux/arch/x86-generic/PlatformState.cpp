@@ -776,6 +776,7 @@ PlatformState::PlatformState() {
  * makes a copy of the state object
  *
  * @brief PlatformState::clone
+ *
  * @return
  */
 std::unique_ptr<IState> PlatformState::clone() const {
@@ -784,6 +785,7 @@ std::unique_ptr<IState> PlatformState::clone() const {
 
 /**
  * @brief PlatformState::flagsToString
+ *
  * @param flags
  * @return the flags in a string form appropriate for this platform
  */
@@ -804,6 +806,7 @@ QString PlatformState::flagsToString(edb::reg_t flags) const {
 
 /**
  * @brief PlatformState::flagsToString
+ *
  * @return the flags in a string form appropriate for this platform
  */
 QString PlatformState::flagsToString() const {
@@ -812,6 +815,7 @@ QString PlatformState::flagsToString() const {
 
 /**
  * @brief findRegisterValue
+ *
  * @param names
  * @param regs
  * @param regName
@@ -835,6 +839,7 @@ Register findRegisterValue(const Names &names, const Regs &regs, const QString &
 
 /**
  * @brief PlatformState::value
+ *
  * @param reg
  * @return a Register object which represents the register with the name supplied
  */
@@ -1042,6 +1047,7 @@ Register PlatformState::value(const QString &reg) const {
 
 /**
  * @brief PlatformState::instructionPointerRegister
+ *
  * @return
  */
 Register PlatformState::instructionPointerRegister() const {
@@ -1059,6 +1065,7 @@ Register PlatformState::instructionPointerRegister() const {
 
 /**
  * @brief PlatformState::framePointer
+ *
  * @return what is conceptually the frame pointer for this platform
  */
 edb::address_t PlatformState::framePointer() const {
@@ -1067,6 +1074,7 @@ edb::address_t PlatformState::framePointer() const {
 
 /**
  * @brief PlatformState::instructionPointer
+ *
  * @return the instruction pointer for this platform
  */
 edb::address_t PlatformState::instructionPointer() const {
@@ -1075,6 +1083,7 @@ edb::address_t PlatformState::instructionPointer() const {
 
 /**
  * @brief PlatformState::stackPointer
+ *
  * @return stack pointer for this platform
  */
 edb::address_t PlatformState::stackPointer() const {
@@ -1083,6 +1092,7 @@ edb::address_t PlatformState::stackPointer() const {
 
 /**
  * @brief PlatformState::debugRegister
+ *
  * @param n
  * @return
  */
@@ -1093,6 +1103,7 @@ edb::reg_t PlatformState::debugRegister(size_t n) const {
 
 /**
  * @brief PlatformState::flagsRegister
+ *
  * @return
  */
 Register PlatformState::flagsRegister() const {
@@ -1109,6 +1120,7 @@ Register PlatformState::flagsRegister() const {
 
 /**
  * @brief PlatformState::flags
+ *
  * @return
  */
 edb::reg_t PlatformState::flags() const {
@@ -1117,6 +1129,7 @@ edb::reg_t PlatformState::flags() const {
 
 /**
  * @brief PlatformState::fpuStackPointer
+ *
  * @return
  */
 int PlatformState::fpuStackPointer() const {
@@ -1125,6 +1138,7 @@ int PlatformState::fpuStackPointer() const {
 
 /**
  * @brief PlatformState::fpuRegister
+ *
  * @param n
  * @return
  */
@@ -1146,6 +1160,7 @@ edb::value80 PlatformState::fpuRegister(size_t n) const {
 
 /**
  * @brief PlatformState::fpuRegisterIsEmpty
+ *
  * @param n
  * @return true if Rn register is empty when treated in terms of FPU stack
  */
@@ -1155,6 +1170,7 @@ bool PlatformState::fpuRegisterIsEmpty(size_t n) const {
 
 /**
  * @brief PlatformState::fpuRegisterTagString
+ *
  * @param n
  * @return
  */
@@ -1172,6 +1188,7 @@ QString PlatformState::fpuRegisterTagString(size_t n) const {
 
 /**
  * @brief PlatformState::fpuControlWord
+ *
  * @return
  */
 edb::value16 PlatformState::fpuControlWord() const {
@@ -1180,6 +1197,7 @@ edb::value16 PlatformState::fpuControlWord() const {
 
 /**
  * @brief PlatformState::fpuStatusWord
+ *
  * @return
  */
 edb::value16 PlatformState::fpuStatusWord() const {
@@ -1188,6 +1206,7 @@ edb::value16 PlatformState::fpuStatusWord() const {
 
 /**
  * @brief PlatformState::fpuTagWord
+ *
  * @return
  */
 edb::value16 PlatformState::fpuTagWord() const {
@@ -1196,6 +1215,7 @@ edb::value16 PlatformState::fpuTagWord() const {
 
 /**
  * @brief PlatformState::adjustStack
+ *
  * @param bytes
  */
 void PlatformState::adjustStack(int bytes) {
@@ -1213,6 +1233,7 @@ void PlatformState::clear() {
 
 /**
  * @brief PlatformState::empty
+ *
  * @return
  */
 bool PlatformState::empty() const {
@@ -1221,6 +1242,7 @@ bool PlatformState::empty() const {
 
 /**
  * @brief PlatformState::setDebugRegister
+ *
  * @param n
  * @param value
  */
@@ -1231,6 +1253,7 @@ void PlatformState::setDebugRegister(size_t n, edb::reg_t value) {
 
 /**
  * @brief PlatformState::setFlags
+ *
  * @param flags
  */
 void PlatformState::setFlags(edb::reg_t flags) {
@@ -1238,6 +1261,7 @@ void PlatformState::setFlags(edb::reg_t flags) {
 }
 /**
  * @brief PlatformState::setInstructionPointer
+ *
  * @param value
  */
 void PlatformState::setInstructionPointer(edb::address_t value) {
@@ -1247,6 +1271,7 @@ void PlatformState::setInstructionPointer(edb::address_t value) {
 
 /**
  * @brief PlatformState::gpRegister
+ *
  * @param n
  * @return
  */
@@ -1267,6 +1292,7 @@ Register PlatformState::gpRegister(size_t n) const {
 
 /**
  * @brief PlatformState::setRegister
+ *
  * @param reg
  */
 void PlatformState::setRegister(const Register &reg) {
@@ -1426,6 +1452,7 @@ void PlatformState::setRegister(const Register &reg) {
 
 /**
  * @brief PlatformState::setRegister
+ *
  * @param name
  * @param value
  */
@@ -1437,6 +1464,7 @@ void PlatformState::setRegister(const QString &name, edb::reg_t value) {
 
 /**
  * @brief PlatformState::archRegister
+ *
  * @param type
  * @param n
  * @return
@@ -1457,6 +1485,7 @@ Register PlatformState::archRegister(uint64_t type, size_t n) const {
 
 /**
  * @brief PlatformState::mmx_register
+ *
  * @param n
  * @return
  */
@@ -1471,6 +1500,7 @@ Register PlatformState::mmx_register(size_t n) const {
 
 /**
  * @brief PlatformState::xmm_register
+ *
  * @param n
  * @return
  */
@@ -1489,6 +1519,7 @@ Register PlatformState::xmm_register(size_t n) const {
 
 /**
  * @brief PlatformState::ymm_register
+ *
  * @param n
  * @return
  */

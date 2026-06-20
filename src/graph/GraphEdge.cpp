@@ -20,6 +20,7 @@ constexpr int EdgeZValue    = 1;
 /**
  * @brief
  * @brief Creates an arrow head for the edge.
+ *
  * @param line The line to create the arrow for.
  * @param size The size of the arrow.
  * @return The created arrow polygon.
@@ -44,6 +45,7 @@ QPolygonF create_arrow(QLineF line, int size) {
 
 /**
  * @brief Constructor for the GraphEdge class.
+ *
  * @param from The node the edge starts from.
  * @param to The node the edge points to.
  * @param color The color of the edge.
@@ -81,6 +83,7 @@ GraphEdge::~GraphEdge() {
 /**
  * @brief
  * @brief Gets the node the edge starts from.
+ *
  * @return The node the edge starts from.
  */
 GraphNode *GraphEdge::from() const {
@@ -89,6 +92,7 @@ GraphNode *GraphEdge::from() const {
 
 /**
  * @brief Gets the node the edge points to.
+ *
  * @return The node the edge points to.
  */
 GraphNode *GraphEdge::to() const {
@@ -105,6 +109,7 @@ void GraphEdge::clear() {
 
 /**
  * @brief Shortens the line to the node.
+ *
  * @param line The line to shorten.
  * @return The shortened line.
  */
@@ -133,6 +138,7 @@ QLineF GraphEdge::shortenLineToNode(QLineF line) {
 
 /**
  * @brief Creates a line segment for the edge.
+ *
  * @param line The line to create the segment for.
  * @param pen The pen to use for the line.
  * @return The created line item.
@@ -147,6 +153,7 @@ QGraphicsLineItem *GraphEdge::createLineSegment(const QLineF &line, const QPen &
 
 /**
  * @brief Creates a line segment for the edge.
+ *
  * @param p1 The start point of the line.
  * @param p2 The end point of the line.
  * @param pen The pen to use for the line.
@@ -180,6 +187,7 @@ void GraphEdge::syncState() {
 
 /**
  * @brief Adds an arrow head to the edge.
+ *
  * @param line The line to add the arrow head to.
  * @param lineThickness The thickness of the line.
  * @param color The color of the arrow head.
@@ -202,6 +210,7 @@ QGraphicsPolygonItem *GraphEdge::addArrowHead(const QLineF &line, int lineThickn
 
 /**
  * @brief Adds an arrow head to the edge.
+ *
  * @param line The line to add the arrow head to.
  * @return The arrow head item.
  */
@@ -221,6 +230,7 @@ void GraphEdge::updateLines() {
 
 /**
  * @brief Gets the thickness of the line.
+ *
  * @return The line thickness.
  */
 int GraphEdge::lineThickness() const {
@@ -229,6 +239,7 @@ int GraphEdge::lineThickness() const {
 
 /**
  * @brief Gets the color of the line.
+ *
  * @return The line color.
  */
 QColor GraphEdge::lineColor() const {

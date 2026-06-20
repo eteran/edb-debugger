@@ -49,6 +49,7 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::addBreakpoint(edb::address_t addr
 
 /**
  * @brief Returns the breakpoint at the given address, or an empty shared_ptr if none exists.
+ *
  * @param address
  * @return the breakpoint at the given address or std::shared_ptr<IBreakpoint>()
  */
@@ -136,6 +137,7 @@ DebuggerCoreBase::BreakpointList DebuggerCoreBase::backupBreakpoints() const {
 
 /**
  * @brief Returns true if a process is currently attached for debugging.
+ *
  * @return
  */
 bool DebuggerCoreBase::attached() const {
@@ -144,6 +146,7 @@ bool DebuggerCoreBase::attached() const {
 
 /**
  * @brief Returns the list of all software breakpoint types supported on x86/x86-64.
+ *
  * @return
  */
 std::vector<IBreakpoint::BreakpointType> DebuggerCoreBase::supportedBreakpointTypes() const {

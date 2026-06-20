@@ -62,6 +62,7 @@ namespace DebuggerCorePlugin {
 
 /**
  * @brief Fills the state from a PR_STATUS ptrace structure (currently a no-op stub for ARM).
+ *
  * @param state
  * @return
  */
@@ -72,6 +73,7 @@ bool PlatformThread::fillStateFromPrStatus(PlatformState *state) {
 
 /**
  * @brief Fills the state by reading the general-purpose registers via PTRACE_GETREGS.
+ *
  * @param state
  * @return
  */
@@ -90,6 +92,7 @@ bool PlatformThread::fillStateFromSimpleRegs(PlatformState *state) {
 
 /**
  * @brief Fills the state with VFP floating-point registers via PTRACE_GETVFPREGS.
+ *
  * @param state
  * @return
  */
@@ -108,6 +111,7 @@ bool PlatformThread::fillStateFromVFPRegs(PlatformState *state) {
 
 /**
  * @brief Reads the full CPU and VFP register state for this thread into the provided State object.
+ *
  * @param state
  */
 void PlatformThread::getState(State *state) {
@@ -124,6 +128,7 @@ void PlatformThread::getState(State *state) {
 
 /**
  * @brief Writes the CPU and VFP register state back into the thread via ptrace.
+ *
  * @param state
  */
 void PlatformThread::setState(const State &state) {
@@ -148,6 +153,7 @@ void PlatformThread::setState(const State &state) {
 
 /**
  * @brief Returns the value of hardware debug register n (currently a stub).
+ *
  * @param n
  * @return
  */
@@ -157,6 +163,7 @@ unsigned long PlatformThread::getDebugRegister(std::size_t n) {
 
 /**
  * @brief Sets hardware debug register n to the given value (currently a stub).
+ *
  * @param n
  * @param value
  * @return
@@ -167,6 +174,7 @@ long PlatformThread::setDebugRegister(std::size_t n, long value) {
 
 /**
  * @brief Returns the current instruction pointer of this thread (currently a stub).
+ *
  * @return
  */
 edb::address_t PlatformThread::instructionPointer() const {
@@ -175,6 +183,7 @@ edb::address_t PlatformThread::instructionPointer() const {
 
 /**
  * @brief Implements single-step for the given TID by injecting a breakpoint at the next instruction.
+ *
  * @param tid
  * @param status
  * @return

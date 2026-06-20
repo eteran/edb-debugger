@@ -17,6 +17,7 @@ namespace {
 
 /**
  * @brief Returns the directory where themes are stored.
+ *
  * @return The path to the theme directory.
  */
 QString themeDirectory() {
@@ -26,6 +27,7 @@ QString themeDirectory() {
 
 /**
  * @brief Reads a color from the settings.
+ *
  * @param settings The settings object to read from.
  * @param name The name of the color to read.
  * @param defaultValue The default value to return if the color is not found.
@@ -45,6 +47,7 @@ QColor readColor(QSettings &settings, const QString &name, const QColor &default
 
 /**
  * @brief Reads a text character format from the settings.
+ *
  * @param settings The settings object to read from.
  * @param name The name of the format to read.
  * @param defaultValue The default value to return if the format is not found.
@@ -63,6 +66,7 @@ QTextCharFormat readFormat(QSettings &settings, const QString &name, const QText
 
 /**
  * @brief Reads the theme from the settings.
+ *
  * @param settings The settings object to read from.
  * @param baseTheme The base theme to use as a fallback.
  * @return The theme read from the settings or the base theme if not found.
@@ -146,6 +150,7 @@ Theme readTheme(QSettings &settings, const Theme &baseTheme = Theme()) {
 
 /**
  * @brief Reads the system theme based on the current application palette.
+ *
  * @return The system theme.
  */
 Theme readSystemTheme() {
@@ -160,6 +165,7 @@ Theme readSystemTheme() {
 
 /**
  * @brief Reads the theme from the settings.
+ *
  * @return The theme read from the settings.
  */
 Theme readTheme() {
@@ -195,6 +201,7 @@ Theme readTheme() {
 
 /**
  * @brief Loads the theme from the settings.
+ *
  * @return The loaded theme.
  */
 Theme Theme::load() {
@@ -207,6 +214,7 @@ Theme Theme::load() {
 
 /**
  * @brief Returns a list of all user-defined themes.
+ *
  * @return A list of all user-defined themes.
  */
 QStringList Theme::userThemes() {
@@ -216,6 +224,7 @@ QStringList Theme::userThemes() {
 
 /**
  * @brief Returns the name of a theme file.
+ *
  * @param theme_file The theme file to get the name of.
  * @return The name of the theme.
  */

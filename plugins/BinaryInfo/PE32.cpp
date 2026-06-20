@@ -24,6 +24,7 @@ const char *PEBinaryException::what() const noexcept {
 
 /**
  * @brief Constructs a PE32 object by reading and validating the DOS and PE headers from the given memory region.
+ *
  * @param region
  */
 PE32::PE32(std::shared_ptr<IRegion> region)
@@ -64,6 +65,7 @@ PE32::PE32(std::shared_ptr<IRegion> region)
 
 /**
  * @brief Returns the relative virtual address of the PE binary's entry point.
+ *
  * @return
  */
 edb::address_t PE32::entryPoint() {
@@ -73,6 +75,7 @@ edb::address_t PE32::entryPoint() {
 
 /**
  * @brief Returns true, since PE32 binaries are always treated as native to the current architecture.
+ *
  * @return
  */
 bool PE32::native() const {
@@ -81,6 +84,7 @@ bool PE32::native() const {
 
 /**
  * @brief Returns the combined size in bytes of the DOS stub and PE header.
+ *
  * @return
  */
 size_t PE32::headerSize() const {
@@ -89,6 +93,7 @@ size_t PE32::headerSize() const {
 
 /**
  * @brief Returns a list containing the single header entry covering the DOS and PE header region.
+ *
  * @return a list of all headers in this binary
  */
 std::vector<IBinary::Header> PE32::headers() const {
@@ -99,6 +104,7 @@ std::vector<IBinary::Header> PE32::headers() const {
 
 /**
  * @brief Returns nullptr; structured PE header access is not implemented via this method.
+ *
  * @return a copy of the file header or nullptr if the region wasn't a valid,
  * known binary type
  */

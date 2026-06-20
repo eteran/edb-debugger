@@ -11,6 +11,7 @@ namespace AnalyzerPlugin {
 
 /**
  * @brief Constructs the Analyzer options page and connects the fuzzy-logic checkbox to its handler.
+ *
  * @param parent
  * @param f
  */
@@ -23,6 +24,7 @@ OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
 
 /**
  * @brief Populates the options page controls from saved settings when it becomes visible.
+ *
  * @param event
  */
 void OptionsPage::showEvent(QShowEvent *event) {
@@ -34,6 +36,7 @@ void OptionsPage::showEvent(QShowEvent *event) {
 
 /**
  * @brief Persists the fuzzy-logic functions enabled setting whenever the checkbox state changes.
+ *
  * @param checked
  */
 void OptionsPage::checkBoxToggled(bool checked) {

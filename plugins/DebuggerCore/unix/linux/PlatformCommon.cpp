@@ -14,6 +14,7 @@ namespace DebuggerCorePlugin {
 
 /**
  * @brief resume_code
+ *
  * @param status
  * @return
  */
@@ -38,6 +39,7 @@ int resume_code(int status) {
  * gets the contents of /proc/<pid>/stat
  *
  * @brief get_user_stat
+ *
  * @param path
  * @param user_stat
  * @return the number of elements successfully parsed
@@ -135,6 +137,7 @@ int get_user_stat(const char *path, struct user_stat *user_stat) {
  * gets the contents of /proc/<pid>/stat
  *
  * @brief get_user_stat
+ *
  * @param pid
  * @param user_stat
  * @return the number of elements or -1 on error
@@ -149,6 +152,7 @@ int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
  * gets the contents of /proc/<pid>/task/<tid>/stat
  *
  * @brief get_user_task_stat
+ *
  * @param pid
  * @param tid
  * @param user_stat

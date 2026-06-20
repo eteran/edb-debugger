@@ -11,6 +11,7 @@
 
 /**
  * @brief Constructs the tab widget and initializes its internal state.
+ *
  * @param parent The parent widget for the tab widget.
  */
 TabWidget::TabWidget(QWidget *parent)
@@ -19,6 +20,7 @@ TabWidget::TabWidget(QWidget *parent)
 
 /**
  * @brief Sets the data for a specific tab.
+ *
  * @param index The index of the tab.
  * @param data The data to set for the tab.
  */
@@ -28,6 +30,7 @@ void TabWidget::setData(int index, const QVariant &data) {
 
 /**
  * @brief Returns the data for a specific tab.
+ *
  * @param index The index of the tab.
  * @return The data for the tab.
  */
@@ -37,6 +40,7 @@ QVariant TabWidget::data(int index) const {
 
 /**
  * @brief Handles mouse press events for the tab widget.
+ *
  * @param event The mouse event.
  */
 void TabWidget::mousePressEvent(QMouseEvent *event) {

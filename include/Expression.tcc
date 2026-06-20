@@ -11,6 +11,7 @@ namespace detail {
 
 /**
  * @brief Checks if the given character is a delimiter.
+ *
  * @param ch The character to check.
  * @return True if the character is a delimiter, false otherwise.
  */
@@ -22,6 +23,7 @@ inline bool is_delim(QChar ch) {
 
 /**
  * @brief Constructs a new Expression instance.
+ *
  * @param s The expression string.
  * @param vg The variable getter function.
  * @param mr The memory reader function.
@@ -33,6 +35,7 @@ Expression<T>::Expression(const QString &s, variable_getter_t vg, memoryReader_t
 
 /**
  * @brief Evaluates the expression and stores the result in the provided variable.
+ *
  * @param result The variable to store the result in.
  */
 template <class T>
@@ -66,6 +69,7 @@ void Expression<T>::evalExp(T &result) {
 
 /**
  * @brief Evaluates the expression at the top level.
+ *
  * @param result The variable to store the result in.
  * @note This handles logical operations.
  */
@@ -95,6 +99,7 @@ void Expression<T>::evalExp0(T &result) {
 
 /**
  * @brief Evaluates the expression at the binary logic level.
+ *
  * @param result The variable to store the result in.
  * @note This handles binary logic operations.
  */
@@ -127,6 +132,7 @@ void Expression<T>::evalExp1(T &result) {
 
 /**
  * @brief Evaluates the expression at the comparison level.
+ *
  * @param result The variable to store the result in.
  * @note This handles comparison operations.
  */
@@ -168,6 +174,7 @@ void Expression<T>::evalExp2(T &result) {
 
 /**
  * @brief Evaluates the expression at the shift level.
+ *
  * @param result The variable to store the result in.
  * @note This handles shift operations.
  */
@@ -197,6 +204,7 @@ void Expression<T>::evalExp3(T &result) {
 
 /**
  * @brief Evaluates the expression at the addition/subtraction level.
+ *
  * @param result The variable to store the result in.
  * @note This handles addition and subtraction operations.
  */
@@ -234,6 +242,7 @@ void Expression<T>::evalExp4(T &result) {
 
 /**
  * @brief Evaluates the expression at the multiplication/division level.
+ *
  * @param result The variable to store the result in.
  * @note This handles multiplication, division, and modulus operations.
  */
@@ -272,6 +281,7 @@ void Expression<T>::evalExp5(T &result) {
 
 /**
  * @brief Evaluates the expression at the unary level.
+ *
  * @param result The variable to store the result in.
  * @note This handles unary operations.
  */
@@ -314,6 +324,7 @@ void Expression<T>::evalExp6(T &result) {
 
 /**
  * @brief Evaluates the expression at the sub-expression level.
+ *
  * @param result The variable to store the result in.
  * @note This handles sub-expressions.
  */
@@ -374,6 +385,7 @@ void Expression<T>::evalExp7(T &result) {
 
 /**
  * @brief Evaluates the expression at the atom level.
+ *
  * @param result The variable to store the result in.
  * @note This handles variables and constants.
  */
@@ -410,6 +422,7 @@ void Expression<T>::evalAtom(T &result) {
 
 /**
  * @brief Gets the next token from the expression.
+ *
  * @note This function advances the expression pointer and sets the current token.
  */
 template <class T>

@@ -12,6 +12,7 @@
 
 /**
  * @brief Constructor for the HexStringValidator class.
+ *
  * @param parent The parent object.
  */
 HexStringValidator::HexStringValidator(QObject *parent)

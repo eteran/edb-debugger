@@ -35,6 +35,7 @@ PlatformState::PlatformState() {
 
 /**
  * @brief Creates and returns a heap-allocated copy of this register state.
+ *
  * @return
  */
 std::unique_ptr<IState> PlatformState::clone() const {
@@ -45,6 +46,7 @@ std::unique_ptr<IState> PlatformState::clone() const {
 
 /**
  * @brief Returns a string representation of the current CPSR flags.
+ *
  * @return
  */
 QString PlatformState::flagsToString() const {
@@ -53,6 +55,7 @@ QString PlatformState::flagsToString() const {
 
 /**
  * @brief Returns a string representation of the given CPSR flags value.
+ *
  * @param flags
  * @return
  */
@@ -62,6 +65,7 @@ QString PlatformState::flagsToString(edb::reg_t flags) const {
 
 /**
  * @brief Finds and returns an iterator to the GPR name entry matching the given register name.
+ *
  * @param name
  */
 auto PlatformState::findGPR(QString const &name) const -> decltype(gpr.GPRegNames.begin()) {
@@ -78,6 +82,7 @@ auto PlatformState::findGPR(QString const &name) const -> decltype(gpr.GPRegName
 
 /**
  * @brief Returns the Register value for the named register (GPR, CPSR, or FPSCR).
+ *
  * @param reg
  * @return
  */
@@ -101,6 +106,7 @@ Register PlatformState::value(const QString &reg) const {
 
 /**
  * @brief Returns the instruction pointer register (PC) as a Register object.
+ *
  * @return
  */
 Register PlatformState::instructionPointerRegister() const {
@@ -113,6 +119,7 @@ Register PlatformState::instructionPointerRegister() const {
 
 /**
  * @brief Returns the flags register (CPSR) as a Register object.
+ *
  * @return
  */
 Register PlatformState::flagsRegister() const {
@@ -127,6 +134,7 @@ Register PlatformState::flagsRegister() const {
 
 /**
  * @brief Returns the current value of the frame pointer register (FP).
+ *
  * @return
  */
 edb::address_t PlatformState::framePointer() const {
@@ -135,6 +143,7 @@ edb::address_t PlatformState::framePointer() const {
 
 /**
  * @brief Returns the current value of the instruction pointer (PC).
+ *
  * @return
  */
 edb::address_t PlatformState::instructionPointer() const {
@@ -143,6 +152,7 @@ edb::address_t PlatformState::instructionPointer() const {
 
 /**
  * @brief Returns the current value of the stack pointer (SP).
+ *
  * @return
  */
 edb::address_t PlatformState::stackPointer() const {
@@ -151,6 +161,7 @@ edb::address_t PlatformState::stackPointer() const {
 
 /**
  * @brief Returns the value of the hardware debug register n (currently a stub returning 0).
+ *
  * @param n
  * @return
  */
@@ -160,6 +171,7 @@ edb::reg_t PlatformState::debugRegister(size_t n) const {
 
 /**
  * @brief Returns the current CPSR (flags) register value.
+ *
  * @return
  */
 edb::reg_t PlatformState::flags() const {
@@ -168,6 +180,7 @@ edb::reg_t PlatformState::flags() const {
 
 /**
  * @brief Adjusts the stack pointer by adding the given number of bytes.
+ *
  * @param bytes
  */
 void PlatformState::adjustStack(int bytes) {
@@ -183,6 +196,7 @@ void PlatformState::clear() {
 
 /**
  * @brief Returns true if no register data has been loaded into this state object.
+ *
  * @return
  */
 bool PlatformState::empty() const {
@@ -191,6 +205,7 @@ bool PlatformState::empty() const {
 
 /**
  * @brief Returns true if no GPR data has been filled into this register group.
+ *
  * @return
  */
 bool PlatformState::GPR::empty() const {
@@ -207,6 +222,7 @@ void PlatformState::GPR::clear() {
 
 /**
  * @brief Sets hardware debug register n to the given value (currently a stub).
+ *
  * @param n
  * @param value
  */
@@ -216,6 +232,7 @@ void PlatformState::setDebugRegister(size_t n, edb::reg_t value) {
 
 /**
  * @brief Sets the CPSR (flags) register to the given value.
+ *
  * @param flags
  */
 void PlatformState::setFlags(edb::reg_t flags) {
@@ -224,6 +241,7 @@ void PlatformState::setFlags(edb::reg_t flags) {
 
 /**
  * @brief Sets the instruction pointer (PC) to the given address.
+ *
  * @param value
  */
 void PlatformState::setInstructionPointer(edb::address_t value) {
@@ -232,6 +250,7 @@ void PlatformState::setInstructionPointer(edb::address_t value) {
 
 /**
  * @brief Sets the named register from the given Register object.
+ *
  * @param reg
  */
 void PlatformState::setRegister(const Register &reg) {
@@ -261,6 +280,7 @@ void PlatformState::setRegister(const Register &reg) {
 
 /**
  * @brief Sets the named register to the given 32-bit value.
+ *
  * @param name
  * @param value
  */
@@ -274,6 +294,7 @@ void PlatformState::setRegister(const QString &name, edb::reg_t value) {
 
 /**
  * @brief Returns the general-purpose register at index n as a Register object.
+ *
  * @param n
  * @return
  */
@@ -289,6 +310,7 @@ Register PlatformState::gpRegister(size_t n) const {
 
 /**
  * @brief Fills the GPR state from a user_regs ptrace structure.
+ *
  * @param regs
  */
 void PlatformState::fillFrom(user_regs const &regs) {
@@ -302,6 +324,7 @@ void PlatformState::fillFrom(user_regs const &regs) {
 
 /**
  * @brief Fills the VFP floating-point state from a user_vfp ptrace structure.
+ *
  * @param regs
  */
 void PlatformState::fillFrom(user_vfp const &regs) {
@@ -315,6 +338,7 @@ void PlatformState::fillFrom(user_vfp const &regs) {
 
 /**
  * @brief Fills a user_regs struct with the current GPR values for use with PTRACE_SETREGS.
+ *
  * @param regs
  */
 void PlatformState::fillStruct(user_regs &regs) const {
@@ -331,6 +355,7 @@ void PlatformState::fillStruct(user_regs &regs) const {
 
 /**
  * @brief Fills a user_vfp struct with the current VFP values for use with PTRACE_SETVFPREGS.
+ *
  * @param regs
  */
 void PlatformState::fillStruct(user_vfp &regs) const {

@@ -12,6 +12,7 @@ namespace FunctionFinderPlugin {
 
 /**
  * @brief ResultsModel::ResultsModel
+ *
  * @param parent
  */
 ResultsModel::ResultsModel(QObject *parent)
@@ -20,6 +21,7 @@ ResultsModel::ResultsModel(QObject *parent)
 
 /**
  * @brief ResultsModel::headerData
+ *
  * @param section
  * @param orientation
  * @param role
@@ -49,6 +51,7 @@ QVariant ResultsModel::headerData(int section, Qt::Orientation orientation, int 
 
 /**
  * @brief ResultsModel::data
+ *
  * @param index
  * @param role
  * @return
@@ -85,6 +88,7 @@ QVariant ResultsModel::data(const QModelIndex &index, int role) const {
 
 /**
  * @brief ResultsModel::addResult
+ *
  * @param r
  */
 void ResultsModel::addResult(const Result &r) {
@@ -95,6 +99,7 @@ void ResultsModel::addResult(const Result &r) {
 
 /**
  * @brief ResultsModel::index
+ *
  * @param row
  * @param column
  * @param parent
@@ -121,6 +126,7 @@ QModelIndex ResultsModel::index(int row, int column, const QModelIndex &parent) 
 
 /**
  * @brief ResultsModel::parent
+ *
  * @param index
  * @return
  */
@@ -131,6 +137,7 @@ QModelIndex ResultsModel::parent(const QModelIndex &index) const {
 
 /**
  * @brief ResultsModel::rowCount
+ *
  * @param parent
  * @return
  */
@@ -141,6 +148,7 @@ int ResultsModel::rowCount(const QModelIndex &parent) const {
 
 /**
  * @brief ResultsModel::columnCount
+ *
  * @param parent
  * @return
  */
@@ -151,6 +159,7 @@ int ResultsModel::columnCount(const QModelIndex &parent) const {
 
 /**
  * @brief ResultsModel::sort
+ *
  * @param column
  * @param order
  */

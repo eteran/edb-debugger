@@ -21,6 +21,7 @@ namespace SymbolViewerPlugin {
 
 /**
  * @brief DialogSymbolViewer::DialogSymbolViewer
+ *
  * @param parent
  * @param f
  */
@@ -75,6 +76,7 @@ void DialogSymbolViewer::on_listView_doubleClicked(const QModelIndex &index) {
 
 /**
  * @brief DialogSymbolViewer::on_listView_customContextMenuRequested
+ *
  * @param pos
  */
 void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &pos) {

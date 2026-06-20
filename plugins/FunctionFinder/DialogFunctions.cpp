@@ -21,6 +21,7 @@ namespace FunctionFinderPlugin {
 
 /**
  * @brief DialogFunctions::DialogFunctions
+ *
  * @param parent
  * @param f
  */
