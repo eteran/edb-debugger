@@ -417,7 +417,13 @@ void DebuggerCore::set_state(const State &state) {
 }
 
 /**
- * @brief
+ * @brief Opens a process for debugging.
+ *
+ * @param path The path to the executable to debug.
+ * @param cwd The working directory for the debugged process.
+ * @param args The arguments to pass to the debugged process.
+ * @param tty The TTY to use for the debugged process's I/O.
+ * @return true if the process was successfully opened for debugging, false otherwise.
  */
 bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
 	detach();
@@ -479,7 +485,9 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 }
 
 /**
- * @brief
+ * @brief Sets the active thread for the debugger.
+ *
+ * @param tid The thread ID to set as active.
  */
 void DebuggerCore::set_active_thread(edb::tid_t tid) {
 	Q_ASSERT(threads_.contains(tid));
@@ -487,14 +495,18 @@ void DebuggerCore::set_active_thread(edb::tid_t tid) {
 }
 
 /**
- * @brief
+ * @brief Creates a new state object for the debugger.
+ *
+ * @return A unique pointer to the newly created state object.
  */
 std::unique_ptr<IState> DebuggerCore::create_state() const {
 	return std::make_unique<PlatformState>();
 }
 
 /**
- * @brief
+ * @brief Enumerates the processes currently running on the system.
+ *
+ * @return A map of process IDs to ProcessInfo objects for each running process.
  */
 QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
 	QMap<edb::pid_t, ProcessInfo> ret;
@@ -522,7 +534,10 @@ QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
 }
 
 /**
- * @brief
+ * @brief Returns the executable path for a given process ID.
+ *
+ * @param pid The process ID.
+ * @return The executable path for the process.
  */
 QString DebuggerCore::process_exe(edb::pid_t pid) const {
 	QString ret;
@@ -543,7 +558,10 @@ QString DebuggerCore::process_exe(edb::pid_t pid) const {
 }
 
 /**
- * @brief
+ * @brief Returns the current working directory for a given process ID.
+ *
+ * @param pid The process ID.
+ * @return The current working directory for the process, or an empty string if not implemented.
  */
 QString DebuggerCore::process_cwd(edb::pid_t pid) const {
 	// TODO: implement this
@@ -551,7 +569,10 @@ QString DebuggerCore::process_cwd(edb::pid_t pid) const {
 }
 
 /**
- * @brief
+ * @brief Returns the parent process ID for a given process ID.
+ *
+ * @param pid The process ID.
+ * @return The parent process ID, or 0 if the process has no parent or an
  */
 edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 	edb::pid_t ret = 0;
@@ -566,7 +587,9 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 }
 
 /**
- * @brief
+ * @brief Returns the memory regions for the debugged process.
+ *
+ * @return A list of memory regions for the debugged process.
  */
 QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 
@@ -637,7 +660,10 @@ QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 }
 
 /**
- * @brief
+ * @brief Returns the command line arguments for a given process ID.
+ *
+ * @param pid The process ID.
+ * @return A list of command line arguments for the process.
  */
 QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
 	QList<QByteArray> ret;
@@ -661,7 +687,9 @@ QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
 }
 
 /**
- * @brief
+ * @brief Returns the address of the process code.
+ *
+ * @return The address of the process code, or 0 if not implemented.
  */
 edb::address_t DebuggerCore::process_code_address() const {
 	qDebug() << "TODO: implement DebuggerCore::process_code_address";
@@ -669,7 +697,9 @@ edb::address_t DebuggerCore::process_code_address() const {
 }
 
 /**
- * @brief
+ * @brief Returns the address of the process data.
+ *
+ * @return The address of the process data, or 0 if not implemented.
  */
 edb::address_t DebuggerCore::process_data_address() const {
 	qDebug() << "TODO: implement DebuggerCore::process_data_address";
@@ -677,7 +707,9 @@ edb::address_t DebuggerCore::process_data_address() const {
 }
 
 /**
- * @brief
+ * @brief Returns a list of loaded modules for the debugged process.
+ *
+ * @return A list of loaded modules for the debugged process.
  */
 QList<Module> DebuggerCore::loaded_modules() const {
 	QList<Module> modules;
@@ -686,7 +718,10 @@ QList<Module> DebuggerCore::loaded_modules() const {
 }
 
 /**
- * @brief
+ * @brief Returns the start time of the specified process.
+ *
+ * @param pid The process ID.
+ * @return The start time of the process.
  */
 QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 	qDebug() << "TODO: implement DebuggerCore::process_start";
@@ -694,7 +729,9 @@ QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 }
 
 /**
- * @brief
+ * @brief Returns the CPU type of the debugged process.
+ *
+ * @return The CPU type of the debugged process.
  */
 quint64 DebuggerCore::cpu_type() const {
 #ifdef EDB_X86
@@ -705,7 +742,7 @@ quint64 DebuggerCore::cpu_type() const {
 }
 
 /**
- * @brief
+ * @brief Formats a pointer address for display.
  */
 QString DebuggerCore::format_pointer(edb::address_t address) const {
 	char buf[32];
@@ -718,7 +755,9 @@ QString DebuggerCore::format_pointer(edb::address_t address) const {
 }
 
 /**
- * @brief
+ * @brief Returns the name of the stack pointer register for the target architecture.
+ *
+ * @return The name of the stack pointer register.
  */
 QString DebuggerCore::stack_pointer() const {
 #ifdef EDB_X86
@@ -729,7 +768,9 @@ QString DebuggerCore::stack_pointer() const {
 }
 
 /**
- * @brief
+ * @brief Returns the name of the frame pointer register for the target architecture.
+ *
+ * @return The name of the frame pointer register.
  */
 QString DebuggerCore::frame_pointer() const {
 #ifdef EDB_X86
@@ -740,7 +781,9 @@ QString DebuggerCore::frame_pointer() const {
 }
 
 /**
- * @brief
+ * @brief Returns the name of the instruction pointer register for the target architecture.
+ *
+ * @return The name of the instruction pointer register.
  */
 QString DebuggerCore::instruction_pointer() const {
 #ifdef EDB_X86
