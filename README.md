@@ -1,5 +1,5 @@
 [![C++](https://img.shields.io/badge/C++-00599C?&logo=C%2B%2B&logoColor=white)](https://cppreference.com)
-![Qt](https://img.shields.io/badge/Qt-%23217346.svg?logo=Qt&logoColor=white)
+[![Qt](https://img.shields.io/badge/Qt-%23217346.svg?logo=Qt&logoColor=white)](https://www.qt.io/)
 [![Gitter](https://badges.gitter.im/eteran/edb-debugger.svg)](https://gitter.im/eteran/edb-debugger?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Build Status](https://github.com/eteran/edb-debugger/actions/workflows/build.yaml/badge.svg?branch=master)](https://github.com/eteran/edb-debugger/actions/workflows/build.yaml)
 [![License](https://img.shields.io/badge/license-GPL2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
