@@ -149,10 +149,9 @@ QString syscallErrName(T err) {
 	return "";
 }
 
-//------------------------------------------------------------------------------
-// Name: format_pointer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString format_pointer(int pointer_level, edb::reg_t arg, QChar type) {
 
 	Q_UNUSED(type)
@@ -165,10 +164,9 @@ QString format_pointer(int pointer_level, edb::reg_t arg, QChar type) {
 	return edb::v1::format_pointer(arg);
 }
 
-//------------------------------------------------------------------------------
-// Name: format_integer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 	if (pointer_level > 0) {
 		return format_pointer(pointer_level, arg, type);
@@ -212,10 +210,9 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: format_integer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString format_char(int pointer_level, edb::address_t arg, QChar type) {
 
 	if (IProcess *process = edb::v1::debugger_core->process()) {
@@ -246,10 +243,9 @@ QString format_char(int pointer_level, edb::address_t arg, QChar type) {
 	return "?";
 }
 
-//------------------------------------------------------------------------------
-// Name: format_argument
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString format_argument(const QString &type, const Register &arg) {
 
 	if (!arg) {
@@ -354,10 +350,9 @@ void resolve_function_parameters_helper(T parameter_registers, const State &stat
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: resolve_function_parameters
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void resolve_function_parameters(const State &state, const QString &symname, int offset, QStringList &ret) {
 
 	/*
@@ -386,10 +381,9 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: is_jcc_taken
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool is_jcc_taken(const edb::reg_t efl, edb::Instruction::ConditionCode cond) {
 
 	const bool cf = (efl & 0x0001) != 0;
@@ -434,10 +428,9 @@ bool is_jcc_taken(const edb::reg_t efl, edb::Instruction::ConditionCode cond) {
 	return taken;
 }
 
-//------------------------------------------------------------------------------
-// Name: is_jcc_taken
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool is_jcc_taken(const State &state, edb::Instruction::ConditionCode cond) {
 
 	if (cond == edb::Instruction::CC_UNCONDITIONAL) {
@@ -469,10 +462,9 @@ const QLatin1String jumpConditionMnemonics[] = {
 	QLatin1String("L"), QLatin1String("GE"),
 	QLatin1String("LE"), QLatin1String("G")};
 
-//------------------------------------------------------------------------------
-// Name: analyze_cmov
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void analyze_cmov(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
 	const bool taken = is_jcc_taken(state, inst.conditionCode());
@@ -484,10 +476,9 @@ void analyze_cmov(const State &state, const edb::Instruction &inst, QStringList 
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: analyze_jump
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void analyze_jump(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
 	bool taken = false;
@@ -503,10 +494,9 @@ void analyze_jump(const State &state, const edb::Instruction &inst, QStringList 
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: analyze_return
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void analyze_return(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
 	Q_UNUSED(inst)
@@ -524,10 +514,9 @@ void analyze_return(const State &state, const edb::Instruction &inst, QStringLis
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: analyze_call
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void analyze_call(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
 	if (IProcess *process = edb::v1::debugger_core->process()) {
@@ -643,10 +632,9 @@ QString formatPackedFloat(const void *data, std::size_t size) {
 	return size == sizeof(ValueType) ? str : '{' + str + '}';
 }
 
-//------------------------------------------------------------------------------
-// Name: analyze_operands
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void analyze_operands(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
 	Q_UNUSED(inst)
@@ -838,10 +826,9 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: analyze_jump_targets
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
 	const edb::address_t address       = inst.rva();
 	const edb::address_t start_address = address - 128;
@@ -867,10 +854,9 @@ void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: analyze_syscall
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void analyze_syscall(const State &state, const edb::Instruction &inst, QStringList &ret, std::uint64_t regAX) {
 	Q_UNUSED(inst)
 	Q_UNUSED(ret)
@@ -1279,10 +1265,9 @@ bool falseSyscallReturn(const State &state, std::int64_t origAX) {
 
 }
 
-//------------------------------------------------------------------------------
-// Name: getEffectiveAddress
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state) const {
 
 	edb::address_t ret = 0;
@@ -1390,10 +1375,9 @@ edb::address_t ArchProcessor::getEffectiveAddress(const edb::Instruction &inst, 
 	return result.value();
 }
 
-//------------------------------------------------------------------------------
-// Name: ArchProcessor
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 ArchProcessor::ArchProcessor() {
 	if (edb::v1::debugger_core) {
 		hasMmx_ = edb::v1::debugger_core->hasExtension(edb::string_hash("MMX"));
@@ -1407,10 +1391,9 @@ ArchProcessor::ArchProcessor() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: setup_register_view
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void ArchProcessor::setupRegisterView() {
 
 	if (edb::v1::debugger_core) {
@@ -1419,10 +1402,9 @@ void ArchProcessor::setupRegisterView() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: reset
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void ArchProcessor::reset() {
 
 	if (edb::v1::debugger_core) {
@@ -1430,10 +1412,9 @@ void ArchProcessor::reset() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: update_register_view
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void ArchProcessor::updateRegisterView(const QString &default_region_name, const State &state) {
 
 	auto &model = getModel();
@@ -1471,10 +1452,9 @@ void ArchProcessor::justAttached() {
 	justAttached_ = true;
 }
 
-//------------------------------------------------------------------------------
-// Name: update_instruction_info
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QStringList ArchProcessor::updateInstructionInfo(edb::address_t address) {
 
 	QStringList ret;
@@ -1591,18 +1571,16 @@ QStringList ArchProcessor::updateInstructionInfo(edb::address_t address) {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: can_step_over
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool ArchProcessor::canStepOver(const edb::Instruction &inst) const {
 	return inst && (is_call(inst) || is_repeat(inst));
 }
 
-//------------------------------------------------------------------------------
-// Name: is_filling
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 bool ArchProcessor::isFilling(const edb::Instruction &inst) const {
 	bool ret = false;
 
@@ -1664,10 +1642,9 @@ bool ArchProcessor::isFilling(const edb::Instruction &inst) const {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name: register_view_model
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 RegisterViewModelBase::Model &ArchProcessor::registerViewModel() const {
 	static RegisterViewModel model(hasMmx_ * RegisterViewModel::CPUFeatureBits::MMX |
 								   hasXmm_ * RegisterViewModel::CPUFeatureBits::SSE |

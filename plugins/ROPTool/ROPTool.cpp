@@ -13,6 +13,7 @@ namespace ROPToolPlugin {
 
 /**
  * @brief ROPTool::ROPTool
+ *
  * @param parent
  */
 ROPTool::ROPTool(QObject *parent)
@@ -28,6 +29,7 @@ ROPTool::~ROPTool() {
 
 /**
  * @brief ROPTool::menu
+ *
  * @param parent
  * @return
  */

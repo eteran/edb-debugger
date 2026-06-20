@@ -13,7 +13,8 @@
 namespace AssemblerPlugin {
 
 /**
- * @brief OptionsPage::OptionsPage
+ * @brief Constructs the Assembler options page, populating the assembler list from the XML resource for the current architecture.
+ *
  * @param parent
  * @param f
  */
@@ -59,7 +60,8 @@ OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief OptionsPage::on_assemblerName_currentIndexChanged
+ * @brief Saves the newly selected assembler name to persistent settings when the combo box selection changes.
+ *
  * @param text
  */
 void OptionsPage::on_assemblerName_currentIndexChanged(const QString &text) {

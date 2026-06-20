@@ -8,18 +8,16 @@
 
 #include <QtAlgorithms>
 
-//------------------------------------------------------------------------------
-// Name: PluginModel
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 PluginModel::PluginModel(QObject *parent)
 	: QAbstractItemModel(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: index
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QModelIndex PluginModel::index(int row, int column, const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 
@@ -34,19 +32,17 @@ QModelIndex PluginModel::index(int row, int column, const QModelIndex &parent) c
 	return createIndex(row, column);
 }
 
-//------------------------------------------------------------------------------
-// Name: parent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QModelIndex PluginModel::parent(const QModelIndex &index) const {
 	Q_UNUSED(index)
 	return QModelIndex();
 }
 
-//------------------------------------------------------------------------------
-// Name: data
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QVariant PluginModel::data(const QModelIndex &index, int role) const {
 
 	if (index.isValid()) {
@@ -70,10 +66,9 @@ QVariant PluginModel::data(const QModelIndex &index, int role) const {
 	return QVariant();
 }
 
-//------------------------------------------------------------------------------
-// Name: headerData
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QVariant PluginModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
 	if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
@@ -92,28 +87,25 @@ QVariant PluginModel::headerData(int section, Qt::Orientation orientation, int r
 	return QVariant();
 }
 
-//------------------------------------------------------------------------------
-// Name: columnCount
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 int PluginModel::columnCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 	return 4;
 }
 
-//------------------------------------------------------------------------------
-// Name: rowCount
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 int PluginModel::rowCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 	return items_.size();
 }
 
-//------------------------------------------------------------------------------
-// Name: addPlugin
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void PluginModel::addPlugin(const QString &filename, const QString &plugin, const QString &author, const QString &url) {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
 
@@ -128,10 +120,9 @@ void PluginModel::addPlugin(const QString &filename, const QString &plugin, cons
 	endInsertRows();
 }
 
-//------------------------------------------------------------------------------
-// Name: clear
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void PluginModel::clear() {
 	beginResetModel();
 	items_.clear();

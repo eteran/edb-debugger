@@ -23,7 +23,8 @@ constexpr int FirstRow     = 0;
 constexpr int ReturnColumn = 1;
 
 /**
- * @brief address_from_table
+ * @brief Extracts the edb::address_t stored in the UserRole data of the given table widget item.
+ *
  * @param item
  * @return the edb::address_t represented by the given *item and sets *ok to
  * true if successful or false, otherwise.
@@ -34,7 +35,8 @@ edb::address_t address_from_table(const QTableWidgetItem *item) {
 }
 
 /**
- * @brief is_ret
+ * @brief Returns true if the given column number corresponds to the return address column.
+ *
  * @param column
  * @return true if the column number is the one dedicated to return addresses.
  * otherwise, false.
@@ -44,7 +46,8 @@ bool is_ret(int column) {
 }
 
 /**
- * @brief is_ret
+ * @brief Returns true if the given table widget item resides in the return address column.
+ *
  * @param item
  * @return true if the selected item is in the column for return addresses.
  * otherwise, false.
@@ -60,7 +63,7 @@ bool is_ret(const QTableWidgetItem *item) {
 }
 
 /**
- * @brief DialogBacktrace::DialogBacktrace
+ * @brief Constructs the call stack backtrace dialog, setting up its table widget and "Return To" button.
  *
  * Initializes the Dialog with its QTableWidget.  This class over all is
  * designed to analyze the stack for return addresses to show the user the
@@ -117,11 +120,7 @@ DialogBacktrace::DialogBacktrace(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogBacktrace::showEvent
- *
- * Ensures the column sizes are correct, connects the sig/slot for syncing with
- * the Debugger UI, then populates the Call Stack table.
- *
+ * @brief Connects the UI update signal and populates the call stack table when the dialog is shown.
  */
 void DialogBacktrace::showEvent(QShowEvent *) {
 
@@ -135,10 +134,7 @@ void DialogBacktrace::showEvent(QShowEvent *) {
 }
 
 /**
- * @brief DialogBacktrace::populateTable
- *
- * Populates the Call Stack table with stack frame entries.
- *
+ * @brief Clears and repopulates the call stack table with current stack frame entries.
  */
 void DialogBacktrace::populateTable() {
 
@@ -207,20 +203,14 @@ void DialogBacktrace::populateTable() {
 }
 
 /**
- * @brief DialogBacktrace::hideEvent
- *
- * Disconnects the signal/slot when the dialog goes away so that
- * populate_table() is not called unnecessarily.
- *
+ * @brief Disconnects the UI update signal when the dialog is hidden to avoid unnecessary table rebuilds.
  */
 void DialogBacktrace::hideEvent(QHideEvent *) {
 	disconnect(edb::v1::debugger_ui, SIGNAL(uiUpdated()), this, SLOT(populateTable()));
 }
 
 /**
- * @brief DialogBacktrace::on_tableWidgetCallStack_itemDoubleClicked
- *
- * Jumps to the double-clicked address in the CPU/Disassembly view.
+ * @brief Jumps the disassembly view to the address of the double-clicked call stack table entry.
  *
  * @param item
  */
@@ -229,10 +219,7 @@ void DialogBacktrace::on_tableWidgetCallStack_itemDoubleClicked(QTableWidgetItem
 }
 
 /**
- * @brief DialogBacktrace::on_tableWidgetCallStack_cellClicked
- *
- * Enables the "Run To Return" button if the selected cell is in the column for
- * return addresses.  Disables it, otherwise.
+ * @brief Enables or disables the "Return To" button based on whether the clicked cell is a return address column.
  *
  * @param row
  * @param column

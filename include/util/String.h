@@ -13,6 +13,7 @@ namespace util {
 
 /**
  * @brief is_numeric
+ *
  * @param s
  * @return true if the string only contains decimal digits
  */

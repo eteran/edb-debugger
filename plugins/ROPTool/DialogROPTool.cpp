@@ -28,6 +28,7 @@ namespace {
 
 /**
  * @brief get_gadget_role
+ *
  * @param inst
  * @return
  */
@@ -148,6 +149,7 @@ uint32_t get_gadget_role(const edb::Instruction &inst) {
 // See issue #457, thanks mrexodia!
 /**
  * @brief is_safe_64_nop_reg_op
+ *
  * @param op
  * @return
  */
@@ -178,6 +180,7 @@ bool is_safe_64_nop_reg_op(const edb::Operand &op) {
 
 /**
  * @brief is_effective_nop
+ *
  * @param inst
  * @return
  */
@@ -274,6 +277,7 @@ bool is_effective_nop(const edb::Instruction &inst) {
 
 /**
  * @brief DialogROPTool::DialogROPTool
+ *
  * @param parent
  * @param f
  */
@@ -311,6 +315,7 @@ void DialogROPTool::showEvent(QShowEvent *) {
 
 /**
  * @brief DialogROPTool::addGadget
+ *
  * @param results
  * @param instructions
  */

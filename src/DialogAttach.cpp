@@ -27,10 +27,12 @@ int getuid() {
 #include <unistd.h>
 #endif
 
-//------------------------------------------------------------------------------
-// Name: DialogAttach
-// Desc: constructor
-//------------------------------------------------------------------------------
+/**
+ * @brief Constructor for the DialogAttach class.
+ *
+ * @param parent The parent widget.
+ * @param f The window flags.
+ */
 DialogAttach::DialogAttach(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
 
@@ -51,10 +53,9 @@ DialogAttach::DialogAttach(QWidget *parent, Qt::WindowFlags f)
 	ui.processes_table->setModel(processPidFilter_);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_filter_textChanged
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogAttach::on_filter_textChanged(const QString &filter) {
 
 	if (util::is_numeric(filter)) {
@@ -66,10 +67,9 @@ void DialogAttach::on_filter_textChanged(const QString &filter) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: updateList
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogAttach::updateList() {
 
 	if (isHidden()) {
@@ -105,10 +105,9 @@ void DialogAttach::updateList() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogAttach::showEvent(QShowEvent *event) {
 	Q_UNUSED(event)
 	updateList();
@@ -116,29 +115,26 @@ void DialogAttach::showEvent(QShowEvent *event) {
 	updateTimer_.start(1000);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_filter_uid_clicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogAttach::on_filter_uid_clicked(bool checked) {
 	Q_UNUSED(checked)
 	updateList();
 }
 
-//------------------------------------------------------------------------------
-// Name: on_processes_table_doubleClicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogAttach::on_processes_table_doubleClicked(const QModelIndex &) {
 	if (selectedPid()) {
 		accept();
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: selected_pid
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 Result<edb::pid_t, QString> DialogAttach::selectedPid() const {
 
 	const QItemSelectionModel *const selModel = ui.processes_table->selectionModel();

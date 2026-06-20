@@ -24,6 +24,7 @@ constexpr int CallMinSize = 2;
 
 /**
  * @brief CommentServer::setComment
+ *
  * @param address
  * @param comment
  */
@@ -40,6 +41,7 @@ void CommentServer::clear() {
 
 /**
  * @brief CommentServer::resolveFunctionCall
+ *
  * @param address
  * @return
  */
@@ -74,6 +76,7 @@ Result<QString, QString> CommentServer::resolveFunctionCall(edb::address_t addre
 
 /**
  * @brief CommentServer::resolveString
+ *
  * @param address
  * @return
  */
@@ -98,6 +101,7 @@ Result<QString, QString> CommentServer::resolveString(edb::address_t address) co
 
 /**
  * @brief CommentServer::comment
+ *
  * @param address
  * @param size
  * @return

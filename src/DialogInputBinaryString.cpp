@@ -6,20 +6,23 @@
 
 #include "DialogInputBinaryString.h"
 
-//------------------------------------------------------------------------------
-// Name: DialogInputBinaryString
-// Desc: constructor
-//------------------------------------------------------------------------------
+/**
+ * @brief Constructor for the DialogInputBinaryString class.
+ *
+ * @param parent The parent widget.
+ * @param f The window flags.
+ */
 DialogInputBinaryString::DialogInputBinaryString(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
 
 	ui.setupUi(this);
 }
 
-//------------------------------------------------------------------------------
-// Name: binary_string
-// Desc: returns the binary string we wrap around
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns the binary string we wrap around.
+ *
+ * @return A pointer to the binary string.
+ */
 BinaryString *DialogInputBinaryString::binaryString() const {
 	return ui.binaryString;
 }

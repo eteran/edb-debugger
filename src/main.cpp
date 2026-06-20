@@ -78,6 +78,7 @@ struct LaunchArguments {
 
 /**
  * @brief validate_launch_arguments
+ *
  * @param launch_args
  */
 void validate_launch_arguments(const LaunchArguments &launch_args) {
@@ -96,6 +97,7 @@ void validate_launch_arguments(const LaunchArguments &launch_args) {
  * attempts to load all plugins in a given directory
  *
  * @brief load_plugins
+ *
  * @param directory
  */
 void load_plugins(const QString &directory) {
@@ -138,6 +140,7 @@ void load_plugins(const QString &directory) {
  * starts the main debugger code
  *
  * @brief start_debugger
+ *
  * @param launch_args
  * @return
  */
@@ -274,6 +277,7 @@ QPalette themePalette() {
 
 /**
  * @brief main
+ *
  * @param argc
  * @param argv
  * @return

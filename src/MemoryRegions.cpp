@@ -13,28 +13,25 @@
 
 #include <QDebug>
 
-//------------------------------------------------------------------------------
-// Name: MemoryRegions
-// Desc: constructor
-//------------------------------------------------------------------------------
+/**
+ * @brief Constructor for the MemoryRegions class.
+ */
 MemoryRegions::MemoryRegions()
 	: QAbstractItemModel(nullptr) {
 }
 
-//------------------------------------------------------------------------------
-// Name: clear
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void MemoryRegions::clear() {
 	beginResetModel();
 	regions_.clear();
 	endResetModel();
 }
 
-//------------------------------------------------------------------------------
-// Name: sync
-// Desc: reads a memory map file line by line
-//------------------------------------------------------------------------------
+/**
+ * @brief Synchronizes the memory regions with the current process.
+ */
 void MemoryRegions::sync() {
 
 	beginResetModel();
@@ -70,10 +67,9 @@ void MemoryRegions::sync() {
 	endResetModel();
 }
 
-//------------------------------------------------------------------------------
-// Name: find_region
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 std::shared_ptr<IRegion> MemoryRegions::findRegion(edb::address_t address) const {
 
 	auto it = std::find_if(regions_.begin(), regions_.end(), [address](const std::shared_ptr<IRegion> &region) {
@@ -87,10 +83,9 @@ std::shared_ptr<IRegion> MemoryRegions::findRegion(edb::address_t address) const
 	return nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: data
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QVariant MemoryRegions::data(const QModelIndex &index, int role) const {
 
 	if (index.isValid() && role == Qt::DisplayRole) {
@@ -112,10 +107,9 @@ QVariant MemoryRegions::data(const QModelIndex &index, int role) const {
 	return QVariant();
 }
 
-//------------------------------------------------------------------------------
-// Name: index
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QModelIndex MemoryRegions::index(int row, int column, const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 
@@ -126,37 +120,33 @@ QModelIndex MemoryRegions::index(int row, int column, const QModelIndex &parent)
 	return createIndex(row, column, const_cast<std::shared_ptr<IRegion> *>(&regions_[row]));
 }
 
-//------------------------------------------------------------------------------
-// Name: parent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QModelIndex MemoryRegions::parent(const QModelIndex &index) const {
 	Q_UNUSED(index)
 	return QModelIndex();
 }
 
-//------------------------------------------------------------------------------
-// Name: rowCount
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 int MemoryRegions::rowCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 	return regions_.size();
 }
 
-//------------------------------------------------------------------------------
-// Name: columnCount
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 int MemoryRegions::columnCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent)
 	return 4;
 }
 
-//------------------------------------------------------------------------------
-// Name: headerData
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QVariant MemoryRegions::headerData(int section, Qt::Orientation orientation, int role) const {
 	if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
 		switch (section) {

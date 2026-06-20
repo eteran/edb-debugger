@@ -10,6 +10,7 @@ namespace DebuggerErrorConsolePlugin {
 
 /**
  * @brief Plugin::Plugin
+ *
  * @param parent
  */
 Plugin::Plugin(QObject *parent)
@@ -18,6 +19,7 @@ Plugin::Plugin(QObject *parent)
 
 /**
  * @brief Plugin::menu
+ *
  * @param parent
  * @return
  */
@@ -27,6 +29,7 @@ QMenu *Plugin::menu(QWidget *) {
 
 /**
  * @brief DebuggerErrorConsole::DebuggerErrorConsole
+ *
  * @param parent
  * @param f
  */

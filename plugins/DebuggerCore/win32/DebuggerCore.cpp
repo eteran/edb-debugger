@@ -105,6 +105,7 @@ DebuggerCore::~DebuggerCore() {
 
 /**
  * @brief DebuggerCore::pageSize
+ *
  * @return the size of a page on this system
  */
 size_t DebuggerCore::pageSize() const {
@@ -113,6 +114,7 @@ size_t DebuggerCore::pageSize() const {
 
 /**
  * @brief DebuggerCore::hasExtension
+ *
  * @param ext
  * @return
  */
@@ -141,6 +143,7 @@ bool DebuggerCore::hasExtension(uint64_t ext) const {
  * waits for a debug event, secs is a timeout (but is not yet respected)
  *
  * @brief DebuggerCore::waitDebugEvent
+ *
  * @param msecs
  * @return null if timeout occurred
  */
@@ -216,6 +219,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(std::chrono::milliseco
 
 /**
  * @brief DebuggerCore::attach
+ *
  * @param pid
  * @return
  */
@@ -233,6 +237,7 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 
 /**
  * @brief DebuggerCore::detach
+ *
  * @return
  */
 Status DebuggerCore::detach() {
@@ -259,6 +264,7 @@ void DebuggerCore::kill() {
 
 /**
  * @brief DebuggerCore::open
+ *
  * @param path
  * @param cwd
  * @param args
@@ -336,6 +342,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 
 /**
  * @brief DebuggerCore::createState
+ *
  * @return
  */
 std::unique_ptr<IState> DebuggerCore::createState() const {
@@ -344,6 +351,7 @@ std::unique_ptr<IState> DebuggerCore::createState() const {
 
 /**
  * @brief DebuggerCore::sys_pointer_size
+ *
  * @return the size of a pointer on this arch
  */
 int DebuggerCore::sys_pointer_size() const {
@@ -352,6 +360,7 @@ int DebuggerCore::sys_pointer_size() const {
 
 /**
  * @brief DebuggerCore::enumerateProcesses
+ *
  * @return
  */
 QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerateProcesses() const {
@@ -390,6 +399,7 @@ QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerateProcesses() c
 
 /**
  * @brief DebuggerCore::parentPid
+ *
  * @param pid
  * @return
  */
@@ -415,6 +425,7 @@ edb::pid_t DebuggerCore::parentPid(edb::pid_t pid) const {
 
 /**
  * @brief DebuggerCore::exceptions
+ *
  * @return
  */
 QMap<qlonglong, QString> DebuggerCore::exceptions() const {
@@ -425,6 +436,7 @@ QMap<qlonglong, QString> DebuggerCore::exceptions() const {
 
 /**
  * @brief DebuggerCore::cpuType
+ *
  * @return
  */
 uint64_t DebuggerCore::cpuType() const {
@@ -437,6 +449,7 @@ uint64_t DebuggerCore::cpuType() const {
 
 /**
  * @brief DebuggerCore::stackPointer
+ *
  * @return
  */
 QString DebuggerCore::stackPointer() const {
@@ -450,6 +463,7 @@ QString DebuggerCore::stackPointer() const {
 
 /**
  * @brief DebuggerCore::framePointer
+ *
  * @return
  */
 QString DebuggerCore::framePointer() const {
@@ -463,6 +477,7 @@ QString DebuggerCore::framePointer() const {
 
 /**
  * @brief DebuggerCore::instructionPointer
+ *
  * @return
  */
 QString DebuggerCore::instructionPointer() const {
@@ -476,6 +491,7 @@ QString DebuggerCore::instructionPointer() const {
 
 /**
  * @brief DebuggerCore::process
+ *
  * @return
  */
 IProcess *DebuggerCore::process() const {
@@ -484,6 +500,7 @@ IProcess *DebuggerCore::process() const {
 
 /**
  * @brief DebuggerCore::nopFillByte
+ *
  * @return
  */
 uint8_t DebuggerCore::nopFillByte() const {

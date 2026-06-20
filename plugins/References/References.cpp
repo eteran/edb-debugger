@@ -13,6 +13,7 @@ namespace ReferencesPlugin {
 
 /**
  * @brief References::References
+ *
  * @param parent
  */
 References::References(QObject *parent)
@@ -28,6 +29,7 @@ References::~References() {
 
 /**
  * @brief References::menu
+ *
  * @param parent
  * @return
  */

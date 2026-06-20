@@ -29,10 +29,9 @@ const QString NodeFont   = "Monospace";
 
 }
 
-//------------------------------------------------------------------------------
-// Name: GraphNode
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 GraphNode::GraphNode(GraphWidget *graph, const QString &text, QColor color)
 	: color_(std::move(color)), graph_(graph) {
 
@@ -55,10 +54,9 @@ GraphNode::GraphNode(GraphWidget *graph, const QString &text, QColor color)
 	_agset(node_, "height", QStringLiteral("%1").arg(boundingRect().height() / 96.0));
 }
 
-//------------------------------------------------------------------------------
-// Name: ~GraphNode
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 GraphNode::~GraphNode() {
 
 	// Iterate over a copy because deleting an edge removes it from edges_.
@@ -68,20 +66,18 @@ GraphNode::~GraphNode() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: boundingRect
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QRectF GraphNode::boundingRect() const {
 	constexpr int weight = 2;
 	const int width      = std::log2(weight) * BorderScaleFactor;
 	return picture_.boundingRect().adjusted(-width, -width, +width, +width);
 }
 
-//------------------------------------------------------------------------------
-// Name: paint
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
 
 	Q_UNUSED(option)
@@ -109,10 +105,9 @@ void GraphNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 	picture_.play(painter);
 }
 
-//------------------------------------------------------------------------------
-// Name: paint
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QVariant GraphNode::itemChange(GraphicsItemChange change, const QVariant &value) {
 	if (!graph_->inLayout_) {
 
@@ -130,26 +125,23 @@ QVariant GraphNode::itemChange(GraphicsItemChange change, const QVariant &value)
 	return QGraphicsItem::itemChange(change, value);
 }
 
-//------------------------------------------------------------------------------
-// Name: addEdge
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphNode::addEdge(GraphEdge *edge) {
 	edges_.insert(edge);
 }
 
-//------------------------------------------------------------------------------
-// Name: removeEdge
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphNode::removeEdge(GraphEdge *edge) {
 	edges_.remove(edge);
 }
 
-//------------------------------------------------------------------------------
-// Name: drawLabel
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphNode::drawLabel(const QString &text) {
 
 	const bool syntax_highlighting_enabled = edb::v1::config().syntax_highlighting_enabled;
@@ -222,18 +214,16 @@ void GraphNode::drawLabel(const QString &text) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: hoverEnterEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphNode::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
 	Q_UNUSED(e)
 }
 
-//------------------------------------------------------------------------------
-// Name: hoverLeaveEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void GraphNode::hoverLeaveEvent(QGraphicsSceneHoverEvent *e) {
 	Q_UNUSED(e)
 }

@@ -19,10 +19,9 @@
 
 namespace {
 
-//------------------------------------------------------------------------------
-// Name: width_to_index
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 constexpr int width_to_index(int n) {
 	switch (n) {
 	case 16:
@@ -39,10 +38,9 @@ constexpr int width_to_index(int n) {
 }
 }
 
-//------------------------------------------------------------------------------
-// Name: DialogOptions
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 DialogOptions::DialogOptions(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
 
@@ -53,20 +51,18 @@ DialogOptions::DialogOptions(QWidget *parent, Qt::WindowFlags f)
 	ui.comboTheme->addItem(tr("Light [Built-in]"), "Light [Built-in]");
 }
 
-//------------------------------------------------------------------------------
-// Name: font_from_dialog
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString DialogOptions::fontFromDialog(const QString &default_font) {
 	QFont old_font;
 	old_font.fromString(default_font);
 	return QFontDialog::getFont(nullptr, old_font, this).toString();
 }
 
-//------------------------------------------------------------------------------
-// Name: addOptionsPage
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogOptions::addOptionsPage(QWidget *page) {
 
 	if (!toolbox_) {
@@ -80,10 +76,9 @@ void DialogOptions::addOptionsPage(QWidget *page) {
 	toolbox_->addItem(page, QIcon::fromTheme("plugin"), page->windowTitle());
 }
 
-//------------------------------------------------------------------------------
-// Name: directoryFromDialog
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QString DialogOptions::directoryFromDialog() {
 	return QFileDialog::getExistingDirectory(
 		this,
@@ -92,10 +87,9 @@ QString DialogOptions::directoryFromDialog() {
 		QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnTTY_clicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogOptions::on_btnTTY_clicked() {
 	const QString filename = QFileDialog::getOpenFileName(
 		this,
@@ -104,10 +98,9 @@ void DialogOptions::on_btnTTY_clicked() {
 	ui.txtTTY->setText(filename);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnSymbolDir_clicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogOptions::on_btnSymbolDir_clicked() {
 	const QString s = directoryFromDialog();
 
@@ -116,10 +109,9 @@ void DialogOptions::on_btnSymbolDir_clicked() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnSessionDir_clicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogOptions::on_btnSessionDir_clicked() {
 	const QString s = directoryFromDialog();
 
@@ -128,10 +120,9 @@ void DialogOptions::on_btnSessionDir_clicked() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnPluginDir_clicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogOptions::on_btnPluginDir_clicked() {
 	const QString s = directoryFromDialog();
 
@@ -140,10 +131,9 @@ void DialogOptions::on_btnPluginDir_clicked() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogOptions::showEvent(QShowEvent *event) {
 
 	QDialog::showEvent(event);
@@ -261,10 +251,9 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	currentThemeName_ = ui.comboTheme->currentData().toString();
 }
 
-//------------------------------------------------------------------------------
-// Name: closeEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogOptions::closeEvent(QCloseEvent *event) {
 
 	Configuration &config = edb::v1::config();
@@ -369,10 +358,9 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	event->accept();
 }
 
-//------------------------------------------------------------------------------
-// Name: accept
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogOptions::accept() {
 	close();
 }

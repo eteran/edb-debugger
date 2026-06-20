@@ -17,10 +17,14 @@ namespace {
 constexpr int LineThickness = 2;
 constexpr int EdgeZValue    = 1;
 
-//------------------------------------------------------------------------------
-// Name: create_arrow
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ * @brief Creates an arrow head for the edge.
+ *
+ * @param line The line to create the arrow for.
+ * @param size The size of the arrow.
+ * @return The created arrow polygon.
+ */
 QPolygonF create_arrow(QLineF line, int size) {
 	// we want a short line at the END of this line
 	line = QLineF(line.p2(), line.p1());
@@ -39,10 +43,14 @@ QPolygonF create_arrow(QLineF line, int size) {
 
 }
 
-//------------------------------------------------------------------------------
-// Name: GraphEdge
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Constructor for the GraphEdge class.
+ *
+ * @param from The node the edge starts from.
+ * @param to The node the edge points to.
+ * @param color The color of the edge.
+ * @param parent The parent item for the edge.
+ */
 GraphEdge::GraphEdge(GraphNode *from, GraphNode *to, QColor color, QGraphicsItem *parent)
 	: QGraphicsItemGroup(parent), from_(from), to_(to), graph_(from->graph_), color_(std::move(color)) {
 
@@ -61,10 +69,9 @@ GraphEdge::GraphEdge(GraphNode *from, GraphNode *to, QColor color, QGraphicsItem
 	edge_ = agedge(graph_->graph_, from->node_, to->node_, nullptr, true);
 }
 
-//------------------------------------------------------------------------------
-// Name: ~GraphEdge
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Destructor for the GraphEdge class.
+ */
 GraphEdge::~GraphEdge() {
 
 	from_->removeEdge(this);
@@ -73,35 +80,39 @@ GraphEdge::~GraphEdge() {
 	clear();
 }
 
-//------------------------------------------------------------------------------
-// Name: from
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ * @brief Gets the node the edge starts from.
+ *
+ * @return The node the edge starts from.
+ */
 GraphNode *GraphEdge::from() const {
 	return from_;
 }
 
-//------------------------------------------------------------------------------
-// Name: to
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Gets the node the edge points to.
+ *
+ * @return The node the edge points to.
+ */
 GraphNode *GraphEdge::to() const {
 	return to_;
 }
 
-//------------------------------------------------------------------------------
-// Name: GraphEdge
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Clears the edge.
+ */
 void GraphEdge::clear() {
 	const QList<QGraphicsItem *> items = childItems();
 	qDeleteAll(items);
 }
 
-//------------------------------------------------------------------------------
-// Name: shortenLineToNode
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Shortens the line to the node.
+ *
+ * @param line The line to shorten.
+ * @return The shortened line.
+ */
 QLineF GraphEdge::shortenLineToNode(QLineF line) {
 	QRectF nodeRect = to_->sceneBoundingRect();
 
@@ -125,10 +136,13 @@ QLineF GraphEdge::shortenLineToNode(QLineF line) {
 	return line;
 }
 
-//------------------------------------------------------------------------------
-// Name: createLineSegment
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Creates a line segment for the edge.
+ *
+ * @param line The line to create the segment for.
+ * @param pen The pen to use for the line.
+ * @return The created line item.
+ */
 QGraphicsLineItem *GraphEdge::createLineSegment(const QLineF &line, const QPen &pen) {
 	auto l = new QGraphicsLineItem(line, this);
 	l->setPen(pen);
@@ -137,18 +151,21 @@ QGraphicsLineItem *GraphEdge::createLineSegment(const QLineF &line, const QPen &
 	return l;
 }
 
-//------------------------------------------------------------------------------
-// Name: createLineSegment
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Creates a line segment for the edge.
+ *
+ * @param p1 The start point of the line.
+ * @param p2 The end point of the line.
+ * @param pen The pen to use for the line.
+ * @return The created line item.
+ */
 QGraphicsLineItem *GraphEdge::createLineSegment(const QPointF &p1, const QPointF &p2, const QPen &pen) {
 	return createLineSegment(QLineF(p1, p2), pen);
 }
 
-//------------------------------------------------------------------------------
-// Name: createLine
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Creates the line for the edge.
+ */
 void GraphEdge::createLine() {
 	clear();
 
@@ -161,18 +178,22 @@ void GraphEdge::createLine() {
 	addArrowHead(line);
 }
 
-//------------------------------------------------------------------------------
-// Name: syncState
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Synchronizes the state of the edge.
+ */
 void GraphEdge::syncState() {
 	createLine();
 }
 
-//------------------------------------------------------------------------------
-// Name: addArrowHead
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Adds an arrow head to the edge.
+ *
+ * @param line The line to add the arrow head to.
+ * @param lineThickness The thickness of the line.
+ * @param color The color of the arrow head.
+ * @param ZValue The Z value of the arrow head.
+ * @return The arrow head item.
+ */
 QGraphicsPolygonItem *GraphEdge::addArrowHead(const QLineF &line, int lineThickness, const QColor &color, int ZValue) {
 
 	const int arrowHeadSize = std::max(lineThickness * 5, 20);
@@ -187,18 +208,19 @@ QGraphicsPolygonItem *GraphEdge::addArrowHead(const QLineF &line, int lineThickn
 	return arrowHead;
 }
 
-//------------------------------------------------------------------------------
-// Name: addArrowHead
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Adds an arrow head to the edge.
+ *
+ * @param line The line to add the arrow head to.
+ * @return The arrow head item.
+ */
 QGraphicsPolygonItem *GraphEdge::addArrowHead(const QLineF &line) {
 	return addArrowHead(line, lineThickness(), lineColor(), EdgeZValue);
 }
 
-//------------------------------------------------------------------------------
-// Name: updateLines
-// Desc: replaces all of the lines with a single straight line
-//------------------------------------------------------------------------------
+/**
+ * @brief Updates the lines of the edge. replaces all of the lines with a single straight line
+ */
 void GraphEdge::updateLines() {
 
 	if (!childItems().empty()) {
@@ -206,18 +228,20 @@ void GraphEdge::updateLines() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: lineThickness
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Gets the thickness of the line.
+ *
+ * @return The line thickness.
+ */
 int GraphEdge::lineThickness() const {
 	return LineThickness;
 }
 
-//------------------------------------------------------------------------------
-// Name: lineColor
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Gets the color of the line.
+ *
+ * @return The line color.
+ */
 QColor GraphEdge::lineColor() const {
 	return color_;
 }

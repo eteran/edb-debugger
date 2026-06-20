@@ -46,6 +46,7 @@ struct NormalizeFailure {};
 
 /**
  * @brief printBytes
+ *
  * @param ptr
  * @param size
  * @param printZeros
@@ -72,6 +73,7 @@ std::string printBytes(const void *ptr, std::size_t size, bool printZeros = true
 
 /**
  * @brief toHex
+ *
  * @param x
  * @param Signed
  * @return
@@ -95,6 +97,7 @@ std::string toHex(unsigned long long x, bool Signed = false) {
 #if defined(EDB_ARM32)
 /**
  * @brief toFloatString
+ *
  * @param x
  * @return
  */
@@ -108,6 +111,7 @@ std::string toFloatString(double x) {
 
 /**
  * @brief uppercase
+ *
  * @param text
  * @return
  */
@@ -118,6 +122,7 @@ std::string uppercase(std::string text) {
 
 /**
  * @brief getGroupNames
+ *
  * @param csh
  * @param insn_
  * @return
@@ -145,6 +150,7 @@ std::vector<std::string> getGroupNames(csh csh, const cs_insn *insn_) {
 
 /**
  * @brief printReg
+ *
  * @param csh
  * @param reg
  * @param canBeZero
@@ -165,6 +171,7 @@ std::string printReg(csh csh, int reg, bool canBeZero = false) {
 #if 0
 /**
  * @brief printRegs
+ *
  * @param csh
  * @param regsBuffer
  * @param size
@@ -194,6 +201,7 @@ std::string printRegs(csh csh, const uint16_t *regsBuffer, std::size_t size) {
 #if CS_API_MAJOR >= 4
 /**
  * @brief printXOP_CC
+ *
  * @param cc
  * @return
  */
@@ -220,6 +228,7 @@ std::string printXOP_CC(x86_xop_cc cc) {
 
 /**
  * @brief printSSE_CC
+ *
  * @param cc
  * @return
  */
@@ -246,6 +255,7 @@ std::string printSSE_CC(x86_sse_cc cc) {
 
 /**
  * @brief printAVX_CC
+ *
  * @param cc
  * @return
  */
@@ -297,6 +307,7 @@ std::string printAVX_CC(x86_avx_cc cc) {
 
 /**
  * @brief printAVX_RM
+ *
  * @param cc
  * @return
  */
@@ -320,6 +331,7 @@ std::string printAVX_RM(x86_avx_rm cc) {
 #if CS_API_MAJOR >= 4
 /**
  * @brief getChangedEFLAGSNames
+ *
  * @param efl
  * @return
  */
@@ -521,6 +533,7 @@ std::vector<std::string> getChangedEFLAGSNames(std::uint64_t efl) {
 #if defined(EDB_ARM32)
 /**
  * @brief printCond
+ *
  * @param cc
  * @return
  */
@@ -554,6 +567,7 @@ std::string printCond(arm_cc cc) {
 
 /**
  * @brief printOpType
+ *
  * @param op
  * @return
  */
@@ -576,6 +590,7 @@ std::string printOpType(const x86_op_type &op) {
 #if defined(EDB_ARM32)
 /**
  * @brief printShiftType
+ *
  * @param op
  * @return
  */
@@ -604,6 +619,7 @@ std::string printShiftType(const arm_shifter &op) {
 
 /**
  * @brief printOpType
+ *
  * @param op
  * @return
  */
@@ -624,6 +640,7 @@ std::string printOpType(const arm_setend_type &op) {
 
 /**
  * @brief printOpType
+ *
  * @param op
  * @return
  */
@@ -651,6 +668,7 @@ std::string printOpType(const arm_op_type &op) {
 
 /**
  * @brief printAVX_Bcast
+ *
  * @param bc
  * @return
  */
@@ -673,6 +691,7 @@ std::string printAVX_Bcast(x86_avx_bcast bc) {
 #if CS_API_MAJOR >= 4
 /**
  * @brief printAccessMode
+ *
  * @param mode
  * @return
  */
@@ -713,6 +732,7 @@ std::string printAccessMode(unsigned mode) {
 
 /**
  * @brief normalizeOBJDUMP
+ *
  * @param text
  * @param bits
  * @return
@@ -754,6 +774,7 @@ QString normalizeOBJDUMP(const QString &text, int bits) {
 
 /**
  * @brief runOBJDUMP
+ *
  * @param bytes
  * @param address
  * @return
@@ -836,6 +857,7 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 #if defined(EDB_X86) || defined(EDB_X86_64)
 /**
  * @brief normalizeNDISASM
+ *
  * @param text
  * @param bits
  * @return
@@ -873,6 +895,7 @@ QString normalizeNDISASM(const QString &text, int bits) {
 
 /**
  * @brief runNDISASM
+ *
  * @param bytes
  * @param address
  * @return
@@ -929,6 +952,7 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 
 /**
  * @brief normalizeOBJCONV
+ *
  * @param text
  * @param bits
  * @return
@@ -952,6 +976,7 @@ std::pair<QString, std::size_t /*insnLength*/> normalizeOBJCONV(const QString &t
 
 /**
  * @brief runOBJCONV
+ *
  * @param bytes
  * @param address
  * @return
@@ -1301,6 +1326,7 @@ public:
 
 /**
  * @brief Plugin::Plugin
+ *
  * @param parent
  */
 Plugin::Plugin(QObject *parent)
@@ -1313,6 +1339,7 @@ Plugin::Plugin(QObject *parent)
 
 /**
  * @brief Plugin::menu
+ *
  * @return
  */
 QMenu *Plugin::menu(QWidget *) {
@@ -1321,6 +1348,7 @@ QMenu *Plugin::menu(QWidget *) {
 
 /**
  * @brief Plugin::cpuContextMenu
+ *
  * @return
  */
 QList<QAction *> Plugin::cpuContextMenu() {
@@ -1329,6 +1357,7 @@ QList<QAction *> Plugin::cpuContextMenu() {
 
 /**
  * @brief InstructionDialog::InstructionDialog
+ *
  * @param parent
  * @param f
  */

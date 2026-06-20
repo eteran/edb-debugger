@@ -66,6 +66,7 @@ edb::address_t next_chunk(edb::address_t p, const malloc_chunk<Addr> &c) {
 
 /**
  * @brief block_start
+ *
  * @param pointer
  * @return
  */
@@ -75,6 +76,7 @@ edb::address_t block_start(edb::address_t pointer) {
 
 /**
  * @brief block_start
+ *
  * @param result
  * @return
  */
@@ -84,6 +86,7 @@ edb::address_t block_start(const ResultViewModel::Result &result) {
 
 /**
  * @brief get_library_names
+ *
  * @param libcName
  * @param ldName
  */
@@ -133,6 +136,7 @@ void get_library_names(QString *libcName, QString *ldName) {
 
 /**
  * @brief DialogHeap::DialogHeap
+ *
  * @param parent
  * @param f
  */
@@ -255,6 +259,7 @@ void DialogHeap::showEvent(QShowEvent *) {
 
 /**
  * @brief DialogHeap::on_tableView_doubleClicked
+ *
  * @param index
  */
 void DialogHeap::on_tableView_doubleClicked(const QModelIndex &index) {
@@ -266,6 +271,7 @@ void DialogHeap::on_tableView_doubleClicked(const QModelIndex &index) {
 
 /**
  * @brief DialogHeap::processPotentialPointers
+ *
  * @param targets
  * @param index
  */
@@ -332,6 +338,7 @@ void DialogHeap::detectPointers() {
 
 /**
  * @brief DialogHeap::collectBlocks
+ *
  * @param start_address
  * @param end_address
  */
@@ -464,6 +471,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 
 /**
  * @brief DialogHeap::findHeapStartHeuristic
+ *
  * @param end_address
  * @param offset
  * @return
@@ -575,6 +583,7 @@ void DialogHeap::doFind() {
 
 /**
  * @brief DialogHeap::createResultMap
+ *
  * @return
  */
 QMap<edb::address_t, const ResultViewModel::Result *> DialogHeap::createResultMap() const {

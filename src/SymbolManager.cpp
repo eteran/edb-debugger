@@ -20,10 +20,9 @@
 #include <iostream>
 #include <istream>
 
-//------------------------------------------------------------------------------
-// Name: clear
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void SymbolManager::clear() {
 	symbolFiles_.clear();
 	symbols_.clear();
@@ -34,10 +33,9 @@ void SymbolManager::clear() {
 	labelsByName_.clear();
 }
 
-//------------------------------------------------------------------------------
-// Name: loadSymbolFile
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void SymbolManager::loadSymbolFile(const QString &filename, edb::address_t base) {
 
 	const QString symbol_directory = edb::v1::config().symbol_path;
@@ -77,10 +75,9 @@ void SymbolManager::loadSymbolFile(const QString &filename, edb::address_t base)
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: find
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 std::shared_ptr<Symbol> SymbolManager::find(const QString &name) const {
 
 	auto it = symbolsByName_.find(name);
@@ -102,19 +99,17 @@ std::shared_ptr<Symbol> SymbolManager::find(const QString &name) const {
 	return nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: find
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 std::shared_ptr<Symbol> SymbolManager::find(edb::address_t address) const {
 	auto it = symbolsByAddress_.find(address);
 	return (it != symbolsByAddress_.end()) ? it.value() : nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: findNearSymbol
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 std::shared_ptr<Symbol> SymbolManager::findNearSymbol(edb::address_t address) const {
 
 	auto it = symbolsByAddress_.lowerBound(address);
@@ -139,10 +134,9 @@ std::shared_ptr<Symbol> SymbolManager::findNearSymbol(edb::address_t address) co
 	return nullptr;
 }
 
-//------------------------------------------------------------------------------
-// Name: addSymbol
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void SymbolManager::addSymbol(const std::shared_ptr<Symbol> &symbol) {
 	Q_ASSERT(symbol);
 	symbols_.push_back(symbol);
@@ -151,11 +145,15 @@ void SymbolManager::addSymbol(const std::shared_ptr<Symbol> &symbol) {
 	symbolsByFile_[symbol->file].push_back(symbol);
 }
 
-//------------------------------------------------------------------------------
-// Name: processSymbolFile
-// Desc:
-// Note: returning false means 'try again', true means, 'we loaded what we could'
-//------------------------------------------------------------------------------
+/**
+ * @brief Processes a symbol file and loads its contents.
+ *
+ * @param f The path to the symbol file.
+ * @param base The base address for the symbols.
+ * @param library_filename The name of the library for which to load symbols.
+ * @param allow_retry Whether to allow retrying if the symbol file is stale.
+ * @return True if the symbol file was processed successfully, false otherwise.
+ */
 bool SymbolManager::processSymbolFile(const QString &f, edb::address_t base, const QString &library_filename, bool allow_retry) {
 
 	// TODO(eteran): support filename starting with "http://" being fetched from a web server
@@ -248,28 +246,30 @@ bool SymbolManager::processSymbolFile(const QString &f, edb::address_t base, con
 	return true;
 }
 
-//------------------------------------------------------------------------------
-// Name: symbols
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 std::vector<std::shared_ptr<Symbol>> SymbolManager::symbols() const {
 	return symbols_;
 }
 
-//------------------------------------------------------------------------------
-// Name: setSymbolGenerator
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void SymbolManager::setSymbolGenerator(ISymbolGenerator *generator) {
 	symbolGenerator_ = generator;
 }
 
-//------------------------------------------------------------------------------
-// Name: setLabel
-// Desc: a label is like a symbol, but can be set/unset by users. They will take
-//       precedence over symbols (since this is the name that the user really
-//       wants to call this address). And only apply to code
-//------------------------------------------------------------------------------
+/**
+ * @brief Sets a label for a given address.
+ *
+ * A label is like a symbol, but can be set/unset by users. It will take
+ * precedence over symbols (since this is the name that the user really
+ * wants to call this address). And only apply to code
+ *
+ * @param address The address to label.
+ * @param label The label to set.
+ */
 void SymbolManager::setLabel(edb::address_t address, const QString &label) {
 	if (label.isEmpty()) {
 		labelsByName_.remove(labels_[address]);
@@ -289,10 +289,13 @@ void SymbolManager::setLabel(edb::address_t address, const QString &label) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: findAddressName
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Finds the name of an address, either with or without a prefix.
+ *
+ * @param address The address to find.
+ * @param prefixed Whether to include the prefix.
+ * @return The name of the address.
+ */
 QString SymbolManager::findAddressName(edb::address_t address, bool prefixed) {
 	auto it = labels_.find(address);
 	if (it != labels_.end()) {
@@ -306,18 +309,20 @@ QString SymbolManager::findAddressName(edb::address_t address, bool prefixed) {
 	return QString();
 }
 
-//------------------------------------------------------------------------------
-// Name: labels
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Gets the labels for all addresses.
+ *
+ * @return The labels for all addresses.
+ */
 QHash<edb::address_t, QString> SymbolManager::labels() const {
 	return labels_;
 }
 
-//------------------------------------------------------------------------------
-// Name: files
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Gets the list of all symbol files.
+ *
+ * @return The list of all symbol files.
+ */
 QStringList SymbolManager::files() const {
 	return symbolsByFile_.keys();
 }

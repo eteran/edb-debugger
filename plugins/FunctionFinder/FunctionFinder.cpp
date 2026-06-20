@@ -13,6 +13,7 @@ namespace FunctionFinderPlugin {
 
 /**
  * @brief FunctionFinder::FunctionFinder
+ *
  * @param parent
  */
 FunctionFinder::FunctionFinder(QObject *parent)
@@ -28,6 +29,7 @@ FunctionFinder::~FunctionFinder() {
 
 /**
  * @brief FunctionFinder::menu
+ *
  * @param parent
  * @return
  */

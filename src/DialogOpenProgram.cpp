@@ -15,6 +15,7 @@
 
 /**
  * @brief DialogOpenProgram::DialogOpenProgram
+ *
  * @param parent
  * @param caption
  * @param directory
@@ -65,6 +66,7 @@ void DialogOpenProgram::browsePressed() {
 
 /**
  * @brief DialogOpenProgram::arguments
+ *
  * @return
  */
 QList<QByteArray> DialogOpenProgram::arguments() const {
@@ -78,6 +80,7 @@ QList<QByteArray> DialogOpenProgram::arguments() const {
 
 /**
  * @brief DialogOpenProgram::workingDirectory
+ *
  * @return
  */
 QString DialogOpenProgram::workingDirectory() const {

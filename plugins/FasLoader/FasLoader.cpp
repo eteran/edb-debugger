@@ -19,6 +19,7 @@ namespace FasLoaderPlugin {
 
 /**
  * @brief FasLoader::FasLoader
+ *
  * @param parent
  */
 FasLoader::FasLoader(QObject *parent)
@@ -27,6 +28,7 @@ FasLoader::FasLoader(QObject *parent)
 
 /**
  * @brief FasLoader::menu
+ *
  * @param parent
  * @return
  */

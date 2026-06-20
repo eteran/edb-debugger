@@ -39,6 +39,7 @@ Q_DECLARE_NAMESPACE_TR(ProcessPropertiesPlugin)
 namespace {
 /**
  * @brief arguments_to_string
+ *
  * @param args
  * @return
  */
@@ -56,6 +57,7 @@ QString arguments_to_string(const QList<QByteArray> &args) {
 
 /**
  * @brief size_to_string
+ *
  * @param n
  * @return
  */
@@ -83,6 +85,7 @@ QString size_to_string(size_t n) {
 #if defined(Q_OS_LINUX)
 /**
  * @brief file_type
+ *
  * @param filename
  * @return
  */
@@ -103,6 +106,7 @@ QString file_type(const QString &filename) {
 
 /**
  * @brief tcp_socket_processor
+ *
  * @param symlink
  * @param sock
  * @param lst
@@ -148,6 +152,7 @@ bool tcp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 
 /**
  * @brief udp_socket_processor
+ *
  * @param symlink
  * @param sock
  * @param lst
@@ -193,6 +198,7 @@ bool udp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 
 /**
  * @brief unix_socket_processor
+ *
  * @param symlink
  * @param sock
  * @param lst
@@ -218,6 +224,7 @@ bool unix_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 
 /**
  * @brief process_socket_file
+ *
  * @param filename
  * @param symlink
  * @param sock
@@ -259,6 +266,7 @@ QString process_socket_file(const QString &filename, QString *symlink, int sock,
 
 /**
  * @brief process_socket_tcp
+ *
  * @param symlink
  * @return
  */
@@ -274,6 +282,7 @@ QString process_socket_tcp(QString *symlink) {
 
 /**
  * @brief process_socket_unix
+ *
  * @param symlink
  * @return
  */
@@ -289,6 +298,7 @@ QString process_socket_unix(QString *symlink) {
 
 /**
  * @brief process_socket_udp
+ *
  * @param symlink
  * @return
  */
@@ -307,6 +317,7 @@ QString process_socket_udp(QString *symlink) {
 
 /**
  * @brief DialogProcessProperties::DialogProcessProperties
+ *
  * @param parent
  * @param f
  */
@@ -415,6 +426,7 @@ void DialogProcessProperties::updateMemoryPage() {
 
 /**
  * @brief DialogProcessProperties::on_txtSearchEnvironment_textChanged
+ *
  * @param text
  */
 void DialogProcessProperties::on_txtSearchEnvironment_textChanged(const QString &text) {
@@ -423,6 +435,7 @@ void DialogProcessProperties::on_txtSearchEnvironment_textChanged(const QString 
 
 /**
  * @brief DialogProcessProperties::updateEnvironmentPage
+ *
  * @param filter
  */
 void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {

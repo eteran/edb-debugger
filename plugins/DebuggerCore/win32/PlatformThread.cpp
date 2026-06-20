@@ -13,6 +13,7 @@ namespace DebuggerCorePlugin {
 
 /**
  * @brief PlatformThread::PlatformThread
+ *
  * @param core
  * @param process
  * @param hThread
@@ -34,6 +35,7 @@ PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &pr
 
 /**
  * @brief PlatformThread::tid
+ *
  * @return
  */
 edb::tid_t PlatformThread::tid() const {
@@ -42,6 +44,7 @@ edb::tid_t PlatformThread::tid() const {
 
 /**
  * @brief PlatformThread::name
+ *
  * @return
  */
 QString PlatformThread::name() const {
@@ -64,6 +67,7 @@ QString PlatformThread::name() const {
 
 /**
  * @brief PlatformThread::priority
+ *
  * @return
  */
 int PlatformThread::priority() const {
@@ -72,6 +76,7 @@ int PlatformThread::priority() const {
 
 /**
  * @brief PlatformThread::instructionPointer
+ *
  * @return
  */
 edb::address_t PlatformThread::instructionPointer() const {
@@ -97,6 +102,7 @@ edb::address_t PlatformThread::instructionPointer() const {
 
 /**
  * @brief PlatformThread::runState
+ *
  * @return
  */
 QString PlatformThread::runState() const {
@@ -105,6 +111,7 @@ QString PlatformThread::runState() const {
 
 /**
  * @brief PlatformThread::get_state
+ *
  * @param state
  */
 void PlatformThread::getState(State *state) {
@@ -115,6 +122,7 @@ void PlatformThread::getState(State *state) {
 
 /**
  * @brief PlatformThread::set_state
+ *
  * @param state
  */
 void PlatformThread::setState(const State &state) {
@@ -125,6 +133,7 @@ void PlatformThread::setState(const State &state) {
 
 /**
  * @brief PlatformThread::step
+ *
  * @return
  */
 Status PlatformThread::step() {
@@ -155,6 +164,7 @@ Status PlatformThread::step() {
 
 /**
  * @brief PlatformThread::step
+ *
  * @param status
  * @return
  */
@@ -186,6 +196,7 @@ Status PlatformThread::step(edb::EventStatus status) {
 
 /**
  * @brief PlatformThread::resume
+ *
  * @return
  */
 Status PlatformThread::resume() {
@@ -198,6 +209,7 @@ Status PlatformThread::resume() {
 
 /**
  * @brief PlatformThread::resume
+ *
  * @param status
  * @return
  */
@@ -214,6 +226,7 @@ Status PlatformThread::resume(edb::EventStatus status) {
 
 /**
  * @brief PlatformThread::isPaused
+ *
  * @return
  */
 bool PlatformThread::isPaused() const {

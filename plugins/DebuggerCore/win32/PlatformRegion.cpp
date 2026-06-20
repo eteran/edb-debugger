@@ -24,6 +24,7 @@ constexpr IRegion::permissions_t KnownPermissions = (PAGE_NOACCESS | PAGE_READON
 
 /**
  * @brief PlatformRegion::PlatformRegion
+ *
  * @param start
  * @param end
  * @param base
@@ -36,6 +37,7 @@ PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::ad
 
 /**
  * @brief PlatformRegion::clone
+ *
  * @return
  */
 IRegion *PlatformRegion::clone() const {
@@ -44,6 +46,7 @@ IRegion *PlatformRegion::clone() const {
 
 /**
  * @brief PlatformRegion::accessible
+ *
  * @return
  */
 bool PlatformRegion::accessible() const {
@@ -52,6 +55,7 @@ bool PlatformRegion::accessible() const {
 
 /**
  * @brief PlatformRegion::readable
+ *
  * @return
  */
 bool PlatformRegion::readable() const {
@@ -68,6 +72,7 @@ bool PlatformRegion::readable() const {
 
 /**
  * @brief PlatformRegion::writable
+ *
  * @return
  */
 bool PlatformRegion::writable() const {
@@ -84,6 +89,7 @@ bool PlatformRegion::writable() const {
 
 /**
  * @brief PlatformRegion::executable
+ *
  * @return
  */
 bool PlatformRegion::executable() const {
@@ -100,6 +106,7 @@ bool PlatformRegion::executable() const {
 
 /**
  * @brief PlatformRegion::size
+ *
  * @return
  */
 size_t PlatformRegion::size() const {
@@ -108,6 +115,7 @@ size_t PlatformRegion::size() const {
 
 /**
  * @brief PlatformRegion::setPermissions
+ *
  * @param read
  * @param write
  * @param execute
@@ -159,6 +167,7 @@ void PlatformRegion::setPermissions(bool read, bool write, bool execute) {
 
 /**
  * @brief PlatformRegion::start
+ *
  * @return
  */
 edb::address_t PlatformRegion::start() const {
@@ -167,6 +176,7 @@ edb::address_t PlatformRegion::start() const {
 
 /**
  * @brief PlatformRegion::end
+ *
  * @return
  */
 edb::address_t PlatformRegion::end() const {
@@ -175,6 +185,7 @@ edb::address_t PlatformRegion::end() const {
 
 /**
  * @brief PlatformRegion::base
+ *
  * @return
  */
 edb::address_t PlatformRegion::base() const {
@@ -183,6 +194,7 @@ edb::address_t PlatformRegion::base() const {
 
 /**
  * @brief PlatformRegion::name
+ *
  * @return
  */
 QString PlatformRegion::name() const {
@@ -191,6 +203,7 @@ QString PlatformRegion::name() const {
 
 /**
  * @brief PlatformRegion::permissions
+ *
  * @return
  */
 IRegion::permissions_t PlatformRegion::permissions() const {
@@ -199,6 +212,7 @@ IRegion::permissions_t PlatformRegion::permissions() const {
 
 /**
  * @brief PlatformRegion::setStart
+ *
  * @param address
  */
 void PlatformRegion::setStart(edb::address_t address) {
@@ -207,6 +221,7 @@ void PlatformRegion::setStart(edb::address_t address) {
 
 /**
  * @brief PlatformRegion::setEnd
+ *
  * @param address
  */
 void PlatformRegion::setEnd(edb::address_t address) {

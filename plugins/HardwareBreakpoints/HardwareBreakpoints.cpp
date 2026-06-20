@@ -32,6 +32,7 @@ namespace HardwareBreakpointsPlugin {
 
 /**
  * @brief HardwareBreakpoints::HardwareBreakpoints
+ *
  * @param parent
  */
 HardwareBreakpoints::HardwareBreakpoints(QObject *parent)
@@ -79,6 +80,7 @@ void HardwareBreakpoints::privateFini() {
 
 /**
  * @brief HardwareBreakpoints::menu
+ *
  * @param parent
  * @return
  */
@@ -236,6 +238,7 @@ edb::EventStatus HardwareBreakpoints::handleEvent(const std::shared_ptr<IDebugEv
 
 /**
  * @brief HardwareBreakpoints::stackContextMenu
+ *
  * @return
  */
 QList<QAction *> HardwareBreakpoints::stackContextMenu() {
@@ -271,6 +274,7 @@ QList<QAction *> HardwareBreakpoints::stackContextMenu() {
 
 /**
  * @brief HardwareBreakpoints::dataContextMenu
+ *
  * @return
  */
 QList<QAction *> HardwareBreakpoints::dataContextMenu() {
@@ -306,6 +310,7 @@ QList<QAction *> HardwareBreakpoints::dataContextMenu() {
 
 /**
  * @brief HardwareBreakpoints::cpuContextMenu
+ *
  * @return
  */
 QList<QAction *> HardwareBreakpoints::cpuContextMenu() {
@@ -351,6 +356,7 @@ QList<QAction *> HardwareBreakpoints::cpuContextMenu() {
 
 /**
  * @brief HardwareBreakpoints::setExecuteBP
+ *
  * @param index
  * @param inUse
  */
@@ -388,6 +394,7 @@ void HardwareBreakpoints::setExecuteBP(int index, bool inUse) {
 
 /**
  * @brief HardwareBreakpoints::setWriteBP
+ *
  * @param index
  * @param inUse
  * @param address
@@ -443,6 +450,7 @@ void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t addre
 
 /**
  * @brief HardwareBreakpoints::setReadWriteBP
+ *
  * @param index
  * @param inUse
  * @param address
@@ -502,6 +510,7 @@ void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t a
 
 /**
  * @brief HardwareBreakpoints::setExec
+ *
  * @param index
  */
 void HardwareBreakpoints::setExec(int index) {
@@ -519,6 +528,7 @@ void HardwareBreakpoints::setExec(int index) {
 
 /**
  * @brief HardwareBreakpoints::setWrite
+ *
  * @param index
  */
 void HardwareBreakpoints::setWrite(int index) {
@@ -542,6 +552,7 @@ void HardwareBreakpoints::setWrite(int index) {
 
 /**
  * @brief HardwareBreakpoints::setAccess
+ *
  * @param index
  */
 void HardwareBreakpoints::setAccess(int index) {
@@ -565,6 +576,7 @@ void HardwareBreakpoints::setAccess(int index) {
 
 /**
  * @brief HardwareBreakpoints::setDataReadWriteBP
+ *
  * @param index
  * @param inUse
  */
@@ -576,6 +588,7 @@ void HardwareBreakpoints::setDataReadWriteBP(int index, bool inUse) {
 
 /**
  * @brief HardwareBreakpoints::setDataWriteBP
+ *
  * @param index
  * @param inUse
  */
@@ -587,6 +600,7 @@ void HardwareBreakpoints::setDataWriteBP(int index, bool inUse) {
 
 /**
  * @brief HardwareBreakpoints::setStackReadWriteBP
+ *
  * @param index
  * @param inUse
  */
@@ -598,6 +612,7 @@ void HardwareBreakpoints::setStackReadWriteBP(int index, bool inUse) {
 
 /**
  * @brief HardwareBreakpoints::setStackWriteBP
+ *
  * @param index
  * @param inUse
  */
@@ -609,6 +624,7 @@ void HardwareBreakpoints::setStackWriteBP(int index, bool inUse) {
 
 /**
  * @brief HardwareBreakpoints::setCPUReadWriteBP
+ *
  * @param index
  * @param inUse
  */
@@ -620,6 +636,7 @@ void HardwareBreakpoints::setCPUReadWriteBP(int index, bool inUse) {
 
 /**
  * @brief HardwareBreakpoints::setCPUWriteBP
+ *
  * @param index
  * @param inUse
  */

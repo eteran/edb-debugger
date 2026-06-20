@@ -26,6 +26,7 @@ namespace FunctionFinderPlugin {
 
 /**
  * @brief DialogResults::DialogResults
+ *
  * @param parent
  * @param f
  */
@@ -160,6 +161,7 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 
 /**
  * @brief DialogResults::on_tableView_doubleClicked
+ *
  * @param index
  */
 void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
@@ -174,6 +176,7 @@ void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
 
 /**
  * @brief DialogResults::addResult
+ *
  * @param function
  */
 void DialogResults::addResult(const Function &function) {
@@ -203,6 +206,7 @@ void DialogResults::addResult(const Function &function) {
 
 /**
  * @brief DialogResults::resultCount
+ *
  * @return
  */
 int DialogResults::resultCount() const {

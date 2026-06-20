@@ -17,7 +17,8 @@
 namespace AnalyzerPlugin {
 
 /**
- * @brief SpecifiedFunctions::SpecifiedFunctions
+ * @brief Constructs the specified functions dialog and sets up its list model, filter, and refresh button.
+ *
  * @param parent
  * @param f
  */
@@ -46,9 +47,7 @@ SpecifiedFunctions::SpecifiedFunctions(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief SpecifiedFunctions::on_function_list_doubleClicked
- *
- * follows the found item in the data view
+ * @brief Jumps the disassembly view to the address corresponding to the double-clicked list entry.
  *
  * @param index
  */
@@ -61,7 +60,7 @@ void SpecifiedFunctions::on_function_list_doubleClicked(const QModelIndex &index
 }
 
 /**
- * @brief SpecifiedFunctions::doFind
+ * @brief Refreshes the list with all currently user-specified function addresses.
  */
 void SpecifiedFunctions::doFind() {
 
@@ -76,7 +75,7 @@ void SpecifiedFunctions::doFind() {
 }
 
 /**
- * @brief SpecifiedFunctions::showEvent
+ * @brief Refreshes the user-specified function list every time the dialog becomes visible.
  */
 void SpecifiedFunctions::showEvent(QShowEvent *) {
 	buttonRefresh_->setEnabled(false);

@@ -23,7 +23,8 @@
 namespace BinaryInfoPlugin {
 
 /**
- * @brief BinaryInfo::BinaryInfo
+ * @brief Constructs the BinaryInfo plugin object.
+ *
  * @param parent
  */
 BinaryInfo::BinaryInfo(QObject *parent)
@@ -31,7 +32,7 @@ BinaryInfo::BinaryInfo(QObject *parent)
 }
 
 /**
- * @brief BinaryInfo::privateInit
+ * @brief Registers ELF32, ELF64, and PE32 binary parsers and sets this plugin as the symbol generator.
  */
 void BinaryInfo::privateInit() {
 
@@ -51,7 +52,8 @@ void BinaryInfo::privateInit() {
 }
 
 /**
- * @brief BinaryInfo::optionsPage
+ * @brief Returns the plugin's configuration options widget.
+ *
  * @return
  */
 QWidget *BinaryInfo::optionsPage() {
@@ -59,7 +61,8 @@ QWidget *BinaryInfo::optionsPage() {
 }
 
 /**
- * @brief BinaryInfo::menu
+ * @brief Creates and returns the Binary Info plugin menu, building it on first call.
+ *
  * @param parent
  * @return
  */
@@ -76,7 +79,7 @@ QMenu *BinaryInfo::menu(QWidget *parent) {
 }
 
 /**
- * @brief BinaryInfo::exploreHeader
+ * @brief Opens or raises the memory region browser dialog for exploring binary headers.
  */
 void BinaryInfo::exploreHeader() {
 	static auto dialog = new DialogRegions(edb::v1::debugger_ui);
@@ -84,7 +87,8 @@ void BinaryInfo::exploreHeader() {
 }
 
 /**
- * @brief BinaryInfo::extraArguments
+ * @brief Returns the extra command-line argument description string for the --symbols option.
+ *
  * @return
  */
 QString BinaryInfo::extraArguments() const {
@@ -92,7 +96,8 @@ QString BinaryInfo::extraArguments() const {
 }
 
 /**
- * @brief BinaryInfo::parseArguments
+ * @brief Handles the --symbols command-line argument to generate symbol files, returning ARG_EXIT if processed.
+ *
  * @param args
  * @return
  */
@@ -107,7 +112,8 @@ IPlugin::ArgumentStatus BinaryInfo::parseArguments(QStringList &args) {
 }
 
 /**
- * @brief BinaryInfo::generateSymbolFile
+ * @brief Generates a symbol file for the given binary and writes it to the specified output path.
+ *
  * @param filename
  * @param symbol_file
  * @return

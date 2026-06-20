@@ -12,10 +12,9 @@
 #include <QMetaClassInfo>
 #include <QSortFilterProxyModel>
 
-//------------------------------------------------------------------------------
-// Name: DialogPlugins
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 DialogPlugins::DialogPlugins(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
 
@@ -30,10 +29,9 @@ DialogPlugins::DialogPlugins(QWidget *parent, Qt::WindowFlags f)
 	ui.plugins_table->setModel(pluginFilter_);
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void DialogPlugins::showEvent(QShowEvent *) {
 
 	QMap<QString, QObject *> plugins = edb::v1::plugin_list();

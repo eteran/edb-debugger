@@ -47,6 +47,7 @@ namespace DebuggerCorePlugin {
 
 /**
  * @brief PlatformThread::fillSegmentBases
+ *
  * @param state
  */
 void PlatformThread::fillSegmentBases(PlatformState *state) {
@@ -81,6 +82,7 @@ void PlatformThread::fillSegmentBases(PlatformState *state) {
 
 /**
  * @brief PlatformThread::fillStateFromPrStatus
+ *
  * @param state
  * @return
  */
@@ -127,6 +129,7 @@ bool PlatformThread::fillStateFromPrStatus(PlatformState *state) {
 
 /**
  * @brief PlatformThread::fillStateFromSimpleRegs
+ *
  * @param state
  * @return
  */
@@ -146,6 +149,7 @@ bool PlatformThread::fillStateFromSimpleRegs(PlatformState *state) {
 
 /**
  * @brief PlatformThread::getState
+ *
  * @param state
  */
 void PlatformThread::getState(State *state) {
@@ -212,6 +216,7 @@ void PlatformThread::getState(State *state) {
 
 /**
  * @brief PlatformThread::setState
+ *
  * @param state
  */
 void PlatformThread::setState(const State &state) {
@@ -284,6 +289,7 @@ void PlatformThread::setState(const State &state) {
 
 /**
  * @brief PlatformThread::instructionPointer
+ *
  * @return
  */
 edb::address_t PlatformThread::instructionPointer() const {
@@ -302,6 +308,7 @@ edb::address_t PlatformThread::instructionPointer() const {
 
 /**
  * @brief PlatformThread::getDebugRegister
+ *
  * @param n
  * @return
  */
@@ -312,6 +319,7 @@ unsigned long PlatformThread::getDebugRegister(std::size_t n) const {
 
 /**
  * @brief PlatformThread::setDebugRegister
+ *
  * @param n
  * @param value
  * @return
@@ -326,6 +334,7 @@ long PlatformThread::setDebugRegister(std::size_t n, unsigned long value) const 
  * (unless the signal was SIGSTOP)
  *
  * @brief PlatformThread::step
+ *
  * @return
  */
 Status PlatformThread::step() {
@@ -337,6 +346,7 @@ Status PlatformThread::step() {
  * (unless the signal was SIGSTOP, or the passed status != DEBUG_EXCEPTION_NOT_HANDLED)
  *
  * @brief PlatformThread::step
+ *
  * @param status
  * @return
  */

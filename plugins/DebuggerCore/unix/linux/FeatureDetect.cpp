@@ -26,6 +26,7 @@ namespace {
 
 /**
  * @brief kill_child
+ *
  * @param pid
  */
 void kill_child(int pid) {
@@ -40,6 +41,7 @@ void kill_child(int pid) {
  * detects whether or not reads/writes through /proc/<pid>/mem work correctly
  *
  * @brief detect_proc_access
+ *
  * @param read_broken
  * @param write_broken
  * @return

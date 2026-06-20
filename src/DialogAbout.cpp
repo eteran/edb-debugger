@@ -7,10 +7,12 @@
 #include "DialogAbout.h"
 #include "version.h"
 
-//------------------------------------------------------------------------------
-// Name: DialogAbout
-// Desc: constructor
-//------------------------------------------------------------------------------
+/**
+ * @brief Constructor for the DialogAbout class.
+ *
+ * @param parent The parent widget.
+ * @param f The window flags.
+ */
 DialogAbout::DialogAbout(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
 	ui.setupUi(this);

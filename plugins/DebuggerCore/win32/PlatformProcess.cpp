@@ -163,6 +163,7 @@ bool getProcessEntry(edb::pid_t pid, PROCESSENTRY32 *entry) {
 
 /**
  * @brief PlatformProcess::PlatformProcess
+ *
  * @param core
  * @param pid
  */
@@ -173,6 +174,7 @@ PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid)
 
 /**
  * @brief PlatformProcess::PlatformProcess
+ *
  * @param core
  * @param handle
  */
@@ -198,6 +200,7 @@ PlatformProcess::~PlatformProcess() {
 
 /**
  * @brief PlatformProcess::isWow64
+ *
  * @return
  */
 bool PlatformProcess::isWow64() const {
@@ -216,6 +219,7 @@ bool PlatformProcess::isWow64() const {
 
 /**
  * @brief PlatformProcess::startTime
+ *
  * @return
  */
 QDateTime PlatformProcess::startTime() const {
@@ -239,6 +243,7 @@ QDateTime PlatformProcess::startTime() const {
 
 /**
  * @brief PlatformProcess::pid
+ *
  * @return
  */
 edb::pid_t PlatformProcess::pid() const {
@@ -247,6 +252,7 @@ edb::pid_t PlatformProcess::pid() const {
 
 /**
  * @brief PlatformProcess::name
+ *
  * @return
  */
 QString PlatformProcess::name() const {
@@ -263,6 +269,7 @@ QString PlatformProcess::name() const {
 
 /**
  * @brief PlatformProcess::user
+ *
  * @return
  */
 QString PlatformProcess::user() const {
@@ -297,6 +304,7 @@ QString PlatformProcess::user() const {
 
 /**
  * @brief PlatformProcess::parent
+ *
  * @return
  */
 std::shared_ptr<IProcess> PlatformProcess::parent() const {
@@ -306,6 +314,7 @@ std::shared_ptr<IProcess> PlatformProcess::parent() const {
 
 /**
  * @brief PlatformProcess::uid
+ *
  * @return
  */
 edb::uid_t PlatformProcess::uid() const {
@@ -326,6 +335,7 @@ edb::uid_t PlatformProcess::uid() const {
 
 /**
  * @brief PlatformProcess::patches
+ *
  * @return
  */
 QMap<edb::address_t, Patch> PlatformProcess::patches() const {
@@ -334,6 +344,7 @@ QMap<edb::address_t, Patch> PlatformProcess::patches() const {
 
 /**
  * @brief PlatformProcess::write_bytes
+ *
  * @param address
  * @param buf
  * @param len
@@ -357,6 +368,7 @@ std::size_t PlatformProcess::writeBytes(edb::address_t address, const void *buf,
 
 /**
  * @brief PlatformProcess::readBytes
+ *
  * @param address
  * @param buf
  * @param len
@@ -390,6 +402,7 @@ std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, size_t
 
 /**
  * @brief PlatformProcess::readPages
+ *
  * @param address
  * @param buf
  * @param count
@@ -402,6 +415,7 @@ std::size_t PlatformProcess::readPages(edb::address_t address, void *buf, size_t
 
 /**
  * @brief PlatformProcess::pause
+ *
  * @return
  */
 Status PlatformProcess::pause() {
@@ -416,6 +430,7 @@ Status PlatformProcess::pause() {
 
 /**
  * @brief PlatformProcess::regions
+ *
  * @return
  */
 QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
@@ -460,6 +475,7 @@ QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
 
 /**
  * @brief PlatformProcess::executable
+ *
  * @return
  */
 QString PlatformProcess::executable() const {
@@ -493,6 +509,7 @@ QString PlatformProcess::executable() const {
 
 /**
  * @brief PlatformProcess::arguments
+ *
  * @return
  */
 QList<QByteArray> PlatformProcess::arguments() const {
@@ -522,6 +539,7 @@ QList<QByteArray> PlatformProcess::arguments() const {
 
 /**
  * @brief loadedModules
+ *
  * @return
  */
 QList<Module> PlatformProcess::loadedModules() const {
@@ -546,6 +564,7 @@ QList<Module> PlatformProcess::loadedModules() const {
 
 /**
  * @brief PlatformProcess::threads
+ *
  * @return
  */
 QList<std::shared_ptr<IThread>> PlatformProcess::threads() const {
@@ -563,6 +582,7 @@ QList<std::shared_ptr<IThread>> PlatformProcess::threads() const {
 
 /**
  * @brief PlatformProcess::currentThread
+ *
  * @return
  */
 std::shared_ptr<IThread> PlatformProcess::currentThread() const {
@@ -578,6 +598,7 @@ std::shared_ptr<IThread> PlatformProcess::currentThread() const {
 
 /**
  * @brief PlatformProcess::setCurrentThread
+ *
  * @param thread
  */
 void PlatformProcess::setCurrentThread(IThread &thread) {
@@ -609,6 +630,7 @@ bool PlatformProcess::isPaused() const {
 
 /**
  * @brief PlatformProcess::resume
+ *
  * @param status
  * @return
  */

@@ -17,7 +17,8 @@
 namespace BookmarksPlugin {
 
 /**
- * @brief BookmarkWidget::BookmarkWidget
+ * @brief Constructs the bookmark list widget, sets up its model, and creates toggle/conditional breakpoint actions.
+ *
  * @param parent
  * @param f
  */
@@ -40,7 +41,8 @@ BookmarkWidget::BookmarkWidget(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief BookmarkWidget::on_tableView_doubleClicked
+ * @brief Navigates to the double-clicked bookmark address, or opens an inline editor for type or comment columns.
+ *
  * @param index
  */
 void BookmarkWidget::on_tableView_doubleClicked(const QModelIndex &index) {
@@ -86,7 +88,7 @@ void BookmarkWidget::on_tableView_doubleClicked(const QModelIndex &index) {
 }
 
 /**
- * @brief BookmarkWidget::buttonAddClicked
+ * @brief Prompts the user for an address expression and adds it as a new bookmark.
  */
 void BookmarkWidget::buttonAddClicked() {
 
@@ -96,7 +98,7 @@ void BookmarkWidget::buttonAddClicked() {
 }
 
 /**
- * @brief BookmarkWidget::buttonDelClicked
+ * @brief Removes the currently selected bookmark from the list.
  */
 void BookmarkWidget::buttonDelClicked() {
 
@@ -110,14 +112,14 @@ void BookmarkWidget::buttonDelClicked() {
 }
 
 /**
- * @brief BookmarkWidget::buttonClearClicked
+ * @brief Clears all bookmarks from the list.
  */
 void BookmarkWidget::buttonClearClicked() {
 	model_->clearBookmarks();
 }
 
 /**
- * @brief BookmarkWidget::toggleBreakpoint
+ * @brief Toggles a breakpoint at each currently selected bookmark's address.
  */
 void BookmarkWidget::toggleBreakpoint() {
 
@@ -131,7 +133,7 @@ void BookmarkWidget::toggleBreakpoint() {
 }
 
 /**
- * @brief BookmarkWidget::addConditionalBreakpoint
+ * @brief Creates a breakpoint with an optional condition expression at the selected bookmark's address.
  */
 void BookmarkWidget::addConditionalBreakpoint() {
 
@@ -154,7 +156,8 @@ void BookmarkWidget::addConditionalBreakpoint() {
 }
 
 /**
- * @brief BookmarkWidget::addAddress
+ * @brief Adds the given address as a new bookmark if it is not already in the list.
+ *
  * @param address
  * @param type
  * @param comment
@@ -179,7 +182,8 @@ void BookmarkWidget::addAddress(edb::address_t address, const QString &type, con
 }
 
 /**
- * @brief BookmarkWidget::shortcut
+ * @brief Navigates to the bookmark at the given index, used by the Ctrl+0–9 keyboard shortcuts.
+ *
  * @param index
  */
 void BookmarkWidget::shortcut(int index) {
@@ -203,7 +207,8 @@ void BookmarkWidget::shortcut(int index) {
 }
 
 /**
- * @brief BookmarkWidget::on_tableView_customContextMenuRequested
+ * @brief Shows a context menu offering add, delete, clear, comment, type, and breakpoint actions for the selected entry.
+ *
  * @param pos
  */
 void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) {
@@ -270,7 +275,8 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 }
 
 /**
- * @brief BookmarkWidget::entries
+ * @brief Returns a copy of the current bookmark list.
+ *
  * @return
  */
 QList<BookmarksModel::Bookmark> BookmarkWidget::entries() const {

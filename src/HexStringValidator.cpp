@@ -10,18 +10,18 @@
 
 #include <cctype> // for std::isxdigit
 
-//------------------------------------------------------------------------------
-// Name: HexStringValidator
-// Desc: constructor
-//------------------------------------------------------------------------------
+/**
+ * @brief Constructor for the HexStringValidator class.
+ *
+ * @param parent The parent object.
+ */
 HexStringValidator::HexStringValidator(QObject *parent)
 	: QValidator(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: fixup
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void HexStringValidator::fixup(QString &input) const {
 	QString temp;
 	int index = 0;
@@ -42,10 +42,9 @@ void HexStringValidator::fixup(QString &input) const {
 	input = temp;
 }
 
-//------------------------------------------------------------------------------
-// Name: validate
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QValidator::State HexStringValidator::validate(QString &input, int &pos) const {
 	if (!input.isEmpty()) {
 		// TODO: can we detect if the char which was JUST deleted

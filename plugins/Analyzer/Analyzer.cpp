@@ -46,7 +46,8 @@ namespace {
 
 constexpr int MinRefCount = 2;
 /**
- * @brief will_return
+ * @brief Returns true if the function at the given address is not marked as non-returning.
+ *
  * @param address
  * @return
  */
@@ -68,7 +69,8 @@ bool will_return(edb::address_t address) {
 }
 
 /**
- * @brief is_entrypoint
+ * @brief Returns true if the given symbol represents the ELF process entry point (_start).
+ *
  * @param sym
  * @return
  */
@@ -81,7 +83,8 @@ bool is_entrypoint(const Symbol &sym) {
 }
 
 /**
- * @brief is_thunk
+ * @brief Returns true if the function at the given address begins with an unconditional jump, indicating a thunk.
+ *
  * @param address
  * @return true if the first instruction of the function is a jmp
  */
@@ -97,7 +100,8 @@ bool is_thunk(edb::address_t address) {
 }
 
 /**
- * @brief set_function_types
+ * @brief Classifies each function in the map as either a thunk or a standard function based on its entry instruction.
+ *
  * @param results
  */
 void set_function_types(IAnalyzer::FunctionMap *results) {
@@ -123,7 +127,8 @@ void set_function_types(IAnalyzer::FunctionMap *results) {
 }
 
 /**
- * @brief module_entry_point
+ * @brief Returns the entry point address of the binary module that contains the given memory region.
+ *
  * @param region
  * @return
  */
@@ -150,7 +155,8 @@ edb::address_t module_entry_point(const std::shared_ptr<IRegion> &region) {
 }
 
 /**
- * @brief Analyzer::Analyzer
+ * @brief Constructs the Analyzer plugin object.
+ *
  * @param parent
  */
 Analyzer::Analyzer(QObject *parent)
@@ -158,7 +164,8 @@ Analyzer::Analyzer(QObject *parent)
 }
 
 /**
- * @brief Analyzer::optionsPage
+ * @brief Returns the plugin's configuration options widget.
+ *
  * @return
  */
 QWidget *Analyzer::optionsPage() {
@@ -166,7 +173,8 @@ QWidget *Analyzer::optionsPage() {
 }
 
 /**
- * @brief Analyzer::menu
+ * @brief Creates and returns the Analyzer plugin menu, adding toolbar and dock widgets on first call.
+ *
  * @param parent
  * @return
  */
@@ -208,14 +216,14 @@ QMenu *Analyzer::menu(QWidget *parent) {
 }
 
 /**
- * @brief Analyzer::privateInit
+ * @brief Registers this instance as the global active analyzer.
  */
 void Analyzer::privateInit() {
 	edb::v1::set_analyzer(this);
 }
 
 /**
- * @brief Analyzer::showSpecified
+ * @brief Opens or raises the dialog listing user-specified function start addresses.
  */
 void Analyzer::showSpecified() {
 	static auto dialog = new SpecifiedFunctions(edb::v1::debugger_ui);
@@ -223,7 +231,7 @@ void Analyzer::showSpecified() {
 }
 
 /**
- * @brief Analyzer::doIpAnalysis
+ * @brief Analyzes the memory region containing the current instruction pointer.
  */
 void Analyzer::doIpAnalysis() {
 	if (IProcess *process = edb::v1::debugger_core->process()) {
@@ -240,14 +248,14 @@ void Analyzer::doIpAnalysis() {
 }
 
 /**
- * @brief Analyzer::doViewAnalysis
+ * @brief Analyzes the memory region currently visible in the CPU disassembly view.
  */
 void Analyzer::doViewAnalysis() {
 	doAnalysis(edb::v1::current_cpu_view_region());
 }
 
 /**
- * @brief Analyzer::markFunctionStart
+ * @brief Marks the currently selected address as a known function start and invalidates the region's analysis.
  */
 void Analyzer::markFunctionStart() {
 
@@ -260,7 +268,7 @@ void Analyzer::markFunctionStart() {
 }
 
 /**
- * @brief Analyzer::showXrefs
+ * @brief Opens a dialog listing all cross-references that target the currently selected address.
  */
 void Analyzer::showXrefs() {
 
@@ -284,7 +292,7 @@ void Analyzer::showXrefs() {
 	dialog->show();
 }
 /**
- * @brief Analyzer::gotoFunctionStart
+ * @brief Jumps the disassembly view to the entry address of the function containing the selected address.
  */
 void Analyzer::gotoFunctionStart() {
 
@@ -303,7 +311,7 @@ void Analyzer::gotoFunctionStart() {
 }
 
 /**
- * @brief Analyzer::gotoFunctionEnd
+ * @brief Jumps the disassembly view to the last instruction of the function containing the selected address.
  */
 void Analyzer::gotoFunctionEnd() {
 
@@ -321,7 +329,8 @@ void Analyzer::gotoFunctionEnd() {
 		tr("The selected instruction is not inside of a known function. Have you run an analysis of this region?"));
 }
 /**
- * @brief Analyzer::cpuContextMenu
+ * @brief Returns the list of CPU context menu actions contributed by the Analyzer plugin.
+ *
  * @return
  */
 QList<QAction *> Analyzer::cpuContextMenu() {
@@ -346,7 +355,8 @@ QList<QAction *> Analyzer::cpuContextMenu() {
 }
 
 /**
- * @brief Analyzer::doAnalysis
+ * @brief Runs a full analysis pass on the given region, showing progress and repainting the CPU view on completion.
+ *
  * @param region
  */
 void Analyzer::doAnalysis(const std::shared_ptr<IRegion> &region) {
@@ -361,7 +371,8 @@ void Analyzer::doAnalysis(const std::shared_ptr<IRegion> &region) {
 }
 
 /**
- * @brief Analyzer::bonusMain
+ * @brief Seeds the known-function list with the address of main() if it can be located in the region.
+ *
  * @param data
  */
 void Analyzer::bonusMain(RegionData *data) const {
@@ -381,7 +392,8 @@ void Analyzer::bonusMain(RegionData *data) const {
 }
 
 /**
- * @brief Analyzer::bonusSymbols
+ * @brief Seeds the known-function list with all code symbol addresses that fall within the region.
+ *
  * @param data
  */
 void Analyzer::bonusSymbols(RegionData *data) {
@@ -406,7 +418,8 @@ void Analyzer::bonusSymbols(RegionData *data) {
 }
 
 /**
- * @brief Analyzer::bonusMarkedFunctions
+ * @brief Seeds the known-function list with all user-specified function addresses that fall within the region.
+ *
  * @param data
  */
 void Analyzer::bonusMarkedFunctions(RegionData *data) {
@@ -422,7 +435,8 @@ void Analyzer::bonusMarkedFunctions(RegionData *data) {
 }
 
 /**
- * @brief Analyzer::identHeader
+ * @brief Hook for identifying executable header information within the region; currently a no-op.
+ *
  * @param data
  */
 void Analyzer::identHeader(Analyzer::RegionData *data) {
@@ -481,7 +495,8 @@ void Analyzer::computeNonReturning(Analyzer::RegionData *data) {
 }
 
 /**
- * @brief Analyzer::collectFunctions
+ * @brief Performs recursive disassembly from all known entry points to build the complete function and basic block maps.
+ *
  * @param data
  */
 void Analyzer::collectFunctions(Analyzer::RegionData *data) {
@@ -632,7 +647,8 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 }
 
 /**
- * @brief Analyzer::collectFuzzyFunctions
+ * @brief Heuristically discovers additional function entry points by scanning for call targets and ENDBR instructions.
+ *
  * @param data
  */
 void Analyzer::collectFuzzyFunctions(RegionData *data) {
@@ -694,7 +710,8 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 }
 
 /**
- * @brief Analyzer::analyze
+ * @brief Runs all analysis pipeline steps on the given region, caching results and emitting progress updates.
+ *
  * @param region
  */
 void Analyzer::analyze(const std::shared_ptr<IRegion> &region) {
@@ -770,7 +787,8 @@ void Analyzer::analyze(const std::shared_ptr<IRegion> &region) {
 }
 
 /**
- * @brief Analyzer::category
+ * @brief Returns the role of the given address (function start, body, end, or unknown) relative to known functions.
+ *
  * @param address
  * @return
  */
@@ -792,7 +810,8 @@ IAnalyzer::AddressCategory Analyzer::category(edb::address_t address) const {
 }
 
 /**
- * @brief Analyzer::functions
+ * @brief Returns the map of all functions found within the given memory region.
+ *
  * @param region
  * @return
  */
@@ -801,7 +820,8 @@ IAnalyzer::FunctionMap Analyzer::functions(const std::shared_ptr<IRegion> &regio
 }
 
 /**
- * @brief Analyzer::functions
+ * @brief Returns the combined map of all functions across every analyzed region.
+ *
  * @return
  */
 IAnalyzer::FunctionMap Analyzer::functions() const {
@@ -813,7 +833,8 @@ IAnalyzer::FunctionMap Analyzer::functions() const {
 }
 
 /**
- * @brief Analyzer::findContainingFunction
+ * @brief Finds the function that contains the given address and stores it in the output parameter.
+ *
  * @param address
  * @param function
  * @return
@@ -853,7 +874,7 @@ bool Analyzer::findContainingFunction(edb::address_t address, Function *function
 }
 
 /**
- * @brief Analyzer::forFuncsInRange
+ * @brief Invokes a callback for each known function whose body overlaps the given address range.
  *
  * Calls functor once for every function that exists between the start and end
  * addresses. This includes functions whose bodies include the start address.
@@ -893,7 +914,8 @@ bool Analyzer::forFuncsInRange(edb::address_t start, edb::address_t end, std::fu
 }
 
 /**
- * @brief Analyzer::bonusEntryPoint
+ * @brief Seeds the known-function list with the module's binary entry point address.
+ *
  * @param data
  */
 void Analyzer::bonusEntryPoint(RegionData *data) const {
@@ -917,7 +939,8 @@ void Analyzer::bonusEntryPoint(RegionData *data) const {
 }
 
 /**
- * @brief Analyzer::invalidateAnalysis
+ * @brief Clears cached analysis for the given region and removes any user-specified functions within it.
+ *
  * @param region
  */
 void Analyzer::invalidateAnalysis(const std::shared_ptr<IRegion> &region) {
@@ -931,7 +954,8 @@ void Analyzer::invalidateAnalysis(const std::shared_ptr<IRegion> &region) {
 }
 
 /**
- * @brief Analyzer::invalidateDynamicAnalysis
+ * @brief Resets the dynamically-computed analysis data for the given region without affecting user-specified functions.
+ *
  * @param region
  */
 void Analyzer::invalidateDynamicAnalysis(const std::shared_ptr<IRegion> &region) {
@@ -944,7 +968,7 @@ void Analyzer::invalidateDynamicAnalysis(const std::shared_ptr<IRegion> &region)
 }
 
 /**
- * @brief Analyzer::invalidateAnalysis
+ * @brief Clears all cached analysis data and all user-specified function addresses.
  */
 void Analyzer::invalidateAnalysis() {
 	analysisInfo_.clear();
@@ -952,7 +976,8 @@ void Analyzer::invalidateAnalysis() {
 }
 
 /**
- * @brief Analyzer::findContainingFunction
+ * @brief Returns the entry point of the function containing the given address, or an error if none is found.
+ *
  * @param address
  * @return the entry point of the function which contains <address>
  */

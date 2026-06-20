@@ -6,67 +6,59 @@
 
 #include "QLongValidator.h"
 
-//------------------------------------------------------------------------------
-// Name: QLongValidator
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QLongValidator::QLongValidator(QObject *parent)
 	: QValidator(parent) {
 }
 
-//------------------------------------------------------------------------------
-// Name: QLongValidator
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QLongValidator::QLongValidator(QLongValidator::value_type minimum, QLongValidator::value_type maximum, QObject *parent)
 	: QValidator(parent), minimum_(minimum), maximum_(maximum) {
 }
 
-//------------------------------------------------------------------------------
-// Name: bottom
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QLongValidator::value_type QLongValidator::bottom() const {
 	return minimum_;
 }
 
-//------------------------------------------------------------------------------
-// Name: setBottom
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QLongValidator::setBottom(QLongValidator::value_type bottom) {
 	minimum_ = bottom;
 }
 
-//------------------------------------------------------------------------------
-// Name: setRange
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QLongValidator::setRange(QLongValidator::value_type bottom, QLongValidator::value_type top) {
 	setBottom(bottom);
 	setTop(top);
 }
 
-//------------------------------------------------------------------------------
-// Name: setTop
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void QLongValidator::setTop(QLongValidator::value_type top) {
 	maximum_ = top;
 }
 
-//------------------------------------------------------------------------------
-// Name: top
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QLongValidator::value_type QLongValidator::top() const {
 	return maximum_;
 }
 
-//------------------------------------------------------------------------------
-// Name: validate
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 QValidator::State QLongValidator::validate(QString &input, int &pos) const {
 	Q_UNUSED(pos)
 

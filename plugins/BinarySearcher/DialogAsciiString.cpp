@@ -26,7 +26,8 @@
 namespace BinarySearcherPlugin {
 
 /**
- * @brief DialogAsciiString::DialogAsciiString
+ * @brief Constructs the ASCII string search dialog and sets up its Find button.
+ *
  * @param parent
  * @param f
  */
@@ -48,9 +49,7 @@ DialogAsciiString::DialogAsciiString(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogAsciiString::doFind
- *
- * find *stack aligned pointers* to exact string matches
+ * @brief Searches stack memory for stack-aligned pointers that point to the entered ASCII string.
  */
 void DialogAsciiString::doFind() {
 
@@ -114,7 +113,8 @@ void DialogAsciiString::doFind() {
 }
 
 /**
- * @brief DialogAsciiString::showEvent
+ * @brief Focuses the ASCII input field when the dialog becomes visible.
+ *
  * @param event
  */
 void DialogAsciiString::showEvent(QShowEvent *event) {

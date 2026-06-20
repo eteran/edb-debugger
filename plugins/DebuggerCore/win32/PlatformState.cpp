@@ -16,6 +16,7 @@ namespace {
 
 /**
  * @brief read_float80
+ *
  * @param buffer
  * @return
  */
@@ -69,6 +70,7 @@ double read_float80(const uint8_t buffer[10]) {
 
 /**
  * @brief PlatformState::clone
+ *
  * @return a copy of the state object
  */
 std::unique_ptr<IState> PlatformState::clone() const {
@@ -77,6 +79,7 @@ std::unique_ptr<IState> PlatformState::clone() const {
 
 /**
  * @brief PlatformState::flagsToString
+ *
  * @param flags
  * @return the flags in a string form appropriate for this platform
  */
@@ -99,6 +102,7 @@ QString PlatformState::flagsToString(edb::reg_t flags) const {
 
 /**
  * @brief PlatformState::flagsToString
+ *
  * @return the flags in a string form appropriate for this platform
  */
 QString PlatformState::flagsToString() const {
@@ -107,6 +111,7 @@ QString PlatformState::flagsToString() const {
 
 /**
  * @brief PlatformState::value
+ *
  * @param reg
  * @return a Register object which represents the register with the name supplied
  */
@@ -417,6 +422,7 @@ Register PlatformState::value(const QString &reg) const {
 
 /**
  * @brief PlatformState::framePointer
+ *
  * @return what is conceptually the frame pointer for this platform
  */
 edb::address_t PlatformState::framePointer() const {
@@ -429,6 +435,7 @@ edb::address_t PlatformState::framePointer() const {
 
 /**
  * @brief PlatformState::instructionPointer
+ *
  * @return the instruction pointer for this platform
  */
 edb::address_t PlatformState::instructionPointer() const {
@@ -441,6 +448,7 @@ edb::address_t PlatformState::instructionPointer() const {
 
 /**
  * @brief PlatformState::stackPointer
+ *
  * @return the stack pointer for this platform
  */
 edb::address_t PlatformState::stackPointer() const {
@@ -453,6 +461,7 @@ edb::address_t PlatformState::stackPointer() const {
 
 /**
  * @brief PlatformState::debugRegister
+ *
  * @param n
  * @return
  */
@@ -510,6 +519,7 @@ edb::reg_t PlatformState::debugRegister(size_t n) const {
 
 /**
  * @brief PlatformState::flags
+ *
  * @return
  */
 edb::reg_t PlatformState::flags() const {
@@ -522,6 +532,7 @@ edb::reg_t PlatformState::flags() const {
 
 /**
  * @brief PlatformState::fpu_register
+ *
  * @param n
  * @return
  */
@@ -559,6 +570,7 @@ long double PlatformState::fpu_register(int n) const {
 
 /**
  * @brief PlatformState::mmx_register
+ *
  * @param n
  * @return
  */
@@ -585,6 +597,7 @@ quint64 PlatformState::mmx_register(int n) const {
 
 /**
  * @brief PlatformState::xmm_register
+ *
  * @param n
  * @return
  */
@@ -616,6 +629,7 @@ QByteArray PlatformState::xmm_register(int n) const {
 
 /**
  * @brief PlatformState::adjustStack
+ *
  * @param bytes
  */
 void PlatformState::adjustStack(int bytes) {
@@ -644,6 +658,7 @@ void PlatformState::clear() {
 
 /**
  * @brief PlatformState::setDebugRegister
+ *
  * @param n
  * @param value
  */
@@ -724,6 +739,7 @@ void PlatformState::setDebugRegister(size_t n, edb::reg_t value) {
 
 /**
  * @brief PlatformState::setFlags
+ *
  * @param flags
  */
 void PlatformState::setFlags(edb::reg_t flags) {
@@ -740,6 +756,7 @@ void PlatformState::setFlags(edb::reg_t flags) {
 
 /**
  * @brief PlatformState::setInstructionPointer
+ *
  * @param value
  */
 void PlatformState::setInstructionPointer(edb::address_t value) {
@@ -756,6 +773,7 @@ void PlatformState::setInstructionPointer(edb::address_t value) {
 
 /**
  * @brief PlatformState::setRegister
+ *
  * @param name
  * @param value
  */
@@ -887,6 +905,7 @@ void PlatformState::setRegister(const QString &name, edb::reg_t value) {
 
 /**
  * @brief PlatformState::instructionPointerRegister
+ *
  * @return
  */
 Register PlatformState::instructionPointerRegister() const {
@@ -903,6 +922,7 @@ Register PlatformState::instructionPointerRegister() const {
 
 /**
  * @brief PlatformState::flagsRegister
+ *
  * @return
  */
 Register PlatformState::flagsRegister() const {
@@ -920,6 +940,7 @@ Register PlatformState::flagsRegister() const {
 
 /**
  * @brief PlatformState::getThreadState
+ *
  * @param hThread
  * @param isWow64
  */
@@ -970,6 +991,7 @@ void PlatformState::getThreadState(HANDLE hThread, bool isWow64) {
 
 /**
  * @brief PlatformState::setThreadState
+ *
  * @param hThread
  */
 void PlatformState::setThreadState(HANDLE hThread) const {
@@ -986,6 +1008,7 @@ void PlatformState::setThreadState(HANDLE hThread) const {
 
 /**
  * @brief PlatformState::archRegister
+ *
  * @param type
  * @param n
  * @return

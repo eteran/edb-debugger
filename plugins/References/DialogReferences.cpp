@@ -23,6 +23,7 @@ enum Role {
 
 /**
  * @brief DialogReferences::DialogReferences
+ *
  * @param parent
  * @param f
  */

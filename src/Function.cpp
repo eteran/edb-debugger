@@ -8,6 +8,7 @@
 
 /**
  * @brief Function::swap
+ *
  * @param other
  */
 void Function::swap(Function &other) noexcept {
@@ -19,6 +20,7 @@ void Function::swap(Function &other) noexcept {
 
 /**
  * @brief Function::insert
+ *
  * @param bb
  */
 void Function::insert(const BasicBlock &bb) {
@@ -27,6 +29,7 @@ void Function::insert(const BasicBlock &bb) {
 
 /**
  * @brief Function::insert
+ *
  * @param bb
  */
 void Function::insert(BasicBlock &&bb) {
@@ -35,6 +38,7 @@ void Function::insert(BasicBlock &&bb) {
 
 /**
  * @brief Function::entryAddress
+ *
  * @return
  */
 edb::address_t Function::entryAddress() const {
@@ -44,6 +48,7 @@ edb::address_t Function::entryAddress() const {
 
 /**
  * @brief Function::endAddress
+ *
  * @return
  */
 edb::address_t Function::endAddress() const {
@@ -53,6 +58,7 @@ edb::address_t Function::endAddress() const {
 
 /**
  * @brief Function::lastInstruction
+ *
  * @return
  */
 edb::address_t Function::lastInstruction() const {
@@ -62,6 +68,7 @@ edb::address_t Function::lastInstruction() const {
 
 /**
  * @brief Function::referenceCount
+ *
  * @return
  */
 int Function::referenceCount() const {
@@ -70,6 +77,7 @@ int Function::referenceCount() const {
 
 /**
  * @brief Function::back
+ *
  * @return
  */
 Function::const_reference Function::back() const {
@@ -81,6 +89,7 @@ Function::const_reference Function::back() const {
 
 /**
  * @brief Function::front
+ *
  * @return
  */
 Function::const_reference Function::front() const {
@@ -92,6 +101,7 @@ Function::const_reference Function::front() const {
 
 /**
  * @brief Function::back
+ *
  * @return
  */
 Function::reference Function::back() {
@@ -103,6 +113,7 @@ Function::reference Function::back() {
 
 /**
  * @brief Function::front
+ *
  * @return
  */
 Function::reference Function::front() {
@@ -114,6 +125,7 @@ Function::reference Function::front() {
 
 /**
  * @brief Function::begin
+ *
  * @return
  */
 Function::const_iterator Function::begin() const {
@@ -122,6 +134,7 @@ Function::const_iterator Function::begin() const {
 
 /**
  * @brief Function::end
+ *
  * @return
  */
 Function::const_iterator Function::end() const {
@@ -130,6 +143,7 @@ Function::const_iterator Function::end() const {
 
 /**
  * @brief Function::rbegin
+ *
  * @return
  */
 Function::const_reverse_iterator Function::rbegin() const {
@@ -138,6 +152,7 @@ Function::const_reverse_iterator Function::rbegin() const {
 
 /**
  * @brief Function::rend
+ *
  * @return
  */
 Function::const_reverse_iterator Function::rend() const {
@@ -146,6 +161,7 @@ Function::const_reverse_iterator Function::rend() const {
 
 /**
  * @brief Function::begin
+ *
  * @return
  */
 Function::iterator Function::begin() {
@@ -154,6 +170,7 @@ Function::iterator Function::begin() {
 
 /**
  * @brief Function::end
+ *
  * @return
  */
 Function::iterator Function::end() {
@@ -162,6 +179,7 @@ Function::iterator Function::end() {
 
 /**
  * @brief Function::rbegin
+ *
  * @return
  */
 Function::reverse_iterator Function::rbegin() {
@@ -170,6 +188,7 @@ Function::reverse_iterator Function::rbegin() {
 
 /**
  * @brief Function::rend
+ *
  * @return
  */
 Function::reverse_iterator Function::rend() {
@@ -178,6 +197,7 @@ Function::reverse_iterator Function::rend() {
 
 /**
  * @brief Function::empty
+ *
  * @return
  */
 bool Function::empty() const {
@@ -186,6 +206,7 @@ bool Function::empty() const {
 
 /**
  * @brief Function::size
+ *
  * @return
  */
 Function::size_type Function::size() const {
@@ -200,6 +221,7 @@ void Function::addReference() {
 }
 /**
  * @brief Function::type
+ *
  * @return
  */
 Function::Type Function::type() const {
@@ -208,6 +230,7 @@ Function::Type Function::type() const {
 
 /**
  * @brief Function::setType
+ *
  * @param t
  */
 void Function::setType(Type t) {

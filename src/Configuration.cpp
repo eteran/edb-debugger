@@ -21,10 +21,11 @@
 
 namespace {
 
-//------------------------------------------------------------------------------
-// Name: getDefaultPluginPath
-// Desc: return default path for plugins
-//------------------------------------------------------------------------------
+/**
+ * @brief Returns the default path for plugins.
+ *
+ * @return The default plugin path.
+ */
 QString getDefaultPluginPath() {
 #ifdef DEFAULT_PLUGIN_PATH
 	const QString default_plugin_path = DEFAULT_PLUGIN_PATH;
@@ -40,35 +41,33 @@ QString getDefaultPluginPath() {
 
 }
 
-//------------------------------------------------------------------------------
-// Name: Configuration
-// Desc: constructor
-//------------------------------------------------------------------------------
+/**
+ * @brief Constructor for the Configuration class.
+ *
+ * @param parent The parent object.
+ */
 Configuration::Configuration(QObject *parent)
 	: QObject(parent) {
 	readSettings();
 }
 
-//------------------------------------------------------------------------------
-// Name: ~Configuration
-// Desc: destructor
-//------------------------------------------------------------------------------
+/**
+ * @brief Destructor for the Configuration class.
+ */
 Configuration::~Configuration() {
 	writeSettings();
 }
 
-//------------------------------------------------------------------------------
-// Name: sendChangeNotification
-// Desc: emits the settingsUpdated signal
-//------------------------------------------------------------------------------
+/**
+ * @brief Sends a notification that the settings have been updated.
+ */
 void Configuration::sendChangeNotification() {
 	Q_EMIT settingsUpdated();
 }
 
-//------------------------------------------------------------------------------
-// Name: read_settings
-// Desc: read in the options from the file
-//------------------------------------------------------------------------------
+/**
+ * @brief Reads the settings from the configuration file.
+ */
 void Configuration::readSettings() {
 
 #ifdef Q_OS_WIN32
@@ -191,10 +190,9 @@ void Configuration::readSettings() {
 	edb::v1::formatter().setOptions(options);
 }
 
-//------------------------------------------------------------------------------
-// Name: write_settings
-// Desc: writes the options to the file
-//------------------------------------------------------------------------------
+/**
+ * @brief Writes the settings to the configuration file.
+ */
 void Configuration::writeSettings() {
 
 	QSettings settings;

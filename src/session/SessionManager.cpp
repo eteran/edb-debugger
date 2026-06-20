@@ -24,8 +24,9 @@ const auto SessionFileIdString   = QLatin1String("edb-session");
 }
 
 /**
- * @brief SessionManager::instance
- * @return
+ * @brief Returns the instance of the session manager.
+ *
+ * @return A reference to the session manager instance.
  */
 SessionManager &SessionManager::instance() {
 	static SessionManager inst;
@@ -33,9 +34,10 @@ SessionManager &SessionManager::instance() {
 }
 
 /**
- * @brief SessionManager::loadSession
- * @param filename
- * @return
+ * @brief Loads a session from the specified file.
+ *
+ * @param filename The path to the session file to load.
+ * @return A result indicating success or an error.
  */
 Result<void, SessionError> SessionManager::loadSession(const QString &filename) {
 
@@ -99,8 +101,9 @@ Result<void, SessionError> SessionManager::loadSession(const QString &filename) 
 }
 
 /**
- * @brief SessionManager::saveSession
- * @param filename
+ * @brief Saves the current session to the specified file.
+ *
+ * @param filename The path to the session file to save.
  */
 void SessionManager::saveSession(const QString &filename) {
 
@@ -138,7 +141,7 @@ void SessionManager::saveSession(const QString &filename) {
 }
 
 /**
- * @brief SessionManager::loadPluginData
+ * @brief Loads the plugin data from the session.
  */
 void SessionManager::loadPluginData() {
 
@@ -163,16 +166,18 @@ void SessionManager::loadPluginData() {
 }
 
 /**
- * @brief SessionManager::comments
- * @return all comments from the sessionData_
+ * @brief Returns all comments in the session
+ *
+ * @return A list of all comments in the session.
  */
 QVariantList SessionManager::comments() const {
 	return sessionData_["comments"].toList();
 }
 
 /**
- * Adds a comment to the session_data
- * @param c (struct in Types.h)
+ * @brief Adds a comment to the session
+ *
+ * @param c The comment to add.
  */
 void SessionManager::addComment(const Comment &c) {
 
@@ -198,8 +203,9 @@ void SessionManager::addComment(const Comment &c) {
 }
 
 /**
- * Removes a comment from the session_data
- * @param address
+ * @brief Removes a comment from the session_data
+ *
+ * @param address The address of the comment to remove.
  */
 void SessionManager::removeComment(edb::address_t address) {
 	QString hexAddressString   = address.toHexString();

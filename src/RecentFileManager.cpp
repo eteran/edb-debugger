@@ -17,10 +17,12 @@ namespace {
 constexpr int MaxRecentFiles = 8;
 }
 
-//------------------------------------------------------------------------------
-// Name: RecentFileManager
-// Desc: constructor
-//------------------------------------------------------------------------------
+/**
+ * @brief Constructor for the RecentFileManager class.
+ *
+ * @param parent The parent widget.
+ * @param f The window flags.
+ */
 RecentFileManager::RecentFileManager(QWidget *parent, Qt::WindowFlags f)
 	: QWidget(parent, f) {
 
@@ -52,10 +54,9 @@ RecentFileManager::RecentFileManager(QWidget *parent, Qt::WindowFlags f)
 	settings.endGroup();
 }
 
-//------------------------------------------------------------------------------
-// Name: ~RecentFileManager
-// Desc: destructor
-//------------------------------------------------------------------------------
+/**
+ * @brief Destructor for the RecentFileManager class.
+ */
 RecentFileManager::~RecentFileManager() {
 	QSettings settings;
 	settings.beginGroup("Recent");
@@ -78,10 +79,9 @@ RecentFileManager::~RecentFileManager() {
 	settings.endGroup();
 }
 
-//------------------------------------------------------------------------------
-// Name: clear
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Clears the recent file list.
+ */
 void RecentFileManager::clear() {
 	files_.clear();
 	if (menu_) {
@@ -91,10 +91,11 @@ void RecentFileManager::clear() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: createMenu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Creates the menu for the recent file list.
+ *
+ * @return The created menu.
+ */
 QMenu *RecentFileManager::createMenu() {
 
 	if (!menu_) {
@@ -105,10 +106,12 @@ QMenu *RecentFileManager::createMenu() {
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: formatEntry
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Formats a recent file entry for display.
+ *
+ * @param file The recent file to format.
+ * @return The formatted string.
+ */
 QString RecentFileManager::formatEntry(const RecentFile &file) {
 	const auto &[path, args] = file;
 	QString str              = path;
@@ -118,10 +121,9 @@ QString RecentFileManager::formatEntry(const RecentFile &file) {
 	return str;
 }
 
-//------------------------------------------------------------------------------
-// Name: update
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Updates the menu with the current recent file list.
+ */
 void RecentFileManager::update() {
 	if (menu_) {
 		menu_->clear();
@@ -137,10 +139,11 @@ void RecentFileManager::update() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: mostRecent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Gets the most recent file from the list.
+ *
+ * @return The most recent file.
+ */
 RecentFileManager::RecentFile RecentFileManager::mostRecent() const {
 	if (files_.isEmpty()) {
 		return {};
@@ -148,18 +151,18 @@ RecentFileManager::RecentFile RecentFileManager::mostRecent() const {
 	return files_.front();
 }
 
-//------------------------------------------------------------------------------
-// Name: entryCount
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Gets the number of entries in the recent file list.
+ *
+ * @return The number of entries.
+ */
 int RecentFileManager::entryCount() const {
 	return files_.size();
 }
 
-//------------------------------------------------------------------------------
-// Name: itemSelected
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Handles the selection of a recent file from the menu.
+ */
 void RecentFileManager::itemSelected() {
 	if (auto action = qobject_cast<QAction *>(sender())) {
 		const auto file          = action->data().value<RecentFile>();
@@ -168,10 +171,12 @@ void RecentFileManager::itemSelected() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: addFile
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief Adds a file to the recent file list.
+ *
+ * @param file The file to add.
+ * @param args The arguments for the file.
+ */
 void RecentFileManager::addFile(const QString &file, const QList<QByteArray> &args) {
 
 	QFileInfo fi(file);

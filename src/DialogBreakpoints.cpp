@@ -22,6 +22,7 @@
 
 /**
  * @brief DialogBreakpoints::DialogBreakpoints
+ *
  * @param parent
  * @param f
  */
@@ -141,6 +142,7 @@ void DialogBreakpoints::on_btnRemove_clicked() {
 
 /**
  * @brief DialogBreakpoints::on_tableWidget_cellDoubleClicked
+ *
  * @param row
  * @param col
  */

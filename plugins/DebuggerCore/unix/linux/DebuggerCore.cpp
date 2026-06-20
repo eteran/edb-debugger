@@ -73,7 +73,7 @@ namespace {
 constexpr size_t PageSize = 0x1000;
 
 /**
- * @brief disable_aslr
+ * @brief Disables address space layout randomization for the current process using personality().
  */
 void disable_aslr() {
 	const int current = ::personality(UINT32_MAX);
@@ -86,7 +86,7 @@ void disable_aslr() {
 }
 
 /**
- * @brief disable_lazy_binding
+ * @brief Forces eager binding of shared library symbols by setting the LD_BIND_NOW environment variable.
  */
 void disable_lazy_binding() {
 	if (setenv("LD_BIND_NOW", "1", true) == -1) {
@@ -95,7 +95,8 @@ void disable_lazy_binding() {
 }
 
 /**
- * @brief is_clone_event
+ * @brief Returns true if the given waitpid status encodes a PTRACE_EVENT_CLONE trace event.
+ *
  * @param status
  * @return
  */
@@ -104,7 +105,8 @@ constexpr bool is_clone_event(int status) {
 }
 
 /**
- * @brief is_exit_trace_event
+ * @brief Returns true if the given waitpid status encodes a PTRACE_EVENT_EXIT trace event.
+ *
  * @param status
  * @return
  */
@@ -114,7 +116,8 @@ constexpr bool is_exit_trace_event(int status) {
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 /**
- * @brief in_64bit_segment
+ * @brief Returns true if edb is currently executing in a 64-bit code segment (as opposed to 32-bit compatibility mode).
+ *
  * @return
  */
 bool in_64bit_segment() {
@@ -131,7 +134,8 @@ bool in_64bit_segment() {
 }
 
 /**
- * @brief os_is_64_bit
+ * @brief Returns true if the underlying operating system kernel is 64-bit.
+ *
  * @param edbIsIn64BitSegment
  * @return
  */
@@ -162,7 +166,7 @@ bool os_is_64_bit() {
 }
 
 /**
- * @brief DebuggerCore::DebuggerCore
+ * @brief Constructs the DebuggerCore, detects proc/mem access capabilities, and warns the user if broken.
  */
 DebuggerCore::DebuggerCore()
 #if defined(EDB_X86) || defined(EDB_X86_64)
@@ -192,7 +196,8 @@ DebuggerCore::DebuggerCore()
 }
 
 /**
- * @brief DebuggerCore::hasExtension
+ * @brief Returns true if the debugged CPU supports the requested extension (MMX, SSE, AVX, etc.).
+ *
  * @param ext
  * @return
  */
@@ -246,7 +251,8 @@ bool DebuggerCore::hasExtension(uint64_t ext) const {
 }
 
 /**
- * @brief DebuggerCore::pageSize
+ * @brief Returns the system page size in bytes.
+ *
  * @return the size of a page on this system
  */
 size_t DebuggerCore::pageSize() const {
@@ -254,7 +260,8 @@ size_t DebuggerCore::pageSize() const {
 }
 
 /**
- * @brief DebuggerCore::pointerSize
+ * @brief Returns the pointer size in bytes for the debugged process.
+ *
  * @return
  */
 std::size_t DebuggerCore::pointerSize() const {
@@ -262,14 +269,15 @@ std::size_t DebuggerCore::pointerSize() const {
 }
 
 /**
- * @brief DebuggerCore::~DebuggerCore
+ * @brief Destroys the DebuggerCore and ends any active debug session.
  */
 DebuggerCore::~DebuggerCore() {
 	endDebugSession();
 }
 
 /**
- * @brief DebuggerCore::ptraceGetSigInfo
+ * @brief Retrieves signal information for the given thread via PTRACE_GETSIGINFO.
+ *
  * @param tid
  * @param siginfo
  * @return
@@ -287,7 +295,8 @@ Status DebuggerCore::ptraceGetSigInfo(edb::tid_t tid, siginfo_t *siginfo) {
 }
 
 /**
- * @brief DebuggerCore::ptraceTraceme
+ * @brief Requests that the current process be traced by its parent via PTRACE_TRACEME.
+ *
  * @return
  */
 long DebuggerCore::ptraceTraceme() {
@@ -295,7 +304,8 @@ long DebuggerCore::ptraceTraceme() {
 }
 
 /**
- * @brief DebuggerCore::ptraceContinue
+ * @brief Resumes the given thread via PTRACE_CONT, delivering the specified signal if non-zero.
+ *
  * @param tid
  * @param status
  * @return
@@ -318,7 +328,8 @@ Status DebuggerCore::ptraceContinue(edb::tid_t tid, long status) {
 }
 
 /**
- * @brief DebuggerCore::ptraceStep
+ * @brief Single-steps the given thread via PTRACE_SINGLESTEP, delivering the specified signal if non-zero.
+ *
  * @param tid
  * @param status
  * @return
@@ -341,7 +352,8 @@ Status DebuggerCore::ptraceStep(edb::tid_t tid, long status) {
 }
 
 /**
- * @brief DebuggerCore::ptraceSetOptions
+ * @brief Sets ptrace options for the given thread via PTRACE_SETOPTIONS.
+ *
  * @param tid
  * @param options
  * @return
@@ -358,7 +370,8 @@ Status DebuggerCore::ptraceSetOptions(edb::tid_t tid, long options) {
 }
 
 /**
- * @brief DebuggerCore::ptraceGetEventMessage
+ * @brief Retrieves the extended ptrace event message for the given thread via PTRACE_GETEVENTMSG.
+ *
  * @param tid
  * @param message
  * @return
@@ -377,7 +390,8 @@ Status DebuggerCore::ptraceGetEventMessage(edb::tid_t tid, unsigned long *messag
 }
 
 /**
- * @brief DebuggerCore::ptraceOptions
+ * @brief Returns the ptrace option flags appropriate for the current debugger configuration.
+ *
  * @return
  */
 long DebuggerCore::ptraceOptions() const {
@@ -409,7 +423,8 @@ long DebuggerCore::ptraceOptions() const {
 }
 
 /**
- * @brief DebuggerCore::handleThreadExit
+ * @brief Removes the exiting thread from the tracked thread map and waited-thread set.
+ *
  * @param tid
  * @param status
  */
@@ -421,7 +436,8 @@ void DebuggerCore::handleThreadExit(edb::tid_t tid, int status) {
 }
 
 /**
- * @brief DebuggerCore::handleThreadCreate
+ * @brief Handles a thread-creation ptrace event by registering the new thread and setting its trace options.
+ *
  * @param tid
  * @param status
  * @return
@@ -476,7 +492,8 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleThreadCreate(edb::tid_t tid, in
 }
 
 /**
- * @brief DebuggerCore::handleEvent
+ * @brief Processes the waitpid status for the given thread and returns the corresponding debug event.
+ *
  * @param tid
  * @param status
  * @return
@@ -580,7 +597,8 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int statu
 }
 
 /**
- * @brief DebuggerCore::stopThreads
+ * @brief Sends SIGSTOP to all running threads that have not yet been waited on.
+ *
  * @return
  */
 Status DebuggerCore::stopThreads() {
@@ -629,9 +647,8 @@ Status DebuggerCore::stopThreads() {
 }
 
 /**
- * waits for a debug event, witha timeout specified in milliseconds
+ * @brief Waits up to the given timeout for a debug event from any traced thread, returning the event or nullptr on timeout.
  *
- * @brief DebuggerCore::waitDebugEvent
  * @param msecs
  * @return nullptr if an error or timeout occurs
  */
@@ -652,7 +669,8 @@ std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(std::chrono::milliseco
 }
 
 /**
- * @brief DebuggerCore::attachThread
+ * @brief Attaches to the given thread via PTRACE_ATTACH and registers it in the thread map.
+ *
  * @param tid
  * @return 0 if successful, errno if failed
  */
@@ -691,7 +709,8 @@ int DebuggerCore::attachThread(edb::tid_t tid) {
 }
 
 /**
- * @brief DebuggerCore::attach
+ * @brief Attaches to an already-running process, tracing all of its threads.
+ *
  * @param pid
  * @return
  */
@@ -742,7 +761,8 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 }
 
 /**
- * @brief DebuggerCore::detach
+ * @brief Detaches from the traced process, resuming all its threads.
+ *
  * @return
  */
 Status DebuggerCore::detach() {
@@ -773,7 +793,7 @@ Status DebuggerCore::detach() {
 }
 
 /**
- * @brief DebuggerCore::kill
+ * @brief Sends SIGKILL to the traced process and waits for it to terminate.
  */
 void DebuggerCore::kill() {
 	if (attached()) {
@@ -792,7 +812,7 @@ void DebuggerCore::kill() {
 }
 
 /**
- * @brief DebuggerCore::detectCpuMode
+ * @brief Detects whether the debugged process is running in 32-bit or 64-bit mode and updates pointerSize_.
  */
 void DebuggerCore::detectCpuMode() {
 
@@ -852,7 +872,8 @@ void DebuggerCore::detectCpuMode() {
 }
 
 /**
- * @brief DebuggerCore::open
+ * @brief Forks, optionally disables ASLR and lazy binding, and launches the specified process under ptrace.
+ *
  * @param path
  * @param cwd
  * @param args
@@ -985,7 +1006,8 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 }
 
 /**
- * @brief DebuggerCore::lastMeansOfCapture
+ * @brief Returns how the most recently debugged process was captured (attached or launched).
+ *
  * @return how the last process was captured to debug
  */
 DebuggerCore::MeansOfCapture DebuggerCore::lastMeansOfCapture() const {
@@ -993,7 +1015,7 @@ DebuggerCore::MeansOfCapture DebuggerCore::lastMeansOfCapture() const {
 }
 
 /**
- * @brief DebuggerCore::reset
+ * @brief Clears all thread tracking state after a debug session ends.
  */
 void DebuggerCore::reset() {
 	threads_.clear();
@@ -1002,7 +1024,8 @@ void DebuggerCore::reset() {
 }
 
 /**
- * @brief DebuggerCore::createState
+ * @brief Creates and returns a new architecture-specific register state object.
+ *
  * @return
  */
 std::unique_ptr<IState> DebuggerCore::createState() const {
@@ -1010,7 +1033,8 @@ std::unique_ptr<IState> DebuggerCore::createState() const {
 }
 
 /**
- * @brief DebuggerCore::enumerateProcesses
+ * @brief Returns a map of all running processes on the system by scanning /proc.
+ *
  * @return
  */
 QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerateProcesses() const {
@@ -1036,7 +1060,8 @@ QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerateProcesses() c
 }
 
 /**
- * @brief DebuggerCore::parentPid
+ * @brief Returns the parent process ID for the given PID by reading /proc/[pid]/stat.
+ *
  * @param pid
  * @return
  */
@@ -1052,7 +1077,8 @@ edb::pid_t DebuggerCore::parentPid(edb::pid_t pid) const {
 }
 
 /**
- * @brief DebuggerCore::cpuType
+ * @brief Returns the hash identifier for the current build architecture.
+ *
  * @return edb's native CPU type
  */
 uint64_t DebuggerCore::cpuType() const {
@@ -1070,7 +1096,8 @@ uint64_t DebuggerCore::cpuType() const {
 }
 
 /**
- * @brief DebuggerCore::stackPointer
+ * @brief Returns the architecture-appropriate stack pointer register name.
+ *
  * @return
  */
 QString DebuggerCore::stackPointer() const {
@@ -1089,7 +1116,8 @@ QString DebuggerCore::stackPointer() const {
 }
 
 /**
- * @brief DebuggerCore::framePointer
+ * @brief Returns the architecture-appropriate frame pointer register name.
+ *
  * @return
  */
 QString DebuggerCore::framePointer() const {
@@ -1107,7 +1135,8 @@ QString DebuggerCore::framePointer() const {
 }
 
 /**
- * @brief DebuggerCore::instructionPointer
+ * @brief Returns the architecture-appropriate instruction pointer register name.
+ *
  * @return
  */
 QString DebuggerCore::instructionPointer() const {
@@ -1125,7 +1154,8 @@ QString DebuggerCore::instructionPointer() const {
 }
 
 /**
- * @brief DebuggerCore::flagRegister
+ * @brief Returns the architecture-appropriate flags/status register name.
+ *
  * @return the name of the flag register
  */
 QString DebuggerCore::flagRegister() const {
@@ -1143,7 +1173,8 @@ QString DebuggerCore::flagRegister() const {
 }
 
 /**
- * @brief DebuggerCore::process
+ * @brief Returns a raw pointer to the currently attached process, or nullptr if not attached.
+ *
  * @return
  */
 IProcess *DebuggerCore::process() const {
@@ -1151,7 +1182,8 @@ IProcess *DebuggerCore::process() const {
 }
 
 /**
- * @brief DebuggerCore::setIgnoredExceptions
+ * @brief Stores the list of exception (signal) numbers that should be silently passed to the debuggee.
+ *
  * @param exceptions
  */
 void DebuggerCore::setIgnoredExceptions(const QList<qlonglong> &exceptions) {
@@ -1159,7 +1191,8 @@ void DebuggerCore::setIgnoredExceptions(const QList<qlonglong> &exceptions) {
 }
 
 /**
- * @brief DebuggerCore::exceptions
+ * @brief Returns the map of Unix signal numbers and their names.
+ *
  * @return
  */
 QMap<qlonglong, QString> DebuggerCore::exceptions() const {
@@ -1167,7 +1200,8 @@ QMap<qlonglong, QString> DebuggerCore::exceptions() const {
 }
 
 /**
- * @brief DebuggerCore::exceptionName
+ * @brief Returns the name string for the Unix signal with the given numeric value.
+ *
  * @param value
  * @return
  */
@@ -1176,7 +1210,8 @@ QString DebuggerCore::exceptionName(qlonglong value) {
 }
 
 /**
- * @brief DebuggerCore::exceptionValue
+ * @brief Returns the numeric value for the Unix signal with the given name.
+ *
  * @param name
  * @return
  */
@@ -1185,7 +1220,8 @@ qlonglong DebuggerCore::exceptionValue(const QString &name) {
 }
 
 /**
- * @brief DebuggerCore::nopFillByte
+ * @brief Returns the byte value used to fill NOP-padded regions for the current architecture.
+ *
  * @return
  */
 uint8_t DebuggerCore::nopFillByte() const {

@@ -13,6 +13,7 @@ namespace OpcodeSearcherPlugin {
 
 /**
  * @brief OpcodeSearcher::OpcodeSearcher
+ *
  * @param parent
  */
 OpcodeSearcher::OpcodeSearcher(QObject *parent)
@@ -28,6 +29,7 @@ OpcodeSearcher::~OpcodeSearcher() {
 
 /**
  * @brief OpcodeSearcher::menu
+ *
  * @param parent
  * @return
  */

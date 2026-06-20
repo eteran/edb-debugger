@@ -11,6 +11,7 @@ namespace HardwareBreakpointsPlugin {
 
 /**
  * @brief validate_breakpoint
+ *
  * @param bp_state
  * @return
  */
@@ -41,6 +42,7 @@ BreakpointStatus validate_breakpoint(const BreakpointState &bp_state) {
 
 /**
  * @brief breakpoint_state
+ *
  * @param state
  * @param num
  * @return
@@ -109,6 +111,7 @@ BreakpointState breakpoint_state(const State *state, int num) {
 
 /**
  * @brief set_breakpoint_state
+ *
  * @param state
  * @param num
  * @param bp_state

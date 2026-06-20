@@ -9,39 +9,35 @@
 #include "IProcess.h"
 #include "edb.h"
 
-//------------------------------------------------------------------------------
-// Name: RegionBuffer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 RegionBuffer::RegionBuffer(std::shared_ptr<IRegion> region)
 	: region_(std::move(region)) {
 
 	setOpenMode(QIODevice::ReadOnly);
 }
 
-//------------------------------------------------------------------------------
-// Name: RegionBuffer
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 RegionBuffer::RegionBuffer(std::shared_ptr<IRegion> region, QObject *parent)
 	: QIODevice(parent), region_(std::move(region)) {
 
 	setOpenMode(QIODevice::ReadOnly);
 }
 
-//------------------------------------------------------------------------------
-// Name: set_region
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 void RegionBuffer::setRegion(std::shared_ptr<IRegion> region) {
 	region_ = std::move(region);
 	reset();
 }
 
-//------------------------------------------------------------------------------
-// Name: readData
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 qint64 RegionBuffer::readData(char *data, qint64 maxSize) {
 
 	if (region_) {
@@ -68,10 +64,9 @@ qint64 RegionBuffer::readData(char *data, qint64 maxSize) {
 	return -1;
 }
 
-//------------------------------------------------------------------------------
-// Name: writeData
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief
+ */
 qint64 RegionBuffer::writeData(const char *, qint64) {
 	return -1;
 }
