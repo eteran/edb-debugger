@@ -23,14 +23,16 @@
 #include <sstream>
 #include <string>
 
+// NOTE(eteran): This plugin is currently very x86 specific, but it could be extended to support other architectures in the future.
+// The main things that would need to be abstracted are the register names and the instruction formatting in dumpCode.
 namespace DumpStatePlugin {
 namespace {
 
 /**
- * @brief hex_string
+ * @brief Return a hex string representation of the given value.
  *
- * @param value
- * @return
+ * @param value The value to convert to a hex string.
+ * @return The hex string representation of the value.
  */
 template <class T>
 std::string hex_string(const T &value) {
@@ -46,10 +48,10 @@ constexpr const char Green[]  = "\x1B[92m";
 constexpr const char Purple[] = "\x1B[95m";
 
 /**
- * @brief format_register
+ * @brief Format a register value as a hex string, optionally colorizing it based on the plugin settings.
  *
- * @param value
- * @return
+ * @param value The register value to format.
+ * @return The formatted register value as a hex string, potentially colorized.
  */
 template <class T>
 std::string format_register(const T &value) {
@@ -65,10 +67,10 @@ std::string format_register(const T &value) {
 }
 
 /**
- * @brief format_segment
+ * @brief Format a segment value as a hex string, optionally colorizing it based on the plugin settings.
  *
- * @param value
- * @return
+ * @param value The segment value to format.
+ * @return The formatted segment value as a hex string, potentially colorized.
  */
 template <class T>
 std::string format_segment(const T &value) {
@@ -84,10 +86,10 @@ std::string format_segment(const T &value) {
 }
 
 /**
- * @brief format_address
+ * @brief Format an address as a hex string, optionally colorizing it based on the plugin settings.
  *
- * @param value
- * @return
+ * @param value The address to format.
+ * @return The formatted address as a hex string, potentially colorized.
  */
 template <class T>
 std::string format_address(const T &value) {
@@ -105,19 +107,19 @@ std::string format_address(const T &value) {
 }
 
 /**
- * @brief DumpState::DumpState
+ * @brief Constructor for the DumpState plugin.
  *
- * @param parent
+ * @param parent The parent QObject for this plugin.
  */
 DumpState::DumpState(QObject *parent)
 	: QObject(parent) {
 }
 
 /**
- * @brief DumpState::menu
+ * @brief Return the context menu for this plugin, creating it if it doesn't already exist.
  *
- * @param parent
- * @return
+ * @param parent The parent widget for the menu.
+ * @return A pointer to the context menu for this plugin.
  */
 QMenu *DumpState::menu(QWidget *parent) {
 
@@ -125,16 +127,16 @@ QMenu *DumpState::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("DumpState"), parent);
-		menu_->addAction(tr("&Dump Current State"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+D")));
+		menu_->addAction(tr("&Dump Current State"), this, SLOT(dumpCurrentState()), QKeySequence(tr("Ctrl+D")));
 	}
 
 	return menu_;
 }
 
 /**
- * @brief DumpState::dumpCode
+ * @brief Dumps the code at and after the instruction pointer from the given state.
  *
- * @param state
+ * @param state The state from which to dump the code. The instruction pointer will be used as the starting address for dumping.
  */
 void DumpState::dumpCode(const State &state) {
 
@@ -161,9 +163,9 @@ void DumpState::dumpCode(const State &state) {
 }
 
 /**
- * @brief DumpState::dumpRegisters
+ * @brief Dumps the register values from the given state, using the plugin settings to determine whether to colorize the output.
  *
- * @param state
+ * @param state The state from which to dump the register values.
  */
 void DumpState::dumpRegisters(const State &state) {
 
@@ -252,10 +254,10 @@ void DumpState::dumpRegisters(const State &state) {
 }
 
 /**
- * @brief DumpState::dumpLines
+ * @brief Dumps a block of data as lines of a hex dump, starting at the given address.
  *
- * @param address
- * @param lines
+ * @param address The starting address of the data to dump.
+ * @param lines The number of lines to dump, where each line is 16 bytes.
  */
 void DumpState::dumpLines(edb::address_t address, int lines) {
 
@@ -300,27 +302,28 @@ void DumpState::dumpLines(edb::address_t address, int lines) {
 }
 
 /**
- * @brief DumpState::dumpStack
+ * @brief Dumps the stack contents from the given state.
  *
- * @param state
+ * @param state The state from which to dump the stack contents.
  */
 void DumpState::dumpStack(const State &state) {
 	dumpLines(state.stackPointer(), 4);
 }
 
 /**
- * @brief DumpState::dumpData
+ * @brief Dumps the data at the given address.
  *
- * @param address
+ * @param address The address from which to dump the data.
  */
 void DumpState::dumpData(edb::address_t address) {
 	dumpLines(address, 2);
 }
 
 /**
- * @brief DumpState::showMenu
+ * @brief Handler for the "Dump Current State" action in the context menu.
+ * This function retrieves the current state of the debugged thread and dumps the registers, stack, data at the current data view address, and code at the instruction pointer to the console.
  */
-void DumpState::showMenu() {
+void DumpState::dumpCurrentState() {
 
 	if (IProcess *process = edb::v1::debugger_core->process()) {
 		if (std::shared_ptr<IThread> thread = process->currentThread()) {
@@ -343,9 +346,9 @@ void DumpState::showMenu() {
 }
 
 /**
- * @brief DumpState::optionsPage
+ * @brief Return the options page for this plugin.
  *
- * @return
+ * @return A pointer to the options page widget for this plugin.
  */
 QWidget *DumpState::optionsPage() {
 	return new OptionsPage;

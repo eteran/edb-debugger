@@ -30,7 +30,7 @@ public:
 	[[nodiscard]] QMenu *menu(QWidget *parent = nullptr) override;
 
 public Q_SLOTS:
-	void showMenu();
+	void dumpCurrentState();
 
 private:
 	[[nodiscard]] QWidget *optionsPage() override;
