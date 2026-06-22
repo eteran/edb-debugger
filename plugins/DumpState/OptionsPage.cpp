@@ -10,10 +10,10 @@
 namespace DumpStatePlugin {
 
 /**
- * @brief OptionsPage::OptionsPage
+ * @brief Constructor for the OptionsPage class, which is a QWidget that provides an interface for configuring the settings of the DumpState plugin.
  *
- * @param parent
- * @param f
+ * @param parent The parent widget for this options page.
+ * @param f The window flags for this options page.
  */
 OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
 	: QWidget(parent, f) {
@@ -22,12 +22,11 @@ OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief OptionsPage::showEvent
+ * @brief Handler for the show event of the options page. This function loads the current settings for the plugin and updates the UI elements to reflect those settings when the options page is shown.
  *
- * @param event
+ * @param event The show event that triggered this handler.
  */
-void OptionsPage::showEvent(QShowEvent *event) {
-	Q_UNUSED(event)
+void OptionsPage::showEvent(QShowEvent * /*event*/) {
 
 	QSettings settings;
 	ui.instructionsBeforeIP->setValue(settings.value("DumpState/instructions_before_ip", 0).toInt());
@@ -36,9 +35,9 @@ void OptionsPage::showEvent(QShowEvent *event) {
 }
 
 /**
- * @brief OptionsPage::on_instructionsBeforeIP_valueChanged
+ * @brief Handler for the valueChanged signal of the instructionsBeforeIP spin box. This function updates the corresponding setting for the plugin when the user changes the value in the UI.
  *
- * @param i
+ * @param i The new value of the spin box.
  */
 void OptionsPage::on_instructionsBeforeIP_valueChanged(int i) {
 	QSettings settings;
@@ -46,9 +45,9 @@ void OptionsPage::on_instructionsBeforeIP_valueChanged(int i) {
 }
 
 /**
- * @brief OptionsPage::on_instructionsAfterIP_valueChanged
+ * @brief Handler for the valueChanged signal of the instructionsAfterIP spin box. This function updates the corresponding setting for the plugin when the user changes the value in the UI.
  *
- * @param i
+ * @param i The new value of the spin box.
  */
 void OptionsPage::on_instructionsAfterIP_valueChanged(int i) {
 	QSettings settings;
@@ -56,9 +55,9 @@ void OptionsPage::on_instructionsAfterIP_valueChanged(int i) {
 }
 
 /**
- * @brief OptionsPage::on_colorizeOutput_toggled
+ * @brief Handler for the toggled signal of the colorizeOutput check box. This function updates the corresponding setting for the plugin when the user changes the state of the check box.
  *
- * @param value
+ * @param value The new state of the check box.
  */
 void OptionsPage::on_colorizeOutput_toggled(bool value) {
 	QSettings settings;

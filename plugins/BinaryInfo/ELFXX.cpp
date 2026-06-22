@@ -54,6 +54,15 @@ public:
 	}
 };
 
+/**
+ * @brief Constructs an ELFXX binary from the given region. The region must contain the entire ELF header and program headers (if present).
+ *
+ * @param region The region containing the ELF header and program headers.
+ * @throws InvalidArguments if the region is null.
+ * @throws ReadFailure if there was an error reading from the process.
+ * @throws InvalidELF if the region does not contain a valid ELF header.
+ * @throws InvalidArchitecture if the ELF header is for a different architecture than expected.
+ */
 template <class ElfHeader>
 ELFXX<ElfHeader>::ELFXX(const std::shared_ptr<IRegion> &region)
 	: region_(region) {
@@ -127,12 +136,13 @@ ELFXX<ElfHeader>::ELFXX(const std::shared_ptr<IRegion> &region)
 	}
 }
 
-template <class ElfHeader>
+
 /**
- * @brief ELFXX<ElfHeader>::headerSize
+ * @brief Returns the size of the ELF header, including the program headers if they immediately follow the ELF header.
  *
- * @return the number of bytes in this executable's header
+ * @return The size of the ELF header and program headers if they are contiguous. Otherwise, just the size of the ELF header.
  */
+template <class ElfHeader>
 size_t ELFXX<ElfHeader>::headerSize() const {
 	size_t size = header_.e_ehsize;
 	// Do the program headers immediately follow the ELF header?
@@ -143,9 +153,9 @@ size_t ELFXX<ElfHeader>::headerSize() const {
 }
 
 /**
- * @brief ELFXX<ElfHeader>::headers
+ * @brief Returns a list of all headers in this binary.
  *
- * @return a list of all headers in this binary
+ * @return a list of all headers in this binary.
  */
 template <class ElfHeader>
 std::vector<IBinary::Header> ELFXX<ElfHeader>::headers() const {
@@ -153,9 +163,10 @@ std::vector<IBinary::Header> ELFXX<ElfHeader>::headers() const {
 }
 
 /**
- * @brief ELFXX<ElfHeader>::validateHeader
+ * @brief Ensures that the header that we read was valid.
  *
- * ensures that the header that we read was valid
+ * @throws InvalidELF if the header is not a valid ELF header.
+ * @throws InvalidArchitecture if the ELF header is for a different architecture than expected.
  */
 template <class ElfHeader>
 void ELFXX<ElfHeader>::validateHeader() {
@@ -168,9 +179,10 @@ void ELFXX<ElfHeader>::validateHeader() {
 }
 
 /**
- * @brief ELFXX<ElfHeader>::entryPoint
+ * @brief Returns the entry point of the ELF binary, which is the virtual address of the first instruction to execute when the binary is loaded.
+ * This is calculated as the entry point specified in the ELF header plus the base address of the binary in memory.
  *
- * @return the entry point if any of the binary
+ * @return The entry point if any of the binary.
  */
 template <class ElfHeader>
 edb::address_t ELFXX<ElfHeader>::entryPoint() {
@@ -178,10 +190,10 @@ edb::address_t ELFXX<ElfHeader>::entryPoint() {
 }
 
 /**
- * @brief ELFXX<ElfHeader>::header
+ * @brief Returns a copy of the ELF file header.
  *
  * @return a copy of the file header or nullptr if the region wasn't a valid,
- * known binary type
+ * known binary type.
  */
 template <class ElfHeader>
 const void *ELFXX<ElfHeader>::header() const {

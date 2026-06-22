@@ -6,10 +6,13 @@
 
 #include "Plugin.h"
 
+// NOTE(eteran): This plugin has been reduced to a skeleton, as the original code was merged into the primary codebase.
+// This exists solely to reserve the name and prevent conflicts with future plugins that may want to use the same name.
+// The original code can be found in the git history if needed.
 namespace DebuggerErrorConsolePlugin {
 
 /**
- * @brief Plugin::Plugin
+ * @brief Constructs a Plugin object with the given parent.
  *
  * @param parent
  */
@@ -18,20 +21,20 @@ Plugin::Plugin(QObject *parent)
 }
 
 /**
- * @brief Plugin::menu
+ * @brief Returns a menu for the plugin, or nullptr if the plugin does not provide a menu.
  *
- * @param parent
- * @return
+ * @param parent The parent widget for the menu.
+ * @return a menu for the plugin, or nullptr if the plugin does not provide a menu.
  */
 QMenu *Plugin::menu(QWidget *) {
 	return nullptr;
 }
 
 /**
- * @brief DebuggerErrorConsole::DebuggerErrorConsole
+ * @brief Constructs a DebuggerErrorConsole dialog with the given parent and window flags.
  *
- * @param parent
- * @param f
+ * @param parent The parent widget for the dialog.
+ * @param f The window flags for the dialog.
  */
 DebuggerErrorConsole::DebuggerErrorConsole(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
