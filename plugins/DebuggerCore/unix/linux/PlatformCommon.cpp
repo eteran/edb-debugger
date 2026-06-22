@@ -13,10 +13,10 @@
 namespace DebuggerCorePlugin {
 
 /**
- * @brief resume_code
+ * @brief Returns the resume code appropriate for the given wait status.
  *
- * @param status
- * @return
+ * @param status the wait status returned by waitpid.
+ * @return the resume code to use with ptrace based on the wait status.
  */
 int resume_code(int status) {
 
@@ -36,15 +36,14 @@ int resume_code(int status) {
 }
 
 /**
- * gets the contents of /proc/<pid>/stat
+ * @brief Gets the contents of /proc/<pid>/stat.
  *
- * @brief get_user_stat
- *
- * @param path
- * @param user_stat
- * @return the number of elements successfully parsed
+ * @param path the path to the stat file.
+ * @param user_stat a pointer to the struct to fill with the stat information.
+ * @return the number of elements successfully parsed.
  */
 int get_user_stat(const char *path, struct user_stat *user_stat) {
+	Q_ASSERT(path);
 	Q_ASSERT(user_stat);
 
 	std::ifstream stream(path);
@@ -134,13 +133,11 @@ int get_user_stat(const char *path, struct user_stat *user_stat) {
 }
 
 /**
- * gets the contents of /proc/<pid>/stat
+ * @brief Gets the contents of /proc/<pid>/stat.
  *
- * @brief get_user_stat
- *
- * @param pid
- * @param user_stat
- * @return the number of elements or -1 on error
+ * @param pid the process ID of the process to get the stat information for.
+ * @param user_stat a pointer to the struct to fill with the stat information.
+ * @return The number of elements or -1 on error.
  */
 int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
 	char path[PATH_MAX];
@@ -149,14 +146,12 @@ int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
 }
 
 /**
- * gets the contents of /proc/<pid>/task/<tid>/stat
+ * @brief Gets the contents of /proc/<pid>/task/<tid>/stat.
  *
- * @brief get_user_task_stat
- *
- * @param pid
- * @param tid
- * @param user_stat
- * @return the number of elements or -1 on error
+ * @param pid the process ID of the process to get the task stat information for.
+ * @param tid the thread ID of the thread to get the stat information for.
+ * @param user_stat a pointer to the struct to fill with the stat information.
+ * @return The number of elements or -1 on error.
  */
 int get_user_task_stat(edb::pid_t pid, edb::tid_t tid, struct user_stat *user_stat) {
 	char path[PATH_MAX];
