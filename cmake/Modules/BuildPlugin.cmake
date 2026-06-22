@@ -1,0 +1,22 @@
+
+include("AddWarnings")
+include("GNUInstallDirs")
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+
+function(BUILD_PLUGIN PLUGIN_NAME)
+    install (TARGETS ${PLUGIN_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
+
+    target_add_warnings(${PLUGIN_NAME})
+
+    set_target_properties(${PLUGIN_NAME}
+        PROPERTIES
+        CXX_EXTENSIONS OFF
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+        RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+    )
+endfunction()

@@ -1310,9 +1310,7 @@ void Debugger::applyDefaultFonts() {
 }
 
 /**
- * creates the add/remove tab buttons in the data view
- *
- * @brief Debugger::setupTabButtons
+ * @brief Creates the add/remove tab buttons in the data view
  */
 void Debugger::setupTabButtons() {
 	// add the corner widgets to the data view
@@ -1336,9 +1334,9 @@ void Debugger::setupTabButtons() {
 }
 
 /**
- * @brief Debugger::activeRegister
+ * @brief Returns the active register based on the current selection in the register view.
  *
- * @return
+ * @return The active register, or an empty Register if no valid register is selected.
  */
 Register Debugger::activeRegister() const {
 	const auto &model = edb::v1::arch_processor().registerViewModel();
@@ -1393,8 +1391,6 @@ QList<QAction *> Debugger::currentRegisterContextMenuItems() const {
  * @param pos The position of the flag bit to toggle.
  */
 void Debugger::toggleFlag(int pos) {
-	// TODO Maybe this should just return w/o action if no process is loaded.
-
 	// Get the state and get the flag register
 	if (IProcess *process = edb::v1::debugger_core->process()) {
 		if (std::shared_ptr<IThread> thread = process->currentThread()) {

@@ -14,12 +14,12 @@
 #include <QPushButton>
 
 /**
- * @brief DialogOpenProgram::DialogOpenProgram
+ * @brief Constructs a DialogOpenProgram object with the given parent, caption, directory, and filter.
  *
- * @param parent
- * @param caption
- * @param directory
- * @param filter
+ * @param parent The parent widget of this dialog.
+ * @param caption The caption of the dialog.
+ * @param directory The initial directory of the dialog.
+ * @param filter The filter for the file dialog.
  */
 DialogOpenProgram::DialogOpenProgram(QWidget *parent, const QString &caption, const QString &directory, const QString &filter)
 	: QFileDialog(parent, caption, directory, filter),
@@ -55,7 +55,7 @@ DialogOpenProgram::DialogOpenProgram(QWidget *parent, const QString &caption, co
 }
 
 /**
- * @brief DialogOpenProgram::browsePressed
+ * @brief Opens a directory selection dialog to choose the working directory for the program.
  */
 void DialogOpenProgram::browsePressed() {
 	const QString dir = QFileDialog::getExistingDirectory(this, tr("Choose program working directory"), workDir_->text());
@@ -65,9 +65,9 @@ void DialogOpenProgram::browsePressed() {
 }
 
 /**
- * @brief DialogOpenProgram::arguments
+ * @brief Returns the program arguments.
  *
- * @return
+ * @return The program arguments as a list of byte arrays.
  */
 QList<QByteArray> DialogOpenProgram::arguments() const {
 	const QStringList args = edb::v1::parse_command_line(argsEdit_->text());
@@ -79,9 +79,9 @@ QList<QByteArray> DialogOpenProgram::arguments() const {
 }
 
 /**
- * @brief DialogOpenProgram::workingDirectory
+ * @brief Returns the working directory for the program.
  *
- * @return
+ * @return The working directory for the program.
  */
 QString DialogOpenProgram::workingDirectory() const {
 	return workDir_->text();
