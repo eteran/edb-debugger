@@ -70,8 +70,6 @@ BinaryString::BinaryString(QWidget *parent, Qt::WindowFlags f)
  * @brief BinaryString::~BinaryString
  */
 BinaryString::~BinaryString() {
-	// NOTE(eteran): we CAN'T use std::unique_ptr here because it doesn't
-	// support incomplete types
 	delete ui;
 }
 

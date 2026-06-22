@@ -194,7 +194,7 @@ void DialogResults::addResult(const Function &function) {
 	result.score = function.referenceCount();
 
 	// type
-	result.type = function.type();
+	result.type = function.type;
 
 	QString symbol_name = edb::v1::symbol_manager().findAddressName(function.entryAddress());
 	if (!symbol_name.isEmpty()) {

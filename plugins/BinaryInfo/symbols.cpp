@@ -381,7 +381,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 						}
 
 						if (sym.name.isEmpty()) {
-							sym.name = QString("$sym_%1").arg(edb::v1::format_pointer(symbol_tab[i].st_value));
+							sym.name = QLatin1String("$sym_%1").arg(edb::v1::format_pointer(symbol_tab[i].st_value));
 						}
 
 						sym.type = (M::elf_st_type(symbol_tab[i].st_info) == STT_FUNC ? 'T' : 'D');

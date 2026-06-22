@@ -7,39 +7,39 @@
 #include "Function.h"
 
 /**
- * @brief Function::swap
+ * @brief Swap the contents of this function with another
  *
- * @param other
+ * @param other The function to swap with
  */
 void Function::swap(Function &other) noexcept {
 	using std::swap;
 	swap(referenceCount_, other.referenceCount_);
-	swap(type_, other.type_);
+	swap(type, other.type);
 	swap(blocks_, other.blocks_);
 }
 
 /**
- * @brief Function::insert
+ * @brief Insert a basic block into the function
  *
- * @param bb
+ * @param bb The basic block to insert
  */
 void Function::insert(const BasicBlock &bb) {
 	blocks_[bb.firstAddress()] = bb;
 }
 
 /**
- * @brief Function::insert
+ * @brief Insert a basic block into the function using move semantics
  *
- * @param bb
+ * @param bb The basic block to insert
  */
 void Function::insert(BasicBlock &&bb) {
 	blocks_[bb.firstAddress()] = std::move(bb);
 }
 
 /**
- * @brief Function::entryAddress
+ * @brief Get the entry address of the function
  *
- * @return
+ * @return The entry address of the function
  */
 edb::address_t Function::entryAddress() const {
 	Q_ASSERT(!empty());
@@ -47,9 +47,9 @@ edb::address_t Function::entryAddress() const {
 }
 
 /**
- * @brief Function::endAddress
+ * @brief Get the end address of the function
  *
- * @return
+ * @return The end address of the function
  */
 edb::address_t Function::endAddress() const {
 	Q_ASSERT(!empty());
@@ -57,9 +57,9 @@ edb::address_t Function::endAddress() const {
 }
 
 /**
- * @brief Function::lastInstruction
+ * @brief Get the address of the last instruction in the function
  *
- * @return
+ * @return The address of the last instruction in the function
  */
 edb::address_t Function::lastInstruction() const {
 	Q_ASSERT(!empty());
@@ -67,18 +67,18 @@ edb::address_t Function::lastInstruction() const {
 }
 
 /**
- * @brief Function::referenceCount
+ * @brief Get the reference count of the function. This is the number of times this function is called from other functions.
  *
- * @return
+ * @return The reference count of the function
  */
 int Function::referenceCount() const {
 	return referenceCount_;
 }
 
 /**
- * @brief Function::back
+ * @brief Get the last basic block in the function
  *
- * @return
+ * @return The last basic block in the function
  */
 Function::const_reference Function::back() const {
 	Q_ASSERT(!empty());
@@ -88,9 +88,9 @@ Function::const_reference Function::back() const {
 }
 
 /**
- * @brief Function::front
+ * @brief Get the first basic block in the function
  *
- * @return
+ * @return The first basic block in the function
  */
 Function::const_reference Function::front() const {
 	Q_ASSERT(!empty());
@@ -100,9 +100,9 @@ Function::const_reference Function::front() const {
 }
 
 /**
- * @brief Function::back
+ * @brief Get the last basic block in the function
  *
- * @return
+ * @return The last basic block in the function
  */
 Function::reference Function::back() {
 	Q_ASSERT(!empty());
@@ -112,9 +112,9 @@ Function::reference Function::back() {
 }
 
 /**
- * @brief Function::front
+ * @brief Get the first basic block in the function
  *
- * @return
+ * @return The first basic block in the function
  */
 Function::reference Function::front() {
 	Q_ASSERT(!empty());
@@ -124,119 +124,107 @@ Function::reference Function::front() {
 }
 
 /**
- * @brief Function::begin
+ * @brief Return an iterator to the beginning of the function's basic blocks
  *
- * @return
+ * @return An iterator to the beginning of the function's basic blocks
  */
 Function::const_iterator Function::begin() const {
 	return blocks_.begin();
 }
 
 /**
- * @brief Function::end
+ * @brief Return an iterator to the end of the function's basic blocks
  *
- * @return
+ * @return An iterator to the end of the function's basic blocks
  */
 Function::const_iterator Function::end() const {
 	return blocks_.end();
 }
 
 /**
- * @brief Function::rbegin
+ * @brief Return a reverse iterator to the beginning of the function's basic blocks
  *
- * @return
+ * @return A reverse iterator to the beginning of the function's basic blocks
  */
 Function::const_reverse_iterator Function::rbegin() const {
 	return const_reverse_iterator(blocks_.end());
 }
 
 /**
- * @brief Function::rend
+ * @brief Return a reverse iterator to the end of the function's basic blocks
  *
- * @return
+ * @return A reverse iterator to the end of the function's basic blocks
  */
 Function::const_reverse_iterator Function::rend() const {
 	return const_reverse_iterator(blocks_.begin());
 }
 
 /**
- * @brief Function::begin
+ * @brief Return an iterator to the beginning of the function's basic blocks
  *
- * @return
+ * @return An iterator to the beginning of the function's basic blocks
  */
 Function::iterator Function::begin() {
 	return blocks_.begin();
 }
 
 /**
- * @brief Function::end
+ * @brief Return an iterator to the end of the function's basic blocks
  *
- * @return
+ * @return An iterator to the end of the function's basic blocks
  */
 Function::iterator Function::end() {
 	return blocks_.end();
 }
 
 /**
- * @brief Function::rbegin
+ * @brief Return a reverse iterator to the beginning of the function's basic blocks
  *
- * @return
+ * @return A reverse iterator to the beginning of the function's basic blocks
  */
 Function::reverse_iterator Function::rbegin() {
 	return reverse_iterator(blocks_.end());
 }
 
 /**
- * @brief Function::rend
+ * @brief Return a reverse iterator to the end of the function's basic blocks
  *
- * @return
+ * @return A reverse iterator to the end of the function's basic blocks
  */
 Function::reverse_iterator Function::rend() {
 	return reverse_iterator(blocks_.begin());
 }
 
 /**
- * @brief Function::empty
+ * @brief Check if the function has no basic blocks
  *
- * @return
+ * @return true if the function has no basic blocks, false otherwise
  */
 bool Function::empty() const {
 	return blocks_.empty();
 }
 
 /**
- * @brief Function::size
+ * @brief Get the number of basic blocks in the function
  *
- * @return
+ * @return The number of basic blocks in the function
  */
 Function::size_type Function::size() const {
 	return blocks_.size();
 }
 
 /**
- * @brief Function::addReference
+ * @brief Increment the reference count of the function. This should be called whenever this function is called from another function.
  */
 void Function::addReference() {
 	++referenceCount_;
 }
-/**
- * @brief Function::type
- *
- * @return
- */
-Function::Type Function::type() const {
-	return type_;
-}
 
 /**
- * @brief Function::setType
+ * @brief Erase a basic block from the function
  *
- * @param t
+ * @param it An iterator to the basic block to erase
  */
-void Function::setType(Type t) {
-	type_ = t;
-}
-
 void Function::erase(const_iterator it) {
 	blocks_.erase(it);
 }

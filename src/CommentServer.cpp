@@ -117,7 +117,7 @@ QString CommentServer::comment(edb::address_t address, int size) const {
 
 				auto it = customComments_.find(value);
 				if (it != customComments_.end()) {
-					return it.value();
+					return it->second;
 				}
 
 				if (Result<QString, QString> ret = resolveFunctionCall(value)) {

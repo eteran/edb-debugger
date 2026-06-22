@@ -119,9 +119,9 @@ void set_function_types(IAnalyzer::FunctionMap *results) {
 
 		Q_ASSERT(!function.empty());
 		if (is_thunk(function.entryAddress())) {
-			function.setType(Function::Thunk);
+			function.type = Function::Thunk;
 		} else {
-			function.setType(Function::Standard);
+			function.type = Function::Standard;
 		}
 	}
 }

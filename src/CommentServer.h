@@ -11,7 +11,7 @@
 #include "Types.h"
 
 #include <QCoreApplication>
-#include <QHash>
+#include <unordered_map>
 #include <QString>
 
 class CommentServer {
@@ -26,7 +26,7 @@ private:
 	[[nodiscard]] Result<QString, QString> resolveString(edb::address_t address) const;
 
 private:
-	QHash<quint64, QString> customComments_;
+	std::unordered_map<quint64, QString> customComments_;
 };
 
 #endif

@@ -38,8 +38,6 @@ public:
 	void insert(const BasicBlock &bb);
 	void insert(BasicBlock &&bb);
 	void addReference();
-	[[nodiscard]] Type type() const;
-	void setType(Type t);
 
 	void erase(const_iterator it);
 
@@ -72,9 +70,11 @@ public:
 public:
 	void swap(Function &other) noexcept;
 
+public:
+	Type type = Standard;
+
 private:
 	int referenceCount_ = 0;
-	Type type_          = Standard;
 	std::map<edb::address_t, BasicBlock> blocks_;
 };
 
