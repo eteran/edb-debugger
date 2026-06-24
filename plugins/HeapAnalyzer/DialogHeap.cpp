@@ -65,30 +65,30 @@ edb::address_t next_chunk(edb::address_t p, const malloc_chunk<Addr> &c) {
 }
 
 /**
- * @brief block_start
+ * @brief Returns the start address of the memory block associated with the given malloc_chunk.
  *
- * @param pointer
- * @return
+ * @param pointer The address of the malloc_chunk.
+ * @return The start address of the memory block.
  */
 edb::address_t block_start(edb::address_t pointer) {
 	return pointer + edb::v1::pointer_size() * 2; // pointer_size() is malloc_chunk*
 }
 
 /**
- * @brief block_start
+ * @brief Returns the start address of the memory block associated with the given result.
  *
- * @param result
- * @return
+ * @param result The result for which to get the block start address.
+ * @return The start address of the memory block.
  */
 edb::address_t block_start(const ResultViewModel::Result &result) {
 	return block_start(result.address);
 }
 
 /**
- * @brief get_library_names
+ * @brief Determines the names of the libc and ld libraries loaded in the current process.
  *
- * @param libcName
- * @param ldName
+ * @param libcName [out] A pointer to a QString that will hold the name of the libc library.
+ * @param ldName [out] A pointer to a QString that will hold the name of the ld library.
  */
 void get_library_names(QString *libcName, QString *ldName) {
 
@@ -135,10 +135,10 @@ void get_library_names(QString *libcName, QString *ldName) {
 }
 
 /**
- * @brief DialogHeap::DialogHeap
+ * @brief Constructs a DialogHeap object with the specified parent widget and window flags.
  *
- * @param parent
- * @param f
+ * @param parent The parent widget for this dialog.
+ * @param f The window flags for this dialog.
  */
 DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
@@ -250,7 +250,7 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogHeap::showEvent
+ * @brief Handles the show event for the DialogHeap. Clears the results and resets the progress bar.
  */
 void DialogHeap::showEvent(QShowEvent *) {
 	model_->clearResults();
@@ -258,9 +258,9 @@ void DialogHeap::showEvent(QShowEvent *) {
 }
 
 /**
- * @brief DialogHeap::on_tableView_doubleClicked
+ * @brief Handles the double-click event on the table view. Dumps the data range of the selected result.
  *
- * @param index
+ * @param index The index of the double-clicked item in the table view.
  */
 void DialogHeap::on_tableView_doubleClicked(const QModelIndex &index) {
 	const QModelIndex idx = filterModel_->mapToSource(index);
@@ -270,10 +270,10 @@ void DialogHeap::on_tableView_doubleClicked(const QModelIndex &index) {
 }
 
 /**
- * @brief DialogHeap::processPotentialPointers
+ * @brief Processes potential pointers in the given targets and updates the model with the found pointers for the specified index.
  *
- * @param targets
- * @param index
+ * @param targets The hash map of potential pointer targets.
+ * @param index The index of the result for which to process pointers.
  */
 void DialogHeap::processPotentialPointers(const QHash<edb::address_t, edb::address_t> &targets, const QModelIndex &index) {
 
@@ -308,7 +308,7 @@ void DialogHeap::processPotentialPointers(const QHash<edb::address_t, edb::addre
 }
 
 /**
- * @brief DialogHeap::detectPointers
+ * @brief Detects pointers in the heap blocks and updates the model with the found pointers.
  */
 void DialogHeap::detectPointers() {
 
@@ -337,10 +337,10 @@ void DialogHeap::detectPointers() {
 }
 
 /**
- * @brief DialogHeap::collectBlocks
+ * @brief Collects heap blocks between the specified start and end addresses and updates the model with the found blocks.
  *
- * @param start_address
- * @param end_address
+ * @param start_address The starting address of the memory range to collect blocks from.
+ * @param end_address The ending address of the memory range to collect blocks from.
  */
 template <class Addr>
 void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_address) {
@@ -470,11 +470,11 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 }
 
 /**
- * @brief DialogHeap::findHeapStartHeuristic
+ * @brief Finds the start address of the heap using a heuristic based on the end address and an offset.
  *
- * @param end_address
- * @param offset
- * @return
+ * @param end_address The end address of the heap.
+ * @param offset The offset to apply to the end address to find the start address.
+ * @return The start address of the heap or 0 if not found.
  */
 edb::address_t DialogHeap::findHeapStartHeuristic(edb::address_t end_address, size_t offset) const {
 	const edb::address_t start_address = end_address - offset;
@@ -496,7 +496,8 @@ edb::address_t DialogHeap::findHeapStartHeuristic(edb::address_t end_address, si
 }
 
 /**
- * @brief DialogHeap::do_find
+ * @brief Finds and analyzes heap blocks in the current process, collecting information about free and busy blocks.
+ *        This function uses the appropriate address type (32-bit or 64-bit) based on the architecture of the debuggee process.
  */
 template <class Addr>
 void DialogHeap::doFind() {
@@ -582,9 +583,9 @@ void DialogHeap::doFind() {
 }
 
 /**
- * @brief DialogHeap::createResultMap
+ * @brief Creates a map of result addresses to their corresponding ResultViewModel::Result pointers.
  *
- * @return
+ * @return A QMap where the keys are result addresses and the values are pointers to the corresponding ResultViewModel::Result objects.
  */
 QMap<edb::address_t, const ResultViewModel::Result *> DialogHeap::createResultMap() const {
 

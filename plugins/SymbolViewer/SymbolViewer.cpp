@@ -39,7 +39,7 @@ QMenu *SymbolViewer::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("SymbolViewer"), parent);
-		menu_->addAction(tr("&Symbol Viewer"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+Alt+S")));
+		menu_->addAction(tr("&Symbol Viewer"), this, &SymbolViewer::showMenu, QKeySequence(tr("Ctrl+Alt+S")));
 	}
 
 	return menu_;

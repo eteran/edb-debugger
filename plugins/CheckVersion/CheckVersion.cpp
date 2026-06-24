@@ -63,7 +63,7 @@ QMenu *CheckVersion::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("CheckVersion"), parent);
-		menu_->addAction(tr("&Check For Latest Version"), this, SLOT(showMenu()));
+		menu_->addAction(tr("&Check For Latest Version"), this, &CheckVersion::showMenu);
 	}
 
 	return menu_;

@@ -89,10 +89,10 @@ void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &po
 		if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(s.split(":")[0])) {
 
 			QMenu menu;
-			QAction *const action1 = menu.addAction(tr("&Follow In Disassembly"), this, SLOT(mnuFollowInCPU()));
-			QAction *const action2 = menu.addAction(tr("&Follow In Dump"), this, SLOT(mnuFollowInDump()));
-			QAction *const action3 = menu.addAction(tr("&Follow In Dump (New Tab)"), this, SLOT(mnuFollowInDumpNewTab()));
-			QAction *const action4 = menu.addAction(tr("&Follow In Stack"), this, SLOT(mnuFollowInStack()));
+			QAction *const action1 = menu.addAction(tr("&Follow In Disassembly"), this, &DialogSymbolViewer::mnuFollowInCPU);
+			QAction *const action2 = menu.addAction(tr("&Follow In Dump"), this, &DialogSymbolViewer::mnuFollowInDump);
+			QAction *const action3 = menu.addAction(tr("&Follow In Dump (New Tab)"), this, &DialogSymbolViewer::mnuFollowInDumpNewTab);
+			QAction *const action4 = menu.addAction(tr("&Follow In Stack"), this, &DialogSymbolViewer::mnuFollowInStack);
 
 			action1->setData(addr->toQVariant());
 			action2->setData(addr->toQVariant());

@@ -39,7 +39,7 @@ QMenu *HeapAnalyzer::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("HeapAnalyzer"), parent);
-		menu_->addAction(tr("&Heap Analyzer"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+H")));
+		menu_->addAction(tr("&Heap Analyzer"), this, &HeapAnalyzer::showMenu, QKeySequence(tr("Ctrl+H")));
 	}
 
 	return menu_;

@@ -10,10 +10,10 @@
 namespace HardwareBreakpointsPlugin {
 
 /**
- * @brief validate_breakpoint
+ * @brief Validates the given breakpoint state and returns the corresponding BreakpointStatus.
  *
- * @param bp_state
- * @return
+ * @param bp_state The BreakpointState to validate.
+ * @return The BreakpointStatus indicating whether the breakpoint is valid, has an alignment error, or a size error.
  */
 BreakpointStatus validate_breakpoint(const BreakpointState &bp_state) {
 
@@ -41,11 +41,11 @@ BreakpointStatus validate_breakpoint(const BreakpointState &bp_state) {
 }
 
 /**
- * @brief breakpoint_state
+ * @brief Returns the state of the specified hardware breakpoint.
  *
- * @param state
- * @param num
- * @return
+ * @param state The current CPU state.
+ * @param num The breakpoint number (0-3).
+ * @return The state of the specified hardware breakpoint.
  */
 BreakpointState breakpoint_state(const State *state, int num) {
 
@@ -110,11 +110,11 @@ BreakpointState breakpoint_state(const State *state, int num) {
 }
 
 /**
- * @brief set_breakpoint_state
+ * @brief Sets the state of the specified hardware breakpoint.
  *
- * @param state
- * @param num
- * @param bp_state
+ * @param state The current CPU state.
+ * @param num The breakpoint number (0-3).
+ * @param bp_state The breakpoint state to set.
  */
 void set_breakpoint_state(State *state, int num, const BreakpointState &bp_state) {
 
