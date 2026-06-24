@@ -162,10 +162,10 @@ bool getProcessEntry(edb::pid_t pid, PROCESSENTRY32 *entry) {
 }
 
 /**
- * @brief PlatformProcess::PlatformProcess
+ * @brief Constructor for the PlatformProcess class. Initializes the process handle for the given process ID.
  *
- * @param core
- * @param pid
+ * @param core A pointer to the DebuggerCore instance.
+ * @param pid The process ID of the process to be represented by this PlatformProcess instance.
  */
 PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid)
 	: core_(core) {
@@ -173,10 +173,10 @@ PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid)
 }
 
 /**
- * @brief PlatformProcess::PlatformProcess
+ * @brief Closes the process handle when the PlatformProcess instance is destroyed.
  *
- * @param core
- * @param handle
+ * @param core A pointer to the DebuggerCore instance.
+ * @param handle The handle of the process to be represented by this PlatformProcess instance.
  */
 PlatformProcess::PlatformProcess(DebuggerCore *core, HANDLE handle)
 	: core_(core) {
@@ -192,16 +192,16 @@ PlatformProcess::PlatformProcess(DebuggerCore *core, HANDLE handle)
 }
 
 /**
- * @brief PlatformProcess::~PlatformProcess
+ * @brief Closes the process handle when the PlatformProcess instance is destroyed.
  */
 PlatformProcess::~PlatformProcess() {
 	CloseHandle(hProcess_);
 }
 
 /**
- * @brief PlatformProcess::isWow64
+ * @brief Determines if the process is running under WOW64 (Windows 32-bit on Windows 64-bit).
  *
- * @return
+ * @return True if the process is running under WOW64, false otherwise.
  */
 bool PlatformProcess::isWow64() const {
 #if defined(EDB_X86_64)
@@ -218,9 +218,9 @@ bool PlatformProcess::isWow64() const {
 }
 
 /**
- * @brief PlatformProcess::startTime
+ * @brief Calculates the start time of the process.
  *
- * @return
+ * @return The start time of the process.
  */
 QDateTime PlatformProcess::startTime() const {
 	Q_ASSERT(hProcess_);
@@ -242,18 +242,18 @@ QDateTime PlatformProcess::startTime() const {
 }
 
 /**
- * @brief PlatformProcess::pid
+ * @brief Returns the process ID of the process represented by this PlatformProcess instance.
  *
- * @return
+ * @return The process ID of the process.
  */
 edb::pid_t PlatformProcess::pid() const {
 	return GetProcessId(hProcess_);
 }
 
 /**
- * @brief PlatformProcess::name
+ * @brief Gets the name of the process represented by this PlatformProcess instance. If the process is running under WOW64, it appends " *32" to the name.
  *
- * @return
+ * @return The name of the process.
  */
 QString PlatformProcess::name() const {
 
@@ -268,9 +268,9 @@ QString PlatformProcess::name() const {
 }
 
 /**
- * @brief PlatformProcess::user
+ * @brief Gets the username of the user who owns the process represented by this PlatformProcess instance.
  *
- * @return
+ * @return The username of the user which owns this process.
  */
 QString PlatformProcess::user() const {
 
@@ -303,9 +303,9 @@ QString PlatformProcess::user() const {
 }
 
 /**
- * @brief PlatformProcess::parent
+ * @brief Gets the parent process of the process represented by this PlatformProcess instance.
  *
- * @return
+ * @return A shared pointer to the parent process.
  */
 std::shared_ptr<IProcess> PlatformProcess::parent() const {
 	edb::pid_t parent_pid = core_->parentPid(pid());
@@ -313,9 +313,9 @@ std::shared_ptr<IProcess> PlatformProcess::parent() const {
 }
 
 /**
- * @brief PlatformProcess::uid
+ * @brief Gets the user ID of the user who owns the process represented by this PlatformProcess instance.
  *
- * @return
+ * @return The user ID of the user which owns this process.
  */
 edb::uid_t PlatformProcess::uid() const {
 	Q_ASSERT(hProcess_);
@@ -334,21 +334,21 @@ edb::uid_t PlatformProcess::uid() const {
 }
 
 /**
- * @brief PlatformProcess::patches
+ * @brief Gets the list of patches applied to the process represented by this PlatformProcess instance.
  *
- * @return
+ * @return A QMap containing the patches applied to the process, where the key is the address and the value is the Patch object.
  */
 QMap<edb::address_t, Patch> PlatformProcess::patches() const {
 	return patches_;
 }
 
 /**
- * @brief PlatformProcess::write_bytes
+ * @brief Writes bytes to the process memory at the specified address.
  *
- * @param address
- * @param buf
- * @param len
- * @return
+ * @param address The address in the process memory where the bytes will be written.
+ * @param buf A pointer to the buffer containing the bytes to be written.
+ * @param len The number of bytes to write.
+ * @return The number of bytes successfully written to the process memory.
  */
 std::size_t PlatformProcess::writeBytes(edb::address_t address, const void *buf, size_t len) {
 	Q_ASSERT(buf);
@@ -367,12 +367,12 @@ std::size_t PlatformProcess::writeBytes(edb::address_t address, const void *buf,
 }
 
 /**
- * @brief PlatformProcess::readBytes
+ * @brief Reads bytes from the process memory at the specified address.
  *
- * @param address
- * @param buf
- * @param len
- * @return
+ * @param address The address in the process memory from which to read bytes.
+ * @param buf A pointer to the buffer where the read bytes will be stored.
+ * @param len The number of bytes to read.
+ * @return The number of bytes successfully read from the process memory.
  */
 std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, size_t len) const {
 	Q_ASSERT(buf);
@@ -401,12 +401,12 @@ std::size_t PlatformProcess::readBytes(edb::address_t address, void *buf, size_t
 }
 
 /**
- * @brief PlatformProcess::readPages
+ * @brief Reads pages from the process memory at the specified address.
  *
- * @param address
- * @param buf
- * @param count
- * @return
+ * @param address The address in the process memory from which to read pages.
+ * @param buf A pointer to the buffer where the read bytes will be stored.
+ * @param count The number of pages to read.
+ * @return The number of bytes successfully read from the process memory.
  */
 std::size_t PlatformProcess::readPages(edb::address_t address, void *buf, size_t count) const {
 	Q_ASSERT(address % core_->pageSize() == 0);
@@ -414,9 +414,9 @@ std::size_t PlatformProcess::readPages(edb::address_t address, void *buf, size_t
 }
 
 /**
- * @brief PlatformProcess::pause
+ * @brief Pauses the process represented by this PlatformProcess instance.
  *
- * @return
+ * @return A Status object indicating the success or failure of the pause operation.
  */
 Status PlatformProcess::pause() {
 	Q_ASSERT(hProcess_);
@@ -429,9 +429,9 @@ Status PlatformProcess::pause() {
 }
 
 /**
- * @brief PlatformProcess::regions
+ * @brief Gets the list of all memory regions in the process represented by this PlatformProcess instance.
  *
- * @return
+ * @return A list of all memory regions in the process.
  */
 QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
 	QList<std::shared_ptr<IRegion>> regions;
@@ -474,9 +474,9 @@ QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
 }
 
 /**
- * @brief PlatformProcess::executable
+ * @brief Gets the executable path of the process represented by this PlatformProcess instance.
  *
- * @return
+ * @return The executable path of the process.
  */
 QString PlatformProcess::executable() const {
 	Q_ASSERT(hProcess_);
@@ -508,9 +508,9 @@ QString PlatformProcess::executable() const {
 }
 
 /**
- * @brief PlatformProcess::arguments
+ * @brief Gets the command-line arguments of the process represented by this PlatformProcess instance.
  *
- * @return
+ * @return A list of command-line arguments of the process.
  */
 QList<QByteArray> PlatformProcess::arguments() const {
 
@@ -538,9 +538,9 @@ QList<QByteArray> PlatformProcess::arguments() const {
 }
 
 /**
- * @brief loadedModules
+ * @brief Gets the list of loaded modules (AKA dlls) in the process represented by this PlatformProcess instance.
  *
- * @return
+ * @return A list of loaded modules in the process.
  */
 QList<Module> PlatformProcess::loadedModules() const {
 	QList<Module> ret;
@@ -563,9 +563,9 @@ QList<Module> PlatformProcess::loadedModules() const {
 }
 
 /**
- * @brief PlatformProcess::threads
+ * @brief Gets the list of threads in the process represented by this PlatformProcess instance.
  *
- * @return
+ * @return A list of threads in the process.
  */
 QList<std::shared_ptr<IThread>> PlatformProcess::threads() const {
 
@@ -581,9 +581,9 @@ QList<std::shared_ptr<IThread>> PlatformProcess::threads() const {
 }
 
 /**
- * @brief PlatformProcess::currentThread
+ * @brief Gets the currently active thread in the process represented by this PlatformProcess instance.
  *
- * @return
+ * @return A shared pointer to the currently active thread, or nullptr if no active thread is found.
  */
 std::shared_ptr<IThread> PlatformProcess::currentThread() const {
 
@@ -597,15 +597,21 @@ std::shared_ptr<IThread> PlatformProcess::currentThread() const {
 }
 
 /**
- * @brief PlatformProcess::setCurrentThread
+ * @brief Sets the currently active thread in the process represented by this PlatformProcess instance.
  *
- * @param thread
+ * @param thread A reference to the thread to be set as the currently active thread.
  */
 void PlatformProcess::setCurrentThread(IThread &thread) {
 	core_->activeThread_ = static_cast<PlatformThread *>(&thread)->tid();
 	edb::v1::update_ui();
 }
 
+/**
+ * @brief Steps the execution of the process represented by this PlatformProcess instance with the specified event status.
+ *
+ * @param status The event status to be passed to the step operation.
+ * @return A Status object indicating the success or failure of the step operation.
+ */
 Status PlatformProcess::step(edb::EventStatus status) {
 	// TODO: assert that we are paused
 	Q_ASSERT(core_->process_.get() == this);
@@ -618,6 +624,11 @@ Status PlatformProcess::step(edb::EventStatus status) {
 	return Status::Ok;
 }
 
+/**
+ * @brief Determines if the process represented by this PlatformProcess instance is currently paused.
+ *
+ * @return True if the process is paused, false otherwise.
+ */
 bool PlatformProcess::isPaused() const {
 	for (auto &thread : threads()) {
 		if (!thread->isPaused()) {
@@ -629,10 +640,10 @@ bool PlatformProcess::isPaused() const {
 }
 
 /**
- * @brief PlatformProcess::resume
+ * @brief Resumes the execution of the process represented by this PlatformProcess instance with the specified event status.
  *
- * @param status
- * @return
+ * @param status The event status to be passed to the resume operation.
+ * @return A Status object indicating the success or failure of the resume operation.
  */
 Status PlatformProcess::resume(edb::EventStatus status) {
 
