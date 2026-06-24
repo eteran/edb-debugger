@@ -25,10 +25,10 @@
 namespace FunctionFinderPlugin {
 
 /**
- * @brief DialogResults::DialogResults
+ * @brief Constructs a DialogResults object with the specified parent widget and window flags.
  *
- * @param parent
- * @param f
+ * @param parent The parent widget for this dialog.
+ * @param f The window flags for this dialog.
  */
 DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
@@ -160,9 +160,9 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogResults::on_tableView_doubleClicked
+ * @brief Handles the double-click event on the table view, jumping to the selected function's start address in the debugger.
  *
- * @param index
+ * @param index The model index of the double-clicked item in the table view.
  */
 void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
 
@@ -175,9 +175,9 @@ void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
 }
 
 /**
- * @brief DialogResults::addResult
+ * @brief Adds a function result to the dialog.
  *
- * @param function
+ * @param function The function to add.
  */
 void DialogResults::addResult(const Function &function) {
 
@@ -205,9 +205,9 @@ void DialogResults::addResult(const Function &function) {
 }
 
 /**
- * @brief DialogResults::resultCount
+ * @brief Returns the number of results in the dialog.
  *
- * @return
+ * @return The number of results in the dialog.
  */
 int DialogResults::resultCount() const {
 	return resultsModel_->rowCount();

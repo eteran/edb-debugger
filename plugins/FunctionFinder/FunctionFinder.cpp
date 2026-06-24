@@ -12,26 +12,26 @@
 namespace FunctionFinderPlugin {
 
 /**
- * @brief FunctionFinder::FunctionFinder
+ * @brief Constructs a FunctionFinder object with the specified parent widget.
  *
- * @param parent
+ * @param parent The parent widget for this object.
  */
 FunctionFinder::FunctionFinder(QObject *parent)
 	: QObject(parent) {
 }
 
 /**
- * @brief FunctionFinder::~FunctionFinder
+ * @brief Destroys the FunctionFinder object and frees the dialog.
  */
 FunctionFinder::~FunctionFinder() {
 	delete dialog_;
 }
 
 /**
- * @brief FunctionFinder::menu
+ * @brief Creates and returns the menu for the FunctionFinder plugin, adding a "Function Finder" action to it. The menu is created on the first call.
  *
- * @param parent
- * @return
+ * @param parent The parent widget for this menu.
+ * @return A pointer to the created menu.
  */
 QMenu *FunctionFinder::menu(QWidget *parent) {
 
@@ -46,7 +46,7 @@ QMenu *FunctionFinder::menu(QWidget *parent) {
 }
 
 /**
- * @brief FunctionFinder::showMenu
+ * @brief Shows the Function Finder dialog, creating it if it does not already exist.
  */
 void FunctionFinder::showMenu() {
 
