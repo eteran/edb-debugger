@@ -27,10 +27,10 @@ namespace ROPToolPlugin {
 namespace {
 
 /**
- * @brief get_gadget_role
+ * @brief Gets the gadget role for the given instruction.
  *
- * @param inst
- * @return
+ * @param inst The instruction for which to determine the gadget role.
+ * @return A uint32_t representing the gadget role of the instruction.
  */
 uint32_t get_gadget_role(const edb::Instruction &inst) {
 	switch (inst.operation()) {
@@ -148,10 +148,10 @@ uint32_t get_gadget_role(const edb::Instruction &inst) {
 
 // See issue #457, thanks mrexodia!
 /**
- * @brief is_safe_64_nop_reg_op
+ * @brief Checks if a register operand is safe for 64-bit NOP operations.
  *
- * @param op
- * @return
+ * @param op The operand to check.
+ * @return true if the operand is safe for 64-bit NOP operations, false otherwise.
  */
 bool is_safe_64_nop_reg_op(const edb::Operand &op) {
 
@@ -179,10 +179,10 @@ bool is_safe_64_nop_reg_op(const edb::Operand &op) {
 }
 
 /**
- * @brief is_effective_nop
+ * @brief Checks if an instruction is an effective NOP (No Operation).
  *
- * @param inst
- * @return
+ * @param inst The instruction to check.
+ * @return true if the instruction is an effective NOP, false otherwise.
  */
 bool is_effective_nop(const edb::Instruction &inst) {
 
@@ -276,10 +276,10 @@ bool is_effective_nop(const edb::Instruction &inst) {
 }
 
 /**
- * @brief DialogROPTool::DialogROPTool
+ * @brief Constructs a DialogROPTool object with the specified parent widget and window flags.
  *
- * @param parent
- * @param f
+ * @param parent The parent widget for this dialog.
+ * @param f The window flags for this dialog.
  */
 DialogROPTool::DialogROPTool(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
@@ -304,7 +304,9 @@ DialogROPTool::DialogROPTool(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogROPTool::showEvent
+ * @brief Handles the show event for the DialogROPTool.
+ *
+ * @param event The show event.
  */
 void DialogROPTool::showEvent(QShowEvent *) {
 	filterModel_->setFilterKeyColumn(3);
@@ -314,10 +316,10 @@ void DialogROPTool::showEvent(QShowEvent *) {
 }
 
 /**
- * @brief DialogROPTool::addGadget
+ * @brief Adds a gadget to the results dialog.
  *
- * @param results
- * @param instructions
+ * @param results The dialog to display the results.
+ * @param instructions The list of instructions forming the gadget.
  */
 void DialogROPTool::addGadget(DialogResults *results, const InstructionList &instructions) {
 
@@ -343,7 +345,7 @@ void DialogROPTool::addGadget(DialogResults *results, const InstructionList &ins
 }
 
 /**
- * @brief DialogROPTool::doFind
+ * @brief Performs the search for ROP gadgets in the selected memory regions.
  */
 void DialogROPTool::doFind() {
 
@@ -355,125 +357,125 @@ void DialogROPTool::doFind() {
 			this,
 			tr("No Region Selected"),
 			tr("You must select a region which is to be scanned for gadgets."));
-	} else {
+		return;
+	}
 
-		auto resultsDialog = new DialogResults(this);
+	auto resultsDialog = new DialogResults(this);
 
-		uniqueResults_.clear();
+	uniqueResults_.clear();
 
-		if (IProcess *process = edb::v1::debugger_core->process()) {
-			for (const QModelIndex &selected_item : sel) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
+		for (const QModelIndex &selected_item : sel) {
 
-				const QModelIndex index = filterModel_->mapToSource(selected_item);
-				if (auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
+			const QModelIndex index = filterModel_->mapToSource(selected_item);
+			if (auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
 
-					edb::address_t start_address     = region->start();
-					const edb::address_t end_address = region->end();
-					const edb::address_t orig_start  = start_address;
+				edb::address_t start_address     = region->start();
+				const edb::address_t end_address = region->end();
+				const edb::address_t orig_start  = start_address;
 
-					ByteShiftArray bsa(32);
+				ByteShiftArray bsa(32);
 
-					while (start_address < end_address) {
+				while (start_address < end_address) {
 
-						// read in the next byte
-						uint8_t byte;
-						if (process->readBytes(start_address, &byte, 1)) {
-							bsa << byte;
+					// read in the next byte
+					uint8_t byte;
+					if (process->readBytes(start_address, &byte, 1)) {
+						bsa << byte;
 
-							const uint8_t *p       = bsa.data();
-							const uint8_t *const l = p + bsa.size();
-							edb::address_t rva     = start_address - bsa.size() + 1;
+						const uint8_t *p       = bsa.data();
+						const uint8_t *const l = p + bsa.size();
+						edb::address_t rva     = start_address - bsa.size() + 1;
 
-							InstructionList instruction_list;
+						InstructionList instruction_list;
 
-							// eat up any NOPs in front...
-							Q_FOREVER {
-								auto inst = std::make_shared<edb::Instruction>(p, l, rva);
-								if (!is_effective_nop(*inst)) {
-									break;
-								}
-
-								instruction_list.push_back(inst);
-								p += inst->byteSize();
-								rva += inst->byteSize();
+						// eat up any NOPs in front...
+						Q_FOREVER {
+							auto inst = std::make_shared<edb::Instruction>(p, l, rva);
+							if (!is_effective_nop(*inst)) {
+								break;
 							}
 
-							auto inst1 = std::make_shared<edb::Instruction>(p, l, rva);
-							if (inst1->valid()) {
-								instruction_list.push_back(inst1);
+							instruction_list.push_back(inst);
+							p += inst->byteSize();
+							rva += inst->byteSize();
+						}
 
-								if (is_int(*inst1) && is_immediate(inst1->operand(0)) && (inst1->operand(0)->imm & 0xff) == 0x80) {
-									addGadget(resultsDialog, instruction_list);
-								} else if (is_sysenter(*inst1)) {
-									addGadget(resultsDialog, instruction_list);
-								} else if (is_syscall(*inst1)) {
-									addGadget(resultsDialog, instruction_list);
-								} else if (is_ret(*inst1)) {
-									ui.progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
-									++start_address;
-									continue;
-								} else {
+						auto inst1 = std::make_shared<edb::Instruction>(p, l, rva);
+						if (inst1->valid()) {
+							instruction_list.push_back(inst1);
 
-									p += inst1->byteSize();
-									rva += inst1->byteSize();
+							if (is_int(*inst1) && is_immediate(inst1->operand(0)) && (inst1->operand(0)->imm & 0xff) == 0x80) {
+								addGadget(resultsDialog, instruction_list);
+							} else if (is_sysenter(*inst1)) {
+								addGadget(resultsDialog, instruction_list);
+							} else if (is_syscall(*inst1)) {
+								addGadget(resultsDialog, instruction_list);
+							} else if (is_ret(*inst1)) {
+								ui.progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
+								++start_address;
+								continue;
+							} else {
 
-									// eat up any NOPs in between...
-									Q_FOREVER {
-										auto inst = std::make_shared<edb::Instruction>(p, l, rva);
-										if (!is_effective_nop(*inst)) {
-											break;
-										}
+								p += inst1->byteSize();
+								rva += inst1->byteSize();
 
-										instruction_list.push_back(inst);
-										p += inst->byteSize();
-										rva += inst->byteSize();
+								// eat up any NOPs in between...
+								Q_FOREVER {
+									auto inst = std::make_shared<edb::Instruction>(p, l, rva);
+									if (!is_effective_nop(*inst)) {
+										break;
 									}
 
-									auto inst2 = std::make_shared<edb::Instruction>(p, l, rva);
+									instruction_list.push_back(inst);
+									p += inst->byteSize();
+									rva += inst->byteSize();
+								}
 
-									if (is_ret(*inst2)) {
-										instruction_list.push_back(inst2);
-										addGadget(resultsDialog, instruction_list);
-									} else if (inst2->valid() && inst2->operation() == X86_INS_POP) {
-										instruction_list.push_back(inst2);
-										p += inst2->byteSize();
-										rva += inst2->byteSize();
+								auto inst2 = std::make_shared<edb::Instruction>(p, l, rva);
 
-										auto inst3 = std::make_shared<edb::Instruction>(p, l, rva);
+								if (is_ret(*inst2)) {
+									instruction_list.push_back(inst2);
+									addGadget(resultsDialog, instruction_list);
+								} else if (inst2->valid() && inst2->operation() == X86_INS_POP) {
+									instruction_list.push_back(inst2);
+									p += inst2->byteSize();
+									rva += inst2->byteSize();
 
-										if (inst3->valid() && is_jump(*inst3)) {
+									auto inst3 = std::make_shared<edb::Instruction>(p, l, rva);
 
-											instruction_list.push_back(inst3);
+									if (inst3->valid() && is_jump(*inst3)) {
 
-											if (inst2->operandCount() == 1 && is_register(inst2->operand(0))) {
-												if (inst3->operandCount() == 1 && is_register(inst3->operand(0))) {
-													if (inst2->operand(0)->reg == inst3->operand(0)->reg) {
-														addGadget(resultsDialog, instruction_list);
-													}
+										instruction_list.push_back(inst3);
+
+										if (inst2->operandCount() == 1 && is_register(inst2->operand(0))) {
+											if (inst3->operandCount() == 1 && is_register(inst3->operand(0))) {
+												if (inst2->operand(0)->reg == inst3->operand(0)->reg) {
+													addGadget(resultsDialog, instruction_list);
 												}
 											}
 										}
 									}
 								}
-
-								// TODO(eteran): catch things like "add rsp, 8; jmp [rsp - 8]" and similar, it's rare,
-								// but could happen
 							}
-						}
 
-						ui.progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
-						++start_address;
+							// TODO(eteran): catch things like "add rsp, 8; jmp [rsp - 8]" and similar, it's rare,
+							// but could happen
+						}
 					}
+
+					ui.progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
+					++start_address;
 				}
 			}
 		}
+	}
 
-		if (resultsDialog->resultCount() == 0) {
-			QMessageBox::information(this, tr("No Results"), tr("No Rop Gadgets found in the selected region."));
-			delete resultsDialog;
-		} else {
-			resultsDialog->show();
-		}
+	if (resultsDialog->resultCount() == 0) {
+		QMessageBox::information(this, tr("No Results"), tr("No Rop Gadgets found in the selected region."));
+		delete resultsDialog;
+	} else {
+		resultsDialog->show();
 	}
 }
 

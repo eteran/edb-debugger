@@ -12,26 +12,26 @@
 namespace OpcodeSearcherPlugin {
 
 /**
- * @brief OpcodeSearcher::OpcodeSearcher
+ * @brief Constructs an OpcodeSearcher object with the specified parent QObject.
  *
- * @param parent
+ * @param parent The parent QObject for this plugin.
  */
 OpcodeSearcher::OpcodeSearcher(QObject *parent)
 	: QObject(parent) {
 }
 
 /**
- * @brief OpcodeSearcher::~OpcodeSearcher
+ * @brief Destructs the OpcodeSearcher object and frees the opcode search dialog.
  */
 OpcodeSearcher::~OpcodeSearcher() {
 	delete dialog_;
 }
 
 /**
- * @brief OpcodeSearcher::menu
+ * @brief Returns the menu for the OpcodeSearcher plugin, creating it if it doesn't already exist.
  *
- * @param parent
- * @return
+ * @param parent The parent widget for the menu.
+ * @return A pointer to the QMenu object.
  */
 QMenu *OpcodeSearcher::menu(QWidget *parent) {
 
@@ -39,14 +39,14 @@ QMenu *OpcodeSearcher::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("OpcodeSearcher"), parent);
-		menu_->addAction(tr("&Opcode Search"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+O")));
+		menu_->addAction(tr("&Opcode Search"), this, &OpcodeSearcher::showMenu, QKeySequence(tr("Ctrl+O")));
 	}
 
 	return menu_;
 }
 
 /**
- * @brief OpcodeSearcher::showMenu
+ * @brief Shows the Opcode Search menu. If the dialog does not already exist, it is created and then shown.
  */
 void OpcodeSearcher::showMenu() {
 

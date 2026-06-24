@@ -90,7 +90,7 @@ QMenu *HardwareBreakpoints::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("Hardware BreakpointManager"), parent);
-		menu_->addAction(tr("&Hardware Breakpoints"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+Shift+H")));
+		menu_->addAction(tr("&Hardware Breakpoints"), this, &HardwareBreakpoints::showMenu, QKeySequence(tr("Ctrl+Shift+H")));
 	}
 
 	return menu_;
@@ -244,15 +244,15 @@ edb::EventStatus HardwareBreakpoints::handleEvent(const std::shared_ptr<IDebugEv
 QList<QAction *> HardwareBreakpoints::stackContextMenu() {
 	auto menu = new QMenu(tr("Hardware Breakpoints"));
 
-	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(setAccess1()));
-	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(setAccess2()));
-	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, SLOT(setAccess3()));
-	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, SLOT(setAccess4()));
+	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, &HardwareBreakpoints::setAccess1);
+	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, &HardwareBreakpoints::setAccess2);
+	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, &HardwareBreakpoints::setAccess3);
+	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, &HardwareBreakpoints::setAccess4);
 
-	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, SLOT(setWrite1()));
-	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, SLOT(setWrite2()));
-	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, SLOT(setWrite3()));
-	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, SLOT(setWrite4()));
+	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, &HardwareBreakpoints::setWrite1);
+	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, &HardwareBreakpoints::setWrite2);
+	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, &HardwareBreakpoints::setWrite3);
+	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, &HardwareBreakpoints::setWrite4);
 
 	rw1->setData(1);
 	rw2->setData(1);
@@ -280,15 +280,15 @@ QList<QAction *> HardwareBreakpoints::stackContextMenu() {
 QList<QAction *> HardwareBreakpoints::dataContextMenu() {
 	auto menu = new QMenu(tr("Hardware Breakpoints"));
 
-	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(setAccess1()));
-	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(setAccess2()));
-	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, SLOT(setAccess3()));
-	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, SLOT(setAccess4()));
+	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, &HardwareBreakpoints::setAccess1);
+	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, &HardwareBreakpoints::setAccess2);
+	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, &HardwareBreakpoints::setAccess3);
+	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, &HardwareBreakpoints::setAccess4);
 
-	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, SLOT(setWrite1()));
-	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, SLOT(setWrite2()));
-	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, SLOT(setWrite3()));
-	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, SLOT(setWrite4()));
+	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, &HardwareBreakpoints::setWrite1);
+	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, &HardwareBreakpoints::setWrite2);
+	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, &HardwareBreakpoints::setWrite3);
+	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, &HardwareBreakpoints::setWrite4);
 
 	rw1->setData(2);
 	rw2->setData(2);
@@ -316,20 +316,20 @@ QList<QAction *> HardwareBreakpoints::dataContextMenu() {
 QList<QAction *> HardwareBreakpoints::cpuContextMenu() {
 
 	auto menu = new QMenu(tr("Hardware Breakpoints"));
-	auto ex1  = menu->addAction(tr("Hardware, On Execute #1"), this, SLOT(setExec1()));
-	auto ex2  = menu->addAction(tr("Hardware, On Execute #2"), this, SLOT(setExec2()));
-	auto ex3  = menu->addAction(tr("Hardware, On Execute #3"), this, SLOT(setExec3()));
-	auto ex4  = menu->addAction(tr("Hardware, On Execute #4"), this, SLOT(setExec4()));
+	auto ex1  = menu->addAction(tr("Hardware, On Execute #1"), this, &HardwareBreakpoints::setExec1);
+	auto ex2  = menu->addAction(tr("Hardware, On Execute #2"), this, &HardwareBreakpoints::setExec2);
+	auto ex3  = menu->addAction(tr("Hardware, On Execute #3"), this, &HardwareBreakpoints::setExec3);
+	auto ex4  = menu->addAction(tr("Hardware, On Execute #4"), this, &HardwareBreakpoints::setExec4);
 
-	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(setAccess1()));
-	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(setAccess2()));
-	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, SLOT(setAccess3()));
-	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, SLOT(setAccess4()));
+	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, &HardwareBreakpoints::setAccess1);
+	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, &HardwareBreakpoints::setAccess2);
+	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, &HardwareBreakpoints::setAccess3);
+	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, &HardwareBreakpoints::setAccess4);
 
-	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, SLOT(setWrite1()));
-	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, SLOT(setWrite2()));
-	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, SLOT(setWrite3()));
-	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, SLOT(setWrite4()));
+	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, &HardwareBreakpoints::setWrite1);
+	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, &HardwareBreakpoints::setWrite2);
+	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, &HardwareBreakpoints::setWrite3);
+	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, &HardwareBreakpoints::setWrite4);
 
 	ex1->setData(3);
 	ex2->setData(3);

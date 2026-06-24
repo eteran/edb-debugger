@@ -44,7 +44,7 @@ QMenu *Backtrace::menu(QWidget *parent) {
 		menu_ = new QMenu(tr("Call Stack"), parent);
 
 		// Ctrl + K shortcut, reminiscent of OllyDbg
-		menu_->addAction(tr("Backtrace"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+K")));
+		menu_->addAction(tr("Backtrace"), this, &Backtrace::showMenu, QKeySequence(tr("Ctrl+K")));
 	}
 
 	return menu_;

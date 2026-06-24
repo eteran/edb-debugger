@@ -12,26 +12,26 @@
 namespace SymbolViewerPlugin {
 
 /**
- * @brief SymbolViewer::SymbolViewer
+ * @brief Constructor for the SymbolViewer plugin.
  *
- * @param parent
+ * @param parent The parent QObject for this plugin.
  */
 SymbolViewer::SymbolViewer(QObject *parent)
 	: QObject(parent) {
 }
 
 /**
- * @brief SymbolViewer::~SymbolViewer
+ * @brief Destructor for the SymbolViewer plugin.
  */
 SymbolViewer::~SymbolViewer() {
 	delete dialog_;
 }
 
 /**
- * @brief SymbolViewer::menu
+ * @brief Returns the context menu for this plugin, creating it if it doesn't already exist.
  *
- * @param parent
- * @return
+ * @param parent The parent widget for the menu.
+ * @return A pointer to the created menu.
  */
 QMenu *SymbolViewer::menu(QWidget *parent) {
 
@@ -39,14 +39,14 @@ QMenu *SymbolViewer::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("SymbolViewer"), parent);
-		menu_->addAction(tr("&Symbol Viewer"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+Alt+S")));
+		menu_->addAction(tr("&Symbol Viewer"), this, &SymbolViewer::showMenu, QKeySequence(tr("Ctrl+Alt+S")));
 	}
 
 	return menu_;
 }
 
 /**
- * @brief SymbolViewer::showMenu
+ * @brief Slot to show the Symbol Viewer dialog. If the dialog does not already exist, it is created and then shown.
  */
 void SymbolViewer::showMenu() {
 

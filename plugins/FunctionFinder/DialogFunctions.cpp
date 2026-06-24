@@ -20,10 +20,10 @@
 namespace FunctionFinderPlugin {
 
 /**
- * @brief DialogFunctions::DialogFunctions
+ * @brief Constructs a DialogFunctions object with the specified parent widget and window flags.
  *
- * @param parent
- * @param f
+ * @param parent The parent widget for this dialog.
+ * @param f The window flags for this dialog.
  */
 DialogFunctions::DialogFunctions(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
@@ -47,7 +47,7 @@ DialogFunctions::DialogFunctions(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogFunctions::showEvent
+ * @brief Handles the show event for the dialog, initializing the filter model and setting up the table view.
  */
 void DialogFunctions::showEvent(QShowEvent *) {
 	filterModel_->setFilterKeyColumn(3);
@@ -58,7 +58,7 @@ void DialogFunctions::showEvent(QShowEvent *) {
 }
 
 /**
- * @brief DialogFunctions::doFind
+ * @brief Performs the function search operation.
  */
 void DialogFunctions::doFind() {
 

@@ -12,10 +12,10 @@
 namespace ROPToolPlugin {
 
 /**
- * @brief DialogResults::DialogResults
+ * @brief Constructs a DialogResults object with the specified parent widget and window flags.
  *
- * @param parent
- * @param f
+ * @param parent The parent widget for this dialog.
+ * @param f The window flags for this dialog.
  */
 DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
@@ -56,18 +56,19 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogResults::addResult
+ * @brief Adds a result to the results model.
  *
- * @param result
+ * @param result The result to be added to the model.
  */
 void DialogResults::addResult(const ResultsModel::Result &result) {
 	model_->addResult(result);
 }
 
 /**
- * @brief DialogResults::on_tableView_doubleClicked
+ * @brief Handles the double-click event for the table view.
+ * When a result is double-clicked, it jumps to the corresponding address in the debugger.
  *
- * @param index
+ * @param index The index of the clicked item.
  */
 void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
 	if (index.isValid()) {
@@ -82,9 +83,9 @@ void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
 }
 
 /**
- * @brief DialogResults::resultCount
+ * @brief Returns the number of results in the model.
  *
- * @return
+ * @return The number of results in the model.
  */
 int DialogResults::resultCount() const {
 	return model_->rowCount();

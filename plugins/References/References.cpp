@@ -12,26 +12,26 @@
 namespace ReferencesPlugin {
 
 /**
- * @brief References::References
+ * @brief Constructs a References object with the specified parent QObject.
  *
- * @param parent
+ * @param parent The parent QObject for this plugin.
  */
 References::References(QObject *parent)
 	: QObject(parent) {
 }
 
 /**
- * @brief References::~References
+ * @brief Destroys the References object and frees the references dialog.
  */
 References::~References() {
 	delete dialog_;
 }
 
 /**
- * @brief References::menu
+ * @brief Returns the menu for the References plugin.
  *
- * @param parent
- * @return
+ * @param parent The parent widget for the menu.
+ * @return The menu for the References plugin.
  */
 QMenu *References::menu(QWidget *parent) {
 
@@ -39,14 +39,14 @@ QMenu *References::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("Reference Searcher"), parent);
-		menu_->addAction(tr("&Reference Search"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+R")));
+		menu_->addAction(tr("&Reference Search"), this, &References::showMenu, QKeySequence(tr("Ctrl+R")));
 	}
 
 	return menu_;
 }
 
 /**
- * @brief References::showMenu
+ * @brief Shows the Reference Search menu.
  */
 void References::showMenu() {
 

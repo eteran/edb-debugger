@@ -12,26 +12,26 @@
 namespace ROPToolPlugin {
 
 /**
- * @brief ROPTool::ROPTool
+ * @brief Constructor for the ROPTool plugin.
  *
- * @param parent
+ * @param parent The parent QObject for this plugin.
  */
 ROPTool::ROPTool(QObject *parent)
 	: QObject(parent) {
 }
 
 /**
- * @brief ROPTool::~ROPTool
+ * @brief Destructor for the ROPTool plugin.
  */
 ROPTool::~ROPTool() {
 	delete dialog_;
 }
 
 /**
- * @brief ROPTool::menu
+ * @brief Returns the context menu for this plugin, creating it if it doesn't already exist.
  *
- * @param parent
- * @return
+ * @param parent The parent widget for the menu.
+ * @return A pointer to the created menu.
  */
 QMenu *ROPTool::menu(QWidget *parent) {
 
@@ -39,14 +39,14 @@ QMenu *ROPTool::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("ROPTool"), parent);
-		menu_->addAction(tr("&ROP Tool"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+Alt+R")));
+		menu_->addAction(tr("&ROP Tool"), this, &ROPTool::showMenu, QKeySequence(tr("Ctrl+Alt+R")));
 	}
 
 	return menu_;
 }
 
 /**
- * @brief ROPTool::showMenu
+ * @brief Slot to show the ROP Tool dialog. If the dialog does not already exist, it is created and then shown.
  */
 void ROPTool::showMenu() {
 

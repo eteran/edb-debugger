@@ -25,9 +25,9 @@ namespace DebuggerCorePlugin::feature {
 namespace {
 
 /**
- * @brief kill_child
+ * @brief Kills the child process
  *
- * @param pid
+ * @param pid the process ID of the child process
  */
 void kill_child(int pid) {
 	if (kill(pid, SIGKILL) == -1) {
@@ -38,13 +38,11 @@ void kill_child(int pid) {
 }
 
 /**
- * detects whether or not reads/writes through /proc/<pid>/mem work correctly
+ * @brief Detects whether or not reads/writes through /proc/<pid>/mem work correctly.
  *
- * @brief detect_proc_access
- *
- * @param read_broken
- * @param write_broken
- * @return
+ * @param read_broken A pointer to a boolean indicating if reads are broken.
+ * @param write_broken A pointer to a boolean indicating if writes are broken.
+ * @return True if the detection was successful, false otherwise.
  */
 bool detect_proc_access(bool *read_broken, bool *write_broken) {
 

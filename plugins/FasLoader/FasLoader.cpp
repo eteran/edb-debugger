@@ -18,19 +18,19 @@
 namespace FasLoaderPlugin {
 
 /**
- * @brief FasLoader::FasLoader
+ * @brief Constructs a FasLoader object with the specified parent QObject.
  *
- * @param parent
+ * @param parent The parent QObject for this plugin.
  */
 FasLoader::FasLoader(QObject *parent)
 	: QObject(parent) {
 }
 
 /**
- * @brief FasLoader::menu
+ * @brief Returns the menu for the FasLoader plugin, creating it if it doesn't already exist.
  *
- * @param parent
- * @return
+ * @param parent The parent widget for the menu.
+ * @return A pointer to the created menu.
  */
 QMenu *FasLoader::menu(QWidget *parent) {
 
@@ -38,14 +38,14 @@ QMenu *FasLoader::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("FasLoader"), parent);
-		menu_->addAction(tr("&Load *.fas symbols"), this, SLOT(load()));
+		menu_->addAction(tr("&Load *.fas symbols"), this, &FasLoader::load);
 	}
 
 	return menu_;
 }
 
 /**
- * @brief FasLoader::load
+ * @brief Loads symbols from a *.fas file associated with the current process's executable and adds them to the symbol manager.
  */
 void FasLoader::load() {
 	if (edb::v1::debugger_core) {
@@ -55,7 +55,7 @@ void FasLoader::load() {
 			fasName.append(".fas");
 
 			Fas::Core fasCore;
-			fasCore.load(fasName.toUtf8().constData());
+			fasCore.load(fasName.toStdString());
 
 			auto pluginSymbols = fasCore.getSymbols();
 			for (auto pluginSymbol : pluginSymbols) {
