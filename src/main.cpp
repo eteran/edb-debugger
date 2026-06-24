@@ -44,9 +44,7 @@ struct LaunchArguments {
 };
 
 /**
- * displays a usage statement then exits
- *
- * @brief usage
+ * @brief Displays a usage statement then exits
  */
 [[noreturn]] void usage() {
 
@@ -77,9 +75,9 @@ struct LaunchArguments {
 }
 
 /**
- * @brief validate_launch_arguments
+ * @brief Validates the launch arguments provided to the debugger.
  *
- * @param launch_args
+ * @param launch_args The launch arguments to validate.
  */
 void validate_launch_arguments(const LaunchArguments &launch_args) {
 	if (!launch_args.run_app.isEmpty() && launch_args.attach_pid) {
@@ -94,11 +92,11 @@ void validate_launch_arguments(const LaunchArguments &launch_args) {
 }
 
 /**
- * attempts to load all plugins in a given directory
  *
- * @brief load_plugins
  *
- * @param directory
+ * @brief Attempts to load all plugins in a given directory
+ *
+ * @param directory The directory to load plugins from
  */
 void load_plugins(const QString &directory) {
 
@@ -137,12 +135,10 @@ void load_plugins(const QString &directory) {
 }
 
 /**
- * starts the main debugger code
+ * @brief Starts the main debugger code
  *
- * @brief start_debugger
- *
- * @param launch_args
- * @return
+ * @param launch_args The launch arguments for the debugger
+ * @return The exit code of the debugger
  */
 int start_debugger(const LaunchArguments &launch_args) {
 
@@ -276,11 +272,11 @@ QPalette themePalette() {
 }
 
 /**
- * @brief main
+ * @brief The main entry point for the edb debugger application.
  *
- * @param argc
- * @param argv
- * @return
+ * @param argc The number of command line arguments.
+ * @param argv The array of command line arguments.
+ * @return The exit code of the application.
  */
 int main(int argc, char *argv[]) {
 

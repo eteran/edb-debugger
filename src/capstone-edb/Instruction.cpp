@@ -32,10 +32,10 @@ Formatter activeFormatter;
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 /**
- * @brief is_simd_register
+ * @brief Determines if the given operand is a SIMD register.
  *
- * @param operand
- * @return
+ * @param operand The operand to check.
+ * @return True if the operand is a SIMD register, false otherwise.
  */
 bool is_simd_register(const Operand &operand) {
 
@@ -62,11 +62,11 @@ bool is_simd_register(const Operand &operand) {
 }
 
 /**
- * @brief apriori_not_simd
+ * @brief Determines if the given operand is not a SIMD operand.
  *
- * @param insn
- * @param operand
- * @return
+ * @param insn The instruction containing the operand.
+ * @param operand The operand to check.
+ * @return True if the operand is not a SIMD operand, false otherwise.
  */
 bool apriori_not_simd(const Instruction &insn, const Operand &operand) {
 
@@ -85,10 +85,10 @@ bool apriori_not_simd(const Instruction &insn, const Operand &operand) {
 }
 
 /**
- * @brief KxRegisterPresent
+ * @brief Determines if a Kx register is present in the given instruction.
  *
- * @param insn
- * @return
+ * @param insn The instruction to check.
+ * @return True if a Kx register is present, false otherwise.
  */
 bool KxRegisterPresent(const Instruction &insn) {
 	const size_t operandCount = insn.operandCount();
@@ -103,12 +103,12 @@ bool KxRegisterPresent(const Instruction &insn) {
 }
 
 /**
- * @brief simdOperandNormalizedNumberInInstruction
+ * @brief Determines the normalized number of a SIMD operand within the given instruction.
  *
- * @param insn
- * @param operand
- * @param canBeNonSIMD
- * @return
+ * @param insn The instruction containing the operand.
+ * @param operand The operand to check.
+ * @param canBeNonSIMD Whether the operand can be non-SIMD.
+ * @return The normalized number of the SIMD operand.
  */
 std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, const Operand &operand, bool canBeNonSIMD = false) {
 
@@ -134,19 +134,19 @@ std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, co
 #endif
 
 /**
- * @brief isX86_64
+ * @brief Determines if the current architecture is x86_64.
  *
- * @return
+ * @return True if the current architecture is x86_64, false otherwise.
  */
 bool isX86_64() {
 	return capstoneArch == Architecture::ARCH_AMD64;
 }
 
 /**
- * @brief to_operands
+ * @brief Converts a QString containing operands into a vector of std::string operands.
  *
- * @param str
- * @return
+ * @param str The QString containing the operands to convert.
+ * @return A vector of std::string operands.
  */
 std::vector<std::string> to_operands(QString str) {
 
