@@ -13,9 +13,9 @@
 namespace ProcessPropertiesPlugin {
 
 /**
- * @brief ProcessProperties::ProcessProperties
+ * @brief Constructs a ProcessProperties object with the specified parent QObject.
  *
- * @param parent
+ * @param parent The parent QObject for this plugin.
  */
 ProcessProperties::ProcessProperties(QObject *parent)
 	: QObject(parent) {
@@ -24,7 +24,7 @@ ProcessProperties::ProcessProperties(QObject *parent)
 }
 
 /**
- * @brief ProcessProperties::~ProcessProperties
+ * @brief Destructs the ProcessProperties object and frees the process properties dialog.
  */
 ProcessProperties::~ProcessProperties() {
 #if 0
@@ -33,10 +33,10 @@ ProcessProperties::~ProcessProperties() {
 }
 
 /**
- * @brief ProcessProperties::menu
+ * @brief Returns the menu for the ProcessProperties plugin.
  *
- * @param parent
- * @return
+ * @param parent The parent widget for the menu.
+ * @return The menu for the ProcessProperties plugin.
  */
 QMenu *ProcessProperties::menu(QWidget *parent) {
 
@@ -52,7 +52,7 @@ QMenu *ProcessProperties::menu(QWidget *parent) {
 }
 
 /**
- * @brief ProcessProperties::showMenu
+ * @brief Shows the Process Properties menu.
  */
 void ProcessProperties::showMenu() {
 	dialog_->show();

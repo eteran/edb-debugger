@@ -21,10 +21,10 @@
 namespace ProcessPropertiesPlugin {
 
 /**
- * @brief DialogStrings::DialogStrings
+ * @brief Constructor for the DialogStrings class.
  *
- * @param parent
- * @param f
+ * @param parent The parent widget for this dialog.
+ * @param f The window flags for this dialog.
  */
 DialogStrings::DialogStrings(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
@@ -49,7 +49,7 @@ DialogStrings::DialogStrings(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogStrings::showEvent
+ * @brief Handles the show event for the dialog, initializing the filter model and setting up the table view.
  */
 void DialogStrings::showEvent(QShowEvent *) {
 	filterModel_->setFilterKeyColumn(3);
@@ -59,7 +59,7 @@ void DialogStrings::showEvent(QShowEvent *) {
 }
 
 /**
- * @brief DialogStrings::doFind
+ * @brief Performs the string search operation within the selected memory regions.
  */
 void DialogStrings::doFind() {
 

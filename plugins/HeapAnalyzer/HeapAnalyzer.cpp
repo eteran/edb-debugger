@@ -12,26 +12,26 @@
 namespace HeapAnalyzerPlugin {
 
 /**
- * @brief HeapAnalyzer::HeapAnalyzer
+ * @brief Constructs a HeapAnalyzer object with the specified parent QObject.
  *
- * @param parent
+ * @param parent The parent QObject for this plugin.
  */
 HeapAnalyzer::HeapAnalyzer(QObject *parent)
 	: QObject(parent) {
 }
 
 /**
- * @brief HeapAnalyzer::~HeapAnalyzer
+ * @brief Destructs the HeapAnalyzer object.
  */
 HeapAnalyzer::~HeapAnalyzer() {
 	delete dialog_;
 }
 
 /**
- * @brief HeapAnalyzer::menu
+ * @brief Returns the menu for the HeapAnalyzer plugin.
  *
- * @param parent
- * @return
+ * @param parent The parent widget for the menu.
+ * @return The menu for the HeapAnalyzer plugin.
  */
 QMenu *HeapAnalyzer::menu(QWidget *parent) {
 
@@ -46,7 +46,7 @@ QMenu *HeapAnalyzer::menu(QWidget *parent) {
 }
 
 /**
- * @brief HeapAnalyzer::showMenu
+ * @brief Shows the Heap Analyzer menu.
  */
 void HeapAnalyzer::showMenu() {
 

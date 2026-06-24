@@ -959,7 +959,7 @@ QMap<edb::address_t, Patch> PlatformProcess::patches() const {
 /**
  * @brief Returns the binary entry point address read from the ELF auxiliary vector.
  *
- * @return
+ * @return The entry point address of the process, or 0 if not found.
  */
 edb::address_t PlatformProcess::entryPoint() const {
 
@@ -987,13 +987,13 @@ edb::address_t PlatformProcess::entryPoint() const {
 }
 
 /**
- * @brief get_debug_pointer
+ * @brief Returns the address of the r_debug structure by searching the dynamic segment.
  *
- * @param process
- * @param phdr_memaddr
- * @param count
- * @param relocation
- * @return
+ * @param process The process to search for the r_debug structure.
+ * @param phdr_memaddr The memory address of the program headers.
+ * @param count The number of program headers.
+ * @param relocation The relocation offset to apply to the program headers.
+ * @return The address of the r_debug structure or 0 if not found.
  */
 template <class Model>
 edb::address_t get_debug_pointer(const IProcess *process, edb::address_t phdr_memaddr, int count, edb::address_t relocation) {
@@ -1029,12 +1029,12 @@ edb::address_t get_debug_pointer(const IProcess *process, edb::address_t phdr_me
 }
 
 /**
- * @brief get_relocation
+ * @brief Returns the relocation offset for the program headers by searching for the PT_PHDR segment.
  *
- * @param process
- * @param phdr_memaddr
- * @param i
- * @return
+ * @param process The process to search for the PT_PHDR segment.
+ * @param phdr_memaddr The memory address of the program headers.
+ * @param i The index of the program header to check.
+ * @return The relocation offset or -1 if not found.
  */
 template <class Model>
 edb::address_t get_relocation(const IProcess *process, edb::address_t phdr_memaddr, int i) {
@@ -1107,7 +1107,7 @@ edb::address_t PlatformProcess::debugPointer() const {
 /**
  * @brief Attempts to locate the address of main() by following the ELF startup sequence.
  *
- * @return
+ * @return The address of main() or 0 if not found.
  */
 edb::address_t PlatformProcess::calculateMain() const {
 	if (edb::v1::debuggeeIs64Bit()) {
@@ -1182,7 +1182,7 @@ edb::address_t PlatformProcess::calculateMain() const {
 /**
  * @brief Returns the path to the standard input file or device for this process.
  *
- * @return
+ * @return The path to the standard input file or device.
  */
 QString PlatformProcess::standardInput() const {
 	return input_;
@@ -1191,7 +1191,7 @@ QString PlatformProcess::standardInput() const {
 /**
  * @brief Returns the path to the standard output file or device for this process.
  *
- * @return
+ * @return The path to the standard output file or device.
  */
 QString PlatformProcess::standardOutput() const {
 	return output_;
