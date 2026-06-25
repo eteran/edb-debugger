@@ -23,40 +23,40 @@ constexpr IRegion::permissions_t KnownPermissions = (PAGE_NOACCESS | PAGE_READON
 }
 
 /**
- * @brief PlatformRegion::PlatformRegion
+ * @brief Creates a new PlatformRegion instance with the specified parameters.
  *
- * @param start
- * @param end
- * @param base
- * @param name
- * @param permissions
+ * @param start The starting address of the memory region.
+ * @param end The ending address of the memory region.
+ * @param base The base address of the memory region.
+ * @param name The name of the memory region.
+ * @param permissions The permissions of the memory region.
  */
 PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, QString name, permissions_t permissions)
 	: start_(start), end_(end), base_(base), name_(std::move(name)), permissions_(permissions) {
 }
 
 /**
- * @brief PlatformRegion::clone
+ * @brief Clones the current PlatformRegion instance.
  *
- * @return
+ * @return A pointer to a new PlatformRegion instance that is a copy of the current instance.
  */
 IRegion *PlatformRegion::clone() const {
 	return new PlatformRegion(start_, end_, base_, name_, permissions_);
 }
 
 /**
- * @brief PlatformRegion::accessible
+ * @brief Gets whether the current PlatformRegion instance is accessible, meaning it has at least one of the read, write, or execute permissions.
  *
- * @return
+ * @return true if the region is accessible, false otherwise.
  */
 bool PlatformRegion::accessible() const {
 	return readable() || writable() || executable();
 }
 
 /**
- * @brief PlatformRegion::readable
+ * @brief Gets whether the current PlatformRegion instance is readable, meaning it has read permissions.
  *
- * @return
+ * @return true if the region is readable, false otherwise.
  */
 bool PlatformRegion::readable() const {
 	switch (permissions_ & KnownPermissions) { // ignore modifiers
@@ -71,9 +71,9 @@ bool PlatformRegion::readable() const {
 }
 
 /**
- * @brief PlatformRegion::writable
+ * @brief Gets whether the current PlatformRegion instance is writable, meaning it has write permissions.
  *
- * @return
+ * @return true if the region is writable, false otherwise.
  */
 bool PlatformRegion::writable() const {
 	switch (permissions_ & KnownPermissions) { // ignore modifiers
@@ -88,9 +88,9 @@ bool PlatformRegion::writable() const {
 }
 
 /**
- * @brief PlatformRegion::executable
+ * @brief Gets whether the current PlatformRegion instance is executable, meaning it has execute permissions.
  *
- * @return
+ * @return true if the region is executable, false otherwise.
  */
 bool PlatformRegion::executable() const {
 	switch (permissions_ & KnownPermissions) { // ignore modifiers
@@ -105,20 +105,20 @@ bool PlatformRegion::executable() const {
 }
 
 /**
- * @brief PlatformRegion::size
+ * @brief Gets the size of the current PlatformRegion instance.
  *
- * @return
+ * @return The size of the region.
  */
 size_t PlatformRegion::size() const {
 	return end_ - start_;
 }
 
 /**
- * @brief PlatformRegion::setPermissions
+ * @brief Sets the permissions of the current PlatformRegion instance.
  *
- * @param read
- * @param write
- * @param execute
+ * @param read Whether the region should be readable.
+ * @param write Whether the region should be writable.
+ * @param execute Whether the region should be executable.
  */
 void PlatformRegion::setPermissions(bool read, bool write, bool execute) {
 
@@ -166,63 +166,63 @@ void PlatformRegion::setPermissions(bool read, bool write, bool execute) {
 }
 
 /**
- * @brief PlatformRegion::start
+ * @brief Gets the starting address of the current PlatformRegion instance.
  *
- * @return
+ * @return The starting address of the region.
  */
 edb::address_t PlatformRegion::start() const {
 	return start_;
 }
 
 /**
- * @brief PlatformRegion::end
+ * @brief Gets the ending address of the current PlatformRegion instance.
  *
- * @return
+ * @return The ending address of the region.
  */
 edb::address_t PlatformRegion::end() const {
 	return end_;
 }
 
 /**
- * @brief PlatformRegion::base
- *
- * @return
+ * @brief Gets the base address of the current PlatformRegion instance.
+
+ * @return The base address of the region.
  */
 edb::address_t PlatformRegion::base() const {
 	return base_;
 }
 
 /**
- * @brief PlatformRegion::name
+ * @brief Gets the name of the current PlatformRegion instance.
  *
- * @return
+ * @return The name of the region.
  */
 QString PlatformRegion::name() const {
 	return name_;
 }
 
 /**
- * @brief PlatformRegion::permissions
+ * @brief Gets the permissions of the current PlatformRegion instance.
  *
- * @return
+ * @return The permissions of the region.
  */
 IRegion::permissions_t PlatformRegion::permissions() const {
 	return permissions_;
 }
 
 /**
- * @brief PlatformRegion::setStart
+ * @brief Sets the starting address of the current PlatformRegion instance.
  *
- * @param address
+ * @param address The starting address of the region.
  */
 void PlatformRegion::setStart(edb::address_t address) {
 	start_ = address;
 }
 
 /**
- * @brief PlatformRegion::setEnd
+ * @brief Sets the ending address of the current PlatformRegion instance.
  *
- * @param address
+ * @param address The ending address of the region.
  */
 void PlatformRegion::setEnd(edb::address_t address) {
 	end_ = address;

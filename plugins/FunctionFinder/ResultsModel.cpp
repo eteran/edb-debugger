@@ -158,8 +158,8 @@ int ResultsModel::columnCount(const QModelIndex & /*parent*/) const {
 /**
  * @brief Sorts the results in the model based on the specified column and order. The sorting is performed in-place, and the model is updated accordingly.
  *
- * @param column
- * @param order
+ * @param column The column to sort by.
+ * @param order The sort order.
  */
 void ResultsModel::sort(int column, Qt::SortOrder order) {
 

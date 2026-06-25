@@ -12,11 +12,11 @@
 namespace DebuggerCorePlugin {
 
 /**
- * @brief PlatformThread::PlatformThread
+ * @brief Creates a new PlatformThread instance with the specified parameters.
  *
- * @param core
- * @param process
- * @param hThread
+ * @param core The DebuggerCore instance associated with this thread.
+ * @param process The process associated with this thread.
+ * @param hThread The handle to the thread.
  */
 PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, const CREATE_THREAD_DEBUG_INFO *info)
 	: core_(core), process_(process) {
@@ -34,18 +34,18 @@ PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &pr
 }
 
 /**
- * @brief PlatformThread::tid
+ * @brief Gets the thread ID of the current PlatformThread instance.
  *
- * @return
+ * @return The thread ID of the thread.
  */
 edb::tid_t PlatformThread::tid() const {
 	return GetThreadId(hThread_);
 }
 
 /**
- * @brief PlatformThread::name
+ * @brief Gets the name of the current PlatformThread instance.
  *
- * @return
+ * @return The name of the thread.
  */
 QString PlatformThread::name() const {
 
@@ -66,18 +66,18 @@ QString PlatformThread::name() const {
 }
 
 /**
- * @brief PlatformThread::priority
+ * @brief Gets the priority of the current PlatformThread instance.
  *
- * @return
+ * @return The priority of the thread.
  */
 int PlatformThread::priority() const {
 	return GetThreadPriority(hThread_);
 }
 
 /**
- * @brief PlatformThread::instructionPointer
+ * @brief Gets the instruction pointer of the current PlatformThread instance.
  *
- * @return
+ * @return The instruction pointer of the thread.
  */
 edb::address_t PlatformThread::instructionPointer() const {
 #if defined(EDB_X86)
@@ -101,18 +101,18 @@ edb::address_t PlatformThread::instructionPointer() const {
 }
 
 /**
- * @brief PlatformThread::runState
+ * @brief Gets the run state of the current PlatformThread instance.
  *
- * @return
+ * @return The run state of the thread.
  */
 QString PlatformThread::runState() const {
 	return {};
 }
 
 /**
- * @brief PlatformThread::get_state
+ * @brief Gets the state of the current PlatformThread instance.
  *
- * @param state
+ * @param state A pointer to a State object where the thread state will be stored.
  */
 void PlatformThread::getState(State *state) {
 	if (auto p = static_cast<PlatformState *>(state->impl_.get())) {
@@ -121,9 +121,9 @@ void PlatformThread::getState(State *state) {
 }
 
 /**
- * @brief PlatformThread::set_state
+ * @brief Sets the state of the current PlatformThread instance.
  *
- * @param state
+ * @param state A reference to a State object containing the new thread state to be set.
  */
 void PlatformThread::setState(const State &state) {
 	if (auto p = static_cast<const PlatformState *>(state.impl_.get())) {
@@ -132,9 +132,9 @@ void PlatformThread::setState(const State &state) {
 }
 
 /**
- * @brief PlatformThread::step
+ * @brief Steps the current PlatformThread instance, executing a single instruction.
  *
- * @return
+ * @return A Status object indicating the success or failure of the step operation.
  */
 Status PlatformThread::step() {
 #if defined(EDB_X86)
@@ -163,10 +163,10 @@ Status PlatformThread::step() {
 }
 
 /**
- * @brief PlatformThread::step
+ * @brief Steps the current PlatformThread instance, executing a single instruction with the specified event status.
  *
- * @param status
- * @return
+ * @param status The event status to be used during the step operation.
+ * @return A Status object indicating the success or failure of the step operation.
  */
 Status PlatformThread::step(edb::EventStatus status) {
 #if defined(EDB_X86)
@@ -195,9 +195,9 @@ Status PlatformThread::step(edb::EventStatus status) {
 }
 
 /**
- * @brief PlatformThread::resume
+ * @brief Gets whether the current PlatformThread instance is paused.
  *
- * @return
+ * @return A Status object indicating the success or failure of the resume operation.
  */
 Status PlatformThread::resume() {
 
@@ -208,10 +208,10 @@ Status PlatformThread::resume() {
 }
 
 /**
- * @brief PlatformThread::resume
+ * @brief Gets whether the current PlatformThread instance is paused with the specified event status.
  *
- * @param status
- * @return
+ * @param status The event status to be used during the resume operation.
+ * @return A Status object indicating the success or failure of the resume operation.
  */
 Status PlatformThread::resume(edb::EventStatus status) {
 
@@ -225,9 +225,9 @@ Status PlatformThread::resume(edb::EventStatus status) {
 }
 
 /**
- * @brief PlatformThread::isPaused
+ * @brief Gets whether the current PlatformThread instance is paused.
  *
- * @return
+ * @return true if the thread is paused, false otherwise.
  */
 bool PlatformThread::isPaused() const {
 	return {};

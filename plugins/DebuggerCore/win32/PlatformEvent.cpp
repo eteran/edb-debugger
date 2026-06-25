@@ -10,18 +10,18 @@
 namespace DebuggerCorePlugin {
 
 /**
- * @brief PlatformEvent::clone
+ * @brief Clones the current PlatformEvent instance.
  *
- * @return
+ * @return A pointer to a new PlatformEvent instance that is a copy of the current instance.
  */
 PlatformEvent *PlatformEvent::clone() const {
 	return new PlatformEvent(*this);
 }
 
 /**
- * @brief PlatformEvent::errorDescription
+ * @brief Gets the error description for the current PlatformEvent instance.
  *
- * @return
+ * @return An IDebugEvent::Message object containing the error description.
  */
 IDebugEvent::Message PlatformEvent::errorDescription() const {
 	Q_ASSERT(isError());
@@ -167,9 +167,9 @@ IDebugEvent::Message PlatformEvent::errorDescription() const {
 }
 
 /**
- * @brief PlatformEvent::reason
+ * @brief Gets the reason for the current PlatformEvent instance.
  *
- * @return
+ * @return A value indicating the reason for the event.
  */
 IDebugEvent::REASON PlatformEvent::reason() const {
 	switch (event_.dwDebugEventCode) {
@@ -196,9 +196,9 @@ IDebugEvent::REASON PlatformEvent::reason() const {
 }
 
 /**
- * @brief PlatformEvent::trapReason
+ * @brief Gets the trap reason for the current PlatformEvent instance.
  *
- * @return
+ * @return A value indicating the reason for the trap.
  */
 IDebugEvent::TRAP_REASON PlatformEvent::trapReason() const {
 	switch (event_.dwDebugEventCode) {
@@ -214,18 +214,18 @@ IDebugEvent::TRAP_REASON PlatformEvent::trapReason() const {
 }
 
 /**
- * @brief PlatformEvent::exited
+ * @brief Gets whether the debugged process has exited.
  *
- * @return
+ * @return true if the process has exited, false otherwise.
  */
 bool PlatformEvent::exited() const {
 	return reason() == EVENT_EXITED;
 }
 
 /**
- * @brief PlatformEvent::isError
+ * @brief Gets whether the current PlatformEvent instance represents an error.
  *
- * @return
+ * @return true if the event represents an error, false otherwise.
  */
 bool PlatformEvent::isError() const {
 	switch (event_.dwDebugEventCode) {
@@ -270,27 +270,27 @@ bool PlatformEvent::isError() const {
 }
 
 /**
- * @brief PlatformEvent::isKill
+ * @brief Gets whether the current PlatformEvent instance represents a kill event.
  *
- * @return
+ * @return true if the event represents a kill event, false otherwise.
  */
 bool PlatformEvent::isKill() const {
 	return false;
 }
 
 /**
- * @brief PlatformEvent::isStop
+ * @brief Gets whether the current PlatformEvent instance represents a stop event.
  *
- * @return
+ * @return true if the event represents a stop event, false otherwise.
  */
 bool PlatformEvent::isStop() const {
 	return !isTrap();
 }
 
 /**
- * @brief PlatformEvent::isTrap
+ * @brief Gets whether the current PlatformEvent instance represents a trap event.
  *
- * @return
+ * @return true if the event represents a trap event, false otherwise.
  */
 bool PlatformEvent::isTrap() const {
 	if (stopped()) {
@@ -306,45 +306,45 @@ bool PlatformEvent::isTrap() const {
 }
 
 /**
- * @brief PlatformEvent::terminated
+ * @brief Gets whether the current PlatformEvent instance represents a terminated event.
  *
- * @return
+ * @return true if the event represents a terminated event, false otherwise.
  */
 bool PlatformEvent::terminated() const {
 	return reason() == EVENT_TERMINATED;
 }
 
 /**
- * @brief PlatformEvent::stopped
+ * @brief Gets whether the current PlatformEvent instance represents a stopped event.
  *
- * @return
+ * @return true if the event represents a stopped event, false otherwise.
  */
 bool PlatformEvent::stopped() const {
 	return reason() == EVENT_STOPPED;
 }
 
 /**
- * @brief PlatformEvent::process
+ * @brief Gets the process ID associated with the current PlatformEvent instance.
  *
- * @return
+ * @return the process ID.
  */
 edb::pid_t PlatformEvent::process() const {
 	return event_.dwProcessId;
 }
 
 /**
- * @brief PlatformEvent::thread
+ * @brief Gets the thread ID associated with the current PlatformEvent instance.
  *
- * @return
+ * @return the thread ID.
  */
 edb::tid_t PlatformEvent::thread() const {
 	return event_.dwThreadId;
 }
 
 /**
- * @brief PlatformEvent::code
+ * @brief Gets the exception code associated with the current PlatformEvent instance.
  *
- * @return
+ * @return the exception code.
  */
 int64_t PlatformEvent::code() const {
 	if (stopped()) {
