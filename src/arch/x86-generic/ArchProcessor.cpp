@@ -862,11 +862,9 @@ void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
  * @return A QDomDocument containing the matched syscall information, or an empty document if not found.
  */
 QDomDocument lookup_syscall_xml([[maybe_unused]] const State &state,
-								const edb::Instruction &inst,
-								QStringList &ret,
-								std::uint64_t regAX) {
-	Q_UNUSED(inst)
-	Q_UNUSED(ret)
+								[[maybe_unused]] const edb::Instruction &inst,
+								[[maybe_unused]] QStringList &ret,
+								[[maybe_unused]] std::uint64_t regAX) {
 
 #ifdef Q_OS_LINUX
 	regAX &= ~__X32_SYSCALL_BIT;
