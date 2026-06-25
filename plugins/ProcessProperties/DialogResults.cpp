@@ -11,10 +11,10 @@
 namespace ProcessPropertiesPlugin {
 
 /**
- * @brief DialogResults::DialogResults
+ * @brief Constructs a DialogResults instance with the specified parent and window flags.
  *
- * @param parent
- * @param f
+ * @param parent The parent widget.
+ * @param f The window flags.
  */
 DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
@@ -32,18 +32,18 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogResults::addResult
+ * @brief Adds a result to the DialogResults instance.
  *
- * @param result
+ * @param result The result to be added to the results model.
  */
 void DialogResults::addResult(const ResultsModel::Result &result) {
 	model_->addResult(result);
 }
 
 /**
- * @brief DialogResults::on_tableView_doubleClicked
+ * @brief Handles the double-click event on the table view in the DialogResults instance.
  *
- * @param index
+ * @param index The index of the double-clicked item in the table view.
  */
 void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
 	if (index.isValid()) {
@@ -57,9 +57,9 @@ void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
 }
 
 /**
- * @brief DialogResults::resultCount
+ * @brief Gets the number of results in the DialogResults instance.
  *
- * @return
+ * @return The number of results in the results model.
  */
 int DialogResults::resultCount() const {
 	return model_->rowCount();

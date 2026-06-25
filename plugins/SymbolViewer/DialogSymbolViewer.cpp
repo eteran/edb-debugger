@@ -20,10 +20,10 @@
 namespace SymbolViewerPlugin {
 
 /**
- * @brief DialogSymbolViewer::DialogSymbolViewer
+ * @brief Constructs a DialogSymbolViewer instance with the specified parent and window flags.
  *
- * @param parent
- * @param f
+ * @param parent The parent widget.
+ * @param f The window flags.
  */
 DialogSymbolViewer::DialogSymbolViewer(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
@@ -53,11 +53,11 @@ DialogSymbolViewer::DialogSymbolViewer(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogSymbolViewer::on_listView_doubleClicked
+ * @brief Handles the double-click event on the list view in the DialogSymbolViewer instance.
+ * This function is called when an item in the list view is double-clicked and follows
+ * the found item in the data view.
  *
- * follows the found item in the data view
- *
- * @param index
+ * @param index The index of the double-clicked item in the list view.
  */
 void DialogSymbolViewer::on_listView_doubleClicked(const QModelIndex &index) {
 
@@ -75,9 +75,9 @@ void DialogSymbolViewer::on_listView_doubleClicked(const QModelIndex &index) {
 }
 
 /**
- * @brief DialogSymbolViewer::on_listView_customContextMenuRequested
+ * @brief Handles the custom context menu request event for the list view in the DialogSymbolViewer instance.
  *
- * @param pos
+ * @param pos The position of the right-click event.
  */
 void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &pos) {
 
@@ -105,7 +105,9 @@ void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &po
 }
 
 /**
- * @brief DialogSymbolViewer::mnuFollowInDump
+ * @brief Handles the "Follow In Dump" action in the DialogSymbolViewer instance.
+ *
+ * @param address The address to dump.
  */
 void DialogSymbolViewer::mnuFollowInDump() {
 	if (auto action = qobject_cast<QAction *>(sender())) {
@@ -115,7 +117,9 @@ void DialogSymbolViewer::mnuFollowInDump() {
 }
 
 /**
- * @brief DialogSymbolViewer::mnuFollowInDumpNewTab
+ * @brief Handles the "Follow In Dump (New Tab)" action in the DialogSymbolViewer instance.
+ *
+ * @param address The address to dump in a new tab.
  */
 void DialogSymbolViewer::mnuFollowInDumpNewTab() {
 	if (auto action = qobject_cast<QAction *>(sender())) {
@@ -125,7 +129,9 @@ void DialogSymbolViewer::mnuFollowInDumpNewTab() {
 }
 
 /**
- * @brief DialogSymbolViewer::mnuFollowInStack
+ * @brief Handles the "Follow In Stack" action in the DialogSymbolViewer instance.
+ *
+ * @param address The address to dump in the stack view.
  */
 void DialogSymbolViewer::mnuFollowInStack() {
 	if (auto action = qobject_cast<QAction *>(sender())) {
@@ -135,7 +141,9 @@ void DialogSymbolViewer::mnuFollowInStack() {
 }
 
 /**
- * @brief DialogSymbolViewer::mnuFollowInCPU
+ * @brief Handles the "Follow In CPU" action in the DialogSymbolViewer instance.
+ *
+ * @param address The address to jump to in the CPU view.
  */
 void DialogSymbolViewer::mnuFollowInCPU() {
 	if (auto action = qobject_cast<QAction *>(sender())) {
@@ -145,7 +153,8 @@ void DialogSymbolViewer::mnuFollowInCPU() {
 }
 
 /**
- * @brief DialogSymbolViewer::doFind
+ * @brief Performs a search for symbols and updates the list view in the DialogSymbolViewer instance.
+ * This function retrieves the list of symbols from the symbol manager and populates the list view with the results.
  */
 void DialogSymbolViewer::doFind() {
 	QStringList results;
@@ -159,9 +168,9 @@ void DialogSymbolViewer::doFind() {
 }
 
 /**
- * @brief DialogSymbolViewer::showEvent
+ * @brief Handles the show event for the DialogSymbolViewer instance.
  */
-void DialogSymbolViewer::showEvent(QShowEvent *) {
+void DialogSymbolViewer::showEvent(QShowEvent * /*event*/) {
 	buttonRefresh_->setEnabled(false);
 	doFind();
 	buttonRefresh_->setEnabled(true);
