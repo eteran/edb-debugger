@@ -872,41 +872,41 @@ QDomDocument lookup_syscall_xml([[maybe_unused]] const State &state,
 	regAX &= ~__X32_SYSCALL_BIT;
 
 	QFile file(":/debugger/xml/syscalls.xml");
-	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		return {};
+	}
 
 	QDomDocument doc;
-	if (!doc.setContent(&file))
+	if (!doc.setContent(&file)) {
 		return {};
+	}
 
 	file.close();
 
 	// Expect: <syscalls version="1.0"> ... </syscalls>
 	QDomElement root = doc.documentElement();
-	if (root.tagName() != "syscalls" || root.attribute("version") != "1.0")
+	if (root.tagName() != "syscalls" || root.attribute("version") != "1.0") {
 		return {};
+	}
 
 	const QString arch = debuggeeIs64Bit() ? "x86-64" : "x86";
 
 	// Find <linux arch="...">
 	QDomElement linuxEl;
-	for (QDomElement el = root.firstChildElement("linux");
-		 !el.isNull();
-		 el = el.nextSiblingElement("linux")) {
+	for (QDomElement el = root.firstChildElement("linux"); !el.isNull(); el = el.nextSiblingElement("linux")) {
 		if (el.attribute("arch") == arch) {
 			linuxEl = el;
 			break;
 		}
 	}
 
-	if (linuxEl.isNull())
+	if (linuxEl.isNull()) {
 		return {};
+	}
 
 	// Find <syscall> whose <index> equals regAX
 	QDomElement matchedSyscall;
-	for (QDomElement sc = linuxEl.firstChildElement("syscall");
-		 !sc.isNull();
-		 sc = sc.nextSiblingElement("syscall")) {
+	for (QDomElement sc = linuxEl.firstChildElement("syscall"); !sc.isNull(); sc = sc.nextSiblingElement("syscall")) {
 		QDomElement indexEl = sc.firstChildElement("index");
 		if (!indexEl.isNull() && indexEl.text().toULongLong() == regAX) {
 			matchedSyscall = sc;
@@ -914,8 +914,9 @@ QDomDocument lookup_syscall_xml([[maybe_unused]] const State &state,
 		}
 	}
 
-	if (matchedSyscall.isNull())
+	if (matchedSyscall.isNull()) {
 		return {};
+	}
 
 	// Wrap the matched <syscall> element in its own QDomDocument
 	QDomDocument out;
