@@ -48,7 +48,6 @@
 #include <QCloseEvent>
 #include <QDateTime>
 #include <QDesktopServices>
-#include <QDesktopWidget>
 #include <QDir>
 #include <QDragEnterEvent>
 #include <QDropEvent>
@@ -1196,7 +1195,6 @@ void Debugger::showEvent(QShowEvent *) {
 	case Configuration::SystemDefault:
 		break;
 	case Configuration::Centered: {
-		QDesktopWidget desktop;
 		QScreen *screen = QGuiApplication::primaryScreen();
 		QRect sg        = screen->geometry();
 		int x           = (sg.width() - this->width()) / 2;

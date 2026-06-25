@@ -11,8 +11,8 @@
 #include "Types.h"
 
 #include <QCoreApplication>
-#include <unordered_map>
 #include <QString>
+#include <unordered_map>
 
 class CommentServer {
 	Q_DECLARE_TR_FUNCTIONS(CommentServer)
