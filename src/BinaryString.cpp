@@ -21,9 +21,9 @@ constexpr auto UnlimitedMaxLength = 32767 / CharHexLength;
 }
 
 /**
- * @brief BinaryString::setEntriesMaxLength
+ * @brief Sets the maximum length for the entries in the BinaryString widget. This function adjusts the maximum length for the ASCII, UTF-16, and Hex input fields based on the specified value.
  *
- * @param n
+ * @param n The maximum length to set for the entries in the BinaryString widget.
  */
 void BinaryString::setEntriesMaxLength(int n) {
 
@@ -33,9 +33,9 @@ void BinaryString::setEntriesMaxLength(int n) {
 }
 
 /**
- * @brief BinaryString::setMaxLength
+ * @brief Sets the maximum length for the BinaryString widget. This function adjusts the mode of the widget based on the specified maximum length and updates the visibility of the "keep size" checkbox accordingly.
  *
- * @param n
+ * @param n The maximum length to set for the BinaryString widget. If n is non-zero, the widget will be in LengthLimited mode; otherwise, it will be in MemoryEditing mode.
  */
 void BinaryString::setMaxLength(int n) {
 	requestedMaxLength_ = n;
@@ -51,10 +51,11 @@ void BinaryString::setMaxLength(int n) {
 }
 
 /**
- * @brief BinaryString::BinaryString
+ * @brief Constructs a BinaryString widget with the specified parent and window flags.
+ * The widget allows users to input binary data in ASCII, UTF-16, and Hex formats, and provides options for keeping the size of the input consistent.
  *
- * @param parent
- * @param f
+ * @param parent The parent widget.
+ * @param f The window flags.
  */
 BinaryString::BinaryString(QWidget *parent, Qt::WindowFlags f)
 	: QWidget(parent, f), ui(new Ui::BinaryStringWidget) {
@@ -67,16 +68,18 @@ BinaryString::BinaryString(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief BinaryString::~BinaryString
+ * @brief Destructor for the BinaryString widget. Cleans up the user interface and releases any allocated resources.
  */
 BinaryString::~BinaryString() {
 	delete ui;
 }
 
 /**
- * @brief BinaryString::on_keepSize_stateChanged
+ * @brief Handles the state change of the "keep size" checkbox.
+ * This function is called when the state of the checkbox changes, and it adjusts the maximum length
+ * of the entries in the BinaryString widget based on the current mode and the state of the checkbox.
  *
- * @param state
+ * @param state The new state of the "keep size" checkbox (Qt::Checked or Qt::Unchecked).
  */
 void BinaryString::on_keepSize_stateChanged(int state) {
 
@@ -97,9 +100,10 @@ void BinaryString::on_keepSize_stateChanged(int state) {
 }
 
 /**
- * @brief BinaryString::on_txtAscii_textEdited
+ * @brief Handles the event when the text in the ASCII input field is edited.
+ * This function converts the ASCII input to Hex and UTF-16 formats and updates the corresponding input fields accordingly.
  *
- * @param text
+ * @param text The text that was edited.
  */
 void BinaryString::on_txtAscii_textEdited(const QString &text) {
 
@@ -128,9 +132,10 @@ void BinaryString::on_txtAscii_textEdited(const QString &text) {
 }
 
 /**
- * @brief BinaryString::on_txtUTF16_textEdited
+ * @brief Handles the event when the text in the UTF-16 input field is edited.
+ * This function converts the UTF-16 input to ASCII and Hex formats and updates the corresponding input fields accordingly.
  *
- * @param text
+ * @param text The text that was edited.
  */
 void BinaryString::on_txtUTF16_textEdited(const QString &text) {
 
@@ -157,9 +162,10 @@ void BinaryString::on_txtUTF16_textEdited(const QString &text) {
 }
 
 /**
- * @brief BinaryString::on_txtHex_textEdited
+ * @brief Handles the event when the text in the Hex input field is edited.
+ * This function converts the Hex input to ASCII and UTF-16 formats and updates the corresponding input fields accordingly.
  *
- * @param text
+ * @param text The text that was edited.
  */
 void BinaryString::on_txtHex_textEdited(const QString &text) {
 
@@ -192,9 +198,10 @@ void BinaryString::on_txtHex_textEdited(const QString &text) {
 }
 
 /**
- * @brief BinaryString::value
+ * @brief Gets the current value of the BinaryString widget as a QByteArray.
+ * The value is constructed from the Hex input field, converting each hex byte to its corresponding binary representation.
  *
- * @return
+ * @return The current value.
  */
 QByteArray BinaryString::value() const {
 
@@ -208,9 +215,10 @@ QByteArray BinaryString::value() const {
 }
 
 /**
- * @brief BinaryString::setValue
+ * @brief Sets the value of the BinaryString widget.
+ * This function updates the Hex, ASCII, and UTF-16 input fields with the provided data, converting it to the appropriate formats.
  *
- * @param data
+ * @param data The data to set.
  */
 void BinaryString::setValue(const QByteArray &data) {
 
@@ -223,18 +231,18 @@ void BinaryString::setValue(const QByteArray &data) {
 }
 
 /**
- * @brief BinaryString::setShowKeepSize
+ * @brief Sets the visibility of the "keep size" checkbox in the BinaryString widget.
  *
- * @param visible
+ * @param visible A boolean value indicating whether the "keep size" checkbox should be visible (true) or hidden (false).
  */
 void BinaryString::setShowKeepSize(bool visible) {
 	ui->keepSize->setVisible(visible);
 }
 
 /**
- * @brief BinaryString::showKeepSize
+ * @brief Gets the visibility state of the "keep size" checkbox in the BinaryString widget.
  *
- * @return
+ * @return A boolean value indicating whether the "keep size" checkbox is visible (true) or hidden (false).
  */
 bool BinaryString::showKeepSize() const {
 	return ui->keepSize->isVisible();

@@ -12,7 +12,7 @@
 namespace util {
 
 /**
- * @brief is_numeric
+ * @brief Checks if the given QString contains only decimal digits.
  *
  * @param s
  * @return true if the string only contains decimal digits

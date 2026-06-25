@@ -330,9 +330,9 @@ Status DebuggerCore::ptraceContinue(edb::tid_t tid, long status) {
 /**
  * @brief Single-steps the given thread via PTRACE_SINGLESTEP, delivering the specified signal if non-zero.
  *
- * @param tid
- * @param status
- * @return
+ * @param tid The thread ID of the thread to single-step.
+ * @param status The signal to deliver to the thread after single-stepping. If zero, no signal is delivered.
+ * @return A Status object indicating success or failure of the operation.
  */
 Status DebuggerCore::ptraceStep(edb::tid_t tid, long status) {
 	// TODO(eteran): perhaps address this at a higher layer?
@@ -354,9 +354,9 @@ Status DebuggerCore::ptraceStep(edb::tid_t tid, long status) {
 /**
  * @brief Sets ptrace options for the given thread via PTRACE_SETOPTIONS.
  *
- * @param tid
- * @param options
- * @return
+ * @param tid The thread ID of the thread for which to set options.
+ * @param options The ptrace options to set for the thread.
+ * @return A Status object indicating success or failure of the operation.
  */
 Status DebuggerCore::ptraceSetOptions(edb::tid_t tid, long options) {
 	Q_ASSERT(util::contains(waitedThreads_, tid));
@@ -372,9 +372,9 @@ Status DebuggerCore::ptraceSetOptions(edb::tid_t tid, long options) {
 /**
  * @brief Retrieves the extended ptrace event message for the given thread via PTRACE_GETEVENTMSG.
  *
- * @param tid
- * @param message
- * @return
+ * @param tid The thread ID of the thread for which to retrieve the event message.
+ * @param message A pointer to an unsigned long variable where the event message will be stored.
+ * @return A Status object indicating success or failure of the operation.
  */
 Status DebuggerCore::ptraceGetEventMessage(edb::tid_t tid, unsigned long *message) {
 	Q_ASSERT(util::contains(waitedThreads_, tid));

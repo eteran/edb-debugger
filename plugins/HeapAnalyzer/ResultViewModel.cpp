@@ -11,21 +11,21 @@
 namespace HeapAnalyzerPlugin {
 
 /**
- * @brief ResultViewModel::ResultViewModel
+ * @brief Constructs a ResultViewModel instance with the specified parent object.
  *
- * @param parent
+ * @param parent The parent object for the model.
  */
 ResultViewModel::ResultViewModel(QObject *parent)
 	: QAbstractItemModel(parent) {
 }
 
 /**
- * @brief ResultViewModel::headerData
+ * @brief Gets the header data for the specified section, orientation, and role.
  *
- * @param section
- * @param orientation
- * @param role
- * @return
+ * @param section The section of the header to retrieve data for.
+ * @param orientation The orientation of the header (horizontal or vertical).
+ * @param role The role for which to retrieve data.
+ * @return The header data for the specified section, orientation, and role.
  */
 QVariant ResultViewModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
@@ -46,11 +46,11 @@ QVariant ResultViewModel::headerData(int section, Qt::Orientation orientation, i
 }
 
 /**
- * @brief ResultViewModel::data
+ * @brief Gets the data for the specified index and role.
  *
- * @param index
- * @param role
- * @return
+ * @param index The index of the item to retrieve data for.
+ * @param role The role for which to retrieve data.
+ * @return The data for the specified index and role.
  */
 QVariant ResultViewModel::data(const QModelIndex &index, int role) const {
 
@@ -119,9 +119,9 @@ QVariant ResultViewModel::data(const QModelIndex &index, int role) const {
 }
 
 /**
- * @brief ResultViewModel::addResult
+ * @brief Adds a result to the ResultViewModel instance. This function is used to populate the model with new results.
  *
- * @param r
+ * @param r The result to be added to the model.
  */
 void ResultViewModel::addResult(const Result &r) {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
@@ -130,7 +130,7 @@ void ResultViewModel::addResult(const Result &r) {
 }
 
 /**
- * @brief ResultViewModel::clearResults
+ * @brief Clears all results from the ResultViewModel instance.
  */
 void ResultViewModel::clearResults() {
 	beginResetModel();
@@ -139,12 +139,12 @@ void ResultViewModel::clearResults() {
 }
 
 /**
- * @brief ResultViewModel::index
+ * @brief Gets the index of the item at the specified row and column.
  *
- * @param row
- * @param column
- * @param parent
- * @return
+ * @param row The row of the item to retrieve the index for.
+ * @param column The column of the item to retrieve the index for.
+ * @param parent The parent index.
+ * @return The index of the item at the specified row and column.
  */
 QModelIndex ResultViewModel::index(int row, int column, const QModelIndex &parent) const {
 
@@ -166,10 +166,10 @@ QModelIndex ResultViewModel::index(int row, int column, const QModelIndex &paren
 }
 
 /**
- * @brief ResultViewModel::parent
+ * @brief Gets the parent index of the specified index.
  *
- * @param index
- * @return
+ * @param index The index for which to retrieve the parent.
+ * @return The parent index.
  */
 QModelIndex ResultViewModel::parent(const QModelIndex &index) const {
 	Q_UNUSED(index)
@@ -177,10 +177,10 @@ QModelIndex ResultViewModel::parent(const QModelIndex &index) const {
 }
 
 /**
- * @brief ResultViewModel::rowCount
+ * @brief Gets the number of rows in the model.
  *
- * @param parent
- * @return
+ * @param parent The parent index.
+ * @return The number of rows in the model.
  */
 int ResultViewModel::rowCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent)
@@ -188,10 +188,10 @@ int ResultViewModel::rowCount(const QModelIndex &parent) const {
 }
 
 /**
- * @brief ResultViewModel::columnCount
+ * @brief Gets the number of columns in the model.
  *
- * @param parent
- * @return
+ * @param parent The parent index.
+ * @return The number of columns in the model.
  */
 int ResultViewModel::columnCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent)
@@ -199,10 +199,10 @@ int ResultViewModel::columnCount(const QModelIndex &parent) const {
 }
 
 /**
- * @brief ResultViewModel::setPointerData
+ * @brief Sets the pointer data for the specified index.
  *
- * @param index
- * @param data
+ * @param index The index for which to set pointer data.
+ * @param pointers The vector of pointers to set.
  */
 void ResultViewModel::setPointerData(const QModelIndex &index, const std::vector<edb::address_t> &pointers) {
 	if (!index.isValid()) {

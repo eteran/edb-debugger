@@ -35,11 +35,11 @@ using InstructionList = std::vector<edb::Instruction *>;
 using OpcodeData = std::array<uint8_t, sizeof(uint64_t)>;
 
 /**
- * @brief add_result
+ * @brief Adds a result to the results dialog. This function is used to display the found instructions in the results dialog.
  *
- * @param resultsDialog
- * @param instructions
- * @param rva
+ * @param resultsDialog The results dialog where the found instructions will be displayed.
+ * @param instructions The list of instructions to be added to the results dialog.
+ * @param rva The relative virtual address of the first instruction in the list.
  */
 void add_result(DialogResults *resultsDialog, const InstructionList &instructions, edb::address_t rva) {
 	if (!instructions.empty()) {
@@ -59,11 +59,11 @@ void add_result(DialogResults *resultsDialog, const InstructionList &instruction
 }
 
 /**
- * @brief test_deref_reg_to_ip
+ * @brief Tests if the given instruction sequence can set the instruction pointer (IP) using a dereference of a specific register.
  *
- * @param resultsDialog
- * @param data
- * @param start_address
+ * @param resultsDialog The results dialog where the found instructions will be displayed.
+ * @param data The opcode data to search through.
+ * @param start_address The starting address of the opcode data.
  */
 template <int Register>
 void test_deref_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
@@ -96,11 +96,11 @@ void test_deref_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, 
 }
 
 /**
- * @brief test_reg_to_ip
+ * @brief Tests if the given instruction sequence can set the instruction pointer (IP) using a specific register.
  *
- * @param resultsDialog
- * @param data
- * @param start_address
+ * @param resultsDialog The results dialog where the found instructions will be displayed.
+ * @param data The opcode data to search through.
+ * @param start_address The starting address of the opcode data.
  */
 template <int Register, int StackRegister>
 void test_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
@@ -170,11 +170,11 @@ void test_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 }
 
 /**
- * @brief test_esp_add_0
+ * @brief Tests if the given instruction can set the instruction pointer (IP) using a dereference of the stack pointer. ([ESP] -> EIP)
  *
- * @param resultsDialog
- * @param data
- * @param start_address
+ * @param resultsDialog The results dialog where the found instructions will be displayed.
+ * @param data The opcode data to search through.
+ * @param start_address The starting address of the opcode data.
  */
 template <int StackRegister>
 void test_esp_add_0(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
@@ -238,11 +238,11 @@ void test_esp_add_0(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 }
 
 /**
- * @brief test_esp_add_regx1
+ * @brief Tests if the given instruction can set the instruction pointer (IP) using a dereference of the stack pointer. ([ESP + 4] -> EIP)
  *
- * @param resultsDialog
- * @param data
- * @param start_address
+ * @param resultsDialog The results dialog where the found instructions will be displayed.
+ * @param data The opcode data to search through.
+ * @param start_address The starting address of the opcode data.
  */
 template <int StackRegister>
 void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
@@ -324,11 +324,11 @@ void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 }
 
 /**
- * @brief test_esp_add_regx2
+ * @brief Tests if the given instruction can set the instruction pointer (IP) using a dereference of the stack pointer. ([ESP + 8] -> EIP)
  *
- * @param resultsDialog
- * @param data
- * @param start_address
+ * @param resultsDialog The results dialog where the found instructions will be displayed.
+ * @param data The opcode data to search through.
+ * @param start_address The starting address of the opcode data.
  */
 template <int StackRegister>
 void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
@@ -425,11 +425,11 @@ void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, ed
 }
 
 /**
- * @brief test_esp_sub_regx1
+ * @brief Tests if the given instruction can set the instruction pointer (IP) using a dereference of the stack pointer. ([ESP - 4] -> EIP)
  *
- * @param resultsDialog
- * @param data
- * @param start_address
+ * @param resultsDialog The results dialog where the found instructions will be displayed.
+ * @param data The opcode data to search through.
+ * @param start_address The starting address of the opcode data.
  */
 template <int StackRegister>
 void test_esp_sub_regx1(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
@@ -500,12 +500,13 @@ void test_esp_sub_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 }
 
 /**
- * @brief run_tests
+ * @brief Runs tests on the given opcode data to find instructions that can set the instruction pointer (IP) using various methods.
+ * The results are displayed in the provided results dialog.
  *
- * @param resultsDialog
- * @param classtype
- * @param opcode
- * @param address
+ * @param resultsDialog The results dialog where the found instructions will be displayed.
+ * @param classtype The type of test to run.
+ * @param opcode The opcode data to search through.
+ * @param address The starting address of the opcode data.
  */
 void run_tests(DialogResults *resultsDialog, int classtype, const OpcodeData &opcode, edb::address_t address) {
 
@@ -704,10 +705,10 @@ void run_tests(DialogResults *resultsDialog, int classtype, const OpcodeData &op
 }
 
 /**
- * @brief DialogOpcodes::DialogOpcodes
+ * @brief Constructor for the DialogOpcodes class. Initializes the dialog and sets up the UI components, including the search functionality and the find button.
  *
- * @param parent
- * @param f
+ * @param parent The parent widget of the dialog.
+ * @param f The window flags for the dialog.
  */
 DialogOpcodes::DialogOpcodes(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
@@ -731,7 +732,7 @@ DialogOpcodes::DialogOpcodes(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogOpcodes::showEvent
+ * @brief Handles the show event for the dialog.
  */
 void DialogOpcodes::showEvent(QShowEvent *) {
 	filterModel_->setFilterKeyColumn(3);
@@ -810,7 +811,8 @@ void DialogOpcodes::showEvent(QShowEvent *) {
 }
 
 /**
- * @brief DialogOpcodes::doFind
+ * @brief Performs the opcode search based on the selected region and the chosen opcode type.
+ * It reads the memory of the selected regions, tests for matching opcodes, and displays the results in a dialog.
  */
 void DialogOpcodes::doFind() {
 

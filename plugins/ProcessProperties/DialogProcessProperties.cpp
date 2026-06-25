@@ -38,10 +38,10 @@ Q_DECLARE_NAMESPACE_TR(ProcessPropertiesPlugin)
 
 namespace {
 /**
- * @brief arguments_to_string
+ * @brief Formats a list of command-line arguments into a single string, with each argument separated by a space.
  *
- * @param args
- * @return
+ * @param args The list of command-line arguments to be formatted.
+ * @return A string containing the formatted command-line arguments.
  */
 QString arguments_to_string(const QList<QByteArray> &args) {
 	QString ret;
@@ -56,10 +56,10 @@ QString arguments_to_string(const QList<QByteArray> &args) {
 }
 
 /**
- * @brief size_to_string
+ * @brief Converts a size in bytes to a human-readable string with appropriate units.
  *
- * @param n
- * @return
+ * @param n The size in bytes.
+ * @return A string containing the formatted size.
  */
 QString size_to_string(size_t n) {
 
@@ -84,10 +84,10 @@ QString size_to_string(size_t n) {
 
 #if defined(Q_OS_LINUX)
 /**
- * @brief file_type
+ * @brief Determines the type of a file based on its name.
  *
- * @param filename
- * @return
+ * @param filename The name of the file.
+ * @return A string indicating the type of the file.
  */
 QString file_type(const QString &filename) {
 	const QFileInfo info(filename);
@@ -105,12 +105,12 @@ QString file_type(const QString &filename) {
 }
 
 /**
- * @brief tcp_socket_processor
+ * @brief Processes a TCP socket file to extract and format its information.
  *
- * @param symlink
- * @param sock
- * @param lst
- * @return
+ * @param symlink Where the formatted socket information will be stored.
+ * @param sock The socket number to be processed.
+ * @param lst A list of strings containing the socket information.
+ * @return True if the socket information was successfully processed and formatted, false otherwise.
  */
 bool tcp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 
@@ -151,12 +151,12 @@ bool tcp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 }
 
 /**
- * @brief udp_socket_processor
+ * @brief Processes a UDP socket file to extract and format its information.
  *
- * @param symlink
- * @param sock
- * @param lst
- * @return
+ * @param symlink Where the formatted socket information will be stored.
+ * @param sock The socket number to be processed.
+ * @param lst A list of strings containing the socket information.
+ * @return True if the socket information was successfully processed and formatted, false otherwise.
  */
 bool udp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 
@@ -197,12 +197,12 @@ bool udp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 }
 
 /**
- * @brief unix_socket_processor
+ * @brief Processes a UNIX socket file to extract and format its information.
  *
- * @param symlink
- * @param sock
- * @param lst
- * @return
+ * @param symlink Where the formatted socket information will be stored.
+ * @param sock The socket number to be processed.
+ * @param lst A list of strings containing the socket information.
+ * @return True if the socket information was successfully processed and formatted, false otherwise.
  */
 bool unix_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 
@@ -223,13 +223,13 @@ bool unix_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 }
 
 /**
- * @brief process_socket_file
+ * @brief Processes a socket file to extract and format its information based on the specified file type (TCP, UDP, or UNIX).
  *
- * @param filename
- * @param symlink
- * @param sock
- * @param func
- * @return
+ * @param filename The path to the socket file to be processed.
+ * @param symlink Where the formatted socket information will be stored.
+ * @param sock The socket number to be processed.
+ * @param func A function that processes the socket information based on the file type.
+ * @return A string containing the formatted socket information.
  */
 template <class F>
 QString process_socket_file(const QString &filename, QString *symlink, int sock, F func) {
@@ -265,10 +265,10 @@ QString process_socket_file(const QString &filename, QString *symlink, int sock,
 }
 
 /**
- * @brief process_socket_tcp
+ * @brief Processes a TCP socket to extract and format its information.
  *
- * @param symlink
- * @return
+ * @param symlink Where the formatted socket information will be stored.
+ * @return A string containing the formatted TCP socket information.
  */
 QString process_socket_tcp(QString *symlink) {
 
@@ -281,10 +281,10 @@ QString process_socket_tcp(QString *symlink) {
 }
 
 /**
- * @brief process_socket_unix
+ * @brief Processes a UNIX socket to extract and format its information.
  *
- * @param symlink
- * @return
+ * @param symlink Where the formatted socket information will be stored.
+ * @return A string containing the formatted UNIX socket information.
  */
 QString process_socket_unix(QString *symlink) {
 
@@ -297,10 +297,10 @@ QString process_socket_unix(QString *symlink) {
 }
 
 /**
- * @brief process_socket_udp
+ * @brief Processes a UDP socket to extract and format its information.
  *
- * @param symlink
- * @return
+ * @param symlink Where the formatted socket information will be stored.
+ * @return A string containing the formatted UDP socket information.
  */
 QString process_socket_udp(QString *symlink) {
 
@@ -316,10 +316,10 @@ QString process_socket_udp(QString *symlink) {
 }
 
 /**
- * @brief DialogProcessProperties::DialogProcessProperties
+ * @brief Constructor for the DialogProcessProperties class.
  *
- * @param parent
- * @param f
+ * @param parent The parent widget of the dialog.
+ * @param f The window flags for the dialog.
  */
 DialogProcessProperties::DialogProcessProperties(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
@@ -339,7 +339,8 @@ DialogProcessProperties::DialogProcessProperties(QWidget *parent, Qt::WindowFlag
 }
 
 /**
- * @brief DialogProcessProperties::updateGeneralPage
+ * @brief Updates the general information page of the process properties dialog with the current process's details,
+ * such as executable path, command-line arguments, current working directory, start time, and parent process information.
  */
 void DialogProcessProperties::updateGeneralPage() {
 	if (edb::v1::debugger_core) {
@@ -375,7 +376,8 @@ void DialogProcessProperties::updateGeneralPage() {
 }
 
 /**
- * @brief DialogProcessProperties::updateModulePage
+ * @brief Updates the module page of the process properties dialog with the list of loaded modules for the current process.
+ * It retrieves the loaded modules from the debugger core and populates the table with their base addresses and names.
  */
 void DialogProcessProperties::updateModulePage() {
 
@@ -397,7 +399,8 @@ void DialogProcessProperties::updateModulePage() {
 }
 
 /**
- * @brief DialogProcessProperties::updateMemoryPage
+ * @brief Updates the memory page of the process properties dialog with the list of memory regions for the current process.
+ * It retrieves the memory regions from the debugger core and populates the table with their start addresses, sizes, protection flags, and names.
  */
 void DialogProcessProperties::updateMemoryPage() {
 
@@ -425,18 +428,19 @@ void DialogProcessProperties::updateMemoryPage() {
 }
 
 /**
- * @brief DialogProcessProperties::on_txtSearchEnvironment_textChanged
+ * @brief Handles the text change event for the environment search box.
+ * When the text in the search box changes, this slot is triggered, and it updates the environment page.
  *
- * @param text
+ * @param text The new text entered in the search box.
  */
 void DialogProcessProperties::on_txtSearchEnvironment_textChanged(const QString &text) {
 	updateEnvironmentPage(text);
 }
 
 /**
- * @brief DialogProcessProperties::updateEnvironmentPage
+ * @brief Updates the environment page of the process properties dialog with the list of environment variables for the current process.
  *
- * @param filter
+ * @param filter A string used to filter the displayed environment variables. Only variables containing this string (case-insensitive) will be shown.
  */
 void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 	// tableEnvironment
@@ -476,7 +480,8 @@ void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 }
 
 /**
- * @brief DialogProcessProperties::updateHandles
+ * @brief Updates the handles page of the process properties dialog with the list of open file handles for the current process.
+ * It retrieves the open file handles from the debugger core and populates the table with their types, file descriptors, and paths.
  */
 void DialogProcessProperties::updateHandles() {
 
@@ -520,7 +525,7 @@ void DialogProcessProperties::updateHandles() {
 }
 
 /**
- * @brief DialogProcessProperties::showEvent
+ * @brief Handles the show event for the dialog.
  */
 void DialogProcessProperties::showEvent(QShowEvent *) {
 	updateGeneralPage();
@@ -532,7 +537,8 @@ void DialogProcessProperties::showEvent(QShowEvent *) {
 }
 
 /**
- * @brief DialogProcessProperties::on_btnParent_clicked
+ * @brief Handles the click event for the "Parent" button.
+ * When the button is clicked, this slot is triggered, and it opens the directory containing the parent process's executable in the system's file explorer.
  */
 void DialogProcessProperties::on_btnParent_clicked() {
 
@@ -550,7 +556,8 @@ void DialogProcessProperties::on_btnParent_clicked() {
 }
 
 /**
- * @brief DialogProcessProperties::on_btnImage_clicked
+ * @brief Handles the click event for the "Image" button.
+ * When the button is clicked, this slot is triggered, and it opens the directory containing the current process's executable in the system's file explorer.
  */
 void DialogProcessProperties::on_btnImage_clicked() {
 	if (edb::v1::debugger_core) {
@@ -561,21 +568,24 @@ void DialogProcessProperties::on_btnImage_clicked() {
 }
 
 /**
- * @brief DialogProcessProperties::on_btnRefreshEnvironment_clicked
+ * @brief Handles the click event for the "Refresh Environment" button.
+ * When the button is clicked, this slot is triggered, and it updates the environment page with the latest environment variables.
  */
 void DialogProcessProperties::on_btnRefreshEnvironment_clicked() {
 	updateEnvironmentPage(ui.txtSearchEnvironment->text());
 }
 
 /**
- * @brief DialogProcessProperties::on_btnRefreshHandles_clicked
+ * @brief Handles the click event for the "Refresh Handles" button.
+ * When the button is clicked, this slot is triggered, and it updates the handles page with the latest open file handles.
  */
 void DialogProcessProperties::on_btnRefreshHandles_clicked() {
 	updateHandles();
 }
 
 /**
- * @brief DialogProcessProperties::on_btnStrings_clicked
+ * @brief Handles the click event for the "Strings" button.
+ * When the button is clicked, this slot is triggered, and it updates the strings page.
  */
 void DialogProcessProperties::on_btnStrings_clicked() {
 
@@ -584,21 +594,24 @@ void DialogProcessProperties::on_btnStrings_clicked() {
 }
 
 /**
- * @brief DialogProcessProperties::on_btnRefreshMemory_clicked
+ * @brief Handles the click event for the "Refresh Memory" button.
+ * When the button is clicked, this slot is triggered, and it updates the memory page with the latest memory regions.
  */
 void DialogProcessProperties::on_btnRefreshMemory_clicked() {
 	updateMemoryPage();
 }
 
 /**
- * @brief DialogProcessProperties::on_btnRefreshThreads_clicked
+ * @brief Handles the click event for the "Refresh Threads" button.
+ * When the button is clicked, this slot is triggered, and it updates the threads page with the latest thread information.
  */
 void DialogProcessProperties::on_btnRefreshThreads_clicked() {
 	updateThreads();
 }
 
 /**
- * @brief DialogProcessProperties::updateThreads
+ * @brief Updates the threads page of the process properties dialog with the list of threads for the current process.
+ * It retrieves the threads from the debugger core and populates the threads model with their information, marking the current thread appropriately.
  */
 void DialogProcessProperties::updateThreads() {
 	threadsModel_->clear();

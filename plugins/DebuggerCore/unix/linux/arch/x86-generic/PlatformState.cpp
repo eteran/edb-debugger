@@ -766,27 +766,25 @@ bool PlatformState::AVX::empty() const {
 }
 
 /**
- * @brief PlatformState::PlatformState
+ * @brief Creates a new PlatformState object and initializes it to the default state
  */
 PlatformState::PlatformState() {
 	this->clear();
 }
 
 /**
- * makes a copy of the state object
+ * @brief Creates a copy of the current PlatformState object
  *
- * @brief PlatformState::clone
- *
- * @return
+ * @return a unique pointer to the cloned PlatformState object
  */
 std::unique_ptr<IState> PlatformState::clone() const {
 	return std::make_unique<PlatformState>(*this);
 }
 
 /**
- * @brief PlatformState::flagsToString
+ * @brief Formats the flags in a string form appropriate for this platform
  *
- * @param flags
+ * @param flags the flags to format
  * @return the flags in a string form appropriate for this platform
  */
 QString PlatformState::flagsToString(edb::reg_t flags) const {
@@ -805,7 +803,7 @@ QString PlatformState::flagsToString(edb::reg_t flags) const {
 }
 
 /**
- * @brief PlatformState::flagsToString
+ * @brief Formats the flags in a string form appropriate for this platform
  *
  * @return the flags in a string form appropriate for this platform
  */
@@ -814,15 +812,15 @@ QString PlatformState::flagsToString() const {
 }
 
 /**
- * @brief findRegisterValue
+ * @brief Finds a register value by its name in the given names and regs arrays
  *
- * @param names
- * @param regs
- * @param regName
- * @param type
- * @param maxNames
- * @param shift
- * @return
+ * @param names the array of register names
+ * @param regs the array of register values
+ * @param regName the name of the register to find
+ * @param type the type of the register
+ * @param maxNames the maximum number of names in the array
+ * @param shift the bit shift to apply to the register value
+ * @return A Register object representing the found register, or an invalid Register if not found
  */
 template <size_t BitSize = 0, class Names, class Regs>
 Register findRegisterValue(const Names &names, const Regs &regs, const QString &regName, Register::Type type, size_t maxNames, int shift = 0) {
@@ -838,10 +836,10 @@ Register findRegisterValue(const Names &names, const Regs &regs, const QString &
 }
 
 /**
- * @brief PlatformState::value
+ * @brief Gets the value of a register by its name
  *
- * @param reg
- * @return a Register object which represents the register with the name supplied
+ * @param reg The name of the register to retrieve
+ * @return A Register object which represents the register with the name supplied
  */
 Register PlatformState::value(const QString &reg) const {
 
@@ -1046,9 +1044,9 @@ Register PlatformState::value(const QString &reg) const {
 }
 
 /**
- * @brief PlatformState::instructionPointerRegister
+ * @brief Gets the instruction pointer register for this platform
  *
- * @return
+ * @return A Register object representing the instruction pointer register for this platform
  */
 Register PlatformState::instructionPointerRegister() const {
 
@@ -1064,7 +1062,7 @@ Register PlatformState::instructionPointerRegister() const {
 }
 
 /**
- * @brief PlatformState::framePointer
+ * @brief Gets the frame pointer register for this platform
  *
  * @return what is conceptually the frame pointer for this platform
  */
@@ -1073,28 +1071,28 @@ edb::address_t PlatformState::framePointer() const {
 }
 
 /**
- * @brief PlatformState::instructionPointer
+ * @brief Gets the instruction pointer value for this platform
  *
- * @return the instruction pointer for this platform
+ * @return The instruction pointer for this platform
  */
 edb::address_t PlatformState::instructionPointer() const {
 	return instructionPointerRegister().valueAsAddress();
 }
 
 /**
- * @brief PlatformState::stackPointer
+ * @brief Gets the stack pointer value for this platform
  *
- * @return stack pointer for this platform
+ * @return The stack pointer for this platform
  */
 edb::address_t PlatformState::stackPointer() const {
 	return gpRegister(X86::RSP).valueAsAddress();
 }
 
 /**
- * @brief PlatformState::debugRegister
+ * @brief Gets the debug register value for this platform
  *
- * @param n
- * @return
+ * @param n The index of the debug register to retrieve
+ * @return The value of the specified debug register
  */
 edb::reg_t PlatformState::debugRegister(size_t n) const {
 	assert(dbgIndexValid(n));
@@ -1102,9 +1100,9 @@ edb::reg_t PlatformState::debugRegister(size_t n) const {
 }
 
 /**
- * @brief PlatformState::flagsRegister
+ * @brief Gets the flags register for this platform
  *
- * @return
+ * @return A Register object representing the flags register for this platform
  */
 Register PlatformState::flagsRegister() const {
 	if (x86.gpr64Filled && is64Bit()) {
@@ -1119,28 +1117,28 @@ Register PlatformState::flagsRegister() const {
 }
 
 /**
- * @brief PlatformState::flags
+ * @brief Gets the flags value for this platform
  *
- * @return
+ * @return The flags value for this platform
  */
 edb::reg_t PlatformState::flags() const {
 	return flagsRegister().valueAsInteger();
 }
 
 /**
- * @brief PlatformState::fpuStackPointer
+ * @brief Gets the FPU stack pointer for this platform
  *
- * @return
+ * @return The FPU stack pointer for this platform
  */
 int PlatformState::fpuStackPointer() const {
 	return static_cast<int>(x87.stackPointer());
 }
 
 /**
- * @brief PlatformState::fpuRegister
+ * @brief Gets the value of the specified FPU register for this platform
  *
- * @param n
- * @return
+ * @param n The index of the FPU register to retrieve
+ * @return The value of the specified FPU register
  */
 edb::value80 PlatformState::fpuRegister(size_t n) const {
 	assert(fpuIndexValid(n));
@@ -1159,20 +1157,20 @@ edb::value80 PlatformState::fpuRegister(size_t n) const {
 }
 
 /**
- * @brief PlatformState::fpuRegisterIsEmpty
+ * @brief Determines if the specified FPU register is empty when treated in terms of the FPU stack
  *
- * @param n
- * @return true if Rn register is empty when treated in terms of FPU stack
+ * @param n The index of the FPU register to check
+ * @return True if Rn register is empty when treated in terms of FPU stack
  */
 bool PlatformState::fpuRegisterIsEmpty(size_t n) const {
 	return x87.tag(n) == X87::TAG_EMPTY;
 }
 
 /**
- * @brief PlatformState::fpuRegisterTagString
+ * @brief Gets a string representation of the tag for the specified FPU register
  *
- * @param n
- * @return
+ * @param n The index of the FPU register to retrieve the tag for
+ * @return A string representation of the tag for the specified FPU register
  */
 QString PlatformState::fpuRegisterTagString(size_t n) const {
 	int tag = x87.tag(n);
@@ -1187,43 +1185,43 @@ QString PlatformState::fpuRegisterTagString(size_t n) const {
 }
 
 /**
- * @brief PlatformState::fpuControlWord
+ * @brief Gets the FPU control word for this platform
  *
- * @return
+ * @return The FPU control word for this platform
  */
 edb::value16 PlatformState::fpuControlWord() const {
 	return x87.controlWord;
 }
 
 /**
- * @brief PlatformState::fpuStatusWord
+ * @brief Gets the FPU status word for this platform
  *
- * @return
+ * @return The FPU status word for this platform
  */
 edb::value16 PlatformState::fpuStatusWord() const {
 	return x87.statusWord;
 }
 
 /**
- * @brief PlatformState::fpuTagWord
+ * @brief Gets the FPU tag word for this platform
  *
- * @return
+ * @return The FPU tag word for this platform
  */
 edb::value16 PlatformState::fpuTagWord() const {
 	return x87.tagWord;
 }
 
 /**
- * @brief PlatformState::adjustStack
+ * @brief Adjusts the stack pointer by the specified number of bytes
  *
- * @param bytes
+ * @param bytes The number of bytes to adjust the stack pointer by
  */
 void PlatformState::adjustStack(int bytes) {
 	x86.GPRegs[X86::RSP] += bytes;
 }
 
 /**
- * @brief PlatformState::clear
+ * @brief Clears the platform state
  */
 void PlatformState::clear() {
 	x86.clear();
@@ -1232,19 +1230,19 @@ void PlatformState::clear() {
 }
 
 /**
- * @brief PlatformState::empty
+ * @brief Checks if the platform state is empty
  *
- * @return
+ * @return True if the platform state is empty, false otherwise
  */
 bool PlatformState::empty() const {
 	return x86.empty() && x87.empty() && avx.empty();
 }
 
 /**
- * @brief PlatformState::setDebugRegister
+ * @brief Sets the value of the specified debug register
  *
- * @param n
- * @param value
+ * @param n The index of the debug register to set
+ * @param value The value to set the debug register to
  */
 void PlatformState::setDebugRegister(size_t n, edb::reg_t value) {
 	assert(dbgIndexValid(n));
@@ -1252,17 +1250,17 @@ void PlatformState::setDebugRegister(size_t n, edb::reg_t value) {
 }
 
 /**
- * @brief PlatformState::setFlags
+ * @brief Sets the value of the flags register
  *
- * @param flags
+ * @param flags The value to set the flags register to
  */
 void PlatformState::setFlags(edb::reg_t flags) {
 	x86.flags = flags;
 }
 /**
- * @brief PlatformState::setInstructionPointer
+ * @brief Sets the value of the instruction pointer register
  *
- * @param value
+ * @param value The value to set the instruction pointer register to
  */
 void PlatformState::setInstructionPointer(edb::address_t value) {
 	x86.IP      = value;
@@ -1270,10 +1268,10 @@ void PlatformState::setInstructionPointer(edb::address_t value) {
 }
 
 /**
- * @brief PlatformState::gpRegister
+ * @brief Gets the value of the specified general-purpose register
  *
- * @param n
- * @return
+ * @param n The index of the general-purpose register to retrieve
+ * @return The value of the specified general-purpose register
  */
 Register PlatformState::gpRegister(size_t n) const {
 
@@ -1291,9 +1289,9 @@ Register PlatformState::gpRegister(size_t n) const {
 }
 
 /**
- * @brief PlatformState::setRegister
+ * @brief Sets the value of the specified register
  *
- * @param reg
+ * @param reg The Register object representing the register to set
  */
 void PlatformState::setRegister(const Register &reg) {
 	const QString regName = reg.name().toLower();
@@ -1451,10 +1449,10 @@ void PlatformState::setRegister(const Register &reg) {
 }
 
 /**
- * @brief PlatformState::setRegister
+ * @brief Sets the value of a register by its name
  *
- * @param name
- * @param value
+ * @param name The name of the register to set
+ * @param value The value to set the register to
  */
 void PlatformState::setRegister(const QString &name, edb::reg_t value) {
 
@@ -1463,11 +1461,12 @@ void PlatformState::setRegister(const QString &name, edb::reg_t value) {
 }
 
 /**
- * @brief PlatformState::archRegister
+ * @brief Gets a register by its type and index
  *
- * @param type
- * @param n
- * @return
+ * @param type The type of the register (e.g., "mmx", "xmm", "ymm")
+ * @param n The index of the register
+ * @return A Register object representing the specified register, or an invalid Register if not found
+ * @note The type parameter is expected to be a string hash of the register type name (e.g., `edb::string_hash("mmx")`)
  */
 Register PlatformState::archRegister(uint64_t type, size_t n) const {
 	switch (type) {
@@ -1484,10 +1483,10 @@ Register PlatformState::archRegister(uint64_t type, size_t n) const {
 }
 
 /**
- * @brief PlatformState::mmx_register
+ * @brief Gets the value of the specified MMX register for this platform
  *
- * @param n
- * @return
+ * @param n The index of the MMX register to retrieve
+ * @return The value of the specified MMX register
  */
 Register PlatformState::mmx_register(size_t n) const {
 	if (!mmxIndexValid(n)) {
@@ -1499,10 +1498,10 @@ Register PlatformState::mmx_register(size_t n) const {
 }
 
 /**
- * @brief PlatformState::xmm_register
+ * @brief Gets the value of the specified XMM register for this platform
  *
- * @param n
- * @return
+ * @param n The index of the XMM register to retrieve
+ * @return The value of the specified XMM register
  */
 Register PlatformState::xmm_register(size_t n) const {
 	if (!xmmIndexValid(n) || !avx.xmmFilledIA32) {
@@ -1518,10 +1517,10 @@ Register PlatformState::xmm_register(size_t n) const {
 }
 
 /**
- * @brief PlatformState::ymm_register
+ * @brief Gets the value of the specified YMM register for this platform
  *
- * @param n
- * @return
+ * @param n The index of the YMM register to retrieve
+ * @return The value of the specified YMM register
  */
 Register PlatformState::ymm_register(size_t n) const {
 	if (!ymmIndexValid(n) || !avx.ymmFilled) {

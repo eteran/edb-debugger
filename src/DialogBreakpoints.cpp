@@ -21,10 +21,10 @@
 #include <QTextStream>
 
 /**
- * @brief DialogBreakpoints::DialogBreakpoints
+ * @brief Constructor for the DialogBreakpoints class.
  *
- * @param parent
- * @param f
+ * @param parent The parent widget for the dialog.
+ * @param f The window flags for the dialog.
  */
 DialogBreakpoints::DialogBreakpoints(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
@@ -34,7 +34,9 @@ DialogBreakpoints::DialogBreakpoints(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogBreakpoints::showEvent
+ * @brief Handles the show event for the dialog.
+ *
+ * @param event The show event.
  */
 void DialogBreakpoints::showEvent(QShowEvent *) {
 	connect(edb::v1::disassembly_widget(), SIGNAL(signalUpdated()), this, SLOT(updateList()));
@@ -42,14 +44,16 @@ void DialogBreakpoints::showEvent(QShowEvent *) {
 }
 
 /**
- * @brief DialogBreakpoints::hideEvent
+ * @brief Handles the hide event for the dialog.
+ *
+ * @param event The hide event.
  */
 void DialogBreakpoints::hideEvent(QHideEvent *) {
 	disconnect(edb::v1::disassembly_widget(), SIGNAL(signalUpdated()), this, SLOT(updateList()));
 }
 
 /**
- * @brief DialogBreakpoints::updateList
+ * @brief Updates the list of breakpoints in the dialog.
  */
 void DialogBreakpoints::updateList() {
 
@@ -88,7 +92,7 @@ void DialogBreakpoints::updateList() {
 }
 
 /**
- * @brief DialogBreakpoints::on_btnAdd_clicked
+ * @brief Handles the event when the "Add" button is clicked. Prompts the user for an address and attempts to create a breakpoint at that address.
  */
 void DialogBreakpoints::on_btnAdd_clicked() {
 
@@ -110,7 +114,7 @@ void DialogBreakpoints::on_btnAdd_clicked() {
 }
 
 /**
- * @brief DialogBreakpoints::on_btnCondition_clicked
+ * @brief Handles the event when the "Condition" button is clicked. Prompts the user to set a condition for the selected breakpoint.
  */
 void DialogBreakpoints::on_btnCondition_clicked() {
 	QList<QTableWidgetItem *> sel = ui.tableWidget->selectedItems();
@@ -128,7 +132,7 @@ void DialogBreakpoints::on_btnCondition_clicked() {
 }
 
 /**
- * @brief DialogBreakpoints::on_btnRemove_clicked
+ * @brief Handles the event when the "Remove" button is clicked. Removes the selected breakpoint.
  */
 void DialogBreakpoints::on_btnRemove_clicked() {
 	QList<QTableWidgetItem *> sel = ui.tableWidget->selectedItems();
@@ -141,10 +145,10 @@ void DialogBreakpoints::on_btnRemove_clicked() {
 }
 
 /**
- * @brief DialogBreakpoints::on_tableWidget_cellDoubleClicked
+ * @brief Handles the event when a cell in the table widget is double-clicked. Depending on the column, it either jumps to the address or allows setting a condition for the breakpoint.
  *
- * @param row
- * @param col
+ * @param row The row of the cell that was double-clicked.
+ * @param col The column of the cell that was double-clicked.
  */
 void DialogBreakpoints::on_tableWidget_cellDoubleClicked(int row, int col) {
 	switch (col) {
@@ -170,10 +174,7 @@ void DialogBreakpoints::on_tableWidget_cellDoubleClicked(int row, int col) {
 }
 
 /**
- * @brief DialogBreakpoints::on_btnImport_clicked
- *
- * Opens a file selection window to choose a file with newline-separated,
- * hex address breakpoints.
+ * @brief Opens a file selection window to choose a file with newline-separated, hex address breakpoints.
  */
 void DialogBreakpoints::on_btnImport_clicked() {
 
@@ -253,10 +254,7 @@ void DialogBreakpoints::on_btnImport_clicked() {
 }
 
 /**
- * @brief DialogBreakpoints::on_btnExport_clicked
- *
- * Opens a file selection window to choose a file to save newline-separated,
- * hex address breakpoints.
+ * @brief Opens a file selection window to choose a file to save newline-separated, hex address breakpoints.
  */
 void DialogBreakpoints::on_btnExport_clicked() {
 

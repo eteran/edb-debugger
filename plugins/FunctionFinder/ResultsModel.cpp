@@ -11,21 +11,21 @@
 namespace FunctionFinderPlugin {
 
 /**
- * @brief ResultsModel::ResultsModel
+ * @brief Constructs a ResultsModel with the specified parent object.
  *
- * @param parent
+ * @param parent The parent object for the model.
  */
 ResultsModel::ResultsModel(QObject *parent)
 	: QAbstractItemModel(parent) {
 }
 
 /**
- * @brief ResultsModel::headerData
+ * @brief Gets the header data for the specified section, orientation, and role.
  *
- * @param section
- * @param orientation
- * @param role
- * @return
+ * @param section The section of the header to retrieve data for.
+ * @param orientation The orientation of the header (horizontal or vertical).
+ * @param role The role for which to retrieve data.
+ * @return The header data for the specified section, orientation, and role.
  */
 QVariant ResultsModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
@@ -50,11 +50,11 @@ QVariant ResultsModel::headerData(int section, Qt::Orientation orientation, int 
 }
 
 /**
- * @brief ResultsModel::data
+ * @brief Gets the data for the specified index and role.
  *
- * @param index
- * @param role
- * @return
+ * @param index The index of the item to retrieve data for.
+ * @param role The role for which to retrieve data.
+ * @return The data for the specified index and role.
  */
 QVariant ResultsModel::data(const QModelIndex &index, int role) const {
 
@@ -87,9 +87,9 @@ QVariant ResultsModel::data(const QModelIndex &index, int role) const {
 }
 
 /**
- * @brief ResultsModel::addResult
+ * @brief Adds a result to the results model. This function is used to populate the results table with new search results.
  *
- * @param r
+ * @param r The result to be added to the model.
  */
 void ResultsModel::addResult(const Result &r) {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
@@ -98,12 +98,12 @@ void ResultsModel::addResult(const Result &r) {
 }
 
 /**
- * @brief ResultsModel::index
+ * @brief Gets the index of the item at the specified row and column.
  *
- * @param row
- * @param column
- * @param parent
- * @return
+ * @param row The row of the item to retrieve the index for.
+ * @param column The column of the item to retrieve the index for.
+ * @param parent The parent index.
+ * @return The index of the item at the specified row and column.
  */
 QModelIndex ResultsModel::index(int row, int column, const QModelIndex &parent) const {
 
@@ -125,43 +125,41 @@ QModelIndex ResultsModel::index(int row, int column, const QModelIndex &parent) 
 }
 
 /**
- * @brief ResultsModel::parent
+ * @brief Gets the parent index of the specified index. Since this model is a flat list, it always returns an invalid index.
  *
- * @param index
- * @return
+ * @param index The index for which to retrieve the parent index.
+ * @return An invalid QModelIndex, since this model is a flat list.
  */
-QModelIndex ResultsModel::parent(const QModelIndex &index) const {
-	Q_UNUSED(index)
+QModelIndex ResultsModel::parent(const QModelIndex & /*index*/) const {
 	return QModelIndex();
 }
 
 /**
- * @brief ResultsModel::rowCount
+ * @brief Gets the number of rows in the model.
  *
- * @param parent
- * @return
+ * @param parent The parent index.
+ * @return The number of rows in the model.
  */
-int ResultsModel::rowCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent)
+
+int ResultsModel::rowCount(const QModelIndex & /*parent*/) const {
 	return results_.size();
 }
 
 /**
- * @brief ResultsModel::columnCount
+ * @brief Gets the number of columns in the model. This model has a fixed number of columns (6).
  *
- * @param parent
- * @return
+ * @param parent The parent index.
+ * @return The number of columns in the model (6).
  */
-int ResultsModel::columnCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent)
+int ResultsModel::columnCount(const QModelIndex & /*parent*/) const {
 	return 6;
 }
 
 /**
- * @brief ResultsModel::sort
+ * @brief Sorts the results in the model based on the specified column and order. The sorting is performed in-place, and the model is updated accordingly.
  *
- * @param column
- * @param order
+ * @param column The column to sort by.
+ * @param order The sort order.
  */
 void ResultsModel::sort(int column, Qt::SortOrder order) {
 

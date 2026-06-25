@@ -23,27 +23,27 @@ constexpr int CallMinSize = 2;
 }
 
 /**
- * @brief CommentServer::setComment
+ * @brief Sets a comment for the specified address.
  *
- * @param address
- * @param comment
+ * @param address The address to set the comment for.
+ * @param comment The comment to set for the specified address.
  */
 void CommentServer::setComment(edb::address_t address, const QString &comment) {
 	customComments_[address] = comment;
 }
 
 /**
- * @brief CommentServer::clear
+ * @brief Clears all custom comments.
  */
 void CommentServer::clear() {
 	customComments_.clear();
 }
 
 /**
- * @brief CommentServer::resolveFunctionCall
+ * @brief Resolves a function call at the specified address and returns a comment string.
  *
- * @param address
- * @return
+ * @param address The address of the function call to resolve.
+ * @return A Result containing the comment string if successful, or an error message if failed.
  */
 Result<QString, QString> CommentServer::resolveFunctionCall(edb::address_t address) const {
 
@@ -75,10 +75,10 @@ Result<QString, QString> CommentServer::resolveFunctionCall(edb::address_t addre
 }
 
 /**
- * @brief CommentServer::resolveString
+ * @brief Resolves a string at the specified address and returns a comment string.
  *
- * @param address
- * @return
+ * @param address The address of the string to resolve.
+ * @return A Result containing the comment string if successful, or an error message if failed.
  */
 Result<QString, QString> CommentServer::resolveString(edb::address_t address) const {
 
@@ -100,11 +100,11 @@ Result<QString, QString> CommentServer::resolveString(edb::address_t address) co
 }
 
 /**
- * @brief CommentServer::comment
+ * @brief Gets the comment for the specified address and size.
  *
- * @param address
- * @param size
- * @return
+ * @param address The address to get the comment for.
+ * @param size The size of the data at the address.
+ * @return The comment for the specified address, or an empty string if no comment is found.
  */
 QString CommentServer::comment(edb::address_t address, int size) const {
 

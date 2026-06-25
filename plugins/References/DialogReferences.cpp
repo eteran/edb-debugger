@@ -22,10 +22,10 @@ enum Role {
 };
 
 /**
- * @brief DialogReferences::DialogReferences
+ * @brief Constructor for the DialogReferences class.
  *
- * @param parent
- * @param f
+ * @param parent The parent widget for the dialog.
+ * @param f The window flags for the dialog.
  */
 DialogReferences::DialogReferences(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
@@ -47,7 +47,9 @@ DialogReferences::DialogReferences(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief DialogReferences::showEvent
+ * @brief Handles the show event for the dialog.
+ *
+ * @param event The show event.
  */
 void DialogReferences::showEvent(QShowEvent *) {
 	ui.listWidget->clear();
@@ -55,7 +57,7 @@ void DialogReferences::showEvent(QShowEvent *) {
 }
 
 /**
- * @brief DialogReferences::doFind
+ * @brief Performs the search for references based on the address entered in the dialog.
  */
 void DialogReferences::doFind() {
 	bool ok = false;
@@ -159,11 +161,9 @@ void DialogReferences::doFind() {
 }
 
 /**
- * @brief DialogReferences::on_listWidget_itemDoubleClicked
+ * @brief Handles the event when an item in the list widget is double-clicked. Depending on the type of the item, it either dumps data at the address or jumps to that address.
  *
- * follows the found item in the data view
- *
- * @param item
+ * @param item The list widget item that was double-clicked.
  */
 void DialogReferences::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
 	const edb::address_t addr = item->data(AddressRole).toULongLong();

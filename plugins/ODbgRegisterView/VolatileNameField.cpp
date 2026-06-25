@@ -12,7 +12,7 @@ namespace ODbgRegisterView {
  * @brief Constructs a VolatileNameField with the specified field width, value formatter, parent widget, and window flags.
  *
  * @param fieldWidth The width of the field.
- * @param valueFormatter A function that returns the formatted value as a QString.
+ * @param valueFormatter A function that returns the formatted value.
  * @param parent The parent widget (default is nullptr).
  * @param f The window flags (default is Qt::WindowFlags()).
  */
@@ -23,7 +23,7 @@ VolatileNameField::VolatileNameField(int fieldWidth, std::function<QString()> va
 /**
  * @brief Returns the text representation of the volatile name field by invoking the value formatter function.
  *
- * @return The formatted text as a QString.
+ * @return The formatted text.
  */
 QString VolatileNameField::text() const {
 	return valueFormatter();
