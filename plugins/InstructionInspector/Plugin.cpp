@@ -45,12 +45,12 @@ namespace {
 struct NormalizeFailure {};
 
 /**
- * @brief printBytes
+ * @brief Prints the bytes of a given memory region in hexadecimal format.
  *
- * @param ptr
- * @param size
- * @param printZeros
- * @return
+ * @param ptr Pointer to the memory region.
+ * @param size Size of the memory region in bytes.
+ * @param printZeros Indicates whether to print zero bytes (true) or skip them (false).
+ * @return A string representation of the bytes in hexadecimal format.
  */
 std::string printBytes(const void *ptr, std::size_t size, bool printZeros = true) {
 
@@ -72,11 +72,11 @@ std::string printBytes(const void *ptr, std::size_t size, bool printZeros = true
 }
 
 /**
- * @brief toHex
+ * @brief Converts a number to a hexadecimal string.
  *
- * @param x
- * @param Signed
- * @return
+ * @param x The number to convert.
+ * @param Signed Indicates whether the number is signed.
+ * @return The hexadecimal string representation of the number.
  */
 std::string toHex(unsigned long long x, bool Signed = false) {
 	bool negative = false;
@@ -96,10 +96,10 @@ std::string toHex(unsigned long long x, bool Signed = false) {
 
 #if defined(EDB_ARM32)
 /**
- * @brief toFloatString
+ * @brief Converts a floating-point number to a string.
  *
- * @param x
- * @return
+ * @param x The floating-point number to convert.
+ * @return The string representation of the floating-point number.
  */
 std::string toFloatString(double x) {
 	std::ostringstream str;
@@ -110,10 +110,10 @@ std::string toFloatString(double x) {
 #endif
 
 /**
- * @brief uppercase
+ * @brief Converts a string to uppercase.
  *
- * @param text
- * @return
+ * @param text The string to convert.
+ * @return The uppercase version of the string.
  */
 std::string uppercase(std::string text) {
 	std::transform(text.begin(), text.end(), text.begin(), [](int ch) { return std::toupper(ch); });
@@ -121,11 +121,11 @@ std::string uppercase(std::string text) {
 }
 
 /**
- * @brief getGroupNames
+ * @brief Gets the names of the groups to which an instruction belongs.
  *
- * @param csh
- * @param insn_
- * @return
+ * @param csh The Capstone handle.
+ * @param insn_ The instruction for which to get group names.
+ * @return A vector of strings representing the group names.
  */
 std::vector<std::string> getGroupNames(csh csh, const cs_insn *insn_) {
 
@@ -149,12 +149,12 @@ std::vector<std::string> getGroupNames(csh csh, const cs_insn *insn_) {
 }
 
 /**
- * @brief printReg
+ * @brief Prints the name of a register in uppercase.
  *
- * @param csh
- * @param reg
- * @param canBeZero
- * @return
+ * @param csh The Capstone handle.
+ * @param reg The register to print.
+ * @param canBeZero Indicates whether the register can be zero.
+ * @return The uppercase name of the register or an error message.
  */
 std::string printReg(csh csh, int reg, bool canBeZero = false) {
 	if (!reg) {
@@ -170,12 +170,12 @@ std::string printReg(csh csh, int reg, bool canBeZero = false) {
 
 #if 0
 /**
- * @brief printRegs
+ * @brief Prints the names of registers in a buffer.
  *
- * @param csh
- * @param regsBuffer
- * @param size
- * @return
+ * @param csh The Capstone handle.
+ * @param regsBuffer Pointer to the buffer containing register IDs.
+ * @param size The number of registers in the buffer.
+ * @return A string representation of the register names, separated by commas.
  */
 std::string printRegs(csh csh, const uint16_t *regsBuffer, std::size_t size) {
 
@@ -200,10 +200,10 @@ std::string printRegs(csh csh, const uint16_t *regsBuffer, std::size_t size) {
 
 #if CS_API_MAJOR >= 4
 /**
- * @brief printXOP_CC
+ * @brief Prints the name of an XOP condition code.
  *
- * @param cc
- * @return
+ * @param cc The XOP condition code to print.
+ * @return A string representation of the XOP condition code.
  */
 std::string printXOP_CC(x86_xop_cc cc) {
 	static const std::map<x86_xop_cc, const char *> codes{
@@ -227,10 +227,10 @@ std::string printXOP_CC(x86_xop_cc cc) {
 #endif
 
 /**
- * @brief printSSE_CC
+ * @brief Prints the name of a SSE condition code.
  *
- * @param cc
- * @return
+ * @param cc The SSE condition code to print.
+ * @return A string representation of the SSE condition code.
  */
 std::string printSSE_CC(x86_sse_cc cc) {
 	static const std::map<x86_sse_cc, const char *> codes{
@@ -254,10 +254,10 @@ std::string printSSE_CC(x86_sse_cc cc) {
 }
 
 /**
- * @brief printAVX_CC
+ * @brief Prints the name of an AVX condition code.
  *
- * @param cc
- * @return
+ * @param cc The AVX condition code to print.
+ * @return A string representation of the AVX condition code.
  */
 std::string printAVX_CC(x86_avx_cc cc) {
 
@@ -306,10 +306,10 @@ std::string printAVX_CC(x86_avx_cc cc) {
 }
 
 /**
- * @brief printAVX_RM
+ * @brief Prints the name of an AVX rounding mode.
  *
- * @param cc
- * @return
+ * @param cc The AVX rounding mode to print.
+ * @return A string representation of the AVX rounding mode.
  */
 std::string printAVX_RM(x86_avx_rm cc) {
 	static const std::map<x86_avx_rm, const char *> codes{
@@ -330,10 +330,10 @@ std::string printAVX_RM(x86_avx_rm cc) {
 
 #if CS_API_MAJOR >= 4
 /**
- * @brief getChangedEFLAGSNames
+ * @brief Gets the names of the changed EFLAGS based on the provided EFLAGS value.
  *
- * @param efl
- * @return
+ * @param efl The EFLAGS value to analyze.
+ * @return A vector of strings representing the names of the changed EFLAGS.
  */
 std::vector<std::string> getChangedEFLAGSNames(std::uint64_t efl) {
 	std::vector<std::string> flags;
@@ -532,10 +532,10 @@ std::vector<std::string> getChangedEFLAGSNames(std::uint64_t efl) {
 
 #if defined(EDB_ARM32)
 /**
- * @brief printCond
+ * @brief Formats an ARM condition code into a human-readable string.
  *
- * @param cc
- * @return
+ * @param cc The Capstone handle.
+ * @return A string representation of the ARM condition code.
  */
 std::string printCond(arm_cc cc) {
 	static const std::map<arm_cc, const char *> types{
@@ -566,10 +566,10 @@ std::string printCond(arm_cc cc) {
 #endif
 
 /**
- * @brief printOpType
+ * @brief Prints the type of an x86 operand.
  *
- * @param op
- * @return
+ * @param op The x86 operand type to print.
+ * @return A string representation of the x86 operand type.
  */
 std::string printOpType(const x86_op_type &op) {
 
@@ -589,10 +589,10 @@ std::string printOpType(const x86_op_type &op) {
 
 #if defined(EDB_ARM32)
 /**
- * @brief printShiftType
+ * @brief Prints the type of an ARM shifter operand.
  *
- * @param op
- * @return
+ * @param op The ARM shifter operand type to print.
+ * @return A string representation of the ARM shifter operand type.
  */
 std::string printShiftType(const arm_shifter &op) {
 
@@ -618,10 +618,10 @@ std::string printShiftType(const arm_shifter &op) {
 }
 
 /**
- * @brief printOpType
+ * @brief Prints the type of an ARM SETEND operand.
  *
- * @param op
- * @return
+ * @param op The ARM SETEND operand type to print.
+ * @return A string representation of the ARM SETEND operand type.
  */
 std::string printOpType(const arm_setend_type &op) {
 
@@ -639,10 +639,10 @@ std::string printOpType(const arm_setend_type &op) {
 }
 
 /**
- * @brief printOpType
+ * @brief Prints the type of an ARM operand.
  *
- * @param op
- * @return
+ * @param op The ARM operand type to print.
+ * @return A string representation of the ARM operand type.
  */
 std::string printOpType(const arm_op_type &op) {
 
@@ -667,10 +667,10 @@ std::string printOpType(const arm_op_type &op) {
 #endif
 
 /**
- * @brief printAVX_Bcast
+ * @brief Prints the type of an AVX broadcast operand.
  *
- * @param bc
- * @return
+ * @param bc The AVX broadcast operand type to print.
+ * @return A string representation of the AVX broadcast operand type.
  */
 std::string printAVX_Bcast(x86_avx_bcast bc) {
 
@@ -690,10 +690,10 @@ std::string printAVX_Bcast(x86_avx_bcast bc) {
 
 #if CS_API_MAJOR >= 4
 /**
- * @brief printAccessMode
+ * @brief Prints the access mode of an instruction.
  *
- * @param mode
- * @return
+ * @param mode The access mode to print.
+ * @return A string representation of the access mode, including read and write permissions.
  */
 std::string printAccessMode(unsigned mode) {
 	std::ostringstream str;
@@ -731,11 +731,11 @@ std::string printAccessMode(unsigned mode) {
 #endif
 
 /**
- * @brief normalizeOBJDUMP
+ * @brief Normalizes the output of the OBJDUMP command for a given instruction.
  *
- * @param text
- * @param bits
- * @return
+ * @param text The output text from the OBJDUMP command.
+ * @param bits The number of bits (32 or 64) for the architecture.
+ * @return A normalized string representation of the instruction, including address, bytes, and disassembly.
  */
 QString normalizeOBJDUMP(const QString &text, int bits) {
 	auto parts = text.split('\t');
@@ -773,11 +773,11 @@ QString normalizeOBJDUMP(const QString &text, int bits) {
 }
 
 /**
- * @brief runOBJDUMP
+ * @brief Runs the OBJDUMP command on a given set of bytes and an address, and returns the disassembly output.
  *
- * @param bytes
- * @param address
- * @return
+ * @param bytes A vector of bytes representing the binary data to disassemble.
+ * @param address The starting address for the disassembly.
+ * @return A string containing the disassembly output or an error message if the command fails.
  */
 std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t address) {
 
@@ -856,11 +856,11 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 /**
- * @brief normalizeNDISASM
+ * @brief Normalizes the output of the NDISASM command for a given instruction.
  *
- * @param text
- * @param bits
- * @return
+ * @param text The output text from the NDISASM command.
+ * @param bits The number of bits (32 or 64) for the architecture.
+ * @return A normalized string representation of the instruction, including address, bytes, and disassembly.
  */
 QString normalizeNDISASM(const QString &text, int bits) {
 
@@ -894,11 +894,11 @@ QString normalizeNDISASM(const QString &text, int bits) {
 }
 
 /**
- * @brief runNDISASM
+ * @brief Runs the NDISASM command on a given set of bytes and an address, and returns the disassembly output.
  *
- * @param bytes
- * @param address
- * @return
+ * @param bytes A vector of bytes representing the binary data to disassemble.
+ * @param address The starting address for the disassembly.
+ * @return A string containing the disassembly output or an error message if the command fails.
  */
 std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t address) {
 
@@ -951,11 +951,11 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 }
 
 /**
- * @brief normalizeOBJCONV
+ * @brief Normalizes the output of the OBJCONV command for a given instruction.
  *
- * @param text
- * @param bits
- * @return
+ * @param text The output text from the OBJCONV command.
+ * @param bits The number of bits (32 or 64) for the architecture.
+ * @return A pair containing a normalized string representation of the instruction and the instruction length in bytes.
  */
 std::pair<QString, std::size_t /*insnLength*/> normalizeOBJCONV(const QString &text, int bits) {
 
@@ -975,11 +975,11 @@ std::pair<QString, std::size_t /*insnLength*/> normalizeOBJCONV(const QString &t
 }
 
 /**
- * @brief runOBJCONV
+ * @brief Runs the OBJCONV command on a given set of bytes and an address, and returns the disassembly output.
  *
- * @param bytes
- * @param address
- * @return
+ * @param bytes A vector of bytes representing the binary data to disassemble.
+ * @param address The starting address for the disassembly.
+ * @return A string containing the disassembly output or an error message if the command fails.
  */
 std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) {
 	const std::string processName = "objconv";
@@ -1325,9 +1325,9 @@ public:
 };
 
 /**
- * @brief Plugin::Plugin
+ * @brief Constructor for the Plugin class, which initializes the plugin and sets up the menu action for inspecting instructions using Capstone.
  *
- * @param parent
+ * @param parent The parent QObject for the plugin.
  */
 Plugin::Plugin(QObject *parent)
 	: QObject(parent), menuAction_(new QAction("Inspect instruction (Capstone info)", this)) {
@@ -1338,28 +1338,28 @@ Plugin::Plugin(QObject *parent)
 }
 
 /**
- * @brief Plugin::menu
+ * @brief Returns the menu for the plugin, which is currently not implemented and returns nullptr.
  *
- * @return
+ * @return A pointer to the QMenu for the plugin, or nullptr if not implemented.
  */
 QMenu *Plugin::menu(QWidget *) {
 	return nullptr;
 }
 
 /**
- * @brief Plugin::cpuContextMenu
+ * @brief Returns the context menu actions for the CPU context, which includes the action to inspect instructions using Capstone.
  *
- * @return
+ * @return A list of QAction pointers for the CPU context menu.
  */
 QList<QAction *> Plugin::cpuContextMenu() {
 	return {menuAction_};
 }
 
 /**
- * @brief InstructionDialog::InstructionDialog
+ * @brief Constructor for the InstructionDialog class.
  *
- * @param parent
- * @param f
+ * @param parent The parent widget for the dialog.
+ * @param f Window flags for the dialog.
  */
 InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
@@ -1616,7 +1616,8 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 }
 
 /**
- * @brief InstructionDialog::compareDisassemblers
+ * @brief Compares the disassembly output from different disassemblers (Capstone, NDISASM, OBJDUMP, and OBJCONV)
+ * for the instruction at the selected address and displays the results in a text browser within the dialog.
  */
 void InstructionDialog::compareDisassemblers() {
 
@@ -1666,14 +1667,14 @@ void InstructionDialog::compareDisassemblers() {
 }
 
 /**
- * @brief InstructionDialog::~InstructionDialog
+ * @brief Destructor for the InstructionDialog class, which cleans up the disassembler instance.
  */
 InstructionDialog::~InstructionDialog() {
 	delete disassembler_;
 }
 
 /**
- * @brief Plugin::showDialog
+ * @brief Shows the instruction inspector dialog, handling any initialization failures of the disassembler and displaying error messages if necessary.
  */
 void Plugin::showDialog() const {
 	try {
