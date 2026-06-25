@@ -21,7 +21,6 @@
 #include <QSettings>
 #include <QTemporaryFile>
 #include <QTextDocument>
-#include <QXmlQuery>
 
 #ifdef Q_OS_UNIX
 #include <sys/types.h>
@@ -33,47 +32,43 @@ namespace AssemblerPlugin {
 namespace {
 
 /**
- * @brief Returns an HTML-escaped copy of the given string.
- *
- * @param str
- * @return
- */
-QString escape_html(const QString &str) {
-	return str.toHtmlEscaped();
-}
-
-/**
  * @brief Loads and returns the XML description for the currently configured assembler helper.
  *
- * @return
+ * @return The assembler description, or an empty document if the description could not be loaded.
  */
 QDomDocument assembler_description() {
-
 	const QString assembler = QSettings().value("Assembler/helper", "yasm").toString();
 
 	QFile file(":/debugger/Assembler/xml/assemblers.xml");
-	if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-
-		QXmlQuery query;
-		QString assembler_xml;
-		query.setFocus(&file);
-		query.setQuery(QStringLiteral("assemblers/assembler[@name='%1']").arg(escape_html(assembler)));
-		if (query.isValid()) {
-			query.evaluateTo(&assembler_xml);
-		}
-
-		QDomDocument xml;
-		xml.setContent(assembler_xml);
-		return xml;
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		return {};
 	}
+
+	QDomDocument doc;
+	if (!doc.setContent(&file)) {
+		return {};
+	}
+
+	// Find: assemblers/assembler[@name="..."]
+	const QDomNodeList assemblers = doc.elementsByTagName("assembler");
+	for (int i = 0; i < assemblers.size(); ++i) {
+		const QDomElement el = assemblers.at(i).toElement();
+		if (el.attribute("name") == assembler) {
+			// Wrap the matched element in a new QDomDocument
+			QDomDocument out;
+			out.appendChild(out.importNode(el, true));
+			return out;
+		}
+	}
+
 	return {};
 }
 
 /**
  * @brief Translates operand size keywords in an instruction string to the syntax expected by the active assembler.
  *
- * @param insn
- * @return
+ * @param insn The instruction string to fix up.
+ * @return The instruction with fixed syntax, or the original if no changes were made.
  */
 QString fixup_syntax(QString insn) {
 
@@ -158,6 +153,9 @@ void DialogAssembler::on_buttonBox_accepted() {
 		if (!asm_root.isNull()) {
 			QDomElement asm_executable = asm_root.firstChildElement("executable");
 			QDomElement asm_template   = asm_root.firstChildElement("template");
+
+			qDebug() << "ASM ROOT: " << asm_root.attribute("name") << asm_executable.attribute("command_line") << asm_template.text();
+
 #if defined(EDB_ARM32)
 			const auto mode = core->cpuMode();
 			while (mode == IDebugger::CpuMode::ARM32 && asm_template.attribute("mode") != "arm" ||

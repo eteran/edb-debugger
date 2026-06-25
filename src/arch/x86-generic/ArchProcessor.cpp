@@ -24,7 +24,6 @@
 #include <QFile>
 #include <QVector>
 #include <QWidget>
-#include <QXmlQuery>
 
 #include <array>
 #include <cctype>
@@ -855,39 +854,91 @@ void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
 }
 
 /**
- * @brief
+ * @brief Lookup the syscall XML for the given instruction and register value.
+ * @param state The current state of the CPU registers.
+ * @param inst The instruction being analyzed.
+ * @param ret A list to store the analysis results.
+ * @param regAX The value of the AX register, which contains the syscall number.
+ * @return A QDomDocument containing the matched syscall information, or an empty document if not found.
  */
-void analyze_syscall(const State &state, const edb::Instruction &inst, QStringList &ret, std::uint64_t regAX) {
+QDomDocument lookup_syscall_xml([[maybe_unused]] const State &state,
+								const edb::Instruction &inst,
+								QStringList &ret,
+								std::uint64_t regAX) {
 	Q_UNUSED(inst)
 	Q_UNUSED(ret)
-	Q_UNUSED(state)
 
 #ifdef Q_OS_LINUX
-	const bool isX32 = regAX & __X32_SYSCALL_BIT;
 	regAX &= ~__X32_SYSCALL_BIT;
 
-	QString syscall_entry;
-	QDomDocument syscall_xml;
 	QFile file(":/debugger/xml/syscalls.xml");
-	if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+		return {};
 
-		QXmlQuery query;
-		query.setFocus(&file);
+	QDomDocument doc;
+	if (!doc.setContent(&file))
+		return {};
 
-		if (debuggeeIs64Bit()) {
-			query.setQuery(QStringLiteral("syscalls[@version='1.0']/linux[@arch='x86-64']/syscall[index=%1]").arg(regAX));
-		} else {
-			query.setQuery(QStringLiteral("syscalls[@version='1.0']/linux[@arch='x86']/syscall[index=%1]").arg(regAX));
+	file.close();
+
+	// Expect: <syscalls version="1.0"> ... </syscalls>
+	QDomElement root = doc.documentElement();
+	if (root.tagName() != "syscalls" || root.attribute("version") != "1.0")
+		return {};
+
+	const QString arch = debuggeeIs64Bit() ? "x86-64" : "x86";
+
+	// Find <linux arch="...">
+	QDomElement linuxEl;
+	for (QDomElement el = root.firstChildElement("linux");
+		 !el.isNull();
+		 el = el.nextSiblingElement("linux")) {
+		if (el.attribute("arch") == arch) {
+			linuxEl = el;
+			break;
 		}
-
-		if (query.isValid()) {
-			query.evaluateTo(&syscall_entry);
-		}
-		file.close();
 	}
 
-	if (!syscall_entry.isEmpty()) {
-		syscall_xml.setContent("" + syscall_entry + "");
+	if (linuxEl.isNull())
+		return {};
+
+	// Find <syscall> whose <index> equals regAX
+	QDomElement matchedSyscall;
+	for (QDomElement sc = linuxEl.firstChildElement("syscall");
+		 !sc.isNull();
+		 sc = sc.nextSiblingElement("syscall")) {
+		QDomElement indexEl = sc.firstChildElement("index");
+		if (!indexEl.isNull() && indexEl.text().toULongLong() == regAX) {
+			matchedSyscall = sc;
+			break;
+		}
+	}
+
+	if (matchedSyscall.isNull())
+		return {};
+
+	// Wrap the matched <syscall> element in its own QDomDocument
+	QDomDocument out;
+	out.appendChild(out.importNode(matchedSyscall, true));
+	return out;
+#endif
+
+	return {};
+}
+
+/**
+ * @brief Analyze a syscall instruction and populate the analysis results.
+ * @param state The current state of the CPU registers.
+ * @param inst The instruction being analyzed.
+ * @param ret A list to store the analysis results.
+ * @param regAX The value of the AX register, which contains the syscall number.
+ */
+void analyze_syscall([[maybe_unused]] const State &state, [[maybe_unused]] const edb::Instruction &inst, [[maybe_unused]] QStringList &ret, [[maybe_unused]] std::uint64_t regAX) {
+#ifdef Q_OS_LINUX
+	const bool isX32         = regAX & __X32_SYSCALL_BIT;
+	QDomDocument syscall_xml = lookup_syscall_xml(state, inst, ret, regAX);
+
+	if (!syscall_xml.isNull()) {
 		QDomElement root = syscall_xml.documentElement();
 
 		QStringList arguments;
@@ -934,8 +985,6 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 
 		ret << ArchProcessor::tr("SYSCALL: %1%2(%3)").arg(isX32 ? "x32:" : "", root.attribute("name"), arguments.join(","));
 	}
-#else
-	Q_UNUSED(regAX)
 #endif
 }
 

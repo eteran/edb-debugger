@@ -13,8 +13,6 @@ BuildRequires:  libappstream-glib
 BuildRequires:  qt5-qtbase-devel
 BuildRequires:  qt5-qtsvg
 BuildRequires:  qt5-qtsvg-devel
-BuildRequires:  qt5-qtxmlpatterns
-BuildRequires:  qt5-qtxmlpatterns-devel
 BuildRequires:  cmake
 BuildRequires:  boost-devel
 BuildRequires:  capstone-devel

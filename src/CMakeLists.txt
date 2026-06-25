@@ -5,7 +5,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 REQUIRED Widgets Xml XmlPatterns Svg LinguistTools)
+find_package(Qt5 REQUIRED Widgets Xml Svg LinguistTools)
 
 qt5_add_translation(QM_FILES
 	# add translation files in /src/res/translations here
@@ -286,7 +286,6 @@ target_link_libraries(edb
 	${CAPSTONE_LIBRARIES}
 	Qt5::Widgets
 	Qt5::Xml
-	Qt5::XmlPatterns
 	Qt5::Svg
 	QHexView
 	${DOUBLE_CONVERSION_LIBRARIES}
