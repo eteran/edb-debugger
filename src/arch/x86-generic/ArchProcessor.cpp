@@ -319,7 +319,7 @@ void resolve_function_parameters_helper(T parameter_registers, const State &stat
 		const qsizetype colon_index = symname.indexOf(prefix);
 
 		if (colon_index != -1) {
-			func_name = symname.left(symname.length() - 2).mid(colon_index + prefix.size());
+			func_name = symname.left(symname.length() - 2).mid(static_cast<int>(colon_index) + prefix.size());
 		}
 
 		// safe not to check for -1, it means 'rest of string' for the mid function

@@ -56,7 +56,7 @@ else()
    endif()
 endif()
 
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 if(DEFINED QT_VERSION_MAJOR)
 	message("Configured With Qt ${QT_VERSION_MAJOR}")
 endif()

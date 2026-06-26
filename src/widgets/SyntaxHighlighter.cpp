@@ -172,19 +172,19 @@ QVector<QTextLayout::FormatRange> SyntaxHighlighter::highlightBlock(const QStrin
 
 		QRegularExpressionMatch match = rule.pattern.match(text);
 
-		int index = match.capturedStart();
+		qsizetype index = match.capturedStart();
 		while (index >= 0) {
 			const int length = match.capturedLength();
 
 			QTextLayout::FormatRange range;
 
 			range.format = rule.format;
-			range.start  = index;
+			range.start  = static_cast<int>(index);
 			range.length = length;
 
 			ranges.push_back(range);
 
-			match = rule.pattern.match(text, index + length);
+			match = rule.pattern.match(text, static_cast<int>(index) + length);
 			index = match.capturedStart();
 		}
 	}
