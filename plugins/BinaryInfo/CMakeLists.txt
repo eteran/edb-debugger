@@ -28,6 +28,6 @@ add_library(${PLUGIN_NAME} SHARED
 	symbols.h
 )
 
-target_link_libraries(${PLUGIN_NAME} Qt5::Widgets PE ELF edb)
+target_link_libraries(${PLUGIN_NAME} Qt${QT_VERSION_MAJOR}::Widgets PE ELF edb)
 
 build_plugin(${PLUGIN_NAME})

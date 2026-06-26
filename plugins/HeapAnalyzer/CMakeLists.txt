@@ -15,6 +15,6 @@ add_library(${PLUGIN_NAME} SHARED
 	ResultViewModel.h
 )
 
-target_link_libraries(${PLUGIN_NAME} Qt5::Widgets Qt5::Concurrent edb)
+target_link_libraries(${PLUGIN_NAME} Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent edb)
 
 build_plugin(${PLUGIN_NAME})

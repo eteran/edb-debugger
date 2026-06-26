@@ -18,6 +18,6 @@ add_library(${PLUGIN_NAME} SHARED
 	ResultsModel.cpp
 )
 
-target_link_libraries(${PLUGIN_NAME} Qt5::Widgets edb)
+target_link_libraries(${PLUGIN_NAME} Qt${QT_VERSION_MAJOR}::Widgets edb)
 
 build_plugin(${PLUGIN_NAME})

@@ -284,9 +284,9 @@ target_compile_definitions(edb PRIVATE -DDEFAULT_PLUGIN_PATH="${DEFAULT_PLUGIN_D
 
 target_link_libraries(edb
 	${CAPSTONE_LIBRARIES}
-	Qt5::Widgets
-	Qt5::Xml
-	Qt5::Svg
+	Qt${QT_VERSION_MAJOR}::Widgets
+	Qt${QT_VERSION_MAJOR}::Xml
+	Qt${QT_VERSION_MAJOR}::Svg
 	QHexView
 	${DOUBLE_CONVERSION_LIBRARIES}
 )

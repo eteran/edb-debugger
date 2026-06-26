@@ -25,6 +25,6 @@ add_library(${PLUGIN_NAME} SHARED
 	OptionsPage.ui
 )
 
-target_link_libraries(${PLUGIN_NAME} Qt5::Widgets Qt5::Xml edb)
+target_link_libraries(${PLUGIN_NAME} Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Xml edb)
 
 build_plugin(${PLUGIN_NAME})

@@ -80,6 +80,6 @@ target_include_directories(${PLUGIN_NAME} PRIVATE
 	${PLUGIN_INCLUDES}
 )
 
-target_link_libraries(${PLUGIN_NAME} Qt5::Widgets edb)
+target_link_libraries(${PLUGIN_NAME} Qt${QT_VERSION_MAJOR}::Widgets edb)
 
 build_plugin(${PLUGIN_NAME})
