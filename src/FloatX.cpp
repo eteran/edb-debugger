@@ -372,10 +372,9 @@ QValidator::State FloatXValidator<Float>::validate(QString &input, int &) const 
 	static const QRegularExpression hexfloatFormat("^[+-]?0x[0-9a-f]*\\.?[0-9a-f]*(p([+-]?[0-9]*)?)?$", QRegularExpression::CaseInsensitiveOption);
 	static const QRegularExpression specialFormatUnfinished("^[+-]?[sq]?(n(an?)?)?|[+-]?(i(nf?)?)?$", QRegularExpression::CaseInsensitiveOption);
 
-
-	const QRegularExpressionMatch match = basicFormat.match(input);
-	const QRegularExpressionMatch matchSpecial = specialFormat.match(input);
-	const QRegularExpressionMatch matchHex = hexfloatFormat.match(input);
+	const QRegularExpressionMatch match                  = basicFormat.match(input);
+	const QRegularExpressionMatch matchSpecial           = specialFormat.match(input);
+	const QRegularExpressionMatch matchHex               = hexfloatFormat.match(input);
 	const QRegularExpressionMatch matchSpecialUnfinished = specialFormatUnfinished.match(input);
 
 	if (matchHex.hasMatch()) {

@@ -52,7 +52,7 @@ QValidator::State HexStringValidator::validate(QString &input, int &pos) const {
 		// as to not have the minor bug in this case?
 
 		const qsizetype char_pos = pos - input.left(pos).count(' ');
-		int chars          = 0;
+		int chars                = 0;
 		fixup(input);
 
 		pos = 0;

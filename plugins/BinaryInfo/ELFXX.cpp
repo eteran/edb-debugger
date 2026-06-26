@@ -136,7 +136,6 @@ ELFXX<ElfHeader>::ELFXX(const std::shared_ptr<IRegion> &region)
 	}
 }
 
-
 /**
  * @brief Returns the size of the ELF header, including the program headers if they immediately follow the ELF header.
  *

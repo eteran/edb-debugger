@@ -77,7 +77,7 @@ QVariant ProcessModel::headerData(int section, Qt::Orientation orientation, int 
  * @param parent The parent index.
  * @return The number of columns in the model.
  */
-int ProcessModel::columnCount(const QModelIndex &/*parent*/) const {
+int ProcessModel::columnCount(const QModelIndex & /*parent*/) const {
 	return 3;
 }
 

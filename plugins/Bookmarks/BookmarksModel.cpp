@@ -187,7 +187,7 @@ QModelIndex BookmarksModel::parent(const QModelIndex &index) const {
  * @param parent The parent index.
  * @return The number of bookmarks in the model.
  */
-int BookmarksModel::rowCount(const QModelIndex &/*parent*/) const {
+int BookmarksModel::rowCount(const QModelIndex & /*parent*/) const {
 	return static_cast<int>(bookmarks_.size());
 }
 
@@ -197,7 +197,7 @@ int BookmarksModel::rowCount(const QModelIndex &/*parent*/) const {
  * @param parent The parent index.
  * @return The number of columns in the model.
  */
-int BookmarksModel::columnCount(const QModelIndex &/*parent*/) const {
+int BookmarksModel::columnCount(const QModelIndex & /*parent*/) const {
 	return 3;
 }
 

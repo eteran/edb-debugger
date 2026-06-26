@@ -93,11 +93,11 @@ QVariant ThreadsModel::headerData(int section, Qt::Orientation orientation, int 
 	return QVariant();
 }
 
-int ThreadsModel::columnCount(const QModelIndex &/*parent*/) const {
+int ThreadsModel::columnCount(const QModelIndex & /*parent*/) const {
 	return 5;
 }
 
-int ThreadsModel::rowCount(const QModelIndex &/*parent*/) const {
+int ThreadsModel::rowCount(const QModelIndex & /*parent*/) const {
 	return static_cast<int>(items_.size());
 }
 
