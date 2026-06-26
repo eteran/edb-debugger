@@ -56,7 +56,7 @@ else()
    endif()
 endif()
 
-find_package(Qt5Core)
+find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core)
 
 include_directories("include")
 
