@@ -886,7 +886,7 @@ QString normalizeNDISASM(const QString &text, int bits) {
 		}
 
 		line = line.trimmed();
-		bytes += line.rightRef(line.size() - 1); // remove leading '-'
+		bytes += line.right(line.size() - 1); // remove leading '-'
 	}
 
 	bytes.replace(QRegExp("(..)"), "\\1 ");

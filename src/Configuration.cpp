@@ -14,6 +14,7 @@
 #include <QDir>
 #include <QFont>
 #include <QSettings>
+#include <QStandardPaths>
 #include <QtDebug>
 
 #define STRINGIFY(x) #x

@@ -186,7 +186,7 @@ void BinaryString::on_txtHex_textEdited(const QString &text) {
 		utf16Char = (utf16Char << 8) | ch;
 #endif
 
-		textAscii += ch;
+		textAscii += static_cast<char>(ch);
 
 		if (counter++ & 1) {
 			textUTF16 += QChar(utf16Char);
