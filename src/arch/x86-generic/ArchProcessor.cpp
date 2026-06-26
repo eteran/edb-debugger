@@ -22,6 +22,7 @@
 #include <QDebug>
 #include <QDomDocument>
 #include <QFile>
+#include <QRegularExpression>
 #include <QVector>
 #include <QWidget>
 
@@ -315,7 +316,7 @@ void resolve_function_parameters_helper(T parameter_registers, const State &stat
 		// we will always be removing the last 2 chars '+0' from the string as well
 		// as chopping the region prefix we like to prepend to symbols
 		QString func_name;
-		const int colon_index = symname.indexOf(prefix);
+		const qsizetype colon_index = symname.indexOf(prefix);
 
 		if (colon_index != -1) {
 			func_name = symname.left(symname.length() - 2).mid(colon_index + prefix.size());
@@ -606,10 +607,10 @@ QString formatBCD(const edb::value80 &v) {
 
 	auto hex = v.toHexString();
 	// Low bytes which contain 18 digits must be decimal. If not, return the raw hex value.
-	if (hex.mid(2).contains(QRegExp("[A-Fa-f]"))) {
+	if (hex.mid(2).contains(QRegularExpression("[A-Fa-f]"))) {
 		return "0x" + hex;
 	}
-	hex.replace(QRegExp("^..0*"), "");
+	hex.replace(QRegularExpression("^..0*"), "");
 	return (v.negative() ? '-' + hex : hex) + " (BCD)";
 }
 

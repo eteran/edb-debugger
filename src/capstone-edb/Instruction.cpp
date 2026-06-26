@@ -6,7 +6,6 @@
 
 #include "Instruction.h"
 
-#include <QRegExp>
 #include <QRegularExpression>
 #include <QString>
 #include <QStringList>
@@ -416,18 +415,18 @@ QString Formatter::adjustInstructionText(const Instruction &insn) const {
 	operands.replace(" + ", "+");
 	operands.replace(" - ", "-");
 
-	operands.replace(QRegExp("\\bxword "), "tbyte ");
-	operands.replace(QRegExp("(word|byte) ptr "), "\\1 ");
+	operands.replace(QRegularExpression("\\bxword "), "tbyte ");
+	operands.replace(QRegularExpression("(word|byte) ptr "), "\\1 ");
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	if (activeFormatter.options().simplifyRIPRelativeTargets && isX86_64() && (insn->detail->x86.modrm & 0xc7) == 0x05) {
-		QRegExp ripRel("\\brip ?[+-] ?((0x)?[0-9a-fA-F]+)\\b");
+		QRegularExpression ripRel("\\brip ?[+-] ?((0x)?[0-9a-fA-F]+)\\b");
 		operands.replace(ripRel, "rel 0x" + QString::number(insn->detail->x86.disp + insn->address + insn->size, 16));
 	}
 
 	if (insn.operandCount() == 2 && insn->id != X86_INS_MOVZX && insn->id != X86_INS_MOVSX &&
 		((insn[0]->type == X86_OP_REG && insn[1]->type == X86_OP_MEM) || (insn[1]->type == X86_OP_REG && insn[0]->type == X86_OP_MEM))) {
-		operands.replace(QRegExp("(\\b.?(mm)?word|byte)\\b( ptr)? "), "");
+		operands.replace(QRegularExpression("(\\b.?(mm)?word|byte)\\b( ptr)? "), "");
 	}
 #endif
 	return operands;

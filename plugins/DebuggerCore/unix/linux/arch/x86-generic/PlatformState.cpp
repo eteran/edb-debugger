@@ -9,7 +9,7 @@
 #include "Util.h"
 #include "string_hash.h"
 #include <QDebug>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <unordered_map>
 
 namespace DebuggerCorePlugin {

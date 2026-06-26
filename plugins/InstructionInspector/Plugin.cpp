@@ -757,7 +757,7 @@ QString normalizeOBJDUMP(const QString &text, int bits) {
 	// left removes colon
 	addr   = addr.left(addr.size() - 1).rightJustified(bits / 4, '0');
 	bytes  = bytes.trimmed().toUpper();
-	disasm = disasm.trimmed().replace(QRegExp("  +"), " ");
+	disasm = disasm.trimmed().replace(QRegularExpression("  +"), " ");
 
 #if defined(EDB_ARM32)
 	// ARM objdump prints instruction bytes as a word instead of separate bytes. We won't
@@ -824,11 +824,11 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 		}
 
 		const auto output  = QString::fromUtf8(process.readAllStandardOutput()).split('\n');
-		const auto addrStr = address.toHexString().toLower().replace(QRegExp("^0+"), "");
+		const auto addrStr = address.toHexString().toLower().replace(QRegularExpression("^0+"), "");
 
 		QString result;
 		for (auto &line : output) {
-			if (line.contains(QRegExp("^ *" + addrStr + ":\t[^\t]+\t"))) {
+			if (line.contains(QRegularExpression("^ *" + addrStr + ":\t[^\t]+\t"))) {
 				result = line;
 				break;
 			}
@@ -866,7 +866,7 @@ QString normalizeNDISASM(const QString &text, int bits) {
 
 	auto lines = text.split('\n');
 	Q_ASSERT(!lines.isEmpty());
-	auto parts = lines.takeFirst().replace(QRegExp("  +"), "\t").split('\t');
+	auto parts = lines.takeFirst().replace(QRegularExpression("  +"), "\t").split('\t');
 
 	if (parts.size() != 3) {
 		return text + " ; unexpected format 1";
@@ -881,7 +881,7 @@ QString normalizeNDISASM(const QString &text, int bits) {
 
 	// connect the rest of lines to bytes
 	for (auto &line : lines) {
-		if (!line.contains(QRegExp("^ +-[0-9a-fA-F]+$"))) {
+		if (!line.contains(QRegularExpression("^ +-[0-9a-fA-F]+$"))) {
 			return text + " ; unexpected format 2";
 		}
 
@@ -889,7 +889,7 @@ QString normalizeNDISASM(const QString &text, int bits) {
 		bytes += line.right(line.size() - 1); // remove leading '-'
 	}
 
-	bytes.replace(QRegExp("(..)"), "\\1 ");
+	bytes.replace(QRegularExpression("(..)"), "\\1 ");
 	return addr + "   " + bytes.trimmed() + "   " + disasm.trimmed();
 }
 
@@ -934,7 +934,7 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 		QString result = output.takeFirst();
 
 		for (auto &line : output) {
-			if (line.contains(QRegExp("^ +-[0-9a-fA-F]+$"))) {
+			if (line.contains(QRegularExpression("^ +-[0-9a-fA-F]+$"))) {
 				result += "\n" + line;
 			} else {
 				break;
@@ -966,10 +966,10 @@ std::pair<QString, std::size_t /*insnLength*/> normalizeOBJCONV(const QString &t
 
 	const auto addr   = expectedFormat.cap(2).rightJustified(bits / 4, '0');
 	auto bytes        = expectedFormat.cap(3).trimmed();
-	const auto disasm = expectedFormat.cap(1).trimmed().replace(QRegExp("  +"), " ");
+	const auto disasm = expectedFormat.cap(1).trimmed().replace(QRegularExpression("  +"), " ");
 	const auto result = addr + "   " + bytes + "   " + disasm;
 
-	bytes.replace(QRegExp("[^0-9a-fA-F]"), "");
+	bytes.replace(QRegularExpression("[^0-9a-fA-F]"), "");
 	const std::size_t insnLength = bytes.length() / 2;
 	return {result, insnLength};
 }
@@ -1190,19 +1190,19 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 			Instruction,
 		} mode = LookingFor::FunctionBegin;
 
-		const QString addrFormatted          = address.toHexString().toUpper().replace(QRegExp("^0+"), "");
-		const QString addrTruncatedFormatted = (address & UINT32_MAX).toHexString().toUpper().replace(QRegExp("^0+"), "");
+		const QString addrFormatted          = address.toHexString().toUpper().replace(QRegularExpression("^0+"), "");
+		const QString addrTruncatedFormatted = (address & UINT32_MAX).toHexString().toUpper().replace(QRegularExpression("^0+"), "");
 
 		for (const QByteArray &byteString : lines) {
 			const auto line = QString::fromUtf8(byteString);
 			switch (mode) {
 			case LookingFor::FunctionBegin:
-				if (line.contains(QRegExp("^; Instruction set:"))) {
+				if (line.contains(QRegularExpression("^; Instruction set:"))) {
 					result += line + '\n';
 					continue;
 				}
 
-				if (line.contains(QRegExp("^SECTION.* execute"))) {
+				if (line.contains(QRegularExpression("^SECTION.* execute"))) {
 					mode = LookingFor::Instruction;
 					continue;
 				}
@@ -1220,7 +1220,7 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 					result += line + '\n';
 				}
 
-				if (line.contains(QRegExp("  +[^;]+; 0*" + addrFormatted + " _")) || line.contains(QRegExp("  +[^;]+; 0*" + addrTruncatedFormatted + " _"))) { // XXX: objconv truncates all addresses to 32 bits
+				if (line.contains(QRegularExpression("  +[^;]+; 0*" + addrFormatted + " _")) || line.contains(QRegularExpression("  +[^;]+; 0*" + addrTruncatedFormatted + " _"))) { // XXX: objconv truncates all addresses to 32 bits
 					try {
 						QString normalized;
 						std::size_t insnLength;
@@ -1240,7 +1240,7 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 					}
 				}
 
-				if (line.contains(QRegExp("^  +db "))) {
+				if (line.contains(QRegularExpression("^  +db "))) {
 					auto lines = result.split('\n');
 					for (int i = 0; i < result.size(); ++i) {
 						if (lines[i].startsWith("; Instruction set:")) {

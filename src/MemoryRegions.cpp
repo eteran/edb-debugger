@@ -131,16 +131,14 @@ QModelIndex MemoryRegions::parent(const QModelIndex &index) const {
 /**
  * @brief
  */
-int MemoryRegions::rowCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent)
-	return regions_.size();
+int MemoryRegions::rowCount(const QModelIndex &/*parent*/) const {
+	return static_cast<int>(regions_.size());
 }
 
 /**
  * @brief
  */
-int MemoryRegions::columnCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent)
+int MemoryRegions::columnCount(const QModelIndex &/*parent*/) const {
 	return 4;
 }
 

@@ -7,7 +7,7 @@
 #ifndef SYNTAX_HIGHLIGHTER_H_20191119_
 #define SYNTAX_HIGHLIGHTER_H_20191119_
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTextCharFormat>
 #include <QTextLayout>
 #include <QVector>
@@ -30,7 +30,7 @@ private:
 		HighlightingRule() = default;
 		HighlightingRule(const QString &regex, const QTextCharFormat &fmt);
 
-		QRegExp pattern;
+		QRegularExpression pattern;
 		QTextCharFormat format;
 	};
 

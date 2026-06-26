@@ -184,22 +184,20 @@ QModelIndex BookmarksModel::parent(const QModelIndex &index) const {
 /**
  * @brief Returns the number of bookmarks currently stored in the model.
  *
- * @param parent
- * @return
+ * @param parent The parent index.
+ * @return The number of bookmarks in the model.
  */
-int BookmarksModel::rowCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent)
-	return bookmarks_.size();
+int BookmarksModel::rowCount(const QModelIndex &/*parent*/) const {
+	return static_cast<int>(bookmarks_.size());
 }
 
 /**
  * @brief Returns 3, representing the fixed Address, Type, and Comment columns.
  *
- * @param parent
- * @return
+ * @param parent The parent index.
+ * @return The number of columns in the model.
  */
-int BookmarksModel::columnCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent)
+int BookmarksModel::columnCount(const QModelIndex &/*parent*/) const {
 	return 3;
 }
 

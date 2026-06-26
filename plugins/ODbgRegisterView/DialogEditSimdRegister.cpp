@@ -19,7 +19,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QRadioButton>
-#include <QRegExp>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 #include <cstring>
