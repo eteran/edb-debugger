@@ -23,7 +23,11 @@ void Float80Edit::setValue(edb::value80 input) {
 QSize Float80Edit::sizeHint() const {
 	const auto baseHint = QLineEdit::sizeHint();
 	// Default size hint gives space for about 15-20 chars. We need about 30.
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	return QSize(baseHint.width() * 2, baseHint.height());
+#else
 	return QSize(baseHint.width() * 2, baseHint.height()).expandedTo(QApplication::globalStrut());
+#endif
 }
 
 void Float80Edit::focusOutEvent(QFocusEvent *e) {

@@ -25,10 +25,7 @@ SyntaxHighlighter::SyntaxHighlighter(QObject *parent)
  * @param format The text format to apply.
  */
 SyntaxHighlighter::HighlightingRule::HighlightingRule(const QString &regex, const QTextCharFormat &fmt)
-	: pattern(regex) {
-
-	pattern.setCaseSensitivity(Qt::CaseInsensitive);
-	format = fmt;
+	: pattern(regex, QRegularExpression::CaseInsensitiveOption), format(fmt) {
 }
 
 /**
@@ -172,9 +169,12 @@ QVector<QTextLayout::FormatRange> SyntaxHighlighter::highlightBlock(const QStrin
 	QVector<QTextLayout::FormatRange> ranges;
 
 	for (const HighlightingRule &rule : rules_) {
-		int index = rule.pattern.indexIn(text);
+
+		QRegularExpressionMatch match = rule.pattern.match(text);
+
+		int index = match.capturedStart();
 		while (index >= 0) {
-			const int length = rule.pattern.matchedLength();
+			const int length = match.capturedLength();
 
 			QTextLayout::FormatRange range;
 
@@ -184,7 +184,8 @@ QVector<QTextLayout::FormatRange> SyntaxHighlighter::highlightBlock(const QStrin
 
 			ranges.push_back(range);
 
-			index = rule.pattern.indexIn(text, index + length);
+			match = rule.pattern.match(text, index + length);
+			index = match.capturedStart();
 		}
 	}
 

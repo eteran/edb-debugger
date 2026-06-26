@@ -959,14 +959,15 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
  */
 std::pair<QString, std::size_t /*insnLength*/> normalizeOBJCONV(const QString &text, int bits) {
 
-	QRegExp expectedFormat("^ +([^;]+); ([0-9a-fA-F]+) _ (.*)");
-	if (expectedFormat.indexIn(text, 0) == -1) {
+	static const QRegularExpression expectedFormat("^ +([^;]+); ([0-9a-fA-F]+) _ (.*)");
+	const QRegularExpressionMatch expectedMatch = expectedFormat.match(text);
+	if (!expectedMatch.hasMatch()) {
 		throw NormalizeFailure{};
 	}
 
-	const auto addr   = expectedFormat.cap(2).rightJustified(bits / 4, '0');
-	auto bytes        = expectedFormat.cap(3).trimmed();
-	const auto disasm = expectedFormat.cap(1).trimmed().replace(QRegularExpression("  +"), " ");
+	const auto addr   = expectedMatch.captured(2).rightJustified(bits / 4, '0');
+	auto bytes        = expectedMatch.captured(3).trimmed();
+	const auto disasm = expectedMatch.captured(1).trimmed().replace(QRegularExpression("  +"), " ");
 	const auto result = addr + "   " + bytes + "   " + disasm;
 
 	bytes.replace(QRegularExpression("[^0-9a-fA-F]"), "");

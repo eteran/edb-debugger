@@ -933,7 +933,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 		static_assert(std::is_trivially_copyable_v<QChar>, "Can't copy string of QChar to shared memory");
 #endif
 		QString error = status.error();
-		std::memcpy(sharedMem, error.constData(), std::min(sizeof(QChar) * error.size(), SharedMemSize - sizeof(QChar) /*prevent overwriting of last null*/));
+		std::memcpy(sharedMem, error.constData(), std::min<uint64_t>(sizeof(QChar) * error.size(), SharedMemSize - sizeof(QChar) /*prevent overwriting of last null*/));
 
 		// we should never get here!
 		abort();

@@ -924,9 +924,10 @@ Register PlatformState::value(const QString &reg) const {
 	}
 
 	if (x86.gpr32Filled) {
-		QRegExp DRx("^dr([0-7])$");
-		if (DRx.indexIn(regName) != -1) {
-			QChar digit = DRx.cap(1).at(0);
+		static const QRegularExpression DRx("^dr([0-7])$");
+		const QRegularExpressionMatch match = DRx.match(regName);
+		if (match.hasMatch()) {
+			QChar digit = match.captured(1).at(0);
 			assert(digit.isDigit());
 			char digitChar = digit.toLatin1();
 			size_t i       = digitChar - '0';
@@ -941,9 +942,10 @@ Register PlatformState::value(const QString &reg) const {
 	}
 
 	if (x87.filled) {
-		QRegExp Rx("^r([0-7])$");
-		if (Rx.indexIn(regName) != -1) {
-			QChar digit = Rx.cap(1).at(0);
+		static const QRegularExpression Rx("^r([0-7])$");
+		const QRegularExpressionMatch match = Rx.match(regName);
+		if (match.hasMatch()) {
+			QChar digit = match.captured(1).at(0);
 			assert(digit.isDigit());
 			char digitChar = digit.toLatin1();
 			size_t i       = digitChar - '0';
@@ -953,9 +955,10 @@ Register PlatformState::value(const QString &reg) const {
 	}
 
 	if (x87.filled) {
-		QRegExp STx("^st\\(?([0-7])\\)?$");
-		if (STx.indexIn(regName) != -1) {
-			QChar digit = STx.cap(1).at(0);
+		static const QRegularExpression STx("^st\\(?([0-7])\\)?$");
+		const QRegularExpressionMatch match = STx.match(regName);
+		if (match.hasMatch()) {
+			QChar digit = match.captured(1).at(0);
 			assert(digit.isDigit());
 			char digitChar = digit.toLatin1();
 			size_t i       = digitChar - '0';
@@ -997,9 +1000,10 @@ Register PlatformState::value(const QString &reg) const {
 	}
 
 	if (x87.filled) {
-		QRegExp MMx("^mm([0-7])$");
-		if (MMx.indexIn(regName) != -1) {
-			QChar digit = MMx.cap(1).at(0);
+		static const QRegularExpression MMx("^mm([0-7])$");
+		const QRegularExpressionMatch match = MMx.match(regName);
+		if (match.hasMatch()) {
+			QChar digit = match.captured(1).at(0);
 			assert(digit.isDigit());
 			char digitChar = digit.toLatin1();
 			size_t i       = digitChar - '0';
@@ -1009,10 +1013,11 @@ Register PlatformState::value(const QString &reg) const {
 	}
 
 	if (avx.xmmFilledIA32) {
-		QRegExp XMMx("^xmm([0-9]|1[0-5])$");
-		if (XMMx.indexIn(regName) != -1) {
+		static const QRegularExpression XMMx("^xmm([0-9]|1[0-5])$");
+		const QRegularExpressionMatch match = XMMx.match(regName);
+		if (match.hasMatch()) {
 			bool ok  = false;
-			size_t i = XMMx.cap(1).toUShort(&ok);
+			size_t i = match.captured(1).toUShort(&ok);
 			assert(ok);
 			if (i >= IA32_XMM_REG_COUNT && !avx.xmmFilledAMD64) {
 				return Register();
@@ -1025,10 +1030,11 @@ Register PlatformState::value(const QString &reg) const {
 	}
 
 	if (avx.ymmFilled) {
-		QRegExp YMMx("^ymm([0-9]|1[0-5])$");
-		if (YMMx.indexIn(regName) != -1) {
+		static const QRegularExpression YMMx("^ymm([0-9]|1[0-5])$");
+		const QRegularExpressionMatch match = YMMx.match(regName);
+		if (match.hasMatch()) {
 			bool ok  = false;
-			size_t i = YMMx.cap(1).toUShort(&ok);
+			size_t i = match.captured(1).toUShort(&ok);
 			assert(ok);
 			if (ymmIndexValid(i)) { // May be invalid but legitimate for a disassembler: e.g. YMM13 but 32 bit mode
 				return make_Register(regName, avx.ymm(i), Register::TYPE_SIMD);
@@ -1331,9 +1337,10 @@ void PlatformState::setRegister(const Register &reg) {
 	{
 		// TODO(eteran): these memcpy's which have the size set to the SOURCE and
 		// not the dest look suspicious/potentially dangerous
-		QRegExp MMx("^mm([0-7])$");
-		if (MMx.indexIn(regName) != -1) {
-			QChar digit = MMx.cap(1).at(0);
+		static const QRegularExpression MMx("^mm([0-7])$");
+		const QRegularExpressionMatch match = MMx.match(regName);
+		if (match.hasMatch()) {
+			QChar digit = match.captured(1).at(0);
 			assert(digit.isDigit());
 			char digitChar = digit.toLatin1();
 			size_t i       = digitChar - '0';
@@ -1349,9 +1356,9 @@ void PlatformState::setRegister(const Register &reg) {
 	}
 
 	{
-		QRegExp Rx("^r([0-7])$");
-		if (Rx.indexIn(regName) != -1) {
-			QChar digit = Rx.cap(1).at(0);
+		static const QRegularExpression Rx("^r([0-7])$");
+		if (Rx.match(regName).hasMatch()) {
+			QChar digit = Rx.match(regName).captured(1).at(0);
 			assert(digit.isDigit());
 			char digitChar = digit.toLatin1();
 			size_t i       = digitChar - '0';
@@ -1363,9 +1370,9 @@ void PlatformState::setRegister(const Register &reg) {
 	}
 
 	{
-		QRegExp Rx("^st\\(?([0-7])\\)?$");
-		if (Rx.indexIn(regName) != -1) {
-			QChar digit = Rx.cap(1).at(0);
+		static const QRegularExpression Rx("^st\\(?([0-7])\\)?$");
+		if (Rx.match(regName).hasMatch()) {
+			QChar digit = Rx.match(regName).captured(1).at(0);
 			assert(digit.isDigit());
 			char digitChar = digit.toLatin1();
 			size_t i       = digitChar - '0';
@@ -1377,11 +1384,12 @@ void PlatformState::setRegister(const Register &reg) {
 	}
 
 	{
-		QRegExp XMMx("^xmm([12]?[0-9]|3[01])$");
-		if (XMMx.indexIn(regName) != -1) {
+		static const QRegularExpression XMMx("^xmm([12]?[0-9]|3[01])$");
+		const QRegularExpressionMatch match = XMMx.match(regName);
+		if (match.hasMatch()) {
 			const auto value = reg.value<edb::value128>();
 			bool indexReadOK = false;
-			size_t i         = XMMx.cap(1).toInt(&indexReadOK);
+			size_t i         = match.captured(1).toInt(&indexReadOK);
 			assert(indexReadOK && xmmIndexValid(i));
 
 			avx.zmmStorage[i].load(value);
@@ -1390,11 +1398,12 @@ void PlatformState::setRegister(const Register &reg) {
 	}
 
 	{
-		QRegExp YMMx("^ymm([12]?[0-9]|3[01])$");
-		if (YMMx.indexIn(regName) != -1) {
+		static const QRegularExpression YMMx("^ymm([12]?[0-9]|3[01])$");
+		const QRegularExpressionMatch match = YMMx.match(regName);
+		if (match.hasMatch()) {
 			const auto value = reg.value<edb::value256>();
 			bool indexReadOK = false;
-			size_t i         = YMMx.cap(1).toInt(&indexReadOK);
+			size_t i         = match.captured(1).toInt(&indexReadOK);
 			assert(indexReadOK && ymmIndexValid(i));
 
 			avx.zmmStorage[i].load(value);
@@ -1433,9 +1442,9 @@ void PlatformState::setRegister(const Register &reg) {
 	}
 
 	{
-		QRegExp DRx("^dr([0-7])$");
-		if (DRx.indexIn(regName) != -1) {
-			QChar digit = DRx.cap(1).at(0);
+		static const QRegularExpression DRx("^dr([0-7])$");
+		if (DRx.match(regName).hasMatch()) {
+			QChar digit = DRx.match(regName).captured(1).at(0);
 			assert(digit.isDigit());
 			char digitChar = digit.toLatin1();
 			size_t i       = digitChar - '0';
