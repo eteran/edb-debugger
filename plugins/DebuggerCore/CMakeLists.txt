@@ -3,7 +3,7 @@ include("BuildPlugin")
 
 set(PLUGIN_NAME "DebuggerCore")
 
-find_package(Qt5 REQUIRED Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED Widgets)
 
 set(DebuggerCore_SRCS
 	DebuggerCoreBase.cpp

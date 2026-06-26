@@ -3,7 +3,7 @@ include("BuildPlugin")
 
 set(PLUGIN_NAME "CheckVersion")
 
-find_package(Qt5 REQUIRED Widgets Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED Widgets Network)
 
 add_library(${PLUGIN_NAME} SHARED
 	CheckVersion.cpp

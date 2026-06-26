@@ -3,7 +3,7 @@ include("BuildPlugin")
 
 set(PLUGIN_NAME "BinaryInfo")
 
-find_package(Qt5 REQUIRED Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED Widgets)
 
 add_library(${PLUGIN_NAME} SHARED
 	BinaryInfo.cpp

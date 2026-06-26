@@ -3,7 +3,7 @@ include("BuildPlugin")
 
 set(PLUGIN_NAME "HeapAnalyzer")
 
-find_package(Qt5 REQUIRED Widgets Concurrent)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED Widgets Concurrent)
 
 add_library(${PLUGIN_NAME} SHARED
 	DialogHeap.cpp

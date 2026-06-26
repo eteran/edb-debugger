@@ -3,7 +3,7 @@ include("BuildPlugin")
 
 set(PLUGIN_NAME "Assembler")
 
-find_package(Qt5 REQUIRED Widgets Xml)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED Widgets Xml)
 
 qt5_add_resources(QRC_SOURCES
 	Assembler.qrc
