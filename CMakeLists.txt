@@ -56,9 +56,19 @@ else()
    endif()
 endif()
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+
+find_package(Qt6 COMPONENTS Core)
+if(Qt6_FOUND)
+    set(QT_VERSION_MAJOR 6)
+else()
+    find_package(Qt5 REQUIRED COMPONENTS Core)
+    set(QT_VERSION_MAJOR 5)
+endif()
+
 if(DEFINED QT_VERSION_MAJOR)
 	message("Configured With Qt ${QT_VERSION_MAJOR}")
+else()
+	message(FATAL_ERROR "No compatible version of Qt was found")
 endif()
 
 include_directories("include")

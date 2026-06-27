@@ -7,17 +7,12 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED Widgets Xml Svg LinguistTools)
 
-if(QT_VERSION_MAJOR EQUAL 6)
-	qt6_add_translation(QM_FILES
-		# add translation files in /src/res/translations here
-		res/translations/edb_zh_CN.ts
-	)
-else()
-	qt5_add_translation(QM_FILES
-		# add translation files in /src/res/translations here
-		res/translations/edb_zh_CN.ts
-	)
-endif()
+
+qt_add_translation(QM_FILES
+	# add translation files in /src/res/translations here
+	res/translations/edb_zh_CN.ts
+)
+
 
 # Create translations QRC file - translations.qrc
 set(TRANSLATIONS_QRC "${CMAKE_CURRENT_BINARY_DIR}/translations.qrc")
@@ -31,23 +26,13 @@ endforeach()
 file(APPEND ${TRANSLATIONS_QRC} "\n\t</qresource>\n</RCC>")
 list(APPEND QRC_FILES ${TRANSLATIONS_QRC})
 
-if(QT_VERSION_MAJOR EQUAL 6)
-	qt6_add_resources(QRC_SOURCES
-		res/debugger.qrc
-		res/themes.qrc
-		res/breeze-edb.qrc
-		res/breeze-dark-edb.qrc
-		${TRANSLATIONS_QRC}
-	)
-else()
-	qt5_add_resources(QRC_SOURCES
-		res/debugger.qrc
-		res/themes.qrc
-		res/breeze-edb.qrc
-		res/breeze-dark-edb.qrc
-		${TRANSLATIONS_QRC}
-	)
-endif()
+qt_add_resources(QRC_SOURCES
+	res/debugger.qrc
+	res/themes.qrc
+	res/breeze-edb.qrc
+	res/breeze-dark-edb.qrc
+	${TRANSLATIONS_QRC}
+)
 
 foreach(FILE IN LISTS QRC_SOURCES)
 	set_property(SOURCE ${FILE} PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
@@ -301,9 +286,9 @@ target_compile_definitions(edb PRIVATE -DDEFAULT_PLUGIN_PATH="${DEFAULT_PLUGIN_D
 
 target_link_libraries(edb
 	${CAPSTONE_LIBRARIES}
-	Qt${QT_VERSION_MAJOR}::Widgets
-	Qt${QT_VERSION_MAJOR}::Xml
-	Qt${QT_VERSION_MAJOR}::Svg
+	Qt::Widgets
+	Qt::Xml
+	Qt::Svg
 	QHexView
 	${DOUBLE_CONVERSION_LIBRARIES}
 )
