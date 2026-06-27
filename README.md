@@ -7,8 +7,8 @@
 
 
 edb is a cross platform AArch32/x86/x86-64 debugger. It was inspired by [Ollydbg](http://www.ollydbg.de/ "Ollydbg"),
-but aims to function on AArch32, x86, and x86-64 as well as multiple OS's. Linux is the
-only officially supported platform at the moment, but FreeBSD, OpenBSD, OSX and
+but aims to function on AArch32, x86, and x86-64 as well as multiple OS's. **Linux is the
+only officially supported platform at the moment**, but FreeBSD, OpenBSD, OSX and
 Windows ports are underway with varying degrees of functionality.
 
 ![Screenshot](https://raw.githubusercontent.com/wiki/eteran/edb-debugger/img/edb_interface-2019.png)
@@ -39,7 +39,7 @@ depends on the following packages:
 Dependency                                  | Version Required
 ------------------------------------------- | ----------------
 GCC/Clang                                   | Supporting C++17
-[Qt](http://www.qt.io/)                     | >= 5.15
+[Qt](http://www.qt.io/)                     | >= 5.15 or >= 6.8
 [Capstone](http://www.capstone-engine.org/) | >= 3.0
 [Graphviz](http://www.graphviz.org/)        | >= 2.38.0 (Optional)
 
