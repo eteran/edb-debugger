@@ -32,12 +32,12 @@ FpuValueField::FpuValueField(int fieldWidth, const QModelIndex &regValueIndex, c
 
 	Q_ASSERT(group);
 	Q_ASSERT(commentWidget);
-	showAsRawActionIndex_ = menuItems_.size();
+	showAsRawActionIndex_ = static_cast<int>(menuItems_.size());
 	menuItems_.push_back(new_action(tr("View FPU as raw values"), this, [this](bool) {
 		showFPUAsRaw();
 	}));
 
-	showAsFloatActionIndex_ = menuItems_.size();
+	showAsFloatActionIndex_ = static_cast<int>(menuItems_.size());
 	menuItems_.push_back(new_action(tr("View FPU as floats"), this, [this](bool) {
 		showFPUAsFloat();
 	}));

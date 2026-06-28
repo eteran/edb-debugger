@@ -174,7 +174,7 @@ QVector<QTextLayout::FormatRange> SyntaxHighlighter::highlightBlock(const QStrin
 
 		qsizetype index = match.capturedStart();
 		while (index >= 0) {
-			const int length = match.capturedLength();
+			const auto length = static_cast<int>(match.capturedLength());
 
 			QTextLayout::FormatRange range;
 

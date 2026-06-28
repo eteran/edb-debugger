@@ -154,10 +154,17 @@ Theme readTheme(QSettings &settings, const Theme &baseTheme = Theme()) {
  * @return The system theme.
  */
 Theme readSystemTheme() {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	if (QApplication::palette().window().color().lightnessF() >= 0.5f) {
+		QSettings settings(":/themes/system-light.ini", QSettings::IniFormat);
+		return readTheme(settings);
+	}
+#else
 	if (QApplication::palette().window().color().lightnessF() >= 0.5) {
 		QSettings settings(":/themes/system-light.ini", QSettings::IniFormat);
 		return readTheme(settings);
 	}
+#endif
 
 	QSettings settings(":/themes/system-dark.ini", QSettings::IniFormat);
 	return readTheme(settings);
