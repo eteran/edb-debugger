@@ -142,7 +142,7 @@ QModelIndex ResultsModel::parent(const QModelIndex & /*index*/) const {
  */
 
 int ResultsModel::rowCount(const QModelIndex & /*parent*/) const {
-	return results_.size();
+	return static_cast<int>(results_.size());
 }
 
 /**

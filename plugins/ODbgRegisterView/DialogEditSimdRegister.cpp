@@ -19,7 +19,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QRadioButton>
-#include <QRegExp>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 #include <cstring>
@@ -329,18 +328,27 @@ void DialogEditSimdRegister::setValue(const Register &value) {
 	assert(value.bitSize() <= 8 * sizeof(value_));
 	reg_ = value;
 	util::mark_memory(&value_, value_.size());
-	if (QRegExp("mm[0-7]").exactMatch(reg_.name())) {
+
+	static const QRegularExpression MMXx("^mm([0-7])$");
+	static const QRegularExpression XMMx("^xmm([0-9]+)$");
+	static const QRegularExpression YMMx("^ymm([0-9]+)$");
+
+	const QRegularExpressionMatch mmxMatch = MMXx.match(reg_.name());
+	const QRegularExpressionMatch xmmMatch = XMMx.match(reg_.name());
+	const QRegularExpressionMatch ymmMatch = YMMx.match(reg_.name());
+
+	if (mmxMatch.hasMatch()) {
 		const auto value = reg_.value<edb::value64>();
 		std::memcpy(&value_, &value, sizeof(value));
 		hideColumns(MMX_FIRST_COL);
 		// MMX registers are never used in float computations, so hide useless rows
 		hideRows(FLOATS32_ROW);
 		hideRows(FLOATS64_ROW);
-	} else if (QRegExp("xmm[0-9]+").exactMatch(reg_.name())) {
+	} else if (xmmMatch.hasMatch()) {
 		const auto value = reg_.value<edb::value128>();
 		std::memcpy(&value_, &value, sizeof(value));
 		hideColumns(XMM_FIRST_COL);
-	} else if (QRegExp("ymm[0-9]+").exactMatch(reg_.name())) {
+	} else if (ymmMatch.hasMatch()) {
 		const auto value = reg_.value<edb::value256>();
 		std::memcpy(&value_, &value, sizeof(value));
 		hideColumns(YMM_FIRST_COL);

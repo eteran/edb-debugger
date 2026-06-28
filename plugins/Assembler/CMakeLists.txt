@@ -5,7 +5,7 @@ set(PLUGIN_NAME "Assembler")
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED Widgets Xml)
 
-qt5_add_resources(QRC_SOURCES
+qt_add_resources(QRC_SOURCES
 	Assembler.qrc
 )
 
@@ -25,6 +25,6 @@ add_library(${PLUGIN_NAME} SHARED
 	OptionsPage.ui
 )
 
-target_link_libraries(${PLUGIN_NAME} Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Xml edb)
+target_link_libraries(${PLUGIN_NAME} Qt::Widgets Qt::Xml edb)
 
 build_plugin(${PLUGIN_NAME})

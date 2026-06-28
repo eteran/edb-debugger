@@ -39,7 +39,11 @@ QSize NumberEdit::sizeHint() const {
 	const auto contentsMargins = this->contentsMargins();
 	int customWidth            = charWidth * naturalWidthInChars_ + textMargins.left() + contentsMargins.left() + textMargins.right() + contentsMargins.right();
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	return QSize(customWidth, baseHint.height());
+#else
 	return QSize(customWidth, baseHint.height()).expandedTo(QApplication::globalStrut());
+#endif
 }
 
 }

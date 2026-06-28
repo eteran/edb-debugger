@@ -39,7 +39,11 @@ QMenu *ROPTool::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("ROPTool"), parent);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		menu_->addAction(tr("&ROP Tool"), QKeySequence(tr("Ctrl+Alt+R")), this, &ROPTool::showMenu);
+#else
 		menu_->addAction(tr("&ROP Tool"), this, &ROPTool::showMenu, QKeySequence(tr("Ctrl+Alt+R")));
+#endif
 	}
 
 	return menu_;

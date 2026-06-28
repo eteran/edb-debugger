@@ -302,10 +302,17 @@ void ValueField::updatePalette() {
 	QLabel::update();
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+void ValueField::enterEvent(QEnterEvent *) {
+	hovered_ = true;
+	updatePalette();
+}
+#else
 void ValueField::enterEvent(QEvent *) {
 	hovered_ = true;
 	updatePalette();
 }
+#endif
 
 void ValueField::leaveEvent(QEvent *) {
 	hovered_ = false;

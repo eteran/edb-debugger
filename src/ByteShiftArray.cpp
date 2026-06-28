@@ -64,7 +64,7 @@ ByteShiftArray &ByteShiftArray::shr() {
  * @return The size of the array.
  */
 int ByteShiftArray::size() const {
-	return data_.size();
+	return static_cast<int>(data_.size());
 }
 
 /**

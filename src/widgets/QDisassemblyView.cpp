@@ -181,7 +181,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 		verticalScrollBar()->setValue(verticalScrollBar()->maximum());
 	} else if (event->matches(QKeySequence::MoveToNextLine)) {
 		const edb::address_t selected = selectedAddress();
-		const int idx                 = showAddresses_.indexOf(selected);
+		const auto idx                = static_cast<int>(showAddresses_.indexOf(selected));
 		if (selected != 0 && idx > 0 && idx < showAddresses_.size() - 1 - partialLastLine_) {
 			setSelectedAddress(showAddresses_[idx + 1]);
 		} else {
@@ -199,7 +199,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 		}
 	} else if (event->matches(QKeySequence::MoveToPreviousLine)) {
 		const edb::address_t selected = selectedAddress();
-		const int idx                 = showAddresses_.indexOf(selected);
+		const auto idx                = static_cast<int>(showAddresses_.indexOf(selected));
 		if (selected != 0 && idx > 0) {
 			// we already know the previous instruction
 			setSelectedAddress(showAddresses_[idx - 1]);

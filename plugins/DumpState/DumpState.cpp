@@ -127,7 +127,11 @@ QMenu *DumpState::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("DumpState"), parent);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		menu_->addAction(tr("&Dump Current State"), QKeySequence(tr("Ctrl+D")), this, &DumpState::dumpCurrentState);
+#else
 		menu_->addAction(tr("&Dump Current State"), this, &DumpState::dumpCurrentState, QKeySequence(tr("Ctrl+D")));
+#endif
 	}
 
 	return menu_;
