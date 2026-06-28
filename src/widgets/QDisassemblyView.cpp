@@ -607,7 +607,7 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 
 	const bool syntax_highlighting_enabled = edb::v1::config().syntax_highlighting_enabled && !selected;
 
-	QString opcode = instructionString(inst);
+	QString opcode     = instructionString(inst);
 	auto opcode_length = static_cast<int>(opcode.length());
 
 	if (is_filling) {
@@ -870,7 +870,6 @@ void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx
 					if (!badge_labels[line].isEmpty()) {
 
 						auto badge_length = static_cast<int>(badge_labels[line].size());
-
 
 						int width          = badge_length * fontWidth_ + fontWidth_ / 2;
 						int height         = ctx->lineHeight;
@@ -1854,9 +1853,15 @@ edb::address_t QDisassemblyView::addressFromCoord(int x, int y) const {
  * @brief
  */
 void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	const int x = qRound(event->position().x());
+#else
+	const int x = event->x();
+#endif
+
 	if (region_) {
 		if (event->button() == Qt::LeftButton) {
-			if (event->x() < line2()) {
+			if (x < line2()) {
 				const edb::address_t address = addressFromPoint(event->pos());
 
 				if (region_->contains(address)) {
@@ -1940,8 +1945,15 @@ void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
  * @brief
  */
 void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
-	const int event_x = event->x() - line0();
+
 	if (region_) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		const int x = qRound(event->position().x());
+#else
+		const int x = event->x();
+#endif
+		const int event_x = x - line0();
+
 		if (event->button() == Qt::LeftButton) {
 			if (near_line(event_x, line1()) && edb::v1::config().show_jump_arrow) {
 				movingLine1_ = true;
@@ -1967,7 +1979,12 @@ void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 
 	if (region_) {
-		const int x_pos = event->x() - line0();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		const int x = qRound(event->position().x());
+#else
+		const int x = event->x();
+#endif
+		const int x_pos = x - line0();
 
 		if (movingLine1_) {
 			if (line2_ == 0) {

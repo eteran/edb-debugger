@@ -60,10 +60,9 @@ AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f)
  *
  * @param event The paint event that triggered this function.
  */
-void AnalyzerWidget::paintEvent(QPaintEvent */*event*/) {
+void AnalyzerWidget::paintEvent(QPaintEvent * /*event*/) {
 	QElapsedTimer timer;
 	timer.start();
-
 
 	const std::shared_ptr<IRegion> region = edb::v1::current_cpu_view_region();
 	if (!region || region->size() == 0) {
