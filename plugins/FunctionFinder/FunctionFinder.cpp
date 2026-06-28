@@ -39,7 +39,11 @@ QMenu *FunctionFinder::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("FunctionFinder"), parent);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		menu_->addAction(tr("&Function Finder"), QKeySequence(tr("Ctrl+Shift+F")), this, &FunctionFinder::showMenu);
+#else
 		menu_->addAction(tr("&Function Finder"), this, &FunctionFinder::showMenu, QKeySequence(tr("Ctrl+Shift+F")));
+#endif
 	}
 
 	return menu_;
