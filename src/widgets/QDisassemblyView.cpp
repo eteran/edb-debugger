@@ -608,6 +608,7 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 	const bool syntax_highlighting_enabled = edb::v1::config().syntax_highlighting_enabled && !selected;
 
 	QString opcode = instructionString(inst);
+	auto opcode_length = static_cast<int>(opcode.length());
 
 	if (is_filling) {
 		if (syntax_highlighting_enabled) {
@@ -619,7 +620,7 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 		painter.drawText(
 			x,
 			y,
-			opcode.length() * fontWidth_,
+			opcode_length * fontWidth_,
 			ctx->lineHeight,
 			Qt::AlignVCenter,
 			opcode);
@@ -660,7 +661,7 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 
 				textLayout.endLayout();
 
-				map = new QPixmap(QSize(opcode.length() * fontWidth_, ctx->lineHeight) * devicePixelRatio());
+				map = new QPixmap(QSize(opcode_length * fontWidth_, ctx->lineHeight) * devicePixelRatio());
 				map->setDevicePixelRatio(devicePixelRatio());
 				map->fill(Qt::transparent);
 				QPainter cache_painter(map);
@@ -673,7 +674,7 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 			}
 			painter.drawPixmap(x, y, *map);
 		} else {
-			QRectF rectangle(x, y, opcode.length() * fontWidth_, ctx->lineHeight);
+			QRectF rectangle(x, y, opcode_length * fontWidth_, ctx->lineHeight);
 			painter.drawText(rectangle, Qt::AlignVCenter, opcode);
 		}
 	}
@@ -868,7 +869,10 @@ void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx
 				for (int line = 0; line < ctx->linesToRender; line++) {
 					if (!badge_labels[line].isEmpty()) {
 
-						int width          = badge_labels[line].length() * fontWidth_ + fontWidth_ / 2;
+						auto badge_length = static_cast<int>(badge_labels[line].size());
+
+
+						int width          = badge_length * fontWidth_ + fontWidth_ / 2;
 						int height         = ctx->lineHeight;
 						int triangle_point = line1() - 3;
 						int x              = triangle_point - (height / 2) - width;
@@ -894,7 +898,7 @@ void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx
 						painter.drawText(
 							bounds.x() + fontWidth_ / 4,
 							line * ctx->lineHeight,
-							fontWidth_ * badge_labels[line].size(),
+							fontWidth_ * badge_length,
 							ctx->lineHeight,
 							Qt::AlignVCenter,
 							(edb::v1::config().uppercase_disassembly ? badge_labels[line].toUpper() : badge_labels[line]));

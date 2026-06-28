@@ -58,13 +58,12 @@ AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f)
 /**
  * @brief Renders a proportional color-coded map of analyzed functions across the current memory region.
  *
- * @param event
+ * @param event The paint event that triggered this function.
  */
-void AnalyzerWidget::paintEvent(QPaintEvent *event) {
+void AnalyzerWidget::paintEvent(QPaintEvent */*event*/) {
 	QElapsedTimer timer;
 	timer.start();
 
-	Q_UNUSED(event)
 
 	const std::shared_ptr<IRegion> region = edb::v1::current_cpu_view_region();
 	if (!region || region->size() == 0) {
@@ -79,7 +78,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 	if (!cache_ || width() != cache_->width() || height() != cache_->height() || cacheNumFuncs_ != functions.size()) {
 
 		cache_         = std::make_unique<QPixmap>(width(), height());
-		cacheNumFuncs_ = functions.size();
+		cacheNumFuncs_ = static_cast<int>(functions.size());
 
 		QPainter painter(cache_.get());
 		painter.fillRect(0, 0, width(), height(), QBrush(Qt::black));
