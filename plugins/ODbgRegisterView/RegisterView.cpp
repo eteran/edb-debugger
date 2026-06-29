@@ -160,7 +160,11 @@ void ODBRegView::mousePressEvent(QMouseEvent *event) {
 
 	switch (event->button()) {
 	case Qt::RightButton:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		showMenu(event->globalPosition().toPoint());
+#else
 		showMenu(event->globalPos());
+#endif
 		break;
 	case Qt::LeftButton:
 		for (const auto field : valueFields()) {

@@ -154,7 +154,13 @@ void AnalyzerWidget::mousePressEvent(QMouseEvent *event) {
 			const edb::address_t start = region->start();
 			const edb::address_t end   = region->end();
 
-			edb::address_t offset = start + static_cast<std::uint64_t>(event->x() / byte_width);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+			const int x = qRound(event->position().x());
+#else
+			const int x = event->x();
+#endif
+
+			edb::address_t offset = start + static_cast<std::uint64_t>(x / byte_width);
 
 			const edb::address_t address = qBound<edb::address_t>(start, offset, end - 1);
 			edb::v1::jump_to_address(address);

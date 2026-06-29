@@ -340,7 +340,11 @@ void ValueField::mousePressEvent(QMouseEvent *event) {
 	}
 
 	if (event->button() == Qt::RightButton && event->type() != QEvent::MouseButtonDblClick) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		showMenu(event->globalPosition().toPoint());
+#else
 		showMenu(event->globalPos());
+#endif
 	}
 }
 
