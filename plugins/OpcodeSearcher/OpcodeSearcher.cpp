@@ -39,7 +39,11 @@ QMenu *OpcodeSearcher::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("OpcodeSearcher"), parent);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		menu_->addAction(tr("&Opcode Search"), QKeySequence(tr("Ctrl+O")), this, &OpcodeSearcher::showMenu);
+#else
 		menu_->addAction(tr("&Opcode Search"), this, &OpcodeSearcher::showMenu, QKeySequence(tr("Ctrl+O")));
+#endif
 	}
 
 	return menu_;

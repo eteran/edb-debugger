@@ -71,14 +71,24 @@ QVariant ProcessModel::headerData(int section, Qt::Orientation orientation, int 
 	return QVariant();
 }
 
-int ProcessModel::columnCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent)
+/**
+ * @brief Gets the number of columns in the model.
+ *
+ * @param parent The parent index.
+ * @return The number of columns in the model.
+ */
+int ProcessModel::columnCount(const QModelIndex & /*parent*/) const {
 	return 3;
 }
 
-int ProcessModel::rowCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent)
-	return items_.size();
+/**
+ * @brief Gets the number of rows in the model.
+ *
+ * @param parent The parent index.
+ * @return The number of rows in the model.
+ */
+int ProcessModel::rowCount(const QModelIndex & /*parent*/) const {
+	return static_cast<int>(items_.size());
 }
 
 void ProcessModel::addProcess(const std::shared_ptr<IProcess> &process) {

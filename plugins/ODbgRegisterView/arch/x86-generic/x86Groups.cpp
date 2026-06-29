@@ -473,7 +473,7 @@ RegisterGroup *create_fpu_last_op(RegisterViewModelBase::Model *model, QWidget *
 	// In 64-bit mode, since segments are not maintained, we'll just show offsets
 	const auto FIPwidth  = FDPIndex.data(Model::FixedLengthRole).toInt();
 	const auto segWidth  = FIPwidth == 8 /*8chars=>32bit*/ ? 4 : 0;
-	const auto segColumn = lastInsnLabel.length() + 1;
+	const auto segColumn = static_cast<int>(lastInsnLabel.size()) + 1;
 
 	if (segWidth) {
 		// these two must be inserted first, because seg & offset value fields overlap these labels
@@ -555,7 +555,7 @@ RegisterGroup *create_fpu_last_op(RegisterViewModelBase::Model *model, QWidget *
 	};
 
 	const auto FOPValueField = new ValueField(5, FOPIndex, FOPFormatter, group);
-	group->insert(lastOpcodeRow, lastOpcodeLabel.length() + 1, FOPValueField);
+	group->insert(lastOpcodeRow, static_cast<int>(lastOpcodeLabel.size()) + 1, FOPValueField);
 
 	static const auto FOPTooltip = tr("Last FPU opcode");
 	lastOpcodeLabelField->setToolTip(FOPTooltip);
@@ -679,7 +679,7 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 		column += valueWidth + 2;
 
 		const QString bsName   = QStringLiteral("BS");
-		const auto bsWidth     = bsName.length();
+		const auto bsWidth     = static_cast<int>(bsName.size());
 		const auto BSNameField = new FieldWidget(bsName, group);
 		const auto BSTooltip   = tr("Single Step") + " (BS)";
 		BSNameField->setToolTip(BSTooltip);
@@ -702,8 +702,8 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 		group->insert(row, column, new ValueField(valueWidth, value_index(dr7Index), group));
 		column += valueWidth + 2;
 		{
-			const QString leName   = "LE";
-			const auto leWidth     = leName.length();
+			const QString leName   = QStringLiteral("LE");
+			const auto leWidth     = static_cast<int>(leName.size());
 			const auto LENameField = new FieldWidget(leName, group);
 			const auto LETooltip   = tr("Local Exact Breakpoint Enable");
 			LENameField->setToolTip(LETooltip);
@@ -719,8 +719,8 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 		}
 
 		{
-			const QString geName   = "GE";
-			const auto geWidth     = geName.length();
+			const QString geName   = QStringLiteral("GE");
+			const auto geWidth     = static_cast<int>(geName.size());
 			const auto GENameField = new FieldWidget(geName, group);
 			const auto GETooltip   = tr("Global Exact Breakpoint Enable");
 			GENameField->setToolTip(GETooltip);
@@ -757,7 +757,7 @@ RegisterGroup *create_mxcsr(RegisterViewModelBase::Model *model, QWidget *parent
 	const int maskRow  = rndRow;
 
 	group->insert(mxcsrRow, column, new FieldWidget(mxcsrName, group));
-	column += mxcsrName.length() + 1;
+	column += static_cast<int>(mxcsrName.size()) + 1;
 	const auto mxcsrIndex      = find_model_register(catIndex, "MXCSR", ModelValueColumn);
 	const auto mxcsrValueWidth = mxcsrIndex.data(Model::FixedLengthRole).toInt();
 	assert(mxcsrValueWidth > 0);
@@ -771,7 +771,7 @@ RegisterGroup *create_mxcsr(RegisterViewModelBase::Model *model, QWidget *parent
 	const auto fzColumn    = column;
 	const auto fzNameField = new FieldWidget(fzName, group);
 	group->insert(fzRow, fzColumn, fzNameField);
-	column += fzName.length() + 1;
+	column += static_cast<int>(fzName.size()) + 1;
 	const auto fzIndex      = find_model_register(mxcsrIndex, "FZ", ModelValueColumn);
 	const auto fzValueWidth = 1;
 	const auto fzValueField = new ValueField(fzValueWidth, fzIndex, group);
@@ -779,7 +779,7 @@ RegisterGroup *create_mxcsr(RegisterViewModelBase::Model *model, QWidget *parent
 	column += fzValueWidth + 1;
 	const auto dazNameField = new FieldWidget(dazName, group);
 	group->insert(dazRow, column, dazNameField);
-	column += dazName.length() + 1;
+	column += static_cast<int>(dazName.size()) + 1;
 	const auto dazIndex      = find_model_register(mxcsrIndex, "DAZ", ModelValueColumn);
 	const auto dazValueWidth = 1;
 	const auto dazValueField = new ValueField(dazValueWidth, dazIndex, group);
@@ -789,12 +789,12 @@ RegisterGroup *create_mxcsr(RegisterViewModelBase::Model *model, QWidget *parent
 	group->insert(excRow, column, new FieldWidget(excName, group));
 	const QString maskName = "Mask";
 	group->insert(maskRow, column, new FieldWidget(maskName, group));
-	column += maskName.length() + 1;
+	column += static_cast<int>(maskName.size()) + 1;
 	add_puozdi(group, mxcsrIndex, mxcsrIndex, excRow - 1, column);
 	const auto rndNameColumn = fzColumn;
 	const QString rndName    = "Rnd";
 	group->insert(rndRow, rndNameColumn, new FieldWidget(rndName, group));
-	const auto rndColumn = rndNameColumn + rndName.length() + 1;
+	const auto rndColumn = rndNameColumn + static_cast<int>(rndName.size()) + 1;
 	add_rounding_mode(group, find_model_register(mxcsrIndex, "RC", ModelValueColumn), rndRow, rndColumn);
 
 	{

@@ -13,7 +13,9 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFont>
+#include <QRegularExpression>
 #include <QSettings>
+#include <QStandardPaths>
 #include <QtDebug>
 
 #define STRINGIFY(x) #x
@@ -27,14 +29,16 @@ namespace {
  * @return The default plugin path.
  */
 QString getDefaultPluginPath() {
-#ifdef DEFAULT_PLUGIN_PATH
+#if defined(DEFAULT_PLUGIN_PATH)
 	const QString default_plugin_path = DEFAULT_PLUGIN_PATH;
 #else
 	const QString edb_lib_dir    = QCoreApplication::applicationDirPath() + (EDB_IS_64_BIT ? "/../lib64/edb" : "/../lib/edb");
 	const QString edb_binary_dir = QCoreApplication::applicationDirPath();
 	// If the binary is in its installation directory, then look for plugins in their installation directory
 	// Otherwise assume that we are in build directory, so the plugins are in the same directory as the binary
-	const QString default_plugin_path = QRegExp(".*/bin/?$").exactMatch(edb_binary_dir) ? edb_lib_dir : edb_binary_dir;
+	static const QRegularExpression re("^.*/bin/?$");
+	const QRegularExpressionMatch match = re.match(edb_binary_dir);
+	const QString default_plugin_path   = match.hasMatch() ? edb_lib_dir : edb_binary_dir;
 #endif
 	return default_plugin_path;
 }

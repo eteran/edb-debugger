@@ -187,10 +187,18 @@ QMenu *Analyzer::menu(QWidget *parent) {
 		menu_->addAction(tr("Show &Specified Functions"), this, &Analyzer::showSpecified);
 
 		if (edb::v1::debugger_core) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+			menu_->addAction(tr("&Analyze %1's Region").arg(edb::v1::debugger_core->instructionPointer().toUpper()), QKeySequence(tr("Ctrl+A")), this, &Analyzer::doIpAnalysis);
+#else
 			menu_->addAction(tr("&Analyze %1's Region").arg(edb::v1::debugger_core->instructionPointer().toUpper()), this, &Analyzer::doIpAnalysis, QKeySequence(tr("Ctrl+A")));
+#endif
 		}
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		menu_->addAction(tr("&Analyze Viewed Region"), QKeySequence(tr("Ctrl+Shift+A")), this, &Analyzer::doViewAnalysis);
+#else
 		menu_->addAction(tr("&Analyze Viewed Region"), this, &Analyzer::doViewAnalysis, QKeySequence(tr("Ctrl+Shift+A")));
+#endif
 
 		// if we are dealing with a main window (and we are...)
 		// add the dock object

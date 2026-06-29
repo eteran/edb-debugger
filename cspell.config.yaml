@@ -41,6 +41,7 @@ words:
   - qlonglong
   - qobject
   - qreal
+  - qsizetype
   - qsnprintf
   - Quadword
   - quadwords

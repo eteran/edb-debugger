@@ -12,11 +12,11 @@
 #include "Status.h"
 #include "Types.h"
 #include <QObject>
+#include <QStringList>
 
 class QByteArray;
 class QMenu;
 class QString;
-class QStringList;
 class State;
 
 class EDB_EXPORT ArchProcessor : public QObject {

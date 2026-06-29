@@ -46,7 +46,11 @@ void RegisterGroup::showMenu(const QPoint &position, const QList<QAction *> &add
 
 void RegisterGroup::mousePressEvent(QMouseEvent *event) {
 	if (event->button() == Qt::RightButton) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		showMenu(event->globalPosition().toPoint(), menuItems_);
+#else
 		showMenu(event->globalPos(), menuItems_);
+#endif
 	} else {
 		event->ignore();
 	}

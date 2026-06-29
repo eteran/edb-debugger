@@ -21,6 +21,6 @@ add_library(${PLUGIN_NAME} SHARED
     ResultsModel.h
 )
 
-target_link_libraries(${PLUGIN_NAME} Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network edb)
+target_link_libraries(${PLUGIN_NAME} Qt::Widgets Qt::Network edb)
 
 build_plugin(${PLUGIN_NAME})

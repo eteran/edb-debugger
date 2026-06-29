@@ -41,7 +41,11 @@ protected:
 	[[nodiscard]] RegisterViewModelBase::Model *model() const;
 	[[nodiscard]] bool changed() const;
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	void enterEvent(QEnterEvent *) override;
+#else
 	void enterEvent(QEvent *) override;
+#endif
 	void leaveEvent(QEvent *) override;
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseDoubleClickEvent(QMouseEvent *event) override;

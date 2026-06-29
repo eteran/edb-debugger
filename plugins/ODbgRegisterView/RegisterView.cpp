@@ -160,7 +160,11 @@ void ODBRegView::mousePressEvent(QMouseEvent *event) {
 
 	switch (event->button()) {
 	case Qt::RightButton:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		showMenu(event->globalPosition().toPoint());
+#else
 		showMenu(event->globalPos());
+#endif
 		break;
 	case Qt::LeftButton:
 		for (const auto field : valueFields()) {
@@ -321,12 +325,12 @@ void ODBRegView::copyAllRegisters() const {
 		const QString fieldText = field->text();
 		if (field->alignment() == Qt::AlignRight) {
 			const int fwidth     = field->fieldWidth();
-			const int spaceWidth = fwidth - fieldText.length();
+			const int spaceWidth = fwidth - static_cast<int>(fieldText.size());
 			text += QString(spaceWidth, ' ');
 			textColumn += spaceWidth;
 		}
 		text += fieldText;
-		textColumn += fieldText.length();
+		textColumn += static_cast<int>(fieldText.size());
 	}
 
 	QApplication::clipboard()->setText(text.trimmed());

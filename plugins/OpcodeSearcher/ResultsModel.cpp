@@ -125,9 +125,8 @@ QModelIndex ResultsModel::parent(const QModelIndex &index) const {
  * @param parent The parent index.
  * @return The number of rows in the model.
  */
-int ResultsModel::rowCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent)
-	return results_.size();
+int ResultsModel::rowCount(const QModelIndex & /*parent*/) const {
+	return static_cast<int>(results_.size());
 }
 
 /**
@@ -136,8 +135,7 @@ int ResultsModel::rowCount(const QModelIndex &parent) const {
  * @param parent The parent index.
  * @return The number of columns in the model.
  */
-int ResultsModel::columnCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent)
+int ResultsModel::columnCount(const QModelIndex & /*parent*/) const {
 	return 2;
 }
 

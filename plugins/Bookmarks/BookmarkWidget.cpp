@@ -69,7 +69,7 @@ void BookmarkWidget::on_tableView_doubleClicked(const QModelIndex &index) {
 			items << tr("Code") << tr("Data") << tr("Stack");
 
 			bool ok;
-			const QString new_type = QInputDialog::getItem(ui.tableView, tr("Comment"), tr("Set Type:"), items, items.indexOf(old_type), false, &ok);
+			const QString new_type = QInputDialog::getItem(ui.tableView, tr("Comment"), tr("Set Type:"), items, static_cast<int>(items.indexOf(old_type)), false, &ok);
 			if (ok) {
 				model_->setType(index, new_type);
 			}
@@ -261,7 +261,7 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 				items << tr("Code") << tr("Data") << tr("Stack");
 
 				bool ok;
-				const QString new_type = QInputDialog::getItem(ui.tableView, tr("Comment"), tr("Set Type:"), items, items.indexOf(old_type), false, &ok);
+				const QString new_type = QInputDialog::getItem(ui.tableView, tr("Comment"), tr("Set Type:"), items, static_cast<int>(items.indexOf(old_type)), false, &ok);
 				if (ok) {
 					model_->setType(index, new_type);
 				}

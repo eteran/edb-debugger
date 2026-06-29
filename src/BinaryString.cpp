@@ -186,7 +186,7 @@ void BinaryString::on_txtHex_textEdited(const QString &text) {
 		utf16Char = (utf16Char << 8) | ch;
 #endif
 
-		textAscii += ch;
+		textAscii += static_cast<char>(ch);
 
 		if (counter++ & 1) {
 			textUTF16 += QChar(utf16Char);
@@ -222,7 +222,7 @@ QByteArray BinaryString::value() const {
  */
 void BinaryString::setValue(const QByteArray &data) {
 
-	valueOriginalLength_ = data.size();
+	valueOriginalLength_ = static_cast<int>(data.size());
 	on_keepSize_stateChanged(ui->keepSize->checkState());
 	const auto temp = QString::fromLatin1(data.data(), data.size());
 

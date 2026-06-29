@@ -157,7 +157,7 @@ RecentFileManager::RecentFile RecentFileManager::mostRecent() const {
  * @return The number of entries.
  */
 int RecentFileManager::entryCount() const {
-	return files_.size();
+	return static_cast<int>(files_.size());
 }
 
 /**

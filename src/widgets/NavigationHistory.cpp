@@ -25,14 +25,14 @@ void NavigationHistory::add(edb::address_t address) {
 			return;
 		}
 
-		for (int i = list_.size() - 1; i >= pos_; i--) {
+		for (auto i = static_cast<int>(list_.size()) - 1; i >= pos_; i--) {
 			if (address == list_.at(i)) {
 				return;
 			}
 		}
 	}
 
-	pos_ = list_.size();
+	pos_ = static_cast<int>(list_.size());
 	list_.append(address);
 	lastOp_ = LastOp::None;
 }

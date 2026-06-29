@@ -49,13 +49,13 @@ FieldWidget::FieldWidget(int fieldWidth, const QModelIndex &index, QWidget *pare
 FieldWidget::FieldWidget(int fieldWidth, const QString &fixedText, QWidget *parent, Qt::WindowFlags f)
 	: QLabel(fixedText, parent, f), fieldWidth_(fieldWidth) {
 
-	init(fieldWidth); // NOTE: fieldWidth!=fixedText.length() in general
+	init(fieldWidth); // NOTE: fieldWidth!=fixedText.size() in general
 }
 
 FieldWidget::FieldWidget(const QString &fixedText, QWidget *parent, Qt::WindowFlags f)
-	: QLabel(fixedText, parent, f), fieldWidth_(fixedText.length()) {
+	: QLabel(fixedText, parent, f), fieldWidth_(static_cast<int>(fixedText.size())) {
 
-	init(fixedText.length());
+	init(static_cast<int>(fixedText.size()));
 }
 
 int FieldWidget::fieldWidth() const {
