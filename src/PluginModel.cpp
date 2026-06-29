@@ -90,17 +90,15 @@ QVariant PluginModel::headerData(int section, Qt::Orientation orientation, int r
 /**
  * @brief
  */
-int PluginModel::columnCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent)
+int PluginModel::columnCount(const QModelIndex & /*parent*/) const {
 	return 4;
 }
 
 /**
  * @brief
  */
-int PluginModel::rowCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent)
-	return items_.size();
+int PluginModel::rowCount(const QModelIndex & /*parent*/) const {
+	return static_cast<int>(items_.size());
 }
 
 /**

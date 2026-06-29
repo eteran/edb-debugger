@@ -39,7 +39,11 @@ QMenu *HeapAnalyzer::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("HeapAnalyzer"), parent);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		menu_->addAction(tr("&Heap Analyzer"), QKeySequence(tr("Ctrl+H")), this, &HeapAnalyzer::showMenu);
+#else
 		menu_->addAction(tr("&Heap Analyzer"), this, &HeapAnalyzer::showMenu, QKeySequence(tr("Ctrl+H")));
+#endif
 	}
 
 	return menu_;

@@ -5,12 +5,14 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 REQUIRED Widgets Xml Svg LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED Widgets Xml Svg LinguistTools)
 
-qt5_add_translation(QM_FILES
+
+qt_add_translation(QM_FILES
 	# add translation files in /src/res/translations here
 	res/translations/edb_zh_CN.ts
 )
+
 
 # Create translations QRC file - translations.qrc
 set(TRANSLATIONS_QRC "${CMAKE_CURRENT_BINARY_DIR}/translations.qrc")
@@ -24,7 +26,7 @@ endforeach()
 file(APPEND ${TRANSLATIONS_QRC} "\n\t</qresource>\n</RCC>")
 list(APPEND QRC_FILES ${TRANSLATIONS_QRC})
 
-qt5_add_resources(QRC_SOURCES
+qt_add_resources(QRC_SOURCES
 	res/debugger.qrc
 	res/themes.qrc
 	res/breeze-edb.qrc
@@ -284,9 +286,9 @@ target_compile_definitions(edb PRIVATE -DDEFAULT_PLUGIN_PATH="${DEFAULT_PLUGIN_D
 
 target_link_libraries(edb
 	${CAPSTONE_LIBRARIES}
-	Qt${QT_VERSION_MAJOR}::Widgets
-	Qt${QT_VERSION_MAJOR}::Xml
-	Qt${QT_VERSION_MAJOR}::Svg
+	Qt::Widgets
+	Qt::Xml
+	Qt::Svg
 	QHexView
 	${DOUBLE_CONVERSION_LIBRARIES}
 )

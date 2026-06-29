@@ -39,7 +39,11 @@ QMenu *References::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("Reference Searcher"), parent);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		menu_->addAction(tr("&Reference Search"), QKeySequence(tr("Ctrl+R")), this, &References::showMenu);
+#else
 		menu_->addAction(tr("&Reference Search"), this, &References::showMenu, QKeySequence(tr("Ctrl+R")));
+#endif
 	}
 
 	return menu_;

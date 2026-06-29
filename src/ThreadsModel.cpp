@@ -93,14 +93,12 @@ QVariant ThreadsModel::headerData(int section, Qt::Orientation orientation, int 
 	return QVariant();
 }
 
-int ThreadsModel::columnCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent)
+int ThreadsModel::columnCount(const QModelIndex & /*parent*/) const {
 	return 5;
 }
 
-int ThreadsModel::rowCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent)
-	return items_.size();
+int ThreadsModel::rowCount(const QModelIndex & /*parent*/) const {
+	return static_cast<int>(items_.size());
 }
 
 void ThreadsModel::addThread(const std::shared_ptr<IThread> &thread, bool current) {

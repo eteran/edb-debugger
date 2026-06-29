@@ -668,7 +668,7 @@ bool get_ascii_string_at_address(address_t address, QString &s, int min_length, 
 			is_string = s.length() >= min_length;
 
 			if (is_string) {
-				found_length = s.length();
+				found_length = static_cast<int>(s.length());
 				s.replace("\r", "\\r");
 				s.replace("\n", "\\n");
 				s.replace("\t", "\\t");
@@ -727,7 +727,7 @@ bool get_utf16_string_at_address(address_t address, QString &s, int min_length, 
 			is_string = s.length() >= min_length;
 
 			if (is_string) {
-				found_length = s.length();
+				found_length = static_cast<int>(s.length());
 				s.replace("\r", "\\r");
 				s.replace("\n", "\\n");
 				s.replace("\t", "\\t");

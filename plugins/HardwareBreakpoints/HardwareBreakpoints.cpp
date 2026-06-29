@@ -90,7 +90,11 @@ QMenu *HardwareBreakpoints::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("Hardware BreakpointManager"), parent);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		menu_->addAction(tr("&Hardware Breakpoints"), QKeySequence(tr("Ctrl+Shift+H")), this, &HardwareBreakpoints::showMenu);
+#else
 		menu_->addAction(tr("&Hardware Breakpoints"), this, &HardwareBreakpoints::showMenu, QKeySequence(tr("Ctrl+Shift+H")));
+#endif
 	}
 
 	return menu_;

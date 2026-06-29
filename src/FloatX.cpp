@@ -367,24 +367,29 @@ QValidator::State FloatXValidator<Float>::validate(QString &input, int &) const 
 	}
 
 	// OK, so we failed to read it or it is unfinished. Let's check whether it's intermediate or invalid.
-	static const QRegExp basicFormat("[+-]?[0-9]*\\.?[0-9]*(e([+-]?[0-9]*)?)?");
-	static const QRegExp specialFormat("[+-]?[sq]?nan|[+-]?inf", Qt::CaseInsensitive);
-	static const QRegExp hexfloatFormat("[+-]?0x[0-9a-f]*\\.?[0-9a-f]*(p([+-]?[0-9]*)?)?", Qt::CaseInsensitive);
-	static const QRegExp specialFormatUnfinished("[+-]?[sq]?(n(an?)?)?|[+-]?(i(nf?)?)?", Qt::CaseInsensitive);
+	static const QRegularExpression basicFormat("^[+-]?[0-9]*\\.?[0-9]*(e([+-]?[0-9]*)?)?$");
+	static const QRegularExpression specialFormat("^[+-]?[sq]?nan|[+-]?inf$", QRegularExpression::CaseInsensitiveOption);
+	static const QRegularExpression hexfloatFormat("^[+-]?0x[0-9a-f]*\\.?[0-9a-f]*(p([+-]?[0-9]*)?)?$", QRegularExpression::CaseInsensitiveOption);
+	static const QRegularExpression specialFormatUnfinished("^[+-]?[sq]?(n(an?)?)?|[+-]?(i(nf?)?)?$", QRegularExpression::CaseInsensitiveOption);
 
-	if (hexfloatFormat.exactMatch(input)) {
+	const QRegularExpressionMatch match                  = basicFormat.match(input);
+	const QRegularExpressionMatch matchSpecial           = specialFormat.match(input);
+	const QRegularExpressionMatch matchHex               = hexfloatFormat.match(input);
+	const QRegularExpressionMatch matchSpecialUnfinished = specialFormatUnfinished.match(input);
+
+	if (matchHex.hasMatch()) {
 		return QValidator::Intermediate;
 	}
 
-	if (basicFormat.exactMatch(input)) {
+	if (match.hasMatch()) {
 		return QValidator::Intermediate;
 	}
 
-	if (specialFormat.exactMatch(input)) {
+	if (matchSpecial.hasMatch()) {
 		return QValidator::Acceptable;
 	}
 
-	if (specialFormatUnfinished.exactMatch(input)) {
+	if (matchSpecialUnfinished.hasMatch()) {
 		return QValidator::Intermediate;
 	}
 

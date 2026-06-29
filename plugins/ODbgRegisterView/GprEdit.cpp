@@ -131,7 +131,12 @@ QSize GprEdit::sizeHint() const {
 	const auto textMargins     = this->textMargins();
 	const auto contentsMargins = this->contentsMargins();
 	int customWidth            = charWidth * naturalWidthInChars_ + textMargins.left() + contentsMargins.left() + textMargins.right() + contentsMargins.right() + 1 * charWidth; // additional char to make edit field not too tight
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	return QSize(customWidth, baseHint.height());
+#else
 	return QSize(customWidth, baseHint.height()).expandedTo(QApplication::globalStrut());
+#endif
 }
 
 }

@@ -181,7 +181,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 		verticalScrollBar()->setValue(verticalScrollBar()->maximum());
 	} else if (event->matches(QKeySequence::MoveToNextLine)) {
 		const edb::address_t selected = selectedAddress();
-		const int idx                 = showAddresses_.indexOf(selected);
+		const auto idx                = static_cast<int>(showAddresses_.indexOf(selected));
 		if (selected != 0 && idx > 0 && idx < showAddresses_.size() - 1 - partialLastLine_) {
 			setSelectedAddress(showAddresses_[idx + 1]);
 		} else {
@@ -199,7 +199,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 		}
 	} else if (event->matches(QKeySequence::MoveToPreviousLine)) {
 		const edb::address_t selected = selectedAddress();
-		const int idx                 = showAddresses_.indexOf(selected);
+		const auto idx                = static_cast<int>(showAddresses_.indexOf(selected));
 		if (selected != 0 && idx > 0) {
 			// we already know the previous instruction
 			setSelectedAddress(showAddresses_[idx - 1]);
@@ -607,7 +607,8 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 
 	const bool syntax_highlighting_enabled = edb::v1::config().syntax_highlighting_enabled && !selected;
 
-	QString opcode = instructionString(inst);
+	QString opcode     = instructionString(inst);
+	auto opcode_length = static_cast<int>(opcode.length());
 
 	if (is_filling) {
 		if (syntax_highlighting_enabled) {
@@ -619,7 +620,7 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 		painter.drawText(
 			x,
 			y,
-			opcode.length() * fontWidth_,
+			opcode_length * fontWidth_,
 			ctx->lineHeight,
 			Qt::AlignVCenter,
 			opcode);
@@ -660,7 +661,7 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 
 				textLayout.endLayout();
 
-				map = new QPixmap(QSize(opcode.length() * fontWidth_, ctx->lineHeight) * devicePixelRatio());
+				map = new QPixmap(QSize(opcode_length * fontWidth_, ctx->lineHeight) * devicePixelRatio());
 				map->setDevicePixelRatio(devicePixelRatio());
 				map->fill(Qt::transparent);
 				QPainter cache_painter(map);
@@ -673,7 +674,7 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 			}
 			painter.drawPixmap(x, y, *map);
 		} else {
-			QRectF rectangle(x, y, opcode.length() * fontWidth_, ctx->lineHeight);
+			QRectF rectangle(x, y, opcode_length * fontWidth_, ctx->lineHeight);
 			painter.drawText(rectangle, Qt::AlignVCenter, opcode);
 		}
 	}
@@ -868,7 +869,9 @@ void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx
 				for (int line = 0; line < ctx->linesToRender; line++) {
 					if (!badge_labels[line].isEmpty()) {
 
-						int width          = badge_labels[line].length() * fontWidth_ + fontWidth_ / 2;
+						auto badge_length = static_cast<int>(badge_labels[line].size());
+
+						int width          = badge_length * fontWidth_ + fontWidth_ / 2;
 						int height         = ctx->lineHeight;
 						int triangle_point = line1() - 3;
 						int x              = triangle_point - (height / 2) - width;
@@ -894,7 +897,7 @@ void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx
 						painter.drawText(
 							bounds.x() + fontWidth_ / 4,
 							line * ctx->lineHeight,
-							fontWidth_ * badge_labels[line].size(),
+							fontWidth_ * badge_length,
 							ctx->lineHeight,
 							Qt::AlignVCenter,
 							(edb::v1::config().uppercase_disassembly ? badge_labels[line].toUpper() : badge_labels[line]));
@@ -1850,9 +1853,15 @@ edb::address_t QDisassemblyView::addressFromCoord(int x, int y) const {
  * @brief
  */
 void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	const int x = qRound(event->position().x());
+#else
+	const int x = event->x();
+#endif
+
 	if (region_) {
 		if (event->button() == Qt::LeftButton) {
-			if (event->x() < line2()) {
+			if (x < line2()) {
 				const edb::address_t address = addressFromPoint(event->pos());
 
 				if (region_->contains(address)) {
@@ -1936,8 +1945,15 @@ void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
  * @brief
  */
 void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
-	const int event_x = event->x() - line0();
+
 	if (region_) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		const int x = qRound(event->position().x());
+#else
+		const int x = event->x();
+#endif
+		const int event_x = x - line0();
+
 		if (event->button() == Qt::LeftButton) {
 			if (near_line(event_x, line1()) && edb::v1::config().show_jump_arrow) {
 				movingLine1_ = true;
@@ -1963,7 +1979,12 @@ void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 
 	if (region_) {
-		const int x_pos = event->x() - line0();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		const int x = qRound(event->position().x());
+#else
+		const int x = event->x();
+#endif
+		const int x_pos = x - line0();
 
 		if (movingLine1_) {
 			if (line2_ == 0) {

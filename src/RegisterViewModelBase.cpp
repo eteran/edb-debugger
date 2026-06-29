@@ -421,11 +421,20 @@ bool Model::setData(const QModelIndex &index, const QVariant &data, int role) {
 	case RawValueRole:
 		if (this->data(index, IsNormalRegisterRole).toBool()) {
 			auto reg = checked_cast<AbstractRegisterItem>(item);
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+			if (role == Qt::EditRole && data.typeId() == QMetaType::QString) {
+				ok = reg->setValue(data.toString());
+			} else if (data.typeId() == QMetaType::QByteArray) {
+				ok = reg->setValue(data.toByteArray());
+			}
+#else
 			if (role == Qt::EditRole && data.type() == QVariant::String) {
 				ok = reg->setValue(data.toString());
 			} else if (data.type() == QVariant::ByteArray) {
 				ok = reg->setValue(data.toByteArray());
 			}
+#endif
 		}
 		break;
 	case ValueAsRegisterRole: {

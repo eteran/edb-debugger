@@ -215,10 +215,10 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f)
 					}
 				}
 			}
-			qDebug("[Heap Analyzer] Done Processing %d Nodes", nodes.size());
+			qDebug("[Heap Analyzer] Done Processing %d Nodes", static_cast<int>(nodes.size()));
 
 			if (nodes.size() > MaxNodes) {
-				qDebug("[Heap Analyzer] Too Many Nodes! (%d)", nodes.size());
+				qDebug("[Heap Analyzer] Too Many Nodes! (%d)", static_cast<int>(nodes.size()));
 				delete graph;
 				return;
 			}

@@ -282,8 +282,10 @@ int main(int argc, char *argv[]) {
 
 	QT_REQUIRE_VERSION(argc, argv, "5.9.0");
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 	QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
 
 	QApplication app(argc, argv);
 	QApplication::setWindowIcon(QIcon(":/debugger/images/edb.svg"));
@@ -296,9 +298,15 @@ int main(int argc, char *argv[]) {
 
 	// load some translations
 	QTranslator qtTranslator;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	if (qtTranslator.load(QLocale(), QLatin1String("qtbase"), QLatin1String("_"), QLibraryInfo::path(QLibraryInfo::TranslationsPath))) {
+		QApplication::installTranslator(&qtTranslator);
+	}
+#else
 	if (qtTranslator.load(QLocale(), QLatin1String("qtbase"), QLatin1String("_"), QLibraryInfo::location(QLibraryInfo::TranslationsPath))) {
 		QApplication::installTranslator(&qtTranslator);
 	}
+#endif
 
 	QTranslator translator;
 	// look up e.g. :/translations/edb_{lang}.qm
@@ -383,11 +391,19 @@ int main(int argc, char *argv[]) {
 	QApplication::setPalette(themePalette());
 
 	// Light/Dark icons on all platforms
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	if (QApplication::palette().window().color().lightnessF() >= 0.5f) {
+		QIcon::setThemeName(QLatin1String("breeze-edb"));
+	} else {
+		QIcon::setThemeName(QLatin1String("breeze-dark-edb"));
+	}
+#else
 	if (QApplication::palette().window().color().lightnessF() >= 0.5) {
 		QIcon::setThemeName(QLatin1String("breeze-edb"));
 	} else {
 		QIcon::setThemeName(QLatin1String("breeze-dark-edb"));
 	}
+#endif
 
 	return start_debugger(launch_args);
 }
