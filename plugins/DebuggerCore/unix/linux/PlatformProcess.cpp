@@ -152,6 +152,7 @@ QList<Module> get_loaded_modules(const IProcess *process) {
 
 	QList<Module> ret;
 
+	// read the dynamic linker's r_debug structure from the debuggee process if we can.
 	edb::linux_struct::r_debug<Addr> dynamic_info;
 	if (process) {
 		if (const edb::address_t debug_pointer = process->debugPointer()) {
@@ -1004,22 +1005,22 @@ edb::address_t get_debug_pointer(const IProcess *process, edb::address_t phdr_me
 	for (int i = 0; i < count; ++i) {
 		if (process->readBytes(phdr_memaddr + i * sizeof(elf_phdr), &phdr, sizeof(elf_phdr))) {
 			if (phdr.p_type == PT_DYNAMIC) {
-				try {
-
-					auto buf = std::make_unique<uint8_t[]>(phdr.p_memsz);
-
-					if (process->readBytes(phdr.p_vaddr + relocation, &buf[0], phdr.p_memsz)) {
-						auto dynamic = reinterpret_cast<typename Model::elf_dyn *>(&buf[0]);
-						while (dynamic->d_tag != DT_NULL) {
-							if (dynamic->d_tag == DT_DEBUG) {
-								return dynamic->d_un.d_val;
-							}
-							++dynamic;
-						}
-					}
-				} catch (const std::bad_alloc &) {
-					qDebug() << "[get_debug_pointer] no more memory";
+				if (phdr.p_memsz > 0x100000) {
+					qDebug() << "[get_debug_pointer] p_memsz is too large, skipping";
 					return 0;
+				}
+
+				auto buf = std::make_unique<uint8_t[]>(phdr.p_memsz);
+
+				if (process->readBytes(phdr.p_vaddr + relocation, &buf[0], phdr.p_memsz)) {
+
+					auto dynamic = reinterpret_cast<typename Model::elf_dyn *>(&buf[0]);
+					while (dynamic->d_tag != DT_NULL) {
+						if (dynamic->d_tag == DT_DEBUG) {
+							return dynamic->d_un.d_val;
+						}
+						++dynamic;
+					}
 				}
 			}
 		}
@@ -1069,12 +1070,16 @@ edb::address_t PlatformProcess::debugPointer() const {
 		/* Compute relocation: it is expected to be 0 for "regular" executables,
 		 * non-zero for PIE ones.  */
 		edb::address_t relocation = -1;
-		for (int i = 0; relocation == -1 && i < num_phdr; i++) {
+		for (int i = 0; i < num_phdr; i++) {
 
 			if (edb::v1::debuggeeIs64Bit()) {
 				relocation = get_relocation<elf_model<64>>(this, phdr_memaddr, i);
 			} else if (edb::v1::debuggeeIs32Bit()) {
 				relocation = get_relocation<elf_model<32>>(this, phdr_memaddr, i);
+			}
+
+			if (relocation != -1) {
+				break;
 			}
 		}
 

@@ -478,14 +478,31 @@ std::ostream &operator<<(std::ostream &os, value_type<T> &val) {
 // operators for value_type, Integer
 template <class T, class Integer, class = IsInteger<Integer>>
 [[nodiscard]] bool operator==(const value_type<T> &lhs, Integer rhs) {
-	using U = std::make_unsigned_t<Integer>;
-	return lhs.value_ == static_cast<U>(rhs);
+
+	using Signed   = std::make_signed_t<typename value_type<T>::InnerValueType>;
+	using Unsigned = std::make_unsigned_t<typename value_type<T>::InnerValueType>;
+
+	// Our value_type is unsigned, so if the rhs is signed and negative, then we need to make sure
+	// that we sign extend the rhs to compare it properly. Otherwise, we can just compare the unsigned values.
+	if constexpr (std::is_signed_v<Integer>) {
+		return lhs.value_ == static_cast<Unsigned>(static_cast<Signed>(rhs));
+	} else {
+		return lhs.value_ == rhs;
+	}
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>
 [[nodiscard]] bool operator!=(const value_type<T> &lhs, Integer rhs) {
-	using U = std::make_unsigned_t<Integer>;
-	return lhs.value_ != static_cast<U>(rhs);
+	using Signed   = std::make_signed_t<typename value_type<T>::InnerValueType>;
+	using Unsigned = std::make_unsigned_t<typename value_type<T>::InnerValueType>;
+
+	// Our value_type is unsigned, so if the rhs is signed and negative, then we need to make sure
+	// that we sign extend the rhs to compare it properly. Otherwise, we can just compare the unsigned values.
+	if constexpr (std::is_signed_v<Integer>) {
+		return lhs.value_ != static_cast<Unsigned>(static_cast<Signed>(rhs));
+	} else {
+		return lhs.value_ != rhs;
+	}
 }
 
 template <class T, class Integer, class = IsInteger<Integer>>

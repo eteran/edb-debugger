@@ -29,6 +29,7 @@
 #include "IThread.h"
 #include "Instruction.h"
 #include "MemoryRegions.h"
+#include "Module.h"
 #include "QHexView"
 #include "RecentFileManager.h"
 #include "RegionBuffer.h"
@@ -100,25 +101,24 @@ constexpr quint64 ld_loader_tag = Q_UINT64_C(0x4c49424556454e54); // "LIBEVENT" 
 #endif
 
 template <class Addr>
-void handle_library_event(IProcess *process, edb::address_t debug_pointer) {
+void handle_library_event(IProcess *process, [[maybe_unused]] edb::address_t debug_pointer) {
+	if (!process) {
+		return;
+	}
+
 #ifdef Q_OS_LINUX
 	edb::linux_struct::r_debug<Addr> dynamic_info;
 	const bool ok = (process->readBytes(debug_pointer, &dynamic_info, sizeof(dynamic_info)) == sizeof(dynamic_info));
 	if (ok) {
 
-		// NOTE(eteran): at least on my system, the name of
-		//               what is being loaded is either in
-		//               r8 or r13 depending on which event
-		//               we are looking at.
-		// TODO(eteran): find a way to get the name reliably
-
 		switch (dynamic_info.r_state) {
-		case edb::linux_struct::r_debug<Addr>::RT_CONSISTENT:
-			// TODO(eteran): enable this once we are confident
-#if 0
-			edb::v1::memory_regions().sync();
-#endif
-			break;
+		case edb::linux_struct::r_debug<Addr>::RT_CONSISTENT: {
+
+			QList<Module> modules = process->loadedModules();
+			// TODO(eteran): Compare the new list of modules with the old list and determine which modules were added or removed.
+			// and then attempt to do things like restore breakpoints in the new modules, etc.
+
+		} break;
 		case edb::linux_struct::r_debug<Addr>::RT_ADD:
 			// qDebug("LIBRARY LOAD EVENT");
 			break;
@@ -127,9 +127,6 @@ void handle_library_event(IProcess *process, edb::address_t debug_pointer) {
 			break;
 		}
 	}
-#else
-	Q_UNUSED(process)
-	Q_UNUSED(debug_pointer)
 #endif
 }
 
@@ -354,7 +351,6 @@ private:
 	edb::address_t lastCallReturn_ = 0;
 	edb::address_t returnAddress_  = 0;
 };
-
 }
 
 /**
@@ -3552,7 +3548,7 @@ void Debugger::nextDebugEvent() {
 			if (IProcess *process = edb::v1::debugger_core->process()) {
 				if (debugPointer_ == 0) {
 					if ((debugPointer_ = process->debugPointer()) != 0) {
-						edb::address_t r_brk = edb::v1::debuggeeIs32Bit() ? find_linker_hook_address<uint32_t>(process, debugPointer_) : find_linker_hook_address<uint64_t>(process, debugPointer_);
+						const edb::address_t r_brk = edb::v1::debuggeeIs32Bit() ? find_linker_hook_address<uint32_t>(process, debugPointer_) : find_linker_hook_address<uint64_t>(process, debugPointer_);
 
 						if (r_brk) {
 							// TODO(eteran): this is equivalent to ld-2.23.so!_dl_debug_state
@@ -3626,10 +3622,10 @@ void Debugger::on_action_Breakpoints_triggered() {
 void Debugger::on_action_Reset_UI_triggered() {
 
 	int resp = QMessageBox::question(edb::v1::debugger_ui,
-						  tr("Reset UI Layout?"),
-						  tr("Are you sure you want to reset the UI layout to its default state? This will take effect after restarting edb."),
-						  QMessageBox::Yes | QMessageBox::No,
-						  QMessageBox::No);
+									 tr("Reset UI Layout?"),
+									 tr("Are you sure you want to reset the UI layout to its default state? This will take effect after restarting edb."),
+									 QMessageBox::Yes | QMessageBox::No,
+									 QMessageBox::No);
 
 	if (resp != QMessageBox::Yes) {
 		return;

@@ -134,6 +134,44 @@ void testToString() {
 	TEST(str2 == "81985529216486895");
 }
 
+
+void testCompare() {
+	edb::value64 v64a = 0xffffffffffffffff;
+	TEST(v64a == 0xffffffffffffffff);
+	TEST(v64a != 0x0000000000000000);
+	TEST(v64a == -1);
+}
+
+void testCompareSignedVsUnsigned() {
+	// value_type is always unsigned and compares signed integers via sign-extension.
+	edb::value8 v8 = 0xff;
+	TEST(v8 == -1);
+	TEST(-1 == v8);
+	TEST(v8 != -2);
+	TEST(v8 != 0x7f);
+
+	edb::value16 v16 = 0xffff;
+	TEST(v16 == -1);
+	TEST(-1 == v16);
+	TEST(v16 != -2);
+
+	edb::value16 v16SignExtendedFromInt8 = 0xff80;
+	TEST(v16SignExtendedFromInt8 == static_cast<int8_t>(-128));
+	TEST(static_cast<int8_t>(-128) == v16SignExtendedFromInt8);
+
+	edb::value16 v16NotSignExtendedFromInt8 = 0x0080;
+	TEST(v16NotSignExtendedFromInt8 != static_cast<int8_t>(-128));
+	TEST(static_cast<int8_t>(-128) != v16NotSignExtendedFromInt8);
+
+	edb::value64 v64AllOnes = 0xffffffffffffffff;
+	TEST(v64AllOnes == static_cast<int32_t>(-1));
+	TEST(static_cast<int32_t>(-1) == v64AllOnes);
+
+	edb::value64 v64Low32Ones = 0x00000000ffffffff;
+	TEST(v64Low32Ones != static_cast<int32_t>(-1));
+	TEST(static_cast<int32_t>(-1) != v64Low32Ones);
+}
+
 }
 
 int main() {
@@ -142,4 +180,6 @@ int main() {
 	testFromString();
 	testSignExtension();
 	testToString();
+	testCompare();
+	testCompareSignedVsUnsigned();
 }
