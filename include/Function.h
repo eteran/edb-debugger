@@ -68,6 +68,10 @@ public:
 	[[nodiscard]] int referenceCount() const;
 
 public:
+	[[nodiscard]] bool containsBlock(const BasicBlock &bb) const;
+	[[nodiscard]] bool containsBlock(edb::address_t address) const;
+
+public:
 	void swap(Function &other) noexcept;
 
 public:

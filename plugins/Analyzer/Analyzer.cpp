@@ -500,6 +500,56 @@ void Analyzer::splitBlocks(RegionData *data) {
 
 void Analyzer::computeNonReturning(Analyzer::RegionData *data) {
 	Q_UNUSED(data);
+
+	for (auto it = data->functions.begin(); it != data->functions.end(); ++it) {
+
+		auto func = &it.value();
+
+		bool noreturn = true;
+
+		// Check all of the basic blocks in the function. If **all** of them don't indicate a return, then we can mark the function as non-returning.
+		// Otherwise, we just assume it returns. This is a conservative approach, but it is better than marking a function as non-returning when
+		// it actually does return.
+		for (const auto &[address, bb] : it.value()) {
+			Q_UNUSED(address);
+
+			if (!bb.empty()) {
+				const std::shared_ptr<edb::Instruction> &inst = bb.back();
+
+				// If the basic block ends with a halt, then it is non-returning. Continue to the next basic block.
+				if (is_halt(*inst)) {
+					continue;
+				}
+
+				// If the basic block ends with a UD instruction, then it is non-returning. Continue to the next basic block.
+				if (is_ud(*inst)) {
+					continue;
+				}
+
+				// If the basic block ends with a jump instruction that lands within the function, then it is non-returning. Continue to the next basic block.
+				if (is_jump(*inst)) {
+					Q_ASSERT(inst->operandCount() == 1);
+					const edb::Operand op = inst->operand(0);
+
+					if (is_immediate(op)) {
+
+						const edb::address_t ea = op->imm;
+						if (func->containsBlock(ea)) {
+							continue;
+						}
+					}
+				}
+
+				// Anything else, be conservative and assume it will return. Mark the function as returning and break out of the loop.
+				noreturn = false;
+				break;
+			}
+		}
+
+		if (noreturn) {
+			qDebug() << "Function at" << it.key().toPointerString() << "is non-returning";
+		}
+	}
 }
 
 /**

@@ -228,3 +228,27 @@ void Function::addReference() {
 void Function::erase(const_iterator it) {
 	blocks_.erase(it);
 }
+
+/**
+ * @brief Check if the function contains a specific basic block
+ *
+ * @param bb The basic block to check for
+ * @return true if the function contains the basic block, false otherwise
+ */
+bool Function::containsBlock(const BasicBlock &bb) const {
+	return containsBlock(bb.firstAddress());
+}
+
+/**
+ * @brief Check if the function contains a specific basic block by its starting address
+ *
+ * @param address The starting address of the basic block to check for
+ * @return true if the function contains the basic block, false otherwise
+ */
+bool Function::containsBlock(edb::address_t address) const {
+	auto it = blocks_.find(address);
+	if (it == blocks_.end()) {
+		return false;
+	}
+	return true;
+}
