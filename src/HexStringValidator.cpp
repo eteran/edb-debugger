@@ -57,16 +57,19 @@ QValidator::State HexStringValidator::validate(QString &input, int &pos) const {
 
 		pos = 0;
 
-		while (chars != char_pos) {
+		while (pos < input.size() && chars != char_pos) {
 			if (input[pos] != ' ') {
 				++chars;
 			}
 			++pos;
 		}
 
-		// favor the right side of a space
-		if (input[pos] == ' ') {
-			++pos;
+		if (pos < input.size()) {
+
+			// favor the right side of a space
+			if (input[pos] == ' ') {
+				++pos;
+			}
 		}
 	}
 	return QValidator::Acceptable;
