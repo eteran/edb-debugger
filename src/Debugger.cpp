@@ -1138,28 +1138,31 @@ void Debugger::closeEvent(QCloseEvent *event) {
 	// ensure that the detach event fires so that everyone who cases will be notified
 	Q_EMIT detachEvent();
 
-	QSettings settings;
-	const QByteArray state = saveState();
-	settings.beginGroup("Window");
-	settings.setValue("window.logger.visible", logger_->isVisible());
-	settings.setValue("window.state", state);
-	settings.setValue("window.view.state", mainWindow_->saveState());
-	settings.setValue("window.width", width());
-	settings.setValue("window.height", height());
-	settings.setValue("window.x", x());
-	settings.setValue("window.y", y());
-	settings.setValue("window.stack.show_address.enabled", stackView_->showAddress());
-	settings.setValue("window.stack.show_hex.enabled", stackView_->showHexDump());
-	settings.setValue("window.stack.show_ascii.enabled", stackView_->showAsciiDump());
-	settings.setValue("window.stack.show_comments.enabled", stackView_->showComments());
+	if (!ui_reset_) {
+		QSettings settings;
+		const QByteArray state = saveState();
+		settings.beginGroup("Window");
+		settings.setValue("window.logger.visible", logger_->isVisible());
+		settings.setValue("window.state", state);
+		settings.setValue("window.view.state", mainWindow_->saveState());
+		settings.setValue("window.width", width());
+		settings.setValue("window.height", height());
+		settings.setValue("window.x", x());
+		settings.setValue("window.y", y());
+		settings.setValue("window.stack.show_address.enabled", stackView_->showAddress());
+		settings.setValue("window.stack.show_hex.enabled", stackView_->showHexDump());
+		settings.setValue("window.stack.show_ascii.enabled", stackView_->showAsciiDump());
+		settings.setValue("window.stack.show_comments.enabled", stackView_->showComments());
 
-	QByteArray disassemblyState = cpuView_->saveState();
-	settings.setValue("window.disassembly.state", disassemblyState);
+		QByteArray disassemblyState = cpuView_->saveState();
+		settings.setValue("window.disassembly.state", disassemblyState);
 
-	QByteArray splitterState = splitter_->saveState();
-	settings.setValue("window.splitter.state", splitterState);
+		QByteArray splitterState = splitter_->saveState();
+		settings.setValue("window.splitter.state", splitterState);
 
-	settings.endGroup();
+		settings.endGroup();
+	}
+
 	event->accept();
 }
 
@@ -3618,4 +3621,23 @@ void Debugger::on_action_Breakpoints_triggered() {
 	}
 
 	breakpointDialog_->show();
+}
+
+void Debugger::on_action_Reset_UI_triggered() {
+
+	int resp = QMessageBox::question(edb::v1::debugger_ui,
+						  tr("Reset UI Layout?"),
+						  tr("Are you sure you want to reset the UI layout to its default state? This will take effect after restarting edb."),
+						  QMessageBox::Yes | QMessageBox::No,
+						  QMessageBox::No);
+
+	if (resp != QMessageBox::Yes) {
+		return;
+	}
+
+	QSettings settings;
+	settings.beginGroup("Window");
+	settings.remove("");
+	settings.endGroup();
+	ui_reset_ = true;
 }
