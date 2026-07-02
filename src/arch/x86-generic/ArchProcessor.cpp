@@ -132,7 +132,7 @@ QString register_name(const T &val) {
 }
 
 template <class T>
-QString syscallErrName(T err) {
+QString syscallErrName([[maybe_unused]] T err) {
 #ifdef Q_OS_LINUX
 	std::size_t index = -err;
 
@@ -143,8 +143,6 @@ QString syscallErrName(T err) {
 	if (errnoNames[index]) {
 		return errnoNames[index];
 	}
-#else
-	Q_UNUSED(err)
 #endif
 	return "";
 }

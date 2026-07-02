@@ -172,6 +172,75 @@ void testCompareSignedVsUnsigned() {
 	TEST(static_cast<int32_t>(-1) != v64Low32Ones);
 }
 
+void testMixedSignedOperatorsValueTypeLhs() {
+	edb::value32 v = 0x00000010;
+	auto neg1      = static_cast<int8_t>(-1);
+
+	TEST((v + neg1) == 0x0000000f);
+	TEST((v - neg1) == 0x00000011);
+	TEST((v * neg1) == 0xfffffff0);
+	TEST((v / neg1) == 0x00000000);
+	TEST((v % neg1) == 0x00000010);
+
+	TEST((v & neg1) == 0x00000010);
+	TEST((v | neg1) == 0xffffffff);
+	TEST((v ^ neg1) == 0xffffffef);
+}
+
+void testMixedSignedOperatorsIntegerLhs() {
+	auto neg1     = static_cast<int8_t>(-1);
+	edb::value16 v = 0x00f0;
+
+	TEST((neg1 + v) == 0x00ef);
+	TEST((neg1 - v) == 0xff0f);
+	TEST((neg1 * v) == 0xff10);
+	TEST((neg1 / v) == 0x0111);
+	TEST((neg1 % v) == 0x000f);
+
+	TEST((neg1 & v) == 0x00f0);
+	TEST((neg1 | v) == 0xffff);
+	TEST((neg1 ^ v) == 0xff0f);
+
+	// Ensure a wider value_type uses full-width sign-extension from a narrower signed integer.
+	edb::value64 one = 1;
+	TEST((static_cast<int32_t>(-1) + one) == 0x0000000000000000);
+}
+
+void testExplicitSignedTypes() {
+	const int8_t s8Neg1       = -1;
+	const int8_t s8Neg128     = INT8_MIN;
+	const int16_t s16Neg1     = -1;
+	const int32_t s32Neg1     = -1;
+	const int64_t s64Neg1     = -1;
+	const signed char schNeg1 = -1;
+
+	edb::value8 v8 = 0xff;
+	TEST(v8 == s8Neg1);
+	TEST(s8Neg1 == v8);
+	TEST(v8 == schNeg1);
+	TEST(schNeg1 == v8);
+
+	edb::value16 v16SignExtended = 0xff80;
+	TEST(v16SignExtended == s8Neg128);
+	TEST(s8Neg128 == v16SignExtended);
+
+	edb::value32 v32 = 0x00000010;
+	TEST((v32 + s16Neg1) == 0x0000000f);
+	TEST((v32 - s16Neg1) == 0x00000011);
+	TEST((v32 | s32Neg1) == 0xffffffff);
+	TEST((v32 ^ s32Neg1) == 0xffffffef);
+
+	edb::value64 v64 = 0xffffffffffffffff;
+	TEST(v64 == s32Neg1);
+	TEST(v64 == s64Neg1);
+	TEST(s32Neg1 == v64);
+	TEST(s64Neg1 == v64);
+
+	edb::value64 v64Low32Ones = 0x00000000ffffffff;
+	TEST(v64Low32Ones != s32Neg1);
+	TEST(s32Neg1 != v64Low32Ones);
+}
+
 }
 
 int main() {
@@ -182,4 +251,7 @@ int main() {
 	testToString();
 	testCompare();
 	testCompareSignedVsUnsigned();
+	testMixedSignedOperatorsValueTypeLhs();
+	testMixedSignedOperatorsIntegerLhs();
+	testExplicitSignedTypes();
 }

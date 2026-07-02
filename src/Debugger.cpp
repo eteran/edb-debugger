@@ -131,16 +131,13 @@ void handle_library_event(IProcess *process, [[maybe_unused]] edb::address_t deb
 }
 
 template <class Addr>
-edb::address_t find_linker_hook_address(IProcess *process, edb::address_t debug_pointer) {
+edb::address_t find_linker_hook_address([[maybe_unused]] IProcess *process, [[maybe_unused]] edb::address_t debug_pointer) {
 #ifdef Q_OS_LINUX
 	edb::linux_struct::r_debug<Addr> dynamic_info;
 	const bool ok = process->readBytes(debug_pointer, &dynamic_info, sizeof(dynamic_info));
 	if (ok) {
 		return edb::address_t::fromZeroExtended(dynamic_info.r_brk);
 	}
-#else
-	Q_UNUSED(process)
-	Q_UNUSED(debug_pointer)
 #endif
 	return edb::address_t(0);
 }

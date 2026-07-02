@@ -28,13 +28,6 @@ namespace v1 {
 EDB_EXPORT bool debuggeeIs32Bit();
 }
 
-// TODO(eteran): honestly, this whole file is filled with conversions, so the warnings about conversions are not really helpful.
-// Of course, we should audit the code to make sure that all conversions are intentional and safe. For now, suppress the warnings
-// about conversions in this file as it's just too loud when they are enabled.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-
 namespace detail {
 
 template <class Integer>
@@ -137,13 +130,13 @@ public:
 public:
 	template <class Integer, class = IsInteger<Integer>>
 	value_type(Integer n)
-		: value_(n) {
+		: value_(static_cast<T>(n)) {
 		// NOTE(eteran): this is allowed to truncate like assigning a uint64_t to a uint32_t
 	}
 
 	template <class Integer, class = IsInteger<Integer>>
 	value_type &operator=(const Integer &rhs) {
-		value_ = rhs;
+		value_ = static_cast<T>(rhs);
 		// NOTE(eteran): this is allowed to truncate like assigning a uint64_t to a uint32_t
 		return *this;
 	}
@@ -151,7 +144,7 @@ public:
 public:
 	template <class U>
 	explicit value_type(const value_type<U> &other)
-		: value_(other.value_) {
+		: value_(static_cast<T>(other.value_)) {
 		// NOTE(eteran): this is allowed to truncate like assigning a uint64_t to a uint32_t
 	}
 
@@ -337,50 +330,99 @@ public:
 public:
 	template <class Integer, class = IsInteger<Integer>>
 	value_type &operator+=(Integer n) {
-		value_ += n;
+		using Signed   = std::make_signed_t<InnerValueType>;
+		using Unsigned = InnerValueType;
+		if constexpr (std::is_signed_v<Integer>) {
+			value_ += static_cast<Unsigned>(static_cast<Signed>(n));
+		} else {
+			value_ += static_cast<Unsigned>(n);
+		}
 		return *this;
 	}
 
 	template <class Integer, class = IsInteger<Integer>>
 	value_type &operator-=(Integer n) {
-		value_ -= n;
+		using Signed   = std::make_signed_t<InnerValueType>;
+		using Unsigned = InnerValueType;
+		if constexpr (std::is_signed_v<Integer>) {
+			value_ -= static_cast<Unsigned>(static_cast<Signed>(n));
+		} else {
+			value_ -= static_cast<Unsigned>(n);
+		}
 		return *this;
 	}
 
 	template <class Integer, class = IsInteger<Integer>>
 	value_type &operator*=(Integer n) {
-		value_ *= n;
+		using Signed   = std::make_signed_t<InnerValueType>;
+		using Unsigned = InnerValueType;
+		if constexpr (std::is_signed_v<Integer>) {
+			value_ *= static_cast<Unsigned>(static_cast<Signed>(n));
+		} else {
+			value_ *= static_cast<Unsigned>(n);
+		}
 		return *this;
 	}
 
 	template <class Integer, class = IsInteger<Integer>>
 	value_type &operator/=(Integer n) {
-		value_ /= n;
+		using Signed   = std::make_signed_t<InnerValueType>;
+		using Unsigned = InnerValueType;
+		if constexpr (std::is_signed_v<Integer>) {
+			value_ /= static_cast<Unsigned>(static_cast<Signed>(n));
+		} else {
+			value_ /= static_cast<Unsigned>(n);
+		}
 		return *this;
 	}
 
 	template <class Integer, class = IsInteger<Integer>>
 	value_type &operator%=(Integer n) {
-		value_ %= n;
+		using Signed   = std::make_signed_t<InnerValueType>;
+		using Unsigned = InnerValueType;
+		if constexpr (std::is_signed_v<Integer>) {
+			value_ %= static_cast<Unsigned>(static_cast<Signed>(n));
+		} else {
+			value_ %= static_cast<Unsigned>(n);
+		}
 		return *this;
 	}
 
 public:
 	template <class Integer, class = IsInteger<Integer>>
 	value_type &operator&=(Integer n) {
-		value_ &= n;
+		using Signed   = std::make_signed_t<InnerValueType>;
+		using Unsigned = InnerValueType;
+
+		if constexpr (std::is_signed_v<Integer>) {
+			value_ &= static_cast<Unsigned>(static_cast<Signed>(n));
+		} else {
+			value_ &= static_cast<Unsigned>(n);
+		}
 		return *this;
 	}
 
 	template <class Integer, class = IsInteger<Integer>>
 	value_type &operator|=(Integer n) {
-		value_ |= n;
+		using Signed   = std::make_signed_t<InnerValueType>;
+		using Unsigned = InnerValueType;
+		if constexpr (std::is_signed_v<Integer>) {
+			value_ |= static_cast<Unsigned>(static_cast<Signed>(n));
+		} else {
+			value_ |= static_cast<Unsigned>(n);
+		}
 		return *this;
 	}
 
 	template <class Integer, class = IsInteger<Integer>>
 	value_type &operator^=(Integer n) {
-		value_ ^= n;
+		using Signed   = std::make_signed_t<InnerValueType>;
+		using Unsigned = InnerValueType;
+		if constexpr (std::is_signed_v<Integer>) {
+			value_ ^= static_cast<Unsigned>(static_cast<Signed>(n));
+		} else {
+			value_ ^= static_cast<Unsigned>(n);
+		}
 		return *this;
 	}
 
@@ -877,8 +919,6 @@ private:
 static_assert(sizeof(value_type80) * 8 == 80, "value_type80 size is broken!");
 
 }
-
-#pragma GCC diagnostic pop
 
 // GPR on x86
 using value8  = detail::value_type<uint8_t>;
