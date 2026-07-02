@@ -1335,8 +1335,6 @@ void PlatformState::setRegister(const Register &reg) {
 	}
 
 	{
-		// TODO(eteran): these memcpy's which have the size set to the SOURCE and
-		// not the dest look suspicious/potentially dangerous
 		static const QRegularExpression MMx("^mm([0-7])$");
 		const QRegularExpressionMatch match = MMx.match(regName);
 		if (match.hasMatch()) {

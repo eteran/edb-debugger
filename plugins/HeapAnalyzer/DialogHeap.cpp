@@ -428,10 +428,9 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 						}
 					}
 
-					// TODO(eteran): should this be unsigned int? Or should it be sizeof(value32)/sizeof(value64)?
 					const ResultViewModel::Result r{
 						currentChunkAddress,
-						currentChunk.chunkSize() + sizeof(unsigned int),
+						currentChunk.chunkSize() + (edb::v1::debuggeeIs64Bit() ? sizeof(uint64_t) : sizeof(uint32_t)),
 						nextChunk.prevInUse() ? ResultViewModel::Result::Busy : ResultViewModel::Result::Free,
 						data_type,
 						data,
