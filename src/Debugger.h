@@ -135,6 +135,7 @@ public Q_SLOTS:
 	void on_action_Step_Over_triggered();
 	void on_action_Threads_triggered();
 	void on_action_Breakpoints_triggered();
+	void on_action_Reset_UI_triggered();
 
 private:
 	void toggleFlag(int);
@@ -307,6 +308,7 @@ private:
 	QToolButton *tabDelete_               = nullptr;
 	RecentFileManager *recentFileManager_ = nullptr;
 	bool stackViewLocked_                 = false;
+	bool ui_reset_                        = false;
 
 #if defined(Q_OS_LINUX)
 	edb::address_t debugPointer_   = 0;
