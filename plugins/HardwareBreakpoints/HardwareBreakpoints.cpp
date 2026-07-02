@@ -244,7 +244,8 @@ edb::EventStatus HardwareBreakpoints::handleEvent(const std::shared_ptr<IDebugEv
  * @return A list of QActions representing the context menu items.
  */
 QList<QAction *> HardwareBreakpoints::stackContextMenu() {
-	auto menu = new QMenu(tr("Hardware Breakpoints"));
+
+	auto menu = new QMenu(tr("Hardware Breakpoints"), edb::v1::debugger_ui);
 
 	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, &HardwareBreakpoints::setAccess1);
 	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, &HardwareBreakpoints::setAccess2);
@@ -266,12 +267,10 @@ QList<QAction *> HardwareBreakpoints::stackContextMenu() {
 	wo3->setData(1);
 	wo4->setData(1);
 
-	QList<QAction *> ret;
-
 	auto action = new QAction(tr("Hardware Breakpoints"), this);
 	action->setMenu(menu);
-	ret << action;
-	return ret;
+
+	return {action};
 }
 
 /**
@@ -280,7 +279,8 @@ QList<QAction *> HardwareBreakpoints::stackContextMenu() {
  * @return A list of QActions representing the context menu items.
  */
 QList<QAction *> HardwareBreakpoints::dataContextMenu() {
-	auto menu = new QMenu(tr("Hardware Breakpoints"));
+
+	auto menu = new QMenu(tr("Hardware Breakpoints"), edb::v1::debugger_ui);
 
 	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, &HardwareBreakpoints::setAccess1);
 	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, &HardwareBreakpoints::setAccess2);
@@ -302,12 +302,10 @@ QList<QAction *> HardwareBreakpoints::dataContextMenu() {
 	wo3->setData(2);
 	wo4->setData(2);
 
-	QList<QAction *> ret;
-
 	auto action = new QAction(tr("Hardware Breakpoints"), this);
 	action->setMenu(menu);
-	ret << action;
-	return ret;
+
+	return {action};
 }
 
 /**
@@ -317,11 +315,12 @@ QList<QAction *> HardwareBreakpoints::dataContextMenu() {
  */
 QList<QAction *> HardwareBreakpoints::cpuContextMenu() {
 
-	auto menu = new QMenu(tr("Hardware Breakpoints"));
-	auto ex1  = menu->addAction(tr("Hardware, On Execute #1"), this, &HardwareBreakpoints::setExec1);
-	auto ex2  = menu->addAction(tr("Hardware, On Execute #2"), this, &HardwareBreakpoints::setExec2);
-	auto ex3  = menu->addAction(tr("Hardware, On Execute #3"), this, &HardwareBreakpoints::setExec3);
-	auto ex4  = menu->addAction(tr("Hardware, On Execute #4"), this, &HardwareBreakpoints::setExec4);
+	auto menu = new QMenu(tr("Hardware Breakpoints"), edb::v1::debugger_ui);
+
+	auto ex1 = menu->addAction(tr("Hardware, On Execute #1"), this, &HardwareBreakpoints::setExec1);
+	auto ex2 = menu->addAction(tr("Hardware, On Execute #2"), this, &HardwareBreakpoints::setExec2);
+	auto ex3 = menu->addAction(tr("Hardware, On Execute #3"), this, &HardwareBreakpoints::setExec3);
+	auto ex4 = menu->addAction(tr("Hardware, On Execute #4"), this, &HardwareBreakpoints::setExec4);
 
 	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, &HardwareBreakpoints::setAccess1);
 	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, &HardwareBreakpoints::setAccess2);
@@ -348,12 +347,10 @@ QList<QAction *> HardwareBreakpoints::cpuContextMenu() {
 	wo3->setData(3);
 	wo4->setData(3);
 
-	QList<QAction *> ret;
-
 	auto action = new QAction(tr("Hardware Breakpoints"), this);
 	action->setMenu(menu);
-	ret << action;
-	return ret;
+
+	return {action};
 }
 
 /**

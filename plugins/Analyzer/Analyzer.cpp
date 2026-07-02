@@ -343,8 +343,6 @@ void Analyzer::gotoFunctionEnd() {
  */
 QList<QAction *> Analyzer::cpuContextMenu() {
 
-	QList<QAction *> ret;
-
 	auto action_find                = new QAction(tr("Analyze Here"), this);
 	auto action_goto_function_start = new QAction(tr("Goto Function Start"), this);
 	auto action_goto_function_end   = new QAction(tr("Goto Function End"), this);
@@ -357,9 +355,13 @@ QList<QAction *> Analyzer::cpuContextMenu() {
 	connect(action_mark_function_start, &QAction::triggered, this, &Analyzer::markFunctionStart);
 	connect(action_xrefs, &QAction::triggered, this, &Analyzer::showXrefs);
 
-	ret << action_find << action_goto_function_start << action_goto_function_end << action_mark_function_start << action_xrefs;
-
-	return ret;
+	return {
+		action_find,
+		action_goto_function_start,
+		action_goto_function_end,
+		action_mark_function_start,
+		action_xrefs,
+	};
 }
 
 /**
