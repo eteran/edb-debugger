@@ -631,6 +631,10 @@ template <class T, class Integer, class = IsInteger<Integer>>
 template <class T, class Integer, class = IsInteger<Integer>>
 [[nodiscard]] auto operator+(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
 
+
+	// TODO(eteran): Should we sign-extend the lhs if it's signed and negative?
+	// Or should we just treat it as an unsigned value? For now, just treat it as an unsigned value.
+
 	using U = value_type<PromoteType<T, Integer>>;
 
 	value_type<U> r(lhs);
