@@ -148,9 +148,9 @@ std::shared_ptr<IRegion> process_map_line(const QString &line) {
  * @return
  */
 template <class Addr>
-QList<Module> get_loaded_modules(const IProcess *process) {
+QSet<Module> get_loaded_modules(const IProcess *process) {
 
-	QList<Module> ret;
+	QSet<Module> ret;
 
 	// read the dynamic linker's r_debug structure from the debuggee process if we can.
 	edb::linux_struct::r_debug<Addr> dynamic_info;
@@ -174,7 +174,7 @@ QList<Module> get_loaded_modules(const IProcess *process) {
 								Module module;
 								module.name        = path;
 								module.baseAddress = map.l_addr;
-								ret.push_back(module);
+								ret.insert(std::move(module));
 							}
 
 							link_address = edb::address_t::fromZeroExtended(map.l_next);
@@ -201,7 +201,7 @@ QList<Module> get_loaded_modules(const IProcess *process) {
 					module.name        = region->name();
 					module.baseAddress = region->start();
 					found_modules.insert(region->name());
-					ret.push_back(module);
+					ret.insert(std::move(module));
 				}
 			}
 		}
@@ -837,7 +837,7 @@ QString PlatformProcess::name() const {
  *
  * @return
  */
-QList<Module> PlatformProcess::loadedModules() const {
+QSet<Module> PlatformProcess::loadedModules() const {
 	if (edb::v1::debuggeeIs64Bit()) {
 		return get_loaded_modules<Elf64_Addr>(this);
 	}
@@ -846,7 +846,7 @@ QList<Module> PlatformProcess::loadedModules() const {
 		return get_loaded_modules<Elf32_Addr>(this);
 	}
 
-	return QList<Module>();
+	return QSet<Module>();
 }
 
 /**

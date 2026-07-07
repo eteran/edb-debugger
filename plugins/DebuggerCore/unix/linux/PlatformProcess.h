@@ -34,7 +34,7 @@ public:
 	[[nodiscard]] edb::pid_t pid() const override;
 	[[nodiscard]] edb::uid_t uid() const override;
 	[[nodiscard]] QDateTime startTime() const override;
-	[[nodiscard]] QList<Module> loadedModules() const override;
+	[[nodiscard]] QSet<Module> loadedModules() const override;
 	[[nodiscard]] QList<QByteArray> arguments() const override;
 	[[nodiscard]] QList<std::shared_ptr<IRegion>> regions() const override;
 	[[nodiscard]] QList<std::shared_ptr<IThread>> threads() const override;

@@ -542,8 +542,8 @@ QList<QByteArray> PlatformProcess::arguments() const {
  *
  * @return A list of loaded modules in the process.
  */
-QList<Module> PlatformProcess::loadedModules() const {
-	QList<Module> ret;
+QSet<Module> PlatformProcess::loadedModules() const {
+	QSet<Module> ret;
 	HANDLE hModuleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid());
 	if (hModuleSnap != INVALID_HANDLE_VALUE) {
 		MODULEENTRY32 me32;
@@ -554,7 +554,7 @@ QList<Module> PlatformProcess::loadedModules() const {
 				Module module;
 				module.baseAddress = edb::address_t::fromZeroExtended(me32.modBaseAddr);
 				module.name        = QString::fromWCharArray(me32.szModule);
-				ret.push_back(module);
+				ret.insert(std::move(module));
 			} while (Module32Next(hModuleSnap, &me32));
 		}
 	}

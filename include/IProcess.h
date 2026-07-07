@@ -13,6 +13,7 @@
 #include "Types.h"
 #include <QList>
 #include <QMap>
+#include <QSet>
 #include <memory>
 
 class IRegion;
@@ -42,7 +43,7 @@ public:
 	[[nodiscard]] virtual edb::uid_t uid() const                          = 0;
 	[[nodiscard]] virtual QString user() const                            = 0;
 	[[nodiscard]] virtual QString name() const                            = 0;
-	[[nodiscard]] virtual QList<Module> loadedModules() const             = 0;
+	[[nodiscard]] virtual QSet<Module> loadedModules() const              = 0;
 
 public:
 	[[nodiscard]] virtual edb::address_t debugPointer() const { return 0; }

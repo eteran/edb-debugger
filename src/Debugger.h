@@ -32,8 +32,10 @@ class IBinary;
 class IBreakpoint;
 class IDebugEvent;
 class IPlugin;
+class IProcess;
 class RecentFileManager;
 class TabWidget;
+struct Module;
 
 class QDisassemblyView;
 class QDockWidget;
@@ -286,6 +288,9 @@ private:
 	template <class F1, class F2>
 	void stepOver(F1 run_func, F2 step_func);
 
+	template <class Addr>
+	void handle_library_event(IProcess *process, [[maybe_unused]] edb::address_t debug_pointer);
+
 public:
 	Ui::Debugger ui;
 	QDisassemblyView *cpuView_ = nullptr;
@@ -311,8 +316,8 @@ private:
 	bool ui_reset_                        = false;
 
 #if defined(Q_OS_LINUX)
-	edb::address_t debugPointer_   = 0;
-	bool dynamicInfoBreakpointSet_ = false;
+	edb::address_t debugPointer_ = 0;
+	QSet<Module> loadedModules_;
 #endif
 
 private:

@@ -97,7 +97,7 @@ void get_library_names(QString *libcName, QString *ldName) {
 
 	if (edb::v1::debugger_core) {
 		if (IProcess *process = edb::v1::debugger_core->process()) {
-			const QList<Module> libs = process->loadedModules();
+			const QSet<Module> libs = process->loadedModules();
 
 			for (const Module &module : libs) {
 				if (!ldName->isEmpty() && !libcName->isEmpty()) {

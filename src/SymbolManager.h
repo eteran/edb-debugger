@@ -27,6 +27,7 @@ public:
 	[[nodiscard]] QString findAddressName(edb::address_t address, bool prefixed = true) override;
 	[[nodiscard]] QStringList files() const override;
 	[[nodiscard]] std::shared_ptr<Symbol> find(const QString &name) const override;
+	[[nodiscard]] std::vector<std::shared_ptr<Symbol>> findAll(const QString &name) const override;
 	[[nodiscard]] std::shared_ptr<Symbol> find(edb::address_t address) const override;
 	[[nodiscard]] std::shared_ptr<Symbol> findNearSymbol(edb::address_t address) const override;
 	[[nodiscard]] std::vector<std::shared_ptr<Symbol>> symbols() const override;

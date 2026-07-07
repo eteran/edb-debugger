@@ -75,7 +75,7 @@ public:
 	edb::uid_t uid() const override;
 	QString user() const override;
 	QString name() const override;
-	QList<Module> loadedModules() const override;
+	QSet<Module> loadedModules() const override;
 
 public:
 	// only legal to call when attached

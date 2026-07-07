@@ -99,6 +99,22 @@ std::shared_ptr<Symbol> SymbolManager::find(const QString &name) const {
 	return nullptr;
 }
 
+std::vector<std::shared_ptr<Symbol>> SymbolManager::findAll(const QString &name) const {
+	std::vector<std::shared_ptr<Symbol>> result;
+
+	qDebug() << "Searching for all symbols matching name:" << name;
+
+	auto it2 = std::find_if(symbols_.begin(), symbols_.end(), [&name](const std::shared_ptr<Symbol> &symbol) {
+		return symbol->name_no_prefix == name;
+	});
+
+	if (it2 != symbols_.end()) {
+		result.push_back(*it2);
+	}
+
+	return result;
+}
+
 /**
  * @brief
  */

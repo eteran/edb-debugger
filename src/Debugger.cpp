@@ -100,48 +100,6 @@ constexpr quint64 run_to_cursor_tag = Q_UINT64_C(0x474f544f48455245); // "GOTOHE
 constexpr quint64 ld_loader_tag = Q_UINT64_C(0x4c49424556454e54); // "LIBEVENT" in hex
 #endif
 
-template <class Addr>
-void handle_library_event(IProcess *process, [[maybe_unused]] edb::address_t debug_pointer) {
-	if (!process) {
-		return;
-	}
-
-#ifdef Q_OS_LINUX
-	edb::linux_struct::r_debug<Addr> dynamic_info;
-	const bool ok = (process->readBytes(debug_pointer, &dynamic_info, sizeof(dynamic_info)) == sizeof(dynamic_info));
-	if (ok) {
-
-		switch (dynamic_info.r_state) {
-		case edb::linux_struct::r_debug<Addr>::RT_CONSISTENT: {
-
-			QList<Module> modules = process->loadedModules();
-			// TODO(eteran): Compare the new list of modules with the old list and determine which modules were added or removed.
-			// and then attempt to do things like restore breakpoints in the new modules, etc.
-
-		} break;
-		case edb::linux_struct::r_debug<Addr>::RT_ADD:
-			// qDebug("LIBRARY LOAD EVENT");
-			break;
-		case edb::linux_struct::r_debug<Addr>::RT_DELETE:
-			// qDebug("LIBRARY UNLOAD EVENT");
-			break;
-		}
-	}
-#endif
-}
-
-template <class Addr>
-edb::address_t find_linker_hook_address([[maybe_unused]] IProcess *process, [[maybe_unused]] edb::address_t debug_pointer) {
-#ifdef Q_OS_LINUX
-	edb::linux_struct::r_debug<Addr> dynamic_info;
-	const bool ok = process->readBytes(debug_pointer, &dynamic_info, sizeof(dynamic_info));
-	if (ok) {
-		return edb::address_t::fromZeroExtended(dynamic_info.r_brk);
-	}
-#endif
-	return edb::address_t(0);
-}
-
 /**
  * @brief Checks if the instruction at the given address is a return instruction.
  *
@@ -2326,17 +2284,17 @@ edb::EventStatus Debugger::handleTrap(const std::shared_ptr<IDebugEvent> &event)
 
 #if defined(Q_OS_LINUX)
 		// test if we have hit our internal LD hook BP. If so, read in the r_debug
-		// struct so we can get the state, then we can just resume
-		// TODO(eteran): add an option to let the user stop of debug events
+		// struct (if necessary) so we can get the state, then we can just resume
 		if (bp->internal() && bp->tag == ld_loader_tag) {
+			if (!debugPointer_) {
+				debugPointer_ = process->debugPointer();
+			}
 
-			if (dynamicInfoBreakpointSet_) {
-				if (debugPointer_) {
-					if (edb::v1::debuggeeIs32Bit()) {
-						handle_library_event<uint32_t>(process, debugPointer_);
-					} else {
-						handle_library_event<uint64_t>(process, debugPointer_);
-					}
+			if (debugPointer_) {
+				if (edb::v1::debuggeeIs32Bit()) {
+					handle_library_event<uint32_t>(process, debugPointer_);
+				} else {
+					handle_library_event<uint64_t>(process, debugPointer_);
 				}
 			}
 
@@ -2994,8 +2952,8 @@ void Debugger::setInitialDebuggerState() {
 	reenableBreakpointStep_ = nullptr;
 
 #ifdef Q_OS_LINUX
-	debugPointer_             = 0;
-	dynamicInfoBreakpointSet_ = false;
+	debugPointer_ = 0;
+	loadedModules_.clear();
 #endif
 
 	IProcess *process        = edb::v1::debugger_core->process();
@@ -3151,8 +3109,33 @@ bool Debugger::commonOpen(const QString &s, const QList<QByteArray> &args, const
 	QString process_output = output.isNull() ? ttyFile_ : output;
 
 	if (const Status status = edb::v1::debugger_core->open(s, workingDirectory_, args, process_input, process_output)) {
+
 		attachComplete();
 		setInitialBreakpoint(s);
+
+		// NOTE(eteran): this isn't really "Linux" specific, but it is the only platform that we currently support
+		// that has a dynamic loader that we can hook into to get library load/unload events. If we ever support other
+		// platforms with dynamic loaders, we should add support for them here as well.
+#if defined(Q_OS_LINUX)
+		// Find the linker magic breakpoint function so we can set a breakpoint on it to catch library load/unload events.
+
+		// Annoyingly, we have to sync the memory regions here, because that's what causes the symbols to be loaded,
+		// and we need the symbols to find the _dl_debug_state symbol. This is a bit of a hack, but it works for now.
+		edb::v1::memory_regions().sync();
+
+		std::vector<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().findAll(QStringLiteral("_dl_debug_state"));
+		if (!symbols.empty()) {
+
+			std::shared_ptr<Symbol> symbol = symbols.front();
+
+			if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(symbol->address)) {
+				bp->setInternal(true);
+				bp->tag = ld_loader_tag;
+				qDebug() << "Set breakpoint on _dl_debug_state at" << edb::v1::format_pointer(symbol->address);
+			}
+		}
+#endif
+
 		ret = true;
 	} else {
 		QMessageBox::critical(
@@ -3540,28 +3523,6 @@ void Debugger::nextDebugEvent() {
 		//               do this when the hook isn't set.
 		edb::v1::memory_regions().sync();
 
-#if defined(Q_OS_LINUX)
-		if (!dynamicInfoBreakpointSet_) {
-			if (IProcess *process = edb::v1::debugger_core->process()) {
-				if (debugPointer_ == 0) {
-					if ((debugPointer_ = process->debugPointer()) != 0) {
-						const edb::address_t r_brk = edb::v1::debuggeeIs32Bit() ? find_linker_hook_address<uint32_t>(process, debugPointer_) : find_linker_hook_address<uint64_t>(process, debugPointer_);
-
-						if (r_brk) {
-							// TODO(eteran): this is equivalent to ld-2.23.so!_dl_debug_state
-							// maybe we should prefer setting this by symbol if possible?
-							if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(r_brk)) {
-								bp->setInternal(true);
-								bp->tag                   = ld_loader_tag;
-								dynamicInfoBreakpointSet_ = true;
-							}
-						}
-					}
-				}
-			}
-		}
-#endif
-
 		Q_EMIT debugEvent();
 
 		const edb::EventStatus status = edb::v1::execute_debug_event_handlers(e);
@@ -3633,4 +3594,65 @@ void Debugger::on_action_Reset_UI_triggered() {
 	settings.remove("");
 	settings.endGroup();
 	ui_reset_ = true;
+}
+
+/**
+ * @brief Handles library load/unload events.
+ *
+ * @param process The process that triggered the event.
+ * @param debug_pointer The platform-specific pointer to the platform-specific debug structure. (r_debug on Linux)
+ */
+template <class Addr>
+void Debugger::handle_library_event(IProcess *process, [[maybe_unused]] edb::address_t debug_pointer) {
+
+	if (!process) {
+		return;
+	}
+
+	if (!debug_pointer) {
+		return;
+	}
+
+	qDebug() << "Library event triggered, reading dynamic loader info from" << edb::v1::format_pointer(debug_pointer);
+
+#ifdef Q_OS_LINUX
+	edb::linux_struct::r_debug<Addr> dynamic_info;
+	const bool ok = (process->readBytes(debug_pointer, &dynamic_info, sizeof(dynamic_info)) == sizeof(dynamic_info));
+	if (ok) {
+		switch (dynamic_info.r_state) {
+		case edb::linux_struct::r_debug<Addr>::RT_CONSISTENT:
+			break;
+		case edb::linux_struct::r_debug<Addr>::RT_ADD: {
+			qDebug("LIBRARY LOAD EVENT");
+
+			QSet<Module> modules       = process->loadedModules();
+			QSet<Module> added_modules = modules - loadedModules_;
+
+			qDebug() << "Added modules:";
+			for (const Module &module : added_modules) {
+				qDebug() << "  " << module.name << "@" << edb::v1::format_pointer(module.baseAddress);
+			}
+
+			loadedModules_ = modules;
+
+			break;
+		}
+		case edb::linux_struct::r_debug<Addr>::RT_DELETE: {
+			qDebug("LIBRARY UNLOAD EVENT");
+
+			QSet<Module> modules         = process->loadedModules();
+			QSet<Module> removed_modules = loadedModules_ - modules;
+
+			qDebug() << "Removed modules:";
+			for (const Module &module : removed_modules) {
+				qDebug() << "  " << module.name << "@" << edb::v1::format_pointer(module.baseAddress);
+			}
+
+			loadedModules_ = modules;
+
+			break;
+		}
+		}
+	}
+#endif
 }
