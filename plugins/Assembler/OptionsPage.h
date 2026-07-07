@@ -20,7 +20,11 @@ public:
 	~OptionsPage() override = default;
 
 public Q_SLOTS:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	void on_assemblerName_currentIndexChanged(int index);
+#else
 	void on_assemblerName_currentIndexChanged(const QString &text);
+#endif
 
 private:
 	Ui::OptionsPage ui;

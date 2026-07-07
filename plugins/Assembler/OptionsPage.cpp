@@ -59,14 +59,27 @@ OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
 	}
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 /**
  * @brief Saves the newly selected assembler name to persistent settings when the combo box selection changes.
  *
- * @param text
+ * @param index The index of the newly selected item in the combo box.
+ */
+void OptionsPage::on_assemblerName_currentIndexChanged(int index) {
+	const QString text = ui.assemblerName->itemText(index);
+	QSettings settings;
+	settings.setValue("Assembler/helper", text);
+}
+#else
+/**
+ * @brief Saves the newly selected assembler name to persistent settings when the combo box selection changes.
+ *
+ * @param text The text of the newly selected item in the combo box.
  */
 void OptionsPage::on_assemblerName_currentIndexChanged(const QString &text) {
 	QSettings settings;
 	settings.setValue("Assembler/helper", text);
 }
+#endif
 
 }
