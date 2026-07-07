@@ -51,7 +51,9 @@ QPointF center_to_origin(const QPointF &p, qreal width, qreal height) {
 }
 
 /**
- * @brief
+ * @brief Constructs a GraphWidget with the specified parent widget.
+ *
+ * @param parent The parent widget for this GraphWidget.
  */
 GraphWidget::GraphWidget(QWidget *parent)
 	: QGraphicsView(parent) {
@@ -108,30 +110,42 @@ GraphWidget::GraphWidget(QWidget *parent)
 }
 
 /**
- * @brief
+ * @brief Sets an attribute for the graph.
+ *
+ * @param name The name of the attribute.
+ * @param value The value of the attribute.
  */
 void GraphWidget::setGraphAttribute(QString name, QString value) {
 	_agset(graph_, name, value);
 }
 
 /**
- * @brief
+ * @brief Sets an attribute for the nodes in the graph.
+ *
+ * @param name The name of the attribute.
+ * @param value The value of the attribute.
  */
 void GraphWidget::setNodeAttribute(QString name, QString value) {
 	_agnodeattr(graph_, name, value);
 }
 
 /**
- * @brief
+ * @brief Sets an attribute for the edges in the graph.
+ *
+ * @param name The name of the attribute.
+ * @param value The value of the attribute.
  */
 void GraphWidget::setEdgeAttribute(QString name, QString value) {
 	_agedgeattr(graph_, name, value);
 }
 
 /**
- * @brief
+ * @brief Sets a notification message to be displayed on the HUD for a specified duration.
+ *
+ * @param s The notification message to display.
+ * @param duration The duration for which the notification should be displayed. Default is 1000 ms.
  */
-void GraphWidget::setHUDNotification(const QString &s, int duration) {
+void GraphWidget::setHUDNotification(const QString &s, std::chrono::milliseconds duration) {
 
 	HUDLabel_->setText(s);
 	HUDLabel_->show();
@@ -143,7 +157,7 @@ void GraphWidget::setHUDNotification(const QString &s, int duration) {
 	auto animation = new QPropertyAnimation(this);
 	animation->setTargetObject(effect);
 	animation->setPropertyName("opacity");
-	animation->setDuration(duration);
+	animation->setDuration(static_cast<int>(duration.count()));
 	animation->setStartValue(effect->opacity());
 	animation->setEndValue(0);
 	animation->setEasingCurve(QEasingCurve::OutQuad);
@@ -153,7 +167,7 @@ void GraphWidget::setHUDNotification(const QString &s, int duration) {
 }
 
 /**
- * @brief
+ * @brief Lays out the graph using the specified layout engine.
  */
 void GraphWidget::layout() {
 
@@ -189,7 +203,7 @@ void GraphWidget::layout() {
 }
 
 /**
- * @brief
+ * @brief Destroys the GraphWidget, freeing the associated graph and context resources.
  */
 GraphWidget::~GraphWidget() {
 	gvFreeLayout(context_, graph_);
@@ -198,7 +212,9 @@ GraphWidget::~GraphWidget() {
 }
 
 /**
- * @brief
+ * @brief Handles key press events for the GraphWidget, allowing for zooming, rotating, centering, and layout actions based on specific key inputs.
+ *
+ * @param event The key press event to handle.
  */
 void GraphWidget::keyPressEvent(QKeyEvent *event) {
 
@@ -234,7 +250,9 @@ void GraphWidget::keyPressEvent(QKeyEvent *event) {
 }
 
 /**
- * @brief
+ * @brief Handles key release events for the GraphWidget, allowing for resetting the drag mode when the Control key is released.
+ *
+ * @param event The key release event to handle.
  */
 void GraphWidget::keyReleaseEvent(QKeyEvent *event) {
 
@@ -252,14 +270,19 @@ void GraphWidget::keyReleaseEvent(QKeyEvent *event) {
 }
 
 /**
- * @brief
+ * @brief Handles wheel events for the GraphWidget, allowing for zooming in and out based on the wheel rotation.
+ *
+ * @param event The wheel event to handle.
  */
 void GraphWidget::wheelEvent(QWheelEvent *event) {
 	setScale(std::pow(2.0, +event->angleDelta().y() / 240.0));
 }
 
 /**
- * @brief
+ * @brief Sets the scale of the view by the specified factor, ensuring that the scale remains within defined minimum and maximum bounds.
+ * Emits a zoom event with the new scale factor and the current scale.
+ *
+ * @param factor The scale factor to apply to the view.
  */
 void GraphWidget::setScale(qreal factor) {
 	const qreal f = std::sqrt(transform().determinant());
@@ -269,7 +292,9 @@ void GraphWidget::setScale(qreal factor) {
 }
 
 /**
- * @brief
+ * @brief Handles context menu events for the GraphWidget, emitting signals based on the type of item under the cursor (node, edge, or background).
+ *
+ * @param event The context menu event to handle.
  */
 void GraphWidget::contextMenuEvent(QContextMenuEvent *event) {
 
@@ -288,7 +313,9 @@ void GraphWidget::contextMenuEvent(QContextMenuEvent *event) {
 }
 
 /**
- * @brief
+ * @brief Handles mouse double-click events for the GraphWidget, emitting signals based on the type of item under the cursor (node, edge, or background).
+ *
+ * @param event The mouse double-click event to handle.
  */
 void GraphWidget::mouseDoubleClickEvent(QMouseEvent *event) {
 
@@ -306,7 +333,7 @@ void GraphWidget::mouseDoubleClickEvent(QMouseEvent *event) {
 }
 
 /**
- * @brief
+ * @brief Clears the graph by deleting all items in the scene, effectively removing all nodes and edges from the view.
  */
 void GraphWidget::clear() {
 	qDeleteAll(scene()->items());

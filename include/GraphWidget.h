@@ -8,6 +8,7 @@
 #define GRAPH_WIDGET_H_20090903_
 
 #include <QGraphicsView>
+#include <chrono>
 #include <graphviz/cgraph.h>
 #include <graphviz/gvcext.h>
 
@@ -35,7 +36,7 @@ public:
 
 public Q_SLOTS:
 	void setScale(qreal factor);
-	void setHUDNotification(const QString &s, int duration = 1000);
+	void setHUDNotification(const QString &s, std::chrono::milliseconds duration = std::chrono::milliseconds(1000));
 
 Q_SIGNALS:
 	void backgroundContextMenuEvent(QContextMenuEvent *event);

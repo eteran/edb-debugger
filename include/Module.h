@@ -15,11 +15,17 @@ struct Module {
 	edb::address_t baseAddress;
 };
 
-bool operator==(const Module &lhs, const Module &rhs) {
+inline bool operator==(const Module &lhs, const Module &rhs) {
 	return lhs.name == rhs.name && lhs.baseAddress == rhs.baseAddress;
 }
 
-uint qHash(const Module &module, uint seed = 0) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+using hash_type = size_t;
+#else
+using hash_type = uint;
+#endif
+
+inline hash_type qHash(const Module &module, hash_type seed = 0) {
 	return qHash(module.name, seed) ^ qHash(module.baseAddress.toUint(), seed);
 }
 

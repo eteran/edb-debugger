@@ -8,14 +8,21 @@
 #include <QTreeView>
 
 /**
- * @brief
+ * @brief Constructs a RegisterViewDelegate with the specified QTreeView and parent widget.
+ *
+ * @param view The QTreeView that this delegate will be associated with.
+ * @param parent The parent widget for this delegate.
  */
 RegisterViewDelegate::RegisterViewDelegate(QTreeView *view, QWidget *parent)
 	: QStyledItemDelegate(parent), view_(view) {
 }
 
 /**
- * @brief
+ * @brief Paints the item at the given index in the view using the specified painter and style option.
+ *
+ * @param painter The QPainter used to draw the item.
+ * @param option The style options for the item.
+ * @param index The model index of the item to be painted.
  */
 void RegisterViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
 
@@ -62,7 +69,11 @@ void RegisterViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 }
 
 /**
- * @brief
+ * @brief Returns the size hint for the item at the given index, taking into account whether it is a top-level item or not.
+ *
+ * @param opt The style options for the item.
+ * @param index The model index of the item for which to return the size hint.
+ * @return The size hint for the item at the given index.
  */
 QSize RegisterViewDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const {
 	const QSize defaultHint = QStyledItemDelegate::sizeHint(opt, index) + QSize(2, 2);
