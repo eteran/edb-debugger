@@ -26,12 +26,12 @@ public:
 	[[nodiscard]] QHash<edb::address_t, QString> labels() const override;
 	[[nodiscard]] QString findAddressName(edb::address_t address, bool prefixed = true) override;
 	[[nodiscard]] QStringList files() const override;
-	[[nodiscard]] std::shared_ptr<Symbol> find(const QString &name) const override;
-	[[nodiscard]] std::vector<std::shared_ptr<Symbol>> findAll(const QString &name) const override;
-	[[nodiscard]] std::shared_ptr<Symbol> find(edb::address_t address) const override;
-	[[nodiscard]] std::shared_ptr<Symbol> findNearSymbol(edb::address_t address) const override;
-	[[nodiscard]] std::vector<std::shared_ptr<Symbol>> symbols() const override;
-	void addSymbol(const std::shared_ptr<Symbol> &symbol) override;
+	[[nodiscard]] std::optional<Symbol> find(const QString &name) const override;
+	[[nodiscard]] std::vector<Symbol> findAll(const QString &name) const override;
+	[[nodiscard]] std::optional<Symbol> find(edb::address_t address) const override;
+	[[nodiscard]] std::optional<Symbol> findNearSymbol(edb::address_t address) const override;
+	[[nodiscard]] std::vector<Symbol> symbols() const override;
+	void addSymbol(const Symbol &symbol) override;
 	void clear() override;
 	void loadSymbolFile(const QString &filename, edb::address_t base) override;
 	void setLabel(edb::address_t address, const QString &label) override;
@@ -42,10 +42,10 @@ private:
 
 private:
 	QSet<QString> symbolFiles_;
-	std::vector<std::shared_ptr<Symbol>> symbols_;
-	QMap<edb::address_t, std::shared_ptr<Symbol>> symbolsByAddress_;
-	QHash<QString, QList<std::shared_ptr<Symbol>>> symbolsByFile_;
-	QHash<QString, std::shared_ptr<Symbol>> symbolsByName_;
+	std::vector<Symbol> symbols_;
+	QMap<edb::address_t, Symbol> symbolsByAddress_;
+	QHash<QString, QList<Symbol>> symbolsByFile_;
+	QHash<QString, Symbol> symbolsByName_;
 	QHash<edb::address_t, QString> labels_;
 	QHash<QString, edb::address_t> labelsByName_;
 	ISymbolGenerator *symbolGenerator_ = nullptr;

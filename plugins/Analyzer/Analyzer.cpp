@@ -53,7 +53,7 @@ constexpr int MinRefCount = 2;
  */
 bool will_return(edb::address_t address) {
 
-	const std::shared_ptr<Symbol> symbol = edb::v1::symbol_manager().find(address);
+	const std::optional<Symbol> symbol = edb::v1::symbol_manager().find(address);
 	if (symbol) {
 		const QString symname   = symbol->name_no_prefix;
 		const QString func_name = symname.mid(0, symname.indexOf("@"));
@@ -411,17 +411,17 @@ void Analyzer::bonusSymbols(RegionData *data) {
 	Q_ASSERT(data);
 
 	// give bonus if we have a symbol for the address
-	const std::vector<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().symbols();
+	const std::vector<Symbol> symbols = edb::v1::symbol_manager().symbols();
 
-	for (const std::shared_ptr<Symbol> &sym : symbols) {
-		const edb::address_t addr = sym->address;
+	for (const Symbol &sym : symbols) {
+		const edb::address_t addr = sym.address;
 
 		// NOTE(eteran): we special case the module entry point because while we bonus the
 		// application's entry point in bonusEntryPoint, each module can have one which
 		// is called on load by the linker, including the linker itself! And unfortunately
 		// at least on some systems, it is a data symbol, not a code symbol
-		if (data->region->contains(addr) && (sym->isCode() || is_entrypoint(*sym))) {
-			qDebug("[Analyzer] adding: %s <%s>", qPrintable(sym->name), qPrintable(addr.toPointerString()));
+		if (data->region->contains(addr) && (sym.isCode() || is_entrypoint(sym))) {
+			qDebug("[Analyzer] adding: %s <%s>", qPrintable(sym.name), qPrintable(addr.toPointerString()));
 			data->knownFunctions.insert(addr);
 		}
 	}

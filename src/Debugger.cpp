@@ -3015,8 +3015,8 @@ void Debugger::setInitialBreakpoint(const QString &s) {
 	edb::address_t entryPoint = 0;
 
 	if (edb::v1::config().initial_breakpoint == Configuration::MainSymbol) {
-		const QString mainSymbol          = QFileInfo(s).fileName() + "!main";
-		const std::shared_ptr<Symbol> sym = edb::v1::symbol_manager().find(mainSymbol);
+		const QString mainSymbol        = QFileInfo(s).fileName() + "!main";
+		const std::optional<Symbol> sym = edb::v1::symbol_manager().find(mainSymbol);
 
 		if (sym) {
 			entryPoint = sym->address;
@@ -3110,18 +3110,17 @@ void Debugger::setLibraryLoadHook() {
 	// and we need the symbols to find the _dl_debug_state symbol. This is a bit of a hack, but it works for now.
 	edb::v1::memory_regions().sync();
 
-	std::vector<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().findAll(QStringLiteral("_dl_debug_state"));
+	std::vector<Symbol> symbols = edb::v1::symbol_manager().findAll(QStringLiteral("_dl_debug_state"));
 	if (!symbols.empty()) {
 
-		std::shared_ptr<Symbol> symbol = symbols.front();
-
-		if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(symbol->address)) {
+		const Symbol &symbol = symbols.front();
+		if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(symbol.address)) {
 			bp->setInternal(true);
 			bp->tag = ld_loader_tag;
-			qDebug() << "Set breakpoint on _dl_debug_state at" << edb::v1::format_pointer(symbol->address);
+			qDebug() << "Set breakpoint on _dl_debug_state at" << edb::v1::format_pointer(symbol.address);
 		}
-	}
 #endif
+	}
 }
 
 /**

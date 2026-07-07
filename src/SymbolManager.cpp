@@ -21,7 +21,7 @@
 #include <istream>
 
 /**
- * @brief
+ * @brief Clears all symbols and labels from the symbol manager.
  */
 void SymbolManager::clear() {
 	symbolFiles_.clear();
@@ -34,7 +34,10 @@ void SymbolManager::clear() {
 }
 
 /**
- * @brief
+ * @brief Loads a symbol file and processes its contents.
+ *
+ * @param filename The path to the symbol file.
+ * @param base The base address for the symbols.
  */
 void SymbolManager::loadSymbolFile(const QString &filename, edb::address_t base) {
 
@@ -76,9 +79,12 @@ void SymbolManager::loadSymbolFile(const QString &filename, edb::address_t base)
 }
 
 /**
- * @brief
+ * @brief Finds a symbol by its name.
+ *
+ * @param name The name of the symbol to find.
+ * @return An optional containing the symbol if found, or std::nullopt if not found.
  */
-std::shared_ptr<Symbol> SymbolManager::find(const QString &name) const {
+std::optional<Symbol> SymbolManager::find(const QString &name) const {
 
 	auto it = symbolsByName_.find(name);
 	if (it != symbolsByName_.end()) {
@@ -88,24 +94,28 @@ std::shared_ptr<Symbol> SymbolManager::find(const QString &name) const {
 	// slow path... look for any symbol which matches the name, but skipping the prefix
 	// we can make this faster later at the cost of yet another hash table if we
 	// feel the need
-	auto it2 = std::find_if(symbols_.begin(), symbols_.end(), [&name](const std::shared_ptr<Symbol> &symbol) {
-		return symbol->name_no_prefix == name;
+	auto it2 = std::find_if(symbols_.begin(), symbols_.end(), [&name](const Symbol &symbol) {
+		return symbol.name_no_prefix == name;
 	});
 
 	if (it2 != symbols_.end()) {
 		return *it2;
 	}
 
-	return nullptr;
+	return std::nullopt;
 }
 
-std::vector<std::shared_ptr<Symbol>> SymbolManager::findAll(const QString &name) const {
-	std::vector<std::shared_ptr<Symbol>> result;
+/**
+ * @brief Finds all symbols that match a given name.
+ *
+ * @param name The name of the symbols to find.
+ * @return A vector containing all matching symbols.
+ */
+std::vector<Symbol> SymbolManager::findAll(const QString &name) const {
+	std::vector<Symbol> result;
 
-	qDebug() << "Searching for all symbols matching name:" << name;
-
-	auto it2 = std::find_if(symbols_.begin(), symbols_.end(), [&name](const std::shared_ptr<Symbol> &symbol) {
-		return symbol->name_no_prefix == name;
+	auto it2 = std::find_if(symbols_.begin(), symbols_.end(), [&name](const Symbol &symbol) {
+		return symbol.name_no_prefix == name;
 	});
 
 	if (it2 != symbols_.end()) {
@@ -116,49 +126,59 @@ std::vector<std::shared_ptr<Symbol>> SymbolManager::findAll(const QString &name)
 }
 
 /**
- * @brief
+ * @brief Finds a symbol by its address.
+ *
+ * @param address The address of the symbol to find.
+ * @return An optional containing the symbol if found, or std::nullopt if not found.
  */
-std::shared_ptr<Symbol> SymbolManager::find(edb::address_t address) const {
+std::optional<Symbol> SymbolManager::find(edb::address_t address) const {
 	auto it = symbolsByAddress_.find(address);
-	return (it != symbolsByAddress_.end()) ? it.value() : nullptr;
+	if (it != symbolsByAddress_.end()) {
+		return it.value();
+	}
+
+	return std::nullopt;
 }
 
 /**
- * @brief
+ * @brief Finds a symbol near a given address.
+ *
+ * @param address The address to search for a nearby symbol.
+ * @return An optional containing the symbol if found, or std::nullopt if not found.
  */
-std::shared_ptr<Symbol> SymbolManager::findNearSymbol(edb::address_t address) const {
+std::optional<Symbol> SymbolManager::findNearSymbol(edb::address_t address) const {
 
 	auto it = symbolsByAddress_.lowerBound(address);
 	if (it != symbolsByAddress_.end()) {
 
 		// not an exact match, we should backup one
-		if (address != it.value()->address) {
+		if (address != it->address) {
 			// not safe to backup!, return early
 			if (it == symbolsByAddress_.begin()) {
-				return nullptr;
+				return std::nullopt;
 			}
 			--it;
 		}
 
-		if (const std::shared_ptr<Symbol> sym = it.value()) {
-			if (address >= sym->address && address < sym->address + sym->size) {
-				return sym;
-			}
+		const Symbol &sym = it.value();
+		if (address >= sym.address && address < sym.address + sym.size) {
+			return sym;
 		}
 	}
 
-	return nullptr;
+	return std::nullopt;
 }
 
 /**
- * @brief
+ * @brief Adds a symbol to the symbol manager.
+ *
+ * @param symbol The symbol to add.
  */
-void SymbolManager::addSymbol(const std::shared_ptr<Symbol> &symbol) {
-	Q_ASSERT(symbol);
+void SymbolManager::addSymbol(const Symbol &symbol) {
 	symbols_.push_back(symbol);
-	symbolsByAddress_[symbol->address] = symbol;
-	symbolsByName_[symbol->name]       = symbol;
-	symbolsByFile_[symbol->file].push_back(symbol);
+	symbolsByAddress_[symbol.address] = symbol;
+	symbolsByName_[symbol.name]       = symbol;
+	symbolsByFile_[symbol.file].push_back(symbol);
 }
 
 /**
@@ -228,18 +248,18 @@ bool SymbolManager::processSymbolFile(const QString &f, edb::address_t base, con
 						break;
 					}
 
-					auto sym = std::make_shared<Symbol>();
+					Symbol sym;
 
-					sym->file           = f;
-					sym->name_no_prefix = QString::fromStdString(sym_name).trimmed();
-					sym->name           = QStringLiteral("%1!%2").arg(prefix, sym->name_no_prefix);
-					sym->address        = sym_start;
-					sym->size           = static_cast<uint32_t>(sym_end - sym_start);
-					sym->type           = sym_type;
+					sym.file           = f;
+					sym.name_no_prefix = QString::fromStdString(sym_name).trimmed();
+					sym.name           = QStringLiteral("%1!%2").arg(prefix, sym.name_no_prefix);
+					sym.address        = sym_start;
+					sym.size           = static_cast<uint32_t>(sym_end - sym_start);
+					sym.type           = sym_type;
 
 					// fixup the base address based on where it is loaded
-					if (sym->address < base) {
-						sym->address += base;
+					if (sym.address < base) {
+						sym.address += base;
 					}
 
 					addSymbol(sym);
@@ -263,14 +283,18 @@ bool SymbolManager::processSymbolFile(const QString &f, edb::address_t base, con
 }
 
 /**
- * @brief
+ * @brief Returns a vector of all symbols currently managed by the symbol manager.
+ *
+ * @return A vector containing all symbols.
  */
-std::vector<std::shared_ptr<Symbol>> SymbolManager::symbols() const {
+std::vector<Symbol> SymbolManager::symbols() const {
 	return symbols_;
 }
 
 /**
- * @brief
+ * @brief Sets the symbol generator for the symbol manager.
+ *
+ * @param generator A pointer to the symbol generator to be used.
  */
 void SymbolManager::setSymbolGenerator(ISymbolGenerator *generator) {
 	symbolGenerator_ = generator;
@@ -318,7 +342,7 @@ QString SymbolManager::findAddressName(edb::address_t address, bool prefixed) {
 		return it.value();
 	}
 
-	if (const std::shared_ptr<Symbol> sym = find(address)) {
+	if (const std::optional<Symbol> sym = find(address)) {
 		return prefixed ? sym->name : sym->name_no_prefix;
 	}
 

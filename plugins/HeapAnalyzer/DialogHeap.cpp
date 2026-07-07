@@ -84,54 +84,6 @@ edb::address_t block_start(const ResultViewModel::Result &result) {
 	return block_start(result.address);
 }
 
-/**
- * @brief Determines the names of the libc and ld libraries loaded in the current process.
- *
- * @param libcName [out] A pointer to a QString that will hold the name of the libc library.
- * @param ldName [out] A pointer to a QString that will hold the name of the ld library.
- */
-void get_library_names(QString *libcName, QString *ldName) {
-
-	Q_ASSERT(libcName);
-	Q_ASSERT(ldName);
-
-	if (edb::v1::debugger_core) {
-		if (IProcess *process = edb::v1::debugger_core->process()) {
-			const QSet<Module> libs = process->loadedModules();
-
-			for (const Module &module : libs) {
-				if (!ldName->isEmpty() && !libcName->isEmpty()) {
-					break;
-				}
-
-				const QFileInfo fileinfo(module.name);
-
-				// this tries its best to cover all possible libc library versioning
-				// possibilities we need to find out if this is 100% accurate, so far
-				// seems correct based on my system
-
-				if (fileinfo.completeBaseName().startsWith("libc-")) {
-					*libcName = fileinfo.completeBaseName() + "." + fileinfo.suffix();
-					qDebug() << "[Heap Analyzer] libc library appears to be:" << *libcName;
-					continue;
-				}
-
-				if (fileinfo.completeBaseName().startsWith("libc.so")) {
-					*libcName = fileinfo.completeBaseName() + "." + fileinfo.suffix();
-					qDebug() << "[Heap Analyzer] libc library appears to be:" << *libcName;
-					continue;
-				}
-
-				if (fileinfo.completeBaseName().startsWith("ld-")) {
-					*ldName = fileinfo.completeBaseName() + "." + fileinfo.suffix();
-					qDebug() << "[Heap Analyzer] ld library appears to be:" << *ldName;
-					continue;
-				}
-			}
-		}
-	}
-}
-
 }
 
 /**
@@ -469,32 +421,6 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 }
 
 /**
- * @brief Finds the start address of the heap using a heuristic based on the end address and an offset.
- *
- * @param end_address The end address of the heap.
- * @param offset The offset to apply to the end address to find the start address.
- * @return The start address of the heap or 0 if not found.
- */
-edb::address_t DialogHeap::findHeapStartHeuristic(edb::address_t end_address, size_t offset) const {
-	const edb::address_t start_address = end_address - offset;
-
-	const edb::address_t heap_symbol = start_address - 4 * edb::v1::pointer_size();
-
-	edb::address_t test_addr(0);
-	if (IProcess *process = edb::v1::debugger_core->process()) {
-		process->readBytes(heap_symbol, &test_addr, edb::v1::pointer_size());
-
-		if (test_addr != edb::v1::debugger_core->pageSize()) {
-			return 0;
-		}
-
-		return start_address;
-	}
-
-	return 0;
-}
-
-/**
  * @brief Finds and analyzes heap blocks in the current process, collecting information about free and busy blocks.
  *        This function uses the appropriate address type (32-bit or 64-bit) based on the architecture of the debuggee process.
  */
@@ -507,36 +433,41 @@ void DialogHeap::doFind() {
 		edb::address_t start_address = 0;
 		edb::address_t end_address   = 0;
 
-		QString libcName;
-		QString ldName;
+		edb::address_t heap_symbol_start = 0;
+		edb::address_t heap_symbol_end   = 0;
 
-		get_library_names(&libcName, &ldName);
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
+		// Find the __curbrk symbols in both libc and ld
+		// We will use these symbols to determine the start and end addresses of the heap.
+		// Sometimes the symbols are not present (especially on modern systems), so we will fall back to a heuristic if we can't find them.
+		std::vector<Symbol> curbrk_symbols = edb::v1::symbol_manager().findAll("__curbrk");
+		for (const Symbol &sym : curbrk_symbols) {
 
-		if (std::shared_ptr<Symbol> s = edb::v1::symbol_manager().find(libcName + "::__curbrk")) {
-			end_address = s->address;
+			if (sym.file.contains("libc")) {
+				heap_symbol_end = sym.address;
+			} else if (sym.file.contains("ld")) {
+				heap_symbol_start = sym.address;
+			}
+		}
+
+		qDebug() << "[Heap Analyzer] ld __curbrk symbol   : " << edb::v1::format_pointer(heap_symbol_start);
+		qDebug() << "[Heap Analyzer] libc __curbrk symbol : " << edb::v1::format_pointer(heap_symbol_end);
+
+		// If we found the symb in ld, then we can read the value of the symbol to get the start address of the heap.
+		if (heap_symbol_start != 0) {
+			process->readBytes(heap_symbol_start, &start_address, edb::v1::pointer_size());
+		} else {
+			qDebug() << "[Heap Analyzer] __curbrk symbol not found in ld, falling back on heuristic! This may or may not work.";
+		}
+
+		// If we found the symbol in libc, we can read the value of the symbol to get the end address of the heap.
+		if (heap_symbol_end != 0) {
+			process->readBytes(heap_symbol_end, &end_address, edb::v1::pointer_size());
 		} else {
 			qDebug() << "[Heap Analyzer] __curbrk symbol not found in libc, falling back on heuristic! This may or may not work.";
 		}
 
-		if (std::shared_ptr<Symbol> s = edb::v1::symbol_manager().find(ldName + "::__curbrk")) {
-			start_address = s->address;
-		} else {
-
-			qDebug() << "[Heap Analyzer] __curbrk symbol not found in ld, falling back on heuristic! This may or may not work.";
-
-			for (edb::address_t offset = 0x0000; offset != 0x1000; offset += edb::v1::pointer_size()) {
-				start_address = findHeapStartHeuristic(end_address, offset);
-				if (start_address != 0) {
-					break;
-				}
-			}
-		}
-
 		if (start_address != 0 && end_address != 0) {
-			qDebug() << "[Heap Analyzer] heap start symbol : " << edb::v1::format_pointer(start_address);
-			qDebug() << "[Heap Analyzer] heap end symbol   : " << edb::v1::format_pointer(end_address);
-
 			// read the contents of those symbols
 			process->readBytes(end_address, &end_address, edb::v1::pointer_size());
 			process->readBytes(start_address, &start_address, edb::v1::pointer_size());
