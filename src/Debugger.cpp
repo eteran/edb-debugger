@@ -2987,6 +2987,8 @@ void Debugger::setInitialDebuggerState() {
 
 	commentServer_->clear();
 	commentServer_->setComment(process->entryPoint(), QStringLiteral("<entry point>"));
+
+	setLibraryLoadHook();
 }
 
 /**
@@ -3095,7 +3097,41 @@ void Debugger::setupDataViews() {
 }
 
 /**
- * @brief
+ * @brief Sets a library load hook to catch library load/unload events.
+ */
+void Debugger::setLibraryLoadHook() {
+	// NOTE(eteran): this isn't really "Linux" specific, but it is the only platform that we currently support
+	// that has a dynamic loader that we can hook into to get library load/unload events. If we ever support other
+	// platforms with dynamic loaders, we should add support for them here as well.
+#if defined(Q_OS_LINUX)
+	// Find the linker magic breakpoint function so we can set a breakpoint on it to catch library load/unload events.
+
+	// Annoyingly, we have to sync the memory regions here, because that's what causes the symbols to be loaded,
+	// and we need the symbols to find the _dl_debug_state symbol. This is a bit of a hack, but it works for now.
+	edb::v1::memory_regions().sync();
+
+	std::vector<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().findAll(QStringLiteral("_dl_debug_state"));
+	if (!symbols.empty()) {
+
+		std::shared_ptr<Symbol> symbol = symbols.front();
+
+		if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(symbol->address)) {
+			bp->setInternal(true);
+			bp->tag = ld_loader_tag;
+			qDebug() << "Set breakpoint on _dl_debug_state at" << edb::v1::format_pointer(symbol->address);
+		}
+	}
+#endif
+}
+
+/**
+ * @brief Common function to open a process for debugging.
+ *
+ * @param s The path to the executable.
+ * @param args The arguments to pass to the executable.
+ * @param input The input file for the process.
+ * @param output The output file for the process.
+ * @return True if the process was opened successfully, false otherwise.
  */
 bool Debugger::commonOpen(const QString &s, const QList<QByteArray> &args, const QString &input, const QString &output) {
 
@@ -3112,29 +3148,6 @@ bool Debugger::commonOpen(const QString &s, const QList<QByteArray> &args, const
 
 		attachComplete();
 		setInitialBreakpoint(s);
-
-		// NOTE(eteran): this isn't really "Linux" specific, but it is the only platform that we currently support
-		// that has a dynamic loader that we can hook into to get library load/unload events. If we ever support other
-		// platforms with dynamic loaders, we should add support for them here as well.
-#if defined(Q_OS_LINUX)
-		// Find the linker magic breakpoint function so we can set a breakpoint on it to catch library load/unload events.
-
-		// Annoyingly, we have to sync the memory regions here, because that's what causes the symbols to be loaded,
-		// and we need the symbols to find the _dl_debug_state symbol. This is a bit of a hack, but it works for now.
-		edb::v1::memory_regions().sync();
-
-		std::vector<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().findAll(QStringLiteral("_dl_debug_state"));
-		if (!symbols.empty()) {
-
-			std::shared_ptr<Symbol> symbol = symbols.front();
-
-			if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(symbol->address)) {
-				bp->setInternal(true);
-				bp->tag = ld_loader_tag;
-				qDebug() << "Set breakpoint on _dl_debug_state at" << edb::v1::format_pointer(symbol->address);
-			}
-		}
-#endif
 
 		ret = true;
 	} else {
@@ -3221,7 +3234,7 @@ void Debugger::attach(edb::pid_t pid) {
 }
 
 /**
- * @brief
+ * @brief Called when the debugger has successfully attached to a process.
  */
 void Debugger::attachComplete() {
 	setInitialDebuggerState();

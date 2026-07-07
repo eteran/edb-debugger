@@ -17,6 +17,7 @@
 #include <QDockWidget>
 #include <QMainWindow>
 #include <QProcess>
+#include <QSet>
 #include <QVector>
 
 #include <memory>
@@ -256,6 +257,7 @@ private:
 	void updateMenuState(GuiState state);
 	void updateStackView(const State &state);
 	void updateTabCaption(const std::shared_ptr<QHexView> &view, edb::address_t start, edb::address_t end) const;
+	void setLibraryLoadHook();
 
 private:
 	template <class F>
