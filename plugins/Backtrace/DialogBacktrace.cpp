@@ -168,8 +168,8 @@ void DialogBacktrace::populateTable() {
 		// Put them in the table: create string from address and set item flags.
 		for (int j = 0; j < stack_entry.size() && j < table_->columnCount(); j++) {
 
-			edb::address_t address              = stack_entry.at(j);
-			std::shared_ptr<Symbol> near_symbol = edb::v1::symbol_manager().findNearSymbol(address);
+			edb::address_t address            = stack_entry.at(j);
+			std::optional<Symbol> near_symbol = edb::v1::symbol_manager().findNearSymbol(address);
 
 			// Turn the address into a string prefixed with "0x"
 			auto item = new QTableWidgetItem;

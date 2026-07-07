@@ -60,14 +60,14 @@ void FasLoader::load() {
 			auto pluginSymbols = fasCore.getSymbols();
 			for (auto pluginSymbol : pluginSymbols) {
 
-				auto symbol = std::make_shared<Symbol>();
+				Symbol symbol;
 
-				symbol->file    = fileName;
-				symbol->address = pluginSymbol.value;
-				symbol->name    = QString::fromStdString(pluginSymbol.name);
-				symbol->size    = pluginSymbol.size;
+				symbol.file    = fileName;
+				symbol.address = pluginSymbol.value;
+				symbol.name    = QString::fromStdString(pluginSymbol.name);
+				symbol.size    = pluginSymbol.size;
 				if (pluginSymbol.size > 0) {
-					symbol->type = 'd';
+					symbol.type = 'd';
 				}
 
 				edb::v1::symbol_manager().addSymbol(symbol);

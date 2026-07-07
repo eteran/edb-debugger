@@ -64,7 +64,7 @@ void DialogSymbolViewer::on_listView_doubleClicked(const QModelIndex &index) {
 	const QString s = index.data().toString();
 
 	if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(s.split(":")[0])) {
-		const std::shared_ptr<Symbol> sym = edb::v1::symbol_manager().find(*addr);
+		const std::optional<Symbol> sym = edb::v1::symbol_manager().find(*addr);
 
 		if (sym && sym->isCode()) {
 			edb::v1::jump_to_address(*addr);
@@ -159,9 +159,9 @@ void DialogSymbolViewer::mnuFollowInCPU() {
 void DialogSymbolViewer::doFind() {
 	QStringList results;
 
-	const std::vector<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().symbols();
-	for (const std::shared_ptr<Symbol> &sym : symbols) {
-		results << QStringLiteral("%1: %2").arg(edb::v1::format_pointer(sym->address), sym->name);
+	const std::vector<Symbol> symbols = edb::v1::symbol_manager().symbols();
+	for (const Symbol &sym : symbols) {
+		results << QStringLiteral("%1: %2").arg(edb::v1::format_pointer(sym.address), sym.name);
 	}
 
 	model_->setStringList(results);

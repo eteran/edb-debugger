@@ -73,7 +73,7 @@ bool function_symbol_base(edb::address_t address, QString *value, int *offset) {
 	Q_ASSERT(value);
 	Q_ASSERT(offset);
 
-	if (const std::shared_ptr<Symbol> s = edb::v1::symbol_manager().findNearSymbol(address)) {
+	if (const std::optional<Symbol> s = edb::v1::symbol_manager().findNearSymbol(address)) {
 		*value  = s->name;
 		*offset = static_cast<int>(address - s->address);
 		return true;
@@ -794,7 +794,7 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 			const Register reg = state.value(s);
 			*ok                = reg.valid();
 			if (!*ok) {
-				if (const std::shared_ptr<Symbol> sym = edb::v1::symbol_manager().find(s)) {
+				if (const std::optional<Symbol> sym = edb::v1::symbol_manager().find(s)) {
 					*ok = true;
 					return sym->address;
 				}
