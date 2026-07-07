@@ -46,17 +46,13 @@ QMenu *BinarySearcher::menu(QWidget *parent) {
 /**
  * @brief Returns the stack context menu actions contributed by the BinarySearcher plugin.
  *
- * @return
+ * @return A list of actions for the stack context menu.
  */
 QList<QAction *> BinarySearcher::stackContextMenu() {
 
-	QList<QAction *> ret;
-
 	auto action_find = new QAction(tr("&Find ASCII String"), this);
 	connect(action_find, &QAction::triggered, this, &BinarySearcher::mnuStackFindAscii);
-	ret << action_find;
-
-	return ret;
+	return {action_find};
 }
 
 /**
