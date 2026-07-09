@@ -435,10 +435,10 @@ void DialogEditSimdRegister::formatInteger(NumberEdit *const edit, Integer integ
 		using Int    = std::remove_reference_t<Integer>;
 		using Signed = std::make_signed_t<Int>;
 
-		edit->setText(QStringLiteral("%1").arg(static_cast<Signed>(integer)));
+		edit->setText(QString::number(static_cast<Signed>(integer)));
 		break;
 	case NumberDisplayMode::Unsigned:
-		edit->setText(QStringLiteral("%1").arg(integer));
+		edit->setText(QString::number(integer));
 		break;
 	default:
 		Q_ASSERT("Unexpected integer display mode" && 0);

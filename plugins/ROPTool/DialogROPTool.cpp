@@ -21,6 +21,7 @@
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
+#include <QtConcurrent/QtConcurrentRun>
 
 namespace ROPToolPlugin {
 
@@ -292,13 +293,11 @@ DialogROPTool::DialogROPTool(QWidget *parent, Qt::WindowFlags f)
 	connect(ui.txtSearch, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 
 	buttonFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
-	connect(buttonFind_, &QPushButton::clicked, this, [this]() {
-		buttonFind_->setEnabled(false);
-		ui.progressBar->setValue(0);
-		doFind();
-		ui.progressBar->setValue(100);
-		buttonFind_->setEnabled(true);
-	});
+	connect(buttonFind_, &QPushButton::clicked, this, &DialogROPTool::onFindClicked);
+	connect(&searchWatcher_, &QFutureWatcher<SearchResult>::finished, this, &DialogROPTool::onFindFinished);
+
+	progressTimer_.setInterval(50);
+	connect(&progressTimer_, &QTimer::timeout, this, &DialogROPTool::updateProgress);
 
 	ui.buttonBox->addButton(buttonFind_, QDialogButtonBox::ActionRole);
 }
@@ -315,39 +314,194 @@ void DialogROPTool::showEvent(QShowEvent *) {
 	ui.progressBar->setValue(0);
 }
 
-/**
- * @brief Adds a gadget to the results dialog.
- *
- * @param results The dialog to display the results.
- * @param instructions The list of instructions forming the gadget.
- */
-void DialogROPTool::addGadget(DialogResults *results, const InstructionList &instructions) {
-
-	if (!instructions.empty()) {
-
-		auto it    = instructions.begin();
-		auto inst1 = *it++;
-
-		auto instruction_string = QString::fromStdString(edb::v1::formatter().toString(*inst1));
-		for (; it != instructions.end(); ++it) {
-			auto inst = *it;
-			instruction_string.append(QStringLiteral("; %1").arg(QString::fromStdString(edb::v1::formatter().toString(*inst))));
-		}
-
-		if (!ui.checkUnique->isChecked() || !uniqueResults_.contains(instruction_string)) {
-			uniqueResults_.insert(instruction_string);
-
-			// found a gadget
-			// TODO(eteran): make this look for 1st non-NOP
-			results->addResult({inst1->rva(), instruction_string, get_gadget_role(*inst1)});
-		}
+void DialogROPTool::reject() {
+	if (searchRunning_) {
+		cancelRequested_.store(true);
+		buttonFind_->setEnabled(false);
+		buttonFind_->setText(tr("Cancelling..."));
+		return;
 	}
+
+	QDialog::reject();
 }
 
 /**
  * @brief Performs the search for ROP gadgets in the selected memory regions.
  */
-void DialogROPTool::doFind() {
+DialogROPTool::SearchResult DialogROPTool::doFind(const IProcess *process, const QVector<RegionScan> &regions, bool uniqueOnly) {
+	SearchResult result;
+	progressDone_.store(0);
+	progressTotal_.store(0);
+
+	if (process == nullptr) {
+		return result;
+	}
+
+	QSet<QString> uniqueResults;
+	const size_t totalBytes = std::accumulate(regions.begin(), regions.end(), size_t(0), [](size_t total, const RegionScan &region) {
+		return total + static_cast<size_t>(region.end - region.start);
+	});
+	progressTotal_.store(totalBytes);
+
+	auto makeInstructionString = [](const InstructionList &instructions) {
+		if (instructions.empty()) {
+			return QString();
+		}
+
+		auto it                    = instructions.begin();
+		QString instruction_string = QString::fromStdString(edb::v1::formatter().toString(**it++));
+		for (; it != instructions.end(); ++it) {
+			instruction_string.append(QStringLiteral("; %1").arg(QString::fromStdString(edb::v1::formatter().toString(**it))));
+		}
+
+		return instruction_string;
+	};
+
+	for (const RegionScan &region : regions) {
+		if (cancelRequested_.load()) {
+			result.cancelled = true;
+			break;
+		}
+
+		if (!region.accessible) {
+			progressDone_.fetch_add(static_cast<size_t>(region.end - region.start));
+			continue;
+		}
+
+		edb::address_t start_address     = region.start;
+		const edb::address_t end_address = region.end;
+		const edb::address_t orig_start  = start_address;
+
+		ByteShiftArray bsa(32);
+
+		while (start_address < end_address) {
+
+			if (cancelRequested_.load()) {
+				result.cancelled = true;
+				break;
+			}
+
+			// read in the next byte
+			uint8_t byte;
+			if (process->readBytes(start_address, &byte, 1)) {
+				bsa << byte;
+
+				const uint8_t *p       = bsa.data();
+				const uint8_t *const l = p + bsa.size();
+				edb::address_t rva     = start_address - bsa.size() + 1;
+
+				InstructionList instruction_list;
+
+				// eat up any NOPs in front...
+				Q_FOREVER {
+					auto inst = std::make_shared<edb::Instruction>(p, l, rva);
+					if (!is_effective_nop(*inst)) {
+						break;
+					}
+
+					instruction_list.push_back(inst);
+					p += inst->byteSize();
+					rva += inst->byteSize();
+				}
+
+				auto inst1 = std::make_shared<edb::Instruction>(p, l, rva);
+				if (inst1->valid()) {
+					instruction_list.push_back(inst1);
+
+					if (is_int(*inst1) && is_immediate(inst1->operand(0)) && (inst1->operand(0)->imm & 0xff) == 0x80) {
+						const QString instruction_string = makeInstructionString(instruction_list);
+						if (!uniqueOnly || !uniqueResults.contains(instruction_string)) {
+							uniqueResults.insert(instruction_string);
+							result.results.push_back({inst1->rva(), instruction_string, get_gadget_role(*inst1)});
+						}
+					} else if (is_sysenter(*inst1)) {
+						const QString instruction_string = makeInstructionString(instruction_list);
+						if (!uniqueOnly || !uniqueResults.contains(instruction_string)) {
+							uniqueResults.insert(instruction_string);
+							result.results.push_back({inst1->rva(), instruction_string, get_gadget_role(*inst1)});
+						}
+					} else if (is_syscall(*inst1)) {
+						const QString instruction_string = makeInstructionString(instruction_list);
+						if (!uniqueOnly || !uniqueResults.contains(instruction_string)) {
+							uniqueResults.insert(instruction_string);
+							result.results.push_back({inst1->rva(), instruction_string, get_gadget_role(*inst1)});
+						}
+					} else if (is_ret(*inst1)) {
+						++start_address;
+						progressDone_.fetch_add(1);
+						continue;
+					} else {
+
+						p += inst1->byteSize();
+						rva += inst1->byteSize();
+
+						// eat up any NOPs in between...
+						Q_FOREVER {
+							auto inst = std::make_shared<edb::Instruction>(p, l, rva);
+							if (!is_effective_nop(*inst)) {
+								break;
+							}
+
+							instruction_list.push_back(inst);
+							p += inst->byteSize();
+							rva += inst->byteSize();
+						}
+
+						auto inst2 = std::make_shared<edb::Instruction>(p, l, rva);
+
+						if (is_ret(*inst2)) {
+							instruction_list.push_back(inst2);
+							const QString instruction_string = makeInstructionString(instruction_list);
+							if (!uniqueOnly || !uniqueResults.contains(instruction_string)) {
+								uniqueResults.insert(instruction_string);
+								result.results.push_back({inst1->rva(), instruction_string, get_gadget_role(*inst1)});
+							}
+						} else if (inst2->valid() && inst2->operation() == X86_INS_POP) {
+							instruction_list.push_back(inst2);
+							p += inst2->byteSize();
+							rva += inst2->byteSize();
+
+							auto inst3 = std::make_shared<edb::Instruction>(p, l, rva);
+
+							if (inst3->valid() && is_jump(*inst3)) {
+
+								instruction_list.push_back(inst3);
+
+								if (inst2->operandCount() == 1 && is_register(inst2->operand(0))) {
+									if (inst3->operandCount() == 1 && is_register(inst3->operand(0))) {
+										if (inst2->operand(0)->reg == inst3->operand(0)->reg) {
+											const QString instruction_string = makeInstructionString(instruction_list);
+											if (!uniqueOnly || !uniqueResults.contains(instruction_string)) {
+												uniqueResults.insert(instruction_string);
+												result.results.push_back({inst1->rva(), instruction_string, get_gadget_role(*inst1)});
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+
+					// TODO(eteran): catch things like "add rsp, 8; jmp [rsp - 8]" and similar, it's rare,
+					// but could happen
+				}
+			}
+
+			progressDone_.fetch_add(1);
+			++start_address;
+		}
+	}
+
+	return result;
+}
+
+void DialogROPTool::onFindClicked() {
+	if (searchRunning_) {
+		cancelRequested_.store(true);
+		buttonFind_->setEnabled(false);
+		buttonFind_->setText(tr("Cancelling..."));
+		return;
+	}
 
 	const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 	const QModelIndexList sel                 = selModel->selectedRows();
@@ -360,115 +514,59 @@ void DialogROPTool::doFind() {
 		return;
 	}
 
-	auto resultsDialog = new DialogResults(this);
+	if (edb::v1::debugger_core == nullptr) {
+		return;
+	}
 
-	uniqueResults_.clear();
-
-	if (IProcess *process = edb::v1::debugger_core->process()) {
-		for (const QModelIndex &selected_item : sel) {
-
-			const QModelIndex index = filterModel_->mapToSource(selected_item);
-			if (auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
-
-				edb::address_t start_address     = region->start();
-				const edb::address_t end_address = region->end();
-				const edb::address_t orig_start  = start_address;
-
-				ByteShiftArray bsa(32);
-
-				while (start_address < end_address) {
-
-					// read in the next byte
-					uint8_t byte;
-					if (process->readBytes(start_address, &byte, 1)) {
-						bsa << byte;
-
-						const uint8_t *p       = bsa.data();
-						const uint8_t *const l = p + bsa.size();
-						edb::address_t rva     = start_address - bsa.size() + 1;
-
-						InstructionList instruction_list;
-
-						// eat up any NOPs in front...
-						Q_FOREVER {
-							auto inst = std::make_shared<edb::Instruction>(p, l, rva);
-							if (!is_effective_nop(*inst)) {
-								break;
-							}
-
-							instruction_list.push_back(inst);
-							p += inst->byteSize();
-							rva += inst->byteSize();
-						}
-
-						auto inst1 = std::make_shared<edb::Instruction>(p, l, rva);
-						if (inst1->valid()) {
-							instruction_list.push_back(inst1);
-
-							if (is_int(*inst1) && is_immediate(inst1->operand(0)) && (inst1->operand(0)->imm & 0xff) == 0x80) {
-								addGadget(resultsDialog, instruction_list);
-							} else if (is_sysenter(*inst1)) {
-								addGadget(resultsDialog, instruction_list);
-							} else if (is_syscall(*inst1)) {
-								addGadget(resultsDialog, instruction_list);
-							} else if (is_ret(*inst1)) {
-								ui.progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
-								++start_address;
-								continue;
-							} else {
-
-								p += inst1->byteSize();
-								rva += inst1->byteSize();
-
-								// eat up any NOPs in between...
-								Q_FOREVER {
-									auto inst = std::make_shared<edb::Instruction>(p, l, rva);
-									if (!is_effective_nop(*inst)) {
-										break;
-									}
-
-									instruction_list.push_back(inst);
-									p += inst->byteSize();
-									rva += inst->byteSize();
-								}
-
-								auto inst2 = std::make_shared<edb::Instruction>(p, l, rva);
-
-								if (is_ret(*inst2)) {
-									instruction_list.push_back(inst2);
-									addGadget(resultsDialog, instruction_list);
-								} else if (inst2->valid() && inst2->operation() == X86_INS_POP) {
-									instruction_list.push_back(inst2);
-									p += inst2->byteSize();
-									rva += inst2->byteSize();
-
-									auto inst3 = std::make_shared<edb::Instruction>(p, l, rva);
-
-									if (inst3->valid() && is_jump(*inst3)) {
-
-										instruction_list.push_back(inst3);
-
-										if (inst2->operandCount() == 1 && is_register(inst2->operand(0))) {
-											if (inst3->operandCount() == 1 && is_register(inst3->operand(0))) {
-												if (inst2->operand(0)->reg == inst3->operand(0)->reg) {
-													addGadget(resultsDialog, instruction_list);
-												}
-											}
-										}
-									}
-								}
-							}
-
-							// TODO(eteran): catch things like "add rsp, 8; jmp [rsp - 8]" and similar, it's rare,
-							// but could happen
-						}
-					}
-
-					ui.progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
-					++start_address;
-				}
-			}
+	QVector<RegionScan> regions;
+	regions.reserve(sel.size());
+	for (const QModelIndex &selected_item : sel) {
+		const QModelIndex index = filterModel_->mapToSource(selected_item);
+		if (auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
+			regions.push_back({region->start(), region->end(), region->accessible()});
 		}
+	}
+
+	if (regions.isEmpty()) {
+		return;
+	}
+
+	ui.progressBar->setValue(0);
+	cancelRequested_.store(false);
+	progressDone_.store(0);
+	progressTotal_.store(0);
+	setSearchRunning(true);
+	progressTimer_.start();
+
+	const IProcess *process = edb::v1::debugger_core->process();
+	const bool uniqueOnly   = ui.checkUnique->isChecked();
+	searchWatcher_.setFuture(QtConcurrent::run([this, process, regions, uniqueOnly]() {
+		return doFind(process, regions, uniqueOnly);
+	}));
+}
+
+void DialogROPTool::onFindFinished() {
+	progressTimer_.stop();
+	updateProgress();
+
+	const SearchResult result = searchWatcher_.result();
+	setSearchRunning(false);
+
+	if (result.allocationFailed) {
+		QMessageBox::critical(
+			this,
+			tr("Memory Allocation Error"),
+			tr("Unable to satisfy memory allocation request while scanning for gadgets."));
+		return;
+	}
+
+	if (result.cancelled) {
+		return;
+	}
+
+	auto resultsDialog = new DialogResults(this);
+	for (const ResultsModel::Result &resultItem : result.results) {
+		resultsDialog->addResult(resultItem);
 	}
 
 	if (resultsDialog->resultCount() == 0) {
@@ -476,6 +574,33 @@ void DialogROPTool::doFind() {
 		delete resultsDialog;
 	} else {
 		resultsDialog->show();
+	}
+}
+
+void DialogROPTool::updateProgress() {
+	const size_t done  = progressDone_.load();
+	const size_t total = progressTotal_.load();
+
+	if (total == 0) {
+		ui.progressBar->setValue(0);
+		return;
+	}
+
+	ui.progressBar->setValue(util::percentage(done, total));
+}
+
+void DialogROPTool::setSearchRunning(bool running) {
+	searchRunning_ = running;
+
+	if (searchRunning_) {
+		buttonFind_->setEnabled(true);
+		buttonFind_->setIcon(QIcon::fromTheme("process-stop"));
+		buttonFind_->setText(tr("Cancel"));
+	} else {
+		buttonFind_->setEnabled(true);
+		buttonFind_->setIcon(QIcon::fromTheme("edit-find"));
+		buttonFind_->setText(tr("Find"));
+		ui.progressBar->setValue(100);
 	}
 }
 

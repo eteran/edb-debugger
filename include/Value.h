@@ -462,11 +462,11 @@ public:
 	}
 
 	[[nodiscard]] QString signedToString() const {
-		return QStringLiteral("%1").arg(std::make_signed_t<T>(value_));
+		return QString::number(std::make_signed_t<T>(value_));
 	}
 
 	[[nodiscard]] QString toString() const {
-		return QStringLiteral("%1").arg(value_);
+		return QString::number(value_);
 	}
 
 	[[nodiscard]] QVariant toQVariant() const {
@@ -630,7 +630,6 @@ template <class T, class Integer, class = IsInteger<Integer>>
 
 template <class T, class Integer, class = IsInteger<Integer>>
 [[nodiscard]] auto operator+(Integer lhs, const value_type<T> &rhs) -> value_type<PromoteType<T, Integer>> {
-
 
 	// TODO(eteran): Should we sign-extend the lhs if it's signed and negative?
 	// Or should we just treat it as an unsigned value? For now, just treat it as an unsigned value.

@@ -50,8 +50,8 @@ GraphNode::GraphNode(GraphWidget *graph, const QString &text, QColor color)
 	node_        = _agnode(graph->graph_, name);
 
 	_agset(node_, "fixedsize", "0");
-	_agset(node_, "width", QStringLiteral("%1").arg(boundingRect().width() / 96.0));
-	_agset(node_, "height", QStringLiteral("%1").arg(boundingRect().height() / 96.0));
+	_agset(node_, "width", QString::number(boundingRect().width() / 96.0));
+	_agset(node_, "height", QString::number(boundingRect().height() / 96.0));
 }
 
 /**

@@ -134,7 +134,6 @@ void testToString() {
 	TEST(str2 == "81985529216486895");
 }
 
-
 void testCompare() {
 	edb::value64 v64a = 0xffffffffffffffff;
 	TEST(v64a == 0xffffffffffffffff);
@@ -188,7 +187,7 @@ void testMixedSignedOperatorsValueTypeLhs() {
 }
 
 void testMixedSignedOperatorsIntegerLhs() {
-	auto neg1     = static_cast<int8_t>(-1);
+	auto neg1      = static_cast<int8_t>(-1);
 	edb::value16 v = 0x00f0;
 
 	TEST((neg1 + v) == 0x00ef);
