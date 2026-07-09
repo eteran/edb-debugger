@@ -3,7 +3,7 @@ include("BuildPlugin")
 
 set(PLUGIN_NAME "References")
 
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED Widgets Concurrent)
 
 add_library(${PLUGIN_NAME} SHARED
 	DialogReferences.cpp
@@ -13,6 +13,6 @@ add_library(${PLUGIN_NAME} SHARED
 	References.h
 )
 
-target_link_libraries(${PLUGIN_NAME} Qt::Widgets edb)
+target_link_libraries(${PLUGIN_NAME} Qt::Widgets Qt::Concurrent edb)
 
 build_plugin(${PLUGIN_NAME})
