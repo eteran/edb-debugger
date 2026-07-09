@@ -378,7 +378,7 @@ RegisterGroup *create_fpu_words(RegisterViewModelBase::Model *model, QWidget *pa
 		const auto condNNameIndex = valid_index(find_model_register(fsrIndex, name));
 		const auto condNIndex     = valid_index(condNNameIndex.sibling(condNNameIndex.row(), ModelValueColumn));
 		const int column          = condPrecValColumn + 2 * (3 - condN);
-		const auto nameField      = new FieldWidget(QStringLiteral("%1").arg(condN), group);
+		const auto nameField      = new FieldWidget(QString::number(condN), group);
 		group->insert(FsrRow - 1, column, nameField);
 
 		const auto valueField = new ValueField(1, condNIndex, group);

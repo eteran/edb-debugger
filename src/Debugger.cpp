@@ -610,7 +610,7 @@ QString Debugger::createTty() {
 			}
 
 			proc_args << "sh"
-					  << "-c" << QStringLiteral("%1").arg(shell_script);
+					  << "-c" << shell_script;
 
 			qDebug() << "Running Terminal: " << tty_command;
 			qDebug() << "Terminal Args: " << proc_args;

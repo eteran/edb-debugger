@@ -90,10 +90,10 @@ void GprEdit::setGPRValue(std::uint64_t gprValue) {
 		setText(QStringLiteral("%1").arg(value, naturalWidthInChars_, 16, QChar('0')));
 		break;
 	case Format::Signed:
-		setText(QStringLiteral("%1").arg(static_cast<std::int64_t>(value)));
+		setText(QString::number(static_cast<std::int64_t>(value)));
 		break;
 	case Format::Unsigned:
-		setText(QStringLiteral("%1").arg(value));
+		setText(QString::number(value));
 		break;
 	case Format::Character:
 		setText(QChar(static_cast<char>(value)));

@@ -429,7 +429,7 @@ QTreeWidgetItem *create_elf_object_version(const Header *header) {
 	auto item = new QTreeWidgetItem;
 
 	item->setText(0, tr("Object File Version"));
-	item->setText(1, QStringLiteral("%1").arg(header->e_version, 0, 10));
+	item->setText(1, QString::number(header->e_version));
 
 	return item;
 }

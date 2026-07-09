@@ -462,11 +462,11 @@ public:
 	}
 
 	[[nodiscard]] QString signedToString() const {
-		return QStringLiteral("%1").arg(std::make_signed_t<T>(value_));
+		return QString::number(std::make_signed_t<T>(value_));
 	}
 
 	[[nodiscard]] QString toString() const {
-		return QStringLiteral("%1").arg(value_);
+		return QString::number(value_);
 	}
 
 	[[nodiscard]] QVariant toQVariant() const {

@@ -126,7 +126,7 @@ RegisterGroup *createSIMDGroup(RegisterViewModelBase::Model *model, QWidget *par
 	const auto group = new RegisterGroup(catName, parent);
 	for (int row = 0; row < model->rowCount(catIndex); ++row) {
 		const auto nameIndex = valid_index(model->index(row, ModelNameColumn, catIndex));
-		const auto name      = regNamePrefix + QStringLiteral("%1").arg(row);
+		const auto name      = regNamePrefix + QString::number(row);
 		if (!valid_variant(nameIndex.data()).toString().toUpper().startsWith(regNamePrefix)) {
 			if (row == 0) {
 				delete group;

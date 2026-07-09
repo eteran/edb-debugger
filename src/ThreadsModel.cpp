@@ -58,7 +58,7 @@ QVariant ThreadsModel::data(const QModelIndex &index, int role) const {
 					return QStringLiteral("%1 <%2>").arg(edb::v1::format_pointer(item.thread->instructionPointer()), symname);
 				}
 
-				return QStringLiteral("%1").arg(edb::v1::format_pointer(item.thread->instructionPointer()));
+				return edb::v1::format_pointer(item.thread->instructionPointer());
 			}
 			case 3:
 				return item.thread->runState();

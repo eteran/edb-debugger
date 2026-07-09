@@ -47,8 +47,8 @@ void DialogInputValue::setValue(Register &reg) {
 	}
 
 	ui.hexInput->setText(reg.toHexString());
-	ui.signedInput->setText(QStringLiteral("%1").arg(reg.valueAsSignedInteger()));
-	ui.unsignedInput->setText(QStringLiteral("%1").arg(reg.valueAsInteger()));
+	ui.signedInput->setText(QString::number(reg.valueAsSignedInteger()));
+	ui.unsignedInput->setText(QString::number(reg.valueAsInteger()));
 
 	const auto regex                = QStringLiteral("[A-Fa-f0-9]{0,%1}").arg(reg.bitSize() / 4);
 	const std::uint64_t unsignedMax = (reg.bitSize() == 64 ? -1 : (1ull << (reg.bitSize())) - 1); // Avoid UB
