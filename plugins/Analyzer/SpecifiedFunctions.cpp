@@ -68,8 +68,9 @@ void SpecifiedFunctions::doFind() {
 	QSet<edb::address_t> functions = analyzer->specifiedFunctions();
 
 	QStringList results;
+	results.reserve(static_cast<int>(functions.size()));
 	for (edb::address_t address : functions) {
-		results << QStringLiteral("%1").arg(edb::v1::format_pointer(address));
+		results.push_back(edb::v1::format_pointer(address));
 	}
 	model_->setStringList(results);
 }
