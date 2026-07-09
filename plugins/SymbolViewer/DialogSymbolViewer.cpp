@@ -157,11 +157,12 @@ void DialogSymbolViewer::mnuFollowInCPU() {
  * This function retrieves the list of symbols from the symbol manager and populates the list view with the results.
  */
 void DialogSymbolViewer::doFind() {
-	QStringList results;
 
 	const std::vector<Symbol> symbols = edb::v1::symbol_manager().symbols();
+	QStringList results;
+	results.reserve(static_cast<int>(symbols.size()));
 	for (const Symbol &sym : symbols) {
-		results << QStringLiteral("%1: %2").arg(edb::v1::format_pointer(sym.address), sym.name);
+		results.push_back(QStringLiteral("%1: %2").arg(edb::v1::format_pointer(sym.address), sym.name));
 	}
 
 	model_->setStringList(results);

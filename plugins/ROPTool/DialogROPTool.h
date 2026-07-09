@@ -8,21 +8,27 @@
 #define DIALOG_ROPTOOL_H_20100817_
 
 #include "Instruction.h"
+#include "ResultsModel.h"
 #include "Types.h"
 #include "ui_DialogROPTool.h"
 
 #include <QDialog>
+#include <QFutureWatcher>
 #include <QList>
 #include <QSet>
 #include <QSortFilterProxyModel>
+#include <QTimer>
 #include <memory>
 #include <vector>
+
+#include <atomic>
 
 class QListWidgetItem;
 class QModelIndex;
 class QSortFilterProxyModel;
 class QStandardItem;
 class QStandardItemModel;
+class IProcess;
 
 namespace ROPToolPlugin {
 
@@ -39,9 +45,25 @@ public:
 private:
 	using InstructionList = std::vector<std::shared_ptr<edb::Instruction>>;
 
+	struct RegionScan {
+		edb::address_t start = 0;
+		edb::address_t end   = 0;
+		bool accessible      = false;
+	};
+
+	struct SearchResult {
+		QVector<ResultsModel::Result> results;
+		bool cancelled        = false;
+		bool allocationFailed = false;
+	};
+
 private:
-	void doFind();
-	void addGadget(DialogResults *results, const InstructionList &instructions);
+	void reject() override;
+	void onFindClicked();
+	void onFindFinished();
+	void updateProgress();
+	void setSearchRunning(bool running);
+	SearchResult doFind(const IProcess *process, const QVector<RegionScan> &regions, bool uniqueOnly);
 
 private:
 	void showEvent(QShowEvent *event) override;
@@ -49,8 +71,13 @@ private:
 private:
 	Ui::DialogROPTool ui;
 	QSortFilterProxyModel *filterModel_ = nullptr;
-	QSet<QString> uniqueResults_;
 	QPushButton *buttonFind_ = nullptr;
+	QFutureWatcher<SearchResult> searchWatcher_;
+	QTimer progressTimer_;
+	std::atomic_bool cancelRequested_ = false;
+	std::atomic_size_t progressDone_  = 0;
+	std::atomic_size_t progressTotal_ = 0;
+	bool searchRunning_               = false;
 };
 
 }
