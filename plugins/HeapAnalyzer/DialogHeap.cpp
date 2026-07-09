@@ -109,8 +109,8 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f)
 	ui.tableView->verticalHeader()->hide();
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	buttonAnalyze_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Analyze"));
-	buttonGraph_   = new QPushButton(QIcon::fromTheme("distribute-graph"), tr("&Graph Selected Blocks"));
+	buttonAnalyze_ = new QPushButton(QIcon::fromTheme(QStringLiteral("edit-find")), tr("Analyze"));
+	buttonGraph_   = new QPushButton(QIcon::fromTheme(QStringLiteral("distribute-graph")), tr("&Graph Selected Blocks"));
 	connect(buttonAnalyze_, &QPushButton::clicked, this, &DialogHeap::onFindClicked);
 	connect(&searchWatcher_, &QFutureWatcher<SearchResult>::finished, this, &DialogHeap::onFindFinished);
 
@@ -272,11 +272,11 @@ void DialogHeap::setSearchRunning(bool running) {
 
 	if (searchRunning_) {
 		buttonAnalyze_->setEnabled(true);
-		buttonAnalyze_->setIcon(QIcon::fromTheme("process-stop"));
+		buttonAnalyze_->setIcon(QIcon::fromTheme(QStringLiteral("process-stop")));
 		buttonAnalyze_->setText(tr("Cancel"));
 	} else {
 		buttonAnalyze_->setEnabled(true);
-		buttonAnalyze_->setIcon(QIcon::fromTheme("edit-find"));
+		buttonAnalyze_->setIcon(QIcon::fromTheme(QStringLiteral("edit-find")));
 		buttonAnalyze_->setText(tr("Analyze"));
 		ui.progressBar->setValue(100);
 	}

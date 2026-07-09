@@ -38,7 +38,7 @@ DialogAsciiString::DialogAsciiString(QWidget *parent, Qt::WindowFlags f)
 	ui.setupUi(this);
 	ui.progressBar->setValue(0);
 
-	buttonFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
+	buttonFind_ = new QPushButton(QIcon::fromTheme(QStringLiteral("edit-find")), tr("Find"));
 	connect(buttonFind_, &QPushButton::clicked, this, &DialogAsciiString::onFindClicked);
 	connect(&searchWatcher_, &QFutureWatcher<SearchResult>::finished, this, &DialogAsciiString::onFindFinished);
 
@@ -219,11 +219,11 @@ void DialogAsciiString::setSearchRunning(bool running) {
 
 	if (searchRunning_) {
 		buttonFind_->setEnabled(true);
-		buttonFind_->setIcon(QIcon::fromTheme("dialog-close"));
+		buttonFind_->setIcon(QIcon::fromTheme(QStringLiteral("dialog-close")));
 		buttonFind_->setText(tr("Cancel"));
 	} else {
 		buttonFind_->setEnabled(true);
-		buttonFind_->setIcon(QIcon::fromTheme("edit-find"));
+		buttonFind_->setIcon(QIcon::fromTheme(QStringLiteral("edit-find")));
 		buttonFind_->setText(tr("Find"));
 		ui.progressBar->setValue(100);
 	}

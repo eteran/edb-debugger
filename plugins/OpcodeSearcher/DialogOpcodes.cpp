@@ -720,7 +720,7 @@ DialogOpcodes::DialogOpcodes(QWidget *parent, Qt::WindowFlags f)
 	filterModel_ = new QSortFilterProxyModel(this);
 	connect(ui.txtSearch, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 
-	buttonFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
+	buttonFind_ = new QPushButton(QIcon::fromTheme(QStringLiteral("edit-find")), tr("Find"));
 	connect(buttonFind_, &QPushButton::clicked, this, &DialogOpcodes::onFindClicked);
 	connect(&searchWatcher_, &QFutureWatcher<SearchResult>::finished, this, &DialogOpcodes::onFindFinished);
 
@@ -1000,11 +1000,11 @@ void DialogOpcodes::setSearchRunning(bool running) {
 
 	if (searchRunning_) {
 		buttonFind_->setEnabled(true);
-		buttonFind_->setIcon(QIcon::fromTheme("process-stop"));
+		buttonFind_->setIcon(QIcon::fromTheme(QStringLiteral("process-stop")));
 		buttonFind_->setText(tr("Cancel"));
 	} else {
 		buttonFind_->setEnabled(true);
-		buttonFind_->setIcon(QIcon::fromTheme("edit-find"));
+		buttonFind_->setIcon(QIcon::fromTheme(QStringLiteral("edit-find")));
 		buttonFind_->setText(tr("Find"));
 		ui.progressBar->setValue(100);
 	}

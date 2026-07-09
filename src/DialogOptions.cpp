@@ -73,7 +73,7 @@ void DialogOptions::addOptionsPage(QWidget *page) {
 		layout->addWidget(toolbox_, 0, 0, 1, 1);
 	}
 
-	toolbox_->addItem(page, QIcon::fromTheme("plugin"), page->windowTitle());
+	toolbox_->addItem(page, QIcon::fromTheme(QStringLiteral("plugin")), page->windowTitle());
 }
 
 /**

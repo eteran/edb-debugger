@@ -1271,8 +1271,8 @@ void Debugger::setupTabButtons() {
 
 	tabCreate_->setToolButtonStyle(Qt::ToolButtonIconOnly);
 	tabDelete_->setToolButtonStyle(Qt::ToolButtonIconOnly);
-	tabCreate_->setIcon(QIcon::fromTheme("tab-new"));
-	tabDelete_->setIcon(QIcon::fromTheme("tab-close"));
+	tabCreate_->setIcon(QIcon::fromTheme(QStringLiteral("tab-new")));
+	tabDelete_->setIcon(QIcon::fromTheme(QStringLiteral("tab-close")));
 	tabCreate_->setAutoRaise(true);
 	tabDelete_->setAutoRaise(true);
 	tabCreate_->setEnabled(false);

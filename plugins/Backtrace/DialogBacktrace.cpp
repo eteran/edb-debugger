@@ -85,7 +85,7 @@ DialogBacktrace::DialogBacktrace(QWidget *parent, Qt::WindowFlags f)
 	table_->verticalHeader()->hide();
 	table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	buttonReturnTo_ = new QPushButton(QIcon::fromTheme("edit-undo"), tr("Return To"));
+	buttonReturnTo_ = new QPushButton(QIcon::fromTheme(QStringLiteral("edit-undo")), tr("Return To"));
 	connect(buttonReturnTo_, &QPushButton::clicked, this, [this]() {
 		// Desc: Ensures that the selected item is a return address.  If so, sets a
 		//       breakpoint at that address and continues execution.
