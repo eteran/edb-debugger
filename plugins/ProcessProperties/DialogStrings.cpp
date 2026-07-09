@@ -16,9 +16,9 @@
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QtConcurrent/QtConcurrentRun>
 #include <QSortFilterProxyModel>
 #include <QVector>
+#include <QtConcurrent/QtConcurrentRun>
 
 #include <algorithm>
 #include <numeric>
@@ -143,9 +143,8 @@ void DialogStrings::onFindClicked() {
 		return;
 	}
 
-
 	const int min_string_length = edb::v1::config().min_string_length;
-	const bool searchUnicode     = ui.search_unicode->isChecked();
+	const bool searchUnicode    = ui.search_unicode->isChecked();
 
 	const QItemSelectionModel *const selection_model = ui.tableView->selectionModel();
 	const QModelIndexList sel                        = selection_model->selectedRows();

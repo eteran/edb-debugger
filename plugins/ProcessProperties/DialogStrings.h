@@ -7,8 +7,8 @@
 #ifndef DIALOG_STRINGS_H_20061101_
 #define DIALOG_STRINGS_H_20061101_
 
-#include "Types.h"
 #include "ResultsModel.h"
+#include "Types.h"
 #include "ui_DialogStrings.h"
 #include <QDialog>
 #include <QFutureWatcher>

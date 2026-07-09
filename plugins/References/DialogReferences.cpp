@@ -13,8 +13,8 @@
 
 #include <QMessageBox>
 #include <QPushButton>
-#include <QtConcurrent/QtConcurrentRun>
 #include <QVector>
+#include <QtConcurrent/QtConcurrentRun>
 
 namespace ReferencesPlugin {
 
@@ -77,7 +77,7 @@ DialogReferences::SearchResult DialogReferences::doFind(edb::address_t address, 
 		return result;
 	}
 
-	const size_t page_size = edb::v1::debugger_core->pageSize();
+	const size_t page_size    = edb::v1::debugger_core->pageSize();
 	const size_t pointer_size = edb::v1::pointer_size();
 
 	const size_t totalBytes = std::accumulate(regions.begin(), regions.end(), size_t(0), [](size_t total, const RegionScan &region) {
@@ -97,7 +97,7 @@ DialogReferences::SearchResult DialogReferences::doFind(edb::address_t address, 
 			continue;
 		}
 
-		const size_t page_count = static_cast<size_t>(region.end - region.start) / page_size;
+		const size_t page_count      = static_cast<size_t>(region.end - region.start) / page_size;
 		const QVector<uint8_t> pages = edb::v1::read_pages(region.start, page_count);
 
 		if (!pages.isEmpty()) {

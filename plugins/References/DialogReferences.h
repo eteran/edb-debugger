@@ -47,7 +47,7 @@ private:
 	};
 
 	struct ReferenceResult {
-		char type            = 0;
+		char type              = 0;
 		edb::address_t address = 0;
 	};
 

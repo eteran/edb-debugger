@@ -7,8 +7,8 @@
 #ifndef DIALOG_FUNCTIONS_H_20061101_
 #define DIALOG_FUNCTIONS_H_20061101_
 
-#include "Types.h"
 #include "Function.h"
+#include "Types.h"
 #include "ui_DialogFunctions.h"
 #include <QDialog>
 #include <QFutureWatcher>

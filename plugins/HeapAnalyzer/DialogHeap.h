@@ -23,9 +23,9 @@ namespace HeapAnalyzerPlugin {
 
 struct SearchResult {
 	QVector<ResultViewModel::Result> results;
-	qint64 freeBlocks  = 0;
-	qint64 busyBlocks  = 0;
-	bool cancelled     = false;
+	qint64 freeBlocks = 0;
+	qint64 busyBlocks = 0;
+	bool cancelled    = false;
 };
 
 class DialogHeap : public QDialog {
@@ -66,8 +66,8 @@ private:
 	QFutureWatcher<SearchResult> searchWatcher_;
 	QTimer progressTimer_;
 	std::atomic_bool cancelRequested_ = false;
-	std::atomic_size_t progressDone_   = 0;
-	std::atomic_size_t progressTotal_  = 0;
+	std::atomic_size_t progressDone_  = 0;
+	std::atomic_size_t progressTotal_ = 0;
 	bool searchRunning_               = false;
 };
 

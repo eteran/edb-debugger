@@ -427,11 +427,11 @@ SearchResult DialogHeap::collectBlocks(edb::address_t start_address, edb::addres
 						data      = asciiData;
 						data_type = ResultViewModel::Result::Ascii;
 					} else if (edb::v1::get_utf16_string_at_address(
-							   block_start(currentChunkAddress),
-							   utf16Data,
-							   min_string_length,
-							   static_cast<int>(currentChunk.chunkSize()),
-							   utf16sz)) {
+								   block_start(currentChunkAddress),
+								   utf16Data,
+								   min_string_length,
+								   static_cast<int>(currentChunk.chunkSize()),
+								   utf16sz)) {
 						data      = utf16Data;
 						data_type = ResultViewModel::Result::Utf16;
 					} else {
@@ -482,7 +482,7 @@ SearchResult DialogHeap::collectBlocks(edb::address_t start_address, edb::addres
 
 			QHash<edb::address_t, edb::address_t> targets;
 			for (const ResultViewModel::Result &entry : result.results) {
-				edb::address_t block_ptr = block_start(entry);
+				edb::address_t block_ptr       = block_start(entry);
 				const edb::address_t block_end = block_ptr + entry.size;
 				while (block_ptr < block_end) {
 					targets.insert(block_ptr, entry.address);
@@ -495,7 +495,7 @@ SearchResult DialogHeap::collectBlocks(edb::address_t start_address, edb::addres
 					continue;
 				}
 
-				edb::address_t block_ptr = block_start(entry);
+				edb::address_t block_ptr       = block_start(entry);
 				const edb::address_t block_end = block_ptr + entry.size;
 				std::vector<edb::address_t> pointers;
 				while (block_ptr < block_end) {
@@ -510,8 +510,8 @@ SearchResult DialogHeap::collectBlocks(edb::address_t start_address, edb::addres
 				}
 
 				if (!pointers.empty()) {
-					entry.pointers   = pointers;
-					entry.dataType   = ResultViewModel::Result::Pointer;
+					entry.pointers = pointers;
+					entry.dataType = ResultViewModel::Result::Pointer;
 				}
 			}
 

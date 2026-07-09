@@ -348,7 +348,7 @@ DialogROPTool::SearchResult DialogROPTool::doFind(const IProcess *process, const
 			return QString();
 		}
 
-		auto it = instructions.begin();
+		auto it                    = instructions.begin();
 		QString instruction_string = QString::fromStdString(edb::v1::formatter().toString(**it++));
 		for (; it != instructions.end(); ++it) {
 			instruction_string.append(QStringLiteral("; %1").arg(QString::fromStdString(edb::v1::formatter().toString(**it))));
@@ -368,9 +368,9 @@ DialogROPTool::SearchResult DialogROPTool::doFind(const IProcess *process, const
 			continue;
 		}
 
-		edb::address_t start_address = region.start;
+		edb::address_t start_address     = region.start;
 		const edb::address_t end_address = region.end;
-		const edb::address_t orig_start = start_address;
+		const edb::address_t orig_start  = start_address;
 
 		ByteShiftArray bsa(32);
 

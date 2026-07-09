@@ -71,7 +71,7 @@ private:
 private:
 	Ui::DialogROPTool ui;
 	QSortFilterProxyModel *filterModel_ = nullptr;
-	QPushButton *buttonFind_ = nullptr;
+	QPushButton *buttonFind_            = nullptr;
 	QFutureWatcher<SearchResult> searchWatcher_;
 	QTimer progressTimer_;
 	std::atomic_bool cancelRequested_ = false;

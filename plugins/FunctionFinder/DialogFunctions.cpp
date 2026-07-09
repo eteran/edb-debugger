@@ -19,8 +19,8 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
-#include <QtConcurrent/QtConcurrentRun>
 #include <QVector>
+#include <QtConcurrent/QtConcurrentRun>
 
 #include <vector>
 
