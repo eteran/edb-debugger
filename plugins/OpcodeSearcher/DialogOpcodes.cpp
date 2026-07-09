@@ -23,6 +23,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
+#include <QtConcurrent/QtConcurrentRun>
 
 #include <vector>
 
@@ -41,7 +42,7 @@ using OpcodeData = std::array<uint8_t, sizeof(uint64_t)>;
  * @param instructions The list of instructions to be added to the results dialog.
  * @param rva The relative virtual address of the first instruction in the list.
  */
-void add_result(DialogResults *resultsDialog, const InstructionList &instructions, edb::address_t rva) {
+void add_result(QVector<ResultsModel::Result> &results, const InstructionList &instructions, edb::address_t rva) {
 	if (!instructions.empty()) {
 
 		auto it                       = instructions.begin();
@@ -54,7 +55,7 @@ void add_result(DialogResults *resultsDialog, const InstructionList &instruction
 			instruction_string.append(QStringLiteral("; %1").arg(QString::fromStdString(edb::v1::formatter().toString(*inst))));
 		}
 
-		resultsDialog->addResult({rva, instruction_string});
+		results.push_back({rva, instruction_string});
 	}
 }
 
@@ -66,7 +67,7 @@ void add_result(DialogResults *resultsDialog, const InstructionList &instruction
  * @param start_address The starting address of the opcode data.
  */
 template <int Register>
-void test_deref_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
+void test_deref_reg_to_ip(QVector<ResultsModel::Result> &results, const OpcodeData &data, edb::address_t start_address) {
 	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
 
@@ -81,12 +82,12 @@ void test_deref_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, 
 				if (op1->mem.disp == 0) {
 
 					if (op1->mem.base == Register && op1->mem.index == X86_REG_INVALID && op1->mem.scale == 1) {
-						add_result(resultsDialog, {&inst}, start_address);
+						add_result(results, {&inst}, start_address);
 						return;
 					}
 
 					if (op1->mem.index == Register && op1->mem.base == X86_REG_INVALID && op1->mem.scale == 1) {
-						add_result(resultsDialog, {&inst}, start_address);
+						add_result(results, {&inst}, start_address);
 						return;
 					}
 				}
@@ -103,7 +104,7 @@ void test_deref_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, 
  * @param start_address The starting address of the opcode data.
  */
 template <int Register, int StackRegister>
-void test_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
+void test_reg_to_ip(QVector<ResultsModel::Result> &results, const OpcodeData &data, edb::address_t start_address) {
 
 	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
@@ -115,7 +116,7 @@ void test_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 			const auto op1 = inst[0];
 			if (is_register(op1)) {
 				if (op1->reg == Register) {
-					add_result(resultsDialog, {&inst}, start_address);
+					add_result(results, {&inst}, start_address);
 					return;
 				}
 			}
@@ -132,7 +133,7 @@ void test_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 							const auto op2 = inst2[0];
 
 							if (is_ret(inst2)) {
-								add_result(resultsDialog, {&inst, &inst2}, start_address);
+								add_result(results, {&inst, &inst2}, start_address);
 							} else {
 								switch (inst2.operation()) {
 								case X86_INS_JMP:
@@ -143,12 +144,12 @@ void test_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 										if (op2->mem.disp == 0) {
 
 											if (op2->mem.base == StackRegister && op2->mem.index == X86_REG_INVALID) {
-												add_result(resultsDialog, {&inst, &inst2}, start_address);
+												add_result(results, {&inst, &inst2}, start_address);
 												return;
 											}
 
 											if (op2->mem.index == StackRegister && op2->mem.base == X86_REG_INVALID) {
-												add_result(resultsDialog, {&inst, &inst2}, start_address);
+												add_result(results, {&inst, &inst2}, start_address);
 												return;
 											}
 										}
@@ -177,7 +178,7 @@ void test_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::a
  * @param start_address The starting address of the opcode data.
  */
 template <int StackRegister>
-void test_esp_add_0(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
+void test_esp_add_0(QVector<ResultsModel::Result> &results, const OpcodeData &data, edb::address_t start_address) {
 
 	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
@@ -187,19 +188,19 @@ void test_esp_add_0(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 	if (inst) {
 		const auto op1 = inst[0];
 		if (is_ret(inst)) {
-			add_result(resultsDialog, {&inst}, start_address);
+			add_result(results, {&inst}, start_address);
 		} else if (is_call(inst) || is_jump(inst)) {
 			if (is_expression(op1)) {
 
 				if (op1->mem.disp == 0) {
 
 					if (op1->mem.base == StackRegister && op1->mem.index == X86_REG_INVALID) {
-						add_result(resultsDialog, {&inst}, start_address);
+						add_result(results, {&inst}, start_address);
 						return;
 					}
 
 					if (op1->mem.index == StackRegister && op1->mem.base == X86_REG_INVALID) {
-						add_result(resultsDialog, {&inst}, start_address);
+						add_result(results, {&inst}, start_address);
 						return;
 					}
 				}
@@ -220,7 +221,7 @@ void test_esp_add_0(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 							if (is_register(op2)) {
 
 								if (op1->reg == op2->reg) {
-									add_result(resultsDialog, {&inst, &inst2}, start_address);
+									add_result(results, {&inst, &inst2}, start_address);
 								}
 							}
 							break;
@@ -245,7 +246,7 @@ void test_esp_add_0(DialogResults *resultsDialog, const OpcodeData &data, edb::a
  * @param start_address The starting address of the opcode data.
  */
 template <int StackRegister>
-void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
+void test_esp_add_regx1(QVector<ResultsModel::Result> &results, const OpcodeData &data, edb::address_t start_address) {
 
 	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
@@ -259,9 +260,9 @@ void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 
 				if (op1->mem.disp == 4) {
 					if (op1->mem.base == StackRegister && op1->mem.index == X86_REG_INVALID) {
-						add_result(resultsDialog, {&inst}, start_address);
+						add_result(results, {&inst}, start_address);
 					} else if (op1->mem.base == X86_REG_INVALID && op1->mem.index == StackRegister && op1->mem.scale == 1) {
-						add_result(resultsDialog, {&inst}, start_address);
+						add_result(results, {&inst}, start_address);
 					}
 				}
 			}
@@ -274,7 +275,7 @@ void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 					edb::Instruction inst2(p, last, 0);
 					if (inst2) {
 						if (is_ret(inst2)) {
-							add_result(resultsDialog, {&inst, &inst2}, start_address);
+							add_result(results, {&inst, &inst2}, start_address);
 						}
 					}
 				}
@@ -290,7 +291,7 @@ void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 							edb::Instruction inst2(p, last, 0);
 							if (inst2) {
 								if (is_ret(inst2)) {
-									add_result(resultsDialog, {&inst, &inst2}, start_address);
+									add_result(results, {&inst, &inst2}, start_address);
 								}
 							}
 						}
@@ -308,7 +309,7 @@ void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 							edb::Instruction inst2(p, last, 0);
 							if (inst2) {
 								if (is_ret(inst2)) {
-									add_result(resultsDialog, {&inst, &inst2}, start_address);
+									add_result(results, {&inst, &inst2}, start_address);
 								}
 							}
 						}
@@ -331,7 +332,7 @@ void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
  * @param start_address The starting address of the opcode data.
  */
 template <int StackRegister>
-void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
+void test_esp_add_regx2(QVector<ResultsModel::Result> &results, const OpcodeData &data, edb::address_t start_address) {
 
 	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
@@ -345,9 +346,9 @@ void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, ed
 
 				if (op1->mem.disp == (sizeof(edb::reg_t) * 2)) {
 					if (op1->mem.base == StackRegister && op1->mem.index == X86_REG_INVALID) {
-						add_result(resultsDialog, {&inst}, start_address);
+						add_result(results, {&inst}, start_address);
 					} else if (op1->mem.base == X86_REG_INVALID && op1->mem.index == StackRegister && op1->mem.scale == 1) {
-						add_result(resultsDialog, {&inst}, start_address);
+						add_result(results, {&inst}, start_address);
 					}
 				}
 			}
@@ -368,7 +369,7 @@ void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, ed
 								edb::Instruction inst3(p, last, 0);
 								if (inst3) {
 									if (is_ret(inst3)) {
-										add_result(resultsDialog, {&inst, &inst2, &inst3}, start_address);
+										add_result(results, {&inst, &inst2, &inst3}, start_address);
 									}
 								}
 							}
@@ -390,7 +391,7 @@ void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, ed
 							edb::Instruction inst2(p, last, 0);
 							if (inst2) {
 								if (is_ret(inst2)) {
-									add_result(resultsDialog, {&inst, &inst2}, start_address);
+									add_result(results, {&inst, &inst2}, start_address);
 								}
 							}
 						}
@@ -409,7 +410,7 @@ void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, ed
 							edb::Instruction inst2(p, last, 0);
 							if (inst2) {
 								if (is_ret(inst2)) {
-									add_result(resultsDialog, {&inst, &inst2}, start_address);
+									add_result(results, {&inst, &inst2}, start_address);
 								}
 							}
 						}
@@ -432,7 +433,7 @@ void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, ed
  * @param start_address The starting address of the opcode data.
  */
 template <int StackRegister>
-void test_esp_sub_regx1(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
+void test_esp_sub_regx1(QVector<ResultsModel::Result> &results, const OpcodeData &data, edb::address_t start_address) {
 
 	const uint8_t *p    = data.data();
 	const uint8_t *last = p + sizeof(data);
@@ -446,9 +447,9 @@ void test_esp_sub_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 
 				if (op1->mem.disp == -static_cast<int>(sizeof(edb::reg_t))) {
 					if (op1->mem.base == StackRegister && op1->mem.index == X86_REG_INVALID) {
-						add_result(resultsDialog, {&inst}, start_address);
+						add_result(results, {&inst}, start_address);
 					} else if (op1->mem.base == X86_REG_INVALID && op1->mem.index == StackRegister && op1->mem.scale == 1) {
-						add_result(resultsDialog, {&inst}, start_address);
+						add_result(results, {&inst}, start_address);
 					}
 				}
 			}
@@ -465,7 +466,7 @@ void test_esp_sub_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 							edb::Instruction inst2(p, last, 0);
 							if (inst2) {
 								if (is_ret(inst2)) {
-									add_result(resultsDialog, {&inst, &inst2}, start_address);
+									add_result(results, {&inst, &inst2}, start_address);
 								}
 							}
 						}
@@ -484,7 +485,7 @@ void test_esp_sub_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 							edb::Instruction inst2(p, last, 0);
 							if (inst2) {
 								if (is_ret(inst2)) {
-									add_result(resultsDialog, {&inst, &inst2}, start_address);
+									add_result(results, {&inst, &inst2}, start_address);
 								}
 							}
 						}
@@ -508,190 +509,190 @@ void test_esp_sub_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
  * @param opcode The opcode data to search through.
  * @param address The starting address of the opcode data.
  */
-void run_tests(DialogResults *resultsDialog, int classtype, const OpcodeData &opcode, edb::address_t address) {
+void run_tests(QVector<ResultsModel::Result> &results, int classtype, bool is32Bit, const OpcodeData &opcode, edb::address_t address) {
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
-	if (edb::v1::debuggeeIs32Bit()) {
+	if (is32Bit) {
 		switch (classtype) {
 		case 1:
-			test_reg_to_ip<X86_REG_EAX, X86_REG_ESP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_EAX, X86_REG_ESP>(results, opcode, address);
 			break;
 		case 2:
-			test_reg_to_ip<X86_REG_EBX, X86_REG_ESP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_EBX, X86_REG_ESP>(results, opcode, address);
 			break;
 		case 3:
-			test_reg_to_ip<X86_REG_ECX, X86_REG_ESP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_ECX, X86_REG_ESP>(results, opcode, address);
 			break;
 		case 4:
-			test_reg_to_ip<X86_REG_EDX, X86_REG_ESP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_EDX, X86_REG_ESP>(results, opcode, address);
 			break;
 		case 5:
-			test_reg_to_ip<X86_REG_EBP, X86_REG_ESP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_EBP, X86_REG_ESP>(results, opcode, address);
 			break;
 		case 6:
-			test_reg_to_ip<X86_REG_ESP, X86_REG_ESP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_ESP, X86_REG_ESP>(results, opcode, address);
 			break;
 		case 7:
-			test_reg_to_ip<X86_REG_ESI, X86_REG_ESP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_ESI, X86_REG_ESP>(results, opcode, address);
 			break;
 		case 8:
-			test_reg_to_ip<X86_REG_EDI, X86_REG_ESP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_EDI, X86_REG_ESP>(results, opcode, address);
 			break;
 		case 17:
-			test_reg_to_ip<X86_REG_EAX, X86_REG_ESP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_EBX, X86_REG_ESP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_ECX, X86_REG_ESP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_EDX, X86_REG_ESP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_EBP, X86_REG_ESP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_ESP, X86_REG_ESP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_ESI, X86_REG_ESP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_EDI, X86_REG_ESP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_EAX, X86_REG_ESP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_EBX, X86_REG_ESP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_ECX, X86_REG_ESP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_EDX, X86_REG_ESP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_EBP, X86_REG_ESP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_ESP, X86_REG_ESP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_ESI, X86_REG_ESP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_EDI, X86_REG_ESP>(results, opcode, address);
 			break;
 		case 18:
 			// [ESP] -> EIP
-			test_esp_add_0<X86_REG_ESP>(resultsDialog, opcode, address);
+			test_esp_add_0<X86_REG_ESP>(results, opcode, address);
 			break;
 		case 19:
 			// [ESP + 4] -> EIP
-			test_esp_add_regx1<X86_REG_ESP>(resultsDialog, opcode, address);
+			test_esp_add_regx1<X86_REG_ESP>(results, opcode, address);
 			break;
 		case 20:
 			// [ESP + 8] -> EIP
-			test_esp_add_regx2<X86_REG_ESP>(resultsDialog, opcode, address);
+			test_esp_add_regx2<X86_REG_ESP>(results, opcode, address);
 			break;
 		case 21:
 			// [ESP - 4] -> EIP
-			test_esp_sub_regx1<X86_REG_ESP>(resultsDialog, opcode, address);
+			test_esp_sub_regx1<X86_REG_ESP>(results, opcode, address);
 			break;
 		}
 	} else {
 		switch (classtype) {
 		case 1:
-			test_reg_to_ip<X86_REG_RAX, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_RAX, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 2:
-			test_reg_to_ip<X86_REG_RBX, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_RBX, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 3:
-			test_reg_to_ip<X86_REG_RCX, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_RCX, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 4:
-			test_reg_to_ip<X86_REG_RDX, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_RDX, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 5:
-			test_reg_to_ip<X86_REG_RBP, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_RBP, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 6:
-			test_reg_to_ip<X86_REG_RSP, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_RSP, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 7:
-			test_reg_to_ip<X86_REG_RSI, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_RSI, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 8:
-			test_reg_to_ip<X86_REG_RDI, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_RDI, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 9:
-			test_reg_to_ip<X86_REG_R8, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_R8, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 10:
-			test_reg_to_ip<X86_REG_R9, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_R9, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 11:
-			test_reg_to_ip<X86_REG_R10, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_R10, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 12:
-			test_reg_to_ip<X86_REG_R11, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_R11, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 13:
-			test_reg_to_ip<X86_REG_R12, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_R12, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 14:
-			test_reg_to_ip<X86_REG_R13, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_R13, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 15:
-			test_reg_to_ip<X86_REG_R14, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_R14, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 16:
-			test_reg_to_ip<X86_REG_R15, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_R15, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 17:
-			test_reg_to_ip<X86_REG_RAX, X86_REG_RSP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_RBX, X86_REG_RSP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_RCX, X86_REG_RSP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_RDX, X86_REG_RSP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_RBP, X86_REG_RSP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_RSP, X86_REG_RSP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_RSI, X86_REG_RSP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_RDI, X86_REG_RSP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_R8, X86_REG_RSP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_R9, X86_REG_RSP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_R10, X86_REG_RSP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_R11, X86_REG_RSP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_R12, X86_REG_RSP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_R13, X86_REG_RSP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_R14, X86_REG_RSP>(resultsDialog, opcode, address);
-			test_reg_to_ip<X86_REG_R15, X86_REG_RSP>(resultsDialog, opcode, address);
+			test_reg_to_ip<X86_REG_RAX, X86_REG_RSP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_RBX, X86_REG_RSP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_RCX, X86_REG_RSP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_RDX, X86_REG_RSP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_RBP, X86_REG_RSP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_RSP, X86_REG_RSP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_RSI, X86_REG_RSP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_RDI, X86_REG_RSP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_R8, X86_REG_RSP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_R9, X86_REG_RSP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_R10, X86_REG_RSP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_R11, X86_REG_RSP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_R12, X86_REG_RSP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_R13, X86_REG_RSP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_R14, X86_REG_RSP>(results, opcode, address);
+			test_reg_to_ip<X86_REG_R15, X86_REG_RSP>(results, opcode, address);
 			break;
 		case 18:
 			// [ESP] -> EIP
-			test_esp_add_0<X86_REG_RSP>(resultsDialog, opcode, address);
+			test_esp_add_0<X86_REG_RSP>(results, opcode, address);
 			break;
 		case 19:
 			// [ESP + 4] -> EIP
-			test_esp_add_regx1<X86_REG_RSP>(resultsDialog, opcode, address);
+			test_esp_add_regx1<X86_REG_RSP>(results, opcode, address);
 			break;
 		case 20:
 			// [ESP + 8] -> EIP
-			test_esp_add_regx2<X86_REG_RSP>(resultsDialog, opcode, address);
+			test_esp_add_regx2<X86_REG_RSP>(results, opcode, address);
 			break;
 		case 21:
 			// [ESP - 4] -> EIP
-			test_esp_sub_regx1<X86_REG_RSP>(resultsDialog, opcode, address);
+			test_esp_sub_regx1<X86_REG_RSP>(results, opcode, address);
 			break;
 		case 22:
-			test_deref_reg_to_ip<X86_REG_RAX>(resultsDialog, opcode, address);
+			test_deref_reg_to_ip<X86_REG_RAX>(results, opcode, address);
 			break;
 		case 23:
-			test_deref_reg_to_ip<X86_REG_RBX>(resultsDialog, opcode, address);
+			test_deref_reg_to_ip<X86_REG_RBX>(results, opcode, address);
 			break;
 		case 24:
-			test_deref_reg_to_ip<X86_REG_RCX>(resultsDialog, opcode, address);
+			test_deref_reg_to_ip<X86_REG_RCX>(results, opcode, address);
 			break;
 		case 25:
-			test_deref_reg_to_ip<X86_REG_RDX>(resultsDialog, opcode, address);
+			test_deref_reg_to_ip<X86_REG_RDX>(results, opcode, address);
 			break;
 		case 26:
-			test_deref_reg_to_ip<X86_REG_RBP>(resultsDialog, opcode, address);
+			test_deref_reg_to_ip<X86_REG_RBP>(results, opcode, address);
 			break;
 		case 28:
-			test_deref_reg_to_ip<X86_REG_RSI>(resultsDialog, opcode, address);
+			test_deref_reg_to_ip<X86_REG_RSI>(results, opcode, address);
 			break;
 		case 29:
-			test_deref_reg_to_ip<X86_REG_RDI>(resultsDialog, opcode, address);
+			test_deref_reg_to_ip<X86_REG_RDI>(results, opcode, address);
 			break;
 		case 30:
-			test_deref_reg_to_ip<X86_REG_R8>(resultsDialog, opcode, address);
+			test_deref_reg_to_ip<X86_REG_R8>(results, opcode, address);
 			break;
 		case 31:
-			test_deref_reg_to_ip<X86_REG_R9>(resultsDialog, opcode, address);
+			test_deref_reg_to_ip<X86_REG_R9>(results, opcode, address);
 			break;
 		case 32:
-			test_deref_reg_to_ip<X86_REG_R10>(resultsDialog, opcode, address);
+			test_deref_reg_to_ip<X86_REG_R10>(results, opcode, address);
 			break;
 		case 33:
-			test_deref_reg_to_ip<X86_REG_R11>(resultsDialog, opcode, address);
+			test_deref_reg_to_ip<X86_REG_R11>(results, opcode, address);
 			break;
 		case 34:
-			test_deref_reg_to_ip<X86_REG_R12>(resultsDialog, opcode, address);
+			test_deref_reg_to_ip<X86_REG_R12>(results, opcode, address);
 			break;
 		case 35:
-			test_deref_reg_to_ip<X86_REG_R13>(resultsDialog, opcode, address);
+			test_deref_reg_to_ip<X86_REG_R13>(results, opcode, address);
 			break;
 		case 36:
-			test_deref_reg_to_ip<X86_REG_R14>(resultsDialog, opcode, address);
+			test_deref_reg_to_ip<X86_REG_R14>(results, opcode, address);
 			break;
 		case 37:
-			test_deref_reg_to_ip<X86_REG_R15>(resultsDialog, opcode, address);
+			test_deref_reg_to_ip<X86_REG_R15>(results, opcode, address);
 			break;
 		}
 	}
@@ -720,13 +721,11 @@ DialogOpcodes::DialogOpcodes(QWidget *parent, Qt::WindowFlags f)
 	connect(ui.txtSearch, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 
 	buttonFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
-	connect(buttonFind_, &QPushButton::clicked, this, [this]() {
-		buttonFind_->setEnabled(false);
-		ui.progressBar->setValue(0);
-		doFind();
-		ui.progressBar->setValue(100);
-		buttonFind_->setEnabled(true);
-	});
+	connect(buttonFind_, &QPushButton::clicked, this, &DialogOpcodes::onFindClicked);
+	connect(&searchWatcher_, &QFutureWatcher<SearchResult>::finished, this, &DialogOpcodes::onFindFinished);
+
+	progressTimer_.setInterval(50);
+	connect(&progressTimer_, &QTimer::timeout, this, &DialogOpcodes::updateProgressBar);
 
 	ui.buttonBox->addButton(buttonFind_, QDialogButtonBox::ActionRole);
 }
@@ -811,12 +810,111 @@ void DialogOpcodes::showEvent(QShowEvent *) {
 }
 
 /**
- * @brief Performs the opcode search based on the selected region and the chosen opcode type.
- * It reads the memory of the selected regions, tests for matching opcodes, and displays the results in a dialog.
+ * @brief Cancels an active search instead of closing the dialog.
  */
-void DialogOpcodes::doFind() {
+void DialogOpcodes::reject() {
+	if (searchRunning_) {
+		cancelRequested_.store(true);
+		buttonFind_->setEnabled(false);
+		buttonFind_->setText(tr("Cancelling..."));
+		return;
+	}
+
+	QDialog::reject();
+}
+
+/**
+ * @brief Performs the opcode search based on the selected region and the chosen opcode type.
+ * The worker returns collected results so the UI stays responsive.
+ */
+DialogOpcodes::SearchResult DialogOpcodes::doFind(int classtype, bool is32Bit, const IProcess *process, const std::vector<RegionScan> &regions) {
+	SearchResult result;
+	progressDone_.store(0);
+	progressTotal_.store(0);
+
+	if (process == nullptr) {
+		return result;
+	}
+
+	const size_t bufferSize = sizeof(OpcodeData);
+	for (const RegionScan &region : regions) {
+		progressTotal_.fetch_add(static_cast<size_t>(region.end - region.start) + bufferSize);
+	}
+
+	for (const RegionScan &region : regions) {
+
+		if (cancelRequested_.load()) {
+			result.cancelled = true;
+			break;
+		}
+
+		edb::address_t start_address     = region.start;
+		edb::address_t address           = region.start;
+		const edb::address_t end_address = region.end;
+
+		OpcodeData shift_buffer = {};
+
+		// this will read the rest of the region
+		size_t i = 0;
+		while (start_address < end_address) {
+
+			if (cancelRequested_.load()) {
+				result.cancelled = true;
+				break;
+			}
+
+			// create a reference to the bsa's data so we can pass it to the testXXXX functions
+			// but only do so if we have read enough bytes to fill our shift buffer
+			if (i >= shift_buffer.size()) {
+				run_tests(result.results, classtype, is32Bit, shift_buffer, address - shift_buffer.size());
+			}
+
+			uint8_t byte = 0;
+			process->readBytes(start_address, &byte, 1);
+			util::shl(shift_buffer, byte);
+
+			++start_address;
+			++address;
+			++i;
+			progressDone_.fetch_add(1);
+		}
+
+		if (result.cancelled) {
+			break;
+		}
+
+		// test the stuff at the regions edge
+		for (size_t edge = 0; edge < shift_buffer.size(); ++edge) {
+
+			if (cancelRequested_.load()) {
+				result.cancelled = true;
+				break;
+			}
+
+			// create a reference to the bsa's data so we can pass it to the testXXXX functions
+			run_tests(result.results, classtype, is32Bit, shift_buffer, address - shift_buffer.size());
+
+			// we just shift in 0's and hope it doesn't give false positives
+			util::shl(shift_buffer, 0x00);
+
+			++address;
+			progressDone_.fetch_add(1);
+		}
+	}
+
+	return result;
+}
+
+void DialogOpcodes::onFindClicked() {
+	if (searchRunning_) {
+		cancelRequested_.store(true);
+		buttonFind_->setEnabled(false);
+		buttonFind_->setText(tr("Cancelling..."));
+		return;
+	}
 
 	const int classtype = ui.comboBox->itemData(ui.comboBox->currentIndex()).toInt();
+	const bool is32Bit  = edb::v1::debuggeeIs32Bit();
 
 	const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 	const QModelIndexList sel                 = selModel->selectedRows();
@@ -829,57 +927,52 @@ void DialogOpcodes::doFind() {
 		return;
 	}
 
-	auto resultsDialog = new DialogResults(this);
+	if (edb::v1::debugger_core == nullptr) {
+		return;
+	}
 
-	if (IProcess *process = edb::v1::debugger_core->process()) {
-		for (const QModelIndex &selected_item : sel) {
+	std::vector<RegionScan> regions;
+	regions.reserve(static_cast<size_t>(sel.size()));
+	for (const QModelIndex &selected_item : sel) {
 
-			const QModelIndex index = filterModel_->mapToSource(selected_item);
+		const QModelIndex index = filterModel_->mapToSource(selected_item);
 
-			if (auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
-
-				edb::address_t start_address     = region->start();
-				edb::address_t address           = region->start();
-				const edb::address_t end_address = region->end();
-				const edb::address_t orig_start  = region->start();
-
-				OpcodeData shift_buffer = {};
-
-				// this will read the rest of the region
-				size_t i = 0;
-				while (start_address < end_address) {
-
-					// create a reference to the bsa's data so we can pass it to the testXXXX functions
-					// but only do so if we have read enough bytes to fill our shift buffer
-					if (i >= shift_buffer.size()) {
-						run_tests(resultsDialog, classtype, shift_buffer, address - shift_buffer.size());
-					}
-
-					uint8_t byte;
-					process->readBytes(start_address, &byte, 1);
-					util::shl(shift_buffer, byte);
-
-					++start_address;
-
-					ui.progressBar->setValue(util::percentage(address - orig_start, region->size()));
-					++address;
-					++i;
-				}
-
-				// test the stuff at the regions edge
-				for (size_t i = 0; i < shift_buffer.size(); ++i) {
-
-					// create a reference to the bsa's data so we can pass it to the testXXXX functions
-					run_tests(resultsDialog, classtype, shift_buffer, address - shift_buffer.size());
-
-					// we just shift in 0's and hope it doesn't give false positives
-					util::shl(shift_buffer, 0x00);
-
-					ui.progressBar->setValue(util::percentage(address - orig_start, region->size()));
-					++address;
-				}
-			}
+		if (auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
+			regions.push_back({region->start(), region->end()});
 		}
+	}
+
+	if (regions.empty()) {
+		return;
+	}
+
+	ui.progressBar->setValue(0);
+	cancelRequested_.store(false);
+	progressDone_.store(0);
+	progressTotal_.store(0);
+	setSearchRunning(true);
+	progressTimer_.start();
+
+	const IProcess *process = edb::v1::debugger_core->process();
+	searchWatcher_.setFuture(QtConcurrent::run([this, classtype, is32Bit, process, regions]() {
+		return doFind(classtype, is32Bit, process, regions);
+	}));
+}
+
+void DialogOpcodes::onFindFinished() {
+	progressTimer_.stop();
+	updateProgressBar();
+
+	const SearchResult result = searchWatcher_.result();
+	setSearchRunning(false);
+
+	if (result.cancelled) {
+		return;
+	}
+
+	auto resultsDialog = new DialogResults(this);
+	for (const ResultsModel::Result &entry : result.results) {
+		resultsDialog->addResult(entry);
 	}
 
 	if (resultsDialog->resultCount() == 0) {
@@ -887,6 +980,33 @@ void DialogOpcodes::doFind() {
 		delete resultsDialog;
 	} else {
 		resultsDialog->show();
+	}
+}
+
+void DialogOpcodes::updateProgressBar() {
+	const size_t done  = progressDone_.load();
+	const size_t total = progressTotal_.load();
+
+	if (total == 0) {
+		ui.progressBar->setValue(0);
+		return;
+	}
+
+	ui.progressBar->setValue(util::percentage(done, total));
+}
+
+void DialogOpcodes::setSearchRunning(bool running) {
+	searchRunning_ = running;
+
+	if (searchRunning_) {
+		buttonFind_->setEnabled(true);
+		buttonFind_->setIcon(QIcon::fromTheme("process-stop"));
+		buttonFind_->setText(tr("Cancel"));
+	} else {
+		buttonFind_->setEnabled(true);
+		buttonFind_->setIcon(QIcon::fromTheme("edit-find"));
+		buttonFind_->setText(tr("Find"));
+		ui.progressBar->setValue(100);
 	}
 }
 

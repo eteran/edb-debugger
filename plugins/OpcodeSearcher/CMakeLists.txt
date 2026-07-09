@@ -3,7 +3,7 @@ include("BuildPlugin")
 
 set(PLUGIN_NAME "OpcodeSearcher")
 
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED Widgets Concurrent)
 
 add_library(${PLUGIN_NAME} SHARED
 	DialogOpcodes.cpp
@@ -18,6 +18,6 @@ add_library(${PLUGIN_NAME} SHARED
 	ResultsModel.h
 )
 
-target_link_libraries(${PLUGIN_NAME} Qt::Widgets edb)
+target_link_libraries(${PLUGIN_NAME} Qt::Widgets Qt::Concurrent edb)
 
 build_plugin(${PLUGIN_NAME})
