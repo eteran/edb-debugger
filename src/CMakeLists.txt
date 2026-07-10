@@ -131,8 +131,6 @@ set(edb_SRCS
 	widgets/NavigationHistory.h
 	widgets/QDisassemblyView.cpp
 	widgets/QDisassemblyView.h
-	widgets/RegisterViewDelegate.cpp
-	widgets/RegisterViewDelegate.h
 	widgets/SyntaxHighlighter.cpp
 	widgets/SyntaxHighlighter.h
 	widgets/TabWidget.cpp
