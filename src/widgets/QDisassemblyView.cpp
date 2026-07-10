@@ -36,6 +36,7 @@
 #include <QTextLayout>
 #include <QToolTip>
 #include <QtGlobal>
+#include <QtMath>
 
 #include <algorithm>
 #include <climits>
