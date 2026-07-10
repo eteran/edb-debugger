@@ -9,18 +9,16 @@
 #include "RegionBuffer.h"
 
 /**
- * @brief
+ * @brief Constructs a DataViewInfo object with the specified memory region.
+ *
+ * @param r A shared pointer to the memory region associated with this DataViewInfo.
  */
 DataViewInfo::DataViewInfo(const std::shared_ptr<IRegion> &r)
 	: region(r), stream(std::make_unique<RegionBuffer>(r)) {
 }
 
-DataViewInfo::DataViewInfo()
-	: DataViewInfo(nullptr) {
-}
-
 /**
- * @brief
+ * @brief Updates the DataViewInfo object with the current memory region.
  */
 void DataViewInfo::update() {
 

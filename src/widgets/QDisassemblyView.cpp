@@ -42,7 +42,7 @@
 
 namespace {
 
-struct WidgetState1 {
+struct WidgetStateV1 {
 	int version;
 	int line1;
 	int line2;
@@ -52,11 +52,15 @@ struct WidgetState1 {
 
 constexpr int DefaultByteWidth = 8;
 
-struct show_separator_tag {};
-
+/**
+ * @brief Formats the given address as a string, optionally including a separator.
+ *
+ * @param address The address to format.
+ * @param show_separator If true, includes a separator in the formatted address.
+ */
 template <class T>
-struct address_format {
-	static QString format_address(T address, const show_separator_tag &) {
+QString format_address(T address, bool show_separator) {
+	if (show_separator) {
 		if constexpr (sizeof(T) == sizeof(uint32_t)) {
 			static char buffer[10];
 			qsnprintf(buffer, sizeof(buffer), "%04x:%04x", (address >> 16) & 0xffff, address & 0xffff);
@@ -66,37 +70,31 @@ struct address_format {
 		}
 	}
 
-	static QString format_address(T address) {
-		if constexpr (sizeof(T) == sizeof(uint32_t)) {
-			static char buffer[9];
-			qsnprintf(buffer, sizeof(buffer), "%04x%04x", (address >> 16) & 0xffff, address & 0xffff);
-			return QString::fromLatin1(buffer, sizeof(buffer) - 1);
-		} else if constexpr (sizeof(T) == sizeof(uint64_t)) {
-			return edb::value64(address).toHexString();
-		}
+	if constexpr (sizeof(T) == sizeof(uint32_t)) {
+		static char buffer[9];
+		qsnprintf(buffer, sizeof(buffer), "%04x%04x", (address >> 16) & 0xffff, address & 0xffff);
+		return QString::fromLatin1(buffer, sizeof(buffer) - 1);
+	} else if constexpr (sizeof(T) == sizeof(uint64_t)) {
+		return edb::value64(address).toHexString();
 	}
-};
-
-/**
- * @brief
- */
-template <class T>
-QString format_address(T address, bool show_separator) {
-	if (show_separator) {
-		return address_format<T>::format_address(address, show_separator_tag());
-	}
-	return address_format<T>::format_address(address);
 }
 
 /**
- * @brief
+ * @brief Checks if the given x-coordinate is near the specified line x-coordinate.
+ *
+ * @param x The x-coordinate to check.
+ * @param linex The x-coordinate of the line to compare against.
  */
 bool near_line(int x, int linex) {
 	return std::abs(x - linex) < 3;
 }
 
 /**
- * @brief
+ * @brief Calculates the size of the instruction at the given buffer.
+ *
+ * @param buffer Pointer to the buffer containing the instruction bytes.
+ * @param size Size of the buffer.
+ * @return The size of the instruction in bytes.
  */
 int instruction_size(const uint8_t *buffer, std::size_t size) {
 	edb::Instruction inst(buffer, buffer + size, 0);
@@ -104,7 +102,10 @@ int instruction_size(const uint8_t *buffer, std::size_t size) {
 }
 
 /**
- * @brief
+ * @brief Formats the bytes of the given instruction as a string.
+ *
+ * @param inst The instruction whose bytes are to be formatted.
+ * @return A QString representing the formatted bytes of the instruction.
  */
 QString format_instruction_bytes(const edb::Instruction &inst) {
 	auto bytes = QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), static_cast<int>(inst.byteSize()));
@@ -112,13 +113,25 @@ QString format_instruction_bytes(const edb::Instruction &inst) {
 }
 
 /**
- * @brief
+ * @brief Formats the bytes of the given instruction as a string, ensuring that the resulting string fits within the specified maximum pixel width.
+ *
+ * @param inst The instruction whose bytes are to be formatted.
+ * @param maxStringPx The maximum pixel width for the resulting string.
+ * @param metrics The QFontMetrics object used to measure the pixel width of the string.
+ * @return A QString representing the formatted bytes of the instruction, truncated with an ellipsis if necessary to fit within the specified pixel width.
  */
 QString format_instruction_bytes(const edb::Instruction &inst, int maxStringPx, const QFontMetrics &metrics) {
 	const QString byte_buffer = format_instruction_bytes(inst);
 	return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
 }
 
+/**
+ * @brief Determines if the target address is within the same memory region as the instruction address.
+ *
+ * @param targetAddress The target address to check.
+ * @param insnAddress The instruction address to compare against.
+ * @return true if the target address is in the same memory region as the instruction address, false otherwise.
+ */
 bool target_is_local(edb::address_t targetAddress, edb::address_t insnAddress) {
 
 	const auto insnRegion   = edb::v1::memory_regions().findRegion(insnAddress);
@@ -161,7 +174,7 @@ QDisassemblyView::QDisassemblyView(QWidget *parent)
 }
 
 /**
- * @brief
+ * @brief Resets the line columns to their default values and updates the disassembly view.
  */
 void QDisassemblyView::resetColumns() {
 	line1_ = 0;
@@ -390,6 +403,7 @@ int QDisassemblyView::followingInstructions(int current_address, int count) cons
 
 /**
  * @brief Handles wheel events for scrolling the disassembly view.
+ *
  * @param e The wheel event.
  */
 void QDisassemblyView::wheelEvent(QWheelEvent *e) {
@@ -421,7 +435,9 @@ void QDisassemblyView::wheelEvent(QWheelEvent *e) {
 }
 
 /**
- * @brief
+ * @brief Handles scrollbar action triggered events for the disassembly view.
+ *
+ * @param action The action triggered on the scrollbar.
  */
 void QDisassemblyView::scrollbarActionTriggered(int action) {
 
@@ -456,14 +472,19 @@ void QDisassemblyView::scrollbarActionTriggered(int action) {
 }
 
 /**
- * @brief
+ * @brief Sets whether to show the address separator in the disassembly view.
+ *
+ * @param value true to show the address separator, false to hide it.
  */
 void QDisassemblyView::setShowAddressSeparator(bool value) {
 	showAddressSeparator_ = value;
 }
 
 /**
- * @brief
+ * @brief Formats the given address as a string, taking into account whether to show the address separator.
+ *
+ * @param address The address to format.
+ * @return The formatted address as a QString.
  */
 QString QDisassemblyView::formatAddress(edb::address_t address) const {
 	if (edb::v1::debuggeeIs32Bit()) {
@@ -473,7 +494,7 @@ QString QDisassemblyView::formatAddress(edb::address_t address) const {
 }
 
 /**
- * @brief
+ * @brief Updates the disassembly view and emits the signalUpdated signal.
  */
 void QDisassemblyView::update() {
 	viewport()->update();
@@ -555,7 +576,10 @@ void QDisassemblyView::scrollTo(edb::address_t address) {
 }
 
 /**
- * @brief
+ * @brief Formats the instruction as a string, including symbolic names for jump and call targets if applicable.
+ *
+ * @param inst The instruction to format.
+ * @return A QString representing the formatted instruction.
  */
 QString QDisassemblyView::instructionString(const edb::Instruction &inst) const {
 	auto opcode = QString::fromStdString(edb::v1::formatter().toString(inst));
@@ -595,7 +619,13 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
 }
 
 /**
- * @brief
+ * @brief Draws the given instruction on the disassembly view using the specified QPainter.
+ *
+ * @param painter The QPainter object used for drawing.
+ * @param inst The instruction to be drawn.
+ * @param ctx The drawing context containing layout information.
+ * @param y The y-coordinate where the instruction should be drawn.
+ * @param selected A boolean indicating whether the instruction is currently selected.
  */
 void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, int y, bool selected) {
 
@@ -768,7 +798,11 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 }
 
 /**
- * @brief
+ * @brief Returns the line number of the currently selected instruction in the disassembly view.
+ * This is in units of visible lines in the UI, so there is NO CHANCE of a widget being tall enough
+ * that it can show more than 65535 lines of disassembly.
+ *
+ * @return The line number of the selected instruction, or 65535 if no instruction is selected.
  */
 int QDisassemblyView::getSelectedLineNumber() const {
 
@@ -782,7 +816,11 @@ int QDisassemblyView::getSelectedLineNumber() const {
 }
 
 /**
- * @brief
+ * @brief Draws the header and background of the disassembly view, including the header gray area, alternated background colors, and highlighting for selected lines.
+ *
+ * @param painter The QPainter object used for drawing.
+ * @param ctx The drawing context containing layout information.
+ * @param binary_info A unique pointer to the IBinary object containing information about the binary being
  */
 void QDisassemblyView::drawHeaderAndBackground(QPainter &painter, const DrawingContext *ctx, const std::unique_ptr<IBinary> &binary_info) {
 
@@ -820,7 +858,10 @@ void QDisassemblyView::drawHeaderAndBackground(QPainter &painter, const DrawingC
 }
 
 /**
- * @brief
+ * @brief Draws register badges on the disassembly view, indicating which registers contain values that correspond to addresses in the currently displayed instructions.
+ *
+ * @param painter The QPainter object used for drawing.
+ * @param ctx The drawing context containing layout information.
  */
 void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx) {
 
@@ -910,7 +951,10 @@ void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx
 }
 
 /**
- * @brief
+ * @brief Draws symbol names for the instructions in the disassembly view, if available, using the specified QPainter.
+ *
+ * @param painter The QPainter object used for drawing.
+ * @param ctx The drawing context containing layout information.
  */
 void QDisassemblyView::drawSymbolNames(QPainter &painter, const DrawingContext *ctx) {
 	painter.save();
@@ -961,7 +1005,10 @@ void QDisassemblyView::drawSymbolNames(QPainter &painter, const DrawingContext *
 }
 
 /**
- * @brief
+ * @brief Draws the sidebar elements of the disassembly view, including addresses and icons for breakpoints and the current instruction pointer (EIP), using the specified QPainter.
+ *
+ * @param painter The QPainter object used for drawing.
+ * @param ctx The drawing context containing layout information.
  */
 void QDisassemblyView::drawSidebarElements(QPainter &painter, const DrawingContext *ctx) {
 
@@ -1018,7 +1065,10 @@ void QDisassemblyView::drawSidebarElements(QPainter &painter, const DrawingConte
 }
 
 /**
- * @brief
+ * @brief Draws the instruction bytes for each instruction in the disassembly view, using the specified QPainter and drawing context.
+ *
+ * @param painter The QPainter object used for drawing.
+ * @param ctx The drawing context containing layout information.
  */
 void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingContext *ctx) {
 
@@ -1061,7 +1111,10 @@ void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingCont
 }
 
 /**
- * @brief
+ * @brief Draws function markers in the disassembly view, indicating the start and end of functions, using the specified QPainter and drawing context.
+ *
+ * @param painter The QPainter object used for drawing.
+ * @param ctx The drawing context containing layout information.
  */
 void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingContext *ctx) {
 
@@ -1150,7 +1203,11 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 }
 
 /**
- * @brief
+ * @brief Draws comments for each instruction in the disassembly view, using the specified QPainter and drawing context.
+ * If no comment is available for an instruction, it attempts to draw ASCII representations of immediate constants.
+ *
+ * @param painter The QPainter object used for drawing.
+ * @param ctx The drawing context containing layout information.
  */
 void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx) {
 
@@ -1209,7 +1266,10 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 }
 
 /**
- * @brief
+ * @brief Draws jump arrows in the disassembly view, indicating the flow of control between instructions, using the specified QPainter and drawing context.
+ *
+ * @param painter The QPainter object used for drawing.
+ * @param ctx The drawing context containing layout information.
  */
 void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *ctx) {
 
@@ -1504,7 +1564,10 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 }
 
 /**
- * @brief
+ * @brief Draws the disassembly instructions in the disassembly view, using the specified QPainter and drawing context.
+ *
+ * @param painter The QPainter object used for drawing.
+ * @param ctx The drawing context containing layout information.
  */
 void QDisassemblyView::drawDisassembly(QPainter &painter, const DrawingContext *ctx) {
 
@@ -1526,7 +1589,10 @@ void QDisassemblyView::drawDisassembly(QPainter &painter, const DrawingContext *
 }
 
 /**
- * @brief
+ * @brief Draws vertical dividers in the disassembly view, separating different sections of the view, using the specified QPainter and drawing context.
+ *
+ * @param painter The QPainter object used for drawing.
+ * @param ctx The drawing context containing layout information.
  */
 void QDisassemblyView::drawDividers(QPainter &painter, const DrawingContext *ctx) {
 
@@ -1547,9 +1613,11 @@ void QDisassemblyView::drawDividers(QPainter &painter, const DrawingContext *ctx
 }
 
 /**
- * @brief
+ * @brief Handles the paint event for the disassembly view, rendering the disassembly instructions, addresses, comments, and other visual elements using a QPainter.
+
+ * @param event The paint event.
  */
-void QDisassemblyView::paintEvent(QPaintEvent *) {
+void QDisassemblyView::paintEvent(QPaintEvent * /*event*/) {
 
 	if (!region_) {
 		return;
@@ -1662,9 +1730,11 @@ void QDisassemblyView::setFont(const QFont &f) {
 }
 
 /**
- * @brief
+ * @brief Handles the resize event for the disassembly view, updating scrollbars and resizing the instruction buffer based on the new viewport size.
+ *
+ * @param event The resize event.
  */
-void QDisassemblyView::resizeEvent(QResizeEvent *) {
+void QDisassemblyView::resizeEvent(QResizeEvent * /*event*/) {
 	updateScrollbars();
 
 	const int line_height     = this->lineHeight();
@@ -1678,14 +1748,18 @@ void QDisassemblyView::resizeEvent(QResizeEvent *) {
 }
 
 /**
- * @brief
+ * @brief Returns the height of a single line in the disassembly view, which is the maximum of the font height and icon height.
+ *
+ * @return The height of a single line in pixels.
  */
 int QDisassemblyView::lineHeight() const {
 	return std::max({fontHeight_, iconHeight_});
 }
 
 /**
- * @brief
+ * @brief Updates the scrollbars of the disassembly view based on the current region and the number of lines that can be displayed in the viewport.
+ * If a region is set, it calculates the total number of lines and the maximum value for the vertical scrollbar.
+ * If no region is set, it sets the maximum value of the vertical scrollbar to 0.
  */
 void QDisassemblyView::updateScrollbars() {
 	if (region_) {
@@ -1700,14 +1774,18 @@ void QDisassemblyView::updateScrollbars() {
 }
 
 /**
- * @brief
+ * @brief Returns the starting position of the first line in the disassembly view.
+ *
+ * @return The starting position of the first line in pixels.
  */
 int QDisassemblyView::line0() const {
 	return line0_;
 }
 
 /**
- * @brief
+ * @brief Returns the starting position of the second line in the disassembly view, which is calculated based on the configuration settings for jump arrows and register badges.
+ *
+ * @return The starting position of the second line in pixels.
  */
 int QDisassemblyView::line1() const {
 
@@ -1725,7 +1803,9 @@ int QDisassemblyView::line1() const {
 }
 
 /**
- * @brief
+ * @brief Returns the position to use for the third line if none is currently set. This is calculated based on the address length, font width, and icon width.
+ *
+ * @return The starting position of the third line in pixels.
  */
 int QDisassemblyView::autoLine2() const {
 	const int elements = addressLength();
@@ -1733,7 +1813,9 @@ int QDisassemblyView::autoLine2() const {
 }
 
 /**
- * @brief
+ * @brief Returns the starting position of the third line in the disassembly view.
+ *
+ * @return The starting position of the third line in pixels.
  */
 int QDisassemblyView::line2() const {
 	if (line2_ == 0) {
@@ -1743,7 +1825,9 @@ int QDisassemblyView::line2() const {
 }
 
 /**
- * @brief
+ * @brief Returns the starting position of the fourth line in the disassembly view, which is calculated based on the position of the third line and a default byte width multiplied by 3 and the font width.
+ *
+ * @return The starting position of the fourth line in pixels.
  */
 int QDisassemblyView::line3() const {
 	if (line3_ == 0) {
@@ -1753,7 +1837,9 @@ int QDisassemblyView::line3() const {
 }
 
 /**
- * @brief
+ * @brief Returns the starting position of the fifth line in the disassembly view, which is calculated based on the position of the fourth line and a default byte width multiplied by 50 and the font width.
+ *
+ * @return The starting position of the fifth line in pixels.
  */
 int QDisassemblyView::line4() const {
 	if (line4_ == 0) {
@@ -1763,7 +1849,9 @@ int QDisassemblyView::line4() const {
 }
 
 /**
- * @brief
+ * @brief Returns the length of the address field in the disassembly view, which is calculated based on the pointer size and whether an address separator is shown.
+ *
+ * @return The length of the address field in characters.
  */
 int QDisassemblyView::addressLength() const {
 	const auto address_len = static_cast<int>(edb::v1::pointer_size() * CHAR_BIT / 4);
@@ -1771,7 +1859,10 @@ int QDisassemblyView::addressLength() const {
 }
 
 /**
- * @brief
+ * @brief Returns the address corresponding to a given point in the disassembly view, based on the x and y coordinates of the point.
+ *
+ * @param pos The point in the disassembly view for which to retrieve the corresponding address.
+ * @return The address corresponding to the given point, or 0 if the address is outside
  */
 edb::address_t QDisassemblyView::addressFromPoint(const QPoint &pos) const {
 
@@ -1785,7 +1876,12 @@ edb::address_t QDisassemblyView::addressFromPoint(const QPoint &pos) const {
 }
 
 /**
- * @brief
+ * @brief Returns the size of the instruction at a given address in the disassembly view, using a provided buffer to store the instruction bytes.
+ *
+ * @param address The address of the instruction for which to retrieve the size.
+ * @param buf A pointer to a buffer where the instruction bytes will be stored.
+ * @param size A pointer to an integer that specifies the size of the buffer and will be updated with the actual size of the instruction.
+ * @return The size of the instruction in bytes, or an error message if the instruction size could not be determined.
  */
 Result<int, QString> QDisassemblyView::getInstructionSize(edb::address_t address, uint8_t *buf, int *size) const {
 
@@ -1804,7 +1900,10 @@ Result<int, QString> QDisassemblyView::getInstructionSize(edb::address_t address
 }
 
 /**
- * @brief
+ * @brief Returns the size of the instruction at a given address in the disassembly view, using an internal buffer to store the instruction bytes.
+ *
+ * @param address The address of the instruction for which to retrieve the size.
+ * @return The size of the instruction in bytes, or an error message if the instruction size could not be determined.
  */
 Result<int, QString> QDisassemblyView::getInstructionSize(edb::address_t address) const {
 
@@ -1827,7 +1926,11 @@ Result<int, QString> QDisassemblyView::getInstructionSize(edb::address_t address
 }
 
 /**
- * @brief
+ * @brief Returns the address corresponding to a given coordinate in the disassembly view, based on the x and y coordinates of the point.
+ *
+ * @param x The x-coordinate of the point in the disassembly view.
+ * @param y The y-coordinate of the point in the disassembly view.
+ * @return The address corresponding to the given coordinate, or 0 if the address is outside the current region.
  */
 edb::address_t QDisassemblyView::addressFromCoord(int x, int y) const {
 	Q_UNUSED(x)
@@ -1850,7 +1953,9 @@ edb::address_t QDisassemblyView::addressFromCoord(int x, int y) const {
 }
 
 /**
- * @brief
+ * @brief Handles the mouse double-click event in the disassembly view, toggling breakpoints for instructions within the current region when the left mouse button is double-clicked.
+ *
+ * @param event The mouse event containing information about the double-click action.
  */
 void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -1874,7 +1979,10 @@ void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
 }
 
 /**
- * @brief
+ * @brief Handles events in the disassembly view, including tooltip events for displaying instruction bytes when hovering over certain areas of the view.
+ *
+ * @param event The event to be handled.
+ * @return true if the event was handled, false otherwise.
  */
 bool QDisassemblyView::event(QEvent *event) {
 
@@ -1915,11 +2023,12 @@ bool QDisassemblyView::event(QEvent *event) {
 }
 
 /**
- * @brief
+ * @brief Handles the mouse release event in the disassembly view, resetting the state of line
+ * movement and address selection, and updating the cursor to the default arrow cursor.
+ *
+ * @param event The mouse event containing information about the release action.
  */
-void QDisassemblyView::mouseReleaseEvent(QMouseEvent *event) {
-
-	Q_UNUSED(event)
+void QDisassemblyView::mouseReleaseEvent(QMouseEvent * /*event*/) {
 
 	movingLine1_      = false;
 	movingLine2_      = false;
@@ -1932,7 +2041,10 @@ void QDisassemblyView::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 /**
- * @brief
+ * @brief Updates the selected address in the disassembly view based on the position of a mouse event,
+ * setting the selected address to the address corresponding to the point where the event occurred.
+ *
+ * @param event The mouse event containing information about the position where the address selection should be updated.
  */
 void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 
@@ -1942,7 +2054,10 @@ void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 }
 
 /**
- * @brief
+ * @brief Handles the mouse press event in the disassembly view, allowing users to select addresses or move
+ * vertical divider lines based on the position of the mouse click and the button pressed.
+ *
+ * @param event The mouse event containing information about the press action.
  */
 void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 
@@ -1974,7 +2089,10 @@ void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 }
 
 /**
- * @brief
+ * @brief Handles the mouse move event in the disassembly view, allowing users to move vertical divider lines or update the selected
+ * address based on the position of the mouse cursor and whether a line is being moved or an address is being selected.
+ *
+ * @param event The mouse event containing information about the position of the cursor.
  */
 void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 
@@ -2032,14 +2150,18 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 }
 
 /**
- * @brief
+ * @brief Returns the currently selected address in the disassembly view.
+ *
+ * @return The currently selected address.
  */
 edb::address_t QDisassemblyView::selectedAddress() const {
 	return selectedInstructionAddress_;
 }
 
 /**
- * @brief
+ * @brief Sets the selected address in the disassembly view to the specified address, updating the instruction size and history accordingly.
+ *
+ * @param address The address to set as the selected address.
  */
 void QDisassemblyView::setSelectedAddress(edb::address_t address) {
 
@@ -2060,14 +2182,18 @@ void QDisassemblyView::setSelectedAddress(edb::address_t address) {
 }
 
 /**
- * @brief
+ * @brief Returns the size of the currently selected instruction in the disassembly view.
+ *
+ * @return The size of the currently selected instruction.
  */
 int QDisassemblyView::selectedSize() const {
 	return selectedInstructionSize_;
 }
 
 /**
- * @brief
+ * @brief Returns the current region being displayed in the disassembly view.
+ *
+ * @return The current region being displayed in the disassembly view.
  */
 std::shared_ptr<IRegion> QDisassemblyView::region() const {
 	return region_;
@@ -2110,42 +2236,45 @@ QString QDisassemblyView::getComment(edb::address_t address) const {
 
 /**
  * @brief Clears all comments from the comment hash and the session manager.
- *
  */
 void QDisassemblyView::clearComments() {
 	comments_.clear();
 }
 
 /**
- * @brief
+ * @brief Saves the current state of the disassembly view, including the positions of vertical divider lines, into a QByteArray for later restoration.
+ *
+ * @return A QByteArray containing the serialized state of the disassembly view.
  */
 QByteArray QDisassemblyView::saveState() const {
 
-	const WidgetState1 state = {
-		sizeof(WidgetState1),
+	const WidgetStateV1 state = {
+		sizeof(WidgetStateV1),
 		line1_,
 		line2_,
 		line3_,
 		line4_,
 	};
 
-	char buf[sizeof(WidgetState1)];
+	char buf[sizeof(WidgetStateV1)];
 	memcpy(buf, &state, sizeof(buf));
 
 	return QByteArray(buf, sizeof(buf));
 }
 
 /**
- * @brief
+ * @brief Restores the state of the disassembly view from a QByteArray, updating the positions of vertical divider lines based on the serialized state.
+ *
+ * @param stateBuffer The QByteArray containing the serialized state of the disassembly view.
  */
 void QDisassemblyView::restoreState(const QByteArray &stateBuffer) {
 
-	WidgetState1 state;
+	WidgetStateV1 state;
 
-	if (stateBuffer.size() >= static_cast<int>(sizeof(WidgetState1))) {
-		memcpy(&state, stateBuffer.data(), sizeof(WidgetState1));
+	if (stateBuffer.size() >= static_cast<int>(sizeof(WidgetStateV1))) {
+		memcpy(&state, stateBuffer.data(), sizeof(WidgetStateV1));
 
-		if (state.version >= static_cast<int>(sizeof(WidgetState1))) {
+		if (state.version >= static_cast<int>(sizeof(WidgetStateV1))) {
 			line1_ = state.line1;
 			line2_ = state.line2;
 			line3_ = state.line3;
@@ -2154,7 +2283,9 @@ void QDisassemblyView::restoreState(const QByteArray &stateBuffer) {
 	}
 }
 /**
- * @brief
+ * @brief Restores comments from a QVariantList containing comment data, inserting them into the comment hash based on their associated addresses.
+ *
+ * @param comments_data A QVariantList containing comment data, where each entry is a QVariantMap with "address" and "comment" keys.
  */
 void QDisassemblyView::restoreComments(QVariantList &comments_data) {
 	for (const QVariant &entry : comments_data) {

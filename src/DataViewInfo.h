@@ -16,8 +16,9 @@ class IRegion;
 
 class DataViewInfo {
 public:
-	explicit DataViewInfo(const std::shared_ptr<IRegion> &r);
-	DataViewInfo();
+	explicit DataViewInfo(const std::shared_ptr<IRegion> &r = nullptr);
+	DataViewInfo(DataViewInfo &&)                 = default;
+	DataViewInfo &operator=(DataViewInfo &&)      = default;
 	DataViewInfo(const DataViewInfo &)            = delete;
 	DataViewInfo &operator=(const DataViewInfo &) = delete;
 	~DataViewInfo()                               = default;
