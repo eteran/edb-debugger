@@ -185,12 +185,12 @@ DebuggerCore::DebuggerCore()
 		qDebug() << "Detect that write /proc/<pid>/mem works = " << !procMemWriteBroken_;
 
 		QSettings settings;
-		const bool warn = settings.value("DebuggerCore/warn_on_broken_proc_mem.enabled", true).toBool();
+		const bool warn = settings.value(QStringLiteral("DebuggerCore/warn_on_broken_proc_mem.enabled"), true).toBool();
 		if (warn) {
 			auto dialog = std::make_unique<DialogMemoryAccess>(nullptr);
 			dialog->exec();
 
-			settings.setValue("DebuggerCore/warn_on_broken_proc_mem.enabled", dialog->warnNextTime());
+			settings.setValue(QStringLiteral("DebuggerCore/warn_on_broken_proc_mem.enabled"), dialog->warnNextTime());
 		}
 	}
 }

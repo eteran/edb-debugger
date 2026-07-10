@@ -981,7 +981,7 @@ void analyze_syscall([[maybe_unused]] const State &state, [[maybe_unused]] const
 			arguments << format_argument(argument_type, make_Register<64>(argument_register, value, Register::TYPE_GPR));
 		}
 
-		ret << ArchProcessor::tr("SYSCALL: %1%2(%3)").arg(isX32 ? QStringLiteral("x32:") : QString(), root.attribute(QStringLiteral("name")), arguments.join(QStringLiteral(",")));
+		ret << ArchProcessor::tr("SYSCALL: %1%2(%3)").arg(isX32 ? QStringLiteral("x32:") : QString(), root.attribute(QStringLiteral("name")), arguments.join(QLatin1Char(',')));
 	}
 #endif
 }

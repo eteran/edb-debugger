@@ -84,57 +84,57 @@ void Configuration::readSettings() {
 
 	QSettings settings;
 
-	settings.beginGroup("General");
-	close_behavior = static_cast<CloseBehavior>(settings.value("close_behavior").value<uint>());
+	settings.beginGroup(QStringLiteral("General"));
+	close_behavior = static_cast<CloseBehavior>(settings.value(QStringLiteral("close_behavior")).value<uint>());
 	settings.endGroup();
 
-	settings.beginGroup("Appearance");
-	stack_font              = settings.value("appearance.stack.font", default_font).toString();
-	data_font               = settings.value("appearance.data.font", default_font).toString();
-	registers_font          = settings.value("appearance.registers.font", default_font).toString();
-	disassembly_font        = settings.value("appearance.disassembly.font", default_font).toString();
-	data_show_address       = settings.value("appearance.data.show_address.enabled", true).toBool();
-	data_show_hex           = settings.value("appearance.data.show_hex.enabled", true).toBool();
-	data_show_ascii         = settings.value("appearance.data.show_ascii.enabled", true).toBool();
-	data_show_comments      = settings.value("appearance.data.show_comments.enabled", true).toBool();
-	data_word_width         = settings.value("appearance.data.word_width", 1).value<int>();
-	data_row_width          = settings.value("appearance.data.row_width", 16).value<int>();
-	show_address_separator  = settings.value("appearance.address_colon.enabled", true).toBool();
-	show_jump_arrow         = settings.value("appearance.show_jump_arrow.enabled", true).toBool();
-	function_offsets_in_hex = settings.value("appearance.function_offsets_in_hex.enabled", false).toBool();
-	theme_name              = settings.value("appearance.theme", QStringLiteral("System")).toString();
-
-	settings.endGroup();
-
-	settings.beginGroup("Debugging");
-	initial_breakpoint      = static_cast<InitialBreakpoint>(settings.value("debugger.initial_breakpoint", MainSymbol).value<uint>());
-	warn_on_no_exec_bp      = settings.value("debugger.BP_NX_warn.enabled", true).toBool();
-	find_main               = settings.value("debugger.find_main.enabled", true).toBool();
-	min_string_length       = settings.value("debugger.string_min", 4).value<uint>();
-	tty_enabled             = settings.value("debugger.terminal.enabled", true).toBool();
-	tty_command             = settings.value("debugger.terminal.command", QStringLiteral("xterm")).toString();
-	remove_stale_symbols    = settings.value("debugger.remove_stale_symbols.enabled", true).toBool();
-	disableASLR             = settings.value("debugger.disableASLR.enabled", false).toBool();
-	disableLazyBinding      = settings.value("debugger.disableLazyBinding.enabled", false).toBool();
-	break_on_library_load   = settings.value("debugger.break_on_library_load_event.enabled", false).toBool();
-	default_breakpoint_type = static_cast<IBreakpoint::TypeId>(settings.value("debugger.default_breakpoint_type", static_cast<int>(IBreakpoint::TypeId::Automatic)).value<int>());
+	settings.beginGroup(QStringLiteral("Appearance"));
+	stack_font              = settings.value(QStringLiteral("appearance.stack.font"), default_font).toString();
+	data_font               = settings.value(QStringLiteral("appearance.data.font"), default_font).toString();
+	registers_font          = settings.value(QStringLiteral("appearance.registers.font"), default_font).toString();
+	disassembly_font        = settings.value(QStringLiteral("appearance.disassembly.font"), default_font).toString();
+	data_show_address       = settings.value(QStringLiteral("appearance.data.show_address.enabled"), true).toBool();
+	data_show_hex           = settings.value(QStringLiteral("appearance.data.show_hex.enabled"), true).toBool();
+	data_show_ascii         = settings.value(QStringLiteral("appearance.data.show_ascii.enabled"), true).toBool();
+	data_show_comments      = settings.value(QStringLiteral("appearance.data.show_comments.enabled"), true).toBool();
+	data_word_width         = settings.value(QStringLiteral("appearance.data.word_width"), 1).value<int>();
+	data_row_width          = settings.value(QStringLiteral("appearance.data.row_width"), 16).value<int>();
+	show_address_separator  = settings.value(QStringLiteral("appearance.address_colon.enabled"), true).toBool();
+	show_jump_arrow         = settings.value(QStringLiteral("appearance.show_jump_arrow.enabled"), true).toBool();
+	function_offsets_in_hex = settings.value(QStringLiteral("appearance.function_offsets_in_hex.enabled"), false).toBool();
+	theme_name              = settings.value(QStringLiteral("appearance.theme"), QStringLiteral("System")).toString();
 
 	settings.endGroup();
 
-	settings.beginGroup("Disassembly");
-	syntax                                 = static_cast<Syntax>(settings.value("disassembly.syntax", Intel).value<uint>());
-	syntax_highlighting_enabled            = settings.value("disassembly.syntax_highlighting_enabled", true).toBool();
-	zeros_are_filling                      = settings.value("disassembly.zeros_are_filling.enabled", true).toBool();
-	uppercase_disassembly                  = settings.value("disassembly.uppercase.enabled", false).toBool();
-	small_int_as_decimal                   = settings.value("disassembly.small_int_as_decimal.enabled", false).toBool();
-	tab_between_mnemonic_and_operands      = settings.value("disassembly.tab_between_mnemonic_and_operands.enabled", false).toBool();
-	show_register_badges                   = settings.value("disassembly.show_register_badges.enabled", true).toBool();
-	show_local_module_name_in_jump_targets = settings.value("disassembly.show_local_module_name_in_jump_targets.enabled", true).toBool();
-	show_symbolic_addresses                = settings.value("disassembly.show_symbolic_addresses.enabled", true).toBool();
-	simplify_rip_relative_targets          = settings.value("disassembly.simplify_rip_relative_targets.enabled", true).toBool();
+	settings.beginGroup(QStringLiteral("Debugging"));
+	initial_breakpoint      = static_cast<InitialBreakpoint>(settings.value(QStringLiteral("debugger.initial_breakpoint"), MainSymbol).value<uint>());
+	warn_on_no_exec_bp      = settings.value(QStringLiteral("debugger.BP_NX_warn.enabled"), true).toBool();
+	find_main               = settings.value(QStringLiteral("debugger.find_main.enabled"), true).toBool();
+	min_string_length       = settings.value(QStringLiteral("debugger.string_min"), 4).value<uint>();
+	tty_enabled             = settings.value(QStringLiteral("debugger.terminal.enabled"), true).toBool();
+	tty_command             = settings.value(QStringLiteral("debugger.terminal.command"), QStringLiteral("xterm")).toString();
+	remove_stale_symbols    = settings.value(QStringLiteral("debugger.remove_stale_symbols.enabled"), true).toBool();
+	disableASLR             = settings.value(QStringLiteral("debugger.disableASLR.enabled"), false).toBool();
+	disableLazyBinding      = settings.value(QStringLiteral("debugger.disableLazyBinding.enabled"), false).toBool();
+	break_on_library_load   = settings.value(QStringLiteral("debugger.break_on_library_load_event.enabled"), false).toBool();
+	default_breakpoint_type = static_cast<IBreakpoint::TypeId>(settings.value(QStringLiteral("debugger.default_breakpoint_type"), static_cast<int>(IBreakpoint::TypeId::Automatic)).value<int>());
+
 	settings.endGroup();
 
-	settings.beginGroup("Directories");
+	settings.beginGroup(QStringLiteral("Disassembly"));
+	syntax                                 = static_cast<Syntax>(settings.value(QStringLiteral("disassembly.syntax"), Intel).value<uint>());
+	syntax_highlighting_enabled            = settings.value(QStringLiteral("disassembly.syntax_highlighting_enabled"), true).toBool();
+	zeros_are_filling                      = settings.value(QStringLiteral("disassembly.zeros_are_filling.enabled"), true).toBool();
+	uppercase_disassembly                  = settings.value(QStringLiteral("disassembly.uppercase.enabled"), false).toBool();
+	small_int_as_decimal                   = settings.value(QStringLiteral("disassembly.small_int_as_decimal.enabled"), false).toBool();
+	tab_between_mnemonic_and_operands      = settings.value(QStringLiteral("disassembly.tab_between_mnemonic_and_operands.enabled"), false).toBool();
+	show_register_badges                   = settings.value(QStringLiteral("disassembly.show_register_badges.enabled"), true).toBool();
+	show_local_module_name_in_jump_targets = settings.value(QStringLiteral("disassembly.show_local_module_name_in_jump_targets.enabled"), true).toBool();
+	show_symbolic_addresses                = settings.value(QStringLiteral("disassembly.show_symbolic_addresses.enabled"), true).toBool();
+	simplify_rip_relative_targets          = settings.value(QStringLiteral("disassembly.simplify_rip_relative_targets.enabled"), true).toBool();
+	settings.endGroup();
+
+	settings.beginGroup(QStringLiteral("Directories"));
 
 	QStringList cacheDirectories = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
 	QString cacheDirectory       = !cacheDirectories.isEmpty() ? cacheDirectories[0] : QString();
@@ -142,15 +142,15 @@ void Configuration::readSettings() {
 	QString defaultSymbolPath  = QStringLiteral("%1/%2").arg(cacheDirectory, QLatin1String("symbols"));
 	QString defaultSessionPath = QStringLiteral("%1/%2").arg(cacheDirectory, QLatin1String("sessions"));
 
-	symbol_path  = settings.value("directory.symbol.path", defaultSymbolPath).toString();
-	plugin_path  = settings.value("directory.plugin.path", getDefaultPluginPath()).toString();
-	session_path = settings.value("directory.session.path", defaultSessionPath).toString();
+	symbol_path  = settings.value(QStringLiteral("directory.symbol.path"), defaultSymbolPath).toString();
+	plugin_path  = settings.value(QStringLiteral("directory.plugin.path"), getDefaultPluginPath()).toString();
+	session_path = settings.value(QStringLiteral("directory.session.path"), defaultSessionPath).toString();
 	settings.endGroup();
 
-	settings.beginGroup("Exceptions");
-	enable_signals_message_box = settings.value("signals.show_message_box.enabled", true).toBool();
+	settings.beginGroup(QStringLiteral("Exceptions"));
+	enable_signals_message_box = settings.value(QStringLiteral("signals.show_message_box.enabled"), true).toBool();
 
-	QVariantList temp_ignored_exceptions = settings.value("signals.ignore_list", QVariantList()).toList();
+	QVariantList temp_ignored_exceptions = settings.value(QStringLiteral("signals.ignore_list"), QVariantList()).toList();
 
 	ignored_exceptions.clear();
 	for (QVariant &exception : temp_ignored_exceptions) {
@@ -159,8 +159,8 @@ void Configuration::readSettings() {
 
 	settings.endGroup();
 
-	settings.beginGroup("Window");
-	startup_window_location = static_cast<StartupWindowLocation>(settings.value("window.startup_window_location", SystemDefault).value<uint>());
+	settings.beginGroup(QStringLiteral("Window"));
+	startup_window_location = static_cast<StartupWindowLocation>(settings.value(QStringLiteral("window.startup_window_location"), SystemDefault).value<uint>());
 	settings.endGroup();
 
 	if (startup_window_location < 0 || startup_window_location > 2) {
@@ -201,76 +201,76 @@ void Configuration::writeSettings() {
 
 	QSettings settings;
 
-	settings.beginGroup("General");
-	settings.setValue("close_behavior", close_behavior);
+	settings.beginGroup(QStringLiteral("General"));
+	settings.setValue(QStringLiteral("close_behavior"), close_behavior);
 	settings.endGroup();
 
-	settings.beginGroup("Appearance");
-	settings.setValue("appearance.stack.font", stack_font);
-	settings.setValue("appearance.data.font", data_font);
-	settings.setValue("appearance.registers.font", registers_font);
-	settings.setValue("appearance.disassembly.font", disassembly_font);
-	settings.setValue("appearance.data.show_address.enabled", data_show_address);
-	settings.setValue("appearance.data.show_hex.enabled", data_show_hex);
-	settings.setValue("appearance.data.show_ascii.enabled", data_show_ascii);
-	settings.setValue("appearance.data.show_comments.enabled", data_show_comments);
-	settings.setValue("appearance.data.word_width", data_word_width);
-	settings.setValue("appearance.data.row_width", data_row_width);
-	settings.setValue("appearance.address_colon.enabled", show_address_separator);
-	settings.setValue("appearance.show_jump_arrow.enabled", show_jump_arrow);
-	settings.setValue("appearance.function_offsets_in_hex.enabled", function_offsets_in_hex);
-	settings.setValue("appearance.theme", theme_name);
+	settings.beginGroup(QStringLiteral("Appearance"));
+	settings.setValue(QStringLiteral("appearance.stack.font"), stack_font);
+	settings.setValue(QStringLiteral("appearance.data.font"), data_font);
+	settings.setValue(QStringLiteral("appearance.registers.font"), registers_font);
+	settings.setValue(QStringLiteral("appearance.disassembly.font"), disassembly_font);
+	settings.setValue(QStringLiteral("appearance.data.show_address.enabled"), data_show_address);
+	settings.setValue(QStringLiteral("appearance.data.show_hex.enabled"), data_show_hex);
+	settings.setValue(QStringLiteral("appearance.data.show_ascii.enabled"), data_show_ascii);
+	settings.setValue(QStringLiteral("appearance.data.show_comments.enabled"), data_show_comments);
+	settings.setValue(QStringLiteral("appearance.data.word_width"), data_word_width);
+	settings.setValue(QStringLiteral("appearance.data.row_width"), data_row_width);
+	settings.setValue(QStringLiteral("appearance.address_colon.enabled"), show_address_separator);
+	settings.setValue(QStringLiteral("appearance.show_jump_arrow.enabled"), show_jump_arrow);
+	settings.setValue(QStringLiteral("appearance.function_offsets_in_hex.enabled"), function_offsets_in_hex);
+	settings.setValue(QStringLiteral("appearance.theme"), theme_name);
 	settings.endGroup();
 
-	settings.beginGroup("Debugging");
-	settings.setValue("debugger.BP_NX_warn.enabled", warn_on_no_exec_bp);
-	settings.setValue("debugger.string_min", min_string_length);
-	settings.setValue("debugger.initial_breakpoint", initial_breakpoint);
-	settings.setValue("debugger.find_main.enabled", find_main);
-	settings.setValue("debugger.terminal.enabled", tty_enabled);
-	settings.setValue("debugger.terminal.command", tty_command);
-	settings.setValue("debugger.remove_stale_symbols.enabled", remove_stale_symbols);
-	settings.setValue("debugger.disableASLR.enabled", disableASLR);
-	settings.setValue("debugger.disableLazyBinding.enabled", disableLazyBinding);
-	settings.setValue("debugger.break_on_library_load_event.enabled", break_on_library_load);
-	settings.setValue("debugger.default_breakpoint_type", static_cast<int>(default_breakpoint_type));
+	settings.beginGroup(QStringLiteral("Debugging"));
+	settings.setValue(QStringLiteral("debugger.BP_NX_warn.enabled"), warn_on_no_exec_bp);
+	settings.setValue(QStringLiteral("debugger.string_min"), min_string_length);
+	settings.setValue(QStringLiteral("debugger.initial_breakpoint"), initial_breakpoint);
+	settings.setValue(QStringLiteral("debugger.find_main.enabled"), find_main);
+	settings.setValue(QStringLiteral("debugger.terminal.enabled"), tty_enabled);
+	settings.setValue(QStringLiteral("debugger.terminal.command"), tty_command);
+	settings.setValue(QStringLiteral("debugger.remove_stale_symbols.enabled"), remove_stale_symbols);
+	settings.setValue(QStringLiteral("debugger.disableASLR.enabled"), disableASLR);
+	settings.setValue(QStringLiteral("debugger.disableLazyBinding.enabled"), disableLazyBinding);
+	settings.setValue(QStringLiteral("debugger.break_on_library_load_event.enabled"), break_on_library_load);
+	settings.setValue(QStringLiteral("debugger.default_breakpoint_type"), static_cast<int>(default_breakpoint_type));
 	settings.endGroup();
 
-	settings.beginGroup("Disassembly");
-	settings.setValue("disassembly.syntax", syntax);
-	settings.setValue("disassembly.syntax_highlighting_enabled", syntax_highlighting_enabled);
-	settings.setValue("disassembly.zeros_are_filling.enabled", zeros_are_filling);
-	settings.setValue("disassembly.uppercase.enabled", uppercase_disassembly);
-	settings.setValue("disassembly.small_int_as_decimal.enabled", small_int_as_decimal);
-	settings.setValue("disassembly.tab_between_mnemonic_and_operands.enabled", tab_between_mnemonic_and_operands);
-	settings.setValue("disassembly.show_local_module_name_in_jump_targets.enabled", show_local_module_name_in_jump_targets);
-	settings.setValue("disassembly.show_symbolic_addresses.enabled", show_symbolic_addresses);
-	settings.setValue("disassembly.simplify_rip_relative_targets.enabled", simplify_rip_relative_targets);
-	settings.setValue("disassembly.show_register_badges.enabled", show_register_badges);
+	settings.beginGroup(QStringLiteral("Disassembly"));
+	settings.setValue(QStringLiteral("disassembly.syntax"), syntax);
+	settings.setValue(QStringLiteral("disassembly.syntax_highlighting_enabled"), syntax_highlighting_enabled);
+	settings.setValue(QStringLiteral("disassembly.zeros_are_filling.enabled"), zeros_are_filling);
+	settings.setValue(QStringLiteral("disassembly.uppercase.enabled"), uppercase_disassembly);
+	settings.setValue(QStringLiteral("disassembly.small_int_as_decimal.enabled"), small_int_as_decimal);
+	settings.setValue(QStringLiteral("disassembly.tab_between_mnemonic_and_operands.enabled"), tab_between_mnemonic_and_operands);
+	settings.setValue(QStringLiteral("disassembly.show_local_module_name_in_jump_targets.enabled"), show_local_module_name_in_jump_targets);
+	settings.setValue(QStringLiteral("disassembly.show_symbolic_addresses.enabled"), show_symbolic_addresses);
+	settings.setValue(QStringLiteral("disassembly.simplify_rip_relative_targets.enabled"), simplify_rip_relative_targets);
+	settings.setValue(QStringLiteral("disassembly.show_register_badges.enabled"), show_register_badges);
 	settings.endGroup();
 
-	settings.beginGroup("Directories");
-	settings.setValue("directory.symbol.path", symbol_path);
+	settings.beginGroup(QStringLiteral("Directories"));
+	settings.setValue(QStringLiteral("directory.symbol.path"), symbol_path);
 	if (plugin_path != getDefaultPluginPath()) {
-		settings.setValue("directory.plugin.path", plugin_path);
+		settings.setValue(QStringLiteral("directory.plugin.path"), plugin_path);
 	} else {
-		settings.remove("directory.plugin.path");
+		settings.remove(QStringLiteral("directory.plugin.path"));
 	}
-	settings.setValue("directory.session.path", session_path);
+	settings.setValue(QStringLiteral("directory.session.path"), session_path);
 	settings.endGroup();
 
-	settings.beginGroup("Exceptions");
-	settings.setValue("signals.show_message_box.enabled", enable_signals_message_box);
+	settings.beginGroup(QStringLiteral("Exceptions"));
+	settings.setValue(QStringLiteral("signals.show_message_box.enabled"), enable_signals_message_box);
 	QVariantList temp_ignored_exceptions;
 
 	for (qlonglong exception : ignored_exceptions) {
 		temp_ignored_exceptions.push_back(exception);
 	}
 
-	settings.setValue("signals.ignore_list", temp_ignored_exceptions);
+	settings.setValue(QStringLiteral("signals.ignore_list"), temp_ignored_exceptions);
 	settings.endGroup();
 
-	settings.beginGroup("Window");
-	settings.setValue("window.startup_window_location", startup_window_location);
+	settings.beginGroup(QStringLiteral("Window"));
+	settings.setValue(QStringLiteral("window.startup_window_location"), startup_window_location);
 	settings.endGroup();
 }

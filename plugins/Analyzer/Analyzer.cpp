@@ -783,7 +783,7 @@ void Analyzer::analyze(const std::shared_ptr<IRegion> &region) {
 	qDebug() << "[Analyzer] Region name:" << region->name();
 
 	QSettings settings;
-	const bool fuzzy = settings.value("Analyzer/fuzzy_logic_functions.enabled", true).toBool();
+	const bool fuzzy = settings.value(QStringLiteral("Analyzer/fuzzy_logic_functions.enabled"), true).toBool();
 
 	const size_t page_size  = edb::v1::debugger_core->pageSize();
 	const size_t page_count = region->size() / page_size;

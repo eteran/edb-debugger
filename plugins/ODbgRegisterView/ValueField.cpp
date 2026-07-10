@@ -38,7 +38,7 @@ ValueField::ValueField(int fieldWidth, const QModelIndex &index, QWidget *parent
 ValueField::ValueField(int fieldWidth, const QModelIndex &index, const std::function<QString(const QString &)> &valueFormatter, QWidget *parent, Qt::WindowFlags f)
 	: FieldWidget(fieldWidth, index, parent, f), valueFormatter_(valueFormatter) {
 
-	setObjectName("ValueField");
+	setObjectName(QStringLiteral("ValueField"));
 	setDisabled(false);
 	setMouseTracking(true);
 

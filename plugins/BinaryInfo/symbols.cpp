@@ -160,8 +160,8 @@ the symbol is local; if uppercase, the symbol is global (external).
 "?" The symbol type is unknown, or object file format specific.
 */
 
-template <class M, class Size>
-void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &symbols) {
+template <class M, class SizeType>
+void collect_symbols(const void *p, SizeType size, std::vector<typename M::symbol> &symbols) {
 
 	using elf_addr   = typename M::elf_addr;
 	using elf_header = typename M::elf_header;

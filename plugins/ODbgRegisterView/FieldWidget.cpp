@@ -31,7 +31,7 @@ int FieldWidget::columnNumber() const {
 }
 
 void FieldWidget::init(int fieldWidth) {
-	setObjectName("FieldWidget");
+	setObjectName(QStringLiteral("FieldWidget"));
 	const auto charSize = letter_size(font());
 	setFixedHeight(charSize.height());
 	if (fieldWidth > 0) {

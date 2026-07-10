@@ -27,23 +27,23 @@ RecentFileManager::RecentFileManager(QWidget *parent, Qt::WindowFlags f)
 	: QWidget(parent, f) {
 
 	QSettings settings;
-	settings.beginGroup("Recent");
-	const int size = settings.beginReadArray("recent.files");
+	settings.beginGroup(QStringLiteral("Recent"));
+	const int size = settings.beginReadArray(QStringLiteral("recent.files"));
 
 	for (int i = 0; i < size; ++i) {
 		settings.setArrayIndex(i);
-		const auto file = settings.value("file").toString();
+		const auto file = settings.value(QStringLiteral("file")).toString();
 
 		if (file.isEmpty()) {
 			continue;
 		}
 
-		const int size = settings.beginReadArray("arguments");
+		const int size = settings.beginReadArray(QStringLiteral("arguments"));
 
 		QList<QByteArray> args;
 		for (int i = 0; i < size; ++i) {
 			settings.setArrayIndex(i);
-			args.push_back(settings.value("arg").toByteArray());
+			args.push_back(settings.value(QStringLiteral("arg")).toByteArray());
 		}
 
 		settings.endArray();
@@ -59,18 +59,18 @@ RecentFileManager::RecentFileManager(QWidget *parent, Qt::WindowFlags f)
  */
 RecentFileManager::~RecentFileManager() {
 	QSettings settings;
-	settings.beginGroup("Recent");
-	settings.beginWriteArray("recent.files");
+	settings.beginGroup(QStringLiteral("Recent"));
+	settings.beginWriteArray(QStringLiteral("recent.files"));
 
 	for (int i = 0; i < files_.size(); ++i) {
 		const auto &[path, arguments] = files_[i];
 		settings.setArrayIndex(i);
-		settings.setValue("file", QVariant::fromValue(path));
-		settings.beginWriteArray("arguments");
+		settings.setValue(QStringLiteral("file"), QVariant::fromValue(path));
+		settings.beginWriteArray(QStringLiteral("arguments"));
 
 		for (int i = 0; i < arguments.size(); ++i) {
 			settings.setArrayIndex(i);
-			settings.setValue("arg", arguments[i]);
+			settings.setValue(QStringLiteral("arg"), arguments[i]);
 		}
 		settings.endArray();
 	}

@@ -37,7 +37,7 @@ CheckVersion::CheckVersion(QObject *parent)
  */
 void CheckVersion::privateInit() {
 	QSettings settings;
-	if (settings.value("CheckVersion/check_on_start.enabled", true).toBool()) {
+	if (settings.value(QStringLiteral("CheckVersion/check_on_start.enabled"), true).toBool()) {
 		doCheck();
 	}
 }

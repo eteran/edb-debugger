@@ -1092,24 +1092,24 @@ void Debugger::closeEvent(QCloseEvent *event) {
 	if (!ui_reset_) {
 		QSettings settings;
 		const QByteArray state = saveState();
-		settings.beginGroup("Window");
-		settings.setValue("window.logger.visible", logger_->isVisible());
-		settings.setValue("window.state", state);
-		settings.setValue("window.view.state", mainWindow_->saveState());
-		settings.setValue("window.width", width());
-		settings.setValue("window.height", height());
-		settings.setValue("window.x", x());
-		settings.setValue("window.y", y());
-		settings.setValue("window.stack.show_address.enabled", stackView_->showAddress());
-		settings.setValue("window.stack.show_hex.enabled", stackView_->showHexDump());
-		settings.setValue("window.stack.show_ascii.enabled", stackView_->showAsciiDump());
-		settings.setValue("window.stack.show_comments.enabled", stackView_->showComments());
+		settings.beginGroup(QStringLiteral("Window"));
+		settings.setValue(QStringLiteral("window.logger.visible"), logger_->isVisible());
+		settings.setValue(QStringLiteral("window.state"), state);
+		settings.setValue(QStringLiteral("window.view.state"), mainWindow_->saveState());
+		settings.setValue(QStringLiteral("window.width"), width());
+		settings.setValue(QStringLiteral("window.height"), height());
+		settings.setValue(QStringLiteral("window.x"), x());
+		settings.setValue(QStringLiteral("window.y"), y());
+		settings.setValue(QStringLiteral("window.stack.show_address.enabled"), stackView_->showAddress());
+		settings.setValue(QStringLiteral("window.stack.show_hex.enabled"), stackView_->showHexDump());
+		settings.setValue(QStringLiteral("window.stack.show_ascii.enabled"), stackView_->showAsciiDump());
+		settings.setValue(QStringLiteral("window.stack.show_comments.enabled"), stackView_->showComments());
 
 		QByteArray disassemblyState = cpuView_->saveState();
-		settings.setValue("window.disassembly.state", disassemblyState);
+		settings.setValue(QStringLiteral("window.disassembly.state"), disassemblyState);
 
 		QByteArray splitterState = splitter_->saveState();
-		settings.setValue("window.splitter.state", splitterState);
+		settings.setValue(QStringLiteral("window.splitter.state"), splitterState);
 
 		settings.endGroup();
 	}
@@ -1125,14 +1125,14 @@ void Debugger::closeEvent(QCloseEvent *event) {
 void Debugger::showEvent(QShowEvent *) {
 
 	QSettings settings;
-	settings.beginGroup("Window");
-	const QByteArray splitterState = settings.value("window.splitter.state").toByteArray();
-	const QByteArray viewState     = settings.value("window.view.state").toByteArray();
-	const QByteArray state         = settings.value("window.state").toByteArray();
-	const int width                = settings.value("window.width", -1).toInt();
-	const int height               = settings.value("window.height", -1).toInt();
-	const int x                    = settings.value("window.x", -1).toInt();
-	const int y                    = settings.value("window.y", -1).toInt();
+	settings.beginGroup(QStringLiteral("Window"));
+	const QByteArray splitterState = settings.value(QStringLiteral("window.splitter.state")).toByteArray();
+	const QByteArray viewState     = settings.value(QStringLiteral("window.view.state")).toByteArray();
+	const QByteArray state         = settings.value(QStringLiteral("window.state")).toByteArray();
+	const int width                = settings.value(QStringLiteral("window.width"), -1).toInt();
+	const int height               = settings.value(QStringLiteral("window.height"), -1).toInt();
+	const int x                    = settings.value(QStringLiteral("window.x"), -1).toInt();
+	const int y                    = settings.value(QStringLiteral("window.y"), -1).toInt();
 
 	if (width != -1) {
 		resize(width, size().height());
@@ -1142,7 +1142,7 @@ void Debugger::showEvent(QShowEvent *) {
 		resize(size().width(), height);
 	}
 
-	const bool loggerVisible = settings.value("window.logger.visible").toBool();
+	const bool loggerVisible = settings.value(QStringLiteral("window.logger.visible")).toBool();
 
 	const Configuration &config = edb::v1::config();
 	switch (config.startup_window_location) {
@@ -1162,10 +1162,10 @@ void Debugger::showEvent(QShowEvent *) {
 		break;
 	}
 
-	stackView_->setShowAddress(settings.value("window.stack.show_address.enabled", true).toBool());
-	stackView_->setShowHexDump(settings.value("window.stack.show_hex.enabled", true).toBool());
-	stackView_->setShowAsciiDump(settings.value("window.stack.show_ascii.enabled", true).toBool());
-	stackView_->setShowComments(settings.value("window.stack.show_comments.enabled", true).toBool());
+	stackView_->setShowAddress(settings.value(QStringLiteral("window.stack.show_address.enabled"), true).toBool());
+	stackView_->setShowHexDump(settings.value(QStringLiteral("window.stack.show_hex.enabled"), true).toBool());
+	stackView_->setShowAsciiDump(settings.value(QStringLiteral("window.stack.show_ascii.enabled"), true).toBool());
+	stackView_->setShowComments(settings.value(QStringLiteral("window.stack.show_comments.enabled"), true).toBool());
 
 	int row_width   = 1;
 	auto word_width = static_cast<int>(edb::v1::pointer_size());
@@ -1173,7 +1173,7 @@ void Debugger::showEvent(QShowEvent *) {
 	stackView_->setRowWidth(row_width);
 	stackView_->setWordWidth(word_width);
 
-	QByteArray disassemblyState = settings.value("window.disassembly.state").toByteArray();
+	QByteArray disassemblyState = settings.value(QStringLiteral("window.disassembly.state")).toByteArray();
 	cpuView_->restoreState(disassemblyState);
 
 	settings.endGroup();
@@ -3604,8 +3604,8 @@ void Debugger::on_action_Reset_UI_triggered() {
 	}
 
 	QSettings settings;
-	settings.beginGroup("Window");
-	settings.remove("");
+	settings.beginGroup(QStringLiteral("Window"));
+	settings.remove(QStringLiteral(""));
 	settings.endGroup();
 	ui_reset_ = true;
 }

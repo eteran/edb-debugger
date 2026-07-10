@@ -15,7 +15,7 @@ namespace ODbgRegisterView {
 Canvas::Canvas(QWidget *parent, Qt::WindowFlags f)
 	: QWidget(parent, f) {
 
-	setObjectName("RegViewCanvas");
+	setObjectName(QStringLiteral("RegViewCanvas"));
 	const auto canvasLayout = new QVBoxLayout(this);
 	canvasLayout->setSpacing(letter_size(parent->font()).height() / 2);
 	canvasLayout->setContentsMargins(parent->contentsMargins());

@@ -29,9 +29,9 @@ OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
 void OptionsPage::showEvent(QShowEvent * /*event*/) {
 
 	QSettings settings;
-	ui.instructionsBeforeIP->setValue(settings.value("DumpState/instructions_before_ip", 0).toInt());
-	ui.instructionsAfterIP->setValue(settings.value("DumpState/instructions_after_ip", 5).toInt());
-	ui.colorizeOutput->setChecked(settings.value("DumpState/colorize", true).toBool());
+	ui.instructionsBeforeIP->setValue(settings.value(QStringLiteral("DumpState/instructions_before_ip"), 0).toInt());
+	ui.instructionsAfterIP->setValue(settings.value(QStringLiteral("DumpState/instructions_after_ip"), 5).toInt());
+	ui.colorizeOutput->setChecked(settings.value(QStringLiteral("DumpState/colorize"), true).toBool());
 }
 
 /**
@@ -41,7 +41,7 @@ void OptionsPage::showEvent(QShowEvent * /*event*/) {
  */
 void OptionsPage::on_instructionsBeforeIP_valueChanged(int i) {
 	QSettings settings;
-	settings.setValue("DumpState/instructions_before_ip", i);
+	settings.setValue(QStringLiteral("DumpState/instructions_before_ip"), i);
 }
 
 /**
@@ -51,7 +51,7 @@ void OptionsPage::on_instructionsBeforeIP_valueChanged(int i) {
  */
 void OptionsPage::on_instructionsAfterIP_valueChanged(int i) {
 	QSettings settings;
-	settings.setValue("DumpState/instructions_after_ip", i);
+	settings.setValue(QStringLiteral("DumpState/instructions_after_ip"), i);
 }
 
 /**
@@ -61,7 +61,7 @@ void OptionsPage::on_instructionsAfterIP_valueChanged(int i) {
  */
 void OptionsPage::on_colorizeOutput_toggled(bool value) {
 	QSettings settings;
-	settings.setValue("DumpState/colorize", value);
+	settings.setValue(QStringLiteral("DumpState/colorize"), value);
 }
 
 }

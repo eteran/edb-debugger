@@ -237,7 +237,7 @@ ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 	  dialogEditFpu_(nullptr)
 #endif
 {
-	setObjectName("ODBRegView");
+	setObjectName(QStringLiteral("ODBRegView"));
 
 	connect(&edb::v1::config(), &Configuration::settingsUpdated, this, &ODBRegView::settingsUpdated);
 

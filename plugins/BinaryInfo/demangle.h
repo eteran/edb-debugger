@@ -31,7 +31,7 @@ inline QString demangle(const QString &mangled) {
 	}
 
 	split.front() = QString::fromLocal8Bit(demangled.get());
-	return split.join(QStringLiteral("@"));
+	return split.join(QLatin1Char('@'));
 }
 
 #else
