@@ -62,7 +62,7 @@ struct address_format {
 			qsnprintf(buffer, sizeof(buffer), "%04x:%04x", (address >> 16) & 0xffff, address & 0xffff);
 			return QString::fromLatin1(buffer, sizeof(buffer) - 1);
 		} else if constexpr (sizeof(T) == sizeof(uint64_t)) {
-			return edb::value32(address >> 32).toHexString() + ":" + edb::value32(address).toHexString();
+			return edb::value32(address >> 32).toHexString() + QLatin1Char(':') + edb::value32(address).toHexString();
 		}
 	}
 
@@ -153,7 +153,7 @@ QDisassemblyView::QDisassemblyView(QWidget *parent)
 
 	setShowAddressSeparator(true);
 
-	setFont(QFont("Monospace", 8));
+	setFont(QFont(QStringLiteral("Monospace"), 8));
 	setMouseTracking(true);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
@@ -845,7 +845,7 @@ void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx
 
 						if (std::optional<unsigned int> line = getLineOfAddress(addr)) {
 							if (!badge_labels[*line].isEmpty()) {
-								badge_labels[*line].append(", ");
+								badge_labels[*line].append(QStringLiteral(", "));
 							}
 							badge_labels[*line].append(reg.name());
 						}
@@ -854,9 +854,9 @@ void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx
 						if (process->readBytes(addr, &addr, edb::v1::pointer_size())) {
 							if (std::optional<unsigned int> line = getLineOfAddress(addr)) {
 								if (!badge_labels[*line].isEmpty()) {
-									badge_labels[*line].append(", ");
+									badge_labels[*line].append(QStringLiteral(", "));
 								}
-								badge_labels[*line].append("[" + reg.name() + "]");
+								badge_labels[*line].append(QStringLiteral("[") + reg.name() + QStringLiteral("]"));
 							}
 						}
 
@@ -2159,8 +2159,8 @@ void QDisassemblyView::restoreState(const QByteArray &stateBuffer) {
 void QDisassemblyView::restoreComments(QVariantList &comments_data) {
 	for (const QVariant &entry : comments_data) {
 		QVariantMap data = entry.toMap();
-		if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(data["address"].toString())) {
-			comments_.insert(*addr, data["comment"].toString());
+		if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(data[QLatin1String("address")].toString())) {
+			comments_.insert(*addr, data[QLatin1String("comment")].toString());
 		}
 	}
 }

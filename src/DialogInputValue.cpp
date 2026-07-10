@@ -24,7 +24,7 @@ DialogInputValue::DialogInputValue(QWidget *parent, Qt::WindowFlags f)
 	ui.setupUi(this);
 
 	// Apply some defaults
-	ui.hexInput->setValidator(new QRegularExpressionValidator(QRegularExpression("[A-Fa-f0-9]{0,16}"), this));
+	ui.hexInput->setValidator(new QRegularExpressionValidator(QRegularExpression(QStringLiteral("[A-Fa-f0-9]{0,16}")), this));
 	ui.signedInput->setValidator(new QLongValidator(std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max(), this));
 	ui.unsignedInput->setValidator(new QULongValidator(0, std::numeric_limits<unsigned long long>::max(), this));
 }

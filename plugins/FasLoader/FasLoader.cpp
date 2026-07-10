@@ -52,7 +52,7 @@ void FasLoader::load() {
 		if (IProcess *process = edb::v1::debugger_core->process()) {
 			const QString fileName = process->executable();
 			QString fasName        = fileName;
-			fasName.append(".fas");
+			fasName.append(QStringLiteral(".fas"));
 
 			Fas::Core fasCore;
 			fasCore.load(fasName.toStdString());

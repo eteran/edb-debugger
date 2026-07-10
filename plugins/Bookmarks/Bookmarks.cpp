@@ -111,14 +111,14 @@ QVariantMap Bookmarks::saveState() const {
 	for (auto &bookmark : bookmarkWidget_->entries()) {
 
 		QVariantMap entry;
-		entry["address"] = bookmark.address.toHexString();
-		entry["type"]    = BookmarksModel::bookmarkTypeToString(bookmark.type);
-		entry["comment"] = bookmark.comment;
+		entry[QStringLiteral("address")] = bookmark.address.toHexString();
+		entry[QStringLiteral("type")]    = BookmarksModel::bookmarkTypeToString(bookmark.type);
+		entry[QStringLiteral("comment")] = bookmark.comment;
 
 		bookmarks.push_back(entry);
 	}
 
-	state["bookmarks"] = bookmarks;
+	state[QStringLiteral("bookmarks")] = bookmarks;
 	return state;
 }
 
@@ -129,13 +129,13 @@ QVariantMap Bookmarks::saveState() const {
  */
 void Bookmarks::restoreState(const QVariantMap &state) {
 
-	QVariantList bookmarks = state["bookmarks"].toList();
+	QVariantList bookmarks = state[QStringLiteral("bookmarks")].toList();
 	for (auto &entry : bookmarks) {
 		auto bookmark = entry.value<QVariantMap>();
 
-		auto address    = edb::address_t::fromHexString(bookmark["address"].toString());
-		QString type    = bookmark["type"].toString();
-		QString comment = bookmark["comment"].toString();
+		auto address    = edb::address_t::fromHexString(bookmark[QStringLiteral("address")].toString());
+		QString type    = bookmark[QStringLiteral("type")].toString();
+		QString comment = bookmark[QStringLiteral("comment")].toString();
 
 		qDebug() << "Restoring bookmark with address: " << address.toHexString();
 

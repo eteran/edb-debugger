@@ -92,7 +92,7 @@ QVariant ResultViewModel::data(const QModelIndex &index, int role) const {
 					return QStringLiteral("qword ptr [%1]").arg(edb::v1::format_pointer(pointer));
 				});
 			}
-			return pointers.join("|");
+			return pointers.join(QStringLiteral("|"));
 		}
 		case Result::Png:
 			return tr("PNG IMAGE");

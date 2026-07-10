@@ -20,7 +20,7 @@ FpuValueField::FpuValueField(int fieldWidth, const QModelIndex &regValueIndex, c
 				  return str;
 			  }
 			  if (groupDigits_) {
-				  return str.left(4) + " " + str.mid(4, 8) + " " + str.right(8);
+				  return str.left(4) + QLatin1Char(' ') + str.mid(4, 8) + QLatin1Char(' ') + str.right(8);
 			  }
 			  return str;
 		  },

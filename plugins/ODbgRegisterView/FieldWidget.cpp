@@ -15,7 +15,7 @@ QString FieldWidget::text() const {
 	}
 	const auto text = index_.data();
 	if (!text.isValid()) {
-		return QString(width() / letter_size(font()).width() - 1, QChar('?'));
+		return QString(width() / letter_size(font()).width() - 1, QLatin1Char('?'));
 	}
 	return text.toString();
 }
@@ -41,7 +41,7 @@ void FieldWidget::init(int fieldWidth) {
 }
 
 FieldWidget::FieldWidget(int fieldWidth, const QModelIndex &index, QWidget *parent, Qt::WindowFlags f)
-	: QLabel("Fw???", parent, f), index_(index), fieldWidth_(fieldWidth) {
+	: QLabel(QStringLiteral("Fw???"), parent, f), index_(index), fieldWidth_(fieldWidth) {
 
 	init(fieldWidth);
 }

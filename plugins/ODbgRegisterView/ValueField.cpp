@@ -44,10 +44,10 @@ ValueField::ValueField(int fieldWidth, const QModelIndex &index, const std::func
 
 // Set some known style to avoid e.g. Oxygen's label transition animations, which
 // break updating of colors such as "register changed" when single-stepping frequently
-#define FLAT_STYLE_NAME "fusion"
+	static const QString kFlatStyleName = QStringLiteral("fusion");
 
 	if (!flatStyle) {
-		flatStyle = QStyleFactory::create(FLAT_STYLE_NAME);
+		flatStyle = QStyleFactory::create(kFlatStyleName);
 	}
 
 	assert(flatStyle);
@@ -76,7 +76,7 @@ ValueField::ValueField(int fieldWidth, const QModelIndex &index, const std::func
 	menuItems_.back()->setShortcut(QKeySequence::Copy);
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
-	if (index.sibling(index.row(), ModelNameColumn).data().toString() == FsrName) {
+	if (index.sibling(index.row(), ModelNameColumn).data().toString() == QString::fromLatin1(FsrName)) {
 		menuItems_.push_back(new_action(tr("P&ush FPU stack"), this, [this](bool) {
 			pushFPUStack();
 		}));
@@ -87,7 +87,7 @@ ValueField::ValueField(int fieldWidth, const QModelIndex &index, const std::func
 	}
 #endif
 
-	if (index.parent().data().toString() == GprCategoryName) {
+	if (index.parent().data().toString() == QString::fromLatin1(GprCategoryName)) {
 		// These should be above others, so prepending instead of appending
 		menuItems_.push_front(new_action(tr("In&vert"), this, [this](bool) {
 			invert();
@@ -270,7 +270,7 @@ void ValueField::defaultAction() {
 }
 
 void ValueField::adjustToData() {
-	if (index_.parent().data().toString() == GprCategoryName) {
+	if (index_.parent().data().toString() == QString::fromLatin1(GprCategoryName)) {
 		using RegisterViewModelBase::Model;
 		auto byteArr = index_.data(Model::RawValueRole).toByteArray();
 		if (byteArr.isEmpty()) {
@@ -418,12 +418,12 @@ void add_to_top(RegisterViewModelBase::Model *model, const QModelIndex &fsrIndex
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 void ValueField::pushFPUStack() {
-	assert(index_.sibling(index_.row(), ModelNameColumn).data().toString() == FsrName);
+	assert(index_.sibling(index_.row(), ModelNameColumn).data().toString() == QString::fromLatin1(FsrName));
 	add_to_top(model(), index_, -1);
 }
 
 void ValueField::popFPUStack() {
-	assert(index_.sibling(index_.row(), ModelNameColumn).data().toString() == FsrName);
+	assert(index_.sibling(index_.row(), ModelNameColumn).data().toString() == QString::fromLatin1(FsrName));
 	add_to_top(model(), index_, +1);
 }
 #endif
@@ -437,7 +437,7 @@ namespace {
 template <class Op>
 void change_gpr(const QModelIndex &index, RegisterViewModelBase::Model *const model, const Op &change) {
 
-	if (index.parent().data().toString() != GprCategoryName) {
+	if (index.parent().data().toString() != QString::fromLatin1(GprCategoryName)) {
 		return;
 	}
 

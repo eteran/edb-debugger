@@ -56,7 +56,7 @@ bool will_return(edb::address_t address) {
 	const std::optional<Symbol> symbol = edb::v1::symbol_manager().find(address);
 	if (symbol) {
 		const QString symname   = symbol->name_no_prefix;
-		const QString func_name = symname.mid(0, symname.indexOf("@"));
+		const QString func_name = symname.mid(0, symname.indexOf(QLatin1Char('@')));
 
 		if (const edb::Prototype *const info = edb::v1::get_function_info(func_name)) {
 			if (info->noreturn) {
@@ -76,7 +76,7 @@ bool will_return(edb::address_t address) {
  */
 bool is_entrypoint(const Symbol &sym) {
 #ifdef Q_OS_UNIX
-	return sym.name_no_prefix == "_start";
+	return sym.name_no_prefix == QStringLiteral("_start");
 #else
 	return false;
 #endif
@@ -371,7 +371,7 @@ QList<QAction *> Analyzer::cpuContextMenu() {
  */
 void Analyzer::doAnalysis(const std::shared_ptr<IRegion> &region) {
 	if (region && region->size() != 0) {
-		QProgressDialog progress(tr("Performing Analysis"), nullptr, 0, 100, edb::v1::debugger_ui);
+		QProgressDialog progress(tr("Performing Analysis"), QString(), 0, 100, edb::v1::debugger_ui);
 		connect(this, &Analyzer::updateProgress, &progress, &QProgressDialog::setValue);
 		progress.show();
 		progress.setValue(0);

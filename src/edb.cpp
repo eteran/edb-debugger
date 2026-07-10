@@ -102,26 +102,26 @@ bool register_plugin(const QString &filename, QObject *plugin) {
  * @brief
  */
 void load_function_db() {
-	QFile file(":/debugger/xml/functions.xml");
+	QFile file(QStringLiteral(":/debugger/xml/functions.xml"));
 	QDomDocument doc;
 
 	if (file.open(QIODevice::ReadOnly)) {
 		if (doc.setContent(&file)) {
-			QDomElement root     = doc.firstChildElement("functions");
-			QDomElement function = root.firstChildElement("function");
-			for (; !function.isNull(); function = function.nextSiblingElement("function")) {
+			QDomElement root     = doc.firstChildElement(QStringLiteral("functions"));
+			QDomElement function = root.firstChildElement(QStringLiteral("function"));
+			for (; !function.isNull(); function = function.nextSiblingElement(QStringLiteral("function"))) {
 
 				Prototype func;
-				func.name     = function.attribute("name");
-				func.type     = function.attribute("type");
-				func.noreturn = function.attribute("noreturn", "false") == "true";
+				func.name     = function.attribute(QStringLiteral("name"));
+				func.type     = function.attribute(QStringLiteral("type"));
+				func.noreturn = function.attribute(QStringLiteral("noreturn"), QStringLiteral("false")) == QStringLiteral("true");
 
-				QDomElement argument = function.firstChildElement("argument");
-				for (; !argument.isNull(); argument = argument.nextSiblingElement("argument")) {
+				QDomElement argument = function.firstChildElement(QStringLiteral("argument"));
+				for (; !argument.isNull(); argument = argument.nextSiblingElement(QStringLiteral("argument"))) {
 
 					Argument arg;
-					arg.name = argument.attribute("name");
-					arg.type = argument.attribute("type");
+					arg.name = argument.attribute(QStringLiteral("name"));
+					arg.type = argument.attribute(QStringLiteral("type"));
 					func.arguments.push_back(arg);
 				}
 
@@ -481,7 +481,7 @@ bool eval_expression(const QString &expression, address_t *value) {
 
 	const Result<edb::address_t, ExpressionError> address = expr.evaluate();
 	if (!address) {
-		QMessageBox::critical(debugger_ui, tr("Error In Expression!"), address.error().what());
+		QMessageBox::critical(debugger_ui, tr("Error In Expression!"), QString::fromLatin1(address.error().what()));
 		return false;
 	}
 
@@ -658,7 +658,7 @@ bool get_ascii_string_at_address(address_t address, QString &s, int min_length, 
 
 					const int ascii_char = static_cast<unsigned char>(ch);
 					if (ascii_char < 0x80 && (std::isprint(ascii_char) || std::isspace(ascii_char))) {
-						s += ch;
+						s += QChar::fromLatin1(ch);
 					} else {
 						break;
 					}
@@ -669,11 +669,11 @@ bool get_ascii_string_at_address(address_t address, QString &s, int min_length, 
 
 			if (is_string) {
 				found_length = static_cast<int>(s.length());
-				s.replace("\r", "\\r");
-				s.replace("\n", "\\n");
-				s.replace("\t", "\\t");
-				s.replace("\v", "\\v");
-				s.replace("\"", "\\\"");
+				s.replace(QLatin1String("\r"), QLatin1String("\\r"));
+				s.replace(QLatin1String("\n"), QLatin1String("\\n"));
+				s.replace(QLatin1String("\t"), QLatin1String("\\t"));
+				s.replace(QLatin1String("\v"), QLatin1String("\\v"));
+				s.replace(QLatin1String("\""), QLatin1String("\\\""));
 			}
 		}
 	}
@@ -728,11 +728,11 @@ bool get_utf16_string_at_address(address_t address, QString &s, int min_length, 
 
 			if (is_string) {
 				found_length = static_cast<int>(s.length());
-				s.replace("\r", "\\r");
-				s.replace("\n", "\\n");
-				s.replace("\t", "\\t");
-				s.replace("\v", "\\v");
-				s.replace("\"", "\\\"");
+				s.replace(QLatin1String("\r"), QLatin1String("\\r"));
+				s.replace(QLatin1String("\n"), QLatin1String("\\n"));
+				s.replace(QLatin1String("\t"), QLatin1String("\\t"));
+				s.replace(QLatin1String("\v"), QLatin1String("\\v"));
+				s.replace(QLatin1String("\""), QLatin1String("\\\""));
 			}
 		}
 	}
@@ -806,12 +806,12 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 			// FIXME: should this really return segment base, not selector?
 			// FIXME: if it's really meant to return base, then need to check whether
 			//        State::operator[]() returned valid Register
-			if (reg.name() == "fs") {
-				return state["fs_base"].valueAsAddress();
+			if (reg.name() == QLatin1String("fs")) {
+				return state[QStringLiteral("fs_base")].valueAsAddress();
 			}
 
-			if (reg.name() == "gs") {
-				return state["gs_base"].valueAsAddress();
+			if (reg.name() == QLatin1String("gs")) {
+				return state[QStringLiteral("gs_base")].valueAsAddress();
 			}
 
 			if (reg.bitSize() > 8 * sizeof(edb::address_t)) {
@@ -970,7 +970,7 @@ const QMap<QString, QObject *> &plugin_list() {
  */
 IPlugin *find_plugin_by_name(const QString &name) {
 	for (QObject *p : g_GeneralPlugins) {
-		if (name == p->metaObject()->className()) {
+		if (name == QString::fromLocal8Bit(p->metaObject()->className())) {
 			return qobject_cast<IPlugin *>(p);
 		}
 	}
@@ -1099,7 +1099,7 @@ void register_binary_info(IBinary::create_func_ptr_t fptr) {
  * where the major, minor, and revision numbers are packed into the integer.
  */
 quint32 edb_version() {
-	return int_version(EDB_VERSION_STRING);
+	return int_version(QStringLiteral(EDB_VERSION_STRING));
 }
 
 /**
@@ -1233,7 +1233,7 @@ QString symlink_target(const QString &s) {
 quint32 int_version(const QString &s) {
 
 	quint32 ret            = 0;
-	const QStringList list = s.split(".");
+	const QStringList list = s.split(QLatin1Char('.'));
 	if (list.size() == 3) {
 		bool ok[3];
 		const unsigned int maj = list[0].toUInt(&ok[0]);
@@ -1276,13 +1276,13 @@ QStringList parse_command_line(const QString &cmdline) {
 
 			// Start with a new argument
 			bcount = 0;
-		} else if (*s == '\\') {
+		} else if (*s == QLatin1Char('\\')) {
 
 			// '\\'
 			arg += *s++;
 			++bcount;
 
-		} else if (*s == '"') {
+		} else if (*s == QLatin1Char('"')) {
 
 			// '"'
 			if ((bcount & 1) == 0) {
@@ -1298,7 +1298,7 @@ QStringList parse_command_line(const QString &cmdline) {
 				 */
 
 				arg.chop(bcount / 2 + 1);
-				arg += '"';
+				arg += QLatin1Char('"');
 			}
 
 			++s;
@@ -1321,7 +1321,7 @@ QStringList parse_command_line(const QString &cmdline) {
  */
 Result<address_t, QString> string_to_address(const QString &s) {
 	QString hex(s);
-	hex.replace("0x", "");
+	hex.replace(QLatin1String("0x"), QString());
 
 	bool ok;
 	auto r = edb::address_t::fromHexString(hex.left(2 * sizeof(edb::address_t)), &ok);
@@ -1352,7 +1352,7 @@ QString format_bytes(const QByteArray &x) {
 QString format_bytes(uint8_t byte) {
 	char buf[4];
 	qsnprintf(buf, sizeof(buf), "%02x", byte & 0xff);
-	return QLatin1String(buf);
+	return QString::fromLatin1(buf);
 }
 
 /**
@@ -1594,7 +1594,7 @@ std::optional<edb::address_t> eval_expression(const QString &expression) {
 		return *address;
 	}
 
-	QMessageBox::critical(v1::debugger_ui, tr("Error In Expression!"), address.error().what());
+	QMessageBox::critical(v1::debugger_ui, tr("Error In Expression!"), QString::fromLatin1(address.error().what()));
 	return {};
 }
 
@@ -1635,11 +1635,11 @@ QString format_bytes(const void *buffer, size_t count) {
 
 		char buf[4];
 		qsnprintf(buf, sizeof(buf), "%02x", *it++ & 0xff);
-		bytes += buf;
+		bytes += QString::fromLatin1(buf);
 
 		while (it != end) {
 			qsnprintf(buf, sizeof(buf), " %02x", *it++ & 0xff);
-			bytes += buf;
+			bytes += QString::fromLatin1(buf);
 		}
 	}
 

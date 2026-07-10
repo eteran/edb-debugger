@@ -75,73 +75,73 @@ Theme readTheme(QSettings &settings, const Theme &baseTheme = Theme()) {
 
 	Theme theme;
 
-	settings.beginGroup("Theme");
+	settings.beginGroup(QStringLiteral("Theme"));
 	// General application palette
-	theme.palette[Theme::Window]                  = readColor(settings, "palette.window", baseTheme.palette[Theme::Window]);
-	theme.palette[Theme::WindowDisabled]          = readColor(settings, "palette.window.disabled", baseTheme.palette[Theme::WindowDisabled]);
-	theme.palette[Theme::WindowText]              = readColor(settings, "palette.windowtext", baseTheme.palette[Theme::WindowText]);
-	theme.palette[Theme::WindowTextDisabled]      = readColor(settings, "palette.windowtext.disabled", baseTheme.palette[Theme::WindowTextDisabled]);
-	theme.palette[Theme::Base]                    = readColor(settings, "palette.base", baseTheme.palette[Theme::Base]);
-	theme.palette[Theme::BaseDisabled]            = readColor(settings, "palette.base.disabled", baseTheme.palette[Theme::BaseDisabled]);
-	theme.palette[Theme::AlternateBase]           = readColor(settings, "palette.alternatebase", baseTheme.palette[Theme::AlternateBase]);
-	theme.palette[Theme::AlternateBaseDisabled]   = readColor(settings, "palette.alternatebase.disabled", baseTheme.palette[Theme::AlternateBaseDisabled]);
-	theme.palette[Theme::ToolTipBase]             = readColor(settings, "palette.tooltipbase", baseTheme.palette[Theme::ToolTipBase]);
-	theme.palette[Theme::ToolTipBaseDisabled]     = readColor(settings, "palette.tooltipbase.disabled", baseTheme.palette[Theme::ToolTipBaseDisabled]);
-	theme.palette[Theme::ToolTipText]             = readColor(settings, "palette.tooltiptext", baseTheme.palette[Theme::ToolTipText]);
-	theme.palette[Theme::ToolTipTextDisabled]     = readColor(settings, "palette.tooltiptext.disabled", baseTheme.palette[Theme::ToolTipTextDisabled]);
-	theme.palette[Theme::Text]                    = readColor(settings, "palette.text", baseTheme.palette[Theme::Text]);
-	theme.palette[Theme::TextDisabled]            = readColor(settings, "palette.text.disabled", baseTheme.palette[Theme::TextDisabled]);
-	theme.palette[Theme::Button]                  = readColor(settings, "palette.button", baseTheme.palette[Theme::Button]);
-	theme.palette[Theme::ButtonDisabled]          = readColor(settings, "palette.button.disabled", baseTheme.palette[Theme::ButtonDisabled]);
-	theme.palette[Theme::ButtonText]              = readColor(settings, "palette.buttontext", baseTheme.palette[Theme::ButtonText]);
-	theme.palette[Theme::ButtonTextDisabled]      = readColor(settings, "palette.buttontext.disabled", baseTheme.palette[Theme::ButtonTextDisabled]);
-	theme.palette[Theme::BrightText]              = readColor(settings, "palette.brighttext", baseTheme.palette[Theme::BrightText]);
-	theme.palette[Theme::BrightTextDisabled]      = readColor(settings, "palette.brighttext.disabled", baseTheme.palette[Theme::BrightTextDisabled]);
-	theme.palette[Theme::Highlight]               = readColor(settings, "palette.highlight", baseTheme.palette[Theme::Highlight]);
-	theme.palette[Theme::HighlightDisabled]       = readColor(settings, "palette.highlight.disabled", baseTheme.palette[Theme::HighlightDisabled]);
-	theme.palette[Theme::HighlightedText]         = readColor(settings, "palette.highlightedtext", baseTheme.palette[Theme::HighlightedText]);
-	theme.palette[Theme::HighlightedTextDisabled] = readColor(settings, "palette.highlightedtext.disabled", baseTheme.palette[Theme::HighlightedTextDisabled]);
-	theme.palette[Theme::Link]                    = readColor(settings, "palette.link", baseTheme.palette[Theme::Link]);
-	theme.palette[Theme::LinkDisabled]            = readColor(settings, "palette.link.disabled", baseTheme.palette[Theme::LinkDisabled]);
-	theme.palette[Theme::LinkVisited]             = readColor(settings, "palette.linkvisited", baseTheme.palette[Theme::LinkVisited]);
-	theme.palette[Theme::LinkVisitedDisabled]     = readColor(settings, "palette.linkvisited.disabled", baseTheme.palette[Theme::LinkVisitedDisabled]);
-	theme.palette[Theme::Light]                   = readColor(settings, "palette.light", baseTheme.palette[Theme::Light]);
-	theme.palette[Theme::LightDisabled]           = readColor(settings, "palette.light.disabled", baseTheme.palette[Theme::LightDisabled]);
-	theme.palette[Theme::Midlight]                = readColor(settings, "palette.midlight", baseTheme.palette[Theme::Midlight]);
-	theme.palette[Theme::MidlightDisabled]        = readColor(settings, "palette.midlight.disabled", baseTheme.palette[Theme::MidlightDisabled]);
-	theme.palette[Theme::Dark]                    = readColor(settings, "palette.dark", baseTheme.palette[Theme::Dark]);
-	theme.palette[Theme::DarkDisabled]            = readColor(settings, "palette.dark.disabled", baseTheme.palette[Theme::DarkDisabled]);
-	theme.palette[Theme::Mid]                     = readColor(settings, "palette.mid", baseTheme.palette[Theme::Mid]);
-	theme.palette[Theme::MidDisabled]             = readColor(settings, "palette.mid.disabled", baseTheme.palette[Theme::MidDisabled]);
-	theme.palette[Theme::Shadow]                  = readColor(settings, "palette.shadow", baseTheme.palette[Theme::Shadow]);
-	theme.palette[Theme::ShadowDisabled]          = readColor(settings, "palette.shadow.disabled", baseTheme.palette[Theme::ShadowDisabled]);
+	theme.palette[Theme::Window]                  = readColor(settings, QStringLiteral("palette.window"), baseTheme.palette[Theme::Window]);
+	theme.palette[Theme::WindowDisabled]          = readColor(settings, QStringLiteral("palette.window.disabled"), baseTheme.palette[Theme::WindowDisabled]);
+	theme.palette[Theme::WindowText]              = readColor(settings, QStringLiteral("palette.windowtext"), baseTheme.palette[Theme::WindowText]);
+	theme.palette[Theme::WindowTextDisabled]      = readColor(settings, QStringLiteral("palette.windowtext.disabled"), baseTheme.palette[Theme::WindowTextDisabled]);
+	theme.palette[Theme::Base]                    = readColor(settings, QStringLiteral("palette.base"), baseTheme.palette[Theme::Base]);
+	theme.palette[Theme::BaseDisabled]            = readColor(settings, QStringLiteral("palette.base.disabled"), baseTheme.palette[Theme::BaseDisabled]);
+	theme.palette[Theme::AlternateBase]           = readColor(settings, QStringLiteral("palette.alternatebase"), baseTheme.palette[Theme::AlternateBase]);
+	theme.palette[Theme::AlternateBaseDisabled]   = readColor(settings, QStringLiteral("palette.alternatebase.disabled"), baseTheme.palette[Theme::AlternateBaseDisabled]);
+	theme.palette[Theme::ToolTipBase]             = readColor(settings, QStringLiteral("palette.tooltipbase"), baseTheme.palette[Theme::ToolTipBase]);
+	theme.palette[Theme::ToolTipBaseDisabled]     = readColor(settings, QStringLiteral("palette.tooltipbase.disabled"), baseTheme.palette[Theme::ToolTipBaseDisabled]);
+	theme.palette[Theme::ToolTipText]             = readColor(settings, QStringLiteral("palette.tooltiptext"), baseTheme.palette[Theme::ToolTipText]);
+	theme.palette[Theme::ToolTipTextDisabled]     = readColor(settings, QStringLiteral("palette.tooltiptext.disabled"), baseTheme.palette[Theme::ToolTipTextDisabled]);
+	theme.palette[Theme::Text]                    = readColor(settings, QStringLiteral("palette.text"), baseTheme.palette[Theme::Text]);
+	theme.palette[Theme::TextDisabled]            = readColor(settings, QStringLiteral("palette.text.disabled"), baseTheme.palette[Theme::TextDisabled]);
+	theme.palette[Theme::Button]                  = readColor(settings, QStringLiteral("palette.button"), baseTheme.palette[Theme::Button]);
+	theme.palette[Theme::ButtonDisabled]          = readColor(settings, QStringLiteral("palette.button.disabled"), baseTheme.palette[Theme::ButtonDisabled]);
+	theme.palette[Theme::ButtonText]              = readColor(settings, QStringLiteral("palette.buttontext"), baseTheme.palette[Theme::ButtonText]);
+	theme.palette[Theme::ButtonTextDisabled]      = readColor(settings, QStringLiteral("palette.buttontext.disabled"), baseTheme.palette[Theme::ButtonTextDisabled]);
+	theme.palette[Theme::BrightText]              = readColor(settings, QStringLiteral("palette.brighttext"), baseTheme.palette[Theme::BrightText]);
+	theme.palette[Theme::BrightTextDisabled]      = readColor(settings, QStringLiteral("palette.brighttext.disabled"), baseTheme.palette[Theme::BrightTextDisabled]);
+	theme.palette[Theme::Highlight]               = readColor(settings, QStringLiteral("palette.highlight"), baseTheme.palette[Theme::Highlight]);
+	theme.palette[Theme::HighlightDisabled]       = readColor(settings, QStringLiteral("palette.highlight.disabled"), baseTheme.palette[Theme::HighlightDisabled]);
+	theme.palette[Theme::HighlightedText]         = readColor(settings, QStringLiteral("palette.highlightedtext"), baseTheme.palette[Theme::HighlightedText]);
+	theme.palette[Theme::HighlightedTextDisabled] = readColor(settings, QStringLiteral("palette.highlightedtext.disabled"), baseTheme.palette[Theme::HighlightedTextDisabled]);
+	theme.palette[Theme::Link]                    = readColor(settings, QStringLiteral("palette.link"), baseTheme.palette[Theme::Link]);
+	theme.palette[Theme::LinkDisabled]            = readColor(settings, QStringLiteral("palette.link.disabled"), baseTheme.palette[Theme::LinkDisabled]);
+	theme.palette[Theme::LinkVisited]             = readColor(settings, QStringLiteral("palette.linkvisited"), baseTheme.palette[Theme::LinkVisited]);
+	theme.palette[Theme::LinkVisitedDisabled]     = readColor(settings, QStringLiteral("palette.linkvisited.disabled"), baseTheme.palette[Theme::LinkVisitedDisabled]);
+	theme.palette[Theme::Light]                   = readColor(settings, QStringLiteral("palette.light"), baseTheme.palette[Theme::Light]);
+	theme.palette[Theme::LightDisabled]           = readColor(settings, QStringLiteral("palette.light.disabled"), baseTheme.palette[Theme::LightDisabled]);
+	theme.palette[Theme::Midlight]                = readColor(settings, QStringLiteral("palette.midlight"), baseTheme.palette[Theme::Midlight]);
+	theme.palette[Theme::MidlightDisabled]        = readColor(settings, QStringLiteral("palette.midlight.disabled"), baseTheme.palette[Theme::MidlightDisabled]);
+	theme.palette[Theme::Dark]                    = readColor(settings, QStringLiteral("palette.dark"), baseTheme.palette[Theme::Dark]);
+	theme.palette[Theme::DarkDisabled]            = readColor(settings, QStringLiteral("palette.dark.disabled"), baseTheme.palette[Theme::DarkDisabled]);
+	theme.palette[Theme::Mid]                     = readColor(settings, QStringLiteral("palette.mid"), baseTheme.palette[Theme::Mid]);
+	theme.palette[Theme::MidDisabled]             = readColor(settings, QStringLiteral("palette.mid.disabled"), baseTheme.palette[Theme::MidDisabled]);
+	theme.palette[Theme::Shadow]                  = readColor(settings, QStringLiteral("palette.shadow"), baseTheme.palette[Theme::Shadow]);
+	theme.palette[Theme::ShadowDisabled]          = readColor(settings, QStringLiteral("palette.shadow.disabled"), baseTheme.palette[Theme::ShadowDisabled]);
 
 	// various text/syntax settings
-	theme.text[Theme::Address]              = readFormat(settings, "address", baseTheme.text[Theme::Address]);
-	theme.text[Theme::AlternatingByte]      = readFormat(settings, "alternating_byte", baseTheme.text[Theme::AlternatingByte]);
-	theme.text[Theme::Arithmetic]           = readFormat(settings, "arithmetic", baseTheme.text[Theme::Arithmetic]);
-	theme.text[Theme::Brackets]             = readFormat(settings, "brackets", baseTheme.text[Theme::Brackets]);
-	theme.text[Theme::Comma]                = readFormat(settings, "comma", baseTheme.text[Theme::Comma]);
-	theme.text[Theme::Comparison]           = readFormat(settings, "comparison", baseTheme.text[Theme::Comparison]);
-	theme.text[Theme::Constant]             = readFormat(settings, "constant", baseTheme.text[Theme::Constant]);
-	theme.text[Theme::DataXfer]             = readFormat(settings, "data_xfer", baseTheme.text[Theme::DataXfer]);
-	theme.text[Theme::Data]                 = readFormat(settings, "data", baseTheme.text[Theme::Data]);
-	theme.text[Theme::Filling]              = readFormat(settings, "filling", baseTheme.text[Theme::Filling]);
-	theme.text[Theme::FlowCtrl]             = readFormat(settings, "flow_ctrl", baseTheme.text[Theme::FlowCtrl]);
-	theme.text[Theme::Function]             = readFormat(settings, "function", baseTheme.text[Theme::Function]);
-	theme.text[Theme::Logic]                = readFormat(settings, "logic", baseTheme.text[Theme::Logic]);
-	theme.text[Theme::NonPrintingCharacter] = readFormat(settings, "non_printing_character", baseTheme.text[Theme::NonPrintingCharacter]);
-	theme.text[Theme::Operator]             = readFormat(settings, "operator", baseTheme.text[Theme::Operator]);
-	theme.text[Theme::Prefix]               = readFormat(settings, "prefix", baseTheme.text[Theme::Prefix]);
-	theme.text[Theme::Ptr]                  = readFormat(settings, "ptr", baseTheme.text[Theme::Ptr]);
-	theme.text[Theme::Register]             = readFormat(settings, "register", baseTheme.text[Theme::Register]);
-	theme.text[Theme::Shift]                = readFormat(settings, "shift", baseTheme.text[Theme::Shift]);
-	theme.text[Theme::Stack]                = readFormat(settings, "stack", baseTheme.text[Theme::Stack]);
-	theme.text[Theme::System]               = readFormat(settings, "system", baseTheme.text[Theme::System]);
-	theme.text[Theme::TakenJump]            = readFormat(settings, "taken_jump", baseTheme.text[Theme::TakenJump]);
+	theme.text[Theme::Address]              = readFormat(settings, QStringLiteral("address"), baseTheme.text[Theme::Address]);
+	theme.text[Theme::AlternatingByte]      = readFormat(settings, QStringLiteral("alternating_byte"), baseTheme.text[Theme::AlternatingByte]);
+	theme.text[Theme::Arithmetic]           = readFormat(settings, QStringLiteral("arithmetic"), baseTheme.text[Theme::Arithmetic]);
+	theme.text[Theme::Brackets]             = readFormat(settings, QStringLiteral("brackets"), baseTheme.text[Theme::Brackets]);
+	theme.text[Theme::Comma]                = readFormat(settings, QStringLiteral("comma"), baseTheme.text[Theme::Comma]);
+	theme.text[Theme::Comparison]           = readFormat(settings, QStringLiteral("comparison"), baseTheme.text[Theme::Comparison]);
+	theme.text[Theme::Constant]             = readFormat(settings, QStringLiteral("constant"), baseTheme.text[Theme::Constant]);
+	theme.text[Theme::DataXfer]             = readFormat(settings, QStringLiteral("data_xfer"), baseTheme.text[Theme::DataXfer]);
+	theme.text[Theme::Data]                 = readFormat(settings, QStringLiteral("data"), baseTheme.text[Theme::Data]);
+	theme.text[Theme::Filling]              = readFormat(settings, QStringLiteral("filling"), baseTheme.text[Theme::Filling]);
+	theme.text[Theme::FlowCtrl]             = readFormat(settings, QStringLiteral("flow_ctrl"), baseTheme.text[Theme::FlowCtrl]);
+	theme.text[Theme::Function]             = readFormat(settings, QStringLiteral("function"), baseTheme.text[Theme::Function]);
+	theme.text[Theme::Logic]                = readFormat(settings, QStringLiteral("logic"), baseTheme.text[Theme::Logic]);
+	theme.text[Theme::NonPrintingCharacter] = readFormat(settings, QStringLiteral("non_printing_character"), baseTheme.text[Theme::NonPrintingCharacter]);
+	theme.text[Theme::Operator]             = readFormat(settings, QStringLiteral("operator"), baseTheme.text[Theme::Operator]);
+	theme.text[Theme::Prefix]               = readFormat(settings, QStringLiteral("prefix"), baseTheme.text[Theme::Prefix]);
+	theme.text[Theme::Ptr]                  = readFormat(settings, QStringLiteral("ptr"), baseTheme.text[Theme::Ptr]);
+	theme.text[Theme::Register]             = readFormat(settings, QStringLiteral("register"), baseTheme.text[Theme::Register]);
+	theme.text[Theme::Shift]                = readFormat(settings, QStringLiteral("shift"), baseTheme.text[Theme::Shift]);
+	theme.text[Theme::Stack]                = readFormat(settings, QStringLiteral("stack"), baseTheme.text[Theme::Stack]);
+	theme.text[Theme::System]               = readFormat(settings, QStringLiteral("system"), baseTheme.text[Theme::System]);
+	theme.text[Theme::TakenJump]            = readFormat(settings, QStringLiteral("taken_jump"), baseTheme.text[Theme::TakenJump]);
 
 	// misc settings
-	theme.misc[Theme::Badge] = readFormat(settings, "badge", baseTheme.misc[Theme::Badge]);
+	theme.misc[Theme::Badge] = readFormat(settings, QStringLiteral("badge"), baseTheme.misc[Theme::Badge]);
 
 	settings.endGroup();
 
@@ -156,17 +156,17 @@ Theme readTheme(QSettings &settings, const Theme &baseTheme = Theme()) {
 Theme readSystemTheme() {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 	if (QApplication::palette().window().color().lightnessF() >= 0.5f) {
-		QSettings settings(":/themes/system-light.ini", QSettings::IniFormat);
+		QSettings settings(QStringLiteral(":/themes/system-light.ini"), QSettings::IniFormat);
 		return readTheme(settings);
 	}
 #else
 	if (QApplication::palette().window().color().lightnessF() >= 0.5) {
-		QSettings settings(":/themes/system-light.ini", QSettings::IniFormat);
+		QSettings settings(QStringLiteral(":/themes/system-light.ini"), QSettings::IniFormat);
 		return readTheme(settings);
 	}
 #endif
 
-	QSettings settings(":/themes/system-dark.ini", QSettings::IniFormat);
+	QSettings settings(QStringLiteral(":/themes/system-dark.ini"), QSettings::IniFormat);
 	return readTheme(settings);
 }
 
@@ -185,17 +185,17 @@ Theme readTheme() {
 	QString theme_name = edb::v1::config().theme_name;
 
 	// Handle the built-in themes
-	if (theme_name == "System") {
+	if (theme_name == QStringLiteral("System")) {
 		return system;
 	}
 
-	if (theme_name == "Dark [Built-in]") {
-		QSettings settings(":/themes/dark.ini", QSettings::IniFormat);
+	if (theme_name == QStringLiteral("Dark [Built-in]")) {
+		QSettings settings(QStringLiteral(":/themes/dark.ini"), QSettings::IniFormat);
 		return readTheme(settings, system);
 	}
 
-	if (theme_name == "Light [Built-in]") {
-		QSettings settings(":/themes/light.ini", QSettings::IniFormat);
+	if (theme_name == QStringLiteral("Light [Built-in]")) {
+		QSettings settings(QStringLiteral(":/themes/light.ini"), QSettings::IniFormat);
 		return readTheme(settings, system);
 	}
 
@@ -226,7 +226,7 @@ Theme Theme::load() {
  */
 QStringList Theme::userThemes() {
 	QDir directory(themeDirectory());
-	return directory.entryList(QStringList() << "*.ini", QDir::Files);
+	return directory.entryList(QStringList() << QStringLiteral("*.ini"), QDir::Files);
 }
 
 /**
@@ -239,8 +239,8 @@ QString Theme::themeName(const QString &theme_file) {
 	QString themeFile = themeDirectory() + QDir::separator() + theme_file;
 	QSettings settings(themeFile, QSettings::IniFormat);
 
-	settings.beginGroup("Meta");
-	QString name = settings.value("name", theme_file).toString();
+	settings.beginGroup(QStringLiteral("Meta"));
+	QString name = settings.value(QStringLiteral("name"), theme_file).toString();
 	settings.endGroup();
 	return name;
 }

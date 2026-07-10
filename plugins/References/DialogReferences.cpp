@@ -273,7 +273,7 @@ void DialogReferences::setSearchRunning(bool running) {
  */
 void DialogReferences::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
 	const edb::address_t addr = item->data(AddressRole).toULongLong();
-	if (item->data(TypeRole).toChar() == 'D') {
+	if (item->data(TypeRole).toChar() == QLatin1Char('D')) {
 		edb::v1::dump_data(addr, false);
 	} else {
 		edb::v1::jump_to_address(addr);

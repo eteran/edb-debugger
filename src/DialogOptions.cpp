@@ -46,9 +46,9 @@ DialogOptions::DialogOptions(QWidget *parent, Qt::WindowFlags f)
 
 	ui.setupUi(this);
 
-	ui.comboTheme->addItem(tr("System"), "System");
-	ui.comboTheme->addItem(tr("Dark [Built-in]"), "Dark [Built-in]");
-	ui.comboTheme->addItem(tr("Light [Built-in]"), "Light [Built-in]");
+	ui.comboTheme->addItem(tr("System"), QStringLiteral("System"));
+	ui.comboTheme->addItem(tr("Dark [Built-in]"), QStringLiteral("Dark [Built-in]"));
+	ui.comboTheme->addItem(tr("Light [Built-in]"), QStringLiteral("Light [Built-in]"));
 }
 
 /**
@@ -66,10 +66,10 @@ QString DialogOptions::fontFromDialog(const QString &default_font) {
 void DialogOptions::addOptionsPage(QWidget *page) {
 
 	if (!toolbox_) {
-		delete ui.tabWidget->findChild<QLabel *>("label_plugins");
-		QWidget *const tab = ui.tabWidget->findChild<QLabel *>("tab_plugins");
-		const auto layout  = ui.tabWidget->findChild<QGridLayout *>("tab_plugins_layout");
-		toolbox_           = new QToolBox(tab);
+		delete ui.tabWidget->findChild<QLabel *>(QStringLiteral("label_plugins"));
+		auto tab    = ui.tabWidget->findChild<QLabel *>(QStringLiteral("tab_plugins"));
+		auto layout = ui.tabWidget->findChild<QGridLayout *>(QStringLiteral("tab_plugins_layout"));
+		toolbox_    = new QToolBox(tab);
 		layout->addWidget(toolbox_, 0, 0, 1, 1);
 	}
 

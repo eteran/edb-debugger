@@ -79,7 +79,7 @@ QSize RegisterViewDelegate::sizeHint(const QStyleOptionViewItem &opt, const QMod
 	const QSize defaultHint = QStyledItemDelegate::sizeHint(opt, index) + QSize(2, 2);
 	if (!index.model()->parent(index).isValid()) {
 		QStyleOptionButton optButton;
-		optButton.rect.setSize(opt.fontMetrics.size(Qt::TextShowMnemonic, "X"));
+		optButton.rect.setSize(opt.fontMetrics.size(Qt::TextShowMnemonic, QStringLiteral("X")));
 		const QSize buttonHint = view_->style()->sizeFromContents(QStyle::CT_PushButton, &optButton, optButton.rect.size());
 		return QSize(defaultHint.width(), buttonHint.height());
 	}

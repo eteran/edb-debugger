@@ -150,10 +150,10 @@ bool isX86_64() {
 std::vector<std::string> to_operands(QString str) {
 
 	// Remove any decorations: we want just operands themselves
-	static const QRegularExpression re(",?\\{[^}]*\\}");
-	str.replace(re, "");
+	static const QRegularExpression re(QStringLiteral(",?\\{[^}]*\\}"));
+	str.replace(re, QString());
 
-	QStringList betweenCommas = str.split(",");
+	QStringList betweenCommas = str.split(QLatin1Char(','));
 	std::vector<std::string> operands;
 
 	// Have to work around inconvenient AT&T syntax for SIB, that's why so complicated logic
@@ -163,29 +163,29 @@ std::vector<std::string> to_operands(QString str) {
 
 		// We've split operand string by commas, but there may be SIB scheme
 		// in the form (B,I,S) or (B) or (I,S). Let's find missing parts of it.
-		if (it->contains("(") && !it->contains(")")) {
+		if (it->contains(QLatin1Char('(')) && !it->contains(QLatin1Char(')'))) {
 
 			// the next part must exist and have continuation of SIB scheme
 			if (std::next(it) == betweenCommas.end()) {
 				throw std::logic_error("failed to find matching ')'");
 			}
 
-			current += ",";
+			current += QLatin1Char(',');
 			current += *(++it);
 
 			// This may still be not enough
-			if (current.contains("(") && !current.contains(")")) {
+			if (current.contains(QLatin1Char('(')) && !current.contains(QLatin1Char(')'))) {
 				if (std::next(it) == betweenCommas.end()) {
 					throw std::logic_error("failed to find matching ')'");
 				}
 
-				current += ",";
+				current += QLatin1Char(',');
 				current += *(++it);
 			}
 
 			// The expected SIB string has at most three components.
 			// If we still haven't found closing parenthesis, we're screwed
-			if (current.contains("(") && !current.contains(")")) {
+			if (current.contains(QLatin1Char('(')) && !current.contains(QLatin1Char(')'))) {
 				throw std::logic_error("failed to find matching ')'");
 			}
 		}
@@ -409,24 +409,24 @@ void Instruction::swap(Instruction &other) noexcept {
 }
 
 QString Formatter::adjustInstructionText(const Instruction &insn) const {
-	QString operands(insn->op_str);
+	auto operands = QString::fromLatin1(insn->op_str);
 
 	// Remove extra spaces
-	operands.replace(" + ", "+");
-	operands.replace(" - ", "-");
+	operands.replace(QLatin1String(" + "), QLatin1String("+"));
+	operands.replace(QLatin1String(" - "), QLatin1String("-"));
 
-	operands.replace(QRegularExpression("\\bxword "), "tbyte ");
-	operands.replace(QRegularExpression("(word|byte) ptr "), "\\1 ");
+	operands.replace(QRegularExpression(QLatin1String("\\bxword ")), QLatin1String("tbyte "));
+	operands.replace(QRegularExpression(QLatin1String("(word|byte) ptr ")), QLatin1String("\\1 "));
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	if (activeFormatter.options().simplifyRIPRelativeTargets && isX86_64() && (insn->detail->x86.modrm & 0xc7) == 0x05) {
-		QRegularExpression ripRel("\\brip ?[+-] ?((0x)?[0-9a-fA-F]+)\\b");
-		operands.replace(ripRel, "rel 0x" + QString::number(insn->detail->x86.disp + insn->address + insn->size, 16));
+		QRegularExpression ripRel(QLatin1String("\\brip ?[+-] ?((0x)?[0-9a-fA-F]+)\\b"));
+		operands.replace(ripRel, QLatin1String("rel 0x") + QString::number(insn->detail->x86.disp + insn->address + insn->size, 16));
 	}
 
 	if (insn.operandCount() == 2 && insn->id != X86_INS_MOVZX && insn->id != X86_INS_MOVSX &&
 		((insn[0]->type == X86_OP_REG && insn[1]->type == X86_OP_MEM) || (insn[1]->type == X86_OP_REG && insn[0]->type == X86_OP_MEM))) {
-		operands.replace(QRegularExpression("(\\b.?(mm)?word|byte)\\b( ptr)? "), "");
+		operands.replace(QRegularExpression(QLatin1String("(\\b.?(mm)?word|byte)\\b( ptr)? ")), QLatin1String(""));
 	}
 #endif
 	return operands;
@@ -500,8 +500,8 @@ void Formatter::checkCapitalize(std::string &str, bool canContainHex) const {
 		if (canContainHex) {
 			auto qstr = QString::fromStdString(str);
 
-			static const QRegularExpression re("\\b0X([0-9A-F]+)\\b");
-			qstr.replace(re, "0x\\1");
+			static const QRegularExpression re(QLatin1String("\\b0X([0-9A-F]+)\\b"));
+			qstr.replace(re, QLatin1String("0x\\1"));
 
 			str = qstr.toStdString();
 		}
@@ -531,7 +531,7 @@ std::string Formatter::toString(const Operand &operand) const {
 		// Capstone doesn't provide a way to get operand string, so we try
 		// to extract it from the formatted all-operands string
 		try {
-			const auto operands = to_operands(insn->op_str);
+			const auto operands = to_operands(QString::fromLatin1(insn->op_str));
 
 			if (operands.size() <= numberInInstruction) {
 				throw std::logic_error("got less than " + std::to_string(numberInInstruction) + " operands");

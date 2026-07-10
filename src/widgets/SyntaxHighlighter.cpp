@@ -42,28 +42,28 @@ void SyntaxHighlighter::createRules() {
 
 	// comma
 	rules_.emplace_back(
-		"(?:,)",
+		QStringLiteral("(?:,)"),
 		theme.text[Theme::Comma]);
 
 	// expression brackets
 	rules_.emplace_back(
-		R"((?:[\(?:\)\[\]]))",
+		QStringLiteral(R"((?:[\(?:\)\[\]]))"),
 		theme.text[Theme::Brackets]);
 
 	// math operators
 	rules_.emplace_back(
-		R"(\b(?:[\+\-\*])\b)",
+		QStringLiteral(R"(\b(?:[\+\-\*])\b)"),
 		theme.text[Theme::Operator]);
 
 	// registers
 	// TODO: support ST(N)
 	rules_.emplace_back(
 #if defined(EDB_X86) || defined(EDB_X86_64)
-		"\\b(?:(?:(?:e|r)?(?:ax|bx|cx|dx|bp|sp|si|di|ip))|(?:[abcd](?:l|h))|(?:sp|bp|si|di)l|(?:[cdefgs]s)|[xyz]?mm(?:[0-9]|[12][0-9]|3[01])|r(?:8|9|(?:1[0-5]))[dwb]?)\\b",
+		QStringLiteral("\\b(?:(?:(?:e|r)?(?:ax|bx|cx|dx|bp|sp|si|di|ip))|(?:[abcd](?:l|h))|(?:sp|bp|si|di)l|(?:[cdefgs]s)|[xyz]?mm(?:[0-9]|[12][0-9]|3[01])|r(?:8|9|(?:1[0-5]))[dwb]?)\\b"),
 #elif defined(EDB_ARM32)
-		"\\b(?:r(?:[0-9]|1[0-5])|sb|sl|fp|ip|sp|lr|pc|[sd][0-9]|[sdf](?:[12][0-9]|3[01])|q(?:[0-9]|1[0-5]))\\b",
+		QStringLiteral("\\b(?:r(?:[0-9]|1[0-5])|sb|sl|fp|ip|sp|lr|pc|[sd][0-9]|[sdf](?:[12][0-9]|3[01])|q(?:[0-9]|1[0-5]))\\b"),
 #elif defined(EDB_ARM64)
-		"\\b(?:[xw](?:[12]?[0-9]|3[01]))\\b" /* FIXME: stub, only GPRs here */,
+		QStringLiteral("\\b(?:[xw](?:[12]?[0-9]|3[01]))\\b") /* FIXME: stub, only GPRs here */,
 #else
 #error "What string should be here?"
 #endif
@@ -72,31 +72,31 @@ void SyntaxHighlighter::createRules() {
 	// constants
 	rules_.emplace_back(
 #if defined(EDB_ARM32) || defined(EDB_ARM64)
-		"#?" /* concatenated with general number pattern */
+		QStringLiteral("#?") /* concatenated with general number pattern */
 #endif
-		"\\b(?:(?:0[0-7]*)|(?:0(?:x|X)[0-9a-fA-F]+)|(?:[1-9][0-9]*))\\b",
+		QStringLiteral("\\b(?:(?:0[0-7]*)|(?:0(?:x|X)[0-9a-fA-F]+)|(?:[1-9][0-9]*))\\b"),
 		theme.text[Theme::Constant]);
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	// pointer modifiers
 	rules_.emplace_back(
-		"\\b(?:t?byte|(?:[xyz]mm|[qdf]?)word)(?: ptr)?\\b",
+		QStringLiteral("\\b(?:t?byte|(?:[xyz]mm|[qdf]?)word)(?: ptr)?\\b"),
 		theme.text[Theme::Ptr]);
 
 	// prefix
 	rules_.emplace_back(
-		"\\b(?:lock|rep(?:ne)?)\\b",
+		QStringLiteral("\\b(?:lock|rep(?:ne)?)\\b"),
 		theme.text[Theme::Prefix]);
 #endif
 
 	// flow control
 	rules_.emplace_back(
 #if defined(EDB_X86) || defined(EDB_X86_64)
-		"\\b(?:l?jmp[bswlqt]?|loopn?[ez]|(?:jn?(?:a|ae|b|be|c|e|g|ge|l|le|o|p|s|z)|j(?:pe|po|cxz|ecxz)))\\b",
+		QStringLiteral("\\b(?:l?jmp[bswlqt]?|loopn?[ez]|(?:jn?(?:a|ae|b|be|c|e|g|ge|l|le|o|p|s|z)|j(?:pe|po|cxz|ecxz)))\\b"),
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
 		/* FIXME(ARM): there are also instructions like `add pc, pc, #5`, which
 		 *             should also be considered flow control */
-		"\\b(?:b(?:x|xj)?(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le)?)\\b",
+		QStringLiteral("\\b(?:b(?:x|xj)?(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le)?)\\b"),
 #else
 #error "What string should be here?"
 #endif
@@ -105,9 +105,9 @@ void SyntaxHighlighter::createRules() {
 	// function call
 	rules_.emplace_back(
 #if defined(EDB_X86) || defined(EDB_X86_64)
-		"\\b(?:call|ret[nf]?)[bswlqt]?\\b",
+		QStringLiteral("\\b(?:call|ret[nf]?)[bswlqt]?\\b"),
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
-		"\\b(?:b(?:l|lx)(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le)?)\\b",
+		QStringLiteral("\\b(?:b(?:l|lx)(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le)?)\\b"),
 #else
 #error "What string should be here?"
 #endif
@@ -118,43 +118,43 @@ void SyntaxHighlighter::createRules() {
 
 	// stack operations
 	rules_.emplace_back(
-		"\\b(?:pushf?|popf?|enter|leave)\\b",
+		QStringLiteral("\\b(?:pushf?|popf?|enter|leave)\\b"),
 		theme.text[Theme::Stack]);
 
 	// comparison
 	rules_.emplace_back(
-		"\\b(?:cmp|test)[bswlqt]?\\b",
+		QStringLiteral("\\b(?:cmp|test)[bswlqt]?\\b"),
 		theme.text[Theme::Comparison]);
 
 	// data transfer
 	rules_.emplace_back(
-		"\\b(?:c?movs[bw]|lea|xchg|mov(?:[zs]x?)?)[bswlqt]?\\b",
+		QStringLiteral("\\b(?:c?movs[bw]|lea|xchg|mov(?:[zs]x?)?)[bswlqt]?\\b"),
 		theme.text[Theme::DataXfer]);
 
 	// arithmetic
 	rules_.emplace_back(
-		"\\b(?:add|sub|i?mul|i?div|neg|adc|sbb|inc|dec)[bswlqt]?\\b",
+		QStringLiteral("\\b(?:add|sub|i?mul|i?div|neg|adc|sbb|inc|dec)[bswlqt]?\\b"),
 		theme.text[Theme::Arithmetic]);
 
 	// logic
 	rules_.emplace_back(
-		"\\b(?:and|x?or|not)[bswlqt]?\\b",
+		QStringLiteral("\\b(?:and|x?or|not)[bswlqt]?\\b"),
 		theme.text[Theme::Logic]);
 
 	// shift
 	rules_.emplace_back(
-		"\\b(?:sh|sa|sc|ro)[rl][bswlqt]?\\b",
+		QStringLiteral("\\b(?:sh|sa|sc|ro)[rl][bswlqt]?\\b"),
 		theme.text[Theme::Shift]);
 
 	// system
 	rules_.emplace_back(
-		"\\b(?:sti|cli|hlt|in|out|sysenter|sysexit|syscall|sysret|int)\\b",
+		QStringLiteral("\\b(?:sti|cli|hlt|in|out|sysenter|sysexit|syscall|sysret|int)\\b"),
 		theme.text[Theme::System]);
 #endif
 
 	// data bytes
 	rules_.emplace_back(
-		"\\b(?:db|dw|dd|dq)\\b",
+		QStringLiteral("\\b(?:db|dw|dd|dq)\\b"),
 		theme.text[Theme::Data]);
 }
 

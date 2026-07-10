@@ -31,7 +31,7 @@ void HexStringValidator::fixup(QString &input) const {
 		if (c < 0x80 && std::isxdigit(c)) {
 
 			if (index != 0 && (index & 1) == 0) {
-				temp += ' ';
+				temp += QLatin1Char(' ');
 			}
 
 			temp += ch.toUpper();
@@ -51,14 +51,14 @@ QValidator::State HexStringValidator::validate(QString &input, int &pos) const {
 		// (if any was deleted) was a space? and special case this?
 		// as to not have the minor bug in this case?
 
-		const qsizetype char_pos = pos - input.left(pos).count(' ');
+		const qsizetype char_pos = pos - input.left(pos).count(QLatin1Char(' '));
 		int chars                = 0;
 		fixup(input);
 
 		pos = 0;
 
 		while (pos < input.size() && chars != char_pos) {
-			if (input[pos] != ' ') {
+			if (input[pos] != QLatin1Char(' ')) {
 				++chars;
 			}
 			++pos;
@@ -67,7 +67,7 @@ QValidator::State HexStringValidator::validate(QString &input, int &pos) const {
 		if (pos < input.size()) {
 
 			// favor the right side of a space
-			if (input[pos] == ' ') {
+			if (input[pos] == QLatin1Char(' ')) {
 				++pos;
 			}
 		}

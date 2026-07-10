@@ -116,7 +116,7 @@ QString RecentFileManager::formatEntry(const RecentFile &file) {
 	const auto &[path, args] = file;
 	QString str              = path;
 	for (const auto &arg : args) {
-		str += " " + QString(arg);
+		str += QStringLiteral(" ") + QString::fromLocal8Bit(arg);
 	}
 	return str;
 }

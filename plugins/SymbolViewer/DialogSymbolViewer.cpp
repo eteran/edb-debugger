@@ -63,7 +63,7 @@ void DialogSymbolViewer::on_listView_doubleClicked(const QModelIndex &index) {
 
 	const QString s = index.data().toString();
 
-	if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(s.split(":")[0])) {
+	if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(s.split(QLatin1Char(':'))[0])) {
 		const std::optional<Symbol> sym = edb::v1::symbol_manager().find(*addr);
 
 		if (sym && sym->isCode()) {
@@ -86,7 +86,7 @@ void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &po
 
 		const QString s = index.data().toString();
 
-		if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(s.split(":")[0])) {
+		if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(s.split(QLatin1Char(':'))[0])) {
 
 			QMenu menu;
 			QAction *const action1 = menu.addAction(tr("&Follow In Disassembly"), this, &DialogSymbolViewer::mnuFollowInCPU);

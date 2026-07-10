@@ -94,13 +94,13 @@ void testAssignment() {
 
 void testFromString() {
 	edb::value64 v64;
-	v64 = edb::value64::fromHexString("0123456789abcdef");
+	v64 = edb::value64::fromHexString(QStringLiteral("0123456789abcdef"));
 	TEST(v64 == 0x0123456789abcdef);
 
-	v64 = edb::value64::fromSignedString("-10");
+	v64 = edb::value64::fromSignedString(QStringLiteral("-10"));
 	TEST(v64 == 0xfffffffffffffff6);
 
-	v64 = edb::value64::fromCString("07777777777");
+	v64 = edb::value64::fromCString(QStringLiteral("07777777777"));
 	TEST(v64 == 07777777777);
 }
 
@@ -124,14 +124,14 @@ void testConstruction() {
 
 void testToString() {
 	edb::value64 v64;
-	v64 = edb::value64::fromHexString("0123456789abcdef");
+	v64 = edb::value64::fromHexString(QStringLiteral("0123456789abcdef"));
 	TEST(v64 == 0x0123456789abcdef);
 
 	QString str = v64.toHexString();
-	TEST(str == "0123456789abcdef");
+	TEST(str == QLatin1String("0123456789abcdef"));
 
 	QString str2 = v64.toString();
-	TEST(str2 == "81985529216486895");
+	TEST(str2 == QLatin1String("81985529216486895"));
 }
 
 void testCompare() {

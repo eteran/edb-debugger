@@ -538,11 +538,11 @@ void DialogHeap::doFind() {
 		edb::address_t heap_symbol_end   = 0;
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
-		std::vector<Symbol> curbrk_symbols = edb::v1::symbol_manager().findAll("__curbrk");
+		std::vector<Symbol> curbrk_symbols = edb::v1::symbol_manager().findAll(QStringLiteral("__curbrk"));
 		for (const Symbol &sym : curbrk_symbols) {
-			if (sym.file.contains("libc")) {
+			if (sym.file.contains(QLatin1String("libc"))) {
 				heap_symbol_end = sym.address;
-			} else if (sym.file.contains("ld")) {
+			} else if (sym.file.contains(QLatin1String("ld"))) {
 				heap_symbol_start = sym.address;
 			}
 		}
@@ -571,7 +571,7 @@ void DialogHeap::doFind() {
 			const QList<std::shared_ptr<IRegion>> &regions = edb::v1::memory_regions().regions();
 
 			auto it = std::find_if(regions.begin(), regions.end(), [](const std::shared_ptr<IRegion> &region) {
-				return region->name() == "[heap]";
+				return region->name() == QStringLiteral("[heap]");
 			});
 
 			if (it != regions.end()) {

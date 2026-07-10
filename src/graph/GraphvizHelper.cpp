@@ -25,7 +25,7 @@ Agraph_t *_agopen(QString name, Agdesc_t kind) {
 
 /// Add an alternative value parameter to the method for getting an object's attribute
 QString _agget(void *object, QString attr, QString alt) {
-	QString str = agget(object, attr.toLocal8Bit().data());
+	auto str = QString::fromLatin1(agget(object, attr.toLocal8Bit().data()));
 
 	// TODO(eteran): use isNull()?
 	if (str == QString()) {

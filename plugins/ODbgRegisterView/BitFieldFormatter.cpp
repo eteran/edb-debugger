@@ -20,14 +20,14 @@ QString BitFieldFormatter::operator()(const QString &str) const {
 		return str; // for release builds have defined behavior
 	}
 
-	if (str[0] == '?') {
-		return "????";
+	if (str[0] == QLatin1Char('?')) {
+		return QStringLiteral("????");
 	}
 
 	bool parseOK    = false;
 	const int value = str.toInt(&parseOK);
 	if (!parseOK) {
-		return "????";
+		return QStringLiteral("????");
 	}
 
 	assert(0 <= value);

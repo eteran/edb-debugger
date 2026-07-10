@@ -27,7 +27,7 @@ public:
 	[[nodiscard]] QList<FieldWidget *> fields() const;
 	[[nodiscard]] QList<ValueField *> valueFields() const;
 	[[nodiscard]] QMargins getFieldMargins() const;
-	void appendNameValueComment(const QModelIndex &nameIndex, const QString &tooltip = "", bool insertComment = true);
+	void appendNameValueComment(const QModelIndex &nameIndex, const QString &tooltip = QString(), bool insertComment = true);
 	// Insert, but without moving to its place
 	void insert(FieldWidget *widget);
 	void insert(int line, int column, FieldWidget *widget);

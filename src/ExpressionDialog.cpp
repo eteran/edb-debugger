@@ -74,7 +74,7 @@ void ExpressionDialog::on_text_changed(const QString &text) {
 			retval       = true;
 			lastAddress_ = *address;
 		} else {
-			labelError_->setText(address.error().what());
+			labelError_->setText(QString::fromLatin1(address.error().what()));
 			retval = false;
 		}
 	}

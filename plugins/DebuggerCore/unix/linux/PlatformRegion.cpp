@@ -369,15 +369,15 @@ void PlatformRegion::setPermissions(bool read, bool write, bool execute, edb::ad
 						state.setInstructionPointer(temp_address);
 
 						if (edb::v1::debuggeeIs32Bit()) {
-							state.setRegister("ecx", len);
-							state.setRegister("ebx", addr);
-							state.setRegister("edx", perms);
-							state.setRegister("eax", syscallnum);
+							state.setRegister(QStringLiteral("ecx"), len);
+							state.setRegister(QStringLiteral("ebx"), addr);
+							state.setRegister(QStringLiteral("edx"), perms);
+							state.setRegister(QStringLiteral("eax"), syscallnum);
 						} else {
-							state.setRegister("rsi", len);
-							state.setRegister("rdi", addr);
-							state.setRegister("rdx", perms);
-							state.setRegister("rax", syscallnum);
+							state.setRegister(QStringLiteral("rsi"), len);
+							state.setRegister(QStringLiteral("rdi"), addr);
+							state.setRegister(QStringLiteral("rdx"), perms);
+							state.setRegister(QStringLiteral("rax"), syscallnum);
 						}
 
 						thread->setState(state);

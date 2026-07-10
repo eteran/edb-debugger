@@ -79,7 +79,7 @@ void CheckVersion::doCheck() {
 		connect(network_, &QNetworkAccessManager::finished, this, &CheckVersion::requestFinished);
 	}
 
-	QUrl update_url(QStringLiteral("https://codef00.com/projects/debugger-latest.json?v=%1").arg(EDB_VERSION_STRING));
+	QUrl update_url(QStringLiteral("https://codef00.com/projects/debugger-latest.json?v=%1").arg(QLatin1String(EDB_VERSION_STRING)));
 	QNetworkRequest request(update_url);
 
 	setProxy(update_url);
@@ -159,10 +159,10 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 
 		QJsonObject obj = d.object();
 
-		QString version = obj["version"].toString();
-		QString url     = obj["url"].toString();
-		QString md5     = obj["md5"].toString();
-		QString sha1    = obj["sha1"].toString();
+		QString version = obj[QStringLiteral("version")].toString();
+		QString url     = obj[QStringLiteral("url")].toString();
+		QString md5     = obj[QStringLiteral("md5")].toString();
+		QString sha1    = obj[QStringLiteral("sha1")].toString();
 
 		if (version.isEmpty() || url.isEmpty() || md5.isEmpty() || sha1.isEmpty()) {
 			qDebug("[CheckVersion] Unexpected data format in JSON response");

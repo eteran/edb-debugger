@@ -288,7 +288,7 @@ Status DebuggerCore::ptraceGetSigInfo(edb::tid_t tid, siginfo_t *siginfo) {
 	if (ptrace(PTRACE_GETSIGINFO, tid, 0, siginfo) == -1) {
 		const char *const strError = strerror(errno);
 		qWarning() << "Unable to get signal info for thread" << tid << ": PTRACE_GETSIGINFO failed:" << strError;
-		return Status(strError);
+		return Status(QString::fromLatin1(strError));
 	}
 	return Status::Ok;
 }
@@ -318,7 +318,7 @@ Status DebuggerCore::ptraceContinue(edb::tid_t tid, long status) {
 		if (ptrace(PTRACE_CONT, tid, 0, status) == -1) {
 			const char *const strError = strerror(errno);
 			qWarning() << "Unable to continue thread" << tid << ": PTRACE_CONT failed:" << strError;
-			return Status(strError);
+			return Status(QString::fromLatin1(strError));
 		}
 		waitedThreads_.erase(tid);
 		return Status::Ok;
@@ -342,7 +342,7 @@ Status DebuggerCore::ptraceStep(edb::tid_t tid, long status) {
 		if (ptrace(PTRACE_SINGLESTEP, tid, 0, status) == -1) {
 			const char *const strError = strerror(errno);
 			qWarning() << "Unable to step thread" << tid << ": PTRACE_SINGLESTEP failed:" << strError;
-			return Status(strError);
+			return Status(QString::fromLatin1(strError));
 		}
 		waitedThreads_.erase(tid);
 		return Status::Ok;
@@ -363,7 +363,7 @@ Status DebuggerCore::ptraceSetOptions(edb::tid_t tid, long options) {
 	if (ptrace(PTRACE_SETOPTIONS, tid, 0, options) == -1) {
 		const char *const strError = strerror(errno);
 		qWarning() << "Unable to set ptrace options for thread" << tid << ": PTRACE_SETOPTIONS failed:" << strError;
-		return Status(strError);
+		return Status(QString::fromLatin1(strError));
 	}
 	return Status::Ok;
 }
@@ -383,7 +383,7 @@ Status DebuggerCore::ptraceGetEventMessage(edb::tid_t tid, unsigned long *messag
 	if (ptrace(PTRACE_GETEVENTMSG, tid, 0, message) == -1) {
 		const char *const strError = strerror(errno);
 		qWarning() << "Unable to get event message for thread" << tid << ": PTRACE_GETEVENTMSG failed:" << strError;
-		return Status(strError);
+		return Status(QString::fromLatin1(strError));
 	}
 	return Status::Ok;
 }
@@ -614,7 +614,7 @@ Status DebuggerCore::stopThreads() {
 
 					if (syscall(SYS_tgkill, process_->pid(), thread->tid(), SIGSTOP) == -1) {
 						const char *const error = strerror(errno);
-						errorMessage += tr("Failed to stop thread %1: %2\n").arg(tid).arg(error);
+						errorMessage += tr("Failed to stop thread %1: %2\n").arg(tid).arg(QString::fromLatin1(error));
 					}
 
 					int thread_status;
@@ -642,7 +642,7 @@ Status DebuggerCore::stopThreads() {
 	}
 
 	qWarning() << qPrintable(errorMessage);
-	return Status("\n" + errorMessage);
+	return Status(QStringLiteral("\n") + errorMessage);
 }
 
 /**
@@ -725,7 +725,7 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 	int lastErr = attachThread(pid); // Fail early if we are going to
 	if (lastErr) {
 		process_ = nullptr;
-		return Status(std::strerror(lastErr));
+		return Status(QString::fromLatin1(std::strerror(lastErr)));
 	}
 
 	lastErr = -2;
@@ -756,7 +756,7 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 	}
 
 	process_ = nullptr;
-	return Status(std::strerror(lastErr));
+	return Status(QString::fromLatin1(std::strerror(lastErr)));
 }
 
 /**
@@ -775,7 +775,7 @@ Status DebuggerCore::detach() {
 		for (auto &thread : process_->threads()) {
 			if (ptrace(PTRACE_DETACH, thread->tid(), 0, 0) == -1) {
 				const char *const error = strerror(errno);
-				errorMessage += tr("Unable to detach from thread %1: PTRACE_DETACH failed: %2\n").arg(thread->tid()).arg(error);
+				errorMessage += tr("Unable to detach from thread %1: PTRACE_DETACH failed: %2\n").arg(thread->tid()).arg(QString::fromLatin1(error));
 			}
 		}
 
@@ -952,7 +952,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 			::munmap(sharedMem, SharedMemSize);
 
 			if (wpidRet == -1) {
-				return Status(tr("waitpid() failed: %1").arg(std::strerror(errno)) + (childError.isEmpty() ? "" : tr(".\nError returned by child:\n%1.").arg(childError)));
+				return Status(tr("waitpid() failed: %1").arg(QString::fromLatin1(std::strerror(errno))) + (childError.isEmpty() ? QString() : tr(".\nError returned by child:\n%1.").arg(childError)));
 			}
 
 			if (WIFEXITED(status)) {
@@ -973,7 +973,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 				endDebugSession();
 				return Status(tr("First event after waitpid() should be a STOP of type SIGTRAP, but wasn't, instead status=0x%1")
 								  .arg(status, 0, 16) +
-							  (childError.isEmpty() ? "" : tr(".\nError returned by child:\n%1.").arg(childError)));
+							  (childError.isEmpty() ? QString() : tr(".\nError returned by child:\n%1.").arg(childError)));
 			}
 
 			waitedThreads_.insert(pid);
@@ -1039,7 +1039,7 @@ std::unique_ptr<IState> DebuggerCore::createState() const {
 QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerateProcesses() const {
 	QMap<edb::pid_t, std::shared_ptr<IProcess>> ret;
 
-	QDir proc_directory("/proc/");
+	QDir proc_directory(QStringLiteral("/proc/"));
 	QFileInfoList entries = proc_directory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
 
 	for (const QFileInfo &info : entries) {

@@ -37,9 +37,9 @@ namespace {
  * @return The assembler description, or an empty document if the description could not be loaded.
  */
 QDomDocument assembler_description() {
-	const QString assembler = QSettings().value("Assembler/helper", "yasm").toString();
+	const QString assembler = QSettings().value(QStringLiteral("Assembler/helper"), QStringLiteral("yasm")).toString();
 
-	QFile file(":/debugger/Assembler/xml/assemblers.xml");
+	QFile file(QStringLiteral(":/debugger/Assembler/xml/assemblers.xml"));
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		return {};
 	}
@@ -50,10 +50,10 @@ QDomDocument assembler_description() {
 	}
 
 	// Find: assemblers/assembler[@name="..."]
-	const QDomNodeList assemblers = doc.elementsByTagName("assembler");
+	const QDomNodeList assemblers = doc.elementsByTagName(QStringLiteral("assembler"));
 	for (int i = 0; i < assemblers.size(); ++i) {
 		const QDomElement el = assemblers.at(i).toElement();
-		if (el.attribute("name") == assembler) {
+		if (el.attribute(QStringLiteral("name")) == assembler) {
 			// Wrap the matched element in a new QDomDocument
 			QDomDocument out;
 			out.appendChild(out.importNode(el, true));
@@ -77,26 +77,26 @@ QString fixup_syntax(QString insn) {
 		return insn;
 	}
 
-	const QDomElement opSizes = asmRoot.firstChildElement("operand_sizes");
+	const QDomElement opSizes = asmRoot.firstChildElement(QStringLiteral("operand_sizes"));
 	if (opSizes.isNull()) {
 		return insn;
 	}
 
 	static const QString sizes[] = {
-		"byte",
-		"word",
-		"dword",
-		"qword",
-		"tbyte",
-		"xmmword",
-		"ymmword",
-		"zmmword",
+		QStringLiteral("byte"),
+		QStringLiteral("word"),
+		QStringLiteral("dword"),
+		QStringLiteral("qword"),
+		QStringLiteral("tbyte"),
+		QStringLiteral("xmmword"),
+		QStringLiteral("ymmword"),
+		QStringLiteral("zmmword"),
 	};
 
 	for (const QString &size : sizes) {
 		const QString replacement = opSizes.attribute(size);
 		if (!replacement.isEmpty()) {
-			const QRegularExpression re("\\b" + size + "\\b");
+			const QRegularExpression re(QStringLiteral("\\b") + size + QStringLiteral("\\b"));
 			insn.replace(re, replacement);
 		}
 	}
@@ -135,7 +135,7 @@ void DialogAssembler::setAddress(edb::address_t address) {
 	if (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 		edb::Instruction inst(buffer, buffer + size, address);
 		if (inst) {
-			ui.assembly->setEditText(fixup_syntax(edb::v1::formatter().toString(inst).c_str()).simplified());
+			ui.assembly->setEditText(fixup_syntax(QString::fromStdString(edb::v1::formatter().toString(inst))).simplified());
 			instructionSize_ = inst.byteSize();
 		}
 	}
@@ -151,17 +151,17 @@ void DialogAssembler::on_buttonBox_accepted() {
 
 		const QDomElement asm_root = assembler_description().documentElement();
 		if (!asm_root.isNull()) {
-			QDomElement asm_executable = asm_root.firstChildElement("executable");
-			QDomElement asm_template   = asm_root.firstChildElement("template");
+			QDomElement asm_executable = asm_root.firstChildElement(QStringLiteral("executable"));
+			QDomElement asm_template   = asm_root.firstChildElement(QStringLiteral("template"));
 
-			qDebug() << "ASM ROOT: " << asm_root.attribute("name") << asm_executable.attribute("command_line") << asm_template.text();
+			qDebug() << "ASM ROOT: " << asm_root.attribute(QStringLiteral("name")) << asm_executable.attribute(QStringLiteral("command_line")) << asm_template.text();
 
 #if defined(EDB_ARM32)
 			const auto mode = core->cpuMode();
-			while (mode == IDebugger::CpuMode::ARM32 && asm_template.attribute("mode") != "arm" ||
-				   mode == IDebugger::CpuMode::Thumb && asm_template.attribute("mode") != "thumb") {
+			while (mode == IDebugger::CpuMode::ARM32 && asm_template.attribute(QStringLiteral("mode")) != QStringLiteral("arm") ||
+				   mode == IDebugger::CpuMode::Thumb && asm_template.attribute(QStringLiteral("mode")) != QStringLiteral("thumb")) {
 
-				asm_template = asm_template.nextSiblingElement("template");
+				asm_template = asm_template.nextSiblingElement(QStringLiteral("template"));
 				if (asm_template.isNull()) {
 					QMessageBox::critical(
 						this,
@@ -172,9 +172,9 @@ void DialogAssembler::on_buttonBox_accepted() {
 			}
 #endif
 
-			const QString asm_name = asm_root.attribute("name");
-			const QString asm_cmd  = asm_executable.attribute("command_line");
-			const QString asm_ext  = asm_executable.attribute("extension");
+			const QString asm_name = asm_root.attribute(QStringLiteral("name"));
+			const QString asm_cmd  = asm_executable.attribute(QStringLiteral("command_line"));
+			const QString asm_ext  = asm_executable.attribute(QStringLiteral("extension"));
 			Q_UNUSED(asm_name)
 
 			QString asm_code = asm_template.text();
@@ -197,12 +197,12 @@ void DialogAssembler::on_buttonBox_accepted() {
 				return;
 			}
 
-			const QString bitsStr = std::to_string(core->pointerSize() * 8).c_str();
+			const QString bitsStr = QString::number(core->pointerSize() * 8);
 			const QString addrStr = edb::v1::format_pointer(address_);
 
-			static const char *bitsTag = "%BITS%";
-			static const char *addrTag = "%ADDRESS%";
-			static const char *insnTag = "%INSTRUCTION%";
+			static const QString bitsTag = QStringLiteral("%BITS%");
+			static const QString addrTag = QStringLiteral("%ADDRESS%");
+			static const QString insnTag = QStringLiteral("%INSTRUCTION%");
 
 			asm_code.replace(bitsTag, bitsStr);
 			asm_code.replace(addrTag, addrStr);
@@ -218,8 +218,8 @@ void DialogAssembler::on_buttonBox_accepted() {
 
 			QStringList arguments = command_line;
 			for (QString &arg : arguments) {
-				arg.replace("%OUT%", output_file.fileName());
-				arg.replace("%IN%", source_file.fileName());
+						arg.replace(QLatin1String("%OUT%"), output_file.fileName());
+						arg.replace(QLatin1String("%IN%"), source_file.fileName());
 				arg.replace(bitsTag, bitsStr);
 				arg.replace(addrTag, addrStr);
 				arg.replace(insnTag, nasm_syntax);
@@ -234,7 +234,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 				const int exit_code = process.exitCode();
 
 				if (exit_code != 0) {
-					QMessageBox::warning(this, tr("Error In Code"), process.readAllStandardError());
+					QMessageBox::warning(this, tr("Error In Code"), QString::fromLocal8Bit(process.readAllStandardError()));
 				} else {
 					QByteArray bytes              = output_file.readAll();
 					const size_t replacement_size = bytes.size();
@@ -250,8 +250,8 @@ void DialogAssembler::on_buttonBox_accepted() {
 							}
 						}
 					} else if (replacement_size == 0) {
-						const QString stdError = process.readAllStandardError();
-						QMessageBox::warning(this, tr("Error In Code"), tr("Got zero bytes from the assembler") + (stdError.isEmpty() ? "" : tr(", here's what it has to say:\n\n") + stdError));
+						const QString stdError = QString::fromLocal8Bit(process.readAllStandardError());
+						QMessageBox::warning(this, tr("Error In Code"), tr("Got zero bytes from the assembler") + (stdError.isEmpty() ? QString() : tr(", here's what it has to say:\n\n") + stdError));
 						return;
 					} else {
 						if (ui.keepSize->isChecked()) {
@@ -287,7 +287,7 @@ void DialogAssembler::showEvent(QShowEvent *event) {
 	Q_UNUSED(event)
 
 	QSettings settings;
-	const QString assembler = settings.value("Assembler/helper", "yasm").toString();
+	const QString assembler = settings.value(QStringLiteral("Assembler/helper"), QStringLiteral("yasm")).toString();
 
 	ui.label->setText(tr("Assembler: %1").arg(assembler));
 

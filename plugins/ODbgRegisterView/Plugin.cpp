@@ -23,7 +23,7 @@ namespace ODbgRegisterView {
 namespace {
 const auto pluginName             = QStringLiteral("ODbgRegisterView");
 const auto dockNameSuffixTemplate = QStringLiteral(" <%1>");
-const auto dockObjectNameTemplate = QString(pluginName + "-%1");
+const auto dockObjectNameTemplate = pluginName + QStringLiteral("-%1");
 const auto views                  = QStringLiteral("views");
 }
 
@@ -41,7 +41,7 @@ void Plugin::setupDocks() {
 	QSettings settings;
 	settings.beginGroup(pluginName);
 
-	if (settings.value(views + "/size").isValid()) {
+	if (settings.value(views + QStringLiteral("/size")).isValid()) {
 		const int size = settings.beginReadArray(views);
 		for (int i = 0; i < size; ++i) {
 			settings.setArrayIndex(i);
@@ -55,7 +55,7 @@ void Plugin::setupDocks() {
 void Plugin::saveSettings() const {
 	QSettings settings;
 	const auto size     = static_cast<int>(registerViews_.size());
-	const auto arrayKey = pluginName + "/" + views;
+	const auto arrayKey = pluginName + QStringLiteral("/") + views;
 	settings.remove(arrayKey);
 	settings.beginWriteArray(arrayKey, size);
 	for (int i = 0; i < size; ++i) {
@@ -65,7 +65,7 @@ void Plugin::saveSettings() const {
 }
 
 void Plugin::createRegisterView() {
-	createRegisterView("");
+	createRegisterView(QString());
 }
 
 void Plugin::createRegisterView(const QString &settingsGroup) {
@@ -75,7 +75,7 @@ void Plugin::createRegisterView(const QString &settingsGroup) {
 		registerViews_.emplace_back(regView);
 		regView->setModel(&edb::v1::arch_processor().registerViewModel());
 
-		const QString suffix         = registerViews_.size() > 1 ? dockNameSuffixTemplate.arg(registerViews_.size()) : "";
+		const QString suffix         = registerViews_.size() > 1 ? dockNameSuffixTemplate.arg(registerViews_.size()) : QString();
 		const auto regViewDockWidget = new QDockWidget(dockName() + suffix, mainWindow);
 		const auto viewNumber        = registerViews_.size();
 		regViewDockWidget->setObjectName(dockObjectNameTemplate.arg(viewNumber));
@@ -116,7 +116,7 @@ void Plugin::renumerateDocks() const {
 		Q_ASSERT(dynamic_cast<QDockWidget *>(view->parentWidget()));
 		QWidget *dock = view->parentWidget();
 		dock->setObjectName(dockObjectNameTemplate.arg(i + 1));
-		dock->setWindowTitle(dockName() + (i ? dockNameSuffixTemplate.arg(i + 1) : ""));
+		dock->setWindowTitle(dockName() + (i ? dockNameSuffixTemplate.arg(i + 1) : QString()));
 	}
 }
 

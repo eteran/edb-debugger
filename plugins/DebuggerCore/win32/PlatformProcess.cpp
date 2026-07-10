@@ -425,7 +425,7 @@ Status PlatformProcess::pause() {
 	}
 
 	// TODO(eteran): use GetLastError/FormatMessage
-	return Status("Failed to pause");
+	return Status(QStringLiteral("Failed to pause"));
 }
 
 /**

@@ -69,44 +69,44 @@ GraphWidget::GraphWidget(QWidget *parent)
 	HUDLabel_ = new QLabel(this);
 	HUDLabel_->hide();
 	HUDLabel_->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-	HUDLabel_->setFont(QFont("FreeSans", 32));
+	HUDLabel_->setFont(QFont(QStringLiteral("FreeSans"), 32));
 	HUDLabel_->setAttribute(Qt::WA_TransparentForMouseEvents);
 
 	HUDLayout_ = new QHBoxLayout(this);
 	HUDLayout_->addWidget(HUDLabel_);
 
 	context_ = gvContext();
-	graph_   = _agopen("GraphName", Agstrictdirected);
+	graph_   = _agopen(QStringLiteral("GraphName"), Agstrictdirected);
 
 	// Set graph attributes
-	setGraphAttribute("overlap", "prism");
-	setGraphAttribute("pad", "0,2");
-	setGraphAttribute("dpi", "96,0");
-	setGraphAttribute("nodesep", "2,5");
-	setGraphAttribute("nslimit", "1");
-	setGraphAttribute("nslimit1", "1");
-	setGraphAttribute("splines", "line"); // ugly but should be much faster
+	setGraphAttribute(QStringLiteral("overlap"), QStringLiteral("prism"));
+	setGraphAttribute(QStringLiteral("pad"), QStringLiteral("0,2"));
+	setGraphAttribute(QStringLiteral("dpi"), QStringLiteral("96,0"));
+	setGraphAttribute(QStringLiteral("nodesep"), QStringLiteral("2,5"));
+	setGraphAttribute(QStringLiteral("nslimit"), QStringLiteral("1"));
+	setGraphAttribute(QStringLiteral("nslimit1"), QStringLiteral("1"));
+	setGraphAttribute(QStringLiteral("splines"), QStringLiteral("line")); // ugly but should be much faster
 
 	// Set default attributes for the future nodes
-	setNodeAttribute("fixedsize", "false");
-	setNodeAttribute("label", "");
-	setNodeAttribute("regular", "true");
+	setNodeAttribute(QStringLiteral("fixedsize"), QStringLiteral("false"));
+	setNodeAttribute(QStringLiteral("label"), QStringLiteral(""));
+	setNodeAttribute(QStringLiteral("regular"), QStringLiteral("true"));
 
 	// Divide the wanted width by the DPI to get the value in points
-	QString nodePtsWidth = QString::number(NodeWidth / _agget(graph_, "dpi", "96,0").toDouble());
+	QString nodePtsWidth = QString::number(NodeWidth / _agget(graph_, QStringLiteral("dpi"), QStringLiteral("96,0")).toDouble());
 	// GV uses , instead of . for the separator in floats
-	setNodeAttribute("width", nodePtsWidth.replace('.', ","));
+	setNodeAttribute(QStringLiteral("width"), nodePtsWidth.replace(QLatin1Char('.'), QLatin1String(",")));
 
 	// set font
-	QFont font = QFont("Arial");
-	setGraphAttribute("fontname", font.family());
-	setGraphAttribute("fontsize", QString::number(font.pointSizeF()));
+	QFont font = QFont(QStringLiteral("Arial"));
+	setGraphAttribute(QStringLiteral("fontname"), font.family());
+	setGraphAttribute(QStringLiteral("fontsize"), QString::number(font.pointSizeF()));
 
-	setNodeAttribute("fontname", font.family());
-	setNodeAttribute("fontsize", QString::number(font.pointSizeF()));
+	setNodeAttribute(QStringLiteral("fontname"), font.family());
+	setNodeAttribute(QStringLiteral("fontsize"), QString::number(font.pointSizeF()));
 
-	setEdgeAttribute("fontname", font.family());
-	setEdgeAttribute("fontsize", QString::number(font.pointSizeF()));
+	setEdgeAttribute(QStringLiteral("fontname"), font.family());
+	setEdgeAttribute(QStringLiteral("fontsize"), QString::number(font.pointSizeF()));
 }
 
 /**

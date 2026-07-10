@@ -16,10 +16,10 @@
 namespace ODbgRegisterView {
 namespace {
 
-const QRegularExpressionValidator byteHexValidator(QRegularExpression("[0-9a-fA-F]{0,2}"));
-const QRegularExpressionValidator wordHexValidator(QRegularExpression("[0-9a-fA-F]{0,4}"));
-const QRegularExpressionValidator dwordHexValidator(QRegularExpression("[0-9a-fA-F]{0,8}"));
-const QRegularExpressionValidator qwordHexValidator(QRegularExpression("[0-9a-fA-F]{0,16}"));
+const QRegularExpressionValidator byteHexValidator(QRegularExpression(QStringLiteral("[0-9a-fA-F]{0,2}")));
+const QRegularExpressionValidator wordHexValidator(QRegularExpression(QStringLiteral("[0-9a-fA-F]{0,4}")));
+const QRegularExpressionValidator dwordHexValidator(QRegularExpression(QStringLiteral("[0-9a-fA-F]{0,8}")));
+const QRegularExpressionValidator qwordHexValidator(QRegularExpression(QStringLiteral("[0-9a-fA-F]{0,16}")));
 const QLongValidator byteSignedValidator(INT8_MIN, INT8_MAX);
 const QLongValidator wordSignedValidator(INT16_MIN, INT16_MAX);
 const QLongValidator dwordSignedValidator(INT32_MIN, INT32_MAX);
@@ -87,7 +87,7 @@ void GprEdit::setGPRValue(std::uint64_t gprValue) {
 	std::memcpy(&value, reinterpret_cast<char *>(&gprValue) + offsetInInteger_, integerSize_);
 	switch (format_) {
 	case Format::Hex:
-		setText(QStringLiteral("%1").arg(value, naturalWidthInChars_, 16, QChar('0')));
+		setText(QStringLiteral("%1").arg(value, naturalWidthInChars_, 16, QLatin1Char('0')));
 		break;
 	case Format::Signed:
 		setText(QString::number(static_cast<std::int64_t>(value)));
@@ -96,7 +96,7 @@ void GprEdit::setGPRValue(std::uint64_t gprValue) {
 		setText(QString::number(value));
 		break;
 	case Format::Character:
-		setText(QChar(static_cast<char>(value)));
+		setText(QChar(static_cast<char16_t>(value)));
 		break;
 	}
 }

@@ -45,7 +45,7 @@ void DialogXRefs::addReference(const std::pair<edb::address_t, edb::address_t> &
 		int offset;
 		QString sym = edb::v1::find_function_symbol(from, from.toPointerString(), &offset);
 
-		auto string = tr("%1. %2 -> %3").arg(ui.listReferences->count() + 1, 2, 10, QChar('0')).arg(sym).arg(to.toPointerString());
+		auto string = tr("%1. %2 -> %3").arg(ui.listReferences->count() + 1, 2, 10, QLatin1Char('0')).arg(sym).arg(to.toPointerString());
 
 		auto item = new QListWidgetItem(string, ui.listReferences);
 		item->setData(Qt::UserRole, static_cast<qlonglong>(from));
