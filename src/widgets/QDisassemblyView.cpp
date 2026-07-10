@@ -27,6 +27,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QFontMetricsF>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPixmap>
@@ -49,6 +50,16 @@ struct WidgetStateV1 {
 	int line3;
 	int line4;
 };
+
+struct WidgetStateV2 {
+	int version;
+	double line1;
+	double line2;
+	double line3;
+	double line4;
+};
+
+static_assert(sizeof(WidgetStateV1) != sizeof(WidgetStateV2), "WidgetStateV1 and WidgetStateV2 must not be the same size");
 
 constexpr int DefaultByteWidth = 8;
 
@@ -85,8 +96,22 @@ QString format_address(T address, bool show_separator) {
  * @param x The x-coordinate to check.
  * @param linex The x-coordinate of the line to compare against.
  */
-bool near_line(int x, int linex) {
+bool near_line(qreal x, qreal linex) {
 	return std::abs(x - linex) < 3;
+}
+
+/**
+ * @brief Retrieves the position of a mouse event, accounting for differences between Qt versions.
+ *
+ * @param event The mouse event from which to retrieve the position.
+ * @return The position of the mouse event.
+ */
+QPointF event_position(const QMouseEvent *event) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	return event->position();
+#else
+	return event->localPos();
+#endif
 }
 
 /**
@@ -120,9 +145,9 @@ QString format_instruction_bytes(const edb::Instruction &inst) {
  * @param metrics The QFontMetrics object used to measure the pixel width of the string.
  * @return A QString representing the formatted bytes of the instruction, truncated with an ellipsis if necessary to fit within the specified pixel width.
  */
-QString format_instruction_bytes(const edb::Instruction &inst, int maxStringPx, const QFontMetrics &metrics) {
+QString format_instruction_bytes(const edb::Instruction &inst, qreal maxStringPx, const QFontMetricsF &metrics) {
 	const QString byte_buffer = format_instruction_bytes(inst);
-	return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
+	return metrics.elidedText(byte_buffer, Qt::ElideRight, qFloor(maxStringPx));
 }
 
 /**
@@ -177,10 +202,10 @@ QDisassemblyView::QDisassemblyView(QWidget *parent)
  * @brief Resets the line columns to their default values and updates the disassembly view.
  */
 void QDisassemblyView::resetColumns() {
-	line1_ = 0;
-	line2_ = 0;
-	line3_ = 0;
-	line4_ = 0;
+	line1_ = 0.0;
+	line2_ = 0.0;
+	line3_ = 0.0;
+	line4_ = 0.0;
 	update();
 }
 
@@ -543,8 +568,8 @@ void QDisassemblyView::setRegion(const std::shared_ptr<IRegion> &r) {
 		updateScrollbars();
 		Q_EMIT regionChanged();
 
-		if (line2_ != 0 && line2_ < autoLine2()) {
-			line2_ = 0;
+		if (!qFuzzyIsNull(line2_) && line2_ < autoLine2()) {
+			line2_ = 0.0;
 		}
 	}
 	update();
@@ -627,33 +652,27 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
  * @param y The y-coordinate where the instruction should be drawn.
  * @param selected A boolean indicating whether the instruction is currently selected.
  */
-void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, int y, bool selected) {
+void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, qreal y, bool selected) {
 
 	painter.save();
 
-	const bool is_filling      = edb::v1::arch_processor().isFilling(inst);
-	const int x                = fontWidth_ + fontWidth_ + ctx->l3 + (fontWidth_ / 2);
-	const int inst_pixel_width = ctx->l4 - x;
+	const bool is_filling        = edb::v1::arch_processor().isFilling(inst);
+	const qreal x                = fontWidth_ + fontWidth_ + ctx->l3 + (fontWidth_ / 2.0);
+	const qreal inst_pixel_width = ctx->l4 - x;
 
 	const bool syntax_highlighting_enabled = edb::v1::config().syntax_highlighting_enabled && !selected;
 
-	QString opcode     = instructionString(inst);
-	auto opcode_length = static_cast<int>(opcode.length());
+	QString opcode           = instructionString(inst);
+	const auto opcode_length = static_cast<int>(opcode.length());
 
 	if (is_filling) {
 		if (syntax_highlighting_enabled) {
 			painter.setPen(fillingBytesColor_);
 		}
 
-		opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, inst_pixel_width);
+		opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, qFloor(inst_pixel_width));
 
-		painter.drawText(
-			x,
-			y,
-			opcode_length * fontWidth_,
-			ctx->lineHeight,
-			Qt::AlignVCenter,
-			opcode);
+		painter.drawText(QRectF(x, y, opcode_length * fontWidth_, ctx->lineHeight), Qt::AlignVCenter, opcode);
 	} else {
 
 		// NOTE(eteran): do this early, so that elided text still gets the part shown
@@ -663,7 +682,7 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 			highlightData = highlighter_->highlightBlock(opcode);
 		}
 
-		opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, inst_pixel_width);
+		opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, qFloor(inst_pixel_width));
 
 		if (syntax_highlighting_enabled) {
 
@@ -691,7 +710,7 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 
 				textLayout.endLayout();
 
-				map = new QPixmap(QSize(opcode_length * fontWidth_, ctx->lineHeight) * devicePixelRatio());
+				map = new QPixmap(QSize(qCeil(opcode_length * fontWidth_), qCeil(ctx->lineHeight)) * devicePixelRatio());
 				map->setDevicePixelRatio(devicePixelRatio());
 				map->fill(Qt::transparent);
 				QPainter cache_painter(map);
@@ -702,10 +721,9 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
 				textLayout.draw(&cache_painter, QPoint(0, 0), highlightData);
 				syntaxCache_.insert(opcode, map);
 			}
-			painter.drawPixmap(x, y, *map);
+			painter.drawPixmap(QPointF(x, y), *map);
 		} else {
-			QRectF rectangle(x, y, opcode_length * fontWidth_, ctx->lineHeight);
-			painter.drawText(rectangle, Qt::AlignVCenter, opcode);
+			painter.drawText(QRectF(x, y, opcode_length * fontWidth_, ctx->lineHeight), Qt::AlignVCenter, opcode);
 		}
 	}
 
@@ -722,7 +740,7 @@ void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction
  */
 void QDisassemblyView::paintLineBg(QPainter &painter, QBrush brush, int line, int num_lines) {
 	const auto lh = lineHeight();
-	painter.fillRect(0, lh * line, width(), lh * num_lines, brush);
+	painter.fillRect(QRectF(0.0, lh * line, width(), lh * num_lines), brush);
 }
 
 /**
@@ -912,11 +930,11 @@ void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx
 
 						auto badge_length = static_cast<int>(badge_labels[line].size());
 
-						int width          = badge_length * fontWidth_ + fontWidth_ / 2;
-						int height         = ctx->lineHeight;
-						int triangle_point = line1() - 3;
-						int x              = triangle_point - (height / 2) - width;
-						int y              = line * ctx->lineHeight;
+						const qreal width          = badge_length * fontWidth_ + fontWidth_ / 2.0;
+						const qreal height         = ctx->lineHeight;
+						const qreal triangle_point = line1() - 3.0;
+						const qreal x              = triangle_point - (height / 2.0) - width;
+						const qreal y              = line * ctx->lineHeight;
 
 						// if badge is not in viewpoint, then don't draw
 						if (x < 0) {
@@ -925,7 +943,7 @@ void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx
 
 						ctx->lineBadgeWidth[line] = line1() - x;
 
-						QRect bounds(x, y, width, height);
+						QRectF bounds(x, y, width, height);
 
 						// draw a rectangle + box around text
 						QPainterPath path;
@@ -936,10 +954,11 @@ void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx
 						painter.fillPath(path, badgeBackgroundColor_);
 
 						painter.drawText(
-							bounds.x() + fontWidth_ / 4,
-							line * ctx->lineHeight,
-							fontWidth_ * badge_length,
-							ctx->lineHeight,
+							QRectF(
+								bounds.x() + fontWidth_ / 4.0,
+								line * ctx->lineHeight,
+								fontWidth_ * badge_length,
+								ctx->lineHeight),
 							Qt::AlignVCenter,
 							(edb::v1::config().uppercase_disassembly ? badge_labels[line].toUpper() : badge_labels[line]));
 					}
@@ -960,8 +979,8 @@ void QDisassemblyView::drawSymbolNames(QPainter &painter, const DrawingContext *
 	painter.save();
 
 	painter.setPen(palette().color(ctx->group, QPalette::Text));
-	const int x     = ctx->l1 + autoLine2();
-	const int width = ctx->l2 - x;
+	const qreal x     = ctx->l1 + autoLine2();
+	const qreal width = ctx->l2 - x;
 	if (width > 0) {
 		for (int line = 0; line < ctx->linesToRender; line++) {
 
@@ -969,15 +988,9 @@ void QDisassemblyView::drawSymbolNames(QPainter &painter, const DrawingContext *
 				auto address      = showAddresses_[line];
 				const QString sym = edb::v1::symbol_manager().findAddressName(address);
 				if (!sym.isEmpty()) {
-					const QString symbol_buffer = painter.fontMetrics().elidedText(sym, Qt::ElideRight, width);
+					const QString symbol_buffer = painter.fontMetrics().elidedText(sym, Qt::ElideRight, qFloor(width));
 
-					painter.drawText(
-						x,
-						line * ctx->lineHeight,
-						width,
-						ctx->lineHeight,
-						Qt::AlignVCenter,
-						symbol_buffer);
+					painter.drawText(QRectF(x, line * ctx->lineHeight, width, ctx->lineHeight), Qt::AlignVCenter, symbol_buffer);
 				}
 			}
 		}
@@ -988,15 +1001,9 @@ void QDisassemblyView::drawSymbolNames(QPainter &painter, const DrawingContext *
 			auto address      = showAddresses_[line];
 			const QString sym = edb::v1::symbol_manager().findAddressName(address);
 			if (!sym.isEmpty()) {
-				const QString symbol_buffer = painter.fontMetrics().elidedText(sym, Qt::ElideRight, width);
+				const QString symbol_buffer = painter.fontMetrics().elidedText(sym, Qt::ElideRight, qFloor(width));
 
-				painter.drawText(
-					x,
-					line * ctx->lineHeight,
-					width,
-					ctx->lineHeight,
-					Qt::AlignVCenter,
-					symbol_buffer);
+				painter.drawText(QRectF(x, line * ctx->lineHeight, width, ctx->lineHeight), Qt::AlignVCenter, symbol_buffer);
 			}
 		}
 	}
@@ -1015,7 +1022,7 @@ void QDisassemblyView::drawSidebarElements(QPainter &painter, const DrawingConte
 	painter.save();
 	painter.setPen(addressForegroundColor_);
 
-	const auto icon_x     = ctx->l1 + 1;
+	const auto icon_x     = ctx->l1 + 1.0;
 	const auto addr_x     = icon_x + iconWidth_;
 	const auto addr_width = ctx->l2 - addr_x;
 
@@ -1034,18 +1041,12 @@ void QDisassemblyView::drawSidebarElements(QPainter &painter, const DrawingConte
 		}
 
 		if (icon) {
-			icon->render(&painter, QRectF(icon_x, line * ctx->lineHeight + 1, iconWidth_, iconHeight_));
+			icon->render(&painter, QRectF(icon_x, line * ctx->lineHeight + 1.0, iconWidth_, iconHeight_));
 		}
 
 		const QString address_buffer = formatAddress(address);
 		// draw the address
-		painter.drawText(
-			addr_x,
-			line * ctx->lineHeight,
-			addr_width,
-			ctx->lineHeight,
-			Qt::AlignVCenter,
-			address_buffer);
+		painter.drawText(QRectF(addr_x, line * ctx->lineHeight, addr_width, ctx->lineHeight), Qt::AlignVCenter, address_buffer);
 	};
 
 	// paint all but the highlighted address
@@ -1074,8 +1075,8 @@ void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingCont
 
 	painter.save();
 
-	const int bytes_width = ctx->l3 - ctx->l2 - fontWidth_ / 2;
-	const auto metrics    = painter.fontMetrics();
+	const qreal bytes_width = ctx->l3 - ctx->l2 - fontWidth_ / 2.0;
+	const QFontMetricsF metrics(painter.font());
 
 	auto painter_lambda = [&](const edb::Instruction &inst, int line) {
 		const QString byte_buffer = format_instruction_bytes(
@@ -1084,10 +1085,11 @@ void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingCont
 			metrics);
 
 		painter.drawText(
-			ctx->l2 + (fontWidth_ / 2),
-			line * ctx->lineHeight,
-			bytes_width,
-			ctx->lineHeight,
+			QRectF(
+				ctx->l2 + (fontWidth_ / 2.0),
+				line * ctx->lineHeight,
+				bytes_width,
+				ctx->lineHeight),
 			Qt::AlignVCenter,
 			byte_buffer);
 	};
@@ -1121,8 +1123,8 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 	painter.save();
 
 	IAnalyzer *const analyzer = edb::v1::analyzer();
-	const int x               = ctx->l3 + fontWidth_;
-	if (analyzer && ctx->l4 - x > fontWidth_ / 2) {
+	const qreal x             = ctx->l3 + fontWidth_;
+	if (analyzer && ctx->l4 - x > fontWidth_ / 2.0) {
 		painter.setPen(QPen(palette().color(ctx->group, QPalette::WindowText), 2));
 		int next_line = 0;
 
@@ -1135,20 +1137,20 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 				// Find the start and draw the corner
 				for (start_line = next_line; start_line < ctx->linesToRender; start_line++) {
 					if (showAddresses_[start_line] == entry_addr) {
-						auto y = start_line * ctx->lineHeight;
+						const qreal y = start_line * ctx->lineHeight;
 						// half of a horizontal
-						painter.drawLine(
+						painter.drawLine(QLineF(
 							x,
-							y + ctx->lineHeight / 2,
-							x + fontWidth_ / 2,
-							y + ctx->lineHeight / 2);
+							y + ctx->lineHeight / 2.0,
+							x + fontWidth_ / 2.0,
+							y + ctx->lineHeight / 2.0));
 
 						// half of a vertical
-						painter.drawLine(
+						painter.drawLine(QLineF(
 							x,
-							y + ctx->lineHeight / 2,
+							y + ctx->lineHeight / 2.0,
 							x,
-							y + ctx->lineHeight);
+							y + ctx->lineHeight));
 
 						start_line++;
 						break;
@@ -1164,21 +1166,21 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 				for (end_line = start_line; end_line < ctx->linesToRender; end_line++) {
 					auto adjusted_end_addr = showAddresses_[end_line] + instructions_[end_line].byteSize() - 1;
 					if (adjusted_end_addr == end_addr) {
-						auto y = end_line * ctx->lineHeight;
+						const qreal y = end_line * ctx->lineHeight;
 
 						// half of a vertical
-						painter.drawLine(
+						painter.drawLine(QLineF(
 							x,
 							y,
 							x,
-							y + ctx->lineHeight / 2);
+							y + ctx->lineHeight / 2.0));
 
 						// half of a horizontal
-						painter.drawLine(
+						painter.drawLine(QLineF(
 							x,
-							y + ctx->lineHeight / 2,
-							ctx->l3 + (fontWidth_ / 2) + fontWidth_,
-							y + ctx->lineHeight / 2);
+							y + ctx->lineHeight / 2.0,
+							ctx->l3 + (fontWidth_ / 2.0) + fontWidth_,
+							y + ctx->lineHeight / 2.0));
 
 						next_line = end_line;
 						break;
@@ -1192,7 +1194,7 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 
 				// draw the straight line between them
 				if (start_line != end_line) {
-					painter.drawLine(x, start_line * ctx->lineHeight, x, end_line * ctx->lineHeight);
+					painter.drawLine(QLineF(x, start_line * ctx->lineHeight, x, end_line * ctx->lineHeight));
 				}
 				return true;
 			});
@@ -1213,8 +1215,8 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 
 	painter.save();
 
-	auto x_pos         = ctx->l4 + fontWidth_ + (fontWidth_ / 2);
-	auto comment_width = width() - x_pos;
+	const qreal x_pos         = ctx->l4 + fontWidth_ + (fontWidth_ / 2.0);
+	const qreal comment_width = width() - x_pos;
 
 	for (int line = 0; line < ctx->linesToRender; line++) {
 		auto address = showAddresses_[line];
@@ -1253,13 +1255,7 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 			}
 		}
 
-		painter.drawText(
-			x_pos,
-			line * ctx->lineHeight,
-			comment_width,
-			ctx->lineHeight,
-			Qt::AlignLeft,
-			annotation);
+		painter.drawText(QRectF(x_pos, line * ctx->lineHeight, comment_width, ctx->lineHeight), Qt::AlignLeft, annotation);
 	}
 
 	painter.restore();
@@ -1327,11 +1323,11 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 				  return a.distance < b.distance;
 			  });
 
-	auto isLineOverlap = [&](int line1_head, int line1_tail, int line2_head, int line2_tail, bool edge_overlap) -> bool {
-		int jump1_arrow_min = std::min(line1_head, line1_tail);
-		int jump1_arrow_max = std::max(line1_head, line1_tail);
-		int jump2_arrow_min = std::min(line2_head, line2_tail);
-		int jump2_arrow_max = std::max(line2_head, line2_tail);
+	auto isLineOverlap = [&](qreal line1_head, qreal line1_tail, qreal line2_head, qreal line2_tail, bool edge_overlap) -> bool {
+		const qreal jump1_arrow_min = std::min(line1_head, line1_tail);
+		const qreal jump1_arrow_max = std::max(line1_head, line1_tail);
+		const qreal jump2_arrow_min = std::min(line2_head, line2_tail);
+		const qreal jump2_arrow_max = std::max(line2_head, line2_tail);
 
 		bool prevArrowAboveCurrArrow;
 		bool prevArrowBelowCurrArrow;
@@ -1351,13 +1347,13 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 	// find suitable arrow horizontal length
 	for (size_t jump_arrow_idx = 0; jump_arrow_idx < jump_arrow_vec.size(); jump_arrow_idx++) {
 
-		JumpArrow &jump_arrow = jump_arrow_vec[jump_arrow_idx];
-		bool is_dst_upward    = jump_arrow.target < instructions_[jump_arrow.sourceLine].rva();
-		int jump_arrow_dst    = jump_arrow.destInViewport ? jump_arrow.destLine * ctx->lineHeight : (is_dst_upward ? 0 : viewport()->height());
+		JumpArrow &jump_arrow      = jump_arrow_vec[jump_arrow_idx];
+		bool is_dst_upward         = jump_arrow.target < instructions_[jump_arrow.sourceLine].rva();
+		const qreal jump_arrow_dst = jump_arrow.destInViewport ? jump_arrow.destLine * ctx->lineHeight : (is_dst_upward ? 0.0 : static_cast<qreal>(viewport()->height()));
 
-		int size_block     = fontWidth_ * 2;
-		int start_at_block = size_block;
-		int badge_line     = -1;
+		const qreal size_block = fontWidth_ * 2.0;
+		qreal start_at_block   = size_block;
+		int badge_line         = -1;
 
 		if (ctx->lineBadgeWidth.find(jump_arrow.sourceLine) != ctx->lineBadgeWidth.end()) {
 			badge_line = jump_arrow.sourceLine;
@@ -1370,8 +1366,8 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			Q_UNUSED(badgeWidth)
 
 			bool is_overlap_with_badge = isLineOverlap(
-				jump_arrow.sourceLine * ctx->lineHeight + 1,
-				jump_arrow_dst - 1,
+				jump_arrow.sourceLine * ctx->lineHeight + 1.0,
+				jump_arrow_dst - 1.0,
 				line * ctx->lineHeight,
 				(line + 1) * ctx->lineHeight,
 				true);
@@ -1383,11 +1379,11 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		}
 
 		if (badge_line != -1) {
-			start_at_block = size_block + size_block * (ctx->lineBadgeWidth.at(badge_line) / size_block);
+			start_at_block = size_block + size_block * std::floor(ctx->lineBadgeWidth.at(badge_line) / size_block);
 		}
 
 		// first-fit search for horizontal length position to place new arrow
-		for (int current_selected_len = start_at_block;; current_selected_len += size_block) {
+		for (qreal current_selected_len = start_at_block;; current_selected_len += size_block) {
 
 			bool is_length_good = true;
 
@@ -1396,8 +1392,8 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 
 				const JumpArrow &jump_arrow_prev = jump_arrow_vec[jump_arrow_prev_idx];
 
-				bool is_dst_upward_prev = jump_arrow_prev.target < instructions_[jump_arrow_prev.sourceLine].rva();
-				int jump_arrow_prev_dst = jump_arrow_prev.destInViewport ? jump_arrow_prev.destLine * ctx->lineHeight : (is_dst_upward_prev ? 0 : viewport()->height());
+				bool is_dst_upward_prev         = jump_arrow_prev.target < instructions_[jump_arrow_prev.sourceLine].rva();
+				const qreal jump_arrow_prev_dst = jump_arrow_prev.destInViewport ? jump_arrow_prev.destLine * ctx->lineHeight : (is_dst_upward_prev ? 0.0 : static_cast<qreal>(viewport()->height()));
 
 				bool jumps_overlap = isLineOverlap(
 					jump_arrow.sourceLine * ctx->lineHeight,
@@ -1407,7 +1403,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 					false);
 
 				// if jump blocks overlap and this horizontal length has been taken before
-				if (jumps_overlap && current_selected_len == jump_arrow_prev.horizontalLength) {
+				if (jumps_overlap && qFuzzyCompare(current_selected_len, jump_arrow_prev.horizontalLength)) {
 					is_length_good = false;
 				}
 			}
@@ -1437,17 +1433,17 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 				bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.sourceLine].rva();
 
 				// horizontal line
-				int end_x   = ctx->l1 - 3;
-				int start_x = end_x - jump_arrow.horizontalLength;
+				const qreal end_x   = ctx->l1 - 3.0;
+				const qreal start_x = end_x - jump_arrow.horizontalLength;
 
 				// vertical line
-				int src_y = jump_arrow.sourceLine * ctx->lineHeight + (fontHeight_ / 2);
-				int dst_y;
+				const qreal src_y = jump_arrow.sourceLine * ctx->lineHeight + (fontHeight_ / 2.0);
+				qreal dst_y;
 
 				if (jump_arrow.destInMiddleOfInstruction) {
 					dst_y = jump_arrow.destLine * ctx->lineHeight;
 				} else {
-					dst_y = jump_arrow.destLine * ctx->lineHeight + (fontHeight_ / 2);
+					dst_y = jump_arrow.destLine * ctx->lineHeight + (fontHeight_ / 2.0);
 				}
 
 				QColor arrow_color = palette().color(ctx->group, QPalette::Text);
@@ -1488,14 +1484,14 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 				}
 
 				// Align both 1px and 2px lines to pixel grid. This requires different offset in even-width and odd-width case.
-				const auto arrow_pixel_offset = std::fmod(arrow_width, 2.) == 1 ? 0.5 : 0;
+				const qreal arrow_pixel_offset = std::fmod(arrow_width, 2.) == 1 ? 0.5 : 0.0;
 				painter.save();
 				painter.translate(arrow_pixel_offset, arrow_pixel_offset);
 
 				painter.setPen(QPen(arrow_color, arrow_width, arrow_style));
 
-				int src_reg_badge_width = 0;
-				int dst_reg_badge_width = 0;
+				qreal src_reg_badge_width = 0.0;
+				qreal dst_reg_badge_width = 0.0;
 
 				if (ctx->lineBadgeWidth.find(jump_arrow.sourceLine) != ctx->lineBadgeWidth.end()) {
 					src_reg_badge_width = ctx->lineBadgeWidth.at(jump_arrow.sourceLine);
@@ -1505,53 +1501,53 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 
 				if (jump_arrow.destInViewport) {
 
-					QPoint points[] = {
-						QPoint(end_x - src_reg_badge_width, src_y),
-						QPoint(start_x, src_y),
-						QPoint(start_x, dst_y),
-						QPoint(end_x - dst_reg_badge_width - fontWidth_ / 3, dst_y)};
+					QPointF points[] = {
+						QPointF(end_x - src_reg_badge_width, src_y),
+						QPointF(start_x, src_y),
+						QPointF(start_x, dst_y),
+						QPointF(end_x - dst_reg_badge_width - fontWidth_ / 3.0, dst_y)};
 
 					painter.drawPolyline(points, 4);
 
 					// draw arrow tips
 					QPainterPath path;
 					path.moveTo(end_x - dst_reg_badge_width, dst_y);
-					path.lineTo(end_x - dst_reg_badge_width - (fontWidth_ / 2.), dst_y - (fontHeight_ / 3.));
-					path.lineTo(end_x - dst_reg_badge_width - (fontWidth_ / 2.), dst_y + (fontHeight_ / 3.));
+					path.lineTo(end_x - dst_reg_badge_width - (fontWidth_ / 2.0), dst_y - (fontHeight_ / 3.0));
+					path.lineTo(end_x - dst_reg_badge_width - (fontWidth_ / 2.0), dst_y + (fontHeight_ / 3.0));
 					path.lineTo(end_x - dst_reg_badge_width, dst_y);
 					painter.fillPath(path, QBrush(arrow_color));
 
 				} else if (is_dst_upward) { // if dst out of viewport, and arrow facing upward
 
-					QPoint points[] = {
-						QPoint(end_x - src_reg_badge_width, src_y),
-						QPoint(start_x, src_y),
-						QPoint(start_x, fontWidth_ / 3)};
+					QPointF points[] = {
+						QPointF(end_x - src_reg_badge_width, src_y),
+						QPointF(start_x, src_y),
+						QPointF(start_x, fontWidth_ / 3.0)};
 
 					painter.drawPolyline(points, 3);
 
 					// draw arrow tips
 					QPainterPath path;
 					path.moveTo(start_x, 0);
-					path.lineTo(start_x - (fontWidth_ / 2.), fontHeight_ / 3.);
-					path.lineTo(start_x + (fontWidth_ / 2.), fontHeight_ / 3.);
+					path.lineTo(start_x - (fontWidth_ / 2.0), fontHeight_ / 3.0);
+					path.lineTo(start_x + (fontWidth_ / 2.0), fontHeight_ / 3.0);
 					path.lineTo(start_x, 0);
 					painter.fillPath(path, QBrush(arrow_color));
 
 				} else { // if dst out of viewport, and arrow facing downward
 
-					QPoint points[] = {
-						QPoint(end_x - src_reg_badge_width, src_y),
-						QPoint(start_x, src_y),
-						QPoint(start_x, viewport()->height() - fontWidth_ / 3)};
+					QPointF points[] = {
+						QPointF(end_x - src_reg_badge_width, src_y),
+						QPointF(start_x, src_y),
+						QPointF(start_x, viewport()->height() - fontWidth_ / 3.0)};
 
 					painter.drawPolyline(points, 3);
 
 					// draw arrow tips
 					QPainterPath path;
 					path.moveTo(start_x, viewport()->height() - 1);
-					path.lineTo(start_x - (fontWidth_ / 2.), viewport()->height() - (fontHeight_ / 3.) - 1);
-					path.lineTo(start_x + (fontWidth_ / 2.), viewport()->height() - (fontHeight_ / 3.) - 1);
+					path.lineTo(start_x - (fontWidth_ / 2.0), viewport()->height() - (fontHeight_ / 3.0) - 1.0);
+					path.lineTo(start_x + (fontWidth_ / 2.0), viewport()->height() - (fontHeight_ / 3.0) - 1.0);
 					path.lineTo(start_x, viewport()->height() - 1);
 					painter.fillPath(path, QBrush(arrow_color));
 				}
@@ -1602,12 +1598,12 @@ void QDisassemblyView::drawDividers(QPainter &painter, const DrawingContext *ctx
 	painter.setPen(divider_pen);
 
 	if (edb::v1::config().show_jump_arrow || edb::v1::config().show_register_badges) {
-		painter.drawLine(ctx->l1, 0, ctx->l1, height());
+		painter.drawLine(QLineF(ctx->l1, 0.0, ctx->l1, height()));
 	}
 
-	painter.drawLine(ctx->l2, 0, ctx->l2, height());
-	painter.drawLine(ctx->l3, 0, ctx->l3, height());
-	painter.drawLine(ctx->l4, 0, ctx->l4, height());
+	painter.drawLine(QLineF(ctx->l2, 0.0, ctx->l2, height()));
+	painter.drawLine(QLineF(ctx->l3, 0.0, ctx->l3, height()));
+	painter.drawLine(QLineF(ctx->l4, 0.0, ctx->l4, height()));
 
 	painter.restore();
 }
@@ -1633,11 +1629,11 @@ void QDisassemblyView::paintEvent(QPaintEvent * /*event*/) {
 
 	QPainter painter(viewport());
 
-	const int line_height = this->lineHeight();
-	int lines_to_render   = viewport()->height() / line_height;
+	const qreal line_height = this->lineHeight();
+	int lines_to_render     = qFloor(viewport()->height() / line_height);
 
 	// Possibly render another instruction just outside the viewport
-	if (viewport()->height() % line_height > 0) {
+	if (std::fmod(static_cast<qreal>(viewport()->height()), line_height) > 0.0) {
 		lines_to_render++;
 		partialLastLine_ = true;
 	} else {
@@ -1659,7 +1655,7 @@ void QDisassemblyView::paintEvent(QPaintEvent * /*event*/) {
 		selected_line,
 		line_height,
 		group,
-		std::map<int, int>()};
+		std::map<int, qreal>()};
 
 	drawHeaderAndBackground(painter, &context, binary_info);
 
@@ -1716,14 +1712,14 @@ void QDisassemblyView::setFont(const QFont &f) {
 	QAbstractScrollArea::setFont(newFont);
 
 	// recalculate all of our metrics/offsets
-	const QFontMetrics metrics(newFont);
-	fontWidth_  = Font::maxWidth(metrics);
-	fontHeight_ = metrics.lineSpacing() + 1;
+	const QFontMetricsF metrics(newFont);
+	fontWidth_  = metrics.horizontalAdvance(QLatin1Char('M'));
+	fontHeight_ = metrics.lineSpacing() + 1.0;
 
 	// NOTE(eteran): we let the icons be a bit wider than the font itself, since things
 	// like arrows don't tend to have square bounds. A ratio of 2:1 seems to look pretty
 	// good on my setup.
-	iconWidth_  = fontWidth_ * 2;
+	iconWidth_  = fontWidth_ * 2.0;
 	iconHeight_ = fontHeight_;
 
 	updateScrollbars();
@@ -1737,14 +1733,14 @@ void QDisassemblyView::setFont(const QFont &f) {
 void QDisassemblyView::resizeEvent(QResizeEvent * /*event*/) {
 	updateScrollbars();
 
-	const int line_height     = this->lineHeight();
-	const int lines_to_render = 1 + (viewport()->height() / line_height);
+	const qreal line_height   = this->lineHeight();
+	const int lines_to_render = 1 + qFloor(viewport()->height() / line_height);
 
 	instructionBuffer_.resize(edb::Instruction::MaxSize * lines_to_render);
 
 	// Make PageUp/PageDown scroll through the whole page, but leave the line at
 	// the top/bottom visible
-	verticalScrollBar()->setPageStep(lines_to_render - 1);
+	verticalScrollBar()->setPageStep(std::max(0, lines_to_render - 1));
 }
 
 /**
@@ -1752,7 +1748,7 @@ void QDisassemblyView::resizeEvent(QResizeEvent * /*event*/) {
  *
  * @return The height of a single line in pixels.
  */
-int QDisassemblyView::lineHeight() const {
+qreal QDisassemblyView::lineHeight() const {
 	return std::max({fontHeight_, iconHeight_});
 }
 
@@ -1764,7 +1760,7 @@ int QDisassemblyView::lineHeight() const {
 void QDisassemblyView::updateScrollbars() {
 	if (region_) {
 		const auto total_lines   = static_cast<int>(region_->size());
-		const int viewable_lines = viewport()->height() / lineHeight();
+		const int viewable_lines = qFloor(viewport()->height() / lineHeight());
 		const int scroll_max     = (total_lines > viewable_lines) ? total_lines - 1 : 0;
 
 		verticalScrollBar()->setMaximum(scroll_max);
@@ -1778,7 +1774,7 @@ void QDisassemblyView::updateScrollbars() {
  *
  * @return The starting position of the first line in pixels.
  */
-int QDisassemblyView::line0() const {
+qreal QDisassemblyView::line0() const {
 	return line0_;
 }
 
@@ -1787,15 +1783,15 @@ int QDisassemblyView::line0() const {
  *
  * @return The starting position of the second line in pixels.
  */
-int QDisassemblyView::line1() const {
+qreal QDisassemblyView::line1() const {
 
 	if (!edb::v1::config().show_jump_arrow) {
 		// allocate space for register badge
 		// 4 (maximum register name for GPR) + overhead
-		return edb::v1::config().show_register_badges ? (5 * fontWidth_ + fontWidth_ / 2) : 0;
+		return edb::v1::config().show_register_badges ? (5 * fontWidth_ + fontWidth_ / 2.0) : 0.0;
 	}
 
-	if (line1_ == 0) {
+	if (qFuzzyIsNull(line1_)) {
 		return 15 * fontWidth_;
 	}
 
@@ -1807,9 +1803,9 @@ int QDisassemblyView::line1() const {
  *
  * @return The starting position of the third line in pixels.
  */
-int QDisassemblyView::autoLine2() const {
+qreal QDisassemblyView::autoLine2() const {
 	const int elements = addressLength();
-	return (elements * fontWidth_) + (fontWidth_ / 2) + iconWidth_ + 1;
+	return (elements * fontWidth_) + (fontWidth_ / 2.0) + iconWidth_ + 1.0;
 }
 
 /**
@@ -1817,8 +1813,8 @@ int QDisassemblyView::autoLine2() const {
  *
  * @return The starting position of the third line in pixels.
  */
-int QDisassemblyView::line2() const {
-	if (line2_ == 0) {
+qreal QDisassemblyView::line2() const {
+	if (qFuzzyIsNull(line2_)) {
 		return line1() + autoLine2();
 	}
 	return line2_;
@@ -1829,8 +1825,8 @@ int QDisassemblyView::line2() const {
  *
  * @return The starting position of the fourth line in pixels.
  */
-int QDisassemblyView::line3() const {
-	if (line3_ == 0) {
+qreal QDisassemblyView::line3() const {
+	if (qFuzzyIsNull(line3_)) {
 		return line2() + (DefaultByteWidth * 3) * fontWidth_;
 	}
 	return line3_;
@@ -1841,8 +1837,8 @@ int QDisassemblyView::line3() const {
  *
  * @return The starting position of the fifth line in pixels.
  */
-int QDisassemblyView::line4() const {
-	if (line4_ == 0) {
+qreal QDisassemblyView::line4() const {
+	if (qFuzzyIsNull(line4_)) {
 		return line3() + 50 * fontWidth_;
 	}
 	return line4_;
@@ -1864,7 +1860,7 @@ int QDisassemblyView::addressLength() const {
  * @param pos The point in the disassembly view for which to retrieve the corresponding address.
  * @return The address corresponding to the given point, or 0 if the address is outside
  */
-edb::address_t QDisassemblyView::addressFromPoint(const QPoint &pos) const {
+edb::address_t QDisassemblyView::addressFromPoint(const QPointF &pos) const {
 
 	Q_ASSERT(region_);
 
@@ -1932,10 +1928,10 @@ Result<int, QString> QDisassemblyView::getInstructionSize(edb::address_t address
  * @param y The y-coordinate of the point in the disassembly view.
  * @return The address corresponding to the given coordinate, or 0 if the address is outside the current region.
  */
-edb::address_t QDisassemblyView::addressFromCoord(int x, int y) const {
+edb::address_t QDisassemblyView::addressFromCoord(qreal x, qreal y) const {
 	Q_UNUSED(x)
 
-	const int line         = y / lineHeight();
+	const int line         = qFloor(y / lineHeight());
 	edb::address_t address = verticalScrollBar()->value();
 
 	// add up all the instructions sizes up to the line we want
@@ -1958,16 +1954,12 @@ edb::address_t QDisassemblyView::addressFromCoord(int x, int y) const {
  * @param event The mouse event containing information about the double-click action.
  */
 void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-	const int x = qRound(event->position().x());
-#else
-	const int x = event->x();
-#endif
+	const QPointF pos = event_position(event);
 
 	if (region_) {
 		if (event->button() == Qt::LeftButton) {
-			if (x < line2()) {
-				const edb::address_t address = addressFromPoint(event->pos());
+			if (pos.x() < line2()) {
+				const edb::address_t address = addressFromPoint(pos);
 
 				if (region_->contains(address)) {
 					Q_EMIT breakPointToggled(address);
@@ -1991,10 +1983,11 @@ bool QDisassemblyView::event(QEvent *event) {
 			bool show = false;
 
 			auto helpEvent = static_cast<QHelpEvent *>(event);
+			const QPointF helpPos(helpEvent->pos());
 
-			if (helpEvent->x() >= line2() && helpEvent->x() < line3()) {
+			if (helpPos.x() >= line2() && helpPos.x() < line3()) {
 
-				const edb::address_t address = addressFromPoint(helpEvent->pos());
+				const edb::address_t address = addressFromPoint(helpPos);
 
 				uint8_t buf[edb::Instruction::MaxSize];
 
@@ -2004,7 +1997,7 @@ bool QDisassemblyView::event(QEvent *event) {
 					const edb::Instruction inst(buf, buf + buf_size, address);
 					const QString byte_buffer = format_instruction_bytes(inst);
 
-					if ((line2() + byte_buffer.size() * fontWidth_) > line3()) {
+					if ((line2() + static_cast<qreal>(byte_buffer.size()) * fontWidth_) > line3()) {
 						QToolTip::showText(helpEvent->globalPos(), byte_buffer);
 						show = true;
 					}
@@ -2049,7 +2042,7 @@ void QDisassemblyView::mouseReleaseEvent(QMouseEvent * /*event*/) {
 void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 
 	if (region_) {
-		setSelectedAddress(addressFromPoint(event->pos()));
+		setSelectedAddress(addressFromPoint(event_position(event)));
 	}
 }
 
@@ -2062,12 +2055,7 @@ void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 
 	if (region_) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-		const int x = qRound(event->position().x());
-#else
-		const int x = event->x();
-#endif
-		const int event_x = x - line0();
+		const qreal event_x = event_position(event).x() - line0();
 
 		if (event->button() == Qt::LeftButton) {
 			if (near_line(event_x, line1()) && edb::v1::config().show_jump_arrow) {
@@ -2097,41 +2085,36 @@ void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 
 	if (region_) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-		const int x = qRound(event->position().x());
-#else
-		const int x = event->x();
-#endif
-		const int x_pos = x - line0();
+		const qreal x_pos = event_position(event).x() - line0();
 
 		if (movingLine1_) {
-			if (line2_ == 0) {
+			if (qFuzzyIsNull(line2_)) {
 				line2_ = line2();
 			}
-			const int min_line1 = 0;
-			const int max_line1 = line2() - fontWidth_;
-			line1_              = std::clamp(x_pos, min_line1, max_line1);
+			const qreal min_line1 = 0.0;
+			const qreal max_line1 = line2() - fontWidth_;
+			line1_                = std::clamp(x_pos, min_line1, max_line1);
 			update();
 		} else if (movingLine2_) {
-			if (line3_ == 0) {
+			if (qFuzzyIsNull(line3_)) {
 				line3_ = line3();
 			}
-			const int min_line2 = line1() + iconWidth_;
-			const int max_line2 = line3() - fontWidth_;
-			line2_              = std::clamp(x_pos, min_line2, max_line2);
+			const qreal min_line2 = line1() + iconWidth_;
+			const qreal max_line2 = line3() - fontWidth_;
+			line2_                = std::clamp(x_pos, min_line2, max_line2);
 			update();
 		} else if (movingLine3_) {
-			if (line4_ == 0) {
+			if (qFuzzyIsNull(line4_)) {
 				line4_ = line4();
 			}
-			const int min_line3 = line2() + fontWidth_ + fontWidth_ / 2;
-			const int max_line3 = line4() - fontWidth_;
-			line3_              = std::clamp(x_pos, min_line3, max_line3);
+			const qreal min_line3 = line2() + fontWidth_ + fontWidth_ / 2.0;
+			const qreal max_line3 = line4() - fontWidth_;
+			line3_                = std::clamp(x_pos, min_line3, max_line3);
 			update();
 		} else if (movingLine4_) {
-			const int min_line4 = line3() + fontWidth_;
-			const int max_line4 = width() - 1 - (verticalScrollBar()->width() + 3);
-			line4_              = std::clamp(x_pos, min_line4, max_line4);
+			const qreal min_line4 = line3() + fontWidth_;
+			const qreal max_line4 = width() - 1.0 - (verticalScrollBar()->width() + 3.0);
+			line4_                = std::clamp(x_pos, min_line4, max_line4);
 			update();
 		} else {
 			if ((near_line(x_pos, line1()) && edb::v1::config().show_jump_arrow) ||
@@ -2248,15 +2231,15 @@ void QDisassemblyView::clearComments() {
  */
 QByteArray QDisassemblyView::saveState() const {
 
-	const WidgetStateV1 state = {
-		sizeof(WidgetStateV1),
+	const WidgetStateV2 state = {
+		static_cast<int>(sizeof(WidgetStateV2)),
 		line1_,
 		line2_,
 		line3_,
 		line4_,
 	};
 
-	char buf[sizeof(WidgetStateV1)];
+	char buf[sizeof(WidgetStateV2)];
 	memcpy(buf, &state, sizeof(buf));
 
 	return QByteArray(buf, sizeof(buf));
@@ -2268,18 +2251,27 @@ QByteArray QDisassemblyView::saveState() const {
  * @param stateBuffer The QByteArray containing the serialized state of the disassembly view.
  */
 void QDisassemblyView::restoreState(const QByteArray &stateBuffer) {
+	if (stateBuffer.size() < static_cast<int>(sizeof(int))) {
+		return;
+	}
 
-	WidgetStateV1 state;
+	int version = 0;
+	memcpy(&version, stateBuffer.data(), sizeof(version));
 
-	if (stateBuffer.size() >= static_cast<int>(sizeof(WidgetStateV1))) {
+	if (version >= static_cast<int>(sizeof(WidgetStateV2)) && stateBuffer.size() >= static_cast<int>(sizeof(WidgetStateV2))) {
+		WidgetStateV2 state;
+		memcpy(&state, stateBuffer.data(), sizeof(WidgetStateV2));
+		line1_ = state.line1;
+		line2_ = state.line2;
+		line3_ = state.line3;
+		line4_ = state.line4;
+	} else if (version >= static_cast<int>(sizeof(WidgetStateV1)) && stateBuffer.size() >= static_cast<int>(sizeof(WidgetStateV1))) {
+		WidgetStateV1 state;
 		memcpy(&state, stateBuffer.data(), sizeof(WidgetStateV1));
-
-		if (state.version >= static_cast<int>(sizeof(WidgetStateV1))) {
-			line1_ = state.line1;
-			line2_ = state.line2;
-			line3_ = state.line3;
-			line4_ = state.line4;
-		}
+		line1_ = state.line1;
+		line2_ = state.line2;
+		line3_ = state.line3;
+		line4_ = state.line4;
 	}
 }
 /**
