@@ -1059,7 +1059,7 @@ QString rIPcomment(edb::address_t rIP, const QString &default_region_name) {
 }
 
 QString eflagsComment(edb::reg_t flags) {
-	QString comment = QStringLiteral("(");
+	auto comment = QStringLiteral("(");
 	for (int cond = 0; cond < 0x10; ++cond) {
 		if (is_jcc_taken(flags, static_cast<edb::Instruction::ConditionCode>(cond))) {
 			comment += jumpConditionMnemonics[cond] + QLatin1Char(',');

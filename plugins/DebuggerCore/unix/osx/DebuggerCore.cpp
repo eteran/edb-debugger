@@ -652,7 +652,7 @@ QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 				const edb::address_t start = address;
 				const edb::address_t end   = address + vmsize;
 				const edb::address_t base  = address;
-				const QString name         = QString();
+				const auto name            = QString();
 				const IRegion::permissions_t permissions =
 					((info.protection & VM_PROT_READ) ? PROT_READ : 0) |
 					((info.protection & VM_PROT_WRITE) ? PROT_WRITE : 0) |

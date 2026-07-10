@@ -30,7 +30,7 @@ namespace {
  */
 QString getDefaultPluginPath() {
 #if defined(DEFAULT_PLUGIN_PATH)
-	const QString default_plugin_path = QStringLiteral(DEFAULT_PLUGIN_PATH);
+	const auto default_plugin_path = QStringLiteral(DEFAULT_PLUGIN_PATH);
 #else
 	const QString edb_lib_dir    = QCoreApplication::applicationDirPath() + (EDB_IS_64_BIT ? "/../lib64/edb" : "/../lib/edb");
 	const QString edb_binary_dir = QCoreApplication::applicationDirPath();
@@ -139,8 +139,8 @@ void Configuration::readSettings() {
 	QStringList cacheDirectories = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
 	QString cacheDirectory       = !cacheDirectories.isEmpty() ? cacheDirectories[0] : QString();
 
-	QString defaultSymbolPath  = QStringLiteral("%1/%2").arg(cacheDirectory, QLatin1String("symbols"));
-	QString defaultSessionPath = QStringLiteral("%1/%2").arg(cacheDirectory, QLatin1String("sessions"));
+	auto defaultSymbolPath  = QStringLiteral("%1/%2").arg(cacheDirectory, QLatin1String("symbols"));
+	auto defaultSessionPath = QStringLiteral("%1/%2").arg(cacheDirectory, QLatin1String("sessions"));
 
 	symbol_path  = settings.value(QStringLiteral("directory.symbol.path"), defaultSymbolPath).toString();
 	plugin_path  = settings.value(QStringLiteral("directory.plugin.path"), getDefaultPluginPath()).toString();

@@ -201,11 +201,11 @@ void DialogEditGPR::setupEntriesAndLabels() {
 		columnLabel(GPR8L_COL)->setText(regName);
 	}
 
-	static const auto x86GPRsWithHighBytesAddressable    = util::make_array<QString>(
+	static const auto x86GPRsWithHighBytesAddressable = util::make_array<QString>(
 		QStringLiteral("EAX"), QStringLiteral("ECX"), QStringLiteral("EDX"), QStringLiteral("EBX"), QStringLiteral("RAX"), QStringLiteral("RCX"), QStringLiteral("RDX"), QStringLiteral("RBX"));
 	static const auto x86GPRsWithHighBytesNotAddressable = util::make_array<QString>(
 		QStringLiteral("ESP"), QStringLiteral("EBP"), QStringLiteral("ESI"), QStringLiteral("EDI"), QStringLiteral("RSP"), QStringLiteral("RBP"), QStringLiteral("RSI"), QStringLiteral("RDI"));
-	static const auto upperGPRs64                        = util::make_array<QString>(
+	static const auto upperGPRs64 = util::make_array<QString>(
 		QStringLiteral("R8"), QStringLiteral("R9"), QStringLiteral("R10"), QStringLiteral("R11"), QStringLiteral("R12"), QStringLiteral("R13"), QStringLiteral("R14"), QStringLiteral("R15"));
 
 	bool x86GPR     = false;

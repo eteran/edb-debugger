@@ -348,8 +348,8 @@ DialogROPTool::SearchResult DialogROPTool::doFind(const IProcess *process, const
 			return QString();
 		}
 
-		auto it                    = instructions.begin();
-		QString instruction_string = QString::fromStdString(edb::v1::formatter().toString(**it++));
+		auto it                 = instructions.begin();
+		auto instruction_string = QString::fromStdString(edb::v1::formatter().toString(**it++));
 		for (; it != instructions.end(); ++it) {
 			instruction_string.append(QStringLiteral("; %1").arg(QString::fromStdString(edb::v1::formatter().toString(**it))));
 		}

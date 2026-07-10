@@ -93,7 +93,7 @@ GraphWidget::GraphWidget(QWidget *parent)
 	setNodeAttribute(QStringLiteral("regular"), QStringLiteral("true"));
 
 	// Divide the wanted width by the DPI to get the value in points
-	QString nodePtsWidth = QString::number(NodeWidth / _agget(graph_, QStringLiteral("dpi"), QStringLiteral("96,0")).toDouble());
+	auto nodePtsWidth = QString::number(NodeWidth / _agget(graph_, QStringLiteral("dpi"), QStringLiteral("96,0")).toDouble());
 	// GV uses , instead of . for the separator in floats
 	setNodeAttribute(QStringLiteral("width"), nodePtsWidth.replace(QLatin1Char('.'), QLatin1String(",")));
 

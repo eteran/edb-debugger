@@ -418,9 +418,9 @@ void DialogProcessProperties::updateMemoryPage() {
 			ui.tableMemory->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(r->start()))); // address
 			ui.tableMemory->setItem(row, 1, new QTableWidgetItem(size_to_string(r->size())));           // size
 			ui.tableMemory->setItem(row, 2, new QTableWidgetItem(QStringLiteral("%1%2%3")               // protection
-															 .arg(r->readable() ? QLatin1Char('r') : QLatin1Char('-'))
-															 .arg(r->writable() ? QLatin1Char('w') : QLatin1Char('-'))
-															 .arg(r->executable() ? QLatin1Char('x') : QLatin1Char('-'))));
+																	 .arg(r->readable() ? QLatin1Char('r') : QLatin1Char('-'))
+																	 .arg(r->writable() ? QLatin1Char('w') : QLatin1Char('-'))
+																	 .arg(r->executable() ? QLatin1Char('x') : QLatin1Char('-'))));
 			ui.tableMemory->setItem(row, 3, new QTableWidgetItem(r->name())); // name
 		}
 		ui.tableMemory->setSortingEnabled(true);
@@ -459,7 +459,7 @@ void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 			char *p        = env.data();
 			char *ptr      = p;
 			while (ptr != p + env.size()) {
-				const QString env       = QString::fromUtf8(ptr);
+				const auto env          = QString::fromUtf8(ptr);
 				const QString env_name  = env.mid(0, env.indexOf(QLatin1Char('=')));
 				const QString env_value = env.mid(env.indexOf(QLatin1Char('=')) + 1);
 

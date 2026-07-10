@@ -372,7 +372,7 @@ void collect_symbols(const void *p, SizeType size, std::vector<typename M::symbo
 								const std::int64_t offset = sym.address - section->sh_addr;
 								const QString hexPrefix   = std::abs(offset) > 9 ? QStringLiteral("0x") : QString();
 								const QString offsetStr   = offset ? QStringLiteral("+") + hexPrefix + QString::number(offset, 16) : QString();
-								const QString sectionName = QString::fromLocal8Bit(&section_strings[section->sh_name]);
+								const auto sectionName    = QString::fromLocal8Bit(&section_strings[section->sh_name]);
 								if (!sectionName.isEmpty()) {
 									sym.name = QString(sectionName + offsetStr);
 									break;

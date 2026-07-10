@@ -291,7 +291,7 @@ void DialogBreakpoints::on_btnExport_clicked() {
 	}
 
 	for (edb::address_t address : export_list) {
-		QString string_address = QStringLiteral("0x") + QString::number(address, 16) + QStringLiteral("\n");
+		auto string_address = QStringLiteral("0x") + QString::number(address, 16) + QStringLiteral("\n");
 		file.write(string_address.toLatin1());
 	}
 

@@ -260,7 +260,7 @@ QString PlatformProcess::name() const {
 	PROCESSENTRY32 pEntry = {};
 	getProcessEntry(pid(), &pEntry);
 
-	QString name = QString::fromWCharArray(pEntry.szExeFile);
+	auto name = QString::fromWCharArray(pEntry.szExeFile);
 	if (isWow64()) {
 		name += " *32";
 	}
@@ -455,7 +455,7 @@ QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
 				const auto start                         = edb::address_t::fromZeroExtended(info.BaseAddress);
 				const auto end                           = edb::address_t::fromZeroExtended(info.BaseAddress) + info.RegionSize;
 				const auto base                          = edb::address_t::fromZeroExtended(info.AllocationBase);
-				const QString name                       = QString();
+				const auto name                          = QString();
 				const IRegion::permissions_t permissions = info.Protect; // let std::shared_ptr<IRegion> handle permissions and modifiers
 
 				if (info.Type == MEM_IMAGE) {

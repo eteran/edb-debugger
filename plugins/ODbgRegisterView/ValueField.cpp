@@ -42,9 +42,9 @@ ValueField::ValueField(int fieldWidth, const QModelIndex &index, const std::func
 	setDisabled(false);
 	setMouseTracking(true);
 
-// Set some known style to avoid e.g. Oxygen's label transition animations, which
-// break updating of colors such as "register changed" when single-stepping frequently
-	static const QString kFlatStyleName = QStringLiteral("fusion");
+	// Set some known style to avoid e.g. Oxygen's label transition animations, which
+	// break updating of colors such as "register changed" when single-stepping frequently
+	static const auto kFlatStyleName = QStringLiteral("fusion");
 
 	if (!flatStyle) {
 		flatStyle = QStyleFactory::create(kFlatStyleName);

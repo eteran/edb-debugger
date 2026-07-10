@@ -353,7 +353,7 @@ static const QLatin1String jumpConditionMnemonics[] = {
 };
 
 QString cpsrComment(edb::reg_t flags) {
-	QString comment = QStringLiteral("(");
+	auto comment = QStringLiteral("(");
 	for (int cond = 0; cond < 0x10 - 2; ++cond) // we're not interested in AL or UNDEFINED conditions
 		if (is_jcc_taken(flags, static_cast<edb::Instruction::ConditionCode>(cond)))
 			comment += jumpConditionMnemonics[cond] + ',';

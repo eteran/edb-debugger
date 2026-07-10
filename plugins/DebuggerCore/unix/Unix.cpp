@@ -187,7 +187,7 @@ qlonglong Unix::exception_value(const QString &name) {
  */
 Status Unix::execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args) {
 
-	QString errorString = QStringLiteral("internal error");
+	auto errorString = QStringLiteral("internal error");
 
 	// change to the desired working directory
 	if (::chdir(qPrintable(cwd)) == 0) {

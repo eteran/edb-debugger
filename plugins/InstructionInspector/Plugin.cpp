@@ -799,21 +799,21 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 	binary.close();
 	QProcess process;
 	process.start(QString::fromStdString(processName), {QStringLiteral("-D"),
-										QStringLiteral("--target=binary"),
+														QStringLiteral("--target=binary"),
 #if defined(EDB_X86) || defined(EDB_X86_64)
-										QStringLiteral("--insn-width=15"),
-										QStringLiteral("--architecture=i386") + QLatin1String(bits == 64 ? ":x86-64" : ""),
-										QStringLiteral("-M"),
-										QStringLiteral("intel,intel-mnemonic"),
+														QStringLiteral("--insn-width=15"),
+														QStringLiteral("--architecture=i386") + QLatin1String(bits == 64 ? ":x86-64" : ""),
+														QStringLiteral("-M"),
+														QStringLiteral("intel,intel-mnemonic"),
 #elif defined(EDB_ARM32)
-										QStringLiteral("--insn-width=4"),
-										QStringLiteral("-m"),
-										QStringLiteral("arm"),
-										edb::v1::debugger_core->cpuMode() == IDebugger::CpuMode::Thumb ? QStringLiteral("-Mforce-thumb") : QStringLiteral("-Mno-force-thumb"),
+														QStringLiteral("--insn-width=4"),
+														QStringLiteral("-m"),
+														QStringLiteral("arm"),
+														edb::v1::debugger_core->cpuMode() == IDebugger::CpuMode::Thumb ? QStringLiteral("-Mforce-thumb") : QStringLiteral("-Mno-force-thumb"),
 #else
 #error "Not implemented"
 #endif
-										QStringLiteral("--adjust-vma=") + address.toPointerString(), binary.fileName()});
+														QStringLiteral("--adjust-vma=") + address.toPointerString(), binary.fileName()});
 
 	if (process.waitForFinished()) {
 		if (process.exitCode() != 0) {
@@ -921,10 +921,10 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 	QProcess process;
 	process.start(QString::fromStdString(processName),
 				  QStringList{QStringLiteral("-o"),
-							 address.toPointerString(),
-							 QStringLiteral("-b"),
-							 QString::number(bits),
-							 binary.fileName()});
+							  address.toPointerString(),
+							  QStringLiteral("-b"),
+							  QString::number(bits),
+							  binary.fileName()});
 
 	if (process.waitForFinished()) {
 		if (process.exitCode() != 0) {

@@ -141,7 +141,7 @@ void add_precision_mode(RegisterGroup *group, const QModelIndex &index, int row,
 
 void add_puozdi(RegisterGroup *group, const QModelIndex &excRegIndex, const QModelIndex &maskRegIndex, int startRow, int startColumn) {
 
-	static const QString exceptions = QStringLiteral("PUOZDI");
+	static const auto exceptions = QStringLiteral("PUOZDI");
 
 	static const std::unordered_map<char, QString> excNames = {
 		{'P', tr("Precision")},
@@ -454,9 +454,9 @@ RegisterGroup *create_fpu_last_op(RegisterViewModelBase::Model *model, QWidget *
 	enum { lastInsnRow,
 		   lastDataRow,
 		   lastOpcodeRow };
-	const QString lastInsnLabel   = QStringLiteral("Last insn");
-	const QString lastDataLabel   = QStringLiteral("Last data");
-	const QString lastOpcodeLabel = QStringLiteral("Last opcode");
+	const auto lastInsnLabel      = QStringLiteral("Last insn");
+	const auto lastDataLabel      = QStringLiteral("Last data");
+	const auto lastOpcodeLabel    = QStringLiteral("Last opcode");
 	const auto lastInsnLabelField = new FieldWidget(lastInsnLabel, group);
 	group->insert(lastInsnRow, 0, lastInsnLabelField);
 	const auto lastDataLabelField = new FieldWidget(lastDataLabel, group);
@@ -678,7 +678,7 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 		group->insert(row, column, new ValueField(valueWidth, value_index(dr6Index), group));
 		column += valueWidth + 2;
 
-		const QString bsName   = QStringLiteral("BS");
+		const auto bsName      = QStringLiteral("BS");
 		const auto bsWidth     = static_cast<int>(bsName.size());
 		const auto BSNameField = new FieldWidget(bsName, group);
 		const auto BSTooltip   = tr("Single Step") + QStringLiteral(" (BS)");
@@ -702,7 +702,7 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 		group->insert(row, column, new ValueField(valueWidth, value_index(dr7Index), group));
 		column += valueWidth + 2;
 		{
-			const QString leName   = QStringLiteral("LE");
+			const auto leName      = QStringLiteral("LE");
 			const auto leWidth     = static_cast<int>(leName.size());
 			const auto LENameField = new FieldWidget(leName, group);
 			const auto LETooltip   = tr("Local Exact Breakpoint Enable");
@@ -719,7 +719,7 @@ RegisterGroup *create_debug_group(RegisterViewModelBase::Model *model, QWidget *
 		}
 
 		{
-			const QString geName   = QStringLiteral("GE");
+			const auto geName      = QStringLiteral("GE");
 			const auto geWidth     = static_cast<int>(geName.size());
 			const auto GENameField = new FieldWidget(geName, group);
 			const auto GETooltip   = tr("Global Exact Breakpoint Enable");
@@ -745,8 +745,8 @@ RegisterGroup *create_mxcsr(RegisterViewModelBase::Model *model, QWidget *parent
 	if (!catIndex.isValid()) {
 		return nullptr;
 	}
-	const auto group        = new RegisterGroup(QStringLiteral("MXCSR"), parent);
-	const QString mxcsrName = QStringLiteral("MXCSR");
+	const auto group     = new RegisterGroup(QStringLiteral("MXCSR"), parent);
+	const auto mxcsrName = QStringLiteral("MXCSR");
 
 	int column         = 0;
 	const int mxcsrRow = 1;
@@ -766,8 +766,8 @@ RegisterGroup *create_mxcsr(RegisterViewModelBase::Model *model, QWidget *parent
 	// XXX: Sacrificing understandability of DAZ->DZ to align PUOZDI with FPU's.
 	// Also FZ value is one char away from DAZ name, which is also no good.
 	// Maybe following OllyDbg example here isn't a good idea.
-	const QString fzName   = QStringLiteral("FZ");
-	const QString dazName  = QStringLiteral("DZ");
+	const auto fzName      = QStringLiteral("FZ");
+	const auto dazName     = QStringLiteral("DZ");
 	const auto fzColumn    = column;
 	const auto fzNameField = new FieldWidget(fzName, group);
 	group->insert(fzRow, fzColumn, fzNameField);
@@ -785,14 +785,14 @@ RegisterGroup *create_mxcsr(RegisterViewModelBase::Model *model, QWidget *parent
 	const auto dazValueField = new ValueField(dazValueWidth, dazIndex, group);
 	group->insert(dazRow, column, dazValueField);
 	column += dazValueWidth + 2;
-	const QString excName = QStringLiteral("Err");
+	const auto excName = QStringLiteral("Err");
 	group->insert(excRow, column, new FieldWidget(excName, group));
-	const QString maskName = QStringLiteral("Mask");
+	const auto maskName = QStringLiteral("Mask");
 	group->insert(maskRow, column, new FieldWidget(maskName, group));
 	column += static_cast<int>(maskName.size()) + 1;
 	add_puozdi(group, mxcsrIndex, mxcsrIndex, excRow - 1, column);
 	const auto rndNameColumn = fzColumn;
-	const QString rndName    = QStringLiteral("Rnd");
+	const auto rndName       = QStringLiteral("Rnd");
 	group->insert(rndRow, rndNameColumn, new FieldWidget(rndName, group));
 	const auto rndColumn = rndNameColumn + static_cast<int>(rndName.size()) + 1;
 	add_rounding_mode(group, find_model_register(mxcsrIndex, QStringLiteral("RC"), ModelValueColumn), rndRow, rndColumn);

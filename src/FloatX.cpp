@@ -404,8 +404,8 @@ template QValidator::State FloatXValidator<long double>::validate(QString &input
 template <class Float>
 EDB_EXPORT QString format_float(Float value) {
 
-	const auto type    = float_type(value);
-	QString specialStr = QStringLiteral("???? ");
+	const auto type = float_type(value);
+	auto specialStr = QStringLiteral("???? ");
 
 	switch (type) {
 	case FloatValueClass::Zero:
@@ -450,7 +450,7 @@ EDB_EXPORT QString format_float(Float value) {
 			}
 
 			if (ret && builder.Finalize()) {
-				const QString result = QString::fromLatin1(buffer);
+				auto result = QString::fromLatin1(buffer);
 				if (result.size() == 1 && result[0].isDigit()) {
 					return result + QStringLiteral(".0"); // avoid printing small whole numbers as integers
 				}
@@ -465,7 +465,7 @@ EDB_EXPORT QString format_float(Float value) {
 			gdtoa_g_xfmt(buffer, &value, -1, sizeof buffer);
 			fixup_g_Yfmt(buffer, std::numeric_limits<long double>::digits10);
 
-			const QString result = QString::fromLatin1(buffer);
+			auto result = QString::fromLatin1(buffer);
 			if (result.size() == 1 && result[0].isDigit()) {
 				return result + QStringLiteral(".0"); // avoid printing small whole numbers as integers
 			}
@@ -476,7 +476,7 @@ EDB_EXPORT QString format_float(Float value) {
 		std::ostringstream ss;
 		ss << std::setprecision(std::numeric_limits<decltype(to_real(value))>::max_digits10) << to_real(value);
 
-		const auto result = QString::fromStdString(ss.str());
+		auto result = QString::fromStdString(ss.str());
 		if (result.size() == 1 && result[0].isDigit()) {
 			return result + QStringLiteral(".0"); // avoid printing small whole numbers as integers
 		}

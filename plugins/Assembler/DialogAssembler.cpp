@@ -197,12 +197,12 @@ void DialogAssembler::on_buttonBox_accepted() {
 				return;
 			}
 
-			const QString bitsStr = QString::number(core->pointerSize() * 8);
+			const auto bitsStr    = QString::number(core->pointerSize() * 8);
 			const QString addrStr = edb::v1::format_pointer(address_);
 
-			static const QString bitsTag = QStringLiteral("%BITS%");
-			static const QString addrTag = QStringLiteral("%ADDRESS%");
-			static const QString insnTag = QStringLiteral("%INSTRUCTION%");
+			static const auto bitsTag = QStringLiteral("%BITS%");
+			static const auto addrTag = QStringLiteral("%ADDRESS%");
+			static const auto insnTag = QStringLiteral("%INSTRUCTION%");
 
 			asm_code.replace(bitsTag, bitsStr);
 			asm_code.replace(addrTag, addrStr);
@@ -218,8 +218,8 @@ void DialogAssembler::on_buttonBox_accepted() {
 
 			QStringList arguments = command_line;
 			for (QString &arg : arguments) {
-						arg.replace(QLatin1String("%OUT%"), output_file.fileName());
-						arg.replace(QLatin1String("%IN%"), source_file.fileName());
+				arg.replace(QLatin1String("%OUT%"), output_file.fileName());
+				arg.replace(QLatin1String("%IN%"), source_file.fileName());
 				arg.replace(bitsTag, bitsStr);
 				arg.replace(addrTag, addrStr);
 				arg.replace(insnTag, nasm_syntax);
@@ -250,7 +250,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 							}
 						}
 					} else if (replacement_size == 0) {
-						const QString stdError = QString::fromLocal8Bit(process.readAllStandardError());
+						const auto stdError = QString::fromLocal8Bit(process.readAllStandardError());
 						QMessageBox::warning(this, tr("Error In Code"), tr("Got zero bytes from the assembler") + (stdError.isEmpty() ? QString() : tr(", here's what it has to say:\n\n") + stdError));
 						return;
 					} else {
