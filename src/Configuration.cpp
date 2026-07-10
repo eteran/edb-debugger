@@ -30,7 +30,7 @@ namespace {
  */
 QString getDefaultPluginPath() {
 #if defined(DEFAULT_PLUGIN_PATH)
-	const QString default_plugin_path = DEFAULT_PLUGIN_PATH;
+	const QString default_plugin_path = QStringLiteral(DEFAULT_PLUGIN_PATH);
 #else
 	const QString edb_lib_dir    = QCoreApplication::applicationDirPath() + (EDB_IS_64_BIT ? "/../lib64/edb" : "/../lib/edb");
 	const QString edb_binary_dir = QCoreApplication::applicationDirPath();
@@ -75,11 +75,11 @@ void Configuration::sendChangeNotification() {
 void Configuration::readSettings() {
 
 #ifdef Q_OS_WIN32
-	const QString default_font = QFont("Courier New", 8).toString();
+	const QString default_font = QFont(QStringLiteral("Courier New"), 8).toString();
 #elif defined(Q_OS_MACX)
-	const QString default_font = QFont("Courier New", 10).toString();
+	const QString default_font = QFont(QStringLiteral("Courier New"), 10).toString();
 #else
-	const QString default_font = QFont("Monospace", 8).toString();
+	const QString default_font = QFont(QStringLiteral("Monospace"), 8).toString();
 #endif
 
 	QSettings settings;
@@ -102,7 +102,7 @@ void Configuration::readSettings() {
 	show_address_separator  = settings.value("appearance.address_colon.enabled", true).toBool();
 	show_jump_arrow         = settings.value("appearance.show_jump_arrow.enabled", true).toBool();
 	function_offsets_in_hex = settings.value("appearance.function_offsets_in_hex.enabled", false).toBool();
-	theme_name              = settings.value("appearance.theme", "System").toString();
+	theme_name              = settings.value("appearance.theme", QStringLiteral("System")).toString();
 
 	settings.endGroup();
 
@@ -112,7 +112,7 @@ void Configuration::readSettings() {
 	find_main               = settings.value("debugger.find_main.enabled", true).toBool();
 	min_string_length       = settings.value("debugger.string_min", 4).value<uint>();
 	tty_enabled             = settings.value("debugger.terminal.enabled", true).toBool();
-	tty_command             = settings.value("debugger.terminal.command", "xterm").toString();
+	tty_command             = settings.value("debugger.terminal.command", QStringLiteral("xterm")).toString();
 	remove_stale_symbols    = settings.value("debugger.remove_stale_symbols.enabled", true).toBool();
 	disableASLR             = settings.value("debugger.disableASLR.enabled", false).toBool();
 	disableLazyBinding      = settings.value("debugger.disableLazyBinding.enabled", false).toBool();
@@ -139,8 +139,8 @@ void Configuration::readSettings() {
 	QStringList cacheDirectories = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
 	QString cacheDirectory       = !cacheDirectories.isEmpty() ? cacheDirectories[0] : QString();
 
-	QString defaultSymbolPath  = QStringLiteral("%1/%2").arg(cacheDirectory, "symbols");
-	QString defaultSessionPath = QStringLiteral("%1/%2").arg(cacheDirectory, "sessions");
+	QString defaultSymbolPath  = QStringLiteral("%1/%2").arg(cacheDirectory, QLatin1String("symbols"));
+	QString defaultSessionPath = QStringLiteral("%1/%2").arg(cacheDirectory, QLatin1String("sessions"));
 
 	symbol_path  = settings.value("directory.symbol.path", defaultSymbolPath).toString();
 	plugin_path  = settings.value("directory.plugin.path", getDefaultPluginPath()).toString();
