@@ -237,7 +237,7 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 		return Status::Ok;
 	}
 
-	return Status("Error DebuggerCore::attach");
+	return Status(QStringLiteral("Error DebuggerCore::attach"));
 }
 
 /**
@@ -341,7 +341,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 	if (ok) {
 		return Status::Ok;
 	} else {
-		return Status("Error DebuggerCore::open");
+		return Status(QStringLiteral("Error DebuggerCore::open"));
 	}
 }
 

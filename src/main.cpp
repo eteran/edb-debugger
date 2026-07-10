@@ -64,7 +64,7 @@ struct LaunchArguments {
 			const QString s = p->extraArguments();
 			if (!s.isEmpty()) {
 				std::cerr << '\n';
-				std::cerr << qPrintable(plugin->metaObject()->className()) << '\n';
+				std::cerr << plugin->metaObject()->className() << '\n';
 				std::cerr << qPrintable(s) << '\n';
 			}
 		}
@@ -147,7 +147,7 @@ int start_debugger(const LaunchArguments &launch_args) {
 	// create the main window object
 	Debugger debugger;
 
-	qDebug() << "Starting edb version:" << EDB_VERSION_STRING;
+	qDebug() << "Starting edb version:" << QLatin1String(EDB_VERSION_STRING);
 	qDebug("Please Report Bugs & Requests At: https://github.com/eteran/edb-debugger/issues");
 
 	// ok things are initialized to a reasonable degree, let's show the main window
@@ -288,29 +288,29 @@ int main(int argc, char *argv[]) {
 #endif
 
 	QApplication app(argc, argv);
-	QApplication::setWindowIcon(QIcon(":/debugger/images/edb.svg"));
+	QApplication::setWindowIcon(QIcon(QStringLiteral(":/debugger/images/edb.svg")));
 
 	// setup organization info so settings go in right place
-	QApplication::setOrganizationName("codef00.com");
-	QApplication::setOrganizationDomain("codef00.com");
-	QApplication::setApplicationName("edb");
-	QApplication::setApplicationVersion(EDB_VERSION_STRING);
+	QApplication::setOrganizationName(QStringLiteral("codef00.com"));
+	QApplication::setOrganizationDomain(QStringLiteral("codef00.com"));
+	QApplication::setApplicationName(QStringLiteral("edb"));
+	QApplication::setApplicationVersion(QStringLiteral(EDB_VERSION_STRING));
 
 	// load some translations
 	QTranslator qtTranslator;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-	if (qtTranslator.load(QLocale(), QLatin1String("qtbase"), QLatin1String("_"), QLibraryInfo::path(QLibraryInfo::TranslationsPath))) {
+	if (qtTranslator.load(QLocale(), QStringLiteral("qtbase"), QStringLiteral("_"), QLibraryInfo::path(QLibraryInfo::TranslationsPath))) {
 		QApplication::installTranslator(&qtTranslator);
 	}
 #else
-	if (qtTranslator.load(QLocale(), QLatin1String("qtbase"), QLatin1String("_"), QLibraryInfo::location(QLibraryInfo::TranslationsPath))) {
+	if (qtTranslator.load(QLocale(), QStringLiteral("qtbase"), QStringLiteral("_"), QLibraryInfo::location(QLibraryInfo::TranslationsPath))) {
 		QApplication::installTranslator(&qtTranslator);
 	}
 #endif
 
 	QTranslator translator;
 	// look up e.g. :/translations/edb_{lang}.qm
-	if (translator.load(QLocale(), QLatin1String("edb"), QLatin1String("_"), QLatin1String(":/translations"))) {
+	if (translator.load(QLocale(), QStringLiteral("edb"), QStringLiteral("_"), QStringLiteral(":/translations"))) {
 		qDebug() << "Translations loaded successfully for " << QLocale().bcp47Name();
 		QApplication::installTranslator(&translator);
 	}
@@ -340,23 +340,23 @@ int main(int argc, char *argv[]) {
 
 	for (int i = 1; i < args.size(); ++i) {
 
-		if (args[i] == "--version") {
+		if (args[i] == QLatin1String("--version")) {
 			std::cout << "edb version: " << EDB_VERSION_STRING << std::endl;
 			return 0;
 		}
 
-		if (args[i] == "--dump-version") {
+		if (args[i] == QLatin1String("--dump-version")) {
 			std::cout << EDB_VERSION_STRING << std::endl;
 			return 0;
 		}
 
-		if (args[i] == "--attach") {
+		if (args[i] == QLatin1String("--attach")) {
 			++i;
 			if (i >= args.size()) {
 				usage();
 			}
 			launch_args.attach_pid = args[i].toUInt();
-		} else if (args[i] == "--run") {
+		} else if (args[i] == QLatin1String("--run")) {
 			++i;
 			if (i >= args.size()) {
 				usage();
@@ -369,13 +369,13 @@ int main(int argc, char *argv[]) {
 				// we want to avoid any unicode conversions
 				launch_args.run_args.push_back(argv[i]);
 			}
-		} else if (args[i] == "--stdin") {
+		} else if (args[i] == QLatin1String("--stdin")) {
 			++i;
 			if (i >= args.size()) {
 				usage();
 			}
 			launch_args.run_stdin = args[i];
-		} else if (args[i] == "--stdout") {
+		} else if (args[i] == QLatin1String("--stdout")) {
 			++i;
 			if (i >= args.size()) {
 				usage();

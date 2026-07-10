@@ -34,7 +34,7 @@ DialogReferences::DialogReferences(QWidget *parent, Qt::WindowFlags f)
 
 	ui.setupUi(this);
 
-	buttonFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
+	buttonFind_ = new QPushButton(QIcon::fromTheme(QStringLiteral("edit-find")), tr("Find"));
 	connect(buttonFind_, &QPushButton::clicked, this, &DialogReferences::onFindClicked);
 	connect(&searchWatcher_, &QFutureWatcher<SearchResult>::finished, this, &DialogReferences::onFindFinished);
 
@@ -256,11 +256,11 @@ void DialogReferences::setSearchRunning(bool running) {
 
 	if (searchRunning_) {
 		buttonFind_->setEnabled(true);
-		buttonFind_->setIcon(QIcon::fromTheme("process-stop"));
+		buttonFind_->setIcon(QIcon::fromTheme(QStringLiteral("process-stop")));
 		buttonFind_->setText(tr("Cancel"));
 	} else {
 		buttonFind_->setEnabled(true);
-		buttonFind_->setIcon(QIcon::fromTheme("edit-find"));
+		buttonFind_->setIcon(QIcon::fromTheme(QStringLiteral("edit-find")));
 		buttonFind_->setText(tr("Find"));
 		ui.progressBar->setValue(100);
 	}
@@ -273,7 +273,7 @@ void DialogReferences::setSearchRunning(bool running) {
  */
 void DialogReferences::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
 	const edb::address_t addr = item->data(AddressRole).toULongLong();
-	if (item->data(TypeRole).toChar() == 'D') {
+	if (item->data(TypeRole).toChar() == QLatin1Char('D')) {
 		edb::v1::dump_data(addr, false);
 	} else {
 		edb::v1::jump_to_address(addr);

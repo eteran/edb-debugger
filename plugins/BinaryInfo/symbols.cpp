@@ -160,8 +160,8 @@ the symbol is local; if uppercase, the symbol is global (external).
 "?" The symbol type is unknown, or object file format specific.
 */
 
-template <class M, class Size>
-void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &symbols) {
+template <class M, class SizeType>
+void collect_symbols(const void *p, SizeType size, std::vector<typename M::symbol> &symbols) {
 
 	using elf_addr   = typename M::elf_addr;
 	using elf_header = typename M::elf_header;
@@ -253,9 +253,9 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				symbol sym;
 				sym.address = symbol_address;
 				sym.size    = (symbol_tab[sym_index].st_size ? symbol_tab[sym_index].st_size : 0x10);
-				sym.name    = &string_tab[symbol_tab[sym_index].st_name];
-				sym.name += "@";
-				sym.name += sym_name;
+				sym.name    = QString::fromLocal8Bit(&string_tab[symbol_tab[sym_index].st_name]);
+				sym.name += QLatin1Char('@');
+				sym.name += QString::fromLocal8Bit(sym_name);
 				sym.type = 'P';
 				symbols.push_back(sym);
 				++n;
@@ -292,9 +292,9 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 				symbol sym;
 				sym.address = symbol_address;
 				sym.size    = (symbol_tab[sym_index].st_size ? symbol_tab[sym_index].st_size : 0x10);
-				sym.name    = &string_tab[symbol_tab[sym_index].st_name];
-				sym.name += "@";
-				sym.name += sym_name;
+				sym.name    = QString::fromLocal8Bit(&string_tab[symbol_tab[sym_index].st_name]);
+				sym.name += QLatin1Char('@');
+				sym.name += QString::fromLocal8Bit(sym_name);
 				sym.type = 'P';
 				symbols.push_back(sym);
 				++n;
@@ -330,7 +330,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 						symbol sym;
 						sym.address = symbol_tab[i].st_value;
 						sym.size    = symbol_tab[i].st_size;
-						sym.name    = &string_tab[symbol_tab[i].st_name];
+						sym.name    = QString::fromLocal8Bit(&string_tab[symbol_tab[i].st_name]);
 						sym.type    = (M::elf_st_type(symbol_tab[i].st_info) == STT_FUNC ? 'T' : 'D');
 						symbols.push_back(sym);
 					}
@@ -370,9 +370,9 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 						for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
 							if (sym.address >= section->sh_addr && sym.address + sym.size <= section->sh_addr + section->sh_size) {
 								const std::int64_t offset = sym.address - section->sh_addr;
-								const QString hexPrefix   = std::abs(offset) > 9 ? "0x" : "";
-								const QString offsetStr   = offset ? "+" + hexPrefix + QString::number(offset, 16) : "";
-								const QString sectionName(&section_strings[section->sh_name]);
+								const QString hexPrefix   = std::abs(offset) > 9 ? QStringLiteral("0x") : QString();
+								const QString offsetStr   = offset ? QStringLiteral("+") + hexPrefix + QString::number(offset, 16) : QString();
+								const auto sectionName    = QString::fromLocal8Bit(&section_strings[section->sh_name]);
 								if (!sectionName.isEmpty()) {
 									sym.name = QString(sectionName + offsetStr);
 									break;
@@ -404,7 +404,7 @@ template <class Symbol>
 void output_symbols(std::vector<Symbol> &symbols, std::ostream &os) {
 	std::sort(symbols.begin(), symbols.end());
 	auto new_end                 = std::unique(symbols.begin(), symbols.end());
-	const auto demanglingEnabled = QSettings().value("BinaryInfo/demangling_enabled", true).toBool();
+	const auto demanglingEnabled = QSettings().value(QStringLiteral("BinaryInfo/demangling_enabled"), true).toBool();
 	for (auto it = symbols.begin(); it != new_end; ++it) {
 		if (demanglingEnabled) {
 			it->name = demangle(it->name);
@@ -500,7 +500,7 @@ bool generate_symbols(const QString &filename, std::ostream &os) {
 		const QByteArray md5 = edb::v1::get_file_md5(filename);
 		os << md5.toHex().data() << ' ' << qPrintable(QFileInfo(filename).absoluteFilePath()) << '\n';
 
-		const QString debugInfoPath = QSettings().value("BinaryInfo/debug_info_path", "/usr/lib/debug").toString();
+		const QString debugInfoPath = QSettings().value(QStringLiteral("BinaryInfo/debug_info_path"), QStringLiteral("/usr/lib/debug")).toString();
 
 		std::shared_ptr<QFile> debugFile;
 		if (!debugInfoPath.isEmpty()) {

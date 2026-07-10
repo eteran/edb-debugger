@@ -82,9 +82,9 @@ Result<void, SessionError> SessionManager::loadSession(const QString &filename) 
 	QJsonObject object = doc.object();
 	sessionData_       = object.toVariantMap();
 
-	QString id  = sessionData_["id"].toString();
-	QString ts  = sessionData_["timestamp"].toString();
-	int version = sessionData_["version"].toInt();
+	QString id  = sessionData_[QLatin1String("id")].toString();
+	QString ts  = sessionData_[QLatin1String("timestamp")].toString();
+	int version = sessionData_[QLatin1String("version")].toInt();
 
 	Q_UNUSED(ts)
 
@@ -114,7 +114,7 @@ void SessionManager::saveSession(const QString &filename) {
 	for (QObject *plugin : edb::v1::plugin_list()) {
 		if (auto p = qobject_cast<IPlugin *>(plugin)) {
 			if (const QMetaObject *const meta = plugin->metaObject()) {
-				QString name     = meta->className();
+				auto name        = QString::fromLocal8Bit(meta->className());
 				QVariantMap data = p->saveState();
 
 				if (!data.empty()) {
@@ -124,10 +124,10 @@ void SessionManager::saveSession(const QString &filename) {
 		}
 	}
 
-	sessionData_["version"]     = SessionFileVersion;
-	sessionData_["id"]          = SessionFileIdString; // just so we can sanity check things
-	sessionData_["timestamp"]   = QDateTime::currentDateTimeUtc();
-	sessionData_["plugin-data"] = plugin_data;
+	sessionData_[QLatin1String("version")]     = SessionFileVersion;
+	sessionData_[QLatin1String("id")]          = SessionFileIdString; // just so we can sanity check things
+	sessionData_[QLatin1String("timestamp")]   = QDateTime::currentDateTimeUtc();
+	sessionData_[QLatin1String("plugin-data")] = plugin_data;
 
 	auto object = QJsonObject::fromVariantMap(sessionData_);
 	QJsonDocument doc(object);
@@ -147,12 +147,12 @@ void SessionManager::loadPluginData() {
 
 	qDebug("Loading plugin-data");
 
-	QVariantMap plugin_data = sessionData_["plugin-data"].toMap();
+	QVariantMap plugin_data = sessionData_[QLatin1String("plugin-data")].toMap();
 	for (auto it = plugin_data.begin(); it != plugin_data.end(); ++it) {
 		for (QObject *plugin : edb::v1::plugin_list()) {
 			if (auto p = qobject_cast<IPlugin *>(plugin)) {
 				if (const QMetaObject *const meta = plugin->metaObject()) {
-					QString name     = meta->className();
+					auto name        = QString::fromLocal8Bit(meta->className());
 					QVariantMap data = it.value().toMap();
 
 					if (name == it.key()) {
@@ -171,7 +171,7 @@ void SessionManager::loadPluginData() {
  * @return A list of all comments in the session.
  */
 QVariantList SessionManager::comments() const {
-	return sessionData_["comments"].toList();
+	return sessionData_[QLatin1String("comments")].toList();
 }
 
 /**
@@ -181,16 +181,16 @@ QVariantList SessionManager::comments() const {
  */
 void SessionManager::addComment(const Comment &c) {
 
-	QVariantList comments_data = sessionData_["comments"].toList();
+	QVariantList comments_data = sessionData_[QLatin1String("comments")].toList();
 
 	QVariantMap comment;
-	comment["address"] = c.address.toHexString();
-	comment["comment"] = c.comment;
+	comment[QLatin1String("address")] = c.address.toHexString();
+	comment[QLatin1String("comment")] = c.comment;
 
 	// Check if we already have an entry with the same address and overwrite it
 	auto it = std::find_if(comments_data.begin(), comments_data.end(), [&comment](QVariant entry) {
 		QVariantMap data = entry.toMap();
-		return data["address"] == comment["address"];
+		return data[QLatin1String("address")] == comment[QLatin1String("address")];
 	});
 
 	if (it != comments_data.end()) {
@@ -199,7 +199,7 @@ void SessionManager::addComment(const Comment &c) {
 		comments_data.push_back(comment);
 	}
 
-	sessionData_["comments"] = comments_data;
+	sessionData_[QLatin1String("comments")] = comments_data;
 }
 
 /**
@@ -209,16 +209,16 @@ void SessionManager::addComment(const Comment &c) {
  */
 void SessionManager::removeComment(edb::address_t address) {
 	QString hexAddressString   = address.toHexString();
-	QVariantList comments_data = sessionData_["comments"].toList();
+	QVariantList comments_data = sessionData_[QLatin1String("comments")].toList();
 
 	auto it = std::find_if(comments_data.begin(), comments_data.end(), [&hexAddressString](QVariant entry) {
 		QVariantMap data = entry.toMap();
-		return data["address"] == hexAddressString;
+		return data[QLatin1String("address")] == hexAddressString;
 	});
 
 	if (it != comments_data.end()) {
 		comments_data.erase(it);
 	}
 
-	sessionData_["comments"] = comments_data;
+	sessionData_[QLatin1String("comments")] = comments_data;
 }

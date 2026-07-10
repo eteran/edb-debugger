@@ -17,7 +17,7 @@ namespace ODbgRegisterView {
  * @param f The window flags (default is Qt::WindowFlags()).
  */
 VolatileNameField::VolatileNameField(int fieldWidth, std::function<QString()> valueFormatter, QWidget *parent, Qt::WindowFlags f)
-	: FieldWidget(fieldWidth, "", parent, f), valueFormatter(std::move(valueFormatter)) {
+	: FieldWidget(fieldWidth, QString(), parent, f), valueFormatter(std::move(valueFormatter)) {
 }
 
 /**

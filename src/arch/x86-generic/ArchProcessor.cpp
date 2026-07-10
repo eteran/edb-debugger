@@ -137,14 +137,14 @@ QString syscallErrName([[maybe_unused]] T err) {
 	std::size_t index = -err;
 
 	if (index >= errnoNames.size()) {
-		return "";
+		return QString();
 	}
 
 	if (errnoNames[index]) {
-		return errnoNames[index];
+		return QString::fromLatin1(errnoNames[index]);
 	}
 #endif
-	return "";
+	return QString();
 }
 
 /**
@@ -156,7 +156,7 @@ QString format_pointer(int pointer_level, edb::reg_t arg, QChar type) {
 	Q_UNUSED(pointer_level)
 
 	if (arg == 0) {
-		return "NULL";
+		return QStringLiteral("NULL");
 	}
 
 	return edb::v1::format_pointer(arg);
@@ -172,9 +172,9 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 
 	switch (type.toLatin1()) {
 	case 'w':
-		return "0x" + QString::number(static_cast<wchar_t>(arg), 16);
+		return QStringLiteral("0x") + QString::number(static_cast<wchar_t>(arg), 16);
 	case 'b':
-		return arg ? "true" : "false";
+		return arg ? QStringLiteral("true") : QStringLiteral("false");
 	case 'c':
 		if (arg < 0x80u && (std::isprint(static_cast<int>(arg)) || std::isspace(static_cast<int>(arg)))) {
 			return QStringLiteral("'%1'").arg(static_cast<char>(arg));
@@ -187,20 +187,20 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 		// qlonglong inside QString::setNum, which used in QString::number).
 		// Similarly for other shorter-than-long-long signed types.
 	case 'h':
-		return "0x" + QString::number(static_cast<unsigned char>(arg), 16);
+		return QStringLiteral("0x") + QString::number(static_cast<unsigned char>(arg), 16);
 	case 's':
 	case 't':
-		return "0x" + QString::number(static_cast<unsigned short>(arg), 16);
+		return QStringLiteral("0x") + QString::number(static_cast<unsigned short>(arg), 16);
 	case 'i':
 	case 'j':
-		return "0x" + QString::number(debuggeeIs32Bit() ? ILP32::toUInt(arg) : LP64::toUInt(arg), 16);
+		return QStringLiteral("0x") + QString::number(debuggeeIs32Bit() ? ILP32::toUInt(arg) : LP64::toUInt(arg), 16);
 	case 'l':
 	case 'm':
-		return "0x" + QString::number(debuggeeIs32Bit() ? ILP32::toULong(arg) : LP64::toULong(arg), 16);
+		return QStringLiteral("0x") + QString::number(debuggeeIs32Bit() ? ILP32::toULong(arg) : LP64::toULong(arg), 16);
 	case 'x':
-		return "0x" + QString::number(static_cast<long long>(arg), 16);
+		return QStringLiteral("0x") + QString::number(static_cast<long long>(arg), 16);
 	case 'y':
-		return "0x" + QString::number(static_cast<long unsigned long>(arg), 16);
+		return QStringLiteral("0x") + QString::number(static_cast<long unsigned long>(arg), 16);
 	case 'n':
 	case 'o':
 	default:
@@ -216,7 +216,7 @@ QString format_char(int pointer_level, edb::address_t arg, QChar type) {
 	if (IProcess *process = edb::v1::debugger_core->process()) {
 		if (pointer_level == 1) {
 			if (arg == 0) {
-				return "NULL";
+				return QStringLiteral("NULL");
 			}
 
 			QString string_param;
@@ -238,7 +238,7 @@ QString format_char(int pointer_level, edb::address_t arg, QChar type) {
 		return format_integer(pointer_level, arg, type);
 	}
 
-	return "?";
+	return QStringLiteral("?");
 }
 
 /**
@@ -252,9 +252,9 @@ QString format_argument(const QString &type, const Register &arg) {
 	int pointer_level = 0;
 	for (QChar ch : type) {
 
-		if (ch == 'P') {
+		if (ch == QLatin1Char('P')) {
 			++pointer_level;
-		} else if (ch == 'r' || ch == 'V' || ch == 'K') {
+		} else if (ch == QLatin1Char('r') || ch == QLatin1Char('V') || ch == QLatin1Char('K')) {
 			// skip things like const, volatile, restrict, they don't effect
 			// display for us
 			continue;
@@ -303,7 +303,7 @@ QString format_argument(const QString &type, const Register &arg) {
 		}
 	}
 
-	return format_pointer(pointer_level, arg.valueAsAddress(), 'x');
+	return format_pointer(pointer_level, arg.valueAsAddress(), QLatin1Char('x'));
 }
 
 template <class T>
@@ -321,7 +321,7 @@ void resolve_function_parameters_helper(T parameter_registers, const State &stat
 		}
 
 		// safe not to check for -1, it means 'rest of string' for the mid function
-		func_name = func_name.mid(0, func_name.indexOf("@"));
+		func_name = func_name.mid(0, func_name.indexOf(QLatin1Char('@')));
 
 		if (const edb::Prototype *const info = edb::v1::get_function_info(func_name)) {
 
@@ -334,16 +334,16 @@ void resolve_function_parameters_helper(T parameter_registers, const State &stat
 					size_t arg_i_position = (i - func_param_regs_count()) * edb::v1::pointer_size();
 					edb::reg_t value(0);
 					process->readBytes(state.stackPointer() + offset + arg_i_position, &value, edb::v1::pointer_size());
-					arg = edb::v1::debuggeeIs64Bit() ? make_Register<64>("", value, Register::TYPE_GPR) : make_Register<32>("", value, Register::TYPE_GPR);
+					arg = edb::v1::debuggeeIs64Bit() ? make_Register<64>(QString(), value, Register::TYPE_GPR) : make_Register<32>(QString(), value, Register::TYPE_GPR);
 				} else {
-					arg = state[parameter_registers[i]];
+					arg = state[QString::fromLatin1(parameter_registers[i])];
 				}
 
 				arguments << format_argument(argument.type, arg);
 				++i;
 			}
 
-			ret << QStringLiteral("%1(%2)").arg(func_name, arguments.join(", "));
+			ret << QStringLiteral("%1(%2)").arg(func_name, arguments.join(QStringLiteral(", ")));
 		}
 	}
 }
@@ -605,11 +605,11 @@ QString formatBCD(const edb::value80 &v) {
 
 	auto hex = v.toHexString();
 	// Low bytes which contain 18 digits must be decimal. If not, return the raw hex value.
-	if (hex.mid(2).contains(QRegularExpression("[A-Fa-f]"))) {
-		return "0x" + hex;
+	if (hex.mid(2).contains(QRegularExpression(QStringLiteral("[A-Fa-f]")))) {
+		return QStringLiteral("0x") + hex;
 	}
-	hex.replace(QRegularExpression("^..0*"), "");
-	return (v.negative() ? '-' + hex : hex) + " (BCD)";
+	hex.replace(QRegularExpression(QStringLiteral("^..0*")), QString());
+	return (v.negative() ? QLatin1Char('-') + hex : hex) + QStringLiteral(" (BCD)");
 }
 
 template <class ValueType>
@@ -623,11 +623,11 @@ QString formatPackedFloat(const void *data, std::size_t size) {
 		ValueType value;
 		std::memcpy(&value, ptr + offset, sizeof(value));
 		if (!str.isEmpty()) {
-			str += ", ";
+			str += QLatin1String(", ");
 		}
 		str += format_float(value);
 	}
-	return size == sizeof(ValueType) ? str : '{' + str + '}';
+	return size == sizeof(ValueType) ? str : QStringLiteral("{%1}").arg(str);
 }
 
 /**
@@ -664,10 +664,10 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							valueString = format_float(reg.value<edb::value80>());
 						} else if (is_SIMD_SS(operand)) {
 							valueString = format_float(reg.value<edb::value32>());
-							temp_operand += "_ss";
+							temp_operand += QStringLiteral("_ss");
 						} else if (is_SIMD_SD(operand)) {
 							valueString = format_float(reg.value<edb::value64>());
-							temp_operand += "_sd";
+							temp_operand += QStringLiteral("_sd");
 						} else if (is_SIMD_PS(operand)) {
 							valueString = formatPackedFloat<edb::value32>(reg.rawData(), reg.bitSize() / 8);
 						} else if (is_SIMD_PD(operand)) {
@@ -690,10 +690,10 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								// Use of hexadecimal format here is pretty much pointless since the number here is
 								// expected to be used in usual numeric computations, not as address or similar
 								if (signedValue > 9 || signedValue < -9) {
-									valueString += " (decimal)";
+									valueString += QStringLiteral(" (decimal)");
 								}
 							} else {
-								valueString = "0x" + reg.toHexString();
+								valueString = QStringLiteral("0x") + reg.toHexString();
 							}
 						}
 					}
@@ -723,10 +723,10 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								// expected to be used in usual numeric computations, not as address or similar
 								const std::int16_t signedValue = value;
 								if (signedValue > 9 || signedValue < -9) {
-									valueStr += " (decimal)";
+									valueStr += QStringLiteral(" (decimal)");
 								}
 							} else {
-								valueStr = "0x" + value.toHexString();
+								valueStr = QStringLiteral("0x") + value.toHexString();
 							}
 							ret << QStringLiteral("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
 							break;
@@ -746,14 +746,14 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								// expected to be used in usual numeric computations, not as address or similar
 								const std::int32_t signedValue = value;
 								if (signedValue > 9 || signedValue < -9) {
-									valueStr += " (decimal)";
+									valueStr += QStringLiteral(" (decimal)");
 								}
 							} else if (is_SIMD_PS(operand)) {
 								valueStr = formatPackedFloat<edb::value32>(&target, sizeof(edb::value64));
 							} else if (is_SIMD_PD(operand)) {
 								valueStr = formatPackedFloat<edb::value64>(&target, sizeof(edb::value64));
 							} else {
-								valueStr = "0x" + value.toHexString();
+								valueStr = QStringLiteral("0x") + value.toHexString();
 							}
 							ret << QStringLiteral("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
 							break;
@@ -773,17 +773,17 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								// expected to be used in usual numeric computations, not as address or similar
 								const std::int64_t signedValue = value;
 								if (signedValue > 9 || signedValue < -9) {
-									valueStr += " (decimal)";
+									valueStr += QStringLiteral(" (decimal)");
 								}
 							} else {
-								valueStr = "0x" + value.toHexString();
+								valueStr = QStringLiteral("0x") + value.toHexString();
 							}
 							ret << QStringLiteral("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
 							break;
 						}
 						case 10: {
 							const edb::value80 value(target);
-							const QString valueStr = is_fpu(inst) ? isFPU_BCD(inst) ? formatBCD(value) : format_float(value) : "0x" + value.toHexString();
+							const QString valueStr = is_fpu(inst) ? isFPU_BCD(inst) ? formatBCD(value) : format_float(value) : QStringLiteral("0x") + value.toHexString();
 							ret << QStringLiteral("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
 							break;
 						}
@@ -794,7 +794,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							} else if (is_SIMD_PD(operand)) {
 								valueString = formatPackedFloat<edb::value64>(&target, sizeof(edb::value128));
 							} else {
-								valueString = "0x" + edb::value128(target).toHexString();
+								valueString = QStringLiteral("0x") + edb::value128(target).toHexString();
 							}
 							ret << QStringLiteral("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueString);
 							break;
@@ -806,7 +806,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							} else if (is_SIMD_PD(operand)) {
 								valueString = formatPackedFloat<edb::value64>(&target, sizeof(edb::value256));
 							} else {
-								valueString = "0x" + edb::value256(target).toHexString();
+								valueString = QStringLiteral("0x") + edb::value256(target).toHexString();
 							}
 							ret << QStringLiteral("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueString);
 							break;
@@ -868,7 +868,7 @@ QDomDocument lookup_syscall_xml([[maybe_unused]] const State &state,
 #ifdef Q_OS_LINUX
 	regAX &= ~__X32_SYSCALL_BIT;
 
-	QFile file(":/debugger/xml/syscalls.xml");
+	QFile file(QStringLiteral(":/debugger/xml/syscalls.xml"));
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		return {};
 	}
@@ -882,16 +882,16 @@ QDomDocument lookup_syscall_xml([[maybe_unused]] const State &state,
 
 	// Expect: <syscalls version="1.0"> ... </syscalls>
 	QDomElement root = doc.documentElement();
-	if (root.tagName() != "syscalls" || root.attribute("version") != "1.0") {
+	if (root.tagName() != QStringLiteral("syscalls") || root.attribute(QStringLiteral("version")) != QStringLiteral("1.0")) {
 		return {};
 	}
 
-	const QString arch = debuggeeIs64Bit() ? "x86-64" : "x86";
+	const QString arch = debuggeeIs64Bit() ? QStringLiteral("x86-64") : QStringLiteral("x86");
 
 	// Find <linux arch="...">
 	QDomElement linuxEl;
-	for (QDomElement el = root.firstChildElement("linux"); !el.isNull(); el = el.nextSiblingElement("linux")) {
-		if (el.attribute("arch") == arch) {
+	for (QDomElement el = root.firstChildElement(QStringLiteral("linux")); !el.isNull(); el = el.nextSiblingElement(QStringLiteral("linux"))) {
+		if (el.attribute(QStringLiteral("arch")) == arch) {
 			linuxEl = el;
 			break;
 		}
@@ -903,8 +903,8 @@ QDomDocument lookup_syscall_xml([[maybe_unused]] const State &state,
 
 	// Find <syscall> whose <index> equals regAX
 	QDomElement matchedSyscall;
-	for (QDomElement sc = linuxEl.firstChildElement("syscall"); !sc.isNull(); sc = sc.nextSiblingElement("syscall")) {
-		QDomElement indexEl = sc.firstChildElement("index");
+	for (QDomElement sc = linuxEl.firstChildElement(QStringLiteral("syscall")); !sc.isNull(); sc = sc.nextSiblingElement(QStringLiteral("syscall"))) {
+		QDomElement indexEl = sc.firstChildElement(QStringLiteral("index"));
 		if (!indexEl.isNull() && indexEl.text().toULongLong() == regAX) {
 			matchedSyscall = sc;
 			break;
@@ -941,10 +941,10 @@ void analyze_syscall([[maybe_unused]] const State &state, [[maybe_unused]] const
 
 		QStringList arguments;
 
-		for (QDomElement argument = root.firstChildElement("argument"); !argument.isNull(); argument = argument.nextSiblingElement("argument")) {
-			const QString argument_type     = argument.attribute("type");
-			const QString argument_register = argument.attribute("register");
-			if (argument_register == "ebp" && inst.operation() == X86_INS_SYSENTER) {
+		for (QDomElement argument = root.firstChildElement(QStringLiteral("argument")); !argument.isNull(); argument = argument.nextSiblingElement(QStringLiteral("argument"))) {
+			const QString argument_type     = argument.attribute(QStringLiteral("type"));
+			const QString argument_register = argument.attribute(QStringLiteral("register"));
+			if (argument_register == QStringLiteral("ebp") && inst.operation() == X86_INS_SYSENTER) {
 				if (IProcess *process = edb::v1::debugger_core->process()) {
 					char buf[4];
 					if (process->readBytes(state.stackPointer(), buf, sizeof(buf)) != sizeof(buf)) {
@@ -953,7 +953,7 @@ void analyze_syscall([[maybe_unused]] const State &state, [[maybe_unused]] const
 					}
 					std::uint32_t value;
 					std::memcpy(&value, buf, sizeof(value));
-					arguments << format_argument(argument_type, make_Register<32>("[esp]", value, Register::TYPE_GPR));
+					arguments << format_argument(argument_type, make_Register<32>(QStringLiteral("[esp]"), value, Register::TYPE_GPR));
 					continue;
 				}
 			}
@@ -964,8 +964,8 @@ void analyze_syscall([[maybe_unused]] const State &state, [[maybe_unused]] const
 			}
 
 			// If we failed, this may be a pair of reg32a:reg32b
-			const auto regs = argument_register.split(':');
-			if (regs.size() != 2 || regs[0].isEmpty() || regs[0][0] != 'e' || regs[1].isEmpty() || regs[1][0] != 'e') {
+			const auto regs = argument_register.split(QLatin1Char(':'));
+			if (regs.size() != 2 || regs[0].isEmpty() || regs[0][0] != QLatin1Char('e') || regs[1].isEmpty() || regs[1][0] != QLatin1Char('e')) {
 				arguments << QObject::tr("(failed to obtain %1)").arg(argument_register);
 				continue;
 			}
@@ -981,7 +981,7 @@ void analyze_syscall([[maybe_unused]] const State &state, [[maybe_unused]] const
 			arguments << format_argument(argument_type, make_Register<64>(argument_register, value, Register::TYPE_GPR));
 		}
 
-		ret << ArchProcessor::tr("SYSCALL: %1%2(%3)").arg(isX32 ? "x32:" : "", root.attribute("name"), arguments.join(","));
+		ret << ArchProcessor::tr("SYSCALL: %1%2(%3)").arg(isX32 ? QStringLiteral("x32:") : QString(), root.attribute(QStringLiteral("name")), arguments.join(QLatin1Char(',')));
 	}
 #endif
 }
@@ -1013,12 +1013,12 @@ void updateGPRs(RegisterViewModel &model, const State &state, bool is64Bit) {
 			Q_ASSERT(reg.bitSize() == 64);
 			QString comment;
 			if (i == 0) {
-				const auto origAX = state["orig_rax"].valueAsSignedInteger();
+				const auto origAX = state[QStringLiteral("orig_rax")].valueAsSignedInteger();
 				if (origAX != -1) {
-					comment            = "orig: " + edb::value64(origAX).toHexString();
+					comment            = QStringLiteral("orig: ") + edb::value64(origAX).toHexString();
 					const auto errName = syscallErrName(reg.value<edb::value64>());
 					if (!errName.isEmpty()) {
-						comment = "-" + errName + "; " + comment;
+						comment = QStringLiteral("-") + errName + QStringLiteral("; ") + comment;
 					}
 				}
 			}
@@ -1036,12 +1036,12 @@ void updateGPRs(RegisterViewModel &model, const State &state, bool is64Bit) {
 			Q_ASSERT(reg.bitSize() == 32);
 			QString comment;
 			if (i == 0) {
-				const auto origAX = state["orig_eax"].valueAsSignedInteger();
+				const auto origAX = state[QStringLiteral("orig_eax")].valueAsSignedInteger();
 				if (origAX != -1) {
-					comment            = "orig: " + edb::value32(origAX).toHexString();
+					comment            = QStringLiteral("orig: ") + edb::value32(origAX).toHexString();
 					const auto errName = syscallErrName(reg.value<edb::value32>());
 					if (!errName.isEmpty()) {
-						comment = "-" + errName + "; " + comment;
+						comment = QStringLiteral("-") + errName + QStringLiteral("; ") + comment;
 					}
 				}
 			}
@@ -1055,17 +1055,17 @@ void updateGPRs(RegisterViewModel &model, const State &state, bool is64Bit) {
 
 QString rIPcomment(edb::address_t rIP, const QString &default_region_name) {
 	const auto symname = edb::v1::find_function_symbol(rIP, default_region_name);
-	return symname.isEmpty() ? symname : '<' + symname + '>';
+	return symname.isEmpty() ? symname : QStringLiteral("<%1>").arg(symname);
 }
 
 QString eflagsComment(edb::reg_t flags) {
-	QString comment = "(";
+	auto comment = QStringLiteral("(");
 	for (int cond = 0; cond < 0x10; ++cond) {
 		if (is_jcc_taken(flags, static_cast<edb::Instruction::ConditionCode>(cond))) {
-			comment += jumpConditionMnemonics[cond] + ',';
+			comment += jumpConditionMnemonics[cond] + QLatin1Char(',');
 		}
 	}
-	comment[comment.size() - 1] = ')';
+	comment[comment.size() - 1] = QLatin1Char(')');
 	return comment;
 }
 
@@ -1092,7 +1092,7 @@ QString FPUStackFaultDetail(uint16_t statusWord) {
 	if (invalidOperationException && stackFault) {
 		return C1 ? QObject::tr("Stack overflow") : QObject::tr("Stack underflow");
 	}
-	return "";
+	return QString();
 }
 
 QString FPUComparExplain(uint16_t statusWord) {
@@ -1100,18 +1100,18 @@ QString FPUComparExplain(uint16_t statusWord) {
 	const bool C2 = statusWord & (1 << 10);
 	const bool C3 = statusWord & (1 << 14);
 	if (C3 == 0 && C2 == 0 && C0 == 0) {
-		return "GT";
+		return QStringLiteral("GT");
 	}
 	if (C3 == 0 && C2 == 0 && C0 == 1) {
-		return "LT";
+		return QStringLiteral("LT");
 	}
 	if (C3 == 1 && C2 == 0 && C0 == 0) {
-		return "EQ";
+		return QStringLiteral("EQ");
 	}
 	if (C3 == 1 && C2 == 1 && C0 == 1) {
 		return QObject::tr("Unordered", "result of FPU comparison instruction");
 	}
-	return "";
+	return QString();
 }
 
 QString FPUExplainPE(uint16_t statusWord) {
@@ -1119,42 +1119,42 @@ QString FPUExplainPE(uint16_t statusWord) {
 		const bool C1 = statusWord & (1 << 9);
 		return C1 ? QObject::tr("Rounded UP") : QObject::tr("Rounded DOWN");
 	}
-	return "";
+	return QString();
 }
 
 QString FSRComment(uint16_t statusWord) {
 
 	const auto stackFaultDetail = FPUStackFaultDetail(statusWord);
 	const auto comparisonResult = FPUComparExplain(statusWord);
-	const auto comparComment    = comparisonResult.isEmpty() ? "" : '(' + comparisonResult + ')';
+	const auto comparComment    = comparisonResult.isEmpty() ? QString() : QStringLiteral("(%1)").arg(comparisonResult);
 	const auto peExplanation    = FPUExplainPE(statusWord);
 
 	auto comment = comparComment;
 	if (comment.length() && stackFaultDetail.length()) {
-		comment += ", ";
+		comment += QStringLiteral(", ");
 	}
 	comment += stackFaultDetail;
 	if (comment.length() && peExplanation.length()) {
-		comment += ", ";
+		comment += QStringLiteral(", ");
 	}
 	comment += peExplanation;
 	return comment.trimmed();
 }
 
 void updateSegRegs(RegisterViewModel &model, const State &state) {
-	static const QString sregs[] = {"es", "cs", "ss", "ds", "fs", "gs"};
+	static const QString sregs[] = {QStringLiteral("es"), QStringLiteral("cs"), QStringLiteral("ss"), QStringLiteral("ds"), QStringLiteral("fs"), QStringLiteral("gs")};
 	for (std::size_t i = 0; i < sizeof(sregs) / sizeof(sregs[0]); ++i) {
 		QString sreg(sregs[i]);
 		const auto sregValue = state[sreg].value<edb::seg_reg_t>();
-		const Register base  = state[sregs[i] + "_base"];
+		const Register base  = state[sregs[i] + QStringLiteral("_base")];
 		QString comment;
 		if (edb::v1::debuggeeIs32Bit() || i >= FS) {
 			if (base) {
 				comment = QStringLiteral("(%1)").arg(base.valueAsAddress().toHexString());
 			} else if (edb::v1::debuggeeIs32Bit() && sregValue == 0) {
-				comment = "NULL";
+				comment = QStringLiteral("NULL");
 			} else {
-				comment = "(?)";
+				comment = QStringLiteral("(?)");
 			}
 		}
 		model.updateSegReg(static_cast<int>(i), sregValue, comment);
@@ -1164,7 +1164,7 @@ void updateSegRegs(RegisterViewModel &model, const State &state) {
 void updateFPURegs(RegisterViewModel &model, const State &state) {
 	for (int i = 0; i < MAX_FPU_REGS_COUNT; ++i) {
 		const auto reg     = state.fpuRegister(i);
-		const auto comment = float_type(reg) == FloatValueClass::PseudoDenormal ? QObject::tr("pseudo-denormal") : "";
+		const auto comment = float_type(reg) == FloatValueClass::PseudoDenormal ? QObject::tr("pseudo-denormal") : QString();
 		model.updateFPUReg(i, reg, comment);
 	}
 	model.updateFCR(state.fpuControlWord());
@@ -1172,7 +1172,7 @@ void updateFPURegs(RegisterViewModel &model, const State &state) {
 	model.updateFSR(fsr, FSRComment(fsr));
 	model.updateFTR(state.fpuTagWord());
 	{
-		const Register FIS = state["FIS"];
+		const Register FIS = state[QStringLiteral("FIS")];
 		if (FIS) {
 			model.updateFIS(FIS.value<edb::value16>());
 		} else {
@@ -1180,7 +1180,7 @@ void updateFPURegs(RegisterViewModel &model, const State &state) {
 		}
 	}
 	{
-		const Register FDS = state["FDS"];
+		const Register FDS = state[QStringLiteral("FDS")];
 		if (FDS) {
 			model.updateFDS(FDS.value<edb::value16>());
 		} else {
@@ -1188,7 +1188,7 @@ void updateFPURegs(RegisterViewModel &model, const State &state) {
 		}
 	}
 	{
-		const Register FIP = state["FIP"];
+		const Register FIP = state[QStringLiteral("FIP")];
 		if (FIP.bitSize() == 64) {
 			model.updateFIP(FIP.value<edb::value64>());
 		} else if (FIP.bitSize() == 32) {
@@ -1198,7 +1198,7 @@ void updateFPURegs(RegisterViewModel &model, const State &state) {
 		}
 	}
 	{
-		const Register FDP = state["FDP"];
+		const Register FDP = state[QStringLiteral("FDP")];
 		if (FDP.bitSize() == 64) {
 			model.updateFDP(FDP.value<edb::value64>());
 		} else if (FDP.bitSize() == 32) {
@@ -1208,7 +1208,7 @@ void updateFPURegs(RegisterViewModel &model, const State &state) {
 		}
 	}
 	{
-		const Register FOP = state["fopcode"];
+		const Register FOP = state[QStringLiteral("fopcode")];
 		if (FOP) {
 			const auto value = FOP.value<edb::value16>();
 			// Yes, FOP is a big-endian view of the instruction
@@ -1269,7 +1269,7 @@ void updateSSEAVXRegs(RegisterViewModel &model, const State &state, bool hasSSE,
 		}
 	}
 
-	const auto mxcsr = state["mxcsr"];
+	const auto mxcsr = state[QStringLiteral("mxcsr")];
 	if (!mxcsr) {
 		model.invalidateMXCSR();
 	} else {
@@ -1399,7 +1399,7 @@ Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::In
 				ret += segBase.valueAsAddress();
 			}
 		} else if (is_immediate(op)) {
-			const Register csBase = state["cs_base"];
+			const Register csBase = state[QStringLiteral("cs_base")];
 			if (!csBase) {
 				return make_unexpected(QObject::tr("failed to obtain CS segment base"));
 			} // no way to reliably compute address
@@ -1522,9 +1522,9 @@ QStringList ArchProcessor::updateInstructionInfo(edb::address_t address) {
 
 					std::int64_t origAX;
 					if (debuggeeIs64Bit()) {
-						origAX = state["orig_rax"].valueAsSignedInteger();
+						origAX = state[QStringLiteral("orig_rax")].valueAsSignedInteger();
 					} else {
-						origAX = state["orig_eax"].valueAsSignedInteger();
+						origAX = state[QStringLiteral("orig_eax")].valueAsSignedInteger();
 					}
 
 					const std::uint64_t rax = state.gpRegister(rAX).valueAsSignedInteger();
@@ -1553,11 +1553,11 @@ QStringList ArchProcessor::updateInstructionInfo(edb::address_t address) {
 												 err == ERESTARTNOHAND ||
 												 err == ERESTART_RESTARTBLOCK;
 
-						if (!ret.isEmpty() && ret.back().startsWith("SYSCALL")) {
+						if (!ret.isEmpty() && ret.back().startsWith(QLatin1String("SYSCALL"))) {
 							if (interrupted) {
-								ret.back() = "Interrupted " + ret.back();
+								ret.back() = QStringLiteral("Interrupted ") + ret.back();
 							} else {
-								ret.back() = "Returned from " + ret.back();
+								ret.back() = QStringLiteral("Returned from ") + ret.back();
 							}
 						}
 						// FIXME: actually only ERESTARTNOINTR guarantees reexecution. But it seems the other ERESTART* signals

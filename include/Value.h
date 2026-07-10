@@ -441,14 +441,14 @@ public:
 public:
 	[[nodiscard]] QString toPointerString(bool createdFromNativePointer = true) const {
 		if (edb::v1::debuggeeIs32Bit()) {
-			return "0x" + value_type<uint32_t>(value_).toHexString();
+			return QStringLiteral("0x") + value_type<uint32_t>(value_).toHexString();
 		}
 
 		if (!createdFromNativePointer) { // then we don't know value of upper dword
-			return "0x????????" + value_type<uint32_t>(value_).toHexString();
+			return QStringLiteral("0x????????") + value_type<uint32_t>(value_).toHexString();
 		}
 
-		return "0x" + toHexString();
+		return QStringLiteral("0x") + toHexString();
 	}
 
 	[[nodiscard]] QString toHexString() const {

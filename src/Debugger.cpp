@@ -251,12 +251,12 @@ public:
 
 				// Get the instruction
 				edb::Instruction inst(buffer, buffer + size, 0);
-				qDebug() << QStringLiteral("Scanning for terminator at 0x%1: found %2").arg(address, 0, 16).arg(inst.mnemonic().c_str());
+				qDebug() << QStringLiteral("Scanning for terminator at 0x%1: found %2").arg(address, 0, 16).arg(QString::fromStdString(inst.mnemonic()));
 
 				// Check if it's a proper block terminator (ret/jmp/jcc/hlt)
 				if (inst) {
 					if (is_terminator(inst)) {
-						qDebug() << QStringLiteral("Found terminator %1 at 0x%2").arg(QString(inst.mnemonic().c_str())).arg(address, 0, 16);
+						qDebug() << QStringLiteral("Found terminator %1 at 0x%2").arg(QString::fromStdString(inst.mnemonic())).arg(address, 0, 16);
 						// If we already had a breakpoint there, then just continue.
 						if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->findBreakpoint(address)) {
 							qDebug() << QStringLiteral("Already a breakpoint at terminator 0x%1").arg(address, 0, 16);
@@ -357,14 +357,14 @@ Debugger::Debugger(QWidget *parent)
 
 	// these get updated when we attach/run a new process, so it's OK to hard code them here
 #if defined(EDB_X86_64)
-	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("RIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
-	gotoRIPAction_ = createAction(tr("&Goto %1").arg("RIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
+	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg(QLatin1String("RIP")), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
+	gotoRIPAction_ = createAction(tr("&Goto %1").arg(QLatin1String("RIP")), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #elif defined(EDB_X86)
-	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("EIP"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
-	gotoRIPAction_ = createAction(tr("&Goto %1").arg("EIP"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
+	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg(QLatin1String("EIP")), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
+	gotoRIPAction_ = createAction(tr("&Goto %1").arg(QLatin1String("EIP")), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
-	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg("PC"), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
-	gotoRIPAction_ = createAction(tr("&Goto %1").arg("PC"), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
+	setRIPAction_  = createAction(tr("&Set %1 to this Instruction").arg(QLatin1String("PC")), QKeySequence(tr("Ctrl+*")), &Debugger::mnuCPUSetEIP);
+	gotoRIPAction_ = createAction(tr("&Goto %1").arg(QLatin1String("PC")), QKeySequence(tr("*")), &Debugger::mnuCPUJumpToEIP);
 #else
 #error "This doesn't initialize actions and will lead to crash"
 #endif
@@ -387,31 +387,31 @@ Debugger::Debugger(QWidget *parent)
 
 	// these get updated when we attach/run a new process, so it's OK to hard code them here
 #if defined(EDB_X86_64)
-	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("RSP"), QKeySequence(), &Debugger::mnuStackGotoESP);
-	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("RBP"), QKeySequence(), &Debugger::mnuStackGotoEBP);
-	stackPushAction_    = createAction(tr("&Push %1").arg("QWORD"), QKeySequence(), &Debugger::mnuStackPush);
-	stackPopAction_     = createAction(tr("P&op %1").arg("QWORD"), QKeySequence(), &Debugger::mnuStackPop);
+	stackGotoRSPAction_ = createAction(tr("Goto %1").arg(QLatin1String("RSP")), QKeySequence(), &Debugger::mnuStackGotoESP);
+	stackGotoRBPAction_ = createAction(tr("Goto %1").arg(QLatin1String("RBP")), QKeySequence(), &Debugger::mnuStackGotoEBP);
+	stackPushAction_    = createAction(tr("&Push %1").arg(QLatin1String("QWORD")), QKeySequence(), &Debugger::mnuStackPush);
+	stackPopAction_     = createAction(tr("P&op %1").arg(QLatin1String("QWORD")), QKeySequence(), &Debugger::mnuStackPop);
 #elif defined(EDB_X86)
-	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("ESP"), QKeySequence(), &Debugger::mnuStackGotoESP);
-	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("EBP"), QKeySequence(), &Debugger::mnuStackGotoEBP);
-	stackPushAction_    = createAction(tr("&Push %1").arg("DWORD"), QKeySequence(), &Debugger::mnuStackPush);
-	stackPopAction_     = createAction(tr("P&op %1").arg("DWORD"), QKeySequence(), &Debugger::mnuStackPop);
+	stackGotoRSPAction_ = createAction(tr("Goto %1").arg(QLatin1String("ESP")), QKeySequence(), &Debugger::mnuStackGotoESP);
+	stackGotoRBPAction_ = createAction(tr("Goto %1").arg(QLatin1String("EBP")), QKeySequence(), &Debugger::mnuStackGotoEBP);
+	stackPushAction_    = createAction(tr("&Push %1").arg(QLatin1String("DWORD")), QKeySequence(), &Debugger::mnuStackPush);
+	stackPopAction_     = createAction(tr("P&op %1").arg(QLatin1String("DWORD")), QKeySequence(), &Debugger::mnuStackPop);
 #elif defined(EDB_ARM32)
-	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("SP"), QKeySequence(), &Debugger::mnuStackGotoESP);
-	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("FP"), QKeySequence(), &Debugger::mnuStackGotoEBP);
+	stackGotoRSPAction_ = createAction(tr("Goto %1").arg(QLatin1String("SP")), QKeySequence(), &Debugger::mnuStackGotoESP);
+	stackGotoRBPAction_ = createAction(tr("Goto %1").arg(QLatin1String("FP")), QKeySequence(), &Debugger::mnuStackGotoEBP);
 	stackGotoRBPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
-	stackPushAction_ = createAction(tr("&Push %1").arg("DWORD"), QKeySequence(), &Debugger::mnuStackPush);
+	stackPushAction_ = createAction(tr("&Push %1").arg(QLatin1String("DWORD")), QKeySequence(), &Debugger::mnuStackPush);
 	stackPushAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
-	stackPopAction_ = createAction(tr("P&op %1").arg("DWORD"), QKeySequence(), &Debugger::mnuStackPop);
+	stackPopAction_ = createAction(tr("P&op %1").arg(QLatin1String("DWORD")), QKeySequence(), &Debugger::mnuStackPop);
 	stackPopAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
 #elif defined(EDB_ARM64)
-	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("SP"), QKeySequence(), &Debugger::mnuStackGotoESP);
+	stackGotoRSPAction_ = createAction(tr("Goto %1").arg(QLatin1String("SP")), QKeySequence(), &Debugger::mnuStackGotoESP);
 	stackGotoRSPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
-	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("FP"), QKeySequence(), &Debugger::mnuStackGotoEBP);
+	stackGotoRBPAction_ = createAction(tr("Goto %1").arg(QLatin1String("FP")), QKeySequence(), &Debugger::mnuStackGotoEBP);
 	stackGotoRBPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
-	stackPushAction_ = createAction(tr("&Push %1").arg("QWORD"), QKeySequence(), &Debugger::mnuStackPush);
+	stackPushAction_ = createAction(tr("&Push %1").arg(QLatin1String("QWORD")), QKeySequence(), &Debugger::mnuStackPush);
 	stackPushAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
-	stackPopAction_ = createAction(tr("P&op %1").arg("QWORD"), QKeySequence(), &Debugger::mnuStackPop);
+	stackPopAction_ = createAction(tr("P&op %1").arg(QLatin1String("QWORD")), QKeySequence(), &Debugger::mnuStackPop);
 	stackPopAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
 #else
 #error "This doesn't initialize actions and will lead to crash"
@@ -571,7 +571,7 @@ QString Debugger::createTty() {
 
 			// this is a basic shell script which will output the tty to a file (the pipe),
 			// ignore kill sigs, close all standard IO, and then just hang
-			const auto shell_script = QString(
+			const auto shell_script = QStringLiteral(
 										  "tty > %1;"
 										  "trap \"\" INT QUIT TSTP;"
 										  "exec<&-; exec>&-;"
@@ -585,32 +585,32 @@ QString Debugger::createTty() {
 			// start constructing the arguments for the term
 			const QFileInfo command_info(tty_command);
 
-			if (command_info.fileName() == "gnome-terminal") {
+			if (command_info.fileName() == QLatin1String("gnome-terminal")) {
 				// NOTE(eteran): gnome-terminal at some point dropped support for -e
 				// in favor of using "everything after --"
 				// See issue: https://github.com/eteran/edb-debugger/issues/774
-				proc_args << "--hide-menubar"
-						  << "--title" << tr("edb output")
-						  << "--";
-			} else if (command_info.fileName() == "xfce4-terminal") {
-				proc_args << "--hide-menubar"
-						  << "--title" << tr("edb output")
-						  << "--hold"
-						  << "-x";
-			} else if (command_info.fileName() == "konsole") {
-				proc_args << "--hide-menubar"
-						  << "--title" << tr("edb output")
-						  << "--nofork"
-						  << "--hold"
-						  << "-e";
+				proc_args << QStringLiteral("--hide-menubar")
+						  << QStringLiteral("--title") << tr("edb output")
+						  << QStringLiteral("--");
+			} else if (command_info.fileName() == QLatin1String("xfce4-terminal")) {
+				proc_args << QStringLiteral("--hide-menubar")
+						  << QStringLiteral("--title") << tr("edb output")
+						  << QStringLiteral("--hold")
+						  << QStringLiteral("-x");
+			} else if (command_info.fileName() == QLatin1String("konsole")) {
+				proc_args << QStringLiteral("--hide-menubar")
+						  << QStringLiteral("--title") << tr("edb output")
+						  << QStringLiteral("--nofork")
+						  << QStringLiteral("--hold")
+						  << QStringLiteral("-e");
 			} else {
-				proc_args << "-title" << tr("edb output")
-						  << "-hold"
-						  << "-e";
+				proc_args << QStringLiteral("-title") << tr("edb output")
+						  << QStringLiteral("-hold")
+						  << QStringLiteral("-e");
 			}
 
-			proc_args << "sh"
-					  << "-c" << shell_script;
+			proc_args << QStringLiteral("sh")
+					  << QStringLiteral("-c") << shell_script;
 
 			qDebug() << "Running Terminal: " << tty_command;
 			qDebug() << "Terminal Args: " << proc_args;
@@ -644,7 +644,7 @@ QString Debugger::createTty() {
 						break;
 					default:
 						if (read(fd, buf, sizeof(buf)) != -1) {
-							result_tty = QString(buf).trimmed();
+							result_tty = QString::fromLatin1(buf).trimmed();
 						}
 						break;
 					}
@@ -920,7 +920,7 @@ void Debugger::setupUi() {
 		logger_ = new QPlainTextEdit(this);
 		logger_->setObjectName(QLatin1String("logView"));
 		logger_->setReadOnly(true);
-		QFont font("monospace");
+		QFont font(QStringLiteral("monospace"));
 		font.setStyleHint(QFont::TypeWriter);
 		logger_->setFont(font);
 		logger_->setWordWrapMode(QTextOption::WrapMode::NoWrap);
@@ -1092,24 +1092,24 @@ void Debugger::closeEvent(QCloseEvent *event) {
 	if (!ui_reset_) {
 		QSettings settings;
 		const QByteArray state = saveState();
-		settings.beginGroup("Window");
-		settings.setValue("window.logger.visible", logger_->isVisible());
-		settings.setValue("window.state", state);
-		settings.setValue("window.view.state", mainWindow_->saveState());
-		settings.setValue("window.width", width());
-		settings.setValue("window.height", height());
-		settings.setValue("window.x", x());
-		settings.setValue("window.y", y());
-		settings.setValue("window.stack.show_address.enabled", stackView_->showAddress());
-		settings.setValue("window.stack.show_hex.enabled", stackView_->showHexDump());
-		settings.setValue("window.stack.show_ascii.enabled", stackView_->showAsciiDump());
-		settings.setValue("window.stack.show_comments.enabled", stackView_->showComments());
+		settings.beginGroup(QStringLiteral("Window"));
+		settings.setValue(QStringLiteral("window.logger.visible"), logger_->isVisible());
+		settings.setValue(QStringLiteral("window.state"), state);
+		settings.setValue(QStringLiteral("window.view.state"), mainWindow_->saveState());
+		settings.setValue(QStringLiteral("window.width"), width());
+		settings.setValue(QStringLiteral("window.height"), height());
+		settings.setValue(QStringLiteral("window.x"), x());
+		settings.setValue(QStringLiteral("window.y"), y());
+		settings.setValue(QStringLiteral("window.stack.show_address.enabled"), stackView_->showAddress());
+		settings.setValue(QStringLiteral("window.stack.show_hex.enabled"), stackView_->showHexDump());
+		settings.setValue(QStringLiteral("window.stack.show_ascii.enabled"), stackView_->showAsciiDump());
+		settings.setValue(QStringLiteral("window.stack.show_comments.enabled"), stackView_->showComments());
 
 		QByteArray disassemblyState = cpuView_->saveState();
-		settings.setValue("window.disassembly.state", disassemblyState);
+		settings.setValue(QStringLiteral("window.disassembly.state"), disassemblyState);
 
 		QByteArray splitterState = splitter_->saveState();
-		settings.setValue("window.splitter.state", splitterState);
+		settings.setValue(QStringLiteral("window.splitter.state"), splitterState);
 
 		settings.endGroup();
 	}
@@ -1125,14 +1125,14 @@ void Debugger::closeEvent(QCloseEvent *event) {
 void Debugger::showEvent(QShowEvent *) {
 
 	QSettings settings;
-	settings.beginGroup("Window");
-	const QByteArray splitterState = settings.value("window.splitter.state").toByteArray();
-	const QByteArray viewState     = settings.value("window.view.state").toByteArray();
-	const QByteArray state         = settings.value("window.state").toByteArray();
-	const int width                = settings.value("window.width", -1).toInt();
-	const int height               = settings.value("window.height", -1).toInt();
-	const int x                    = settings.value("window.x", -1).toInt();
-	const int y                    = settings.value("window.y", -1).toInt();
+	settings.beginGroup(QStringLiteral("Window"));
+	const QByteArray splitterState = settings.value(QStringLiteral("window.splitter.state")).toByteArray();
+	const QByteArray viewState     = settings.value(QStringLiteral("window.view.state")).toByteArray();
+	const QByteArray state         = settings.value(QStringLiteral("window.state")).toByteArray();
+	const int width                = settings.value(QStringLiteral("window.width"), -1).toInt();
+	const int height               = settings.value(QStringLiteral("window.height"), -1).toInt();
+	const int x                    = settings.value(QStringLiteral("window.x"), -1).toInt();
+	const int y                    = settings.value(QStringLiteral("window.y"), -1).toInt();
 
 	if (width != -1) {
 		resize(width, size().height());
@@ -1142,7 +1142,7 @@ void Debugger::showEvent(QShowEvent *) {
 		resize(size().width(), height);
 	}
 
-	const bool loggerVisible = settings.value("window.logger.visible").toBool();
+	const bool loggerVisible = settings.value(QStringLiteral("window.logger.visible")).toBool();
 
 	const Configuration &config = edb::v1::config();
 	switch (config.startup_window_location) {
@@ -1162,10 +1162,10 @@ void Debugger::showEvent(QShowEvent *) {
 		break;
 	}
 
-	stackView_->setShowAddress(settings.value("window.stack.show_address.enabled", true).toBool());
-	stackView_->setShowHexDump(settings.value("window.stack.show_hex.enabled", true).toBool());
-	stackView_->setShowAsciiDump(settings.value("window.stack.show_ascii.enabled", true).toBool());
-	stackView_->setShowComments(settings.value("window.stack.show_comments.enabled", true).toBool());
+	stackView_->setShowAddress(settings.value(QStringLiteral("window.stack.show_address.enabled"), true).toBool());
+	stackView_->setShowHexDump(settings.value(QStringLiteral("window.stack.show_hex.enabled"), true).toBool());
+	stackView_->setShowAsciiDump(settings.value(QStringLiteral("window.stack.show_ascii.enabled"), true).toBool());
+	stackView_->setShowComments(settings.value(QStringLiteral("window.stack.show_comments.enabled"), true).toBool());
 
 	int row_width   = 1;
 	auto word_width = static_cast<int>(edb::v1::pointer_size());
@@ -1173,7 +1173,7 @@ void Debugger::showEvent(QShowEvent *) {
 	stackView_->setRowWidth(row_width);
 	stackView_->setWordWidth(word_width);
 
-	QByteArray disassemblyState = settings.value("window.disassembly.state").toByteArray();
+	QByteArray disassemblyState = settings.value(QStringLiteral("window.disassembly.state")).toByteArray();
 	cpuView_->restoreState(disassemblyState);
 
 	settings.endGroup();
@@ -1271,8 +1271,8 @@ void Debugger::setupTabButtons() {
 
 	tabCreate_->setToolButtonStyle(Qt::ToolButtonIconOnly);
 	tabDelete_->setToolButtonStyle(Qt::ToolButtonIconOnly);
-	tabCreate_->setIcon(QIcon::fromTheme("tab-new"));
-	tabDelete_->setIcon(QIcon::fromTheme("tab-close"));
+	tabCreate_->setIcon(QIcon::fromTheme(QStringLiteral("tab-new")));
+	tabDelete_->setIcon(QIcon::fromTheme(QStringLiteral("tab-close")));
 	tabCreate_->setAutoRaise(true);
 	tabDelete_->setAutoRaise(true);
 	tabCreate_->setEnabled(false);
@@ -1720,7 +1720,9 @@ void Debugger::on_actionApplication_Working_Directory_triggered() {
  * @brief
  */
 void Debugger::mnuStackPush() {
-	Register value(edb::v1::debuggeeIs32Bit() ? make_Register("", edb::value32(0), Register::TYPE_GPR) : make_Register("", edb::value64(0), Register::TYPE_GPR));
+	Register value(edb::v1::debuggeeIs32Bit()
+					   ? make_Register(QStringLiteral(""), edb::value32(0), Register::TYPE_GPR)
+					   : make_Register(QStringLiteral(""), edb::value64(0), Register::TYPE_GPR));
 
 	if (IProcess *process = edb::v1::debugger_core->process()) {
 		if (std::shared_ptr<IThread> thread = process->currentThread()) {
@@ -3015,7 +3017,7 @@ void Debugger::setInitialBreakpoint(const QString &s) {
 	edb::address_t entryPoint = 0;
 
 	if (edb::v1::config().initial_breakpoint == Configuration::MainSymbol) {
-		const QString mainSymbol        = QFileInfo(s).fileName() + "!main";
+		const QString mainSymbol        = QFileInfo(s).fileName() + QStringLiteral("!main");
 		const std::optional<Symbol> sym = edb::v1::symbol_manager().find(mainSymbol);
 
 		if (sym) {
@@ -3245,7 +3247,7 @@ void Debugger::attachComplete() {
 	QString ip   = edb::v1::debugger_core->instructionPointer().toUpper();
 	QString sp   = edb::v1::debugger_core->stackPointer().toUpper();
 	QString bp   = edb::v1::debugger_core->framePointer().toUpper();
-	QString word = edb::v1::debuggeeIs64Bit() ? "QWORD" : "DWORD";
+	QString word = edb::v1::debuggeeIs64Bit() ? QStringLiteral("QWORD") : QStringLiteral("DWORD");
 
 	setRIPAction_->setText(tr("&Set %1 to this Instruction").arg(ip));
 	gotoRIPAction_->setText(tr("&Goto %1").arg(ip));
@@ -3566,7 +3568,7 @@ void Debugger::nextDebugEvent() {
  * @brief Opens the help documentation in the default web browser.
  */
 void Debugger::on_action_Help_triggered() {
-	QDesktopServices::openUrl(QUrl("https://github.com/eteran/edb-debugger/wiki", QUrl::TolerantMode));
+	QDesktopServices::openUrl(QUrl(QStringLiteral("https://github.com/eteran/edb-debugger/wiki"), QUrl::TolerantMode));
 }
 
 /**
@@ -3602,8 +3604,8 @@ void Debugger::on_action_Reset_UI_triggered() {
 	}
 
 	QSettings settings;
-	settings.beginGroup("Window");
-	settings.remove("");
+	settings.beginGroup(QStringLiteral("Window"));
+	settings.remove(QStringLiteral(""));
 	settings.endGroup();
 	ui_reset_ = true;
 }

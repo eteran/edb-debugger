@@ -268,17 +268,17 @@ Float read_float(const QString &input, bool &ok) {
 	// OK, so either it is invalid/unfinished, or it's some special value
 	// We still do want the user to be able to enter common special values
 	Float value;
-	if (str == "+snan" || str == "snan") {
+	if (str == QStringLiteral("+snan") || str == QStringLiteral("snan")) {
 		std::memcpy(&value, &SpecialValues<Float>::positiveSNaN, sizeof(value));
-	} else if (str == "-snan") {
+	} else if (str == QStringLiteral("-snan")) {
 		std::memcpy(&value, &SpecialValues<Float>::negativeSNaN, sizeof(value));
-	} else if (str == "+qnan" || str == "qnan" || str == "nan") {
+	} else if (str == QStringLiteral("+qnan") || str == QStringLiteral("qnan") || str == QStringLiteral("nan")) {
 		std::memcpy(&value, &SpecialValues<Float>::positiveQNaN, sizeof(value));
-	} else if (str == "-qnan") {
+	} else if (str == QStringLiteral("-qnan")) {
 		std::memcpy(&value, &SpecialValues<Float>::negativeQNaN, sizeof(value));
-	} else if (str == "+inf" || str == "inf") {
+	} else if (str == QStringLiteral("+inf") || str == QStringLiteral("inf")) {
 		std::memcpy(&value, &SpecialValues<Float>::positiveInf, sizeof(value));
-	} else if (str == "-inf") {
+	} else if (str == QStringLiteral("-inf")) {
 		std::memcpy(&value, &SpecialValues<Float>::negativeInf, sizeof(value));
 	} else {
 		return 0;
@@ -367,10 +367,10 @@ QValidator::State FloatXValidator<Float>::validate(QString &input, int &) const 
 	}
 
 	// OK, so we failed to read it or it is unfinished. Let's check whether it's intermediate or invalid.
-	static const QRegularExpression basicFormat("^[+-]?[0-9]*\\.?[0-9]*(e([+-]?[0-9]*)?)?$");
-	static const QRegularExpression specialFormat("^[+-]?[sq]?nan|[+-]?inf$", QRegularExpression::CaseInsensitiveOption);
-	static const QRegularExpression hexfloatFormat("^[+-]?0x[0-9a-f]*\\.?[0-9a-f]*(p([+-]?[0-9]*)?)?$", QRegularExpression::CaseInsensitiveOption);
-	static const QRegularExpression specialFormatUnfinished("^[+-]?[sq]?(n(an?)?)?|[+-]?(i(nf?)?)?$", QRegularExpression::CaseInsensitiveOption);
+	static const QRegularExpression basicFormat(QStringLiteral("^[+-]?[0-9]*\\.?[0-9]*(e([+-]?[0-9]*)?)?$"));
+	static const QRegularExpression specialFormat(QStringLiteral("^[+-]?[sq]?nan|[+-]?inf$"), QRegularExpression::CaseInsensitiveOption);
+	static const QRegularExpression hexfloatFormat(QStringLiteral("^[+-]?0x[0-9a-f]*\\.?[0-9a-f]*(p([+-]?[0-9]*)?)?$"), QRegularExpression::CaseInsensitiveOption);
+	static const QRegularExpression specialFormatUnfinished(QStringLiteral("^[+-]?[sq]?(n(an?)?)?|[+-]?(i(nf?)?)?$"), QRegularExpression::CaseInsensitiveOption);
 
 	const QRegularExpressionMatch match                  = basicFormat.match(input);
 	const QRegularExpressionMatch matchSpecial           = specialFormat.match(input);
@@ -404,12 +404,12 @@ template QValidator::State FloatXValidator<long double>::validate(QString &input
 template <class Float>
 EDB_EXPORT QString format_float(Float value) {
 
-	const auto type    = float_type(value);
-	QString specialStr = "???? ";
+	const auto type = float_type(value);
+	auto specialStr = QStringLiteral("???? ");
 
 	switch (type) {
 	case FloatValueClass::Zero:
-		return value.negative() ? "-0.0" : "0.0";
+		return value.negative() ? QStringLiteral("-0.0") : QStringLiteral("0.0");
 
 	case FloatValueClass::PseudoDenormal:
 		if constexpr (sizeof(value) >= 10) {
@@ -450,9 +450,9 @@ EDB_EXPORT QString format_float(Float value) {
 			}
 
 			if (ret && builder.Finalize()) {
-				const QString result = buffer;
+				auto result = QString::fromLatin1(buffer);
 				if (result.size() == 1 && result[0].isDigit()) {
-					return result + ".0"; // avoid printing small whole numbers as integers
+					return result + QStringLiteral(".0"); // avoid printing small whole numbers as integers
 				}
 
 				return result;
@@ -465,9 +465,9 @@ EDB_EXPORT QString format_float(Float value) {
 			gdtoa_g_xfmt(buffer, &value, -1, sizeof buffer);
 			fixup_g_Yfmt(buffer, std::numeric_limits<long double>::digits10);
 
-			const QString result = buffer;
+			auto result = QString::fromLatin1(buffer);
 			if (result.size() == 1 && result[0].isDigit()) {
-				return result + ".0"; // avoid printing small whole numbers as integers
+				return result + QStringLiteral(".0"); // avoid printing small whole numbers as integers
 			}
 
 			return result;
@@ -476,30 +476,30 @@ EDB_EXPORT QString format_float(Float value) {
 		std::ostringstream ss;
 		ss << std::setprecision(std::numeric_limits<decltype(to_real(value))>::max_digits10) << to_real(value);
 
-		const auto result = QString::fromStdString(ss.str());
+		auto result = QString::fromStdString(ss.str());
 		if (result.size() == 1 && result[0].isDigit()) {
-			return result + ".0"; // avoid printing small whole numbers as integers
+			return result + QStringLiteral(".0"); // avoid printing small whole numbers as integers
 		}
 
 		return result;
 	}
 	case FloatValueClass::Infinity:
-		return QString(value.negative() ? "-" : "+") + "INF";
+		return (value.negative() ? QStringLiteral("-") : QStringLiteral("+")) + QStringLiteral("INF");
 	case FloatValueClass::QNaN:
-		specialStr = QString(value.negative() ? "-" : "+") + "QNAN ";
+		specialStr = (value.negative() ? QStringLiteral("-") : QStringLiteral("+")) + QStringLiteral("QNAN ");
 		break;
 	case FloatValueClass::SNaN:
-		specialStr = QString(value.negative() ? "-" : "+") + "SNAN ";
+		specialStr = (value.negative() ? QStringLiteral("-") : QStringLiteral("+")) + QStringLiteral("SNAN ");
 		break;
 	case FloatValueClass::Unsupported:
-		specialStr = QString(value.negative() ? "-" : "+") + "BAD ";
+		specialStr = (value.negative() ? QStringLiteral("-") : QStringLiteral("+")) + QStringLiteral("BAD ");
 		break;
 	}
 
 	// If we are here, then the value is special
 	auto hexStr = value.toHexString();
 
-	const QChar groupSeparator(' ');
+	const QChar groupSeparator(QLatin1Char(' '));
 	if (hexStr.size() > 8) {
 		hexStr.insert(hexStr.size() - 8, groupSeparator);
 	}

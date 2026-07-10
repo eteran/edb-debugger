@@ -60,7 +60,7 @@ QString PlatformState::flagsToString() const {
  * @return
  */
 QString PlatformState::flagsToString(edb::reg_t flags) const {
-	return "flags string"; // FIXME: stub
+	return QStringLiteral("flags string"); // FIXME: stub
 }
 
 /**
@@ -72,7 +72,7 @@ auto PlatformState::findGPR(QString const &name) const -> decltype(gpr.GPRegName
 
 	return std::find_if(GPR::GPRegNames.begin(), GPR::GPRegNames.end(), [&name](const GPR::RegNameVariants &variants) {
 		for (const char *const var : variants) {
-			if (var == name) {
+			if (QString::fromLatin1(var) == name) {
 				return true;
 			}
 		}
@@ -88,12 +88,12 @@ auto PlatformState::findGPR(QString const &name) const -> decltype(gpr.GPRegName
  */
 Register PlatformState::value(const QString &reg) const {
 	const QString name = reg.toLower();
-	if (name == "cpsr") {
+	if (name == QStringLiteral("cpsr")) {
 		return flagsRegister();
 	}
 
-	if (vfp.filled && name == "fpscr") {
-		return make_Register<32>("fpscr", vfp.fpscr, Register::TYPE_FPU);
+	if (vfp.filled && name == QStringLiteral("fpscr")) {
+		return make_Register<32>(QStringLiteral("fpscr"), vfp.fpscr, Register::TYPE_FPU);
 	}
 
 	const auto gprFoundIt = findGPR(name);
@@ -126,7 +126,7 @@ Register PlatformState::flagsRegister() const {
 #ifdef EDB_ARM32
 	if (!gpr.filled)
 		return Register();
-	return make_Register<32>("cpsr", gpr.cpsr, Register::TYPE_GPR);
+	return make_Register<32>(QStringLiteral("cpsr"), gpr.cpsr, Register::TYPE_GPR);
 #else
 	return Register(); // FIXME: stub
 #endif
@@ -259,12 +259,12 @@ void PlatformState::setRegister(const Register &reg) {
 	}
 
 	const QString name = reg.name().toLower();
-	if (name == "cpsr") {
+	if (name == QStringLiteral("cpsr")) {
 		setFlags(reg.value<edb::reg_t>());
 		return;
 	}
 
-	if (name == "fpscr") {
+	if (name == QStringLiteral("fpscr")) {
 		vfp.fpscr = reg.value<decltype(vfp.fpscr)>();
 		return;
 	}

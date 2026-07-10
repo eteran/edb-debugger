@@ -738,15 +738,15 @@ std::string printAccessMode(unsigned mode) {
  * @return A normalized string representation of the instruction, including address, bytes, and disassembly.
  */
 QString normalizeOBJDUMP(const QString &text, int bits) {
-	auto parts = text.split('\t');
+	auto parts = text.split(QLatin1Char('\t'));
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	if (parts.size() != 3) {
-		return text + " ; unexpected format";
+		return text + QStringLiteral(" ; unexpected format");
 	}
 #elif defined(EDB_ARM32)
-	if (parts.size() < 3) return text + " ; unexpected format";
+	if (parts.size() < 3) return text + QStringLiteral(" ; unexpected format");
 #else
-	return text + " ; WARNING: InstructionInspector's normalization is not implemented for this arch";
+	return text + QStringLiteral(" ; WARNING: InstructionInspector's normalization is not implemented for this arch");
 #endif
 
 	auto &addr   = parts[0];
@@ -755,9 +755,9 @@ QString normalizeOBJDUMP(const QString &text, int bits) {
 	addr         = addr.trimmed().toUpper();
 
 	// left removes colon
-	addr   = addr.left(addr.size() - 1).rightJustified(bits / 4, '0');
+	addr   = addr.left(addr.size() - 1).rightJustified(bits / 4, QLatin1Char('0'));
 	bytes  = bytes.trimmed().toUpper();
-	disasm = disasm.trimmed().replace(QRegularExpression("  +"), " ");
+	disasm = disasm.trimmed().replace(QRegularExpression(QStringLiteral("  +")), QStringLiteral(" "));
 
 #if defined(EDB_ARM32)
 	// ARM objdump prints instruction bytes as a word instead of separate bytes. We won't
@@ -767,9 +767,9 @@ QString normalizeOBJDUMP(const QString &text, int bits) {
 
 	// operands and comments are separated by a one or more tabs on ARM
 	for (unsigned i = 3; i < parts.size(); ++i)
-		disasm += " " + parts[i];
+		disasm += QStringLiteral(" ") + parts[i];
 #endif
-	return addr + "   " + bytes + "   " + disasm;
+	return addr + QLatin1String("   ") + bytes + QLatin1String("   ") + disasm;
 }
 
 /**
@@ -784,7 +784,7 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 	const std::string processName = "objdump";
 	const auto bits               = edb::v1::debuggeeIs32Bit() ? 32 : 64;
 
-	QTemporaryFile binary(QDir::tempPath() + "/edb_insn_inspector_temp_XXXXXX.bin");
+	QTemporaryFile binary(QDir::tempPath() + QLatin1String("/edb_insn_inspector_temp_XXXXXX.bin"));
 
 	if (!binary.open()) {
 		return "; Failed to create binary file";
@@ -798,22 +798,22 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 
 	binary.close();
 	QProcess process;
-	process.start(processName.c_str(), {"-D",
-										"--target=binary",
+	process.start(QString::fromStdString(processName), {QStringLiteral("-D"),
+														QStringLiteral("--target=binary"),
 #if defined(EDB_X86) || defined(EDB_X86_64)
-										"--insn-width=15",
-										"--architecture=i386" + QString(bits == 64 ? ":x86-64" : ""),
-										"-M",
-										"intel,intel-mnemonic",
+														QStringLiteral("--insn-width=15"),
+														QStringLiteral("--architecture=i386") + QLatin1String(bits == 64 ? ":x86-64" : ""),
+														QStringLiteral("-M"),
+														QStringLiteral("intel,intel-mnemonic"),
 #elif defined(EDB_ARM32)
-										"--insn-width=4",
-										"-m",
-										"arm",
-										edb::v1::debugger_core->cpuMode() == IDebugger::CpuMode::Thumb ? "-Mforce-thumb" : "-Mno-force-thumb",
+														QStringLiteral("--insn-width=4"),
+														QStringLiteral("-m"),
+														QStringLiteral("arm"),
+														edb::v1::debugger_core->cpuMode() == IDebugger::CpuMode::Thumb ? QStringLiteral("-Mforce-thumb") : QStringLiteral("-Mno-force-thumb"),
 #else
 #error "Not implemented"
 #endif
-										"--adjust-vma=" + address.toPointerString(), binary.fileName()});
+														QStringLiteral("--adjust-vma=") + address.toPointerString(), binary.fileName()});
 
 	if (process.waitForFinished()) {
 		if (process.exitCode() != 0) {
@@ -823,12 +823,12 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 			return "; process crashed";
 		}
 
-		const auto output  = QString::fromUtf8(process.readAllStandardOutput()).split('\n');
-		const auto addrStr = address.toHexString().toLower().replace(QRegularExpression("^0+"), "");
+		const auto output  = QString::fromUtf8(process.readAllStandardOutput()).split(QLatin1Char('\n'));
+		const auto addrStr = address.toHexString().toLower().replace(QRegularExpression(QStringLiteral("^0+")), QStringLiteral(""));
 
 		QString result;
 		for (auto &line : output) {
-			if (line.contains(QRegularExpression("^ *" + addrStr + ":\t[^\t]+\t"))) {
+			if (line.contains(QRegularExpression(QStringLiteral("^ *") + addrStr + QStringLiteral(":\t[^\t]+\t")))) {
 				result = line;
 				break;
 			}
@@ -838,10 +838,10 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 			// Try truncating higher bits of address: some versions of objconv can't --adjust-vma to
 			// 64-bit values even with --architecture=i386:x86-64 (namely, 32-bit binutils 2.26.20160125)
 			if (bits == 64 && address > UINT32_MAX) {
-				return runOBJDUMP(bytes, address & UINT32_MAX) + " ; WARNING: origin had to be truncated for objdump";
+				return runOBJDUMP(bytes, address & UINT32_MAX) + QStringLiteral(" ; WARNING: origin had to be truncated for objdump").toStdString();
 			}
 
-			return ("; failed to find disassembly. stdout: \"" + output.join("\n") + "\"").toStdString();
+			return (QStringLiteral("; failed to find disassembly. stdout: \"") + output.join(QLatin1Char('\n')) + QStringLiteral("\"")).toStdString();
 		}
 
 		return normalizeOBJDUMP(result, bits).toStdString();
@@ -864,33 +864,33 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
  */
 QString normalizeNDISASM(const QString &text, int bits) {
 
-	auto lines = text.split('\n');
+	auto lines = text.split(QLatin1Char('\n'));
 	Q_ASSERT(!lines.isEmpty());
-	auto parts = lines.takeFirst().replace(QRegularExpression("  +"), "\t").split('\t');
+	auto parts = lines.takeFirst().replace(QRegularExpression(QStringLiteral("  +")), QStringLiteral("\t")).split(QLatin1Char('\t'));
 
 	if (parts.size() != 3) {
-		return text + " ; unexpected format 1";
+		return text + QStringLiteral(" ; unexpected format 1");
 	}
 
 	auto &addr   = parts[0];
 	auto &bytes  = parts[1];
 	auto &disasm = parts[2];
 
-	addr  = addr.rightJustified(bits / 4, '0');
+	addr  = addr.rightJustified(bits / 4, QLatin1Char('0'));
 	bytes = bytes.trimmed();
 
 	// connect the rest of lines to bytes
 	for (auto &line : lines) {
-		if (!line.contains(QRegularExpression("^ +-[0-9a-fA-F]+$"))) {
-			return text + " ; unexpected format 2";
+		if (!line.contains(QRegularExpression(QStringLiteral("^ +-[0-9a-fA-F]+$")))) {
+			return text + QStringLiteral(" ; unexpected format 2");
 		}
 
 		line = line.trimmed();
 		bytes += line.right(line.size() - 1); // remove leading '-'
 	}
 
-	bytes.replace(QRegularExpression("(..)"), "\\1 ");
-	return addr + "   " + bytes.trimmed() + "   " + disasm.trimmed();
+	bytes.replace(QRegularExpression(QStringLiteral("(..)")), QStringLiteral("\\1 "));
+	return addr + QStringLiteral("   ") + bytes.trimmed() + QStringLiteral("   ") + disasm.trimmed();
 }
 
 /**
@@ -905,7 +905,7 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 	const std::string processName = "ndisasm";
 	const auto bits               = edb::v1::debuggeeIs32Bit() ? 32 : 64;
 
-	QTemporaryFile binary(QDir::tempPath() + "/edb_insn_inspector_temp_XXXXXX.bin");
+	QTemporaryFile binary(QDir::tempPath() + QLatin1String("/edb_insn_inspector_temp_XXXXXX.bin"));
 
 	if (!binary.open()) {
 		return "; Failed to create binary file";
@@ -919,7 +919,12 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 
 	binary.close();
 	QProcess process;
-	process.start(processName.c_str(), {"-o", address.toPointerString(), "-b", std::to_string(bits).c_str(), binary.fileName()});
+	process.start(QString::fromStdString(processName),
+				  QStringList{QStringLiteral("-o"),
+							  address.toPointerString(),
+							  QStringLiteral("-b"),
+							  QString::number(bits),
+							  binary.fileName()});
 
 	if (process.waitForFinished()) {
 		if (process.exitCode() != 0) {
@@ -930,12 +935,12 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 			return "; process crashed";
 		}
 
-		auto output    = QString::fromUtf8(process.readAllStandardOutput()).split('\n');
+		auto output    = QString::fromUtf8(process.readAllStandardOutput()).split(QLatin1Char('\n'));
 		QString result = output.takeFirst();
 
 		for (auto &line : output) {
-			if (line.contains(QRegularExpression("^ +-[0-9a-fA-F]+$"))) {
-				result += "\n" + line;
+			if (line.contains(QRegularExpression(QStringLiteral("^ +-[0-9a-fA-F]+$")))) {
+				result += QStringLiteral("\n") + line;
 			} else {
 				break;
 			}
@@ -959,20 +964,20 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
  */
 std::pair<QString, std::size_t /*insnLength*/> normalizeOBJCONV(const QString &text, int bits) {
 
-	static const QRegularExpression expectedFormat("^ +([^;]+); ([0-9a-fA-F]+) _ (.*)");
+	static const QRegularExpression expectedFormat(QStringLiteral("^ +([^;]+); ([0-9a-fA-F]+) _ (.*)"));
 	const QRegularExpressionMatch expectedMatch = expectedFormat.match(text);
 	if (!expectedMatch.hasMatch()) {
 		throw NormalizeFailure{};
 	}
 
-	const auto addr   = expectedMatch.captured(2).rightJustified(bits / 4, '0');
+	const auto addr   = expectedMatch.captured(2).rightJustified(bits / 4, QLatin1Char('0'));
 	auto bytes        = expectedMatch.captured(3).trimmed();
-	const auto disasm = expectedMatch.captured(1).trimmed().replace(QRegularExpression("  +"), " ");
-	const auto result = addr + "   " + bytes + "   " + disasm;
+	const auto disasm = expectedMatch.captured(1).trimmed().replace(QRegularExpression(QStringLiteral("  +")), QStringLiteral(" "));
+	const auto result = addr + QStringLiteral("   ") + bytes + QStringLiteral("   ") + disasm;
 
-	bytes.replace(QRegularExpression("[^0-9a-fA-F]"), "");
+	bytes.replace(QRegularExpression(QStringLiteral("[^0-9a-fA-F]")), QStringLiteral(""));
 	const std::size_t insnLength = bytes.length() / 2;
-	return {result, insnLength};
+	return std::make_pair(result, insnLength);
 }
 
 /**
@@ -988,7 +993,7 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 
 	QString binaryFileName;
 	{
-		QTemporaryFile binary(QDir::tempPath() + "/edb_insn_inspector_temp_XXXXXX.bin");
+		QTemporaryFile binary(QDir::tempPath() + QLatin1String("/edb_insn_inspector_temp_XXXXXX.bin"));
 		if (!binary.open()) {
 			return "; Failed to create binary file";
 		}
@@ -1167,7 +1172,8 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 	}
 
 	QProcess process;
-	process.start(processName.c_str(), {"-fnasm", binaryFileName, "/dev/stdout"});
+	process.start(QString::fromStdString(processName),
+				  QStringList{QStringLiteral("-fnasm"), binaryFileName, QStringLiteral("/dev/stdout")});
 
 	const bool success = process.waitForFinished();
 	QFile::remove(binaryFileName);
@@ -1191,37 +1197,37 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 			Instruction,
 		} mode = LookingFor::FunctionBegin;
 
-		const QString addrFormatted          = address.toHexString().toUpper().replace(QRegularExpression("^0+"), "");
-		const QString addrTruncatedFormatted = (address & UINT32_MAX).toHexString().toUpper().replace(QRegularExpression("^0+"), "");
+		const QString addrFormatted          = address.toHexString().toUpper().replace(QRegularExpression(QStringLiteral("^0+")), QStringLiteral(""));
+		const QString addrTruncatedFormatted = (address & UINT32_MAX).toHexString().toUpper().replace(QRegularExpression(QStringLiteral("^0+")), QStringLiteral(""));
 
 		for (const QByteArray &byteString : lines) {
 			const auto line = QString::fromUtf8(byteString);
 			switch (mode) {
 			case LookingFor::FunctionBegin:
-				if (line.contains(QRegularExpression("^; Instruction set:"))) {
-					result += line + '\n';
+				if (line.contains(QRegularExpression(QStringLiteral("^; Instruction set:")))) {
+					result += line + QLatin1Char('\n');
 					continue;
 				}
 
-				if (line.contains(QRegularExpression("^SECTION.* execute"))) {
+				if (line.contains(QRegularExpression(QStringLiteral("^SECTION.* execute")))) {
 					mode = LookingFor::Instruction;
 					continue;
 				}
 				break;
 			case LookingFor::Instruction:
-				if (line.startsWith("; ")) {
+				if (line.startsWith(QLatin1String("; "))) {
 					// Filter useless notes
-					if (line.contains("Function does not end with ")) {
+					if (line.contains(QLatin1String("Function does not end with "))) {
 						continue;
 					}
-					if (line.contains("without relocation")) {
+					if (line.contains(QLatin1String("without relocation"))) {
 						continue;
 					}
 
-					result += line + '\n';
+					result += line + QLatin1Char('\n');
 				}
 
-				if (line.contains(QRegularExpression("  +[^;]+; 0*" + addrFormatted + " _")) || line.contains(QRegularExpression("  +[^;]+; 0*" + addrTruncatedFormatted + " _"))) { // XXX: objconv truncates all addresses to 32 bits
+				if (line.contains(QRegularExpression(QStringLiteral("  +[^;]+; 0*") + addrFormatted + QStringLiteral(" _"))) || line.contains(QRegularExpression(QStringLiteral("  +[^;]+; 0*") + addrTruncatedFormatted + QStringLiteral(" _")))) { // XXX: objconv truncates all addresses to 32 bits
 					try {
 						QString normalized;
 						std::size_t insnLength;
@@ -1241,15 +1247,15 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 					}
 				}
 
-				if (line.contains(QRegularExpression("^  +db "))) {
-					auto lines = result.split('\n');
+				if (line.contains(QRegularExpression(QStringLiteral("^  +db ")))) {
+					auto lines = result.split(QLatin1Char('\n'));
 					for (int i = 0; i < result.size(); ++i) {
-						if (lines[i].startsWith("; Instruction set:")) {
+						if (lines[i].startsWith(QLatin1String("; Instruction set:"))) {
 							lines.removeAt(i);
 							break;
 						}
 					}
-					return (lines.join("\n") + address.toHexString().toUpper() + "   " + line.trimmed()).toStdString();
+					return (lines.join(QLatin1Char('\n')) + address.toHexString().toUpper() + QStringLiteral("   ") + line.trimmed()).toStdString();
 				}
 				break;
 			}
@@ -1331,7 +1337,7 @@ public:
  * @param parent The parent QObject for the plugin.
  */
 Plugin::Plugin(QObject *parent)
-	: QObject(parent), menuAction_(new QAction("Inspect instruction (Capstone info)", this)) {
+	: QObject(parent), menuAction_(new QAction(QStringLiteral("Inspect instruction (Capstone info)"), this)) {
 
 	connect(menuAction_, &QAction::triggered, this, [this](bool) {
 		showDialog();
@@ -1365,7 +1371,7 @@ QList<QAction *> Plugin::cpuContextMenu() {
 InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f) {
 
-	setWindowTitle("Instruction Inspector");
+	setWindowTitle(QStringLiteral("Instruction Inspector"));
 	address_ = edb::v1::cpu_selected_address();
 	const cs_mode mode =
 #if defined(EDB_X86) || defined(EDB_X86_64)
@@ -1398,7 +1404,7 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 
 		setLayout(layout_);
 		layout_->addWidget(tree_);
-		buttonCompare_ = new QPushButton("Compare disassemblers");
+		buttonCompare_ = new QPushButton(QStringLiteral("Compare disassemblers"));
 		layout_->addWidget(buttonCompare_);
 
 		connect(buttonCompare_, &QPushButton::clicked, this, [this](bool) {
@@ -1407,7 +1413,7 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 
 		tree_->setUniformRowHeights(true);
 		tree_->setColumnCount(2);
-		tree_->setHeaderLabels({"Field", "Value"});
+		tree_->setHeaderLabels(QStringList{QStringLiteral("Field"), QStringLiteral("Value")});
 
 		// Workaround for impossibility of default parameters in C++11 lambdas
 		struct Add {
@@ -1419,10 +1425,19 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f)
 			void operator()(const QStringList &sl, QTreeWidgetItem *parent = nullptr) const {
 				tree_->addTopLevelItem(new QTreeWidgetItem(parent, sl));
 			}
+
+			void operator()(std::initializer_list<const char *> sl, QTreeWidgetItem *parent = nullptr) const {
+				QStringList converted;
+				converted.reserve(static_cast<int>(sl.size()));
+				for (const char *value : sl) {
+					converted.push_back(QString::fromLatin1(value));
+				}
+				tree_->addTopLevelItem(new QTreeWidgetItem(parent, converted));
+			}
 		} add(tree_);
 
 		if (!insn) {
-			add({"Bad instruction", "Failed to disassemble instruction at address " + edb::v1::format_pointer(address_)});
+			add({QStringLiteral("Bad instruction"), QStringLiteral("Failed to disassemble instruction at address ") + edb::v1::format_pointer(address_)});
 			add({"Bytes", printBytes(insnBytes_.data(), insnBytes_.size()).c_str()});
 		} else {
 			add({"Address", toHex(insn->address).c_str()});
@@ -1661,10 +1676,10 @@ void InstructionDialog::compareDisassemblers() {
 
 	QFont font(disassemblies_->font());
 	font.setStyleHint(QFont::TypeWriter);
-	font.setFamily("Monospace");
+	font.setFamily(QStringLiteral("Monospace"));
 
 	disassemblies_->setFont(font);
-	disassemblies_->setText(message.str().c_str());
+	disassemblies_->setText(QString::fromStdString(message.str()));
 }
 
 /**
@@ -1687,7 +1702,7 @@ void Plugin::showDialog() const {
 		QMessageBox::critical(
 			edb::v1::debugger_ui,
 			tr("Capstone error"),
-			tr("Failed to initialize Capstone: %1").arg(ex.error));
+			tr("Failed to initialize Capstone: %1").arg(QString::fromLatin1(ex.error)));
 	} catch (...) {
 	}
 }

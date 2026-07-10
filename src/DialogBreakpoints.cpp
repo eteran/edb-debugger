@@ -108,7 +108,7 @@ void DialogBreakpoints::on_btnAdd_clicked() {
 			updateList();
 
 		} else {
-			QMessageBox::critical(this, tr("Error In Address Expression!"), address.error().what());
+			QMessageBox::critical(this, tr("Error In Address Expression!"), QString::fromLatin1(address.error().what()));
 		}
 	}
 }
@@ -180,7 +180,7 @@ void DialogBreakpoints::on_btnImport_clicked() {
 
 	// Let the user choose the file; get the file name.
 	QString home_directory = QDir::homePath();
-	QString file_name      = QFileDialog::getOpenFileName(this, tr("Breakpoint Import File"), home_directory, nullptr);
+	QString file_name      = QFileDialog::getOpenFileName(this, tr("Breakpoint Import File"), home_directory);
 
 	if (file_name.isEmpty()) {
 		return;
@@ -203,7 +203,7 @@ void DialogBreakpoints::on_btnImport_clicked() {
 	Q_FOREVER {
 
 		// Get the address
-		QString line = file.readLine().trimmed();
+		auto line = QString::fromLocal8Bit(file.readLine().trimmed());
 
 		if (line.isEmpty()) {
 			break;
@@ -244,7 +244,7 @@ void DialogBreakpoints::on_btnImport_clicked() {
 
 	// Report any errors to the user
 	if (!errors.empty()) {
-		QMessageBox::warning(this, tr("Invalid Breakpoints"), tr("The following breakpoints were not made:\n%1").arg(errors.join("")));
+		QMessageBox::warning(this, tr("Invalid Breakpoints"), tr("The following breakpoints were not made:\n%1").arg(errors.join(QLatin1String("\n"))));
 	}
 
 	// Report breakpoints successfully made
@@ -291,7 +291,7 @@ void DialogBreakpoints::on_btnExport_clicked() {
 	}
 
 	for (edb::address_t address : export_list) {
-		QString string_address = "0x" + QString::number(address, 16) + "\n";
+		auto string_address = QStringLiteral("0x") + QString::number(address, 16) + QStringLiteral("\n");
 		file.write(string_address.toLatin1());
 	}
 

@@ -31,7 +31,7 @@ void OptionsPage::showEvent(QShowEvent *event) {
 	Q_UNUSED(event)
 
 	QSettings settings;
-	ui.checkBox->setChecked(settings.value("Analyzer/fuzzy_logic_functions.enabled", true).toBool());
+	ui.checkBox->setChecked(settings.value(QStringLiteral("Analyzer/fuzzy_logic_functions.enabled"), true).toBool());
 }
 
 /**
@@ -43,7 +43,7 @@ void OptionsPage::checkBoxToggled(bool checked) {
 	Q_UNUSED(checked)
 
 	QSettings settings;
-	settings.setValue("Analyzer/fuzzy_logic_functions.enabled", ui.checkBox->isChecked());
+	settings.setValue(QStringLiteral("Analyzer/fuzzy_logic_functions.enabled"), ui.checkBox->isChecked());
 }
 
 }

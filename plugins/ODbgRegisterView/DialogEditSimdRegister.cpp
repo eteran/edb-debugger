@@ -46,10 +46,10 @@ void DialogEditSimdRegister::setupEntries(const QString &label, std::array<Numbe
 
 DialogEditSimdRegister::DialogEditSimdRegister(QWidget *parent, Qt::WindowFlags f)
 	: QDialog(parent, f),
-	  byteHexValidator_(new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{0,2}"), this)),
-	  wordHexValidator_(new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{0,4}"), this)),
-	  dwordHexValidator_(new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{0,8}"), this)),
-	  qwordHexValidator_(new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{0,16}"), this)),
+	  byteHexValidator_(new QRegularExpressionValidator(QRegularExpression(QStringLiteral("[0-9a-fA-F]{0,2}")), this)),
+	  wordHexValidator_(new QRegularExpressionValidator(QRegularExpression(QStringLiteral("[0-9a-fA-F]{0,4}")), this)),
+	  dwordHexValidator_(new QRegularExpressionValidator(QRegularExpression(QStringLiteral("[0-9a-fA-F]{0,8}")), this)),
+	  qwordHexValidator_(new QRegularExpressionValidator(QRegularExpression(QStringLiteral("[0-9a-fA-F]{0,16}")), this)),
 	  byteSignedValidator_(new QLongValidator(INT8_MIN, INT8_MAX, this)),
 	  wordSignedValidator_(new QLongValidator(INT16_MIN, INT16_MAX, this)),
 	  dwordSignedValidator_(new QLongValidator(INT32_MIN, INT32_MAX, this)),
@@ -67,7 +67,7 @@ DialogEditSimdRegister::DialogEditSimdRegister(QWidget *parent, Qt::WindowFlags 
 	const auto allContentsGrid = new QGridLayout(this);
 
 	for (int byteIndex = 0; byteIndex < NumBytes; ++byteIndex) {
-		columnLabels_[byteIndex] = new QLabel(std::to_string(byteIndex).c_str(), this);
+		columnLabels_[byteIndex] = new QLabel(QString::number(byteIndex), this);
 		columnLabels_[byteIndex]->setAlignment(Qt::AlignCenter);
 		allContentsGrid->addWidget(columnLabels_[byteIndex], BYTE_INDICES_ROW, ENTRIES_FIRST_COL + NumBytes - 1 - byteIndex);
 	}
@@ -329,9 +329,9 @@ void DialogEditSimdRegister::setValue(const Register &value) {
 	reg_ = value;
 	util::mark_memory(&value_, value_.size());
 
-	static const QRegularExpression MMXx("^mm([0-7])$");
-	static const QRegularExpression XMMx("^xmm([0-9]+)$");
-	static const QRegularExpression YMMx("^ymm([0-9]+)$");
+	static const QRegularExpression MMXx(QStringLiteral("^mm([0-7])$"));
+	static const QRegularExpression XMMx(QStringLiteral("^xmm([0-9]+)$"));
+	static const QRegularExpression YMMx(QStringLiteral("^ymm([0-9]+)$"));
 
 	const QRegularExpressionMatch mmxMatch = MMXx.match(reg_.name());
 	const QRegularExpressionMatch xmmMatch = XMMx.match(reg_.name());
@@ -429,7 +429,7 @@ template <class Integer>
 void DialogEditSimdRegister::formatInteger(NumberEdit *const edit, Integer integer) const {
 	switch (intMode_) {
 	case NumberDisplayMode::Hex:
-		edit->setText(QStringLiteral("%1").arg(integer, 2 * sizeof(integer), 16, QChar('0')));
+		edit->setText(QStringLiteral("%1").arg(integer, 2 * sizeof(integer), 16, QLatin1Char('0')));
 		break;
 	case NumberDisplayMode::Signed:
 		using Int    = std::remove_reference_t<Integer>;

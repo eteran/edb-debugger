@@ -70,7 +70,7 @@ QStringList split_max(const QString &str, int maxparts) {
 	int idx      = 0;
 	QStringList items;
 	for (const QChar &c : str) {
-		if (c == ' ') {
+		if (c == QLatin1Char(' ')) {
 			if (prev_idx < idx) {
 				if (items.size() < maxparts - 1) {
 					items << str.mid(prev_idx, idx - prev_idx);
@@ -108,7 +108,7 @@ std::shared_ptr<IRegion> process_map_line(const QString &line) {
 	const QStringList items = split_max(line, 6);
 	if (items.size() >= 3) {
 		bool ok;
-		const QStringList bounds = items[0].split("-");
+		const QStringList bounds = items[0].split(QLatin1Char('-'));
 		if (bounds.size() == 2) {
 			start = edb::address_t::fromHexString(bounds[0], &ok);
 			if (ok) {
@@ -118,13 +118,13 @@ std::shared_ptr<IRegion> process_map_line(const QString &line) {
 					if (ok) {
 						const QString perms = items[1];
 						permissions         = 0;
-						if (perms[0] == 'r') {
+						if (perms[0] == QLatin1Char('r')) {
 							permissions |= PROT_READ;
 						}
-						if (perms[1] == 'w') {
+						if (perms[1] == QLatin1Char('w')) {
 							permissions |= PROT_WRITE;
 						}
-						if (perms[2] == 'x') {
+						if (perms[2] == QLatin1Char('x')) {
 							permissions |= PROT_EXEC;
 						}
 
@@ -172,7 +172,7 @@ QSet<Module> get_loaded_modules(const IProcess *process) {
 
 							if (map.l_addr) {
 								Module module;
-								module.name        = path;
+								module.name        = QString::fromLocal8Bit(path);
 								module.baseAddress = map.l_addr;
 								ret.insert(std::move(module));
 							}
@@ -195,7 +195,7 @@ QSet<Module> get_loaded_modules(const IProcess *process) {
 		for (const std::shared_ptr<IRegion> &region : r) {
 
 			// we assume that modules will be listed by absolute path
-			if (region->name().startsWith("/")) {
+			if (region->name().startsWith(QLatin1Char('/'))) {
 				if (!util::contains(found_modules, region->name())) {
 					Module module;
 					module.name        = region->name();
@@ -811,7 +811,7 @@ edb::uid_t PlatformProcess::uid() const {
  */
 QString PlatformProcess::user() const {
 	if (const struct passwd *const pwd = ::getpwuid(uid())) {
-		return pwd->pw_name;
+		return QString::fromLocal8Bit(pwd->pw_name);
 	}
 
 	return QString();
@@ -826,7 +826,7 @@ QString PlatformProcess::name() const {
 	struct user_stat user_stat;
 	const int n = get_user_stat(pid_, &user_stat);
 	if (n >= 2) {
-		return user_stat.comm;
+		return QString::fromLocal8Bit(user_stat.comm);
 	}
 
 	return QString();
@@ -863,7 +863,7 @@ Status PlatformProcess::pause() {
 	if (::kill(pid_, SIGSTOP) == -1) {
 		const char *const strError = strerror(errno);
 		qWarning() << "Unable to pause process" << pid_ << ": kill(SIGSTOP) failed:" << strError;
-		return Status(strError);
+		return Status(QString::fromLatin1(strError));
 	}
 
 	return Status::Ok;
@@ -912,7 +912,7 @@ Status PlatformProcess::resume(edb::EventStatus status) {
 	}
 
 	qWarning() << errorMessage.toStdString().c_str();
-	return Status("\n" + errorMessage);
+	return Status(QStringLiteral("\n") + errorMessage);
 }
 
 /**

@@ -48,15 +48,15 @@ void DialogPlugins::showEvent(QShowEvent *) {
 		// get a QObject from the plugin
 		if (QObject *const p = it.value()) {
 			const QMetaObject *const meta = p->metaObject();
-			plugin_name                   = meta->className();
+			plugin_name                   = QString::fromLocal8Bit(meta->className());
 			const int author_index        = meta->indexOfClassInfo("author");
 			if (author_index != -1) {
-				author = meta->classInfo(author_index).value();
+				author = QString::fromLocal8Bit(meta->classInfo(author_index).value());
 			}
 
 			const int url_index = meta->indexOfClassInfo("url");
 			if (url_index != -1) {
-				url = meta->classInfo(url_index).value();
+				url = QString::fromLocal8Bit(meta->classInfo(url_index).value());
 			}
 		}
 

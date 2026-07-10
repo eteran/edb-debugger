@@ -30,7 +30,7 @@ void OptionsPage::showEvent(QShowEvent *event) {
 	Q_UNUSED(event)
 
 	QSettings settings;
-	ui.checkBox->setChecked(settings.value("CheckVersion/check_on_start.enabled", true).toBool());
+	ui.checkBox->setChecked(settings.value(QStringLiteral("CheckVersion/check_on_start.enabled"), true).toBool());
 }
 
 /**
@@ -42,7 +42,7 @@ void OptionsPage::on_checkBox_toggled(bool checked) {
 	Q_UNUSED(checked)
 
 	QSettings settings;
-	settings.setValue("CheckVersion/check_on_start.enabled", ui.checkBox->isChecked());
+	settings.setValue(QStringLiteral("CheckVersion/check_on_start.enabled"), ui.checkBox->isChecked());
 }
 
 }

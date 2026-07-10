@@ -16,7 +16,7 @@ namespace ODbgRegisterView {
 RegisterGroup::RegisterGroup(const QString &name, QWidget *parent, Qt::WindowFlags f)
 	: QWidget(parent, f), name_(name) {
 
-	setObjectName("RegisterGroup_" + name);
+	setObjectName(QStringLiteral("RegisterGroup_") + name);
 	{
 		menuItems_.push_back(new_action_separator(this));
 		menuItems_.push_back(new_action(tr("Hide %1", "register group").arg(name), this, [this]() {

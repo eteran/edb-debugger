@@ -618,7 +618,7 @@ QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 				const edb::address_t start = e->start;
 				const edb::address_t end   = e->end;
 				const edb::address_t base  = e->offset;
-				const QString name         = QString();
+				const auto name            = QString();
 				const IRegion::permissions_t permissions =
 					((e->protection & VM_PROT_READ) ? PROT_READ : 0) |
 					((e->protection & VM_PROT_WRITE) ? PROT_WRITE : 0) |
@@ -638,7 +638,7 @@ QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 					const edb::address_t start = e.start;
 					const edb::address_t end   = e.end;
 					const edb::address_t base  = e.offset;
-					const QString name         = QString();
+					const auto name            = QString();
 					const IRegion::permissions_t permissions =
 						((e.protection & VM_PROT_READ) ? PROT_READ : 0) |
 						((e.protection & VM_PROT_WRITE) ? PROT_WRITE : 0) |

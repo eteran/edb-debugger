@@ -136,7 +136,7 @@ QMap<qlonglong, QString> Unix::exceptions() {
 
 	QMap<qlonglong, QString> exceptions;
 	for (Exception e : Exceptions) {
-		exceptions.insert(e.value, e.name);
+		exceptions.insert(e.value, QString::fromLatin1(e.name));
 	}
 	return exceptions;
 }
@@ -153,7 +153,7 @@ QString Unix::exception_name(qlonglong value) {
 	});
 
 	if (it != std::end(Exceptions)) {
-		return it->name;
+		return QString::fromLatin1(it->name);
 	}
 
 	return QString();
@@ -167,7 +167,7 @@ QString Unix::exception_name(qlonglong value) {
  */
 qlonglong Unix::exception_value(const QString &name) {
 	auto it = std::find_if(std::begin(Exceptions), std::end(Exceptions), [&name](const Exception &ex) {
-		return ex.name == name;
+		return QString::fromLatin1(ex.name) == name;
 	});
 
 	if (it != std::end(Exceptions)) {
@@ -187,7 +187,7 @@ qlonglong Unix::exception_value(const QString &name) {
  */
 Status Unix::execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args) {
 
-	QString errorString = "internal error";
+	auto errorString = QStringLiteral("internal error");
 
 	// change to the desired working directory
 	if (::chdir(qPrintable(cwd)) == 0) {
@@ -215,7 +215,7 @@ Status Unix::execute_process(const QString &path, const QString &cwd, const QLis
 		// returning on errors confuses linters, so let's just assert what is the case
 		Q_ASSERT(ret == -1);
 
-		errorString = QStringLiteral("execv() failed: %1").arg(strerror(errno));
+		errorString = QStringLiteral("execv() failed: %1").arg(QString::fromLocal8Bit(strerror(errno)));
 
 		p = argv_pointers;
 		while (*p) {

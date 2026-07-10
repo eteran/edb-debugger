@@ -147,12 +147,12 @@ void BinaryString::on_txtUTF16_textEdited(const QString &text) {
 		const uint16_t ch = i.unicode();
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-		textAscii += static_cast<char>(ch & 0xff);
-		textAscii += static_cast<char>((ch >> 8) & 0xff);
+		textAscii += QChar::fromLatin1(static_cast<char>(ch & 0xff));
+		textAscii += QChar::fromLatin1(static_cast<char>((ch >> 8) & 0xff));
 		textHex += QString::asprintf("%02x %02x ", ch & 0xff, (ch >> 8) & 0xff);
 #else
-		textAscii += static_cast<char>((ch >> 8) & 0xff);
-		textAscii += static_cast<char>(ch & 0xff);
+		textAscii += QChar::fromLatin1(static_cast<char>((ch >> 8) & 0xff));
+		textAscii += QChar::fromLatin1(static_cast<char>(ch & 0xff));
 		textHex += QString::asprintf("%02x %02x ", (ch >> 8) & 0xff, ch & 0xff);
 #endif
 	}
@@ -175,7 +175,7 @@ void BinaryString::on_txtHex_textEdited(const QString &text) {
 	QString textAscii;
 	QString textUTF16;
 
-	const QStringList list1 = text.split(" ", Qt::SkipEmptyParts);
+	const QStringList list1 = text.split(QLatin1Char(' '), Qt::SkipEmptyParts);
 	for (const QString &s : list1) {
 
 		const auto ch = static_cast<uint8_t>(s.toUInt(nullptr, 16));
@@ -186,7 +186,7 @@ void BinaryString::on_txtHex_textEdited(const QString &text) {
 		utf16Char = (utf16Char << 8) | ch;
 #endif
 
-		textAscii += static_cast<char>(ch);
+		textAscii += QChar::fromLatin1(static_cast<char>(ch));
 
 		if (counter++ & 1) {
 			textUTF16 += QChar(utf16Char);
@@ -206,7 +206,7 @@ void BinaryString::on_txtHex_textEdited(const QString &text) {
 QByteArray BinaryString::value() const {
 
 	QByteArray ret;
-	const QStringList list1 = ui->txtHex->text().split(" ", Qt::SkipEmptyParts);
+	const QStringList list1 = ui->txtHex->text().split(QLatin1Char(' '), Qt::SkipEmptyParts);
 	for (const QString &i : list1) {
 		ret += static_cast<uint8_t>(i.toUInt(nullptr, 16));
 	}

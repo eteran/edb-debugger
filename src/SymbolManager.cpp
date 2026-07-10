@@ -62,14 +62,14 @@ void SymbolManager::loadSymbolFile(const QString &filename, edb::address_t base)
 			info.makeAbsolute();
 		}
 
-		const QString path = QStringLiteral("%1/%2").arg(symbol_directory, info.absolutePath());
+		const auto path    = QStringLiteral("%1/%2").arg(symbol_directory, info.absolutePath());
 		const QString name = info.fileName();
 
 		// ensure that the sub-directory exists
 		QDir().mkpath(path);
 
 		if (!symbolFiles_.contains(info.absoluteFilePath())) {
-			const QString map_file = QStringLiteral("%1/%2.map").arg(path, name);
+			const auto map_file = QStringLiteral("%1/%2.map").arg(path, name);
 
 			if (processSymbolFile(map_file, base, filename, true)) {
 				symbolFiles_.insert(info.absoluteFilePath());

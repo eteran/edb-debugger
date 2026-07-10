@@ -50,7 +50,7 @@ QString PlatformThread::name() const {
 	struct user_stat thread_stat;
 	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);
 	if (n >= 2) {
-		return thread_stat.comm;
+		return QString::fromLocal8Bit(thread_stat.comm);
 	}
 
 	return QString();

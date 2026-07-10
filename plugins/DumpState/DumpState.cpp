@@ -57,7 +57,7 @@ template <class T>
 std::string format_register(const T &value) {
 
 	QSettings settings;
-	const int colorize = settings.value("DumpState/colorize", true).toBool();
+	const int colorize = settings.value(QStringLiteral("DumpState/colorize"), true).toBool();
 
 	if (colorize) {
 		return Blue + hex_string(value) + Reset;
@@ -76,7 +76,7 @@ template <class T>
 std::string format_segment(const T &value) {
 
 	QSettings settings;
-	const int colorize = settings.value("DumpState/colorize", true).toBool();
+	const int colorize = settings.value(QStringLiteral("DumpState/colorize"), true).toBool();
 
 	if (colorize) {
 		return Green + hex_string(value) + Reset;
@@ -95,7 +95,7 @@ template <class T>
 std::string format_address(const T &value) {
 
 	QSettings settings;
-	const int colorize = settings.value("DumpState/colorize", true).toBool();
+	const int colorize = settings.value(QStringLiteral("DumpState/colorize"), true).toBool();
 
 	if (colorize) {
 		return Purple + hex_string(value) + Reset;
@@ -145,7 +145,7 @@ QMenu *DumpState::menu(QWidget *parent) {
 void DumpState::dumpCode(const State &state) {
 
 	QSettings settings;
-	const int instructions_to_print = settings.value("DumpState/instructions_after_ip", 6).toInt();
+	const int instructions_to_print = settings.value(QStringLiteral("DumpState/instructions_after_ip"), 6).toInt();
 
 	const edb::address_t ip = state.instructionPointer();
 	edb::address_t address  = ip;
@@ -175,26 +175,26 @@ void DumpState::dumpRegisters(const State &state) {
 
 	using std::cout;
 	if (edb::v1::debuggeeIs32Bit()) { // TODO: check if state itself is 32 bit, not current debuggee. Generally it's not the same.
-		cout << "eax:" << format_register(state["eax"]);
-		cout << " ecx:" << format_register(state["ecx"]);
-		cout << " edx:" << format_register(state["edx"]);
-		cout << " ebx:" << format_register(state["ebx"]);
-		cout << " eflags:" << format_register(state["eflags"]);
+		cout << "eax:" << format_register(state[QStringLiteral("eax")]);
+		cout << " ecx:" << format_register(state[QStringLiteral("ecx")]);
+		cout << " edx:" << format_register(state[QStringLiteral("edx")]);
+		cout << " ebx:" << format_register(state[QStringLiteral("ebx")]);
+		cout << " eflags:" << format_register(state[QStringLiteral("eflags")]);
 		cout << "\n";
-		cout << "esp:" << format_register(state["esp"]);
-		cout << " ebp:" << format_register(state["ebp"]);
-		cout << " esi:" << format_register(state["esi"]);
-		cout << " edi:" << format_register(state["edi"]);
-		cout << "    eip:" << format_register(state["eip"]);
+		cout << "esp:" << format_register(state[QStringLiteral("esp")]);
+		cout << " ebp:" << format_register(state[QStringLiteral("ebp")]);
+		cout << " esi:" << format_register(state[QStringLiteral("esi")]);
+		cout << " edi:" << format_register(state[QStringLiteral("edi")]);
+		cout << "    eip:" << format_register(state[QStringLiteral("eip")]);
 		cout << "\n";
-		cout << " es:" << format_segment(state["es"]);
-		cout << " cs:" << format_segment(state["cs"]);
-		cout << " ss:" << format_segment(state["ss"]);
-		cout << " ds:" << format_segment(state["ds"]);
-		cout << " fs:" << format_segment(state["fs"]);
-		cout << " gs:" << format_segment(state["gs"]);
+		cout << " es:" << format_segment(state[QStringLiteral("es")]);
+		cout << " cs:" << format_segment(state[QStringLiteral("cs")]);
+		cout << " ss:" << format_segment(state[QStringLiteral("ss")]);
+		cout << " ds:" << format_segment(state[QStringLiteral("ds")]);
+		cout << " fs:" << format_segment(state[QStringLiteral("fs")]);
+		cout << " gs:" << format_segment(state[QStringLiteral("gs")]);
 		cout << "    ";
-		const Register eflagsR = state["eflags"];
+		const Register eflagsR = state[QStringLiteral("eflags")];
 		if (eflagsR) {
 			const auto eflags = eflagsR.value<edb::value32>();
 			cout << ((eflags & (1 << 11)) != 0 ? 'O' : 'o') << ' ';
@@ -209,25 +209,25 @@ void DumpState::dumpRegisters(const State &state) {
 		}
 		cout << "\n";
 	} else {
-		cout << " rax:" << format_register(state["rax"]);
-		cout << " rcx:" << format_register(state["rcx"]);
-		cout << " rdx:" << format_register(state["rdx"]);
-		cout << " rbx:" << format_register(state["rbx"]);
-		cout << " rflags:" << format_register(state["rflags"]);
+		cout << " rax:" << format_register(state[QStringLiteral("rax")]);
+		cout << " rcx:" << format_register(state[QStringLiteral("rcx")]);
+		cout << " rdx:" << format_register(state[QStringLiteral("rdx")]);
+		cout << " rbx:" << format_register(state[QStringLiteral("rbx")]);
+		cout << " rflags:" << format_register(state[QStringLiteral("rflags")]);
 		cout << "\n";
-		cout << " rsp:" << format_register(state["rsp"]);
-		cout << " rbp:" << format_register(state["rbp"]);
-		cout << " rsi:" << format_register(state["rsi"]);
-		cout << " rdi:" << format_register(state["rdi"]);
-		cout << "    rip:" << format_register(state["rip"]);
+		cout << " rsp:" << format_register(state[QStringLiteral("rsp")]);
+		cout << " rbp:" << format_register(state[QStringLiteral("rbp")]);
+		cout << " rsi:" << format_register(state[QStringLiteral("rsi")]);
+		cout << " rdi:" << format_register(state[QStringLiteral("rdi")]);
+		cout << "    rip:" << format_register(state[QStringLiteral("rip")]);
 		cout << "\n";
-		cout << "  r8:" << format_register(state["r8"]);
-		cout << "  r9:" << format_register(state["r9"]);
-		cout << " r10:" << format_register(state["r10"]);
-		cout << " r11:" << format_register(state["r11"]);
+		cout << "  r8:" << format_register(state[QStringLiteral("r8")]);
+		cout << "  r9:" << format_register(state[QStringLiteral("r9")]);
+		cout << " r10:" << format_register(state[QStringLiteral("r10")]);
+		cout << " r11:" << format_register(state[QStringLiteral("r11")]);
 		cout << "       ";
 
-		const Register rflagsR = state["rflags"];
+		const Register rflagsR = state[QStringLiteral("rflags")];
 		if (rflagsR) {
 			const auto rflags = rflagsR.value<edb::value32>();
 			cout << ((rflags & (1 << 11)) != 0 ? 'O' : 'o') << ' ';
@@ -242,17 +242,17 @@ void DumpState::dumpRegisters(const State &state) {
 		}
 
 		cout << "\n";
-		cout << " r12:" << format_register(state["r12"]);
-		cout << " r13:" << format_register(state["r13"]);
-		cout << " r14:" << format_register(state["r14"]);
-		cout << " r15:" << format_register(state["r15"]);
+		cout << " r12:" << format_register(state[QStringLiteral("r12")]);
+		cout << " r13:" << format_register(state[QStringLiteral("r13")]);
+		cout << " r14:" << format_register(state[QStringLiteral("r14")]);
+		cout << " r15:" << format_register(state[QStringLiteral("r15")]);
 		cout << "\n";
-		cout << "  es:" << format_segment(state["es"]);
-		cout << "  cs:" << format_segment(state["cs"]);
-		cout << "  ss:" << format_segment(state["ss"]);
-		cout << "  ds:" << format_segment(state["ds"]);
-		cout << "  fs:" << format_segment(state["fs"]);
-		cout << "  gs:" << format_segment(state["gs"]);
+		cout << "  es:" << format_segment(state[QStringLiteral("es")]);
+		cout << "  cs:" << format_segment(state[QStringLiteral("cs")]);
+		cout << "  ss:" << format_segment(state[QStringLiteral("ss")]);
+		cout << "  ds:" << format_segment(state[QStringLiteral("ds")]);
+		cout << "  fs:" << format_segment(state[QStringLiteral("fs")]);
+		cout << "  gs:" << format_segment(state[QStringLiteral("gs")]);
 		cout << "\n";
 	}
 }
@@ -336,13 +336,13 @@ void DumpState::dumpCurrentState() {
 
 			std::cout << "------------------------------------------------------------------------------\n";
 			dumpRegisters(state);
-			std::cout << "[" << format_segment(state["ss"]) << ":" << format_address(state.stackPointer()) << "]---------------------------------------------------------[stack]\n";
+			std::cout << "[" << format_segment(state[QStringLiteral("ss")]) << ":" << format_address(state.stackPointer()) << "]---------------------------------------------------------[stack]\n";
 			dumpStack(state);
 
 			const edb::address_t data_address = edb::v1::current_data_view_address();
-			std::cout << "[" << format_segment(state["ds"]) << ":" << format_address(data_address) << "]---------------------------------------------------------[ data]\n";
+			std::cout << "[" << format_segment(state[QStringLiteral("ds")]) << ":" << format_address(data_address) << "]---------------------------------------------------------[ data]\n";
 			dumpData(data_address);
-			std::cout << "[" << format_segment(state["cs"]) << ":" << format_address(state.instructionPointer()) << "]---------------------------------------------------------[ code]\n";
+			std::cout << "[" << format_segment(state[QStringLiteral("cs")]) << ":" << format_address(state.instructionPointer()) << "]---------------------------------------------------------[ code]\n";
 			dumpCode(state);
 			std::cout << "------------------------------------------------------------------------------\n";
 		}

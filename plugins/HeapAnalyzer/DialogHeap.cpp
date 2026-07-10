@@ -109,8 +109,8 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f)
 	ui.tableView->verticalHeader()->hide();
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	buttonAnalyze_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Analyze"));
-	buttonGraph_   = new QPushButton(QIcon::fromTheme("distribute-graph"), tr("&Graph Selected Blocks"));
+	buttonAnalyze_ = new QPushButton(QIcon::fromTheme(QStringLiteral("edit-find")), tr("Analyze"));
+	buttonGraph_   = new QPushButton(QIcon::fromTheme(QStringLiteral("distribute-graph")), tr("&Graph Selected Blocks"));
 	connect(buttonAnalyze_, &QPushButton::clicked, this, &DialogHeap::onFindClicked);
 	connect(&searchWatcher_, &QFutureWatcher<SearchResult>::finished, this, &DialogHeap::onFindFinished);
 
@@ -272,11 +272,11 @@ void DialogHeap::setSearchRunning(bool running) {
 
 	if (searchRunning_) {
 		buttonAnalyze_->setEnabled(true);
-		buttonAnalyze_->setIcon(QIcon::fromTheme("process-stop"));
+		buttonAnalyze_->setIcon(QIcon::fromTheme(QStringLiteral("process-stop")));
 		buttonAnalyze_->setText(tr("Cancel"));
 	} else {
 		buttonAnalyze_->setEnabled(true);
-		buttonAnalyze_->setIcon(QIcon::fromTheme("edit-find"));
+		buttonAnalyze_->setIcon(QIcon::fromTheme(QStringLiteral("edit-find")));
 		buttonAnalyze_->setText(tr("Analyze"));
 		ui.progressBar->setValue(100);
 	}
@@ -538,11 +538,11 @@ void DialogHeap::doFind() {
 		edb::address_t heap_symbol_end   = 0;
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
-		std::vector<Symbol> curbrk_symbols = edb::v1::symbol_manager().findAll("__curbrk");
+		std::vector<Symbol> curbrk_symbols = edb::v1::symbol_manager().findAll(QStringLiteral("__curbrk"));
 		for (const Symbol &sym : curbrk_symbols) {
-			if (sym.file.contains("libc")) {
+			if (sym.file.contains(QLatin1String("libc"))) {
 				heap_symbol_end = sym.address;
-			} else if (sym.file.contains("ld")) {
+			} else if (sym.file.contains(QLatin1String("ld"))) {
 				heap_symbol_start = sym.address;
 			}
 		}
@@ -571,7 +571,7 @@ void DialogHeap::doFind() {
 			const QList<std::shared_ptr<IRegion>> &regions = edb::v1::memory_regions().regions();
 
 			auto it = std::find_if(regions.begin(), regions.end(), [](const std::shared_ptr<IRegion> &region) {
-				return region->name() == "[heap]";
+				return region->name() == QStringLiteral("[heap]");
 			});
 
 			if (it != regions.end()) {

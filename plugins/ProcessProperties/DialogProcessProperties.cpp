@@ -47,7 +47,7 @@ QString arguments_to_string(const QList<QByteArray> &args) {
 	QString ret;
 
 	for (const QByteArray &arg : args) {
-		ret.append(' ');
+		ret.append(QLatin1Char(' '));
 		ret.append(QString::fromUtf8(arg));
 	}
 
@@ -93,11 +93,11 @@ QString file_type(const QString &filename) {
 	const QFileInfo info(filename);
 	const QString basename(info.completeBaseName());
 
-	if (basename.startsWith("socket:")) {
+	if (basename.startsWith(QLatin1String("socket:"))) {
 		return tr("Socket");
 	}
 
-	if (basename.startsWith("pipe:")) {
+	if (basename.startsWith(QLatin1String("pipe:"))) {
 		return tr("Pipe");
 	}
 
@@ -252,7 +252,7 @@ QString process_socket_file(const QString &filename, QString *symlink, int sock,
 		while (!line.isNull()) {
 
 			QString lline(line);
-			const QStringList lst = lline.replace(":", " ").split(" ", Qt::SkipEmptyParts);
+			const QStringList lst = lline.replace(QLatin1Char(':'), QLatin1Char(' ')).split(QLatin1Char(' '), Qt::SkipEmptyParts);
 
 			if (func(symlink, sock, lst)) {
 				break;
@@ -274,10 +274,10 @@ QString process_socket_tcp(QString *symlink) {
 
 	Q_ASSERT(symlink);
 
-	const QString socket_info(symlink->mid(symlink->indexOf("socket:[")));
-	const int socket_number = socket_info.mid(8).remove("]").toUInt();
+	const QString socket_info(symlink->mid(symlink->indexOf(QLatin1String("socket:["))));
+	const int socket_number = socket_info.mid(8).remove(QLatin1Char(']')).toUInt();
 
-	return process_socket_file("/proc/net/tcp", symlink, socket_number, tcp_socket_processor);
+	return process_socket_file(QStringLiteral("/proc/net/tcp"), symlink, socket_number, tcp_socket_processor);
 }
 
 /**
@@ -290,10 +290,10 @@ QString process_socket_unix(QString *symlink) {
 
 	Q_ASSERT(symlink);
 
-	const QString socket_info(symlink->mid(symlink->indexOf("socket:[")));
-	const int socket_number = socket_info.mid(8).remove("]").toUInt();
+	const QString socket_info(symlink->mid(symlink->indexOf(QLatin1String("socket:["))));
+	const int socket_number = socket_info.mid(8).remove(QLatin1Char(']')).toUInt();
 
-	return process_socket_file("/proc/net/unix", symlink, socket_number, unix_socket_processor);
+	return process_socket_file(QStringLiteral("/proc/net/unix"), symlink, socket_number, unix_socket_processor);
 }
 
 /**
@@ -306,10 +306,10 @@ QString process_socket_udp(QString *symlink) {
 
 	Q_ASSERT(symlink);
 
-	const QString socket_info(symlink->mid(symlink->indexOf("socket:[")));
-	const int socket_number = socket_info.mid(8).remove("]").toUInt();
+	const QString socket_info(symlink->mid(symlink->indexOf(QLatin1String("socket:["))));
+	const int socket_number = socket_info.mid(8).remove(QLatin1Char(']')).toUInt();
 
-	return process_socket_file("/proc/net/udp", symlink, socket_number, udp_socket_processor);
+	return process_socket_file(QStringLiteral("/proc/net/udp"), symlink, socket_number, udp_socket_processor);
 }
 #endif
 
@@ -359,7 +359,7 @@ void DialogProcessProperties::updateGeneralPage() {
 			// TODO(eteran): handle arguments with spaces
 			ui.editCommand->setText(arguments_to_string(args));
 			ui.editCurrentDirectory->setText(cwd);
-			ui.editStarted->setText(process->startTime().toString("yyyy-MM-dd hh:mm:ss.z"));
+			ui.editStarted->setText(process->startTime().toString(QStringLiteral("yyyy-MM-dd hh:mm:ss.z")));
 			if (parent_pid) {
 				ui.editParent->setText(QStringLiteral("%1 (%2)").arg(parent_exe).arg(parent_pid));
 			} else {
@@ -418,9 +418,9 @@ void DialogProcessProperties::updateMemoryPage() {
 			ui.tableMemory->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(r->start()))); // address
 			ui.tableMemory->setItem(row, 1, new QTableWidgetItem(size_to_string(r->size())));           // size
 			ui.tableMemory->setItem(row, 2, new QTableWidgetItem(QStringLiteral("%1%2%3")               // protection
-																	 .arg(r->readable() ? 'r' : '-')
-																	 .arg(r->writable() ? 'w' : '-')
-																	 .arg(r->executable() ? 'x' : '-')));
+																	 .arg(r->readable() ? QLatin1Char('r') : QLatin1Char('-'))
+																	 .arg(r->writable() ? QLatin1Char('w') : QLatin1Char('-'))
+																	 .arg(r->executable() ? QLatin1Char('x') : QLatin1Char('-'))));
 			ui.tableMemory->setItem(row, 3, new QTableWidgetItem(r->name())); // name
 		}
 		ui.tableMemory->setSortingEnabled(true);
@@ -459,9 +459,9 @@ void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 			char *p        = env.data();
 			char *ptr      = p;
 			while (ptr != p + env.size()) {
-				const QString env       = QString::fromUtf8(ptr);
-				const QString env_name  = env.mid(0, env.indexOf("="));
-				const QString env_value = env.mid(env.indexOf("=") + 1);
+				const auto env          = QString::fromUtf8(ptr);
+				const QString env_name  = env.mid(0, env.indexOf(QLatin1Char('=')));
+				const QString env_value = env.mid(env.indexOf(QLatin1Char('=')) + 1);
 
 				if (lower_filter.isEmpty() || env_name.contains(lower_filter, Qt::CaseInsensitive)) {
 					const int row = ui.tableEnvironment->rowCount();
@@ -491,7 +491,7 @@ void DialogProcessProperties::updateHandles() {
 #ifdef Q_OS_LINUX
 	if (IProcess *process = edb::v1::debugger_core->process()) {
 		QDir dir(QStringLiteral("/proc/%1/fd/").arg(process->pid()));
-		const QFileInfoList entries = dir.entryInfoList(QStringList() << "[0-9]*");
+		const QFileInfoList entries = dir.entryInfoList(QStringList() << QStringLiteral("[0-9]*"));
 		for (const QFileInfo &info : entries) {
 			if (info.isSymLink()) {
 				QString symlink(info.symLinkTarget());

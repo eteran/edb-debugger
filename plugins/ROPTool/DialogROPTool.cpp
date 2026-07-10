@@ -292,7 +292,7 @@ DialogROPTool::DialogROPTool(QWidget *parent, Qt::WindowFlags f)
 	filterModel_ = new QSortFilterProxyModel(this);
 	connect(ui.txtSearch, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 
-	buttonFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
+	buttonFind_ = new QPushButton(QIcon::fromTheme(QStringLiteral("edit-find")), tr("Find"));
 	connect(buttonFind_, &QPushButton::clicked, this, &DialogROPTool::onFindClicked);
 	connect(&searchWatcher_, &QFutureWatcher<SearchResult>::finished, this, &DialogROPTool::onFindFinished);
 
@@ -348,8 +348,8 @@ DialogROPTool::SearchResult DialogROPTool::doFind(const IProcess *process, const
 			return QString();
 		}
 
-		auto it                    = instructions.begin();
-		QString instruction_string = QString::fromStdString(edb::v1::formatter().toString(**it++));
+		auto it                 = instructions.begin();
+		auto instruction_string = QString::fromStdString(edb::v1::formatter().toString(**it++));
 		for (; it != instructions.end(); ++it) {
 			instruction_string.append(QStringLiteral("; %1").arg(QString::fromStdString(edb::v1::formatter().toString(**it))));
 		}
@@ -594,11 +594,11 @@ void DialogROPTool::setSearchRunning(bool running) {
 
 	if (searchRunning_) {
 		buttonFind_->setEnabled(true);
-		buttonFind_->setIcon(QIcon::fromTheme("process-stop"));
+		buttonFind_->setIcon(QIcon::fromTheme(QStringLiteral("process-stop")));
 		buttonFind_->setText(tr("Cancel"));
 	} else {
 		buttonFind_->setEnabled(true);
-		buttonFind_->setIcon(QIcon::fromTheme("edit-find"));
+		buttonFind_->setIcon(QIcon::fromTheme(QStringLiteral("edit-find")));
 		buttonFind_->setText(tr("Find"));
 		ui.progressBar->setValue(100);
 	}

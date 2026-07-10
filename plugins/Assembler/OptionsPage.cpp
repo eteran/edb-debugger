@@ -24,7 +24,7 @@ OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
 	ui.setupUi(this);
 
 	QSettings settings;
-	const QString name = settings.value("Assembler/helper", "yasm").toString();
+	const QString name = settings.value(QStringLiteral("Assembler/helper"), QStringLiteral("yasm")).toString();
 
 	ui.assemblerName->clear();
 
@@ -36,15 +36,15 @@ OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
 	const QLatin1String targetArch("aarch64");
 #endif
 
-	QFile file(":/debugger/Assembler/xml/assemblers.xml");
+	QFile file(QStringLiteral(":/debugger/Assembler/xml/assemblers.xml"));
 	if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		QDomDocument xml;
 		xml.setContent(&file);
 		QDomElement root = xml.documentElement();
 
-		for (QDomElement assembler = root.firstChildElement("assembler"); !assembler.isNull(); assembler = assembler.nextSiblingElement("assembler")) {
-			const QString name = assembler.attribute("name");
-			const QString arch = assembler.attribute("arch");
+		for (QDomElement assembler = root.firstChildElement(QStringLiteral("assembler")); !assembler.isNull(); assembler = assembler.nextSiblingElement(QStringLiteral("assembler"))) {
+			const QString name = assembler.attribute(QStringLiteral("name"));
+			const QString arch = assembler.attribute(QStringLiteral("arch"));
 			if (arch == targetArch) {
 				ui.assemblerName->addItem(name);
 			}
@@ -68,7 +68,7 @@ OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
 void OptionsPage::on_assemblerName_currentIndexChanged(int index) {
 	const QString text = ui.assemblerName->itemText(index);
 	QSettings settings;
-	settings.setValue("Assembler/helper", text);
+	settings.setValue(QStringLiteral("Assembler/helper"), text);
 }
 #else
 /**
@@ -78,7 +78,7 @@ void OptionsPage::on_assemblerName_currentIndexChanged(int index) {
  */
 void OptionsPage::on_assemblerName_currentIndexChanged(const QString &text) {
 	QSettings settings;
-	settings.setValue("Assembler/helper", text);
+	settings.setValue(QStringLiteral("Assembler/helper"), text);
 }
 #endif
 

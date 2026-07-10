@@ -92,7 +92,7 @@ void BinaryInfo::exploreHeader() {
  * @return
  */
 QString BinaryInfo::extraArguments() const {
-	return " --symbols <filename>      : generate symbols for <filename> and exit";
+	return QStringLiteral(" --symbols <filename>      : generate symbols for <filename> and exit");
 }
 
 /**
@@ -103,7 +103,7 @@ QString BinaryInfo::extraArguments() const {
  */
 IPlugin::ArgumentStatus BinaryInfo::parseArguments(QStringList &args) {
 
-	if (args.size() == 3 && args[1] == "--symbols") {
+	if (args.size() == 3 && args[1] == QStringLiteral("--symbols")) {
 		generate_symbols(args[2]);
 		return ARG_EXIT;
 	}

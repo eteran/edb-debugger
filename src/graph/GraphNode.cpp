@@ -25,7 +25,7 @@ namespace {
 const QColor TextColor   = Qt::black;
 const QColor BorderColor = Qt::blue;
 const QColor SelectColor = Qt::lightGray;
-const QString NodeFont   = "Monospace";
+const auto NodeFont      = QStringLiteral("Monospace");
 
 }
 
@@ -46,12 +46,12 @@ GraphNode::GraphNode(GraphWidget *graph, const QString &text, QColor color)
 
 	graph->scene()->addItem(this);
 
-	QString name = QStringLiteral("Node%1").arg(reinterpret_cast<uintptr_t>(this));
-	node_        = _agnode(graph->graph_, name);
+	auto name = QStringLiteral("Node%1").arg(reinterpret_cast<uintptr_t>(this));
+	node_     = _agnode(graph->graph_, name);
 
-	_agset(node_, "fixedsize", "0");
-	_agset(node_, "width", QString::number(boundingRect().width() / 96.0));
-	_agset(node_, "height", QString::number(boundingRect().height() / 96.0));
+	_agset(node_, QStringLiteral("fixedsize"), QStringLiteral("0"));
+	_agset(node_, QStringLiteral("width"), QString::number(boundingRect().width() / 96.0));
+	_agset(node_, QStringLiteral("height"), QString::number(boundingRect().height() / 96.0));
 }
 
 /**

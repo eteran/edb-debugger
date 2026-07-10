@@ -159,7 +159,8 @@ void DialogEditGPR::resetLayout() {
 		label->show();
 	}
 
-	static const auto colLabelStrings = util::make_array("R?X", "E?X", "?X", "?H", "?L");
+	static const auto colLabelStrings = util::make_array<QString>(
+		QStringLiteral("R?X"), QStringLiteral("E?X"), QStringLiteral("?X"), QStringLiteral("?H"), QStringLiteral("?L"));
 	static_assert(std::tuple_size_v<decltype(colLabelStrings)> == ENTRY_COLS, "Number of labels not equal to number of entry columns");
 
 	for (std::size_t c = 0; c < ENTRY_COLS; ++c) {
@@ -200,9 +201,12 @@ void DialogEditGPR::setupEntriesAndLabels() {
 		columnLabel(GPR8L_COL)->setText(regName);
 	}
 
-	static const auto x86GPRsWithHighBytesAddressable    = util::make_array<QString>("EAX", "ECX", "EDX", "EBX", "RAX", "RCX", "RDX", "RBX");
-	static const auto x86GPRsWithHighBytesNotAddressable = util::make_array<QString>("ESP", "EBP", "ESI", "EDI", "RSP", "RBP", "RSI", "RDI");
-	static const auto upperGPRs64                        = util::make_array<QString>("R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15");
+	static const auto x86GPRsWithHighBytesAddressable = util::make_array<QString>(
+		QStringLiteral("EAX"), QStringLiteral("ECX"), QStringLiteral("EDX"), QStringLiteral("EBX"), QStringLiteral("RAX"), QStringLiteral("RCX"), QStringLiteral("RDX"), QStringLiteral("RBX"));
+	static const auto x86GPRsWithHighBytesNotAddressable = util::make_array<QString>(
+		QStringLiteral("ESP"), QStringLiteral("EBP"), QStringLiteral("ESI"), QStringLiteral("EDI"), QStringLiteral("RSP"), QStringLiteral("RBP"), QStringLiteral("RSI"), QStringLiteral("RDI"));
+	static const auto upperGPRs64 = util::make_array<QString>(
+		QStringLiteral("R8"), QStringLiteral("R9"), QStringLiteral("R10"), QStringLiteral("R11"), QStringLiteral("R12"), QStringLiteral("R13"), QStringLiteral("R14"), QStringLiteral("R15"));
 
 	bool x86GPR     = false;
 	bool upperGPR64 = false;
@@ -223,21 +227,21 @@ void DialogEditGPR::setupEntriesAndLabels() {
 
 	if (x86GPR) {
 		if (bitSize_ == 64) {
-			columnLabel(GPR32_COL)->setText("E" + regName.mid(1));
+			columnLabel(GPR32_COL)->setText(QStringLiteral("E") + regName.mid(1));
 		}
 
 		columnLabel(GPR16_COL)->setText(regName.mid(1));
-		columnLabel(GPR8H_COL)->setText(regName.mid(1, 1) + "H");
+		columnLabel(GPR8H_COL)->setText(regName.mid(1, 1) + QStringLiteral("H"));
 
 		if (bitSize_ == 64 && !contains(x86GPRsWithHighBytesAddressable, regName)) {
-			columnLabel(GPR8L_COL)->setText(regName.mid(1) + "L");
+			columnLabel(GPR8L_COL)->setText(regName.mid(1) + QStringLiteral("L"));
 		} else {
-			columnLabel(GPR8L_COL)->setText(regName.mid(1, 1) + "L");
+			columnLabel(GPR8L_COL)->setText(regName.mid(1, 1) + QStringLiteral("L"));
 		}
 	} else if (upperGPR64) {
-		columnLabel(GPR32_COL)->setText(regName + "D");
-		columnLabel(GPR16_COL)->setText(regName + "W");
-		columnLabel(GPR8L_COL)->setText(regName + "B");
+		columnLabel(GPR32_COL)->setText(regName + QStringLiteral("D"));
+		columnLabel(GPR16_COL)->setText(regName + QStringLiteral("W"));
+		columnLabel(GPR8L_COL)->setText(regName + QStringLiteral("B"));
 		hideColumn(GPR8H_COL);
 	} else {
 		// These have hex only format

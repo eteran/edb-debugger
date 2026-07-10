@@ -19,5 +19,5 @@ DialogAbout::DialogAbout(QWidget *parent, Qt::WindowFlags f)
 	ui.labelVersion->setText(tr("Version: %1<br>\n"
 								"Compiled: %2<br>\n"
 								"Git Commit: <a href=\"https://github.com/eteran/edb-debugger/commit/%3\">%3</a>")
-								 .arg(EDB_VERSION_STRING, __DATE__, GIT_BRANCH));
+								 .arg(QLatin1String(EDB_VERSION_STRING), QLatin1String(__DATE__), QLatin1String(GIT_BRANCH)));
 }

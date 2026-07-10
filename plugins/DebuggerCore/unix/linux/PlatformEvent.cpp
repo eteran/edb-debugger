@@ -152,120 +152,120 @@ IDebugEvent::Message PlatformEvent::errorDescription() const {
 		break;
 #ifdef SIGHUP
 	case SIGHUP:
-		message = createUnexpectedSignalMessage("SIGHUP", SIGHUP);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGHUP"), SIGHUP);
 		break;
 #endif
 #ifdef SIGINT
 	case SIGINT:
-		message = createUnexpectedSignalMessage("SIGINT", SIGINT);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGINT"), SIGINT);
 		break;
 #endif
 #ifdef SIGQUIT
 	case SIGQUIT:
-		message = createUnexpectedSignalMessage("SIGQUIT", SIGQUIT);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGQUIT"), SIGQUIT);
 		break;
 #endif
 #ifdef SIGTRAP
 	case SIGTRAP:
-		message = createUnexpectedSignalMessage("SIGTRAP", SIGTRAP);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGTRAP"), SIGTRAP);
 		break;
 #endif
 #ifdef SIGKILL
 	case SIGKILL:
-		message = createUnexpectedSignalMessage("SIGKILL", SIGKILL);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGKILL"), SIGKILL);
 		break;
 #endif
 #ifdef SIGUSR1
 	case SIGUSR1:
-		message = createUnexpectedSignalMessage("SIGUSR1", SIGUSR1);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGUSR1"), SIGUSR1);
 		break;
 #endif
 #ifdef SIGUSR2
 	case SIGUSR2:
-		message = createUnexpectedSignalMessage("SIGUSR2", SIGUSR2);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGUSR2"), SIGUSR2);
 		break;
 #endif
 #ifdef SIGALRM
 	case SIGALRM:
-		message = createUnexpectedSignalMessage("SIGALRM", SIGALRM);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGALRM"), SIGALRM);
 		break;
 #endif
 #ifdef SIGTERM
 	case SIGTERM:
-		message = createUnexpectedSignalMessage("SIGTERM", SIGTERM);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGTERM"), SIGTERM);
 		break;
 #endif
 #ifdef SIGCHLD
 	case SIGCHLD:
-		message = createUnexpectedSignalMessage("SIGCHLD", SIGCHLD);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGCHLD"), SIGCHLD);
 		break;
 #endif
 #ifdef SIGCONT
 	case SIGCONT:
-		message = createUnexpectedSignalMessage("SIGCONT", SIGCONT);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGCONT"), SIGCONT);
 		break;
 #endif
 #ifdef SIGSTOP
 	case SIGSTOP:
-		message = createUnexpectedSignalMessage("SIGSTOP", SIGSTOP);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGSTOP"), SIGSTOP);
 		break;
 #endif
 #ifdef SIGTSTP
 	case SIGTSTP:
-		message = createUnexpectedSignalMessage("SIGTSTP", SIGTSTP);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGTSTP"), SIGTSTP);
 		break;
 #endif
 #ifdef SIGTTIN
 	case SIGTTIN:
-		message = createUnexpectedSignalMessage("SIGTTIN", SIGTTIN);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGTTIN"), SIGTTIN);
 		break;
 #endif
 #ifdef SIGTTOU
 	case SIGTTOU:
-		message = createUnexpectedSignalMessage("SIGTTOU", SIGTTOU);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGTTOU"), SIGTTOU);
 		break;
 #endif
 #ifdef SIGURG
 	case SIGURG:
-		message = createUnexpectedSignalMessage("SIGURG", SIGURG);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGURG"), SIGURG);
 		break;
 #endif
 #ifdef SIGXCPU
 	case SIGXCPU:
-		message = createUnexpectedSignalMessage("SIGXCPU", SIGXCPU);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGXCPU"), SIGXCPU);
 		break;
 #endif
 #ifdef SIGXFSZ
 	case SIGXFSZ:
-		message = createUnexpectedSignalMessage("SIGXFSZ", SIGXFSZ);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGXFSZ"), SIGXFSZ);
 		break;
 #endif
 #ifdef SIGVTALRM
 	case SIGVTALRM:
-		message = createUnexpectedSignalMessage("SIGVTALRM", SIGVTALRM);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGVTALRM"), SIGVTALRM);
 		break;
 #endif
 #ifdef SIGPROF
 	case SIGPROF:
-		message = createUnexpectedSignalMessage("SIGPROF", SIGPROF);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGPROF"), SIGPROF);
 		break;
 #endif
 #ifdef SIGWINCH
 	case SIGWINCH:
-		message = createUnexpectedSignalMessage("SIGWINCH", SIGWINCH);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGWINCH"), SIGWINCH);
 		break;
 #endif
 #ifdef SIGIO
 	case SIGIO:
-		message = createUnexpectedSignalMessage("SIGIO", SIGIO);
+		message = createUnexpectedSignalMessage(QStringLiteral("SIGIO"), SIGIO);
 		break;
 #endif
 	default:
 		return Message();
 	}
 
-	message.message += "<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>";
-	message.statusMessage += ". Shift+Run/Step to pass signal to the program";
+	message.message += tr("<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>");
+	message.statusMessage += tr(". Shift+Run/Step to pass signal to the program");
 	return message;
 }
 

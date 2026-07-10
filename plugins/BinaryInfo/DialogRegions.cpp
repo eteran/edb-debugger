@@ -30,7 +30,7 @@ DialogRegions::DialogRegions(QWidget *parent, Qt::WindowFlags f)
 	filterModel_ = new QSortFilterProxyModel(this);
 	connect(ui.txtSearch, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 
-	buttonExplore_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Explore Header"));
+	buttonExplore_ = new QPushButton(QIcon::fromTheme(QStringLiteral("edit-find")), tr("Explore Header"));
 	connect(buttonExplore_, &QPushButton::clicked, this, [this]() {
 		const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 		const QModelIndexList sel                 = selModel->selectedRows();

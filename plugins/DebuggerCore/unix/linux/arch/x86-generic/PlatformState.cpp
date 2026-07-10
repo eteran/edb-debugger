@@ -826,7 +826,9 @@ template <size_t BitSize = 0, class Names, class Regs>
 Register findRegisterValue(const Names &names, const Regs &regs, const QString &regName, Register::Type type, size_t maxNames, int shift = 0) {
 
 	const auto end        = names.begin() + maxNames;
-	auto regNameFoundIter = std::find(names.begin(), end, regName);
+	auto regNameFoundIter = std::find_if(names.begin(), end, [&regName](const auto candidate) {
+		return regName == QString::fromLatin1(candidate);
+	});
 
 	if (regNameFoundIter != end) {
 		return make_Register<BitSize>(regName, regs[regNameFoundIter - names.begin()] >> shift, type);
@@ -851,11 +853,11 @@ Register PlatformState::value(const QString &reg) const {
 
 	// don't return valid Register with garbage value
 	if (x86.gpr32Filled) {
-		if (reg == X86::origRAXName && x86.gpr64Filled && is64Bit()) {
-			return make_Register<64>(X86::origRAXName, x86.orig_ax, Register::TYPE_GPR);
+		if (reg == QLatin1String(X86::origRAXName) && x86.gpr64Filled && is64Bit()) {
+			return make_Register<64>(QString::fromLatin1(X86::origRAXName), x86.orig_ax, Register::TYPE_GPR);
 		}
-		if (reg == X86::origEAXName) {
-			return make_Register<32>(X86::origEAXName, x86.orig_ax, Register::TYPE_GPR);
+		if (reg == QLatin1String(X86::origEAXName)) {
+			return make_Register<32>(QString::fromLatin1(X86::origEAXName), x86.orig_ax, Register::TYPE_GPR);
 		}
 		if (x86.gpr64Filled && is64Bit() && !!(found = findRegisterValue(X86::GPReg64Names, x86.GPRegs, regName, Register::TYPE_GPR, gpr64_count()))) {
 			return found;
@@ -876,10 +878,12 @@ Register PlatformState::value(const QString &reg) const {
 			return found;
 		}
 
-		if (regName.mid(1) == "s_base") {
+		if (regName.mid(1) == QStringLiteral("s_base")) {
 			const QString segRegName    = regName.mid(0, 2);
 			const auto end              = X86::segRegNames.end();
-			const auto regNameFoundIter = std::find(X86::segRegNames.begin(), end, segRegName);
+			const auto regNameFoundIter = std::find_if(X86::segRegNames.begin(), end, [&segRegName](const auto candidate) {
+				return segRegName == QString::fromLatin1(candidate);
+			});
 
 			if (regNameFoundIter != end) {
 				const size_t index = regNameFoundIter - X86::segRegNames.begin();
@@ -898,33 +902,33 @@ Register PlatformState::value(const QString &reg) const {
 			}
 		}
 
-		if (is64Bit() && regName == X86::flags64Name) {
-			return make_Register(X86::flags64Name, x86.flags, Register::TYPE_COND);
+		if (is64Bit() && regName == QLatin1String(X86::flags64Name)) {
+			return make_Register(QString::fromLatin1(X86::flags64Name), x86.flags, Register::TYPE_COND);
 		}
 
-		if (regName == X86::flags32Name) {
-			return make_Register<32>(X86::flags32Name, x86.flags, Register::TYPE_COND);
+		if (regName == QLatin1String(X86::flags32Name)) {
+			return make_Register<32>(QString::fromLatin1(X86::flags32Name), x86.flags, Register::TYPE_COND);
 		}
 
-		if (regName == X86::flags16Name) {
-			return make_Register<16>(X86::flags16Name, x86.flags, Register::TYPE_COND);
+		if (regName == QLatin1String(X86::flags16Name)) {
+			return make_Register<16>(QString::fromLatin1(X86::flags16Name), x86.flags, Register::TYPE_COND);
 		}
 
-		if (is64Bit() && regName == X86::IP64Name) {
-			return make_Register(X86::IP64Name, x86.IP, Register::TYPE_IP);
+		if (is64Bit() && regName == QLatin1String(X86::IP64Name)) {
+			return make_Register(QString::fromLatin1(X86::IP64Name), x86.IP, Register::TYPE_IP);
 		}
 
-		if (regName == X86::IP32Name) {
-			return make_Register<32>(X86::IP32Name, x86.IP, Register::TYPE_IP);
+		if (regName == QLatin1String(X86::IP32Name)) {
+			return make_Register<32>(QString::fromLatin1(X86::IP32Name), x86.IP, Register::TYPE_IP);
 		}
 
-		if (regName == X86::IP16Name) {
-			return make_Register<16>(X86::IP16Name, x86.IP, Register::TYPE_IP);
+		if (regName == QLatin1String(X86::IP16Name)) {
+			return make_Register<16>(QString::fromLatin1(X86::IP16Name), x86.IP, Register::TYPE_IP);
 		}
 	}
 
 	if (x86.gpr32Filled) {
-		static const QRegularExpression DRx("^dr([0-7])$");
+		static const QRegularExpression DRx(QStringLiteral("^dr([0-7])$"));
 		const QRegularExpressionMatch match = DRx.match(regName);
 		if (match.hasMatch()) {
 			QChar digit = match.captured(1).at(0);
@@ -942,7 +946,7 @@ Register PlatformState::value(const QString &reg) const {
 	}
 
 	if (x87.filled) {
-		static const QRegularExpression Rx("^r([0-7])$");
+		static const QRegularExpression Rx(QStringLiteral("^r([0-7])$"));
 		const QRegularExpressionMatch match = Rx.match(regName);
 		if (match.hasMatch()) {
 			QChar digit = match.captured(1).at(0);
@@ -955,7 +959,7 @@ Register PlatformState::value(const QString &reg) const {
 	}
 
 	if (x87.filled) {
-		static const QRegularExpression STx("^st\\(?([0-7])\\)?$");
+		static const QRegularExpression STx(QStringLiteral("^st\\(?([0-7])\\)?$"));
 		const QRegularExpressionMatch match = STx.match(regName);
 		if (match.hasMatch()) {
 			QChar digit = match.captured(1).at(0);
@@ -968,8 +972,8 @@ Register PlatformState::value(const QString &reg) const {
 	}
 
 	if (x87.filled) {
-		if (regName == "fip" || regName == "fdp") {
-			const edb::address_t addr = regName == "fip" ? x87.instPtrOffset : x87.dataPtrOffset;
+		if (regName == QStringLiteral("fip") || regName == QStringLiteral("fdp")) {
+			const edb::address_t addr = regName == QStringLiteral("fip") ? x87.instPtrOffset : x87.dataPtrOffset;
 			if (is64Bit()) {
 				return make_Register<64>(regName, addr, Register::TYPE_FPU);
 			}
@@ -977,30 +981,30 @@ Register PlatformState::value(const QString &reg) const {
 			return make_Register<32>(regName, addr, Register::TYPE_FPU);
 		}
 
-		if (regName == "fis" || regName == "fds") {
-			const edb::value16 val = regName == "fis" ? x87.instPtrSelector : x87.dataPtrSelector;
+		if (regName == QStringLiteral("fis") || regName == QStringLiteral("fds")) {
+			const edb::value16 val = regName == QStringLiteral("fis") ? x87.instPtrSelector : x87.dataPtrSelector;
 			return make_Register<16>(regName, val, Register::TYPE_FPU);
 		}
 
-		if (regName == "fopcode" || regName == "fop") {
+		if (regName == QStringLiteral("fopcode") || regName == QStringLiteral("fop")) {
 			return make_Register<16>(regName, x87.opCode, Register::TYPE_FPU);
 		}
 
-		if (regName == "ftr" || regName == "ftw") {
+		if (regName == QStringLiteral("ftr") || regName == QStringLiteral("ftw")) {
 			return make_Register<16>(regName, x87.tagWord, Register::TYPE_FPU);
 		}
 
-		if (regName == "fsr" || regName == "fsw") {
+		if (regName == QStringLiteral("fsr") || regName == QStringLiteral("fsw")) {
 			return make_Register<16>(regName, x87.statusWord, Register::TYPE_FPU);
 		}
 
-		if (regName == "fcr" || regName == "fcw") {
+		if (regName == QStringLiteral("fcr") || regName == QStringLiteral("fcw")) {
 			return make_Register<16>(regName, x87.controlWord, Register::TYPE_FPU);
 		}
 	}
 
 	if (x87.filled) {
-		static const QRegularExpression MMx("^mm([0-7])$");
+		static const QRegularExpression MMx(QStringLiteral("^mm([0-7])$"));
 		const QRegularExpressionMatch match = MMx.match(regName);
 		if (match.hasMatch()) {
 			QChar digit = match.captured(1).at(0);
@@ -1013,7 +1017,7 @@ Register PlatformState::value(const QString &reg) const {
 	}
 
 	if (avx.xmmFilledIA32) {
-		static const QRegularExpression XMMx("^xmm([0-9]|1[0-5])$");
+		static const QRegularExpression XMMx(QStringLiteral("^xmm([0-9]|1[0-5])$"));
 		const QRegularExpressionMatch match = XMMx.match(regName);
 		if (match.hasMatch()) {
 			bool ok  = false;
@@ -1030,7 +1034,7 @@ Register PlatformState::value(const QString &reg) const {
 	}
 
 	if (avx.ymmFilled) {
-		static const QRegularExpression YMMx("^ymm([0-9]|1[0-5])$");
+		static const QRegularExpression YMMx(QStringLiteral("^ymm([0-9]|1[0-5])$"));
 		const QRegularExpressionMatch match = YMMx.match(regName);
 		if (match.hasMatch()) {
 			bool ok  = false;
@@ -1042,8 +1046,8 @@ Register PlatformState::value(const QString &reg) const {
 		}
 	}
 
-	if (avx.xmmFilledIA32 && regName == AVX::mxcsrName) {
-		return make_Register(AVX::mxcsrName, avx.mxcsr, Register::TYPE_COND);
+	if (avx.xmmFilledIA32 && regName == QLatin1String(AVX::mxcsrName)) {
+		return make_Register(QString::fromLatin1(AVX::mxcsrName), avx.mxcsr, Register::TYPE_COND);
 	}
 
 	return Register();
@@ -1057,11 +1061,11 @@ Register PlatformState::value(const QString &reg) const {
 Register PlatformState::instructionPointerRegister() const {
 
 	if (x86.gpr64Filled && is64Bit()) {
-		return make_Register(X86::IP64Name, x86.IP, Register::TYPE_GPR);
+		return make_Register(QString::fromLatin1(X86::IP64Name), x86.IP, Register::TYPE_GPR);
 	}
 
 	if (x86.gpr32Filled) {
-		return make_Register<32>(X86::IP32Name, x86.IP, Register::TYPE_GPR);
+		return make_Register<32>(QString::fromLatin1(X86::IP32Name), x86.IP, Register::TYPE_GPR);
 	}
 
 	return Register();
@@ -1112,11 +1116,11 @@ edb::reg_t PlatformState::debugRegister(size_t n) const {
  */
 Register PlatformState::flagsRegister() const {
 	if (x86.gpr64Filled && is64Bit()) {
-		return make_Register(X86::flags64Name, x86.flags, Register::TYPE_GPR);
+		return make_Register(QString::fromLatin1(X86::flags64Name), x86.flags, Register::TYPE_GPR);
 	}
 
 	if (x86.gpr32Filled) {
-		return make_Register<32>(X86::flags32Name, x86.flags, Register::TYPE_GPR);
+		return make_Register<32>(QString::fromLatin1(X86::flags32Name), x86.flags, Register::TYPE_GPR);
 	}
 
 	return Register();
@@ -1181,10 +1185,10 @@ bool PlatformState::fpuRegisterIsEmpty(size_t n) const {
 QString PlatformState::fpuRegisterTagString(size_t n) const {
 	int tag = x87.tag(n);
 	static const std::unordered_map<int, QString> names{
-		{X87::TAG_VALID, "Valid"},
-		{X87::TAG_ZERO, "Zero"},
-		{X87::TAG_SPECIAL, "Special"},
-		{X87::TAG_EMPTY, "Empty"},
+		{X87::TAG_VALID, QStringLiteral("Valid")},
+		{X87::TAG_ZERO, QStringLiteral("Zero")},
+		{X87::TAG_SPECIAL, QStringLiteral("Special")},
+		{X87::TAG_EMPTY, QStringLiteral("Empty")},
 	};
 
 	return names.at(tag);
@@ -1283,11 +1287,11 @@ Register PlatformState::gpRegister(size_t n) const {
 
 	if (gprIndexValid(n)) {
 		if (x86.gpr64Filled && is64Bit()) {
-			return make_Register(X86::GPReg64Names[n], x86.GPRegs[n], Register::TYPE_GPR);
+			return make_Register(QString::fromLatin1(X86::GPReg64Names[n]), x86.GPRegs[n], Register::TYPE_GPR);
 		}
 
 		if (x86.gpr32Filled && n < IA32_GPR_COUNT) {
-			return make_Register<32>(X86::GPReg32Names[n], x86.GPRegs[n], Register::TYPE_GPR);
+			return make_Register<32>(QString::fromLatin1(X86::GPReg32Names[n]), x86.GPRegs[n], Register::TYPE_GPR);
 		}
 	}
 
@@ -1303,7 +1307,9 @@ void PlatformState::setRegister(const Register &reg) {
 	const QString regName = reg.name().toLower();
 
 	const auto gpr_end            = GPRegNames().begin() + gpr_count();
-	const auto GPRegNameFoundIter = std::find(GPRegNames().begin(), gpr_end, regName);
+	const auto GPRegNameFoundIter = std::find_if(GPRegNames().begin(), gpr_end, [&regName](const auto candidate) {
+		return regName == QString::fromLatin1(candidate);
+	});
 
 	if (GPRegNameFoundIter != gpr_end) {
 		size_t index      = GPRegNameFoundIter - GPRegNames().begin();
@@ -1311,7 +1317,9 @@ void PlatformState::setRegister(const Register &reg) {
 		return;
 	}
 
-	auto segRegNameFoundIter = std::find(X86::segRegNames.begin(), X86::segRegNames.end(), regName);
+	auto segRegNameFoundIter = std::find_if(X86::segRegNames.begin(), X86::segRegNames.end(), [&regName](const auto candidate) {
+		return regName == QString::fromLatin1(candidate);
+	});
 
 	if (segRegNameFoundIter != X86::segRegNames.end()) {
 		size_t index       = segRegNameFoundIter - X86::segRegNames.begin();
@@ -1319,23 +1327,23 @@ void PlatformState::setRegister(const Register &reg) {
 		return;
 	}
 
-	if (regName == IPName()) {
+	if (regName == QString::fromLatin1(IPName())) {
 		x86.IP = reg.value<edb::value64>();
 		return;
 	}
 
-	if (regName == flagsName()) {
+	if (regName == QString::fromLatin1(flagsName())) {
 		x86.flags = reg.value<edb::value64>();
 		return;
 	}
 
-	if (regName == AVX::mxcsrName) {
+	if (regName == QLatin1String(AVX::mxcsrName)) {
 		avx.mxcsr = reg.value<edb::value32>();
 		return;
 	}
 
 	{
-		static const QRegularExpression MMx("^mm([0-7])$");
+		static const QRegularExpression MMx(QStringLiteral("^mm([0-7])$"));
 		const QRegularExpressionMatch match = MMx.match(regName);
 		if (match.hasMatch()) {
 			QChar digit = match.captured(1).at(0);
@@ -1354,7 +1362,7 @@ void PlatformState::setRegister(const Register &reg) {
 	}
 
 	{
-		static const QRegularExpression Rx("^r([0-7])$");
+		static const QRegularExpression Rx(QStringLiteral("^r([0-7])$"));
 		if (Rx.match(regName).hasMatch()) {
 			QChar digit = Rx.match(regName).captured(1).at(0);
 			assert(digit.isDigit());
@@ -1368,7 +1376,7 @@ void PlatformState::setRegister(const Register &reg) {
 	}
 
 	{
-		static const QRegularExpression Rx("^st\\(?([0-7])\\)?$");
+		static const QRegularExpression Rx(QStringLiteral("^st\\(?([0-7])\\)?$"));
 		if (Rx.match(regName).hasMatch()) {
 			QChar digit = Rx.match(regName).captured(1).at(0);
 			assert(digit.isDigit());
@@ -1382,7 +1390,7 @@ void PlatformState::setRegister(const Register &reg) {
 	}
 
 	{
-		static const QRegularExpression XMMx("^xmm([12]?[0-9]|3[01])$");
+		static const QRegularExpression XMMx(QStringLiteral("^xmm([12]?[0-9]|3[01])$"));
 		const QRegularExpressionMatch match = XMMx.match(regName);
 		if (match.hasMatch()) {
 			const auto value = reg.value<edb::value128>();
@@ -1396,7 +1404,7 @@ void PlatformState::setRegister(const Register &reg) {
 	}
 
 	{
-		static const QRegularExpression YMMx("^ymm([12]?[0-9]|3[01])$");
+		static const QRegularExpression YMMx(QStringLiteral("^ymm([12]?[0-9]|3[01])$"));
 		const QRegularExpressionMatch match = YMMx.match(regName);
 		if (match.hasMatch()) {
 			const auto value = reg.value<edb::value256>();
@@ -1409,38 +1417,38 @@ void PlatformState::setRegister(const Register &reg) {
 		}
 	}
 
-	if (regName == "ftr" || regName == "ftw") {
+	if (regName == QStringLiteral("ftr") || regName == QStringLiteral("ftw")) {
 		x87.tagWord = reg.value<edb::value16>();
 		return;
 	}
 
-	if (regName == "fsr" || regName == "fsw") {
+	if (regName == QStringLiteral("fsr") || regName == QStringLiteral("fsw")) {
 		x87.statusWord = reg.value<edb::value16>();
 		return;
 	}
 
-	if (regName == "fcr" || regName == "fcw") {
+	if (regName == QStringLiteral("fcr") || regName == QStringLiteral("fcw")) {
 		x87.controlWord = reg.value<edb::value16>();
 		return;
 	}
 
-	if (regName == "fis" || regName == "fds") {
-		(regName == "fis" ? x87.instPtrSelector : x87.dataPtrSelector) = reg.value<edb::value16>();
+	if (regName == QStringLiteral("fis") || regName == QStringLiteral("fds")) {
+		(regName == QStringLiteral("fis") ? x87.instPtrSelector : x87.dataPtrSelector) = reg.value<edb::value16>();
 		return;
 	}
 
-	if (regName == "fip" || regName == "fdp") {
-		(regName == "fip" ? x87.instPtrOffset : x87.dataPtrOffset) = reg.valueAsAddress();
+	if (regName == QStringLiteral("fip") || regName == QStringLiteral("fdp")) {
+		(regName == QStringLiteral("fip") ? x87.instPtrOffset : x87.dataPtrOffset) = reg.valueAsAddress();
 		return;
 	}
 
-	if (regName == "fopcode" || regName == "fop") {
+	if (regName == QStringLiteral("fopcode") || regName == QStringLiteral("fop")) {
 		x87.opCode = reg.value<edb::value16>();
 		return;
 	}
 
 	{
-		static const QRegularExpression DRx("^dr([0-7])$");
+		static const QRegularExpression DRx(QStringLiteral("^dr([0-7])$"));
 		if (DRx.match(regName).hasMatch()) {
 			QChar digit = DRx.match(regName).captured(1).at(0);
 			assert(digit.isDigit());

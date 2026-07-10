@@ -8,6 +8,7 @@
 #include "IDebugger.h"
 #include "IProcess.h"
 #include "IThread.h"
+#include "QtHelper.h"
 #include "State.h"
 #include "Types.h"
 #include "edb.h"
@@ -26,6 +27,8 @@
 #include <numeric>
 
 namespace RegisterViewModelBase {
+
+Q_DECLARE_NAMESPACE_TR(RegisterViewModelBase)
 
 namespace {
 
@@ -76,7 +79,7 @@ bool set_debuggee_register(const QString &name, const T &value, T &resultingValu
 		Register reg = state[name];
 
 		if (!reg) {
-			qWarning() << qPrintable(QStringLiteral("Warning: failed to get register %1 (in function `%2`)").arg(name).arg(Q_FUNC_INFO));
+			qWarning() << qPrintable(QStringLiteral("Warning: failed to get register %1 (in function `%2`)").arg(name).arg(QString::fromLatin1(Q_FUNC_INFO)));
 			return false;
 		}
 
@@ -122,7 +125,7 @@ void RegisterViewItem::init(RegisterViewItem *parent, int row) {
 // ---------------- CategoriesHolder impl ------------------------------
 
 CategoriesHolder::CategoriesHolder()
-	: RegisterViewItem("") {
+	: RegisterViewItem(QString()) {
 }
 
 int CategoriesHolder::childCount() const {
@@ -673,7 +676,7 @@ RegisterViewItem *RegisterItem<T>::child(int) {
 template <class T>
 QString RegisterItem<T>::valueString() const {
 	if (!this->valueKnown_) {
-		return "???";
+		return QStringLiteral("???");
 	}
 
 	return this->value_.toHexString();
@@ -811,7 +814,7 @@ bool BitFieldItem<UnderlyingType>::changed() const {
 
 template <class UnderlyingType>
 QVariant BitFieldItem<UnderlyingType>::data(int column) const {
-	const auto str = reg()->valid() ? value().toHexString() : QString(sizeof(UnderlyingType) * 2, '?');
+	const auto str = reg()->valid() ? value().toHexString() : QString(sizeof(UnderlyingType) * 2, QLatin1Char('?'));
 	switch (column) {
 	case Model::NAME_COLUMN:
 		return name();
@@ -876,13 +879,13 @@ QString SIMDFormatItem<StoredType, SizingType>::name(NumberDisplayMode format) c
 
 	switch (format) {
 	case NumberDisplayMode::Hex:
-		return "hex";
+		return QStringLiteral("hex");
 	case NumberDisplayMode::Signed:
-		return "signed";
+		return QStringLiteral("signed");
 	case NumberDisplayMode::Unsigned:
-		return "unsigned";
+		return QStringLiteral("unsigned");
 	case NumberDisplayMode::Float:
-		return "float";
+		return QStringLiteral("float");
 	}
 	Q_UNREACHABLE();
 }
@@ -904,12 +907,16 @@ bool SIMDFormatItem<StoredType, SizingType>::changed() const {
 
 template <class SizingType>
 std::enable_if_t<(sizeof(SizingType) >= sizeof(float) && sizeof(SizingType) != sizeof(edb::value80)), QString> toString(SizingType value, NumberDisplayMode format) {
-	return format == NumberDisplayMode::Float ? format_float(value) : util::format_int(value, format);
+	return format == NumberDisplayMode::Float
+			   ? format_float(value)
+			   : util::format_int(value, format);
 }
 
 template <class SizingType>
 std::enable_if_t<sizeof(SizingType) < sizeof(float), QString> toString(SizingType value, NumberDisplayMode format) {
-	return format == NumberDisplayMode::Float ? "(too small element width for float)" : util::format_int(value, format);
+	return format == NumberDisplayMode::Float
+			   ? tr("too small element width for float")
+			   : util::format_int(value, format);
 }
 
 template <class StoredType, class SizingType>
@@ -921,11 +928,11 @@ QVariant SIMDFormatItem<StoredType, SizingType>::data(int column) const {
 
 	case Model::VALUE_COLUMN:
 		if (const auto parent = dynamic_cast<SIMDSizedElement<StoredType, SizingType> *>(this->parent())) {
-			return parent->valid() ? toString(parent->value(), format_) : "???";
+			return parent->valid() ? toString(parent->value(), format_) : QStringLiteral("???");
 		}
 
 		if (const auto parent = dynamic_cast<FPURegister<SizingType> *>(this->parent())) {
-			return parent->valid() ? toString(parent->value(), format_) : "???";
+			return parent->valid() ? toString(parent->value(), format_) : QStringLiteral("???");
 		}
 
 		EDB_PRINT_AND_DIE("failed to detect parent type");
@@ -1032,7 +1039,7 @@ bool SIMDSizedElement<StoredType, SizingType>::valid() const {
 template <class StoredType, class SizingType>
 QString SIMDSizedElement<StoredType, SizingType>::valueString() const {
 	if (!valid()) {
-		return "??";
+		return QStringLiteral("??");
 	}
 	return toString(value(), reg()->category()->chosenFormat());
 }
@@ -1275,7 +1282,7 @@ FloatType FPURegister<FloatType>::value() const {
 template <class FloatType>
 QString FPURegister<FloatType>::valueString() const {
 	if (!this->valid()) {
-		return "??";
+		return QStringLiteral("??");
 	}
 	return toString(value(), category()->chosenFormat());
 }
@@ -1299,15 +1306,22 @@ int FPURegister<FloatType>::valueMaxLength() const {
 template class FPURegister<edb::value80>;
 
 // ---------------------------- SIMDCategory impl ------------------------------
-const auto settingsMainKey     = QLatin1String("RegisterViewModelBase");
-const auto settingsFormatKey   = QLatin1String("format");
-const auto settingsSIMDSizeKey = QLatin1String("size");
+const auto settingsMainKey     = QStringLiteral("RegisterViewModelBase");
+const auto settingsFormatKey   = QStringLiteral("format");
+const auto settingsSIMDSizeKey = QStringLiteral("size");
+
+QString settingsGroupKey(const QString &name) {
+	QString key = settingsMainKey;
+	key += QLatin1Char('/');
+	key += name;
+	return key;
+}
 
 SIMDCategory::SIMDCategory(const QString &name, int row, const std::vector<NumberDisplayMode> &validFormats)
 	: Category(name, row), validFormats_(validFormats) {
 
 	QSettings settings;
-	settings.beginGroup(settingsMainKey + "/" + name);
+	settings.beginGroup(settingsGroupKey(name));
 
 	const auto defaultFormat = NumberDisplayMode::Hex;
 	chosenFormat_            = static_cast<NumberDisplayMode>(settings.value(settingsFormatKey, static_cast<int>(defaultFormat)).toInt());
@@ -1322,7 +1336,7 @@ SIMDCategory::SIMDCategory(const QString &name, int row, const std::vector<Numbe
 SIMDCategory::~SIMDCategory() {
 
 	QSettings settings;
-	settings.beginGroup(settingsMainKey + "/" + name());
+	settings.beginGroup(settingsGroupKey(name()));
 
 	// Simple guard against rewriting settings which didn't change between
 	// categories with the same name (but e.g. different bitness)
@@ -1364,7 +1378,7 @@ FPUCategory::FPUCategory(const QString &name, int row)
 	: Category(name, row) {
 
 	QSettings settings;
-	settings.beginGroup(settingsMainKey + "/" + name);
+	settings.beginGroup(settingsGroupKey(name));
 	const auto defaultFormat = NumberDisplayMode::Float;
 
 	chosenFormat_ = static_cast<NumberDisplayMode>(settings.value(settingsFormatKey, static_cast<int>(defaultFormat)).toInt());
@@ -1376,7 +1390,7 @@ FPUCategory::FPUCategory(const QString &name, int row)
 
 FPUCategory::~FPUCategory() {
 	QSettings settings;
-	settings.beginGroup(settingsMainKey + "/" + name());
+	settings.beginGroup(settingsGroupKey(name()));
 	if (formatChanged_) {
 		settings.setValue(settingsFormatKey, static_cast<int>(chosenFormat_));
 	}

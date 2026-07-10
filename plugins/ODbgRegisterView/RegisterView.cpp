@@ -108,7 +108,9 @@ const auto SETTINGS_GROUPS_ARRAY_NODE = QLatin1String("visibleGroups");
 
 ODBRegView::RegisterGroupType findGroup(const QString &str) {
 	const auto &names  = RegisterGroupTypeNames;
-	const auto foundIt = std::find(names.begin(), names.end(), str);
+	const auto foundIt = std::find_if(names.begin(), names.end(), [&str](const auto candidate) {
+		return str == QString::fromLatin1(candidate);
+	});
 
 	if (foundIt == names.end()) {
 		return ODBRegView::RegisterGroupType::NUM_GROUPS;
@@ -179,7 +181,7 @@ void ODBRegView::mousePressEvent(QMouseEvent *event) {
 void ODBRegView::updateFont() {
 	QFont font;
 	if (!font.fromString(edb::v1::config().registers_font)) {
-		font = QFont("Monospace");
+		font = QFont(QStringLiteral("Monospace"));
 		font.setStyleHint(QFont::TypeWriter);
 	}
 	setFont(font);
@@ -235,7 +237,7 @@ ODBRegView::ODBRegView(const QString &settingsGroup, QWidget *parent)
 	  dialogEditFpu_(nullptr)
 #endif
 {
-	setObjectName("ODBRegView");
+	setObjectName(QStringLiteral("ODBRegView"));
 
 	connect(&edb::v1::config(), &Configuration::settingsUpdated, this, &ODBRegView::settingsUpdated);
 
@@ -316,17 +318,17 @@ void ODBRegView::copyAllRegisters() const {
 		while (field->lineNumber() > textLine) {
 			++textLine;
 			textColumn = 0;
-			text       = text.trimmed() + '\n';
+			text       = text.trimmed() + QLatin1Char('\n');
 		}
 		while (field->columnNumber() > textColumn) {
 			++textColumn;
-			text += ' ';
+			text += QLatin1Char(' ');
 		}
 		const QString fieldText = field->text();
 		if (field->alignment() == Qt::AlignRight) {
 			const int fwidth     = field->fieldWidth();
 			const int spaceWidth = fwidth - static_cast<int>(fieldText.size());
-			text += QString(spaceWidth, ' ');
+			text += QString(spaceWidth, QLatin1Char(' '));
 			textColumn += spaceWidth;
 		}
 		text += fieldText;
@@ -347,7 +349,7 @@ void ODBRegView::groupHidden(RegisterGroup *group) {
 	auto &types(visibleGroupTypes_);
 	const auto groupType = static_cast<RegisterGroupType>(groupPtrIter - groups_.begin());
 	types.erase(std::remove_if(types.begin(), types.end(), [=](const RegisterGroupType type) { return type == groupType; }), types.end());
-	hiddenGroupsMenu_->addAction(RegisterGroupTypeNames[groupType], [=] { restoreHiddenGroup(groupType); });
+	hiddenGroupsMenu_->addAction(QString::fromLatin1(RegisterGroupTypeNames[groupType]), [=] { restoreHiddenGroup(groupType); });
 	hiddenGroupsAction_->setVisible(true);
 }
 
@@ -357,7 +359,7 @@ void ODBRegView::saveState(const QString &settingsGroup) const {
 	settings.remove(SETTINGS_GROUPS_ARRAY_NODE);
 	QStringList groupTypes;
 	for (auto type : visibleGroupTypes_) {
-		groupTypes << RegisterGroupTypeNames[type];
+		groupTypes << QString::fromLatin1(RegisterGroupTypeNames[type]);
 	}
 	settings.setValue(SETTINGS_GROUPS_ARRAY_NODE, groupTypes);
 }
@@ -383,7 +385,7 @@ RegisterGroup *ODBRegView::makeGroup(RegisterGroupType type) {
 	switch (type) {
 	case RegisterGroupType::GPR: {
 		groupName           = tr("GPRs");
-		const auto catIndex = find_model_category(model_, GprCategoryName);
+		const auto catIndex = find_model_category(model_, QString::fromLatin1(GprCategoryName));
 		if (!catIndex.isValid()) {
 			break;
 		}
@@ -408,14 +410,14 @@ RegisterGroup *ODBRegView::makeGroup(RegisterGroupType type) {
 	case RegisterGroupType::MXCSR:
 		return create_mxcsr(model_, widget());
 	case RegisterGroupType::MMX:
-		return createSIMDGroup(model_, widget(), "MMX", "MM");
+		return createSIMDGroup(model_, widget(), QStringLiteral("MMX"), QStringLiteral("MM"));
 	case RegisterGroupType::SSEData:
-		return createSIMDGroup(model_, widget(), "SSE", "XMM");
+		return createSIMDGroup(model_, widget(), QStringLiteral("SSE"), QStringLiteral("XMM"));
 	case RegisterGroupType::AVXData:
-		return createSIMDGroup(model_, widget(), "AVX", "YMM");
+		return createSIMDGroup(model_, widget(), QStringLiteral("AVX"), QStringLiteral("YMM"));
 	case RegisterGroupType::Segment: {
 		groupName           = tr("Segment Registers");
-		const auto catIndex = find_model_category(model_, "Segment");
+		const auto catIndex = find_model_category(model_, tr("Segment"));
 		if (!catIndex.isValid()) {
 			break;
 		}
@@ -426,12 +428,12 @@ RegisterGroup *ODBRegView::makeGroup(RegisterGroupType type) {
 	}
 	case RegisterGroupType::rIP: {
 		groupName           = tr("Instruction Pointer");
-		const auto catIndex = find_model_category(model_, "General Status");
+		const auto catIndex = find_model_category(model_, tr("General Status"));
 		if (!catIndex.isValid()) {
 			break;
 		}
-		nameValCommentIndices.emplace_back(find_model_register(catIndex, "RIP"));
-		nameValCommentIndices.emplace_back(find_model_register(catIndex, "EIP"));
+		nameValCommentIndices.emplace_back(find_model_register(catIndex, QStringLiteral("RIP")));
+		nameValCommentIndices.emplace_back(find_model_register(catIndex, QStringLiteral("EIP")));
 		break;
 	}
 #elif defined(EDB_ARM32)
@@ -517,7 +519,7 @@ void ODBRegView::modelReset() {
 			}
 		} else {
 			groups_.push_back(nullptr);
-			hiddenGroupsMenu_->addAction(RegisterGroupTypeNames[groupType], [=] { restoreHiddenGroup(groupType); });
+			hiddenGroupsMenu_->addAction(QString::fromLatin1(RegisterGroupTypeNames[groupType]), [=] { restoreHiddenGroup(groupType); });
 			hiddenGroupsAction_->setVisible(true);
 		}
 	}
