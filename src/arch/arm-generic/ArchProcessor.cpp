@@ -353,7 +353,7 @@ static const QLatin1String jumpConditionMnemonics[] = {
 };
 
 QString cpsrComment(edb::reg_t flags) {
-	QString comment = "(";
+	QString comment = QStringLiteral("(");
 	for (int cond = 0; cond < 0x10 - 2; ++cond) // we're not interested in AL or UNDEFINED conditions
 		if (is_jcc_taken(flags, static_cast<edb::Instruction::ConditionCode>(cond)))
 			comment += jumpConditionMnemonics[cond] + ',';
@@ -372,15 +372,15 @@ QString fpscrComment(edb::reg_t fpscr) {
 	const auto nzcv = fpscr >> 28;
 	switch (nzcv) {
 	case 2:
-		return "(GT)";
+		return QStringLiteral("(GT)");
 	case 3:
-		return "(Unordered)";
+		return QStringLiteral("(Unordered)");
 	case 6:
-		return "(EQ)";
+		return QStringLiteral("(EQ)");
 	case 8:
-		return "(LT)";
+		return QStringLiteral("(LT)");
 	default:
-		return "";
+		return QStringLiteral("");
 	}
 }
 

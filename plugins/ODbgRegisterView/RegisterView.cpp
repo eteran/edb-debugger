@@ -109,7 +109,7 @@ const auto SETTINGS_GROUPS_ARRAY_NODE = QLatin1String("visibleGroups");
 ODBRegView::RegisterGroupType findGroup(const QString &str) {
 	const auto &names  = RegisterGroupTypeNames;
 	const auto foundIt = std::find_if(names.begin(), names.end(), [&str](const auto candidate) {
-		return str == QLatin1String(candidate);
+		return str == QString::fromLatin1(candidate);
 	});
 
 	if (foundIt == names.end()) {

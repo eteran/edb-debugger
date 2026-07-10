@@ -86,7 +86,7 @@ QVariant RegisterViewModel::data(QModelIndex const &index, int role) const {
 		if (index.column() == NAME_COLUMN && name.length() >= 2) {
 			const QString nameLower = name.toLower();
 			if ((nameLower[0] == 'r' && '0' <= nameLower[1] && nameLower[1] <= '9') ||
-				nameLower == "sp" || nameLower == "lr" || nameLower == "pc")
+				nameLower == QStringLiteral("sp") || nameLower == QStringLiteral("lr") || nameLower == QStringLiteral("pc"))
 				return 3;
 		}
 	}

@@ -827,7 +827,7 @@ Register findRegisterValue(const Names &names, const Regs &regs, const QString &
 
 	const auto end        = names.begin() + maxNames;
 	auto regNameFoundIter = std::find_if(names.begin(), end, [&regName](const auto candidate) {
-		return regName == QLatin1String(candidate);
+		return regName == QString::fromLatin1(candidate);
 	});
 
 	if (regNameFoundIter != end) {
@@ -882,7 +882,7 @@ Register PlatformState::value(const QString &reg) const {
 			const QString segRegName    = regName.mid(0, 2);
 			const auto end              = X86::segRegNames.end();
 			const auto regNameFoundIter = std::find_if(X86::segRegNames.begin(), end, [&segRegName](const auto candidate) {
-				return segRegName == QLatin1String(candidate);
+				return segRegName == QString::fromLatin1(candidate);
 			});
 
 			if (regNameFoundIter != end) {
@@ -1308,7 +1308,7 @@ void PlatformState::setRegister(const Register &reg) {
 
 	const auto gpr_end            = GPRegNames().begin() + gpr_count();
 	const auto GPRegNameFoundIter = std::find_if(GPRegNames().begin(), gpr_end, [&regName](const auto candidate) {
-		return regName == QLatin1String(candidate);
+		return regName == QString::fromLatin1(candidate);
 	});
 
 	if (GPRegNameFoundIter != gpr_end) {
@@ -1318,7 +1318,7 @@ void PlatformState::setRegister(const Register &reg) {
 	}
 
 	auto segRegNameFoundIter = std::find_if(X86::segRegNames.begin(), X86::segRegNames.end(), [&regName](const auto candidate) {
-		return regName == QLatin1String(candidate);
+		return regName == QString::fromLatin1(candidate);
 	});
 
 	if (segRegNameFoundIter != X86::segRegNames.end()) {
