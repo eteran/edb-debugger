@@ -87,7 +87,7 @@ void RecentFileManager::clear() {
 	if (menu_) {
 		menu_->clear();
 		menu_->addSeparator();
-		menu_->addAction(tr("Clear &Menu"), this, SLOT(clear()));
+		menu_->addAction(tr("Clear &Menu"), this, &RecentFileManager::clear);
 	}
 }
 
@@ -129,13 +129,13 @@ void RecentFileManager::update() {
 		menu_->clear();
 
 		for (const auto &file : files_) {
-			if (QAction *const action = menu_->addAction(formatEntry(file), this, SLOT(itemSelected()))) {
+			if (QAction *const action = menu_->addAction(formatEntry(file), this, &RecentFileManager::itemSelected)) {
 				action->setData(QVariant::fromValue(file));
 			}
 		}
 
 		menu_->addSeparator();
-		menu_->addAction(tr("Clear &Menu"), this, SLOT(clear()));
+		menu_->addAction(tr("Clear &Menu"), this, &RecentFileManager::clear);
 	}
 }
 

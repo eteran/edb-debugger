@@ -72,7 +72,7 @@ QMenu *BinaryInfo::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("Binary Info"), parent);
-		menu_->addAction(tr("&Explore Binary Header"), this, SLOT(exploreHeader()));
+		menu_->addAction(tr("&Explore Binary Header"), this, &BinaryInfo::exploreHeader);
 	}
 
 	return menu_;

@@ -48,20 +48,20 @@ void DialogMemoryRegions::on_regions_table_customContextMenuRequested(const QPoi
 
 	QMenu menu;
 	auto access_menu = new QMenu(tr("Set Access"), this);
-	access_menu->addAction(tr("No Access"), this, SLOT(setAccessNone()));   // ---
-	access_menu->addAction(tr("Read Only"), this, SLOT(setAccessR()));      // r--
-	access_menu->addAction(tr("Write Only"), this, SLOT(setAccessW()));     // -w-
-	access_menu->addAction(tr("Execute Only"), this, SLOT(setAccessX()));   // --x
-	access_menu->addAction(tr("Read/Write"), this, SLOT(setAccessRW()));    // rw-
-	access_menu->addAction(tr("Read/Execute"), this, SLOT(setAccessRX()));  // r-x
-	access_menu->addAction(tr("Write/Execute"), this, SLOT(setAccessWX())); // -wx
-	access_menu->addAction(tr("Full Access"), this, SLOT(setAccessRWX()));  // rwx
+	access_menu->addAction(tr("No Access"), this, &DialogMemoryRegions::setAccessNone);   // ---
+	access_menu->addAction(tr("Read Only"), this, &DialogMemoryRegions::setAccessR);      // r--
+	access_menu->addAction(tr("Write Only"), this, &DialogMemoryRegions::setAccessW);     // -w-
+	access_menu->addAction(tr("Execute Only"), this, &DialogMemoryRegions::setAccessX);   // --x
+	access_menu->addAction(tr("Read/Write"), this, &DialogMemoryRegions::setAccessRW);    // rw-
+	access_menu->addAction(tr("Read/Execute"), this, &DialogMemoryRegions::setAccessRX);  // r-x
+	access_menu->addAction(tr("Write/Execute"), this, &DialogMemoryRegions::setAccessWX); // -wx
+	access_menu->addAction(tr("Full Access"), this, &DialogMemoryRegions::setAccessRWX);  // rwx
 
 	menu.addMenu(access_menu);
 	menu.addSeparator();
-	menu.addAction(tr("View in &CPU"), this, SLOT(viewInCpu()));
-	menu.addAction(tr("View in &Stack"), this, SLOT(viewInStack()));
-	menu.addAction(tr("View in &Dump"), this, SLOT(viewInDump()));
+	menu.addAction(tr("View in &CPU"), this, &DialogMemoryRegions::viewInCpu);
+	menu.addAction(tr("View in &Stack"), this, &DialogMemoryRegions::viewInStack);
+	menu.addAction(tr("View in &Dump"), this, &DialogMemoryRegions::viewInDump);
 	menu.exec(ui.regions_table->mapToGlobal(pos));
 }
 
