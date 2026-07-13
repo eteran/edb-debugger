@@ -19,7 +19,7 @@
 namespace {
 
 constexpr int SessionFileVersion = 1;
-const auto SessionFileIdString   = QLatin1String("edb-session");
+const auto SessionFileIdString   = QStringLiteral("edb-session");
 
 }
 
@@ -82,9 +82,9 @@ Result<void, SessionError> SessionManager::loadSession(const QString &filename) 
 	QJsonObject object = doc.object();
 	sessionData_       = object.toVariantMap();
 
-	QString id  = sessionData_[QLatin1String("id")].toString();
-	QString ts  = sessionData_[QLatin1String("timestamp")].toString();
-	int version = sessionData_[QLatin1String("version")].toInt();
+	QString id  = sessionData_[QStringLiteral("id")].toString();
+	QString ts  = sessionData_[QStringLiteral("timestamp")].toString();
+	int version = sessionData_[QStringLiteral("version")].toInt();
 
 	Q_UNUSED(ts)
 
@@ -124,10 +124,10 @@ void SessionManager::saveSession(const QString &filename) {
 		}
 	}
 
-	sessionData_[QLatin1String("version")]     = SessionFileVersion;
-	sessionData_[QLatin1String("id")]          = SessionFileIdString; // just so we can sanity check things
-	sessionData_[QLatin1String("timestamp")]   = QDateTime::currentDateTimeUtc();
-	sessionData_[QLatin1String("plugin-data")] = plugin_data;
+	sessionData_[QStringLiteral("version")]     = SessionFileVersion;
+	sessionData_[QStringLiteral("id")]          = SessionFileIdString; // just so we can sanity check things
+	sessionData_[QStringLiteral("timestamp")]   = QDateTime::currentDateTimeUtc();
+	sessionData_[QStringLiteral("plugin-data")] = plugin_data;
 
 	auto object = QJsonObject::fromVariantMap(sessionData_);
 	QJsonDocument doc(object);
@@ -147,7 +147,7 @@ void SessionManager::loadPluginData() {
 
 	qDebug("Loading plugin-data");
 
-	QVariantMap plugin_data = sessionData_[QLatin1String("plugin-data")].toMap();
+	QVariantMap plugin_data = sessionData_[QStringLiteral("plugin-data")].toMap();
 	for (auto it = plugin_data.begin(); it != plugin_data.end(); ++it) {
 		for (QObject *plugin : edb::v1::plugin_list()) {
 			if (auto p = qobject_cast<IPlugin *>(plugin)) {
@@ -171,7 +171,7 @@ void SessionManager::loadPluginData() {
  * @return A list of all comments in the session.
  */
 QVariantList SessionManager::comments() const {
-	return sessionData_[QLatin1String("comments")].toList();
+	return sessionData_[QStringLiteral("comments")].toList();
 }
 
 /**
@@ -181,16 +181,16 @@ QVariantList SessionManager::comments() const {
  */
 void SessionManager::addComment(const Comment &c) {
 
-	QVariantList comments_data = sessionData_[QLatin1String("comments")].toList();
+	QVariantList comments_data = sessionData_[QStringLiteral("comments")].toList();
 
 	QVariantMap comment;
-	comment[QLatin1String("address")] = c.address.toHexString();
-	comment[QLatin1String("comment")] = c.comment;
+	comment[QStringLiteral("address")] = c.address.toHexString();
+	comment[QStringLiteral("comment")] = c.comment;
 
 	// Check if we already have an entry with the same address and overwrite it
 	auto it = std::find_if(comments_data.begin(), comments_data.end(), [&comment](QVariant entry) {
 		QVariantMap data = entry.toMap();
-		return data[QLatin1String("address")] == comment[QLatin1String("address")];
+		return data[QStringLiteral("address")] == comment[QStringLiteral("address")];
 	});
 
 	if (it != comments_data.end()) {
@@ -199,7 +199,7 @@ void SessionManager::addComment(const Comment &c) {
 		comments_data.push_back(comment);
 	}
 
-	sessionData_[QLatin1String("comments")] = comments_data;
+	sessionData_[QStringLiteral("comments")] = comments_data;
 }
 
 /**
@@ -209,16 +209,16 @@ void SessionManager::addComment(const Comment &c) {
  */
 void SessionManager::removeComment(edb::address_t address) {
 	QString hexAddressString   = address.toHexString();
-	QVariantList comments_data = sessionData_[QLatin1String("comments")].toList();
+	QVariantList comments_data = sessionData_[QStringLiteral("comments")].toList();
 
 	auto it = std::find_if(comments_data.begin(), comments_data.end(), [&hexAddressString](QVariant entry) {
 		QVariantMap data = entry.toMap();
-		return data[QLatin1String("address")] == hexAddressString;
+		return data[QStringLiteral("address")] == hexAddressString;
 	});
 
 	if (it != comments_data.end()) {
 		comments_data.erase(it);
 	}
 
-	sessionData_[QLatin1String("comments")] = comments_data;
+	sessionData_[QStringLiteral("comments")] = comments_data;
 }

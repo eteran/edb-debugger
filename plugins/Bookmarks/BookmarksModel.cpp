@@ -16,9 +16,9 @@ namespace BookmarksPlugin {
  */
 BookmarksModel::BookmarksModel(QObject *parent)
 	: QAbstractItemModel(parent),
-	  breakpointIcon_(QLatin1String(":/debugger/images/breakpoint.svg")),
-	  currentIcon_(QLatin1String(":/debugger/images/arrow-right.svg")),
-	  currentBpIcon_(QLatin1String(":/debugger/images/arrow-right-red.svg")) {
+	  breakpointIcon_(QStringLiteral(":/debugger/images/breakpoint.svg")),
+	  currentIcon_(QStringLiteral(":/debugger/images/arrow-right.svg")),
+	  currentBpIcon_(QStringLiteral(":/debugger/images/arrow-right-red.svg")) {
 }
 
 /**

@@ -769,7 +769,7 @@ QString normalizeOBJDUMP(const QString &text, int bits) {
 	for (unsigned i = 3; i < parts.size(); ++i)
 		disasm += QStringLiteral(" ") + parts[i];
 #endif
-	return addr + QLatin1String("   ") + bytes + QLatin1String("   ") + disasm;
+	return addr + QStringLiteral("   ") + bytes + QStringLiteral("   ") + disasm;
 }
 
 /**
@@ -781,10 +781,10 @@ QString normalizeOBJDUMP(const QString &text, int bits) {
  */
 std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t address) {
 
-	const std::string processName = "objdump";
-	const auto bits               = edb::v1::debuggeeIs32Bit() ? 32 : 64;
+	const auto processName = QStringLiteral("objdump");
+	const auto bits        = edb::v1::debuggeeIs32Bit() ? 32 : 64;
 
-	QTemporaryFile binary(QDir::tempPath() + QLatin1String("/edb_insn_inspector_temp_XXXXXX.bin"));
+	QTemporaryFile binary(QDir::tempPath() + QStringLiteral("/edb_insn_inspector_temp_XXXXXX.bin"));
 
 	if (!binary.open()) {
 		return "; Failed to create binary file";
@@ -798,22 +798,22 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 
 	binary.close();
 	QProcess process;
-	process.start(QString::fromStdString(processName), {QStringLiteral("-D"),
-														QStringLiteral("--target=binary"),
+	process.start(processName, {QStringLiteral("-D"),
+								QStringLiteral("--target=binary"),
 #if defined(EDB_X86) || defined(EDB_X86_64)
-														QStringLiteral("--insn-width=15"),
-														QStringLiteral("--architecture=i386") + QLatin1String(bits == 64 ? ":x86-64" : ""),
-														QStringLiteral("-M"),
-														QStringLiteral("intel,intel-mnemonic"),
+								QStringLiteral("--insn-width=15"),
+								QStringLiteral("--architecture=i386") + QLatin1String(bits == 64 ? ":x86-64" : ""),
+								QStringLiteral("-M"),
+								QStringLiteral("intel,intel-mnemonic"),
 #elif defined(EDB_ARM32)
-														QStringLiteral("--insn-width=4"),
-														QStringLiteral("-m"),
-														QStringLiteral("arm"),
-														edb::v1::debugger_core->cpuMode() == IDebugger::CpuMode::Thumb ? QStringLiteral("-Mforce-thumb") : QStringLiteral("-Mno-force-thumb"),
+								QStringLiteral("--insn-width=4"),
+								QStringLiteral("-m"),
+								QStringLiteral("arm"),
+								edb::v1::debugger_core->cpuMode() == IDebugger::CpuMode::Thumb ? QStringLiteral("-Mforce-thumb") : QStringLiteral("-Mno-force-thumb"),
 #else
 #error "Not implemented"
 #endif
-														QStringLiteral("--adjust-vma=") + address.toPointerString(), binary.fileName()});
+								QStringLiteral("--adjust-vma=") + address.toPointerString(), binary.fileName()});
 
 	if (process.waitForFinished()) {
 		if (process.exitCode() != 0) {
@@ -848,10 +848,10 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 	}
 
 	if (process.error() == QProcess::FailedToStart) {
-		return "; Failed to start " + processName;
+		return "; Failed to start " + processName.toStdString();
 	}
 
-	return "; Unknown error while running " + processName;
+	return "; Unknown error while running " + processName.toStdString();
 }
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
@@ -902,8 +902,8 @@ QString normalizeNDISASM(const QString &text, int bits) {
  */
 std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t address) {
 
-	const std::string processName = "ndisasm";
-	const auto bits               = edb::v1::debuggeeIs32Bit() ? 32 : 64;
+	const auto processName = QStringLiteral("ndisasm");
+	const auto bits        = edb::v1::debuggeeIs32Bit() ? 32 : 64;
 
 	QTemporaryFile binary(QDir::tempPath() + QLatin1String("/edb_insn_inspector_temp_XXXXXX.bin"));
 
@@ -919,7 +919,7 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 
 	binary.close();
 	QProcess process;
-	process.start(QString::fromStdString(processName),
+	process.start(processName,
 				  QStringList{QStringLiteral("-o"),
 							  address.toPointerString(),
 							  QStringLiteral("-b"),
@@ -950,9 +950,9 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 	}
 
 	if (process.error() == QProcess::FailedToStart) {
-		return "; Failed to start " + processName;
+		return "; Failed to start " + processName.toStdString();
 	}
-	return "; Unknown error while running " + processName;
+	return "; Unknown error while running " + processName.toStdString();
 }
 
 /**
@@ -988,8 +988,8 @@ std::pair<QString, std::size_t /*insnLength*/> normalizeOBJCONV(const QString &t
  * @return A string containing the disassembly output or an error message if the command fails.
  */
 std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) {
-	const std::string processName = "objconv";
-	const auto bits               = edb::v1::debuggeeIs32Bit() ? 32 : 64;
+	const auto processName = QStringLiteral("objconv");
+	const auto bits        = edb::v1::debuggeeIs32Bit() ? 32 : 64;
 
 	QString binaryFileName;
 	{
@@ -1172,7 +1172,7 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 	}
 
 	QProcess process;
-	process.start(QString::fromStdString(processName),
+	process.start(processName,
 				  QStringList{QStringLiteral("-fnasm"), binaryFileName, QStringLiteral("/dev/stdout")});
 
 	const bool success = process.waitForFinished();
@@ -1265,10 +1265,10 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 	}
 
 	if (process.error() == QProcess::FailedToStart) {
-		return "; Failed to start " + processName;
+		return "; Failed to start " + processName.toStdString();
 	}
 
-	return "; Unknown error while running " + processName;
+	return "; Unknown error while running " + processName.toStdString();
 }
 #endif
 

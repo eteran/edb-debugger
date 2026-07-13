@@ -970,7 +970,7 @@ void Debugger::setupUi() {
 	listView_->setObjectName(QLatin1String("listView"));
 
 	QFont font;
-	font.setFamily(QLatin1String("Monospace"));
+	font.setFamily(QStringLiteral("Monospace"));
 	font.setPointSize(10);
 	listView_->setFont(font);
 	listView_->setEditTriggers(QAbstractItemView::NoEditTriggers);

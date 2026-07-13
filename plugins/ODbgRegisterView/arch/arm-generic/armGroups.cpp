@@ -181,7 +181,7 @@ RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *
 		}
 	}
 	{
-		const auto geNameField = new FieldWidget(QLatin1String("GE"), group);
+		const auto geNameField = new FieldWidget(QStringLiteral("GE"), group);
 		geNameField->setToolTip(tr("Greater than or Equal flags"));
 		group->insert(1, 0, geNameField);
 		for (int geIndex = 3; geIndex > -1; --geIndex) {
@@ -208,7 +208,7 @@ RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *
 		enum { labelRow = 2,
 			   valueRow };
 		{
-			const auto itNameField = new FieldWidget(QLatin1String("IT"), group);
+			const auto itNameField = new FieldWidget(QStringLiteral("IT"), group);
 			itNameField->setToolTip(tr("If-Then block state"));
 			group->insert(valueRow, column, itNameField);
 			column += 3;

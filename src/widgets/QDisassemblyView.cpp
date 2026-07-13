@@ -175,9 +175,9 @@ bool target_is_local(edb::address_t targetAddress, edb::address_t insnAddress) {
 QDisassemblyView::QDisassemblyView(QWidget *parent)
 	: QAbstractScrollArea(parent),
 	  highlighter_(new SyntaxHighlighter(this)),
-	  breakpointRenderer_(QLatin1String(":/debugger/images/breakpoint.svg")),
-	  currentRenderer_(QLatin1String(":/debugger/images/arrow-right.svg")),
-	  currentBpRenderer_(QLatin1String(":/debugger/images/arrow-right-red.svg")),
+	  breakpointRenderer_(QStringLiteral(":/debugger/images/breakpoint.svg")),
+	  currentRenderer_(QStringLiteral(":/debugger/images/arrow-right.svg")),
+	  currentBpRenderer_(QStringLiteral(":/debugger/images/arrow-right-red.svg")),
 	  syntaxCache_(256) {
 
 	// TODO(eteran): it makes more sense for these to have setters/getters and it just be told
@@ -617,7 +617,7 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
 
 				const bool showSymbolicAddresses = edb::v1::config().show_symbolic_addresses;
 
-				static const QRegularExpression addrPattern(QLatin1String("#?0x[0-9a-fA-F]+"));
+				static const QRegularExpression addrPattern(QStringLiteral("#?0x[0-9a-fA-F]+"));
 				const edb::address_t target = oper->imm;
 
 				const bool showLocalModuleNames = edb::v1::config().show_local_module_name_in_jump_targets;
@@ -2283,8 +2283,8 @@ void QDisassemblyView::restoreState(const QByteArray &stateBuffer) {
 void QDisassemblyView::restoreComments(QVariantList &comments_data) {
 	for (const QVariant &entry : comments_data) {
 		QVariantMap data = entry.toMap();
-		if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(data[QLatin1String("address")].toString())) {
-			comments_.insert(*addr, data[QLatin1String("comment")].toString());
+		if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(data[QStringLiteral("address")].toString())) {
+			comments_.insert(*addr, data[QStringLiteral("comment")].toString());
 		}
 	}
 }

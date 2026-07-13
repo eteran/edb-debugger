@@ -415,18 +415,18 @@ QString Formatter::adjustInstructionText(const Instruction &insn) const {
 	operands.replace(QLatin1String(" + "), QLatin1String("+"));
 	operands.replace(QLatin1String(" - "), QLatin1String("-"));
 
-	operands.replace(QRegularExpression(QLatin1String("\\bxword ")), QLatin1String("tbyte "));
-	operands.replace(QRegularExpression(QLatin1String("(word|byte) ptr ")), QLatin1String("\\1 "));
+	operands.replace(QRegularExpression(QStringLiteral("\\bxword ")), QLatin1String("tbyte "));
+	operands.replace(QRegularExpression(QStringLiteral("(word|byte) ptr ")), QLatin1String("\\1 "));
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	if (activeFormatter.options().simplifyRIPRelativeTargets && isX86_64() && (insn->detail->x86.modrm & 0xc7) == 0x05) {
-		QRegularExpression ripRel(QLatin1String("\\brip ?[+-] ?((0x)?[0-9a-fA-F]+)\\b"));
+		QRegularExpression ripRel(QStringLiteral("\\brip ?[+-] ?((0x)?[0-9a-fA-F]+)\\b"));
 		operands.replace(ripRel, QLatin1String("rel 0x") + QString::number(insn->detail->x86.disp + insn->address + insn->size, 16));
 	}
 
 	if (insn.operandCount() == 2 && insn->id != X86_INS_MOVZX && insn->id != X86_INS_MOVSX &&
 		((insn[0]->type == X86_OP_REG && insn[1]->type == X86_OP_MEM) || (insn[1]->type == X86_OP_REG && insn[0]->type == X86_OP_MEM))) {
-		operands.replace(QRegularExpression(QLatin1String("(\\b.?(mm)?word|byte)\\b( ptr)? ")), QLatin1String(""));
+		operands.replace(QRegularExpression(QStringLiteral("(\\b.?(mm)?word|byte)\\b( ptr)? ")), QString());
 	}
 #endif
 	return operands;
@@ -500,7 +500,7 @@ void Formatter::checkCapitalize(std::string &str, bool canContainHex) const {
 		if (canContainHex) {
 			auto qstr = QString::fromStdString(str);
 
-			static const QRegularExpression re(QLatin1String("\\b0X([0-9A-F]+)\\b"));
+			static const QRegularExpression re(QStringLiteral("\\b0X([0-9A-F]+)\\b"));
 			qstr.replace(re, QLatin1String("0x\\1"));
 
 			str = qstr.toStdString();

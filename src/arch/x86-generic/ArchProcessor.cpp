@@ -308,7 +308,7 @@ QString format_argument(const QString &type, const Register &arg) {
 
 template <class T>
 void resolve_function_parameters_helper(T parameter_registers, const State &state, const QString &symname, int offset, QStringList &ret) {
-	static const QString prefix(QLatin1String("!"));
+	static const auto prefix = QStringLiteral("!");
 
 	if (IProcess *process = edb::v1::debugger_core->process()) {
 		// we will always be removing the last 2 chars '+0' from the string as well
@@ -1377,17 +1377,17 @@ Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::In
 				const Register segBase = [&segRegIndex, &state]() {
 					switch (segRegIndex) {
 					case X86_REG_ES:
-						return state[QLatin1String("es_base")];
+						return state[QStringLiteral("es_base")];
 					case X86_REG_CS:
-						return state[QLatin1String("cs_base")];
+						return state[QStringLiteral("cs_base")];
 					case X86_REG_SS:
-						return state[QLatin1String("ss_base")];
+						return state[QStringLiteral("ss_base")];
 					case X86_REG_DS:
-						return state[QLatin1String("ds_base")];
+						return state[QStringLiteral("ds_base")];
 					case X86_REG_FS:
-						return state[QLatin1String("fs_base")];
+						return state[QStringLiteral("fs_base")];
 					case X86_REG_GS:
-						return state[QLatin1String("gs_base")];
+						return state[QStringLiteral("gs_base")];
 					default:
 						return Register();
 					}

@@ -393,15 +393,15 @@ int main(int argc, char *argv[]) {
 	// Light/Dark icons on all platforms
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 	if (QApplication::palette().window().color().lightnessF() >= 0.5f) {
-		QIcon::setThemeName(QLatin1String("breeze-edb"));
+		QIcon::setThemeName(QStringLiteral("breeze-edb"));
 	} else {
-		QIcon::setThemeName(QLatin1String("breeze-dark-edb"));
+		QIcon::setThemeName(QStringLiteral("breeze-dark-edb"));
 	}
 #else
 	if (QApplication::palette().window().color().lightnessF() >= 0.5) {
-		QIcon::setThemeName(QLatin1String("breeze-edb"));
+		QIcon::setThemeName(QStringLiteral("breeze-edb"));
 	} else {
-		QIcon::setThemeName(QLatin1String("breeze-dark-edb"));
+		QIcon::setThemeName(QStringLiteral("breeze-dark-edb"));
 	}
 #endif
 
