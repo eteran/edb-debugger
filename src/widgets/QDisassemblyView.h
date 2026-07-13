@@ -35,15 +35,15 @@ class QDisassemblyView final : public QAbstractScrollArea {
 
 private:
 	struct DrawingContext {
-		int l1;
-		int l2;
-		int l3;
-		int l4;
+		qreal l1;
+		qreal l2;
+		qreal l3;
+		qreal l4;
 		int linesToRender;
 		int selectedLines;
-		int lineHeight;
+		qreal lineHeight;
 		QPalette::ColorGroup group;
-		std::map<int, int> lineBadgeWidth; // for jmp drawing
+		std::map<int, qreal> lineBadgeWidth; // for jmp drawing
 	};
 
 public:
@@ -63,7 +63,7 @@ protected:
 
 public:
 	[[nodiscard]] bool addressShown(edb::address_t address) const;
-	[[nodiscard]] edb::address_t addressFromPoint(const QPoint &pos) const;
+	[[nodiscard]] edb::address_t addressFromPoint(const QPointF &pos) const;
 	[[nodiscard]] edb::address_t selectedAddress() const;
 	[[nodiscard]] int selectedSize() const;
 	[[nodiscard]] QByteArray saveState() const;
@@ -92,20 +92,20 @@ public Q_SLOTS:
 	void resetColumns();
 
 private:
-	[[nodiscard]] edb::address_t addressFromCoord(int x, int y) const;
+	[[nodiscard]] edb::address_t addressFromCoord(qreal x, qreal y) const;
 	[[nodiscard]] int addressLength() const;
-	[[nodiscard]] int autoLine2() const;
 	[[nodiscard]] int followingInstruction(int current_address) const;
 	[[nodiscard]] int followingInstructions(int current_address, int count) const;
 	[[nodiscard]] int getSelectedLineNumber() const;
-	[[nodiscard]] int line0() const;
-	[[nodiscard]] int line1() const;
-	[[nodiscard]] int line2() const;
-	[[nodiscard]] int line3() const;
-	[[nodiscard]] int line4() const;
-	[[nodiscard]] int lineHeight() const;
 	[[nodiscard]] int previousInstruction(IAnalyzer *analyzer, int current_address) const;
 	[[nodiscard]] int previousInstructions(int current_address, int count) const;
+	[[nodiscard]] qreal autoLine2() const;
+	[[nodiscard]] qreal line0() const;
+	[[nodiscard]] qreal line1() const;
+	[[nodiscard]] qreal line2() const;
+	[[nodiscard]] qreal line3() const;
+	[[nodiscard]] qreal line4() const;
+	[[nodiscard]] qreal lineHeight() const;
 	[[nodiscard]] QString formatAddress(edb::address_t address) const;
 	[[nodiscard]] QString instructionString(const edb::Instruction &inst) const;
 	[[nodiscard]] Result<int, QString> getInstructionSize(edb::address_t address, uint8_t *buf, int *size) const;
@@ -118,7 +118,7 @@ private:
 	void updateScrollbars();
 	void updateSelectedAddress(QMouseEvent *event);
 
-	void drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, int y, bool selected);
+	void drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, qreal y, bool selected);
 	void drawHeaderAndBackground(QPainter &painter, const DrawingContext *ctx, const std::unique_ptr<IBinary> &binary_info);
 	void drawRegisterBadges(QPainter &painter, DrawingContext *ctx);
 	void drawSymbolNames(QPainter &painter, const DrawingContext *ctx);
@@ -134,15 +134,15 @@ private:
 	edb::address_t addressOffset_{0};
 	edb::address_t selectedInstructionAddress_{0};
 	edb::address_t currentAddress_{0};
-	int fontHeight_                = 0; // height of a character in this font
-	int fontWidth_                 = 0; // width of a character in this font
-	int iconWidth_                 = 0;
-	int iconHeight_                = 0;
-	int line0_                     = 0;
-	int line1_                     = 0;
-	int line2_                     = 0;
-	int line3_                     = 0;
-	int line4_                     = 0;
+	qreal fontHeight_              = 0.0; // height of a character in this font
+	qreal fontWidth_               = 0.0; // width of a character in this font
+	qreal iconWidth_               = 0.0;
+	qreal iconHeight_              = 0.0;
+	qreal line0_                   = 0.0;
+	qreal line1_                   = 0.0;
+	qreal line2_                   = 0.0;
+	qreal line3_                   = 0.0;
+	qreal line4_                   = 0.0;
 	int selectedInstructionSize_   = 0;
 	bool movingLine1_              = false;
 	bool movingLine2_              = false;
@@ -190,7 +190,7 @@ private:
 		size_t distance;
 
 		// length of arrow horizontal
-		int horizontalLength;
+		qreal horizontalLength;
 	};
 };
 
