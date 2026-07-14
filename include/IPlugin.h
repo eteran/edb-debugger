@@ -13,6 +13,7 @@
 
 class QMenu;
 class QAction;
+class Module;
 
 class IPlugin {
 public:
@@ -39,6 +40,9 @@ public:
 
 	// optional, overload this to add a page to the options dialog
 	[[nodiscard]] virtual QWidget *optionsPage() { return nullptr; }
+
+	// optional, overload this to get notified when a library is loaded or unloaded
+	virtual void libraryEvent(const Module & /*module*/, bool /*loaded*/) {}
 
 public:
 	[[nodiscard]] virtual QVariantMap saveState() const { return {}; }

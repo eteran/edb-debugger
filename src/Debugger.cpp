@@ -3633,6 +3633,7 @@ void Debugger::handle_library_event(IProcess *process, [[maybe_unused]] edb::add
 	edb::linux_struct::r_debug<Addr> dynamic_info;
 	const bool ok = (process->readBytes(debug_pointer, &dynamic_info, sizeof(dynamic_info)) == sizeof(dynamic_info));
 	if (ok) {
+
 		switch (dynamic_info.r_state) {
 		case edb::linux_struct::r_debug<Addr>::RT_CONSISTENT:
 			break;
@@ -3645,10 +3646,15 @@ void Debugger::handle_library_event(IProcess *process, [[maybe_unused]] edb::add
 			qDebug() << "Added modules:";
 			for (const Module &module : added_modules) {
 				qDebug() << "  " << module.name << "@" << edb::v1::format_pointer(module.baseAddress);
+
+				for (QObject *plugin : edb::v1::plugin_list()) {
+					if (auto p = qobject_cast<IPlugin *>(plugin)) {
+						p->libraryEvent(module, true);
+					}
+				}
 			}
 
 			loadedModules_ = modules;
-
 			break;
 		}
 		case edb::linux_struct::r_debug<Addr>::RT_DELETE: {
@@ -3660,10 +3666,15 @@ void Debugger::handle_library_event(IProcess *process, [[maybe_unused]] edb::add
 			qDebug() << "Removed modules:";
 			for (const Module &module : removed_modules) {
 				qDebug() << "  " << module.name << "@" << edb::v1::format_pointer(module.baseAddress);
+
+				for (QObject *plugin : edb::v1::plugin_list()) {
+					if (auto p = qobject_cast<IPlugin *>(plugin)) {
+						p->libraryEvent(module, false);
+					}
+				}
 			}
 
 			loadedModules_ = modules;
-
 			break;
 		}
 		}
