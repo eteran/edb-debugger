@@ -72,7 +72,7 @@ public:
 	[[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
 public Q_SLOTS:
-	void addBookmark(const Bookmark &r);
+	void addBookmark(const Bookmark &bookmark);
 	void clearBookmarks();
 	void deleteBookmark(const QModelIndex &index);
 	void setComment(const QModelIndex &index, const QString &comment);

@@ -177,6 +177,8 @@ void BookmarkWidget::addAddress(edb::address_t address, const QString &type, con
 			comment,
 		};
 
+		// TODO(eteran): figure out the module and store it here so that it can be restored later if the module is unloaded and reloaded
+
 		model_->addBookmark(bookmark);
 	}
 }
