@@ -53,7 +53,7 @@ private:
 	BookmarkWidget *bookmarkWidget_ = nullptr;
 
 	// These are the ones not restored yet, but will be restored when the modules are loaded
-	std::vector<BookmarkEntry> bookmarkEntries_;
+	std::vector<BookmarkEntry> deferredBookmarks_;
 };
 
 }

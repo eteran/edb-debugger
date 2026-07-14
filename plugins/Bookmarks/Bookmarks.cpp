@@ -169,6 +169,7 @@ void Bookmarks::restoreState(const QVariantMap &state) {
 
 		edb::address_t offset = edb::address_t::fromHexString(offset_str);
 
+		// Figure out which module this bookmark belongs to and add it if the module is loaded
 		auto it = std::find_if(modules.begin(), modules.end(), [&module_name](const Module &module) {
 			return module.name == module_name;
 		});
@@ -178,13 +179,14 @@ void Bookmarks::restoreState(const QVariantMap &state) {
 			bookmarkWidget_->addAddress(address, type, comment);
 			continue;
 		} else {
+
+			// If the module is not loaded, store the bookmark entry for later restoration when the module is loaded
 			BookmarkEntry entry;
 			entry.type    = type;
 			entry.comment = comment;
 			entry.module  = module_name;
 			entry.offset  = offset_str;
-
-			bookmarkEntries_.push_back(entry);
+			deferredBookmarks_.push_back(entry);
 		}
 	}
 }
@@ -197,7 +199,7 @@ void Bookmarks::restoreState(const QVariantMap &state) {
  */
 void Bookmarks::libraryEvent(const Module &module, bool loaded) {
 	if (loaded) {
-		auto it = std::remove_if(bookmarkEntries_.begin(), bookmarkEntries_.end(), [&module, this](const BookmarkEntry &entry) {
+		auto it = std::remove_if(deferredBookmarks_.begin(), deferredBookmarks_.end(), [&module, this](const BookmarkEntry &entry) {
 			if (entry.module == module.name) {
 				edb::address_t offset  = edb::address_t::fromHexString(entry.offset);
 				edb::address_t address = offset + module.baseAddress;
@@ -206,7 +208,7 @@ void Bookmarks::libraryEvent(const Module &module, bool loaded) {
 			}
 			return false;
 		});
-		bookmarkEntries_.erase(it, bookmarkEntries_.end());
+		deferredBookmarks_.erase(it, deferredBookmarks_.end());
 	}
 }
 

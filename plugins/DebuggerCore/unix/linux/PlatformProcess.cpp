@@ -187,7 +187,7 @@ QSet<Module> get_loaded_modules(const IProcess *process) {
 		}
 	}
 
-	// fallback
+	// fallback, unfortunately due to symlink shenanigans, this won't quite match the link_map results, but it's better than nothing
 	if (ret.isEmpty()) {
 		const QList<std::shared_ptr<IRegion>> r = edb::v1::memory_regions().regions();
 		QSet<QString> found_modules;
