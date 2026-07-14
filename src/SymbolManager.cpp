@@ -314,19 +314,19 @@ void SymbolManager::setLabel(edb::address_t address, const QString &label) {
 	if (label.isEmpty()) {
 		labelsByName_.remove(labels_[address]);
 		labels_.remove(address);
-	} else {
-
-		if (labelsByName_.contains(label) && labelsByName_[label] != address) {
-			QMessageBox::warning(
-				edb::v1::debugger_ui,
-				tr("Duplicate Label"),
-				tr("You are attempting to give two separate addresses the same label, this is not supported."));
-			return;
-		}
-
-		labels_[address]     = label;
-		labelsByName_[label] = address;
+		return;
 	}
+
+	if (labelsByName_.contains(label) && labelsByName_[label] != address) {
+		QMessageBox::warning(
+			edb::v1::debugger_ui,
+			tr("Duplicate Label"),
+			tr("You are attempting to give two separate addresses the same label, this is not supported."));
+		return;
+	}
+
+	labels_[address]     = label;
+	labelsByName_[label] = address;
 }
 
 /**
@@ -354,7 +354,7 @@ QString SymbolManager::findAddressName(edb::address_t address, bool prefixed) {
  *
  * @return The labels for all addresses.
  */
-QHash<edb::address_t, QString> SymbolManager::labels() const {
+QMap<edb::address_t, QString> SymbolManager::labels() const {
 	return labels_;
 }
 

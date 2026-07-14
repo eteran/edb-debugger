@@ -89,7 +89,7 @@ GraphWidget::GraphWidget(QWidget *parent)
 
 	// Set default attributes for the future nodes
 	setNodeAttribute(QStringLiteral("fixedsize"), QStringLiteral("false"));
-	setNodeAttribute(QStringLiteral("label"), QStringLiteral(""));
+	setNodeAttribute(QStringLiteral("label"), QString());
 	setNodeAttribute(QStringLiteral("regular"), QStringLiteral("true"));
 
 	// Divide the wanted width by the DPI to get the value in points

@@ -1721,8 +1721,8 @@ void Debugger::on_actionApplication_Working_Directory_triggered() {
  */
 void Debugger::mnuStackPush() {
 	Register value(edb::v1::debuggeeIs32Bit()
-					   ? make_Register(QStringLiteral(""), edb::value32(0), Register::TYPE_GPR)
-					   : make_Register(QStringLiteral(""), edb::value64(0), Register::TYPE_GPR));
+					   ? make_Register(QString(), edb::value32(0), Register::TYPE_GPR)
+					   : make_Register(QString(), edb::value64(0), Register::TYPE_GPR));
 
 	if (IProcess *process = edb::v1::debugger_core->process()) {
 		if (std::shared_ptr<IThread> thread = process->currentThread()) {
@@ -3605,7 +3605,7 @@ void Debugger::on_action_Reset_UI_triggered() {
 
 	QSettings settings;
 	settings.beginGroup(QStringLiteral("Window"));
-	settings.remove(QStringLiteral(""));
+	settings.remove(QString());
 	settings.endGroup();
 	ui_reset_ = true;
 }

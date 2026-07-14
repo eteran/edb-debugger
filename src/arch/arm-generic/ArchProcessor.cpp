@@ -380,7 +380,7 @@ QString fpscrComment(edb::reg_t fpscr) {
 	case 8:
 		return QStringLiteral("(LT)");
 	default:
-		return QStringLiteral("");
+		return QString();
 	}
 }
 

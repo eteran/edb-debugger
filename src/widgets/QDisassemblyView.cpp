@@ -1228,7 +1228,7 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 			painter.setPen(palette().color(ctx->group, QPalette::Text));
 		}
 
-		QString annotation = comments_.value(address, QStringLiteral(""));
+		QString annotation = comments_.value(address, QString());
 		auto &&inst        = instructions_[line];
 		if (annotation.isEmpty() && inst && !is_jump(inst) && !is_call(inst)) {
 			// draw ascii representations of immediate constants
@@ -2215,7 +2215,7 @@ int QDisassemblyView::removeComment(edb::address_t address) {
  * @return The comment string associated with the address, or an empty string if no comment exists for that address.
  */
 QString QDisassemblyView::getComment(edb::address_t address) const {
-	return comments_.value(address, QStringLiteral(""));
+	return comments_.value(address, QString());
 }
 
 /**

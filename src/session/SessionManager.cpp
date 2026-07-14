@@ -6,6 +6,7 @@
 
 #include "SessionManager.h"
 #include "IPlugin.h"
+#include "SymbolManager.h"
 #include "edb.h"
 
 #include <QDateTime>
@@ -82,9 +83,12 @@ Result<void, SessionError> SessionManager::loadSession(const QString &filename) 
 	QJsonObject object = doc.object();
 	sessionData_       = object.toVariantMap();
 
-	QString id  = sessionData_[QStringLiteral("id")].toString();
-	QString ts  = sessionData_[QStringLiteral("timestamp")].toString();
-	int version = sessionData_[QStringLiteral("version")].toInt();
+	QString id         = sessionData_[QStringLiteral("id")].toString();
+	QString ts         = sessionData_[QStringLiteral("timestamp")].toString();
+	int version        = sessionData_[QStringLiteral("version")].toInt();
+	QVariantMap labels = sessionData_[QStringLiteral("labels")].toMap();
+
+	loadLabels(labels);
 
 	Q_UNUSED(ts)
 
@@ -128,6 +132,7 @@ void SessionManager::saveSession(const QString &filename) {
 	sessionData_[QStringLiteral("id")]          = SessionFileIdString; // just so we can sanity check things
 	sessionData_[QStringLiteral("timestamp")]   = QDateTime::currentDateTimeUtc();
 	sessionData_[QStringLiteral("plugin-data")] = plugin_data;
+	sessionData_[QStringLiteral("labels")]      = saveLabels();
 
 	auto object = QJsonObject::fromVariantMap(sessionData_);
 	QJsonDocument doc(object);
@@ -221,4 +226,40 @@ void SessionManager::removeComment(edb::address_t address) {
 	}
 
 	sessionData_[QStringLiteral("comments")] = comments_data;
+}
+
+/**
+ * @brief Saves the labels to a QVariantMap for session persistence.
+ *
+ * @return A QVariantMap containing the labels.
+ */
+QVariantMap SessionManager::saveLabels() const {
+	QMap<edb::address_t, QString> labels = edb::v1::symbol_manager().labels();
+	QVariantMap labels_data;
+	for (auto it = labels.begin(); it != labels.end(); ++it) {
+
+		qDebug() << "Saving label for address" << it.key().toHexString() << ":" << it.value();
+
+		labels_data[it.key().toHexString()] = it.value();
+	}
+	return labels_data;
+}
+
+/**
+ * @brief Loads the labels from a QVariantMap for session restoration.
+ *
+ * @param labels A QVariantMap containing the labels to load.
+ */
+void SessionManager::loadLabels(const QVariantMap &labels) {
+
+	qDebug("Loading labels");
+
+	for (auto it = labels.begin(); it != labels.end(); ++it) {
+		edb::address_t address = edb::address_t::fromHexString(it.key());
+		QString label          = it.value().toString();
+
+		qDebug() << "Loading label for address" << address.toHexString() << ":" << label;
+
+		edb::v1::symbol_manager().setLabel(address, label);
+	}
 }

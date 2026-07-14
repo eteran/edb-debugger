@@ -14,6 +14,7 @@
 #include <QCoreApplication>
 #include <QString>
 #include <QVariant>
+#include <QVariantMap>
 
 class SessionManager {
 	Q_DECLARE_TR_FUNCTIONS(SessionManager)
@@ -37,6 +38,8 @@ public:
 
 private:
 	void loadPluginData();
+	QVariantMap saveLabels() const;
+	void loadLabels(const QVariantMap &labels);
 
 private:
 	QVariantMap sessionData_;
