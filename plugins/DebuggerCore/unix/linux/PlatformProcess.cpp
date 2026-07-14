@@ -172,7 +172,8 @@ QSet<Module> get_loaded_modules(const IProcess *process) {
 
 							if (map.l_addr) {
 								Module module;
-								module.name        = QString::fromLocal8Bit(path);
+								// NOTE(eteran): we use the path[0] check here because ld.so gives the "primary" module the name "" (empty string)
+								module.name        = path[0] ? QString::fromLocal8Bit(path) : process->executable();
 								module.baseAddress = map.l_addr;
 								ret.insert(std::move(module));
 							}
