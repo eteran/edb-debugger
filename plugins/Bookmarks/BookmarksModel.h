@@ -7,10 +7,14 @@
 #ifndef BOOKMARKS_MODEL_H_20170103_
 #define BOOKMARKS_MODEL_H_20170103_
 
+#include "Module.h"
 #include "Types.h"
+
 #include <QAbstractItemModel>
 #include <QIcon>
 #include <QVector>
+
+#include <optional>
 
 namespace BookmarksPlugin {
 
@@ -28,6 +32,9 @@ public:
 		edb::address_t address;
 		Type type;
 		QString comment;
+
+		// internal use only, used to store the module that the bookmark belongs to, if any
+		std::optional<Module> module;
 	};
 
 	static QString bookmarkTypeToString(Bookmark::Type type) {

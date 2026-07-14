@@ -9,12 +9,15 @@
 
 #include "API.h"
 #include "IBinary.h"
+#include "Module.h"
 #include "Status.h"
 #include "Types.h"
+
 #include <QMap>
 #include <QPointer>
 #include <QStringList>
 #include <QVector>
+
 #include <memory>
 #include <optional>
 
@@ -53,6 +56,8 @@ namespace v2 {
 EDB_EXPORT std::optional<edb::address_t> get_expression_from_user(const QString &title, const QString &prompt);
 EDB_EXPORT std::optional<edb::address_t> eval_expression(const QString &expression);
 EDB_EXPORT QString format_bytes(const void *buffer, size_t count);
+EDB_EXPORT std::optional<Module> module_for_address(edb::address_t address);
+EDB_EXPORT bool compare_module_names(const QString &name1, const QString &name2);
 
 }
 

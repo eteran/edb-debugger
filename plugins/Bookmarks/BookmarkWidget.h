@@ -10,6 +10,7 @@
 #include "BookmarksModel.h"
 #include "Types.h"
 #include "ui_BookmarkWidget.h"
+
 #include <QWidget>
 
 class QModelIndex;

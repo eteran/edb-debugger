@@ -8,7 +8,10 @@
 #include "BookmarksModel.h"
 #include "Expression.h"
 #include "IBreakpoint.h"
+#include "IDebugger.h"
+#include "IProcess.h"
 #include "edb.h"
+
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
@@ -175,9 +178,8 @@ void BookmarkWidget::addAddress(edb::address_t address, const QString &type, con
 			address,
 			BookmarksModel::bookmarkStringToType(type),
 			comment,
+			edb::v2::module_for_address(address),
 		};
-
-		// TODO(eteran): figure out the module and store it here so that it can be restored later if the module is unloaded and reloaded
 
 		model_->addBookmark(bookmark);
 	}
@@ -279,7 +281,7 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 /**
  * @brief Returns a copy of the current bookmark list.
  *
- * @return
+ * @return A QList of BookmarksModel::Bookmark entries.
  */
 QList<BookmarksModel::Bookmark> BookmarkWidget::entries() const {
 	const QVector<BookmarksModel::Bookmark> &bookmarks = model_->bookmarks();

@@ -113,31 +113,13 @@ QVariantMap Bookmarks::saveState() const {
 	QVariantMap state;
 	QVariantList bookmarks;
 
-	IProcess *process = edb::v1::debugger_core->process();
-	Q_ASSERT(process);
-
-	QSet<Module> modules = process->loadedModules();
-
 	for (auto &bookmark : bookmarkWidget_->entries()) {
-
-		edb::address_t module_address = -1;
-		QString module_name;
-
-		// Find which module whose base address is closest to the bookmark address
-		for (const auto &module : modules) {
-			if (module.baseAddress <= bookmark.address) {
-				if (module_address == -1 || module.baseAddress > module_address) {
-					module_address = module.baseAddress;
-					module_name    = module.name;
-				}
-			}
-		}
 
 		QVariantMap entry;
 		entry[QStringLiteral("type")]    = BookmarksModel::bookmarkTypeToString(bookmark.type);
 		entry[QStringLiteral("comment")] = bookmark.comment;
-		entry[QStringLiteral("module")]  = module_name;
-		entry[QStringLiteral("offset")]  = (module_address != -1) ? (bookmark.address - module_address).toHexString() : QString();
+		entry[QStringLiteral("module")]  = bookmark.module ? bookmark.module->name : QString();
+		entry[QStringLiteral("offset")]  = (bookmark.module) ? (bookmark.address - bookmark.module->baseAddress).toHexString() : QString();
 
 		bookmarks.push_back(entry);
 	}
@@ -167,14 +149,11 @@ void Bookmarks::restoreState(const QVariantMap &state) {
 		QString type        = bookmark[QStringLiteral("type")].toString();
 		QString comment     = bookmark[QStringLiteral("comment")].toString();
 
-		// TODO(eteran): don't compare modules by name! Instead, we should dereference any symlinks, and then compare the dev/ino of the file to the dev/ino of the loaded module.
-		// This will allow us to handle module name inconsistencies, such as when a module is loaded from a different path or with a different name.
-
 		edb::address_t offset = edb::address_t::fromHexString(offset_str);
 
 		// Figure out which module this bookmark belongs to and add it if the module is loaded
 		auto it = std::find_if(modules.begin(), modules.end(), [&module_name](const Module &module) {
-			return module.name == module_name;
+			return edb::v2::compare_module_names(module.name, module_name);
 		});
 
 		if (it != modules.end()) {
@@ -203,12 +182,13 @@ void Bookmarks::restoreState(const QVariantMap &state) {
 void Bookmarks::libraryEvent(const Module &module, bool loaded) {
 	if (loaded) {
 		auto it = std::remove_if(deferredBookmarks_.begin(), deferredBookmarks_.end(), [&module, this](const BookmarkEntry &entry) {
-			if (entry.module == module.name) {
+			if (edb::v2::compare_module_names(entry.module, module.name)) {
 				edb::address_t offset  = edb::address_t::fromHexString(entry.offset);
 				edb::address_t address = offset + module.baseAddress;
 				bookmarkWidget_->addAddress(address, entry.type, entry.comment);
 				return true;
 			}
+
 			return false;
 		});
 		deferredBookmarks_.erase(it, deferredBookmarks_.end());

@@ -494,7 +494,7 @@ void DialogProcessProperties::updateHandles() {
 		const QFileInfoList entries = dir.entryInfoList(QStringList() << QStringLiteral("[0-9]*"));
 		for (const QFileInfo &info : entries) {
 			if (info.isSymLink()) {
-				QString symlink(info.symLinkTarget());
+				QString symlink = info.symLinkTarget();
 				const QString type(file_type(symlink));
 
 				if (type == tr("Socket")) {

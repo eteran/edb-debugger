@@ -23,6 +23,7 @@
 #include "IRegion.h"
 #include "IThread.h"
 #include "MemoryRegions.h"
+#include "Module.h"
 #include "Prototype.h"
 #include "QHexView"
 #include "QtHelper.h"
@@ -42,8 +43,10 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <qplatformdefs.h>
 
 #include <cctype>
+#include <optional>
 
 IDebugger *edb::v1::debugger_core = nullptr;
 QWidget *edb::v1::debugger_ui     = nullptr;
@@ -923,10 +926,6 @@ std::unique_ptr<IBinary> get_binary_info(const std::shared_ptr<IRegion> &region)
 		}
 	}
 
-#if 0
-	qDebug() << "Failed to find any binary parser for region"
-		<< QString::number(region->start(), 16);
-#endif
 	return nullptr;
 }
 
@@ -1646,5 +1645,74 @@ QString format_bytes(const void *buffer, size_t count) {
 	return bytes;
 }
 
+/**
+ * @brief Finds the module whose base address is closest to the given address, if any.
+ *
+ * @param address The address to find the module for.
+ * @return An optional Module object if a module is found, or std::nullopt if not.
+ */
+std::optional<Module> module_for_address(edb::address_t address) {
+
+	IProcess *process = edb::v1::debugger_core->process();
+	Q_ASSERT(process);
+
+	QSet<Module> modules = process->loadedModules();
+
+	std::optional<Module> best_module;
+
+	// Find which module whose base address is closest to the bookmark address
+	for (const auto &module : modules) {
+		if (module.baseAddress <= address) {
+			if (!best_module || module.baseAddress > best_module->baseAddress) {
+				best_module = module;
+			}
+		}
+	}
+
+	return best_module;
 }
+
+/**
+ * @brief Compares two module names for equality, taking into account symbolic links and canonical paths.
+ *
+ * @param name1 The first module name to compare.
+ * @param name2 The second module name to compare.
+ * @return true if the module names refer to the same file, false otherwise.
+ */
+bool compare_module_names(const QString &name1, const QString &name2) {
+
+	// TODO(eteran): this works great except for the case where one of the names is the empty string
+	// and the other is not, this happens because ld.so gives the "primary" module the name "" (empty string)
+	// and the other modules have their full path names. But... our fallback mechanism for finding modules is
+	// to look in /proc/<pid>/maps which gives the full path name. We need to figure out a good plan for this.
+
+	// Convert both names into canonical paths to ensure consistent comparison
+	// and then resolve any symbolic links or shortcuts to their target paths.
+
+	QString canonicalName1 = QFileInfo(name1).canonicalFilePath();
+	QString canonicalName2 = QFileInfo(name2).canonicalFilePath();
+
+	if (QFileInfo(canonicalName1).isSymLink()) {
+		canonicalName1 = QFileInfo(canonicalName1).symLinkTarget();
+	}
+
+	if (QFileInfo(canonicalName2).isSymLink()) {
+		canonicalName2 = QFileInfo(canonicalName2).symLinkTarget();
+	}
+
+	QT_STATBUF statbuf1;
+	if (QT_STAT(canonicalName1.toUtf8().data(), &statbuf1) != 0) {
+		return false;
+	}
+
+	QT_STATBUF statbuf2;
+	if (QT_STAT(canonicalName2.toUtf8().data(), &statbuf2) != 0) {
+		return false;
+	}
+
+	return statbuf1.st_dev == statbuf2.st_dev && statbuf1.st_ino == statbuf2.st_ino;
+}
+
+}
+
 }
