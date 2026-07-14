@@ -167,6 +167,9 @@ void Bookmarks::restoreState(const QVariantMap &state) {
 		QString type        = bookmark[QStringLiteral("type")].toString();
 		QString comment     = bookmark[QStringLiteral("comment")].toString();
 
+		// TODO(eteran): don't compare modules by name! Instead, we should dereference any symlinks, and then compare the dev/ino of the file to the dev/ino of the loaded module.
+		// This will allow us to handle module name inconsistencies, such as when a module is loaded from a different path or with a different name.
+
 		edb::address_t offset = edb::address_t::fromHexString(offset_str);
 
 		// Figure out which module this bookmark belongs to and add it if the module is loaded
