@@ -251,7 +251,7 @@ void SessionManager::loadLabels(const QJsonArray &labels) {
 
 	QSet<Module> modules = process->loadedModules();
 
-	for (auto &entry : labels) {
+	for (const QJsonValue &entry : labels) {
 		auto label = entry.toObject();
 
 		QString module_name = label[QStringLiteral("module")].toString();
@@ -300,7 +300,7 @@ void SessionManager::loadComments(const QJsonArray &comments) {
 		return;
 	}
 
-	for (auto &entry : comments) {
+	for (const QJsonValue &entry : comments) {
 		auto comment = entry.toObject();
 
 		QString module_name = comment[QStringLiteral("module")].toString();
@@ -438,7 +438,7 @@ void SessionManager::loadBreakpoints(const QJsonArray &breakpoints) {
 
 	QSet<Module> modules = process->loadedModules();
 
-	for (auto &entry : breakpoints) {
+	for (const QJsonValue &entry : breakpoints) {
 		auto breakpoint = entry.toObject();
 
 		QString module_name = breakpoint[QStringLiteral("module")].toString();
