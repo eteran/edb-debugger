@@ -192,11 +192,11 @@ public:
 			 * then finally for the syscall bug.
 			 */
 			if (trap_reason == IDebugEvent::TRAP_BREAKPOINT) {
-				qDebug() << "Trap breakpoint";
+				qDebug("Trap breakpoint");
 
 				// Take care of exit/terminated conditions; address == 0 may suffice to catch all, but not 100% sure.
 				if (reason == IDebugEvent::EVENT_EXITED || reason == IDebugEvent::EVENT_TERMINATED || address == 0) {
-					qDebug() << "The process is no longer running.";
+					qDebug("The process is no longer running.");
 					return pass_back_to_debugger();
 				}
 
@@ -218,10 +218,10 @@ public:
 
 					// If it wasn't internal, it was a user breakpoint. Pass back to Debugger.
 					if (!bp->internal()) {
-						qDebug() << "Previous was not an internal breakpoint.";
+						qDebug("Previous was not an internal breakpoint.");
 						return pass_back_to_debugger();
 					}
-					qDebug() << "Previous was an internal breakpoint.";
+					qDebug("Previous was an internal breakpoint.");
 					bp->disable();
 					edb::v1::debugger_core->removeBreakpoint(bp->address());
 				} else {
@@ -232,14 +232,14 @@ public:
 
 			// If we are on our ret (or the instr after?), then ret.
 			if (address == returnAddress_) {
-				qDebug() << QStringLiteral("On our terminator at 0x%1").arg(address, 0, 16);
+				qDebug() << "On our terminator at " << address.toHexString();
 				if (is_instruction_ret(address)) {
-					qDebug() << "Found ret; passing back to debugger";
+					qDebug("Found ret; passing back to debugger");
 					return pass_back_to_debugger();
 				}
 
 				// If not a ret, then step so we can find the next block terminator.
-				qDebug() << "Not ret. Single-stepping";
+				qDebug("Not ret. Single-stepping");
 				return edb::DEBUG_CONTINUE_STEP;
 			}
 
@@ -259,14 +259,14 @@ public:
 						qDebug() << QStringLiteral("Found terminator %1 at 0x%2").arg(QString::fromStdString(inst.mnemonic())).arg(address, 0, 16);
 						// If we already had a breakpoint there, then just continue.
 						if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->findBreakpoint(address)) {
-							qDebug() << QStringLiteral("Already a breakpoint at terminator 0x%1").arg(address, 0, 16);
+							qDebug() << "Already a breakpoint at terminator: " << address.toHexString();
 							return edb::DEBUG_CONTINUE;
 						}
 
 						// Otherwise, attempt to set a breakpoint there and continue.
 						if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(address)) {
 							ownBreakpoints_.emplace_back(address, bp);
-							qDebug() << QStringLiteral("Setting breakpoint at terminator 0x%1").arg(address, 0, 16);
+							qDebug() << "Setting breakpoint at terminator: " << address.toHexString();
 							bp->setInternal(true);
 							bp->setOneTime(true); // If the 0xcc get's rm'd on next event, then
 												  // don't set it one time; we'll handle it manually
@@ -297,7 +297,7 @@ public:
 			return pass_back_to_debugger();
 		}
 
-		qDebug() << "The process is no longer running.";
+		qDebug("The process is no longer running.");
 		return pass_back_to_debugger();
 	}
 
@@ -637,10 +637,10 @@ QString Debugger::createTty() {
 					const int rv  = select(fd + 1, &set, nullptr, nullptr, &timeout);
 					switch (rv) {
 					case -1:
-						qDebug() << "An error occurred while attempting to get the TTY of the terminal sub-process";
+						qDebug("An error occurred while attempting to get the TTY of the terminal sub-process");
 						break;
 					case 0:
-						qDebug() << "A Timeout occurred while attempting to get the TTY of the terminal sub-process";
+						qDebug("A Timeout occurred while attempting to get the TTY of the terminal sub-process");
 						break;
 					default:
 						if (read(fd, buf, sizeof(buf)) != -1) {
@@ -2878,7 +2878,7 @@ QString Debugger::sessionFilename() const {
 	QString session_path = edb::v1::config().session_path;
 	if (session_path.isEmpty()) {
 		if (show_path_notice) {
-			qDebug() << "No session path specified. Please set it in the preferences to enable sessions.";
+			qDebug("No session path specified. Please set it in the preferences to enable sessions.");
 			show_path_notice = false;
 		}
 		return QString();
@@ -3641,7 +3641,7 @@ void Debugger::handle_library_event(IProcess *process, [[maybe_unused]] edb::add
 			QSet<Module> modules       = process->loadedModules();
 			QSet<Module> added_modules = modules - loadedModules_;
 
-			qDebug() << "Added modules:";
+			qDebug("Added modules:");
 			for (const Module &module : added_modules) {
 				qDebug() << "  " << module.name << "@" << edb::v1::format_pointer(module.baseAddress);
 
@@ -3668,7 +3668,7 @@ void Debugger::handle_library_event(IProcess *process, [[maybe_unused]] edb::add
 			QSet<Module> modules         = process->loadedModules();
 			QSet<Module> removed_modules = loadedModules_ - modules;
 
-			qDebug() << "Removed modules:";
+			qDebug("Removed modules:");
 			for (const Module &module : removed_modules) {
 				qDebug() << "  " << module.name << "@" << edb::v1::format_pointer(module.baseAddress);
 

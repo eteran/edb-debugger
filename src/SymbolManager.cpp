@@ -45,7 +45,7 @@ void SymbolManager::loadSymbolFile(const QString &filename, edb::address_t base)
 
 	if (symbol_directory.isEmpty()) {
 		if (showPathNotice_) {
-			qDebug() << "No symbol path specified. Please set it in the preferences to enable symbols.";
+			qDebug("No symbol path specified. Please set it in the preferences to enable symbols.");
 			showPathNotice_ = false;
 		}
 		return;

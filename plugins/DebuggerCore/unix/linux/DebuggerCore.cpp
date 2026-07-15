@@ -829,7 +829,7 @@ void DebuggerCore::detectCpuMode() {
 	if (!errno) {
 		if (cs == userCodeSegment32_) {
 			if (pointerSize_ == sizeof(uint64_t)) {
-				qDebug() << "Debuggee is now 32 bit";
+				qDebug("Debuggee is now 32 bit");
 				cpuMode_ = CpuMode::x86_32;
 				CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_X86);
 			}
@@ -839,7 +839,7 @@ void DebuggerCore::detectCpuMode() {
 
 		if (cs == userCodeSegment64_) {
 			if (pointerSize_ == sizeof(uint32_t)) {
-				qDebug() << "Debuggee is now 64 bit";
+				qDebug("Debuggee is now 64 bit");
 				cpuMode_ = CpuMode::x86_64;
 				CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_AMD64);
 			}

@@ -114,7 +114,8 @@ void set_function_types(IAnalyzer::FunctionMap *results) {
 		Function &function = it.value();
 
 		if (function.empty()) {
-			qDebug() << "HERE:" << it.key().toString();
+			qDebug() << "Function at " << function.entryAddress().toHexString() << " is empty, skipping type classification";
+			continue;
 		}
 
 		Q_ASSERT(!function.empty());

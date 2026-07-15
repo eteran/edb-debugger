@@ -778,7 +778,7 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 	const edb::address_t start_address = addressOffset_ + verticalScrollBar()->value();
 
 	if (!edb::v1::get_instruction_bytes(start_address, inst_buf, &bufsize)) {
-		qDebug() << "Failed to read" << bufsize << "bytes from" << QString::number(start_address, 16);
+		qDebug() << "[QDisassemblyView] Failed to read" << bufsize << "bytes from" << start_address.toHexString();
 		lines_to_render = 0;
 	}
 
@@ -806,6 +806,7 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 		}
 		line++;
 	}
+
 	Q_ASSERT(line <= lines_to_render);
 	if (lines_to_render != line) {
 		partialLastLine_ = false;
@@ -1685,7 +1686,7 @@ void QDisassemblyView::paintEvent(QPaintEvent * /*event*/) {
 
 	const int64_t renderTime = timer.elapsed();
 	if (renderTime > 50) {
-		qDebug() << "Painting took longer than desired: " << renderTime << "ms";
+		qDebug() << "[QDisassemblyView] Painting took longer than desired: " << renderTime << "ms";
 	}
 }
 

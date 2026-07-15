@@ -42,7 +42,7 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::addBreakpoint(edb::address_t addr
 
 		return nullptr;
 	} catch (const BreakpointCreationError &) {
-		qDebug() << "Failed to create breakpoint";
+		qDebug("Failed to create breakpoint");
 		return nullptr;
 	}
 }

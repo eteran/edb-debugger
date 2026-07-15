@@ -173,7 +173,7 @@ void GraphWidget::layout() {
 
 	inLayout_ = true;
 
-	qDebug() << "Starting Layout Engine";
+	qDebug("Starting Layout Engine");
 
 	gvFreeLayout(context_, graph_);
 	gvLayout(context_, graph_, "dot");
@@ -194,7 +194,7 @@ void GraphWidget::layout() {
 		}
 	}
 
-	qDebug() << "Layout Complete";
+	qDebug("Layout Complete");
 
 	// make the scene HUGE so it feels like you can just scroll forever
 	scene()->setSceneRect(sceneRect().adjusted(-ScenePadding, -ScenePadding, +ScenePadding, +ScenePadding));

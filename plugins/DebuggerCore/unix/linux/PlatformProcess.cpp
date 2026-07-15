@@ -1007,7 +1007,7 @@ edb::address_t get_debug_pointer(const IProcess *process, edb::address_t phdr_me
 		if (process->readBytes(phdr_memaddr + i * sizeof(elf_phdr), &phdr, sizeof(elf_phdr))) {
 			if (phdr.p_type == PT_DYNAMIC) {
 				if (phdr.p_memsz > 0x100000) {
-					qDebug() << "[get_debug_pointer] p_memsz is too large, skipping";
+					qDebug("[get_debug_pointer] p_memsz is too large, skipping");
 					return 0;
 				}
 

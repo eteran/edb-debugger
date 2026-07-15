@@ -1018,7 +1018,7 @@ std::shared_ptr<IRegion> primary_data_region() {
 		}
 	}
 
-	qDebug() << "primary data region not found!";
+	qDebug("primary data region not found!");
 	return nullptr;
 }
 

@@ -23,7 +23,7 @@
 
 namespace {
 
-constexpr int SessionFileVersion = 1;
+constexpr int SessionFileVersion = 2;
 const auto SessionFileIdString   = QStringLiteral("edb-session");
 
 }
@@ -181,9 +181,9 @@ void SessionManager::loadPluginData() {
 }
 
 /**
- * @brief Saves the labels to a QVariantMap for session persistence.
+ * @brief Saves the labels for session persistence.
  *
- * @return A QVariantMap containing the labels.
+ * @return A QVariantList containing the labels.
  */
 QVariantList SessionManager::saveLabels() const {
 	QVector<ISymbolManager::LabelEntry> labels = edb::v1::symbol_manager().labelData();
@@ -206,15 +206,15 @@ QVariantList SessionManager::saveLabels() const {
 }
 
 /**
- * @brief Saves the comments to a QVariantMap for session persistence.
+ * @brief Saves the comments for session persistence.
  *
- * @return A QVariantMap containing the comments.
+ * @return A QVariantList containing the comments.
  */
 QVariantList SessionManager::saveComments() const {
 
 	auto cpuView = qobject_cast<QDisassemblyView *>(edb::v1::disassembly_widget());
 	if (!cpuView) {
-		qDebug() << "Failed to get disassembly widget";
+		qDebug("Failed to get disassembly widget");
 		return {};
 	}
 	QVector<Comment> comments = cpuView->commentData();
@@ -237,7 +237,7 @@ QVariantList SessionManager::saveComments() const {
 }
 
 /**
- * @brief Loads the labels from a QVariantMap for session restoration.
+ * @brief Loads the labels for session restoration.
  *
  * @param labels A QVariantList containing the labels to load.
  */
@@ -281,7 +281,7 @@ void SessionManager::loadLabels(const QVariantList &labels) {
 }
 
 /**
- * @brief Loads the comments from a QVariantMap for session restoration.
+ * @brief Loads the comments for session restoration.
  *
  * @param comments A QVariantList containing the comments to load.
  */
@@ -295,7 +295,7 @@ void SessionManager::loadComments(const QVariantList &comments) {
 
 	auto cpuView = qobject_cast<QDisassemblyView *>(edb::v1::disassembly_widget());
 	if (!cpuView) {
-		qDebug() << "Failed to get disassembly widget";
+		qDebug("Failed to get disassembly widget");
 		return;
 	}
 
@@ -329,6 +329,12 @@ void SessionManager::loadComments(const QVariantList &comments) {
 	}
 }
 
+/**
+ * @brief Handles library events for loading and unloading modules.
+ *
+ * @param module The module that was loaded or unloaded.
+ * @param loaded True if the module was loaded, false if it was unloaded.
+ */
 void SessionManager::libraryEvent(const Module &module, bool loaded) {
 	if (loaded) {
 		// Load labels for the module that was just loaded
@@ -350,7 +356,7 @@ void SessionManager::libraryEvent(const Module &module, bool loaded) {
 		{
 			auto cpuView = qobject_cast<QDisassemblyView *>(edb::v1::disassembly_widget());
 			if (!cpuView) {
-				qDebug() << "Failed to get disassembly widget";
+				qDebug("Failed to get disassembly widget");
 				return;
 			}
 
@@ -386,6 +392,11 @@ void SessionManager::libraryEvent(const Module &module, bool loaded) {
 	}
 }
 
+/**
+ * @brief Saves the breakpoints for session persistence.
+ *
+ * @return A QVariantList containing the breakpoints.
+ */
 QVariantList SessionManager::saveBreakpoints() const {
 	QVariantList breakpoints;
 
@@ -413,6 +424,11 @@ QVariantList SessionManager::saveBreakpoints() const {
 	return breakpoints;
 }
 
+/**
+ * @brief Loads the breakpoints for session restoration.
+ *
+ * @param breakpoints A QVariantList containing the breakpoints to load.
+ */
 void SessionManager::loadBreakpoints(const QVariantList &breakpoints) {
 	qDebug("Loading breakpoints");
 
