@@ -7,6 +7,7 @@
 #ifndef QDISASSEMBLY_VIEW_H_20061101_
 #define QDISASSEMBLY_VIEW_H_20061101_
 
+#include "Comment.h"
 #include "NavigationHistory.h"
 #include "Types.h"
 
@@ -69,10 +70,13 @@ public:
 	[[nodiscard]] QByteArray saveState() const;
 	[[nodiscard]] QString getComment(edb::address_t address) const;
 	[[nodiscard]] std::shared_ptr<IRegion> region() const;
+
 	int removeComment(edb::address_t address);
 	void addComment(edb::address_t address, QString comment);
 	void clearComments();
-	void restoreComments(QVariantList &);
+
+	[[nodiscard]] QVector<Comment> commentData() const;
+
 	void restoreState(const QByteArray &stateBuffer);
 	void setSelectedAddress(edb::address_t address);
 
@@ -162,7 +166,7 @@ private:
 	std::vector<CapstoneEDB::Instruction> instructions_;
 	SyntaxHighlighter *highlighter_;
 	bool showAddressSeparator_;
-	QHash<edb::address_t, QString> comments_;
+	QHash<edb::address_t, Comment> comments_;
 	NavigationHistory history_;
 	QSvgRenderer breakpointRenderer_;
 	QSvgRenderer currentRenderer_;

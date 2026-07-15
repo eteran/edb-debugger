@@ -2973,10 +2973,8 @@ void Debugger::setInitialDebuggerState() {
 
 		SessionManager &session_manager = SessionManager::instance();
 
-		if (Result<void, SessionError> session_error = session_manager.loadSession(filename)) {
-			QVariantList comments_data = session_manager.comments();
-			cpuView_->restoreComments(comments_data);
-		} else {
+		Result<void, SessionError> session_error = session_manager.loadSession(filename);
+		if (!session_error) {
 			QMessageBox::warning(
 				this,
 				tr("Error Loading Session"),

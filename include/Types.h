@@ -8,6 +8,7 @@
 #define TYPES_H_20071127_
 
 #include "Value.h"
+
 #include <QString>
 
 namespace edb {
@@ -22,12 +23,6 @@ enum EventStatus {
 };
 
 }
-
-/* Comment Type */
-struct Comment {
-	edb::address_t address;
-	QString comment;
-};
 
 #include "ArchTypes.h"
 #endif

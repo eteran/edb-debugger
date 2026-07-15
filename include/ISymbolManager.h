@@ -26,7 +26,6 @@ public:
 		QString name;
 		edb::address_t address;
 		std::optional<Module> module;
-
 	};
 
 public:

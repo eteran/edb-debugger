@@ -9,6 +9,7 @@
 #include "IPlugin.h"
 #include "IProcess.h"
 #include "Module.h"
+#include "QDisassemblyView.h"
 #include "SymbolManager.h"
 #include "edb.h"
 
@@ -86,12 +87,14 @@ Result<void, SessionError> SessionManager::loadSession(const QString &filename) 
 	QJsonObject object = doc.object();
 	sessionData_       = object.toVariantMap();
 
-	QString id          = sessionData_[QStringLiteral("id")].toString();
-	QString ts          = sessionData_[QStringLiteral("timestamp")].toString();
-	int version         = sessionData_[QStringLiteral("version")].toInt();
-	QVariantList labels = sessionData_[QStringLiteral("labels")].toList();
+	QString id            = sessionData_[QStringLiteral("id")].toString();
+	QString ts            = sessionData_[QStringLiteral("timestamp")].toString();
+	int version           = sessionData_[QStringLiteral("version")].toInt();
+	QVariantList labels   = sessionData_[QStringLiteral("labels")].toList();
+	QVariantList comments = sessionData_[QStringLiteral("comments")].toList();
 
 	loadLabels(labels);
+	loadComments(comments);
 
 	Q_UNUSED(ts)
 
@@ -136,6 +139,7 @@ void SessionManager::saveSession(const QString &filename) {
 	sessionData_[QStringLiteral("timestamp")]   = QDateTime::currentDateTimeUtc();
 	sessionData_[QStringLiteral("plugin-data")] = plugin_data;
 	sessionData_[QStringLiteral("labels")]      = saveLabels();
+	sessionData_[QStringLiteral("comments")]    = saveComments();
 
 	auto object = QJsonObject::fromVariantMap(sessionData_);
 	QJsonDocument doc(object);
@@ -174,64 +178,6 @@ void SessionManager::loadPluginData() {
 }
 
 /**
- * @brief Returns all comments in the session
- *
- * @return A list of all comments in the session.
- */
-QVariantList SessionManager::comments() const {
-	return sessionData_[QStringLiteral("comments")].toList();
-}
-
-/**
- * @brief Adds a comment to the session
- *
- * @param c The comment to add.
- */
-void SessionManager::addComment(const Comment &c) {
-
-	QVariantList comments_data = sessionData_[QStringLiteral("comments")].toList();
-
-	QVariantMap comment;
-	comment[QStringLiteral("address")] = c.address.toHexString();
-	comment[QStringLiteral("comment")] = c.comment;
-
-	// Check if we already have an entry with the same address and overwrite it
-	auto it = std::find_if(comments_data.begin(), comments_data.end(), [&comment](QVariant entry) {
-		QVariantMap data = entry.toMap();
-		return data[QStringLiteral("address")] == comment[QStringLiteral("address")];
-	});
-
-	if (it != comments_data.end()) {
-		*it = comment;
-	} else {
-		comments_data.push_back(comment);
-	}
-
-	sessionData_[QStringLiteral("comments")] = comments_data;
-}
-
-/**
- * @brief Removes a comment from the session_data
- *
- * @param address The address of the comment to remove.
- */
-void SessionManager::removeComment(edb::address_t address) {
-	QString hexAddressString   = address.toHexString();
-	QVariantList comments_data = sessionData_[QStringLiteral("comments")].toList();
-
-	auto it = std::find_if(comments_data.begin(), comments_data.end(), [&hexAddressString](QVariant entry) {
-		QVariantMap data = entry.toMap();
-		return data[QStringLiteral("address")] == hexAddressString;
-	});
-
-	if (it != comments_data.end()) {
-		comments_data.erase(it);
-	}
-
-	sessionData_[QStringLiteral("comments")] = comments_data;
-}
-
-/**
  * @brief Saves the labels to a QVariantMap for session persistence.
  *
  * @return A QVariantMap containing the labels.
@@ -254,6 +200,37 @@ QVariantList SessionManager::saveLabels() const {
 	}
 
 	return label_data;
+}
+
+/**
+ * @brief Saves the comments to a QVariantMap for session persistence.
+ *
+ * @return A QVariantMap containing the comments.
+ */
+QVariantList SessionManager::saveComments() const {
+
+	auto cpuView = qobject_cast<QDisassemblyView *>(edb::v1::disassembly_widget());
+	if (!cpuView) {
+		qDebug() << "Failed to get disassembly widget";
+		return {};
+	}
+	QVector<Comment> comments = cpuView->commentData();
+
+	QVariantList comment_data;
+
+	for (const auto &comment : comments) {
+
+		edb::address_t address = comment.module ? comment.address - comment.module->baseAddress : edb::address_t();
+		QString comment_text   = comment.comment;
+
+		QVariantMap entry;
+		entry[QStringLiteral("module")] = comment.module ? comment.module->name : QString();
+		entry[QStringLiteral("offset")] = address.toHexString();
+		entry[QStringLiteral("name")]   = comment_text;
+		comment_data.push_back(entry);
+	}
+
+	return comment_data;
 }
 
 /**
@@ -300,18 +277,90 @@ void SessionManager::loadLabels(const QVariantList &labels) {
 	}
 }
 
+/**
+ * @brief Loads the comments from a QVariantMap for session restoration.
+ *
+ * @param comments A QVariantList containing the comments to load.
+ */
+void SessionManager::loadComments(const QVariantList &comments) {
+	qDebug("Loading comments");
+
+	IProcess *process = edb::v1::debugger_core->process();
+	Q_ASSERT(process);
+
+	QSet<Module> modules = process->loadedModules();
+
+	auto cpuView = qobject_cast<QDisassemblyView *>(edb::v1::disassembly_widget());
+	if (!cpuView) {
+		qDebug() << "Failed to get disassembly widget";
+		return;
+	}
+
+	for (auto &entry : comments) {
+		auto comment = entry.value<QVariantMap>();
+
+		QString module_name = comment[QStringLiteral("module")].toString();
+		QString offset_str  = comment[QStringLiteral("offset")].toString();
+		QString name        = comment[QStringLiteral("name")].toString();
+
+		edb::address_t offset = edb::address_t::fromHexString(offset_str);
+
+		// Figure out which module this bookmark belongs to and add it if the module is loaded
+		auto it = std::find_if(modules.begin(), modules.end(), [&module_name](const Module &module) {
+			return edb::v2::compare_module_names(module.name, module_name);
+		});
+
+		if (it != modules.end()) {
+			edb::address_t address = offset + it->baseAddress;
+			cpuView->addComment(address, name);
+			continue;
+		} else {
+
+			// If the module is not loaded, store the bookmark entry for later restoration when the module is loaded
+			Comment entry;
+			entry.comment = name;
+			entry.module  = edb::v2::module_for_address(offset);
+			entry.address = offset;
+			deferredComments_.push_back(entry);
+		}
+	}
+}
+
 void SessionManager::libraryEvent(const Module &module, bool loaded) {
 	if (loaded) {
-		auto it = std::remove_if(deferredLabels_.begin(), deferredLabels_.end(), [&module, this](const LabelEntry &entry) {
-			if (edb::v2::compare_module_names(entry.module, module.name)) {
-				edb::address_t offset  = edb::address_t::fromHexString(entry.offset);
-				edb::address_t address = offset + module.baseAddress;
-				edb::v1::symbol_manager().setLabel(address, entry.name);
-				return true;
+		// Load labels for the module that was just loaded
+		{
+			auto it = std::remove_if(deferredLabels_.begin(), deferredLabels_.end(), [&module, this](const LabelEntry &entry) {
+				if (edb::v2::compare_module_names(entry.module, module.name)) {
+					edb::address_t offset  = edb::address_t::fromHexString(entry.offset);
+					edb::address_t address = offset + module.baseAddress;
+					edb::v1::symbol_manager().setLabel(address, entry.name);
+					return true;
+				}
+
+				return false;
+			});
+			deferredLabels_.erase(it, deferredLabels_.end());
+		}
+
+		// Load comments for the module that was just loaded
+		{
+			auto cpuView = qobject_cast<QDisassemblyView *>(edb::v1::disassembly_widget());
+			if (!cpuView) {
+				qDebug() << "Failed to get disassembly widget";
+				return;
 			}
 
-			return false;
-		});
-		deferredLabels_.erase(it, deferredLabels_.end());
+			auto it = std::remove_if(deferredComments_.begin(), deferredComments_.end(), [&module, cpuView, this](const Comment &entry) {
+				if (entry.module && edb::v2::compare_module_names(entry.module->name, module.name)) {
+					edb::address_t address = entry.address + module.baseAddress;
+					cpuView->addComment(address, entry.comment);
+					return true;
+				}
+
+				return false;
+			});
+			deferredComments_.erase(it, deferredComments_.end());
+		}
 	}
 }

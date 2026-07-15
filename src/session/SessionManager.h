@@ -7,6 +7,7 @@
 #ifndef SESSION_MANAGER_H_20170928_
 #define SESSION_MANAGER_H_20170928_
 
+#include "Comment.h"
 #include "SessionError.h"
 #include "Status.h"
 #include "Types.h"
@@ -50,12 +51,17 @@ public:
 
 private:
 	void loadPluginData();
+
 	QVariantList saveLabels() const;
 	void loadLabels(const QVariantList &labels);
+
+	QVariantList saveComments() const;
+	void loadComments(const QVariantList &comments);
 
 private:
 	QVariantMap sessionData_;
 	std::vector<LabelEntry> deferredLabels_;
+	std::vector<Comment> deferredComments_;
 };
 
 #endif
