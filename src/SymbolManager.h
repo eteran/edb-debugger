@@ -8,11 +8,14 @@
 #define SYMBOL_MANAGER_H_20060814_
 
 #include "ISymbolManager.h"
+#include "Module.h"
 
 #include <QCoreApplication>
 #include <QHash>
 #include <QMap>
 #include <QSet>
+
+#include <optional>
 
 class QString;
 
@@ -23,6 +26,7 @@ public:
 	SymbolManager() = default;
 
 public:
+	[[nodiscard]] QVector<LabelEntry> labelData() const override;
 	[[nodiscard]] QMap<edb::address_t, QString> labels() const override;
 	[[nodiscard]] QString findAddressName(edb::address_t address, bool prefixed = true) override;
 	[[nodiscard]] QStringList files() const override;
@@ -46,8 +50,8 @@ private:
 	QMap<edb::address_t, Symbol> symbolsByAddress_;
 	QHash<QString, QList<Symbol>> symbolsByFile_;
 	QHash<QString, Symbol> symbolsByName_;
-	QMap<edb::address_t, QString> labels_;
-	QMap<QString, edb::address_t> labelsByName_;
+	QMap<edb::address_t, LabelEntry> labels_;
+	QSet<QString> labelNames_;
 	ISymbolGenerator *symbolGenerator_ = nullptr;
 	bool showPathNotice_               = true;
 };

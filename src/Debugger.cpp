@@ -3647,11 +3647,18 @@ void Debugger::handle_library_event(IProcess *process, [[maybe_unused]] edb::add
 			for (const Module &module : added_modules) {
 				qDebug() << "  " << module.name << "@" << edb::v1::format_pointer(module.baseAddress);
 
+				// Notify all plugins who care about library load/unload events
 				for (QObject *plugin : edb::v1::plugin_list()) {
 					if (auto p = qobject_cast<IPlugin *>(plugin)) {
 						p->libraryEvent(module, true);
 					}
 				}
+
+				// Notify the session manager about the library load event
+				// NOTE(eteran): this is a bit "out of place", because we are using it to restore labels/comments,
+				// but it would be better if we informed the symbol manager more directly. But that's a larger refactor,
+				// so for now, this is fine.
+				SessionManager::instance().libraryEvent(module, true);
 			}
 
 			loadedModules_ = modules;
@@ -3672,6 +3679,8 @@ void Debugger::handle_library_event(IProcess *process, [[maybe_unused]] edb::add
 						p->libraryEvent(module, false);
 					}
 				}
+
+				SessionManager::instance().libraryEvent(module, false);
 			}
 
 			loadedModules_ = modules;

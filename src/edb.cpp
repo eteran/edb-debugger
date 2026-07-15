@@ -1681,11 +1681,6 @@ std::optional<Module> module_for_address(edb::address_t address) {
  */
 bool compare_module_names(const QString &name1, const QString &name2) {
 
-	// TODO(eteran): this works great except for the case where one of the names is the empty string
-	// and the other is not, this happens because ld.so gives the "primary" module the name "" (empty string)
-	// and the other modules have their full path names. But... our fallback mechanism for finding modules is
-	// to look in /proc/<pid>/maps which gives the full path name. We need to figure out a good plan for this.
-
 	// Convert both names into canonical paths to ensure consistent comparison
 	// and then resolve any symbolic links or shortcuts to their target paths.
 

@@ -16,8 +16,17 @@
 #include <QVariant>
 #include <QVariantMap>
 
+class Module;
+
 class SessionManager {
 	Q_DECLARE_TR_FUNCTIONS(SessionManager)
+
+private:
+	struct LabelEntry {
+		QString name;
+		QString module;
+		QString offset;
+	};
 
 private:
 	SessionManager() = default;
@@ -36,13 +45,17 @@ public:
 	void addComment(const Comment &c);
 	void removeComment(edb::address_t address);
 
+public:
+	void libraryEvent(const Module &module, bool loaded);
+
 private:
 	void loadPluginData();
-	QVariantMap saveLabels() const;
-	void loadLabels(const QVariantMap &labels);
+	QVariantList saveLabels() const;
+	void loadLabels(const QVariantList &labels);
 
 private:
 	QVariantMap sessionData_;
+	std::vector<LabelEntry> deferredLabels_;
 };
 
 #endif

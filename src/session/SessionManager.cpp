@@ -5,7 +5,10 @@
  */
 
 #include "SessionManager.h"
+#include "IDebugger.h"
 #include "IPlugin.h"
+#include "IProcess.h"
+#include "Module.h"
 #include "SymbolManager.h"
 #include "edb.h"
 
@@ -83,10 +86,10 @@ Result<void, SessionError> SessionManager::loadSession(const QString &filename) 
 	QJsonObject object = doc.object();
 	sessionData_       = object.toVariantMap();
 
-	QString id         = sessionData_[QStringLiteral("id")].toString();
-	QString ts         = sessionData_[QStringLiteral("timestamp")].toString();
-	int version        = sessionData_[QStringLiteral("version")].toInt();
-	QVariantMap labels = sessionData_[QStringLiteral("labels")].toMap();
+	QString id          = sessionData_[QStringLiteral("id")].toString();
+	QString ts          = sessionData_[QStringLiteral("timestamp")].toString();
+	int version         = sessionData_[QStringLiteral("version")].toInt();
+	QVariantList labels = sessionData_[QStringLiteral("labels")].toList();
 
 	loadLabels(labels);
 
@@ -233,33 +236,82 @@ void SessionManager::removeComment(edb::address_t address) {
  *
  * @return A QVariantMap containing the labels.
  */
-QVariantMap SessionManager::saveLabels() const {
-	QMap<edb::address_t, QString> labels = edb::v1::symbol_manager().labels();
-	QVariantMap labels_data;
-	for (auto it = labels.begin(); it != labels.end(); ++it) {
+QVariantList SessionManager::saveLabels() const {
+	QVector<ISymbolManager::LabelEntry> labels = edb::v1::symbol_manager().labelData();
 
-		qDebug() << "Saving label for address" << it.key().toHexString() << ":" << it.value();
+	QVariantList label_data;
 
-		labels_data[it.key().toHexString()] = it.value();
+	for (const auto &label : labels) {
+
+		edb::address_t address = label.module ? label.address - label.module->baseAddress : edb::address_t();
+		QString name           = label.name;
+
+		QVariantMap entry;
+		entry[QStringLiteral("module")] = label.module ? label.module->name : QString();
+		entry[QStringLiteral("offset")] = address.toHexString();
+		entry[QStringLiteral("name")]   = name;
+		label_data.push_back(entry);
 	}
-	return labels_data;
+
+	return label_data;
 }
 
 /**
  * @brief Loads the labels from a QVariantMap for session restoration.
  *
- * @param labels A QVariantMap containing the labels to load.
+ * @param labels A QVariantList containing the labels to load.
  */
-void SessionManager::loadLabels(const QVariantMap &labels) {
+void SessionManager::loadLabels(const QVariantList &labels) {
 
 	qDebug("Loading labels");
 
-	for (auto it = labels.begin(); it != labels.end(); ++it) {
-		edb::address_t address = edb::address_t::fromHexString(it.key());
-		QString label          = it.value().toString();
+	IProcess *process = edb::v1::debugger_core->process();
+	Q_ASSERT(process);
 
-		qDebug() << "Loading label for address" << address.toHexString() << ":" << label;
+	QSet<Module> modules = process->loadedModules();
 
-		edb::v1::symbol_manager().setLabel(address, label);
+	for (auto &entry : labels) {
+		auto label = entry.value<QVariantMap>();
+
+		QString module_name = label[QStringLiteral("module")].toString();
+		QString offset_str  = label[QStringLiteral("offset")].toString();
+		QString name        = label[QStringLiteral("name")].toString();
+
+		edb::address_t offset = edb::address_t::fromHexString(offset_str);
+
+		// Figure out which module this bookmark belongs to and add it if the module is loaded
+		auto it = std::find_if(modules.begin(), modules.end(), [&module_name](const Module &module) {
+			return edb::v2::compare_module_names(module.name, module_name);
+		});
+
+		if (it != modules.end()) {
+			edb::address_t address = offset + it->baseAddress;
+			edb::v1::symbol_manager().setLabel(address, name);
+			continue;
+		} else {
+
+			// If the module is not loaded, store the bookmark entry for later restoration when the module is loaded
+			LabelEntry entry;
+			entry.name   = name;
+			entry.module = module_name;
+			entry.offset = offset_str;
+			deferredLabels_.push_back(entry);
+		}
+	}
+}
+
+void SessionManager::libraryEvent(const Module &module, bool loaded) {
+	if (loaded) {
+		auto it = std::remove_if(deferredLabels_.begin(), deferredLabels_.end(), [&module, this](const LabelEntry &entry) {
+			if (edb::v2::compare_module_names(entry.module, module.name)) {
+				edb::address_t offset  = edb::address_t::fromHexString(entry.offset);
+				edb::address_t address = offset + module.baseAddress;
+				edb::v1::symbol_manager().setLabel(address, entry.name);
+				return true;
+			}
+
+			return false;
+		});
+		deferredLabels_.erase(it, deferredLabels_.end());
 	}
 }
