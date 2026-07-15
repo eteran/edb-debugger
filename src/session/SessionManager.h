@@ -34,6 +34,7 @@ private:
 		QString offset;
 		QString condition;
 		QString type;
+		bool oneTime = false;
 	};
 
 private:

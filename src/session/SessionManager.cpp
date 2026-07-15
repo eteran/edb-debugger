@@ -375,6 +375,7 @@ void SessionManager::libraryEvent(const Module &module, bool loaded) {
 					std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(address);
 					if (bp) {
 						bp->condition = entry.condition;
+						bp->setOneTime(entry.oneTime);
 					}
 					return true;
 				}
