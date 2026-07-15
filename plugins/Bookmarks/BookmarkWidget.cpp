@@ -281,11 +281,10 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 /**
  * @brief Returns a copy of the current bookmark list.
  *
- * @return A QList of BookmarksModel::Bookmark entries.
+ * @return A QVector of BookmarksModel::Bookmark entries.
  */
-QList<BookmarksModel::Bookmark> BookmarkWidget::entries() const {
-	const QVector<BookmarksModel::Bookmark> &bookmarks = model_->bookmarks();
-	return bookmarks.toList();
+QVector<BookmarksModel::Bookmark> BookmarkWidget::entries() const {
+	return model_->bookmarks();
 }
 
 // This is copied from Debugger::createAction, so really there should either be a class that implements
