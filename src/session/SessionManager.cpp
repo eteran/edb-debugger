@@ -365,6 +365,23 @@ void SessionManager::libraryEvent(const Module &module, bool loaded) {
 			});
 			deferredComments_.erase(it, deferredComments_.end());
 		}
+
+		// Load breakpoints for the module that was just loaded
+		{
+			auto it = std::remove_if(deferredBreakpoints_.begin(), deferredBreakpoints_.end(), [&module, this](const BreakpointEntry &entry) {
+				if (edb::v2::compare_module_names(entry.module, module.name)) {
+					edb::address_t offset           = edb::address_t::fromHexString(entry.offset);
+					edb::address_t address          = offset + module.baseAddress;
+					std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(address);
+					if (bp) {
+						bp->condition = entry.condition;
+					}
+					return true;
+				}
+				return false;
+			});
+			deferredBreakpoints_.erase(it, deferredBreakpoints_.end());
+		}
 	}
 }
 

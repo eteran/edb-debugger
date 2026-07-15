@@ -69,6 +69,7 @@ private:
 	QVariantMap sessionData_;
 	std::vector<LabelEntry> deferredLabels_;
 	std::vector<Comment> deferredComments_;
+	std::vector<BreakpointEntry> deferredBreakpoints_;
 };
 
 #endif
