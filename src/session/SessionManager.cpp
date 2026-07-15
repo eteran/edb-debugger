@@ -400,10 +400,11 @@ QVariantList SessionManager::saveBreakpoints() const {
 		const edb::address_t address = bp->address();
 		const QString condition      = bp->condition;
 		const bool onetime           = bp->oneTime();
+		const edb::address_t offset  = bp->module() ? address - bp->module()->baseAddress : edb::address_t();
 
 		QVariantMap entry;
-		entry[QStringLiteral("module")]    = QString();
-		entry[QStringLiteral("offset")]    = address.toHexString();
+		entry[QStringLiteral("module")]    = bp->module() ? bp->module()->name : QString();
+		entry[QStringLiteral("offset")]    = offset.toHexString();
 		entry[QStringLiteral("condition")] = condition;
 		entry[QStringLiteral("one_time")]  = onetime;
 		breakpoints.push_back(entry);
@@ -413,4 +414,44 @@ QVariantList SessionManager::saveBreakpoints() const {
 }
 
 void SessionManager::loadBreakpoints(const QVariantList &breakpoints) {
+	qDebug("Loading breakpoints");
+
+	IProcess *process = edb::v1::debugger_core->process();
+	Q_ASSERT(process);
+
+	QSet<Module> modules = process->loadedModules();
+
+	for (auto &entry : breakpoints) {
+		auto breakpoint = entry.value<QVariantMap>();
+
+		QString module_name = breakpoint[QStringLiteral("module")].toString();
+		QString offset_str  = breakpoint[QStringLiteral("offset")].toString();
+		QString condition   = breakpoint[QStringLiteral("condition")].toString();
+		bool one_time       = breakpoint[QStringLiteral("one_time")].toBool();
+
+		edb::address_t offset = edb::address_t::fromHexString(offset_str);
+
+		// Figure out which module this bookmark belongs to and add it if the module is loaded
+		auto it = std::find_if(modules.begin(), modules.end(), [&module_name](const Module &module) {
+			return edb::v2::compare_module_names(module.name, module_name);
+		});
+
+		if (it != modules.end()) {
+			edb::address_t address          = offset + it->baseAddress;
+			std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(address);
+			if (bp) {
+				bp->condition = condition;
+				bp->setOneTime(one_time);
+			}
+			continue;
+		} else {
+
+			// If the module is not loaded, store the bookmark entry for later restoration when the module is loaded
+			BreakpointEntry entry;
+			entry.condition = condition;
+			entry.module    = module_name;
+			entry.offset    = offset_str;
+			deferredBreakpoints_.push_back(entry);
+		}
+	}
 }

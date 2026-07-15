@@ -43,6 +43,7 @@ public:
 	[[nodiscard]] size_t size() const override { return originalBytes_.size(); }
 	[[nodiscard]] const uint8_t *originalBytes() const override { return &originalBytes_[0]; }
 	[[nodiscard]] IBreakpoint::TypeId type() const override { return type_; }
+	[[nodiscard]] std::optional<Module> module() const override { return module_; }
 
 	[[nodiscard]] static std::vector<BreakpointType> supportedTypes();
 	[[nodiscard]] static std::vector<size_t> possibleRewindSizes();
@@ -63,6 +64,7 @@ private:
 	bool oneTime_      = false;
 	bool internal_     = false;
 	Type type_;
+	std::optional<Module> module_;
 };
 
 }

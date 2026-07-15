@@ -33,7 +33,6 @@ private:
 		QString module;
 		QString offset;
 		QString condition;
-		QString type;
 		bool oneTime = false;
 	};
 

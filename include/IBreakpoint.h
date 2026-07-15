@@ -8,9 +8,11 @@
 #define IBREAKPOINT_H_20060720_
 
 #include "Types.h"
+#include "Module.h"
 
 #include <QString>
 #include <exception>
+#include <optional>
 
 class QByteArray;
 
@@ -45,6 +47,7 @@ public:
 	[[nodiscard]] virtual const uint8_t *originalBytes() const = 0;
 	[[nodiscard]] virtual size_t size() const                  = 0;
 	[[nodiscard]] virtual TypeId type() const                  = 0;
+	[[nodiscard]] virtual std::optional<Module> module() const = 0;
 
 public:
 	virtual bool enable()                = 0;
