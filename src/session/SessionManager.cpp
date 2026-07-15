@@ -5,12 +5,18 @@
  */
 
 #include "SessionManager.h"
+#include "IDebugger.h"
 #include "IPlugin.h"
+#include "IProcess.h"
+#include "Module.h"
+#include "QDisassemblyView.h"
+#include "SymbolManager.h"
 #include "edb.h"
 
 #include <QDateTime>
 #include <QDebug>
 #include <QFile>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
@@ -18,7 +24,7 @@
 
 namespace {
 
-constexpr int SessionFileVersion = 1;
+constexpr int SessionFileVersion = 2;
 const auto SessionFileIdString   = QStringLiteral("edb-session");
 
 }
@@ -79,12 +85,15 @@ Result<void, SessionError> SessionManager::loadSession(const QString &filename) 
 		return make_unexpected(session_error);
 	}
 
-	QJsonObject object = doc.object();
-	sessionData_       = object.toVariantMap();
+	QJsonObject sessionData = doc.object();
 
-	QString id  = sessionData_[QStringLiteral("id")].toString();
-	QString ts  = sessionData_[QStringLiteral("timestamp")].toString();
-	int version = sessionData_[QStringLiteral("version")].toInt();
+	const auto id          = sessionData[QStringLiteral("id")].toString();
+	const auto ts          = sessionData[QStringLiteral("timestamp")].toString();
+	const auto version     = sessionData[QStringLiteral("version")].toInt();
+	const auto labels      = sessionData[QStringLiteral("labels")].toArray();
+	const auto comments    = sessionData[QStringLiteral("comments")].toArray();
+	const auto breakpoints = sessionData[QStringLiteral("breakpoints")].toArray();
+	const auto plugin_data = sessionData[QStringLiteral("plugin-data")].toObject();
 
 	Q_UNUSED(ts)
 
@@ -96,7 +105,10 @@ Result<void, SessionError> SessionManager::loadSession(const QString &filename) 
 	}
 
 	qDebug("Loading session file");
-	loadPluginData(); // First, load the plugin-data
+	loadPluginData(plugin_data);
+	loadLabels(labels);
+	loadComments(comments);
+	loadBreakpoints(breakpoints);
 	return {};
 }
 
@@ -124,13 +136,16 @@ void SessionManager::saveSession(const QString &filename) {
 		}
 	}
 
-	sessionData_[QStringLiteral("version")]     = SessionFileVersion;
-	sessionData_[QStringLiteral("id")]          = SessionFileIdString; // just so we can sanity check things
-	sessionData_[QStringLiteral("timestamp")]   = QDateTime::currentDateTimeUtc();
-	sessionData_[QStringLiteral("plugin-data")] = plugin_data;
+	QJsonObject sessionData;
+	sessionData[QStringLiteral("version")]     = SessionFileVersion;
+	sessionData[QStringLiteral("id")]          = SessionFileIdString; // just so we can sanity check things
+	sessionData[QStringLiteral("timestamp")]   = QDateTime::currentDateTimeUtc().toString();
+	sessionData[QStringLiteral("plugin-data")] = QJsonObject::fromVariantMap(plugin_data);
+	sessionData[QStringLiteral("labels")]      = saveLabels();
+	sessionData[QStringLiteral("comments")]    = saveComments();
+	sessionData[QStringLiteral("breakpoints")] = saveBreakpoints();
 
-	auto object = QJsonObject::fromVariantMap(sessionData_);
-	QJsonDocument doc(object);
+	QJsonDocument doc(sessionData);
 
 	QByteArray json = doc.toJson();
 	QFile file(filename);
@@ -142,18 +157,19 @@ void SessionManager::saveSession(const QString &filename) {
 
 /**
  * @brief Loads the plugin data from the session.
+ *
+ * @param plugin_data The QJsonObject containing the plugin data to load.
  */
-void SessionManager::loadPluginData() {
+void SessionManager::loadPluginData(const QJsonObject &plugin_data) {
 
 	qDebug("Loading plugin-data");
 
-	QVariantMap plugin_data = sessionData_[QStringLiteral("plugin-data")].toMap();
 	for (auto it = plugin_data.begin(); it != plugin_data.end(); ++it) {
 		for (QObject *plugin : edb::v1::plugin_list()) {
 			if (auto p = qobject_cast<IPlugin *>(plugin)) {
 				if (const QMetaObject *const meta = plugin->metaObject()) {
 					auto name        = QString::fromLocal8Bit(meta->className());
-					QVariantMap data = it.value().toMap();
+					QVariantMap data = it.value().toObject().toVariantMap();
 
 					if (name == it.key()) {
 						p->restoreState(data);
@@ -166,59 +182,294 @@ void SessionManager::loadPluginData() {
 }
 
 /**
- * @brief Returns all comments in the session
+ * @brief Saves the labels for session persistence.
  *
- * @return A list of all comments in the session.
+ * @return A QVariantList containing the labels.
  */
-QVariantList SessionManager::comments() const {
-	return sessionData_[QStringLiteral("comments")].toList();
+QJsonArray SessionManager::saveLabels() const {
+	QVector<ISymbolManager::LabelEntry> labels = edb::v1::symbol_manager().labelData();
+
+	QJsonArray label_data;
+
+	for (const auto &label : labels) {
+
+		edb::address_t address = label.module ? label.address - label.module->baseAddress : edb::address_t();
+		QString name           = label.name;
+
+		QJsonObject entry;
+		entry[QStringLiteral("module")] = label.module ? label.module->name : QString();
+		entry[QStringLiteral("offset")] = address.toHexString();
+		entry[QStringLiteral("name")]   = name;
+		label_data.push_back(entry);
+	}
+
+	return label_data;
 }
 
 /**
- * @brief Adds a comment to the session
+ * @brief Saves the comments for session persistence.
  *
- * @param c The comment to add.
+ * @return A QVariantList containing the comments.
  */
-void SessionManager::addComment(const Comment &c) {
+QJsonArray SessionManager::saveComments() const {
 
-	QVariantList comments_data = sessionData_[QStringLiteral("comments")].toList();
+	auto cpuView = qobject_cast<QDisassemblyView *>(edb::v1::disassembly_widget());
+	if (!cpuView) {
+		qDebug("Failed to get disassembly widget");
+		return {};
+	}
+	QVector<Comment> comments = cpuView->commentData();
 
-	QVariantMap comment;
-	comment[QStringLiteral("address")] = c.address.toHexString();
-	comment[QStringLiteral("comment")] = c.comment;
+	QJsonArray comment_data;
 
-	// Check if we already have an entry with the same address and overwrite it
-	auto it = std::find_if(comments_data.begin(), comments_data.end(), [&comment](QVariant entry) {
-		QVariantMap data = entry.toMap();
-		return data[QStringLiteral("address")] == comment[QStringLiteral("address")];
-	});
+	for (const auto &comment : comments) {
 
-	if (it != comments_data.end()) {
-		*it = comment;
-	} else {
-		comments_data.push_back(comment);
+		edb::address_t address = comment.module ? comment.address - comment.module->baseAddress : edb::address_t();
+		QString comment_text   = comment.comment;
+
+		QJsonObject entry;
+		entry[QStringLiteral("module")] = comment.module ? comment.module->name : QString();
+		entry[QStringLiteral("offset")] = address.toHexString();
+		entry[QStringLiteral("name")]   = comment_text;
+		comment_data.push_back(entry);
 	}
 
-	sessionData_[QStringLiteral("comments")] = comments_data;
+	return comment_data;
 }
 
 /**
- * @brief Removes a comment from the session_data
+ * @brief Loads the labels for session restoration.
  *
- * @param address The address of the comment to remove.
+ * @param labels A QJsonArray containing the labels to load.
  */
-void SessionManager::removeComment(edb::address_t address) {
-	QString hexAddressString   = address.toHexString();
-	QVariantList comments_data = sessionData_[QStringLiteral("comments")].toList();
+void SessionManager::loadLabels(const QJsonArray &labels) {
 
-	auto it = std::find_if(comments_data.begin(), comments_data.end(), [&hexAddressString](QVariant entry) {
-		QVariantMap data = entry.toMap();
-		return data[QStringLiteral("address")] == hexAddressString;
-	});
+	qDebug("Loading labels");
 
-	if (it != comments_data.end()) {
-		comments_data.erase(it);
+	IProcess *process = edb::v1::debugger_core->process();
+	Q_ASSERT(process);
+
+	QSet<Module> modules = process->loadedModules();
+
+	for (const QJsonValue &entry : labels) {
+		auto label = entry.toObject();
+
+		QString module_name = label[QStringLiteral("module")].toString();
+		QString offset_str  = label[QStringLiteral("offset")].toString();
+		QString name        = label[QStringLiteral("name")].toString();
+
+		edb::address_t offset = edb::address_t::fromHexString(offset_str);
+
+		// Figure out which module this bookmark belongs to and add it if the module is loaded
+		auto it = std::find_if(modules.begin(), modules.end(), [&module_name](const Module &module) {
+			return edb::v2::compare_module_names(module.name, module_name);
+		});
+
+		if (it != modules.end()) {
+			edb::address_t address = offset + it->baseAddress;
+			edb::v1::symbol_manager().setLabel(address, name);
+			continue;
+		} else {
+
+			// If the module is not loaded, store the bookmark entry for later restoration when the module is loaded
+			deferredLabels_.push_back(LabelEntry{
+				name,
+				module_name,
+				offset_str,
+			});
+		}
+	}
+}
+
+/**
+ * @brief Loads the comments for session restoration.
+ *
+ * @param comments A QJsonArray containing the comments to load.
+ */
+void SessionManager::loadComments(const QJsonArray &comments) {
+	qDebug("Loading comments");
+
+	IProcess *process = edb::v1::debugger_core->process();
+	Q_ASSERT(process);
+
+	QSet<Module> modules = process->loadedModules();
+
+	auto cpuView = qobject_cast<QDisassemblyView *>(edb::v1::disassembly_widget());
+	if (!cpuView) {
+		qDebug("Failed to get disassembly widget");
+		return;
 	}
 
-	sessionData_[QStringLiteral("comments")] = comments_data;
+	for (const QJsonValue &entry : comments) {
+		auto comment = entry.toObject();
+
+		QString module_name = comment[QStringLiteral("module")].toString();
+		QString offset_str  = comment[QStringLiteral("offset")].toString();
+		QString name        = comment[QStringLiteral("name")].toString();
+
+		edb::address_t offset = edb::address_t::fromHexString(offset_str);
+
+		// Figure out which module this bookmark belongs to and add it if the module is loaded
+		auto it = std::find_if(modules.begin(), modules.end(), [&module_name](const Module &module) {
+			return edb::v2::compare_module_names(module.name, module_name);
+		});
+
+		if (it != modules.end()) {
+			edb::address_t address = offset + it->baseAddress;
+			cpuView->addComment(address, name);
+			continue;
+		} else {
+
+			// If the module is not loaded, store the bookmark entry for later restoration when the module is loaded
+			deferredComments_.push_back(Comment{
+				name,
+				offset,
+				edb::v2::module_for_address(offset),
+			});
+		}
+	}
+}
+
+/**
+ * @brief Handles library events for loading and unloading modules.
+ *
+ * @param module The module that was loaded or unloaded.
+ * @param loaded True if the module was loaded, false if it was unloaded.
+ */
+void SessionManager::libraryEvent(const Module &module, bool loaded) {
+	if (loaded) {
+		// Load labels for the module that was just loaded
+		{
+			auto it = std::remove_if(deferredLabels_.begin(), deferredLabels_.end(), [&module, this](const LabelEntry &entry) {
+				if (edb::v2::compare_module_names(entry.module, module.name)) {
+					edb::address_t offset  = edb::address_t::fromHexString(entry.offset);
+					edb::address_t address = offset + module.baseAddress;
+					edb::v1::symbol_manager().setLabel(address, entry.name);
+					return true;
+				}
+
+				return false;
+			});
+			deferredLabels_.erase(it, deferredLabels_.end());
+		}
+
+		// Load comments for the module that was just loaded
+		{
+			auto cpuView = qobject_cast<QDisassemblyView *>(edb::v1::disassembly_widget());
+			if (!cpuView) {
+				qDebug("Failed to get disassembly widget");
+				return;
+			}
+
+			auto it = std::remove_if(deferredComments_.begin(), deferredComments_.end(), [&module, cpuView, this](const Comment &entry) {
+				if (entry.module && edb::v2::compare_module_names(entry.module->name, module.name)) {
+					edb::address_t address = entry.address + module.baseAddress;
+					cpuView->addComment(address, entry.comment);
+					return true;
+				}
+
+				return false;
+			});
+			deferredComments_.erase(it, deferredComments_.end());
+		}
+
+		// Load breakpoints for the module that was just loaded
+		{
+			auto it = std::remove_if(deferredBreakpoints_.begin(), deferredBreakpoints_.end(), [&module, this](const BreakpointEntry &entry) {
+				if (edb::v2::compare_module_names(entry.module, module.name)) {
+					edb::address_t offset           = edb::address_t::fromHexString(entry.offset);
+					edb::address_t address          = offset + module.baseAddress;
+					std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(address);
+					if (bp) {
+						bp->condition = entry.condition;
+						bp->setOneTime(entry.oneTime);
+					}
+					return true;
+				}
+				return false;
+			});
+			deferredBreakpoints_.erase(it, deferredBreakpoints_.end());
+		}
+	}
+}
+
+/**
+ * @brief Saves the breakpoints for session persistence.
+ *
+ * @return A QVariantList containing the breakpoints.
+ */
+QJsonArray SessionManager::saveBreakpoints() const {
+	QJsonArray breakpoints;
+
+	const IDebugger::BreakpointList breakpoint_state = edb::v1::debugger_core->backupBreakpoints();
+	for (const std::shared_ptr<IBreakpoint> &bp : breakpoint_state) {
+		if (bp->internal()) {
+			continue;
+		}
+
+		// TODO(eteran): make relative to the module
+
+		const edb::address_t address = bp->address();
+		const QString condition      = bp->condition;
+		const bool onetime           = bp->oneTime();
+		const edb::address_t offset  = bp->module() ? address - bp->module()->baseAddress : edb::address_t();
+
+		QJsonObject entry;
+		entry[QStringLiteral("module")]    = bp->module() ? bp->module()->name : QString();
+		entry[QStringLiteral("offset")]    = offset.toHexString();
+		entry[QStringLiteral("condition")] = condition;
+		entry[QStringLiteral("one_time")]  = onetime;
+		breakpoints.push_back(entry);
+	}
+
+	return breakpoints;
+}
+
+/**
+ * @brief Loads the breakpoints for session restoration.
+ *
+ * @param breakpoints A QJsonArray containing the breakpoints to load.
+ */
+void SessionManager::loadBreakpoints(const QJsonArray &breakpoints) {
+	qDebug("Loading breakpoints");
+
+	IProcess *process = edb::v1::debugger_core->process();
+	Q_ASSERT(process);
+
+	QSet<Module> modules = process->loadedModules();
+
+	for (const QJsonValue &entry : breakpoints) {
+		auto breakpoint = entry.toObject();
+
+		QString module_name = breakpoint[QStringLiteral("module")].toString();
+		QString offset_str  = breakpoint[QStringLiteral("offset")].toString();
+		QString condition   = breakpoint[QStringLiteral("condition")].toString();
+		bool one_time       = breakpoint[QStringLiteral("one_time")].toBool();
+
+		edb::address_t offset = edb::address_t::fromHexString(offset_str);
+
+		// Figure out which module this bookmark belongs to and add it if the module is loaded
+		auto it = std::find_if(modules.begin(), modules.end(), [&module_name](const Module &module) {
+			return edb::v2::compare_module_names(module.name, module_name);
+		});
+
+		if (it != modules.end()) {
+			edb::address_t address          = offset + it->baseAddress;
+			std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(address);
+			if (bp) {
+				bp->condition = condition;
+				bp->setOneTime(one_time);
+			}
+			continue;
+		} else {
+
+			// If the module is not loaded, store the bookmark entry for later restoration when the module is loaded
+			deferredBreakpoints_.push_back(BreakpointEntry{
+				module_name,
+				offset_str,
+				condition,
+				one_time,
+			});
+		}
+	}
 }

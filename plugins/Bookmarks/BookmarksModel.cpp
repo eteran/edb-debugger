@@ -128,9 +128,9 @@ QVariant BookmarksModel::data(const QModelIndex &index, int role) const {
  *
  * @param r
  */
-void BookmarksModel::addBookmark(const Bookmark &r) {
+void BookmarksModel::addBookmark(const Bookmark &bookmark) {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
-	bookmarks_.push_back(r);
+	bookmarks_.push_back(bookmark);
 	endInsertRows();
 }
 

@@ -172,7 +172,8 @@ QSet<Module> get_loaded_modules(const IProcess *process) {
 
 							if (map.l_addr) {
 								Module module;
-								module.name        = QString::fromLocal8Bit(path);
+								// NOTE(eteran): we use the path[0] check here because ld.so gives the "primary" module the name "" (empty string)
+								module.name        = path[0] ? QString::fromLocal8Bit(path) : process->executable();
 								module.baseAddress = map.l_addr;
 								ret.insert(std::move(module));
 							}
@@ -187,7 +188,7 @@ QSet<Module> get_loaded_modules(const IProcess *process) {
 		}
 	}
 
-	// fallback
+	// fallback, unfortunately due to symlink shenanigans, this won't quite match the link_map results, but it's better than nothing
 	if (ret.isEmpty()) {
 		const QList<std::shared_ptr<IRegion>> r = edb::v1::memory_regions().regions();
 		QSet<QString> found_modules;
@@ -1006,7 +1007,7 @@ edb::address_t get_debug_pointer(const IProcess *process, edb::address_t phdr_me
 		if (process->readBytes(phdr_memaddr + i * sizeof(elf_phdr), &phdr, sizeof(elf_phdr))) {
 			if (phdr.p_type == PT_DYNAMIC) {
 				if (phdr.p_memsz > 0x100000) {
-					qDebug() << "[get_debug_pointer] p_memsz is too large, skipping";
+					qDebug("[get_debug_pointer] p_memsz is too large, skipping");
 					return 0;
 				}
 

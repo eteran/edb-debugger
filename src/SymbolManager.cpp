@@ -30,7 +30,7 @@ void SymbolManager::clear() {
 	symbolsByFile_.clear();
 	symbolsByName_.clear();
 	labels_.clear();
-	labelsByName_.clear();
+	labelNames_.clear();
 }
 
 /**
@@ -45,7 +45,7 @@ void SymbolManager::loadSymbolFile(const QString &filename, edb::address_t base)
 
 	if (symbol_directory.isEmpty()) {
 		if (showPathNotice_) {
-			qDebug() << "No symbol path specified. Please set it in the preferences to enable symbols.";
+			qDebug("No symbol path specified. Please set it in the preferences to enable symbols.");
 			showPathNotice_ = false;
 		}
 		return;
@@ -312,21 +312,27 @@ void SymbolManager::setSymbolGenerator(ISymbolGenerator *generator) {
  */
 void SymbolManager::setLabel(edb::address_t address, const QString &label) {
 	if (label.isEmpty()) {
-		labelsByName_.remove(labels_[address]);
+		labelNames_.remove(labels_[address].name);
 		labels_.remove(address);
-	} else {
-
-		if (labelsByName_.contains(label) && labelsByName_[label] != address) {
-			QMessageBox::warning(
-				edb::v1::debugger_ui,
-				tr("Duplicate Label"),
-				tr("You are attempting to give two separate addresses the same label, this is not supported."));
-			return;
-		}
-
-		labels_[address]     = label;
-		labelsByName_[label] = address;
+		return;
 	}
+
+	if (labelNames_.contains(label) && labels_[address].name != label) {
+		QMessageBox::warning(
+			edb::v1::debugger_ui,
+			tr("Duplicate Label"),
+			tr("You are attempting to give two separate addresses the same label, this is not supported."));
+		return;
+	}
+
+	LabelEntry newLabel = {
+		label,
+		address,
+		edb::v2::module_for_address(address),
+	};
+
+	labels_[address] = newLabel;
+	labelNames_.insert(label);
 }
 
 /**
@@ -339,7 +345,7 @@ void SymbolManager::setLabel(edb::address_t address, const QString &label) {
 QString SymbolManager::findAddressName(edb::address_t address, bool prefixed) {
 	auto it = labels_.find(address);
 	if (it != labels_.end()) {
-		return it.value();
+		return it.value().name;
 	}
 
 	if (const std::optional<Symbol> sym = find(address)) {
@@ -354,8 +360,12 @@ QString SymbolManager::findAddressName(edb::address_t address, bool prefixed) {
  *
  * @return The labels for all addresses.
  */
-QHash<edb::address_t, QString> SymbolManager::labels() const {
-	return labels_;
+QMap<edb::address_t, QString> SymbolManager::labels() const {
+	QMap<edb::address_t, QString> result;
+	for (auto it = labels_.begin(); it != labels_.end(); ++it) {
+		result[it.key()] = it.value().name;
+	}
+	return result;
 }
 
 /**
@@ -365,4 +375,17 @@ QHash<edb::address_t, QString> SymbolManager::labels() const {
  */
 QStringList SymbolManager::files() const {
 	return symbolsByFile_.keys();
+}
+
+/**
+ * @brief Gets the label data for all addresses.
+ *
+ * @return A QVector containing the label data for all addresses.
+ */
+QVector<SymbolManager::LabelEntry> SymbolManager::labelData() const {
+	QVector<LabelEntry> result;
+	for (auto it = labels_.begin(); it != labels_.end(); ++it) {
+		result.push_back(it.value());
+	}
+	return result;
 }

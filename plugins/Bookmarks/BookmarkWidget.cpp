@@ -8,7 +8,10 @@
 #include "BookmarksModel.h"
 #include "Expression.h"
 #include "IBreakpoint.h"
+#include "IDebugger.h"
+#include "IProcess.h"
 #include "edb.h"
+
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
@@ -175,6 +178,7 @@ void BookmarkWidget::addAddress(edb::address_t address, const QString &type, con
 			address,
 			BookmarksModel::bookmarkStringToType(type),
 			comment,
+			edb::v2::module_for_address(address),
 		};
 
 		model_->addBookmark(bookmark);
@@ -277,11 +281,10 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 /**
  * @brief Returns a copy of the current bookmark list.
  *
- * @return
+ * @return A QVector of BookmarksModel::Bookmark entries.
  */
-QList<BookmarksModel::Bookmark> BookmarkWidget::entries() const {
-	const QVector<BookmarksModel::Bookmark> &bookmarks = model_->bookmarks();
-	return bookmarks.toList();
+QVector<BookmarksModel::Bookmark> BookmarkWidget::entries() const {
+	return model_->bookmarks();
 }
 
 // This is copied from Debugger::createAction, so really there should either be a class that implements

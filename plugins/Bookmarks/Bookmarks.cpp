@@ -6,7 +6,11 @@
 
 #include "Bookmarks.h"
 #include "BookmarkWidget.h"
+#include "IDebugger.h"
+#include "IProcess.h"
+#include "Module.h"
 #include "edb.h"
+
 #include <QDockWidget>
 #include <QMainWindow>
 #include <QMenu>
@@ -108,12 +112,14 @@ void Bookmarks::addBookmarkMenu() {
 QVariantMap Bookmarks::saveState() const {
 	QVariantMap state;
 	QVariantList bookmarks;
+
 	for (auto &bookmark : bookmarkWidget_->entries()) {
 
 		QVariantMap entry;
-		entry[QStringLiteral("address")] = bookmark.address.toHexString();
 		entry[QStringLiteral("type")]    = BookmarksModel::bookmarkTypeToString(bookmark.type);
 		entry[QStringLiteral("comment")] = bookmark.comment;
+		entry[QStringLiteral("module")]  = bookmark.module ? bookmark.module->name : QString();
+		entry[QStringLiteral("offset")]  = (bookmark.module) ? (bookmark.address - bookmark.module->baseAddress).toHexString() : QString();
 
 		bookmarks.push_back(entry);
 	}
@@ -129,17 +135,63 @@ QVariantMap Bookmarks::saveState() const {
  */
 void Bookmarks::restoreState(const QVariantMap &state) {
 
+	IProcess *process = edb::v1::debugger_core->process();
+	Q_ASSERT(process);
+
+	QSet<Module> modules = process->loadedModules();
+
 	QVariantList bookmarks = state[QStringLiteral("bookmarks")].toList();
 	for (auto &entry : bookmarks) {
 		auto bookmark = entry.value<QVariantMap>();
 
-		auto address    = edb::address_t::fromHexString(bookmark[QStringLiteral("address")].toString());
-		QString type    = bookmark[QStringLiteral("type")].toString();
-		QString comment = bookmark[QStringLiteral("comment")].toString();
+		QString module_name = bookmark[QStringLiteral("module")].toString();
+		QString offset_str  = bookmark[QStringLiteral("offset")].toString();
+		QString type        = bookmark[QStringLiteral("type")].toString();
+		QString comment     = bookmark[QStringLiteral("comment")].toString();
 
-		qDebug() << "Restoring bookmark with address: " << address.toHexString();
+		edb::address_t offset = edb::address_t::fromHexString(offset_str);
 
-		bookmarkWidget_->addAddress(address, type, comment);
+		// Figure out which module this bookmark belongs to and add it if the module is loaded
+		auto it = std::find_if(modules.begin(), modules.end(), [&module_name](const Module &module) {
+			return edb::v2::compare_module_names(module.name, module_name);
+		});
+
+		if (it != modules.end()) {
+			edb::address_t address = offset + it->baseAddress;
+			bookmarkWidget_->addAddress(address, type, comment);
+			continue;
+		} else {
+
+			// If the module is not loaded, store the bookmark entry for later restoration when the module is loaded
+			BookmarkEntry entry;
+			entry.type    = type;
+			entry.comment = comment;
+			entry.module  = module_name;
+			entry.offset  = offset_str;
+			deferredBookmarks_.push_back(entry);
+		}
+	}
+}
+
+/**
+ * @brief Handles library load/unload events to restore bookmarks for newly loaded modules.
+ *
+ * @param module The module that was loaded or unloaded.
+ * @param loaded True if the module was loaded, false if it was unloaded.
+ */
+void Bookmarks::libraryEvent(const Module &module, bool loaded) {
+	if (loaded) {
+		auto it = std::remove_if(deferredBookmarks_.begin(), deferredBookmarks_.end(), [&module, this](const BookmarkEntry &entry) {
+			if (edb::v2::compare_module_names(entry.module, module.name)) {
+				edb::address_t offset  = edb::address_t::fromHexString(entry.offset);
+				edb::address_t address = offset + module.baseAddress;
+				bookmarkWidget_->addAddress(address, entry.type, entry.comment);
+				return true;
+			}
+
+			return false;
+		});
+		deferredBookmarks_.erase(it, deferredBookmarks_.end());
 	}
 }
 

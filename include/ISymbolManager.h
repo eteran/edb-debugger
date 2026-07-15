@@ -7,8 +7,12 @@
 #ifndef ISYMBOL_MANAGER_H_20110307_
 #define ISYMBOL_MANAGER_H_20110307_
 
+#include "Module.h"
 #include "Types.h"
+
 #include <QHash>
+#include <QVector>
+
 #include <optional>
 #include <vector>
 
@@ -18,10 +22,18 @@ class ISymbolGenerator;
 
 class ISymbolManager {
 public:
+	struct LabelEntry {
+		QString name;
+		edb::address_t address;
+		std::optional<Module> module;
+	};
+
+public:
 	virtual ~ISymbolManager() = default;
 
 public:
-	[[nodiscard]] virtual QHash<edb::address_t, QString> labels() const                         = 0;
+	[[nodiscard]] virtual QVector<LabelEntry> labelData() const                                 = 0;
+	[[nodiscard]] virtual QMap<edb::address_t, QString> labels() const                          = 0;
 	[[nodiscard]] virtual QString findAddressName(edb::address_t address, bool prefixed = true) = 0;
 	[[nodiscard]] virtual QStringList files() const                                             = 0;
 	[[nodiscard]] virtual std::optional<Symbol> find(const QString &name) const                 = 0;

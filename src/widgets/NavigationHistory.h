@@ -11,6 +11,8 @@
 
 #include <QList>
 
+#include <optional>
+
 class NavigationHistory {
 	enum class LastOp {
 		None = 0,
@@ -21,8 +23,8 @@ class NavigationHistory {
 public:
 	explicit NavigationHistory(int count = 100);
 	void add(edb::address_t address);
-	[[nodiscard]] edb::address_t getNext();
-	[[nodiscard]] edb::address_t getPrev();
+	[[nodiscard]] std::optional<edb::address_t> getNext();
+	[[nodiscard]] std::optional<edb::address_t> getPrev();
 
 private:
 	QList<edb::address_t> list_;

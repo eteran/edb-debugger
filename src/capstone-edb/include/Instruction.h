@@ -67,7 +67,7 @@ public:
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
 		return insn_ ? insn_->detail->arm.op_count : 0;
 #else
-#error "What to return here?"
+		return 0;
 #endif
 	}
 	[[nodiscard]] std::size_t byteSize() const { return insn_ ? insn_->size : 1; }

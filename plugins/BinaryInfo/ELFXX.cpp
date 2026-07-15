@@ -106,7 +106,7 @@ ELFXX<ElfHeader>::ELFXX(const std::shared_ptr<IRegion> &region)
 		for (uint16_t entry = 0; entry < header_.e_phnum; ++entry) {
 
 			if (!process->readBytes(phdr_base + (phdr_size * entry), &phdr, sizeof(phdr_type))) {
-				qDebug() << "Failed to read program header";
+				qDebug("Failed to read program header");
 				break;
 			}
 

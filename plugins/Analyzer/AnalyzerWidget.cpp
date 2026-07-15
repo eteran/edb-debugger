@@ -133,14 +133,14 @@ void AnalyzerWidget::paintEvent(QPaintEvent * /*event*/) {
 
 	const int64_t renderTime = timer.elapsed();
 	if (renderTime > 8) {
-		qDebug() << "AnalyzerWidget: Painting took longer than desired: " << renderTime << "ms";
+		qDebug() << "[AnalyzerWidget]: Painting took longer than desired: " << renderTime << "ms";
 	}
 }
 
 /**
  * @brief Handles a click on the overview bar by jumping the disassembly view to the corresponding address.
  *
- * @param event
+ * @param event The mouse press event that triggered this function.
  */
 void AnalyzerWidget::mousePressEvent(QMouseEvent *event) {
 

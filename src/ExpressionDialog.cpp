@@ -57,8 +57,8 @@ ExpressionDialog::ExpressionDialog(const QString &title, const QString &prompt, 
 }
 
 void ExpressionDialog::on_text_changed(const QString &text) {
-	QHash<edb::address_t, QString> labels = edb::v1::symbol_manager().labels();
-	edb::address_t resAddr                = labels.key(text);
+	QMap<edb::address_t, QString> labels = edb::v1::symbol_manager().labels();
+	edb::address_t resAddr               = labels.key(text);
 
 	bool retval = false;
 

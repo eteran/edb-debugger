@@ -53,8 +53,8 @@ const BitFieldDescription fpscrSTRDescription = {
 	},
 	{
 		tr("Set stride to 1"),
-		QStringLiteral(""),
-		QStringLiteral(""),
+		QString(),
+		QString(),
 		tr("Set stride to 2"),
 	},
 };

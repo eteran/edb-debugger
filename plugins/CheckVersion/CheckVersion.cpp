@@ -169,7 +169,7 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 			return;
 		}
 
-		qDebug("comparing versions: [%d] [%d]", edb::v1::int_version(version), edb::v1::edb_version());
+		qDebug("[CheckVersion] comparing versions: [%d] [%d]", edb::v1::int_version(version), edb::v1::edb_version());
 
 		if (edb::v1::int_version(version) > edb::v1::edb_version()) {
 			QMessageBox msg;

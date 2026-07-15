@@ -477,7 +477,7 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 			return true;
 		}
 
-		qDebug() << "unknown file type";
+		qDebug("unknown file type");
 	}
 
 	return false;

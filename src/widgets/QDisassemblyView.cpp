@@ -16,7 +16,6 @@
 #include "IThread.h"
 #include "Instruction.h"
 #include "MemoryRegions.h"
-#include "SessionManager.h"
 #include "State.h"
 #include "SyntaxHighlighter.h"
 #include "Theme.h"
@@ -267,14 +266,14 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 			setSelectedAddress(showAddresses_[selectedLine]);
 		}
 	} else if (event->key() == Qt::Key_Minus) {
-		edb::address_t prev_addr = history_.getPrev();
-		if (prev_addr != 0) {
-			edb::v1::jump_to_address(prev_addr);
+		std::optional<edb::address_t> prev_addr = history_.getPrev();
+		if (prev_addr) {
+			edb::v1::jump_to_address(*prev_addr);
 		}
 	} else if (event->key() == Qt::Key_Plus) {
-		edb::address_t next_addr = history_.getNext();
-		if (next_addr != 0) {
-			edb::v1::jump_to_address(next_addr);
+		std::optional<edb::address_t> next_addr = history_.getNext();
+		if (next_addr) {
+			edb::v1::jump_to_address(*next_addr);
 		}
 	} else if (event->key() == Qt::Key_Down && (event->modifiers() & Qt::ControlModifier)) {
 		const int address = verticalScrollBar()->value();
@@ -779,7 +778,7 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 	const edb::address_t start_address = addressOffset_ + verticalScrollBar()->value();
 
 	if (!edb::v1::get_instruction_bytes(start_address, inst_buf, &bufsize)) {
-		qDebug() << "Failed to read" << bufsize << "bytes from" << QString::number(start_address, 16);
+		qDebug() << "[QDisassemblyView] Failed to read" << bufsize << "bytes from" << start_address.toHexString();
 		lines_to_render = 0;
 	}
 
@@ -807,6 +806,7 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 		}
 		line++;
 	}
+
 	Q_ASSERT(line <= lines_to_render);
 	if (lines_to_render != line) {
 		partialLastLine_ = false;
@@ -1228,8 +1228,10 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 			painter.setPen(palette().color(ctx->group, QPalette::Text));
 		}
 
-		QString annotation = comments_.value(address, QStringLiteral(""));
-		auto &&inst        = instructions_[line];
+		const Comment &comment_entry = comments_.value(address, Comment());
+		QString annotation           = comment_entry.comment;
+
+		auto &&inst = instructions_[line];
 		if (annotation.isEmpty() && inst && !is_jump(inst) && !is_call(inst)) {
 			// draw ascii representations of immediate constants
 			size_t op_count = inst.operandCount();
@@ -1684,7 +1686,7 @@ void QDisassemblyView::paintEvent(QPaintEvent * /*event*/) {
 
 	const int64_t renderTime = timer.elapsed();
 	if (renderTime > 50) {
-		qDebug() << "Painting took longer than desired: " << renderTime << "ms";
+		qDebug() << "[QDisassemblyView] Painting took longer than desired: " << renderTime << "ms";
 	}
 }
 
@@ -2184,27 +2186,27 @@ std::shared_ptr<IRegion> QDisassemblyView::region() const {
 }
 
 /**
- * @brief Adds a comment to the comment hash and persists it in the session manager.
+ * @brief Adds a comment to the comment hash.
  *
  * @param address The address to associate the comment with.
  * @param comment The comment text to add.
  */
 void QDisassemblyView::addComment(edb::address_t address, QString comment) {
 	Comment temp_comment = {
+		comment,
 		address,
-		comment};
-	SessionManager::instance().addComment(temp_comment);
-	comments_.insert(address, comment);
+		edb::v2::module_for_address(address),
+	};
+	comments_.insert(address, temp_comment);
 }
 
 /**
- * @brief Removes a comment associated with the given address from the comment hash and the session manager.
+ * @brief Removes a comment associated with the given address from the comment hash.
  *
  * @param address The address of the comment to remove.
  * @return The number of comments removed (0 if no comment was found for the address, 1 if a comment was successfully removed).
  */
 int QDisassemblyView::removeComment(edb::address_t address) {
-	SessionManager::instance().removeComment(address);
 	return comments_.remove(address);
 }
 
@@ -2215,7 +2217,9 @@ int QDisassemblyView::removeComment(edb::address_t address) {
  * @return The comment string associated with the address, or an empty string if no comment exists for that address.
  */
 QString QDisassemblyView::getComment(edb::address_t address) const {
-	return comments_.value(address, QStringLiteral(""));
+
+	const Comment &comment_entry = comments_.value(address, Comment());
+	return comment_entry.comment;
 }
 
 /**
@@ -2275,16 +2279,20 @@ void QDisassemblyView::restoreState(const QByteArray &stateBuffer) {
 		line4_ = state.line4;
 	}
 }
+
 /**
- * @brief Restores comments from a QVariantList containing comment data, inserting them into the comment hash based on their associated addresses.
+ * @brief Retrieves all comments stored in the disassembly view.
  *
- * @param comments_data A QVariantList containing comment data, where each entry is a QVariantMap with "address" and "comment" keys.
+ * @return All comments, where each comment is represented as a Comment object with its associated address and text.
  */
-void QDisassemblyView::restoreComments(QVariantList &comments_data) {
-	for (const QVariant &entry : comments_data) {
-		QVariantMap data = entry.toMap();
-		if (const Result<edb::address_t, QString> addr = edb::v1::string_to_address(data[QStringLiteral("address")].toString())) {
-			comments_.insert(*addr, data[QStringLiteral("comment")].toString());
-		}
+QVector<Comment> QDisassemblyView::commentData() const {
+
+	QVector<Comment> comment_vector;
+	comment_vector.reserve(comments_.size());
+
+	for (const auto &comment_entry : comments_) {
+		comment_vector.push_back(comment_entry);
 	}
+
+	return comment_vector;
 }

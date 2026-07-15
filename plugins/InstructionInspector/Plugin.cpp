@@ -824,7 +824,7 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 		}
 
 		const auto output  = QString::fromUtf8(process.readAllStandardOutput()).split(QLatin1Char('\n'));
-		const auto addrStr = address.toHexString().toLower().replace(QRegularExpression(QStringLiteral("^0+")), QStringLiteral(""));
+		const auto addrStr = address.toHexString().toLower().replace(QRegularExpression(QStringLiteral("^0+")), QString());
 
 		QString result;
 		for (auto &line : output) {
@@ -975,7 +975,7 @@ std::pair<QString, std::size_t /*insnLength*/> normalizeOBJCONV(const QString &t
 	const auto disasm = expectedMatch.captured(1).trimmed().replace(QRegularExpression(QStringLiteral("  +")), QStringLiteral(" "));
 	const auto result = addr + QStringLiteral("   ") + bytes + QStringLiteral("   ") + disasm;
 
-	bytes.replace(QRegularExpression(QStringLiteral("[^0-9a-fA-F]")), QStringLiteral(""));
+	bytes.replace(QRegularExpression(QStringLiteral("[^0-9a-fA-F]")), QString());
 	const std::size_t insnLength = bytes.length() / 2;
 	return std::make_pair(result, insnLength);
 }
@@ -1197,8 +1197,8 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 			Instruction,
 		} mode = LookingFor::FunctionBegin;
 
-		const QString addrFormatted          = address.toHexString().toUpper().replace(QRegularExpression(QStringLiteral("^0+")), QStringLiteral(""));
-		const QString addrTruncatedFormatted = (address & UINT32_MAX).toHexString().toUpper().replace(QRegularExpression(QStringLiteral("^0+")), QStringLiteral(""));
+		const QString addrFormatted          = address.toHexString().toUpper().replace(QRegularExpression(QStringLiteral("^0+")), QString());
+		const QString addrTruncatedFormatted = (address & UINT32_MAX).toHexString().toUpper().replace(QRegularExpression(QStringLiteral("^0+")), QString());
 
 		for (const QByteArray &byteString : lines) {
 			const auto line = QString::fromUtf8(byteString);

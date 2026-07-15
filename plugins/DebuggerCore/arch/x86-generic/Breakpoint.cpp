@@ -38,6 +38,8 @@ Breakpoint::Breakpoint(edb::address_t address)
 	if (!this->enable()) {
 		throw BreakpointCreationError();
 	}
+
+	module_ = edb::v2::module_for_address(address);
 }
 
 /**

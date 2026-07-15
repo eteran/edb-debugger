@@ -19,7 +19,7 @@ const std::vector<quint8> BreakpointInstructionThumb_LE = {0x01, 0xde};         
 // correctly use it see GDB's thumb_get_next_pcs_raw function and comments
 // around arm_linux_thumb2_le_breakpoint array.
 const std::vector<quint8> BreakpointInstructionThumb2_LE = {0xf0, 0xf7, 0x00, 0xa0}; // udf.w #0
-// This one generates SIGILL both in ARM32 and Thumb mode. In ARM23 mode it's decoded as UDF 0xDDE0, while
+// This one generates SIGILL both in ARM32 and Thumb mode. In ARM32 mode it's decoded as UDF 0xDDE0, while
 // in Thumb it's a sequence `1: UDF 0xF0; B 1b`, which does stop the process even if it lands in the
 // middle (on the second half-word), although the signal still occurs at the first half-word.
 const std::vector<quint8> BreakpointInstructionUniversalThumbARM_LE = {0xf0, 0xde, 0xfd, 0xe7};
@@ -38,6 +38,8 @@ Breakpoint::Breakpoint(edb::address_t address)
 	if (!enable()) {
 		throw BreakpointCreationError();
 	}
+
+	module_ = edb::v2::module_for_address(address);
 }
 
 /**

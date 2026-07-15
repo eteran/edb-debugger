@@ -345,11 +345,11 @@ void DialogHeap::processPotentialPointers(const QHash<edb::address_t, edb::addre
  */
 void DialogHeap::detectPointers() {
 
-	qDebug() << "[Heap Analyzer] detecting pointers in heap blocks";
+	qDebug("[Heap Analyzer] detecting pointers in heap blocks");
 
 	QHash<edb::address_t, edb::address_t> targets;
 
-	qDebug() << "[Heap Analyzer] collecting possible targets addresses";
+	qDebug("[Heap Analyzer] collecting possible targets addresses");
 	for (int row = 0; row < model_->rowCount(); ++row) {
 		QModelIndex index = model_->index(row, 0);
 		if (auto result = static_cast<ResultViewModel::Result *>(index.internalPointer())) {
@@ -362,7 +362,7 @@ void DialogHeap::detectPointers() {
 		}
 	}
 
-	qDebug() << "[Heap Analyzer] linking blocks to target addresses";
+	qDebug("[Heap Analyzer] linking blocks to target addresses");
 	for (int row = 0; row < model_->rowCount(); ++row) {
 		QModelIndex index = model_->index(row, 0);
 		processPotentialPointers(targets, index);
@@ -553,13 +553,13 @@ void DialogHeap::doFind() {
 		if (heap_symbol_start != 0) {
 			process->readBytes(heap_symbol_start, &start_address, edb::v1::pointer_size());
 		} else {
-			qDebug() << "[Heap Analyzer] __curbrk symbol not found in ld, falling back on heuristic! This may or may not work.";
+			qDebug("[Heap Analyzer] __curbrk symbol not found in ld, falling back on heuristic! This may or may not work.");
 		}
 
 		if (heap_symbol_end != 0) {
 			process->readBytes(heap_symbol_end, &end_address, edb::v1::pointer_size());
 		} else {
-			qDebug() << "[Heap Analyzer] __curbrk symbol not found in libc, falling back on heuristic! This may or may not work.";
+			qDebug("[Heap Analyzer] __curbrk symbol not found in libc, falling back on heuristic! This may or may not work.");
 		}
 
 		if (start_address != 0 && end_address != 0) {
@@ -575,7 +575,7 @@ void DialogHeap::doFind() {
 			});
 
 			if (it != regions.end()) {
-				qDebug() << "Found a memory region named '[heap]', assuming that it provides sane bounds";
+				qDebug("Found a memory region named '[heap]', assuming that it provides sane bounds");
 
 				if (start_address == 0) {
 					start_address = (*it)->start();
