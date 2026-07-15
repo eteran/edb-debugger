@@ -87,14 +87,16 @@ Result<void, SessionError> SessionManager::loadSession(const QString &filename) 
 	QJsonObject object = doc.object();
 	sessionData_       = object.toVariantMap();
 
-	QString id            = sessionData_[QStringLiteral("id")].toString();
-	QString ts            = sessionData_[QStringLiteral("timestamp")].toString();
-	int version           = sessionData_[QStringLiteral("version")].toInt();
-	QVariantList labels   = sessionData_[QStringLiteral("labels")].toList();
-	QVariantList comments = sessionData_[QStringLiteral("comments")].toList();
+	QString id               = sessionData_[QStringLiteral("id")].toString();
+	QString ts               = sessionData_[QStringLiteral("timestamp")].toString();
+	int version              = sessionData_[QStringLiteral("version")].toInt();
+	QVariantList labels      = sessionData_[QStringLiteral("labels")].toList();
+	QVariantList comments    = sessionData_[QStringLiteral("comments")].toList();
+	QVariantList breakpoints = sessionData_[QStringLiteral("breakpoints")].toList();
 
 	loadLabels(labels);
 	loadComments(comments);
+	loadBreakpoints(breakpoints);
 
 	Q_UNUSED(ts)
 
@@ -140,6 +142,7 @@ void SessionManager::saveSession(const QString &filename) {
 	sessionData_[QStringLiteral("plugin-data")] = plugin_data;
 	sessionData_[QStringLiteral("labels")]      = saveLabels();
 	sessionData_[QStringLiteral("comments")]    = saveComments();
+	sessionData_[QStringLiteral("breakpoints")] = saveBreakpoints();
 
 	auto object = QJsonObject::fromVariantMap(sessionData_);
 	QJsonDocument doc(object);
@@ -363,4 +366,33 @@ void SessionManager::libraryEvent(const Module &module, bool loaded) {
 			deferredComments_.erase(it, deferredComments_.end());
 		}
 	}
+}
+
+QVariantList SessionManager::saveBreakpoints() const {
+	QVariantList breakpoints;
+
+	const IDebugger::BreakpointList breakpoint_state = edb::v1::debugger_core->backupBreakpoints();
+	for (const std::shared_ptr<IBreakpoint> &bp : breakpoint_state) {
+		if (bp->internal()) {
+			continue;
+		}
+
+		// TODO(eteran): make relative to the module
+
+		const edb::address_t address = bp->address();
+		const QString condition      = bp->condition;
+		const bool onetime           = bp->oneTime();
+
+		QVariantMap entry;
+		entry[QStringLiteral("module")]    = QString();
+		entry[QStringLiteral("offset")]    = address.toHexString();
+		entry[QStringLiteral("condition")] = condition;
+		entry[QStringLiteral("one_time")]  = onetime;
+		breakpoints.push_back(entry);
+	}
+
+	return breakpoints;
+}
+
+void SessionManager::loadBreakpoints(const QVariantList &breakpoints) {
 }

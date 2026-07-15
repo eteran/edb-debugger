@@ -29,6 +29,13 @@ private:
 		QString offset;
 	};
 
+	struct BreakpointEntry {
+		QString module;
+		QString offset;
+		QString condition;
+		QString type;
+	};
+
 private:
 	SessionManager() = default;
 
@@ -42,9 +49,6 @@ public:
 public:
 	Result<void, SessionError> loadSession(const QString &filename);
 	void saveSession(const QString &filename);
-	[[nodiscard]] QVariantList comments() const;
-	void addComment(const Comment &c);
-	void removeComment(edb::address_t address);
 
 public:
 	void libraryEvent(const Module &module, bool loaded);
@@ -57,6 +61,9 @@ private:
 
 	QVariantList saveComments() const;
 	void loadComments(const QVariantList &comments);
+
+	QVariantList saveBreakpoints() const;
+	void loadBreakpoints(const QVariantList &breakpoints);
 
 private:
 	QVariantMap sessionData_;
