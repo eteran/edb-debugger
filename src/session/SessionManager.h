@@ -13,13 +13,13 @@
 #include "Types.h"
 
 #include <QCoreApplication>
-#include <QJsonArray>
-#include <QJsonObject>
 #include <QString>
-#include <QVariant>
-#include <QVariantMap>
+
+#include <vector>
 
 class Module;
+class QJsonArray;
+class QJsonObject;
 
 class SessionManager {
 	Q_DECLARE_TR_FUNCTIONS(SessionManager)
@@ -56,16 +56,13 @@ public:
 	void libraryEvent(const Module &module, bool loaded);
 
 private:
-	void loadPluginData(const QJsonObject &plugin_data);
-
-	QJsonArray saveLabels() const;
-	void loadLabels(const QJsonArray &labels);
-
-	QJsonArray saveComments() const;
-	void loadComments(const QJsonArray &comments);
-
 	QJsonArray saveBreakpoints() const;
+	QJsonArray saveComments() const;
+	QJsonArray saveLabels() const;
 	void loadBreakpoints(const QJsonArray &breakpoints);
+	void loadComments(const QJsonArray &comments);
+	void loadLabels(const QJsonArray &labels);
+	void loadPluginData(const QJsonObject &plugin_data);
 
 private:
 	std::vector<LabelEntry> deferredLabels_;
