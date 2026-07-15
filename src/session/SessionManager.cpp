@@ -84,19 +84,15 @@ Result<void, SessionError> SessionManager::loadSession(const QString &filename) 
 		return make_unexpected(session_error);
 	}
 
-	QJsonObject object = doc.object();
-	sessionData_       = object.toVariantMap();
+	QJsonObject sessionData = doc.object();
 
-	QString id               = sessionData_[QStringLiteral("id")].toString();
-	QString ts               = sessionData_[QStringLiteral("timestamp")].toString();
-	int version              = sessionData_[QStringLiteral("version")].toInt();
-	QVariantList labels      = sessionData_[QStringLiteral("labels")].toList();
-	QVariantList comments    = sessionData_[QStringLiteral("comments")].toList();
-	QVariantList breakpoints = sessionData_[QStringLiteral("breakpoints")].toList();
-
-	loadLabels(labels);
-	loadComments(comments);
-	loadBreakpoints(breakpoints);
+	const auto id          = sessionData[QStringLiteral("id")].toString();
+	const auto ts          = sessionData[QStringLiteral("timestamp")].toString();
+	const auto version     = sessionData[QStringLiteral("version")].toInt();
+	const auto labels      = sessionData[QStringLiteral("labels")].toArray();
+	const auto comments    = sessionData[QStringLiteral("comments")].toArray();
+	const auto breakpoints = sessionData[QStringLiteral("breakpoints")].toArray();
+	const auto plugin_data = sessionData[QStringLiteral("plugin-data")].toObject();
 
 	Q_UNUSED(ts)
 
@@ -108,7 +104,10 @@ Result<void, SessionError> SessionManager::loadSession(const QString &filename) 
 	}
 
 	qDebug("Loading session file");
-	loadPluginData(); // First, load the plugin-data
+	loadLabels(labels);
+	loadComments(comments);
+	loadBreakpoints(breakpoints);
+	loadPluginData(plugin_data); // First, load the plugin-data
 	return {};
 }
 
@@ -136,16 +135,16 @@ void SessionManager::saveSession(const QString &filename) {
 		}
 	}
 
-	sessionData_[QStringLiteral("version")]     = SessionFileVersion;
-	sessionData_[QStringLiteral("id")]          = SessionFileIdString; // just so we can sanity check things
-	sessionData_[QStringLiteral("timestamp")]   = QDateTime::currentDateTimeUtc();
-	sessionData_[QStringLiteral("plugin-data")] = plugin_data;
-	sessionData_[QStringLiteral("labels")]      = saveLabels();
-	sessionData_[QStringLiteral("comments")]    = saveComments();
-	sessionData_[QStringLiteral("breakpoints")] = saveBreakpoints();
+	QJsonObject sessionData;
+	sessionData[QStringLiteral("version")]     = SessionFileVersion;
+	sessionData[QStringLiteral("id")]          = SessionFileIdString; // just so we can sanity check things
+	sessionData[QStringLiteral("timestamp")]   = QDateTime::currentDateTimeUtc().toString();
+	sessionData[QStringLiteral("plugin-data")] = QJsonObject::fromVariantMap(plugin_data);
+	sessionData[QStringLiteral("labels")]      = saveLabels();
+	sessionData[QStringLiteral("comments")]    = saveComments();
+	sessionData[QStringLiteral("breakpoints")] = saveBreakpoints();
 
-	auto object = QJsonObject::fromVariantMap(sessionData_);
-	QJsonDocument doc(object);
+	QJsonDocument doc(sessionData);
 
 	QByteArray json = doc.toJson();
 	QFile file(filename);
@@ -158,17 +157,16 @@ void SessionManager::saveSession(const QString &filename) {
 /**
  * @brief Loads the plugin data from the session.
  */
-void SessionManager::loadPluginData() {
+void SessionManager::loadPluginData(const QJsonObject &plugin_data) {
 
 	qDebug("Loading plugin-data");
 
-	QVariantMap plugin_data = sessionData_[QStringLiteral("plugin-data")].toMap();
 	for (auto it = plugin_data.begin(); it != plugin_data.end(); ++it) {
 		for (QObject *plugin : edb::v1::plugin_list()) {
 			if (auto p = qobject_cast<IPlugin *>(plugin)) {
 				if (const QMetaObject *const meta = plugin->metaObject()) {
 					auto name        = QString::fromLocal8Bit(meta->className());
-					QVariantMap data = it.value().toMap();
+					QVariantMap data = it.value().toObject().toVariantMap();
 
 					if (name == it.key()) {
 						p->restoreState(data);
@@ -185,17 +183,17 @@ void SessionManager::loadPluginData() {
  *
  * @return A QVariantList containing the labels.
  */
-QVariantList SessionManager::saveLabels() const {
+QJsonArray SessionManager::saveLabels() const {
 	QVector<ISymbolManager::LabelEntry> labels = edb::v1::symbol_manager().labelData();
 
-	QVariantList label_data;
+	QJsonArray label_data;
 
 	for (const auto &label : labels) {
 
 		edb::address_t address = label.module ? label.address - label.module->baseAddress : edb::address_t();
 		QString name           = label.name;
 
-		QVariantMap entry;
+		QJsonObject entry;
 		entry[QStringLiteral("module")] = label.module ? label.module->name : QString();
 		entry[QStringLiteral("offset")] = address.toHexString();
 		entry[QStringLiteral("name")]   = name;
@@ -210,7 +208,7 @@ QVariantList SessionManager::saveLabels() const {
  *
  * @return A QVariantList containing the comments.
  */
-QVariantList SessionManager::saveComments() const {
+QJsonArray SessionManager::saveComments() const {
 
 	auto cpuView = qobject_cast<QDisassemblyView *>(edb::v1::disassembly_widget());
 	if (!cpuView) {
@@ -219,14 +217,14 @@ QVariantList SessionManager::saveComments() const {
 	}
 	QVector<Comment> comments = cpuView->commentData();
 
-	QVariantList comment_data;
+	QJsonArray comment_data;
 
 	for (const auto &comment : comments) {
 
 		edb::address_t address = comment.module ? comment.address - comment.module->baseAddress : edb::address_t();
 		QString comment_text   = comment.comment;
 
-		QVariantMap entry;
+		QJsonObject entry;
 		entry[QStringLiteral("module")] = comment.module ? comment.module->name : QString();
 		entry[QStringLiteral("offset")] = address.toHexString();
 		entry[QStringLiteral("name")]   = comment_text;
@@ -239,9 +237,9 @@ QVariantList SessionManager::saveComments() const {
 /**
  * @brief Loads the labels for session restoration.
  *
- * @param labels A QVariantList containing the labels to load.
+ * @param labels A QJsonArray containing the labels to load.
  */
-void SessionManager::loadLabels(const QVariantList &labels) {
+void SessionManager::loadLabels(const QJsonArray &labels) {
 
 	qDebug("Loading labels");
 
@@ -251,7 +249,7 @@ void SessionManager::loadLabels(const QVariantList &labels) {
 	QSet<Module> modules = process->loadedModules();
 
 	for (auto &entry : labels) {
-		auto label = entry.value<QVariantMap>();
+		auto label = entry.toObject();
 
 		QString module_name = label[QStringLiteral("module")].toString();
 		QString offset_str  = label[QStringLiteral("offset")].toString();
@@ -283,9 +281,9 @@ void SessionManager::loadLabels(const QVariantList &labels) {
 /**
  * @brief Loads the comments for session restoration.
  *
- * @param comments A QVariantList containing the comments to load.
+ * @param comments A QJsonArray containing the comments to load.
  */
-void SessionManager::loadComments(const QVariantList &comments) {
+void SessionManager::loadComments(const QJsonArray &comments) {
 	qDebug("Loading comments");
 
 	IProcess *process = edb::v1::debugger_core->process();
@@ -300,7 +298,7 @@ void SessionManager::loadComments(const QVariantList &comments) {
 	}
 
 	for (auto &entry : comments) {
-		auto comment = entry.value<QVariantMap>();
+		auto comment = entry.toObject();
 
 		QString module_name = comment[QStringLiteral("module")].toString();
 		QString offset_str  = comment[QStringLiteral("offset")].toString();
@@ -397,8 +395,8 @@ void SessionManager::libraryEvent(const Module &module, bool loaded) {
  *
  * @return A QVariantList containing the breakpoints.
  */
-QVariantList SessionManager::saveBreakpoints() const {
-	QVariantList breakpoints;
+QJsonArray SessionManager::saveBreakpoints() const {
+	QJsonArray breakpoints;
 
 	const IDebugger::BreakpointList breakpoint_state = edb::v1::debugger_core->backupBreakpoints();
 	for (const std::shared_ptr<IBreakpoint> &bp : breakpoint_state) {
@@ -413,7 +411,7 @@ QVariantList SessionManager::saveBreakpoints() const {
 		const bool onetime           = bp->oneTime();
 		const edb::address_t offset  = bp->module() ? address - bp->module()->baseAddress : edb::address_t();
 
-		QVariantMap entry;
+		QJsonObject entry;
 		entry[QStringLiteral("module")]    = bp->module() ? bp->module()->name : QString();
 		entry[QStringLiteral("offset")]    = offset.toHexString();
 		entry[QStringLiteral("condition")] = condition;
@@ -427,9 +425,9 @@ QVariantList SessionManager::saveBreakpoints() const {
 /**
  * @brief Loads the breakpoints for session restoration.
  *
- * @param breakpoints A QVariantList containing the breakpoints to load.
+ * @param breakpoints A QJsonArray containing the breakpoints to load.
  */
-void SessionManager::loadBreakpoints(const QVariantList &breakpoints) {
+void SessionManager::loadBreakpoints(const QJsonArray &breakpoints) {
 	qDebug("Loading breakpoints");
 
 	IProcess *process = edb::v1::debugger_core->process();
@@ -438,7 +436,7 @@ void SessionManager::loadBreakpoints(const QVariantList &breakpoints) {
 	QSet<Module> modules = process->loadedModules();
 
 	for (auto &entry : breakpoints) {
-		auto breakpoint = entry.value<QVariantMap>();
+		auto breakpoint = entry.toObject();
 
 		QString module_name = breakpoint[QStringLiteral("module")].toString();
 		QString offset_str  = breakpoint[QStringLiteral("offset")].toString();

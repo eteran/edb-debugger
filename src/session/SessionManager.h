@@ -13,6 +13,8 @@
 #include "Types.h"
 
 #include <QCoreApplication>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QString>
 #include <QVariant>
 #include <QVariantMap>
@@ -54,19 +56,18 @@ public:
 	void libraryEvent(const Module &module, bool loaded);
 
 private:
-	void loadPluginData();
+	void loadPluginData(const QJsonObject &plugin_data);
 
-	QVariantList saveLabels() const;
-	void loadLabels(const QVariantList &labels);
+	QJsonArray saveLabels() const;
+	void loadLabels(const QJsonArray &labels);
 
-	QVariantList saveComments() const;
-	void loadComments(const QVariantList &comments);
+	QJsonArray saveComments() const;
+	void loadComments(const QJsonArray &comments);
 
-	QVariantList saveBreakpoints() const;
-	void loadBreakpoints(const QVariantList &breakpoints);
+	QJsonArray saveBreakpoints() const;
+	void loadBreakpoints(const QJsonArray &breakpoints);
 
 private:
-	QVariantMap sessionData_;
 	std::vector<LabelEntry> deferredLabels_;
 	std::vector<Comment> deferredComments_;
 	std::vector<BreakpointEntry> deferredBreakpoints_;
