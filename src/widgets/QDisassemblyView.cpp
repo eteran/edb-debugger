@@ -266,14 +266,14 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 			setSelectedAddress(showAddresses_[selectedLine]);
 		}
 	} else if (event->key() == Qt::Key_Minus) {
-		edb::address_t prev_addr = history_.getPrev();
-		if (prev_addr != 0) {
-			edb::v1::jump_to_address(prev_addr);
+		std::optional<edb::address_t> prev_addr = history_.getPrev();
+		if (prev_addr) {
+			edb::v1::jump_to_address(*prev_addr);
 		}
 	} else if (event->key() == Qt::Key_Plus) {
-		edb::address_t next_addr = history_.getNext();
-		if (next_addr != 0) {
-			edb::v1::jump_to_address(next_addr);
+		std::optional<edb::address_t> next_addr = history_.getNext();
+		if (next_addr) {
+			edb::v1::jump_to_address(*next_addr);
 		}
 	} else if (event->key() == Qt::Key_Down && (event->modifiers() & Qt::ControlModifier)) {
 		const int address = verticalScrollBar()->value();
@@ -2193,8 +2193,8 @@ std::shared_ptr<IRegion> QDisassemblyView::region() const {
  */
 void QDisassemblyView::addComment(edb::address_t address, QString comment) {
 	Comment temp_comment = {
-		address,
 		comment,
+		address,
 		edb::v2::module_for_address(address),
 	};
 	comments_.insert(address, temp_comment);

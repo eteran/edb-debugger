@@ -6,10 +6,20 @@
 
 #include "NavigationHistory.h"
 
+/**
+ * @brief Constructs a NavigationHistory object with the specified maximum count.
+ *
+ * @param count The maximum number of addresses to store in the navigation history.
+ */
 NavigationHistory::NavigationHistory(int count)
 	: maxCount_(count) {
 }
 
+/**
+ * @brief Adds an address to the navigation history.
+ *
+ * @param address The address to add to the history.
+ */
 void NavigationHistory::add(edb::address_t address) {
 	if (list_.size() == maxCount_) {
 		list_.removeFirst();
@@ -37,9 +47,14 @@ void NavigationHistory::add(edb::address_t address) {
 	lastOp_ = LastOp::None;
 }
 
-edb::address_t NavigationHistory::getNext() {
+/**
+ * @brief Retrieves the next address in the navigation history.
+ *
+ * @return The next address in the history, or std::nullopt if there is no next address.
+ */
+std::optional<edb::address_t> NavigationHistory::getNext() {
 	if (list_.isEmpty()) {
-		return edb::address_t(0);
+		return std::nullopt;
 	}
 
 	if (pos_ != (list_.size() - 1)) {
@@ -50,9 +65,14 @@ edb::address_t NavigationHistory::getNext() {
 	return list_.at(pos_);
 }
 
-edb::address_t NavigationHistory::getPrev() {
+/**
+ * @brief Retrieves the previous address in the navigation history.
+ *
+ * @return The previous address in the history, or std::nullopt if there is no previous address.
+ */
+std::optional<edb::address_t> NavigationHistory::getPrev() {
 	if (list_.isEmpty()) {
-		return edb::address_t(0);
+		return std::nullopt;
 	}
 
 	if (pos_ != 0) {

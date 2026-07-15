@@ -104,10 +104,10 @@ Result<void, SessionError> SessionManager::loadSession(const QString &filename) 
 	}
 
 	qDebug("Loading session file");
+	loadPluginData(plugin_data);
 	loadLabels(labels);
 	loadComments(comments);
 	loadBreakpoints(breakpoints);
-	loadPluginData(plugin_data); // First, load the plugin-data
 	return {};
 }
 
@@ -156,6 +156,8 @@ void SessionManager::saveSession(const QString &filename) {
 
 /**
  * @brief Loads the plugin data from the session.
+ *
+ * @param plugin_data The QJsonObject containing the plugin data to load.
  */
 void SessionManager::loadPluginData(const QJsonObject &plugin_data) {
 
@@ -269,11 +271,11 @@ void SessionManager::loadLabels(const QJsonArray &labels) {
 		} else {
 
 			// If the module is not loaded, store the bookmark entry for later restoration when the module is loaded
-			LabelEntry entry;
-			entry.name   = name;
-			entry.module = module_name;
-			entry.offset = offset_str;
-			deferredLabels_.push_back(entry);
+			deferredLabels_.push_back(LabelEntry{
+				name,
+				module_name,
+				offset_str,
+			});
 		}
 	}
 }
@@ -318,11 +320,11 @@ void SessionManager::loadComments(const QJsonArray &comments) {
 		} else {
 
 			// If the module is not loaded, store the bookmark entry for later restoration when the module is loaded
-			Comment entry;
-			entry.comment = name;
-			entry.module  = edb::v2::module_for_address(offset);
-			entry.address = offset;
-			deferredComments_.push_back(entry);
+			deferredComments_.push_back(Comment{
+				name,
+				offset,
+				edb::v2::module_for_address(offset),
+			});
 		}
 	}
 }
@@ -461,11 +463,12 @@ void SessionManager::loadBreakpoints(const QJsonArray &breakpoints) {
 		} else {
 
 			// If the module is not loaded, store the bookmark entry for later restoration when the module is loaded
-			BreakpointEntry entry;
-			entry.condition = condition;
-			entry.module    = module_name;
-			entry.offset    = offset_str;
-			deferredBreakpoints_.push_back(entry);
+			deferredBreakpoints_.push_back(BreakpointEntry{
+				module_name,
+				offset_str,
+				condition,
+				one_time,
+			});
 		}
 	}
 }
