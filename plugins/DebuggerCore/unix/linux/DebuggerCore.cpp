@@ -413,7 +413,7 @@ long DebuggerCore::ptraceOptions() const {
 		break;
 	}
 
-#if 0
+#if 1
 	// TODO(eteran): research this option for issue #46
 	options |= PTRACE_O_TRACEEXIT;
 #endif
@@ -509,13 +509,16 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int statu
 		// if this was the last thread, return nullptr
 		// so we report it to the user.
 		// if this wasn't, then we should silently
-		// procceed.
+		// proceed.
 		if (!threads_.empty()) {
 			return nullptr;
 		}
 	}
 
 	if (is_exit_trace_event(status)) {
+		qDebug() << "Thread" << tid << "is exiting...";
+		ptraceContinue(tid, resume_code(status));
+		return nullptr;
 	}
 
 	// was it a thread create event?
@@ -545,7 +548,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int statu
 	 *
 	 * We need to be very careful to avoid those future events causing the
 	 * active thread to be set, because we want it to remain set to the thread
-	 * which recieved the initial signal. This is all so that later when the
+	 * which received the initial signal. This is all so that later when the
 	 * user clicks resume, that the correct active thread gets (or doesn't)
 	 * get signaled, and the rest get resumed properly.
 	 *
