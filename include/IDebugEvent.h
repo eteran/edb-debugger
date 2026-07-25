@@ -25,11 +25,6 @@ public:
 	};
 
 	struct Message {
-		Message() = default;
-		Message(QString c, QString m, QString s)
-			: caption(std::move(c)), message(std::move(m)), statusMessage(std::move(s)) {
-		}
-
 		QString caption;
 		QString message;
 		QString statusMessage;
