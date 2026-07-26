@@ -36,13 +36,6 @@ PlatformEvent::PlatformEvent()
 /**
  * @brief
  */
-PlatformEvent *PlatformEvent::clone() const {
-	return new PlatformEvent(*this);
-}
-
-/**
- * @brief
- */
 IDebugEvent::Message PlatformEvent::error_description() const {
 	Q_ASSERT(is_error());
 

@@ -10,15 +10,6 @@
 namespace DebuggerCorePlugin {
 
 /**
- * @brief Creates and returns a heap-allocated copy of this event.
- *
- * @return
- */
-IDebugEvent *PlatformEvent::clone() const {
-	return new PlatformEvent(*this);
-}
-
-/**
  * @brief Constructs a generic unexpected-signal Message with the given signal name and number.
  *
  * @param name

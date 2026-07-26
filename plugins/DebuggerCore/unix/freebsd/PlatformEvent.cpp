@@ -33,15 +33,6 @@ PlatformEvent::PlatformEvent()
 }
 
 /**
- * @brief Creates a new PlatformEvent instance that is a copy of the current instance.
- *
- * @return A pointer to the newly created PlatformEvent instance.
- */
-PlatformEvent *PlatformEvent::clone() const {
-	return new PlatformEvent(*this);
-}
-
-/**
  * @brief Returns a user-friendly error message describing the reason for the debug event, if it is an error event.
  *
  * @return A Message object containing the error description.

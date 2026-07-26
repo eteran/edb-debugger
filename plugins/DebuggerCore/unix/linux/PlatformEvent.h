@@ -26,9 +26,6 @@ private:
 	PlatformEvent &operator=(const PlatformEvent &) = default;
 
 public:
-	[[nodiscard]] IDebugEvent *clone() const override;
-
-public:
 	[[nodiscard]] bool exited() const override;
 	[[nodiscard]] bool isError() const override;
 	[[nodiscard]] bool isKill() const override;

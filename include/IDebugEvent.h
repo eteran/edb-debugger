@@ -34,9 +34,6 @@ public:
 	virtual ~IDebugEvent() = default;
 
 public:
-	[[nodiscard]] virtual IDebugEvent *clone() const = 0;
-
-public:
 	[[nodiscard]] virtual Message errorDescription() const = 0;
 	[[nodiscard]] virtual REASON reason() const            = 0;
 	[[nodiscard]] virtual TRAP_REASON trapReason() const   = 0;

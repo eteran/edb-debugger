@@ -10,15 +10,6 @@
 namespace DebuggerCorePlugin {
 
 /**
- * @brief Clones the current PlatformEvent instance.
- *
- * @return A pointer to a new PlatformEvent instance that is a copy of the current instance.
- */
-PlatformEvent *PlatformEvent::clone() const {
-	return new PlatformEvent(*this);
-}
-
-/**
  * @brief Gets the error description for the current PlatformEvent instance.
  *
  * @return An IDebugEvent::Message object containing the error description.
