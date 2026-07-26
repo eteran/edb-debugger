@@ -513,6 +513,9 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int statu
 	}
 
 	if (is_exit_trace_event(status)) {
+		// TODO(eteran): I think we're only really interested in the last thread exiting, but we should probably
+		//              handle this more gracefully, and perhaps even report the exit of each thread to
+		//              the caller. For now, we just ignore the event and continue the thread, which will result in a normal waitpid exit event.
 		qDebug() << "Thread" << tid << "is exiting...";
 		ptraceContinue(tid, resume_code(status));
 		return nullptr;

@@ -1155,7 +1155,7 @@ edb::address_t PlatformProcess::calculateMain() const {
 
 					if (address) {
 						// TODO: make sure that this address resides in an executable region
-						qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
+						qDebug() << "No main symbol found, calculated it to be" << edb::v1::format_pointer(address) << "using heuristic";
 						return address;
 					}
 				}
@@ -1182,7 +1182,7 @@ edb::address_t PlatformProcess::calculateMain() const {
 						std::memcpy(to, ba.data() + 1, sizeof(uint32_t));
 
 						// TODO: make sure that this address resides in an executable region
-						qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
+						qDebug() << "No main symbol found, calculated it to be" << edb::v1::format_pointer(address) << "using heuristic";
 						return address;
 					}
 				}
