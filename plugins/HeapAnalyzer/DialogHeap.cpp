@@ -553,7 +553,13 @@ void DialogHeap::doFind() {
 		if (heap_symbol_start != 0) {
 			process->readBytes(heap_symbol_start, &start_address, edb::v1::pointer_size());
 		} else {
-			qDebug("[Heap Analyzer] __curbrk symbol not found in ld, falling back on heuristic! This may or may not work.");
+
+			start_address = process->heapStart();
+			if (start_address != 0) {
+				qDebug("[Heap Analyzer] __curbrk symbol not found in ld, falling back on process->heapStart() : %s", edb::v1::format_pointer(start_address).toUtf8().constData());
+			} else {
+				qDebug("[Heap Analyzer] __curbrk symbol not found in ld, falling back on heuristic! This may or may not work.");
+			}
 		}
 
 		if (heap_symbol_end != 0) {
