@@ -490,9 +490,9 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleThreadCreate(edb::tid_t tid, in
 /**
  * @brief Processes the waitpid status for the given thread and returns the corresponding debug event.
  *
- * @param tid
- * @param status
- * @return
+ * @param tid The thread ID of the thread for which the event is being handled.
+ * @param status The waitpid status value for the thread.
+ * @return The corresponding IDebugEvent, or nullptr if no event should be reported.
  */
 std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int status) {
 
@@ -598,7 +598,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int statu
 /**
  * @brief Sends SIGSTOP to all running threads that have not yet been waited on.
  *
- * @return
+ * @return A Status object indicating success or failure of the operation. If any thread fails to stop, the error message will contain details.
  */
 Status DebuggerCore::stopThreads() {
 
@@ -648,8 +648,8 @@ Status DebuggerCore::stopThreads() {
 /**
  * @brief Waits up to the given timeout for a debug event from any traced thread, returning the event or nullptr on timeout.
  *
- * @param msecs
- * @return nullptr if an error or timeout occurs
+ * @param msecs The maximum time to wait for a debug event, in milliseconds.
+ * @return The IDebugEvent if an event occurs, or nullptr if an error or timeout occurs.
  */
 std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(std::chrono::milliseconds msecs) {
 
@@ -670,7 +670,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(std::chrono::milliseco
 /**
  * @brief Attaches to the given thread via PTRACE_ATTACH and registers it in the thread map.
  *
- * @param tid
+ * @param tid The thread ID of the thread to attach to.
  * @return 0 if successful, errno if failed
  */
 int DebuggerCore::attachThread(edb::tid_t tid) {
@@ -710,8 +710,8 @@ int DebuggerCore::attachThread(edb::tid_t tid) {
 /**
  * @brief Attaches to an already-running process, tracing all of its threads.
  *
- * @param pid
- * @return
+ * @param pid The process ID of the process to attach to.
+ * @return A Status object indicating success or failure of the attach operation.
  */
 Status DebuggerCore::attach(edb::pid_t pid) {
 
@@ -762,7 +762,7 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 /**
  * @brief Detaches from the traced process, resuming all its threads.
  *
- * @return
+ * @return A Status object indicating success or failure of the detach operation. If any thread fails to detach, the error message will contain details.
  */
 Status DebuggerCore::detach() {
 
@@ -873,11 +873,12 @@ void DebuggerCore::detectCpuMode() {
 /**
  * @brief Forks, optionally disables ASLR and lazy binding, and launches the specified process under ptrace.
  *
- * @param path
- * @param cwd
- * @param args
- * @param tty
- * @return
+ * @param path The path to the executable to launch.
+ * @param cwd The working directory for the launched process.
+ * @param args The command-line arguments for the launched process.
+ * @param input The file to use as standard input for the launched process.
+ * @param output The file to use as standard output and standard error for the launched process.
+ * @return A Status object indicating success or failure of the launch operation.
  */
 Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &input, const QString &output) {
 
@@ -1061,8 +1062,8 @@ QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerateProcesses() c
 /**
  * @brief Returns the parent process ID for the given PID by reading /proc/[pid]/stat.
  *
- * @param pid
- * @return
+ * @param pid The process ID for which to retrieve the parent PID.
+ * @return The parent process ID, or 0 if it cannot be determined.
  */
 edb::pid_t DebuggerCore::parentPid(edb::pid_t pid) const {
 
@@ -1097,7 +1098,7 @@ uint64_t DebuggerCore::cpuType() const {
 /**
  * @brief Returns the architecture-appropriate stack pointer register name.
  *
- * @return
+ * @return The name of the stack pointer register for the current architecture.
  */
 QString DebuggerCore::stackPointer() const {
 #if defined(EDB_X86) || defined(EDB_X86_64)
@@ -1117,7 +1118,7 @@ QString DebuggerCore::stackPointer() const {
 /**
  * @brief Returns the architecture-appropriate frame pointer register name.
  *
- * @return
+ * @return The name of the frame pointer register for the current architecture.
  */
 QString DebuggerCore::framePointer() const {
 #if defined(EDB_X86) || defined(EDB_X86_64)
@@ -1136,7 +1137,7 @@ QString DebuggerCore::framePointer() const {
 /**
  * @brief Returns the architecture-appropriate instruction pointer register name.
  *
- * @return
+ * @return The name of the instruction pointer register for the current architecture.
  */
 QString DebuggerCore::instructionPointer() const {
 #if defined(EDB_X86) || defined(EDB_X86_64)
@@ -1155,7 +1156,7 @@ QString DebuggerCore::instructionPointer() const {
 /**
  * @brief Returns the architecture-appropriate flags/status register name.
  *
- * @return the name of the flag register
+ * @return The name of the flag register for the current architecture.
  */
 QString DebuggerCore::flagRegister() const {
 #if defined(EDB_X86) || defined(EDB_X86_64)
@@ -1174,7 +1175,7 @@ QString DebuggerCore::flagRegister() const {
 /**
  * @brief Returns a raw pointer to the currently attached process, or nullptr if not attached.
  *
- * @return
+ * @return A pointer to the IProcess representing the currently debugged process, or nullptr if no process is being debugged.
  */
 IProcess *DebuggerCore::process() const {
 	return process_.get();
@@ -1183,7 +1184,7 @@ IProcess *DebuggerCore::process() const {
 /**
  * @brief Stores the list of exception (signal) numbers that should be silently passed to the debuggee.
  *
- * @param exceptions
+ * @param exceptions A list of signal numbers to ignore.
  */
 void DebuggerCore::setIgnoredExceptions(const QList<qlonglong> &exceptions) {
 	ignoredExceptions_ = exceptions;
@@ -1192,7 +1193,7 @@ void DebuggerCore::setIgnoredExceptions(const QList<qlonglong> &exceptions) {
 /**
  * @brief Returns the map of Unix signal numbers and their names.
  *
- * @return
+ * @return A map of Unix signal numbers to their corresponding names.
  */
 QMap<qlonglong, QString> DebuggerCore::exceptions() const {
 	return Unix::exceptions();
@@ -1201,8 +1202,8 @@ QMap<qlonglong, QString> DebuggerCore::exceptions() const {
 /**
  * @brief Returns the name string for the Unix signal with the given numeric value.
  *
- * @param value
- * @return
+ * @param value The numeric value of the Unix signal for which to retrieve the name.
+ * @return The name of the Unix signal corresponding to the given numeric value.
  */
 QString DebuggerCore::exceptionName(qlonglong value) {
 	return Unix::exception_name(value);
@@ -1211,8 +1212,8 @@ QString DebuggerCore::exceptionName(qlonglong value) {
 /**
  * @brief Returns the numeric value for the Unix signal with the given name.
  *
- * @param name
- * @return
+ * @param name The name of the Unix signal for which to retrieve the numeric value.
+ * @return The numeric value of the Unix signal corresponding to the given name.
  */
 qlonglong DebuggerCore::exceptionValue(const QString &name) {
 	return Unix::exception_value(name);
@@ -1221,7 +1222,7 @@ qlonglong DebuggerCore::exceptionValue(const QString &name) {
 /**
  * @brief Returns the byte value used to fill NOP-padded regions for the current architecture.
  *
- * @return
+ * @return The byte value used to fill NOP-padded regions for the current architecture.
  */
 uint8_t DebuggerCore::nopFillByte() const {
 #if defined(EDB_X86) || defined(EDB_X86_64)
