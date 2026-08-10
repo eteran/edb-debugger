@@ -413,8 +413,10 @@ long DebuggerCore::ptraceOptions() const {
 		break;
 	}
 
+#if 0
 	// TODO(eteran): research this option for issue #46
 	options |= PTRACE_O_TRACEEXIT;
+#endif
 	return options;
 }
 
