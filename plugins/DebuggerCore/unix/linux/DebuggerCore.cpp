@@ -520,6 +520,10 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handleEvent(edb::tid_t tid, int statu
 		//              the caller. For now, we just ignore the event and continue the thread, which will result in a normal waitpid exit event.
 		qDebug() << "Thread" << tid << "is exiting...";
 		ptraceContinue(tid, resume_code(status));
+		if (threads_.size() == 1) {
+			// if this was the last thread maybe report to the caller that the process is exiting?
+			// For now, we just return nullptr and let the normal waitpid exit event be reported.
+		}
 		return nullptr;
 	}
 
