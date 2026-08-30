@@ -23,11 +23,8 @@ inline bool operator<(const Module &lhs, const Module &rhs) {
 	return lhs.baseAddress < rhs.baseAddress || (lhs.baseAddress == rhs.baseAddress && lhs.name < rhs.name);
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-using hash_type = size_t;
-#else
-using hash_type = uint;
-#endif
+// NOTE(eteran): this type is different between Qt5 and Qt6, so we just use whatever qHash returns for a uint32_t.
+using hash_type = decltype(qHash(0u, 0));
 
 inline hash_type qHash(const Module &module, hash_type seed = 0) {
 	return qHash(module.name, seed) ^ qHash(module.baseAddress.toUint(), seed);
