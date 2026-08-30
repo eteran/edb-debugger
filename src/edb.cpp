@@ -1656,7 +1656,7 @@ std::optional<Module> module_for_address(edb::address_t address) {
 	IProcess *process = edb::v1::debugger_core->process();
 	Q_ASSERT(process);
 
-	QSet<Module> modules = process->loadedModules();
+	std::set<Module> modules = process->loadedModules();
 
 	std::optional<Module> best_module;
 

@@ -138,7 +138,7 @@ void Bookmarks::restoreState(const QVariantMap &state) {
 	IProcess *process = edb::v1::debugger_core->process();
 	Q_ASSERT(process);
 
-	QSet<Module> modules = process->loadedModules();
+	std::set<Module> modules = process->loadedModules();
 
 	QVariantList bookmarks = state[QStringLiteral("bookmarks")].toList();
 	for (auto &entry : bookmarks) {

@@ -542,8 +542,8 @@ QList<QByteArray> PlatformProcess::arguments() const {
  *
  * @return A list of loaded modules in the process.
  */
-QSet<Module> PlatformProcess::loadedModules() const {
-	QSet<Module> ret;
+std::set<Module> PlatformProcess::loadedModules() const {
+	std::set<Module> ret;
 	HANDLE hModuleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid());
 	if (hModuleSnap != INVALID_HANDLE_VALUE) {
 		MODULEENTRY32 me32;

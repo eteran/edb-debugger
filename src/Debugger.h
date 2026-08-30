@@ -17,10 +17,10 @@
 #include <QDockWidget>
 #include <QMainWindow>
 #include <QProcess>
-#include <QSet>
 #include <QVector>
 
 #include <memory>
+#include <set>
 
 #include "ui_Debugger.h"
 
@@ -319,7 +319,7 @@ private:
 
 #if defined(Q_OS_LINUX)
 	edb::address_t debugPointer_ = 0;
-	QSet<Module> loadedModules_;
+	std::set<Module> loadedModules_;
 #endif
 
 private:

@@ -19,6 +19,10 @@ inline bool operator==(const Module &lhs, const Module &rhs) {
 	return lhs.name == rhs.name && lhs.baseAddress == rhs.baseAddress;
 }
 
+inline bool operator<(const Module &lhs, const Module &rhs) {
+	return lhs.baseAddress < rhs.baseAddress || (lhs.baseAddress == rhs.baseAddress && lhs.name < rhs.name);
+}
+
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 using hash_type = size_t;
 #else

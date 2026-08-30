@@ -3638,8 +3638,11 @@ void Debugger::handle_library_event(IProcess *process, [[maybe_unused]] edb::add
 		case edb::linux_struct::r_debug<Addr>::RT_ADD: {
 			qDebug("LIBRARY LOAD EVENT");
 
-			QSet<Module> modules       = process->loadedModules();
-			QSet<Module> added_modules = modules - loadedModules_;
+			std::set<Module> modules = process->loadedModules();
+			std::set<Module> added_modules;
+			std::set_difference(modules.begin(), modules.end(),
+								loadedModules_.begin(), loadedModules_.end(),
+								std::inserter(added_modules, added_modules.begin()));
 
 			qDebug("Added modules:");
 			for (const Module &module : added_modules) {
@@ -3665,8 +3668,11 @@ void Debugger::handle_library_event(IProcess *process, [[maybe_unused]] edb::add
 		case edb::linux_struct::r_debug<Addr>::RT_DELETE: {
 			qDebug("LIBRARY UNLOAD EVENT");
 
-			QSet<Module> modules         = process->loadedModules();
-			QSet<Module> removed_modules = loadedModules_ - modules;
+			std::set<Module> modules = process->loadedModules();
+			std::set<Module> removed_modules;
+			std::set_difference(loadedModules_.begin(), loadedModules_.end(),
+								modules.begin(), modules.end(),
+								std::inserter(removed_modules, removed_modules.begin()));
 
 			qDebug("Removed modules:");
 			for (const Module &module : removed_modules) {
