@@ -8,8 +8,11 @@
 #include "FloatX.h"
 #include "Util.h"
 #include "string_hash.h"
+
 #include <QDebug>
 #include <QRegularExpression>
+
+#include <cstdio>
 #include <unordered_map>
 
 namespace DebuggerCorePlugin {
@@ -789,16 +792,16 @@ std::unique_ptr<IState> PlatformState::clone() const {
  */
 QString PlatformState::flagsToString(edb::reg_t flags) const {
 	char buf[32];
-	qsnprintf(buf, sizeof(buf), "%c %c %c %c %c %c %c %c %c",
-			  ((flags & 0x001) ? 'C' : 'c'),
-			  ((flags & 0x004) ? 'P' : 'p'),
-			  ((flags & 0x010) ? 'A' : 'a'),
-			  ((flags & 0x040) ? 'Z' : 'z'),
-			  ((flags & 0x080) ? 'S' : 's'),
-			  ((flags & 0x100) ? 'T' : 't'),
-			  ((flags & 0x200) ? 'I' : 'i'),
-			  ((flags & 0x400) ? 'D' : 'd'),
-			  ((flags & 0x800) ? 'O' : 'o'));
+	snprintf(buf, sizeof(buf), "%c %c %c %c %c %c %c %c %c",
+			 ((flags & 0x001) ? 'C' : 'c'),
+			 ((flags & 0x004) ? 'P' : 'p'),
+			 ((flags & 0x010) ? 'A' : 'a'),
+			 ((flags & 0x040) ? 'Z' : 'z'),
+			 ((flags & 0x080) ? 'S' : 's'),
+			 ((flags & 0x100) ? 'T' : 't'),
+			 ((flags & 0x200) ? 'I' : 'i'),
+			 ((flags & 0x400) ? 'D' : 'd'),
+			 ((flags & 0x800) ? 'O' : 'o'));
 	return QString::fromLatin1(buf);
 }
 

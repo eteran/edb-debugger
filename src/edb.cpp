@@ -46,6 +46,7 @@
 #include <qplatformdefs.h>
 
 #include <cctype>
+#include <cstdio>
 #include <optional>
 
 IDebugger *edb::v1::debugger_core = nullptr;
@@ -1350,7 +1351,7 @@ QString format_bytes(const QByteArray &x) {
  */
 QString format_bytes(uint8_t byte) {
 	char buf[4];
-	qsnprintf(buf, sizeof(buf), "%02x", byte & 0xff);
+	snprintf(buf, sizeof(buf), "%02x", byte & 0xff);
 	return QString::fromLatin1(buf);
 }
 
@@ -1633,11 +1634,11 @@ QString format_bytes(const void *buffer, size_t count) {
 		auto end = it + count;
 
 		char buf[4];
-		qsnprintf(buf, sizeof(buf), "%02x", *it++ & 0xff);
+		snprintf(buf, sizeof(buf), "%02x", *it++ & 0xff);
 		bytes += QString::fromLatin1(buf);
 
 		while (it != end) {
-			qsnprintf(buf, sizeof(buf), " %02x", *it++ & 0xff);
+			snprintf(buf, sizeof(buf), " %02x", *it++ & 0xff);
 			bytes += QString::fromLatin1(buf);
 		}
 	}

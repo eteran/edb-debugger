@@ -7,7 +7,9 @@
 #include "PlatformState.h"
 #include "edb.h"
 #include "string_hash.h"
+
 #include <cmath>
+#include <cstdio>
 #include <limits>
 
 namespace DebuggerCorePlugin {
@@ -85,7 +87,7 @@ std::unique_ptr<IState> PlatformState::clone() const {
  */
 QString PlatformState::flagsToString(edb::reg_t flags) const {
 	char buf[14];
-	qsnprintf(
+	snprintf(
 		buf,
 		sizeof(buf),
 		"%c %c %c %c %c %c %c",

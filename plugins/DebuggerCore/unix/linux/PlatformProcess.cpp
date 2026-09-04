@@ -22,12 +22,15 @@
 #include "libELF/elf_model.h"
 #include "linker.h"
 #include "util/Container.h"
+
 #include <QByteArray>
 #include <QDateTime>
 #include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+
+#include <cstdio>
 #include <elf.h>
 #include <fstream>
 #include <linux/limits.h>

@@ -10,6 +10,7 @@
 #include "edb.h"
 
 #include <cstdint>
+#include <cstdio>
 #include <fcntl.h>
 #include <iomanip>
 #include <iostream>
