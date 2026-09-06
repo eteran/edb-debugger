@@ -33,15 +33,6 @@ PlatformEvent::PlatformEvent()
 }
 
 /**
- * @brief Creates a new PlatformEvent instance that is a copy of the current instance.
- *
- * @return A pointer to the newly created PlatformEvent instance.
- */
-PlatformEvent *PlatformEvent::clone() const {
-	return new PlatformEvent(*this);
-}
-
-/**
  * @brief Returns a user-friendly error message describing the reason for the debug event, if it is an error event.
  *
  * @return A Message object containing the error description.
@@ -53,60 +44,68 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 
 	switch (code()) {
 	case SIGSEGV:
-		return Message(
+		return Message{
 			tr("Illegal Access Fault"),
 			tr(
 				"<p>The debugged application encountered a segmentation fault.<br />The address <strong>0x%1</strong> could not be accessed.</p>"
 				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
-				.arg(edb::v1::format_pointer(fault_address)));
+				.arg(edb::v1::format_pointer(fault_address)),
+		};
 	case SIGILL:
-		return Message(
+		return Message{
 			tr("Illegal Instruction Fault"),
 			tr(
 				"<p>The debugged application attempted to execute an illegal instruction.</p>"
-				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"));
+				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"),
+		};
 	case SIGFPE:
 		switch (fault_code_) {
 		case FPE_INTDIV:
-			return Message(
+			return Message{
 				tr("Divide By Zero"),
 				tr(
 					"<p>The debugged application tried to divide an integer value by an integer divisor of zero.</p>"
-					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"));
+					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"),
+			};
 		default:
-			return Message(
+			return Message{
 				tr("Floating Point Exception"),
 				tr(
 					"<p>The debugged application encountered a floating-point exception.</p>"
-					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"));
+					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"),
+			};
 		}
 
 	case SIGABRT:
-		return Message(
+		return Message{
 			tr("Application Aborted"),
 			tr(
 				"<p>The debugged application has aborted.</p>"
-				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"));
+				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"),
+		};
 	case SIGBUS:
-		return Message(
+		return Message{
 			tr("Bus Error"),
 			tr(
 				"<p>The debugged application tried to read or write data that is misaligned.</p>"
-				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"));
+				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"),
+		};
 #ifdef SIGSTKFLT
 	case SIGSTKFLT:
-		return Message(
+		return Message{
 			tr("Stack Fault"),
 			tr(
 				"<p>The debugged application encountered a stack fault.</p>"
-				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"));
+				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"),
+		};
 #endif
 	case SIGPIPE:
-		return Message(
+		return Message{
 			tr("Broken Pipe Fault"),
 			tr(
 				"<p>The debugged application encountered a broken pipe fault.</p>"
-				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"));
+				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"),
+		};
 	default:
 		return Message();
 	}

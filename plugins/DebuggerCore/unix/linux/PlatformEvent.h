@@ -21,13 +21,6 @@ class PlatformEvent final : public IDebugEvent {
 public:
 	PlatformEvent() = default;
 
-private:
-	PlatformEvent(const PlatformEvent &)            = default;
-	PlatformEvent &operator=(const PlatformEvent &) = default;
-
-public:
-	[[nodiscard]] IDebugEvent *clone() const override;
-
 public:
 	[[nodiscard]] bool exited() const override;
 	[[nodiscard]] bool isError() const override;

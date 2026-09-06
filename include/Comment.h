@@ -2,8 +2,8 @@
 #ifndef COMMENT_H_
 #define COMMENT_H_
 
-#include "Types.h"
 #include "Module.h"
+#include "Types.h"
 
 #include <QString>
 

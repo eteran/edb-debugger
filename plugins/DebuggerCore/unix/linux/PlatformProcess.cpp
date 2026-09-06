@@ -576,6 +576,16 @@ edb::address_t PlatformProcess::dataAddress() const {
 	return 0;
 }
 
+[[nodiscard]] edb::address_t PlatformProcess::heapStart() const {
+	struct user_stat user_stat;
+	int n = get_user_stat(pid_, &user_stat);
+	if (n >= 47) {
+		return user_stat.start_brk;
+	}
+	return 0;
+
+}
+
 /**
  * @brief Returns the list of all mapped memory regions by reading /proc/[pid]/maps.
  *
@@ -1148,7 +1158,7 @@ edb::address_t PlatformProcess::calculateMain() const {
 
 					if (address) {
 						// TODO: make sure that this address resides in an executable region
-						qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
+						qDebug() << "No main symbol found, calculated it to be" << edb::v1::format_pointer(address) << "using heuristic";
 						return address;
 					}
 				}
@@ -1175,7 +1185,7 @@ edb::address_t PlatformProcess::calculateMain() const {
 						std::memcpy(to, ba.data() + 1, sizeof(uint32_t));
 
 						// TODO: make sure that this address resides in an executable region
-						qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
+						qDebug() << "No main symbol found, calculated it to be" << edb::v1::format_pointer(address) << "using heuristic";
 						return address;
 					}
 				}
