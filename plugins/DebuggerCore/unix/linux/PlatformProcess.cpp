@@ -22,12 +22,15 @@
 #include "libELF/elf_model.h"
 #include "linker.h"
 #include "util/Container.h"
+
 #include <QByteArray>
 #include <QDateTime>
 #include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+
+#include <cstdio>
 #include <elf.h>
 #include <fstream>
 #include <linux/limits.h>
@@ -148,9 +151,9 @@ std::shared_ptr<IRegion> process_map_line(const QString &line) {
  * @return
  */
 template <class Addr>
-QSet<Module> get_loaded_modules(const IProcess *process) {
+std::set<Module> get_loaded_modules(const IProcess *process) {
 
-	QSet<Module> ret;
+	std::set<Module> ret;
 
 	// read the dynamic linker's r_debug structure from the debuggee process if we can.
 	edb::linux_struct::r_debug<Addr> dynamic_info;
@@ -189,9 +192,9 @@ QSet<Module> get_loaded_modules(const IProcess *process) {
 	}
 
 	// fallback, unfortunately due to symlink shenanigans, this won't quite match the link_map results, but it's better than nothing
-	if (ret.isEmpty()) {
+	if (ret.empty()) {
 		const QList<std::shared_ptr<IRegion>> r = edb::v1::memory_regions().regions();
-		QSet<QString> found_modules;
+		std::set<QString> found_modules;
 
 		for (const std::shared_ptr<IRegion> &region : r) {
 
@@ -848,7 +851,7 @@ QString PlatformProcess::name() const {
  *
  * @return
  */
-QSet<Module> PlatformProcess::loadedModules() const {
+std::set<Module> PlatformProcess::loadedModules() const {
 	if (edb::v1::debuggeeIs64Bit()) {
 		return get_loaded_modules<Elf64_Addr>(this);
 	}
@@ -857,7 +860,7 @@ QSet<Module> PlatformProcess::loadedModules() const {
 		return get_loaded_modules<Elf32_Addr>(this);
 	}
 
-	return QSet<Module>();
+	return std::set<Module>();
 }
 
 /**

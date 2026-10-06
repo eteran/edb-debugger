@@ -25,7 +25,9 @@ bool is_ud(const Instruction &insn) {
 	switch (insn.operation()) {
 	case X86_INS_UD0:
 	case X86_INS_UD2:
+#if CS_API_MAJOR < 5
 	case X86_INS_UD2B:
+#endif
 		return true;
 	default:
 		return false;

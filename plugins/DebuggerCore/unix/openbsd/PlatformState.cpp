@@ -5,6 +5,7 @@
  */
 
 #include "PlatformState.h"
+#include <cstdio>
 
 namespace DebuggerCore {
 
@@ -36,7 +37,7 @@ std::unique_ptr<IState> PlatformState::clone() const {
  */
 QString PlatformState::flags_to_string(edb::reg_t flags) const {
 	char buf[14];
-	qsnprintf(
+	snprintf(
 		buf,
 		sizeof(buf),
 		"%c %c %c %c %c %c %c",

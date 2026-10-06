@@ -249,7 +249,7 @@ void SessionManager::loadLabels(const QJsonArray &labels) {
 	IProcess *process = edb::v1::debugger_core->process();
 	Q_ASSERT(process);
 
-	QSet<Module> modules = process->loadedModules();
+	std::set<Module> modules = process->loadedModules();
 
 	for (const QJsonValue &entry : labels) {
 		auto label = entry.toObject();
@@ -292,7 +292,7 @@ void SessionManager::loadComments(const QJsonArray &comments) {
 	IProcess *process = edb::v1::debugger_core->process();
 	Q_ASSERT(process);
 
-	QSet<Module> modules = process->loadedModules();
+	std::set<Module> modules = process->loadedModules();
 
 	auto cpuView = qobject_cast<QDisassemblyView *>(edb::v1::disassembly_widget());
 	if (!cpuView) {
@@ -436,7 +436,7 @@ void SessionManager::loadBreakpoints(const QJsonArray &breakpoints) {
 	IProcess *process = edb::v1::debugger_core->process();
 	Q_ASSERT(process);
 
-	QSet<Module> modules = process->loadedModules();
+	std::set<Module> modules = process->loadedModules();
 
 	for (const QJsonValue &entry : breakpoints) {
 		auto breakpoint = entry.toObject();

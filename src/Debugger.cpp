@@ -180,7 +180,7 @@ public:
 			IDebugEvent::TRAP_REASON trap_reason = event->trapReason();
 			IDebugEvent::REASON reason           = event->reason();
 
-			qDebug() << QStringLiteral("Event at address 0x%1").arg(address, 0, 16);
+			qDebug() << QStringLiteral("Event at address 0x%1").arg(address.toPointerString());
 
 			/*
 			 * An IDebugEvent::TRAP_BREAKPOINT can happen for the following reasons:
@@ -251,12 +251,12 @@ public:
 
 				// Get the instruction
 				edb::Instruction inst(buffer, buffer + size, 0);
-				qDebug() << QStringLiteral("Scanning for terminator at 0x%1: found %2").arg(address, 0, 16).arg(QString::fromStdString(inst.mnemonic()));
+				qDebug() << QStringLiteral("Scanning for terminator at 0x%1: found %2").arg(address.toPointerString()).arg(QString::fromStdString(inst.mnemonic()));
 
 				// Check if it's a proper block terminator (ret/jmp/jcc/hlt)
 				if (inst) {
 					if (is_terminator(inst)) {
-						qDebug() << QStringLiteral("Found terminator %1 at 0x%2").arg(QString::fromStdString(inst.mnemonic())).arg(address, 0, 16);
+						qDebug() << QStringLiteral("Found terminator %1 at 0x%2").arg(QString::fromStdString(inst.mnemonic())).arg(address.toPointerString());
 						// If we already had a breakpoint there, then just continue.
 						if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->findBreakpoint(address)) {
 							qDebug() << "Already a breakpoint at terminator: " << address.toHexString();
@@ -1968,8 +1968,7 @@ void Debugger::mnuDumpSaveToFile() {
 
 	if (!filename.isEmpty()) {
 		QFile file(filename);
-		file.open(QIODevice::WriteOnly);
-		if (file.isOpen()) {
+		if (file.open(QIODevice::WriteOnly)) {
 			file.write(s->allBytes());
 		}
 	}
@@ -3638,8 +3637,11 @@ void Debugger::handle_library_event(IProcess *process, [[maybe_unused]] edb::add
 		case edb::linux_struct::r_debug<Addr>::RT_ADD: {
 			qDebug("LIBRARY LOAD EVENT");
 
-			QSet<Module> modules       = process->loadedModules();
-			QSet<Module> added_modules = modules - loadedModules_;
+			std::set<Module> modules = process->loadedModules();
+			std::set<Module> added_modules;
+			std::set_difference(modules.begin(), modules.end(),
+								loadedModules_.begin(), loadedModules_.end(),
+								std::inserter(added_modules, added_modules.begin()));
 
 			qDebug("Added modules:");
 			for (const Module &module : added_modules) {
@@ -3665,8 +3667,11 @@ void Debugger::handle_library_event(IProcess *process, [[maybe_unused]] edb::add
 		case edb::linux_struct::r_debug<Addr>::RT_DELETE: {
 			qDebug("LIBRARY UNLOAD EVENT");
 
-			QSet<Module> modules         = process->loadedModules();
-			QSet<Module> removed_modules = loadedModules_ - modules;
+			std::set<Module> modules = process->loadedModules();
+			std::set<Module> removed_modules;
+			std::set_difference(loadedModules_.begin(), loadedModules_.end(),
+								modules.begin(), modules.end(),
+								std::inserter(removed_modules, removed_modules.begin()));
 
 			qDebug("Removed modules:");
 			for (const Module &module : removed_modules) {

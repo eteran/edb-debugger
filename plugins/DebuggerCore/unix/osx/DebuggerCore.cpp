@@ -14,6 +14,7 @@
 #include <QDebug>
 
 #include <csignal>
+#include <cstdio>
 #include <fcntl.h>
 #include <mach/mach.h>
 #include <mach/mach_vm.h>
@@ -771,9 +772,9 @@ quint64 DebuggerCore::cpu_type() const {
 QString DebuggerCore::format_pointer(edb::address_t address) const {
 	char buf[32];
 #ifdef EDB_X86
-	qsnprintf(buf, sizeof(buf), "%08x", address);
+	snprintf(buf, sizeof(buf), "%08x", address);
 #elif defined(EDB_X86_64)
-	qsnprintf(buf, sizeof(buf), "%016llx", address);
+	snprintf(buf, sizeof(buf), "%016llx", address);
 #endif
 	return buf;
 }

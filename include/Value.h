@@ -13,6 +13,7 @@
 #include <cstring>
 #include <iomanip>
 #include <sstream>
+#include <cstdio>
 
 #include <QString>
 #include <QVariant>

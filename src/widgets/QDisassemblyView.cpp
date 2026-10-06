@@ -40,6 +40,7 @@
 #include <algorithm>
 #include <climits>
 #include <cmath>
+#include <cstdio>
 
 namespace {
 
@@ -74,7 +75,7 @@ QString format_address(T address, bool show_separator) {
 	if (show_separator) {
 		if constexpr (sizeof(T) == sizeof(uint32_t)) {
 			static char buffer[10];
-			qsnprintf(buffer, sizeof(buffer), "%04x:%04x", (address >> 16) & 0xffff, address & 0xffff);
+			snprintf(buffer, sizeof(buffer), "%04x:%04x", (address >> 16) & 0xffff, address & 0xffff);
 			return QString::fromLatin1(buffer, sizeof(buffer) - 1);
 		} else if constexpr (sizeof(T) == sizeof(uint64_t)) {
 			return edb::value32(address >> 32).toHexString() + QLatin1Char(':') + edb::value32(address).toHexString();
@@ -83,7 +84,7 @@ QString format_address(T address, bool show_separator) {
 
 	if constexpr (sizeof(T) == sizeof(uint32_t)) {
 		static char buffer[9];
-		qsnprintf(buffer, sizeof(buffer), "%04x%04x", (address >> 16) & 0xffff, address & 0xffff);
+		snprintf(buffer, sizeof(buffer), "%04x%04x", (address >> 16) & 0xffff, address & 0xffff);
 		return QString::fromLatin1(buffer, sizeof(buffer) - 1);
 	} else if constexpr (sizeof(T) == sizeof(uint64_t)) {
 		return edb::value64(address).toHexString();

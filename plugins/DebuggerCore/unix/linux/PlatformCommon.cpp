@@ -5,6 +5,7 @@
  */
 
 #include "PlatformCommon.h"
+#include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <linux/limits.h>
