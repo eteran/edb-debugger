@@ -10,15 +10,6 @@
 namespace DebuggerCorePlugin {
 
 /**
- * @brief Creates and returns a heap-allocated copy of this event.
- *
- * @return
- */
-IDebugEvent *PlatformEvent::clone() const {
-	return new PlatformEvent(*this);
-}
-
-/**
  * @brief Constructs a generic unexpected-signal Message with the given signal name and number.
  *
  * @param name
@@ -26,10 +17,11 @@ IDebugEvent *PlatformEvent::clone() const {
  * @return
  */
 IDebugEvent::Message PlatformEvent::createUnexpectedSignalMessage(const QString &name, int number) {
-	return Message(
+	return Message{
 		tr("Unexpected Signal Encountered"),
 		tr("<p>The debugged application encountered a %1 (%2).</p>").arg(name).arg(number),
-		tr("% received").arg(name));
+		tr("% received").arg(name),
+	};
 }
 
 /**
@@ -51,104 +43,119 @@ IDebugEvent::Message PlatformEvent::errorDescription() const {
 	case SIGSEGV:
 		switch (siginfo_.si_code) {
 		case SEGV_MAPERR:
-			message = Message(
+			message = Message{
 				tr("Illegal Access Fault"),
 				tr("<p>The debugged application encountered a segmentation fault.<br />The address <strong>%1</strong> does not appear to be mapped.</p>").arg(addressString),
-				tr("SIGSEGV: SEGV_MAPERR: Accessed address %1 not mapped").arg(addressString));
+				tr("SIGSEGV: SEGV_MAPERR: Accessed address %1 not mapped").arg(addressString),
+			};
 			break;
 		case SEGV_ACCERR:
-			message = Message(
+			message = Message{
 				tr("Illegal Access Fault"),
 				tr("<p>The debugged application encountered a segmentation fault.<br />The address <strong>%1</strong> could not be accessed.</p>").arg(addressString),
-				tr("SIGSEGV: SEGV_ACCERR: Access to address %1 not permitted").arg(addressString));
+				tr("SIGSEGV: SEGV_ACCERR: Access to address %1 not permitted").arg(addressString),
+			};
 			break;
 		default:
-			message = Message(
+			message = Message{
 				tr("Illegal Access Fault"),
 				tr("<p>The debugged application encountered a segmentation fault.<br />The instruction could not be executed.</p>"),
-				tr("SIGSEGV: Segmentation fault"));
+				tr("SIGSEGV: Segmentation fault"),
+			};
 			break;
 		}
 		break;
 
 	case SIGILL:
-		message = Message(
+		message = Message{
 			tr("Illegal Instruction Fault"),
 			tr("<p>The debugged application attempted to execute an illegal instruction.</p>"),
-			tr("SIGILL: Illegal instruction"));
+			tr("SIGILL: Illegal instruction"),
+		};
 		break;
 	case SIGFPE:
 		switch (siginfo_.si_code) {
 		case FPE_INTDIV:
-			message = Message(
+			message = Message{
 				tr("Divide By Zero"),
 				tr("<p>The debugged application tried to divide an integer value by an integer divisor of zero or encountered integer division overflow.</p>"),
-				tr("SIGFPE: FPE_INTDIV: Integer division by zero or division overflow"));
+				tr("SIGFPE: FPE_INTDIV: Integer division by zero or division overflow"),
+			};
 			break;
 		case FPE_FLTDIV:
-			message = Message(
+			message = Message{
 				tr("Divide By Zero"),
 				tr("<p>The debugged application tried to divide an floating-point value by a floating-point divisor of zero.</p>"),
-				tr("SIGFPE: FPE_FLTDIV: Floating-point division by zero"));
+				tr("SIGFPE: FPE_FLTDIV: Floating-point division by zero"),
+			};
 			break;
 		case FPE_FLTOVF:
-			message = Message(
+			message = Message{
 				tr("Numeric Overflow"),
 				tr("<p>The debugged application encountered a numeric overflow while performing a floating-point computation.</p>"),
-				tr("SIGFPE: FPE_FLTOVF: Numeric overflow exception"));
+				tr("SIGFPE: FPE_FLTOVF: Numeric overflow exception"),
+			};
 			break;
 		case FPE_FLTUND:
-			message = Message(
+			message = Message{
 				tr("Numeric Underflow"),
 				tr("<p>The debugged application encountered a numeric underflow while performing a floating-point computation.</p>"),
-				tr("SIGFPE: FPE_FLTUND: Numeric underflow exception"));
+				tr("SIGFPE: FPE_FLTUND: Numeric underflow exception"),
+			};
 			break;
 		case FPE_FLTRES:
-			message = Message(
+			message = Message{
 				tr("Inexact Result"),
 				tr("<p>The debugged application encountered an inexact result of a floating-point computation it was performing.</p>"),
-				tr("SIGFPE: FPE_FLTRES: Inexact result exception"));
+				tr("SIGFPE: FPE_FLTRES: Inexact result exception"),
+			};
 			break;
 		case FPE_FLTINV:
-			message = Message(
+			message = Message{
 				tr("Invalid Operation"),
 				tr("<p>The debugged application attempted to perform an invalid floating-point operation.</p>"),
-				tr("SIGFPE: FPE_FLTINV: Invalid floating-point operation"));
+				tr("SIGFPE: FPE_FLTINV: Invalid floating-point operation"),
+			};
 			break;
 		default:
-			message = Message(
+			message = Message{
 				tr("Floating Point Exception"),
 				tr("<p>The debugged application encountered a floating-point exception.</p>"),
-				tr("SIGFPE: Floating-point exception"));
+				tr("SIGFPE: Floating-point exception"),
+			};
 			break;
 		}
 		break;
 
 	case SIGABRT:
-		message = Message(
+		message = Message{
 			tr("Application Aborted"),
 			tr("<p>The debugged application has aborted.</p>"),
-			tr("SIGABRT: Application aborted"));
+			tr("SIGABRT: Application aborted"),
+		};
 		break;
 	case SIGBUS:
-		message = Message(
+		message = Message{
 			tr("Bus Error"),
 			tr("<p>The debugged application received a bus error. Typically, this means that it tried to read or write data that is misaligned.</p>"),
-			tr("SIGBUS: Bus error"));
+			tr("SIGBUS: Bus error"),
+		};
 		break;
 #ifdef SIGSTKFLT
 	case SIGSTKFLT:
-		message = Message(
+		message = Message{
 			tr("Stack Fault"),
 			tr("<p>The debugged application encountered a stack fault.</p>"),
-			tr("SIGSTKFLT: Stack fault"));
+			tr("SIGSTKFLT: Stack fault"),
+		};
 		break;
 #endif
 	case SIGPIPE:
-		message = Message(
+		message = Message{
 			tr("Broken Pipe Fault"),
 			tr("<p>The debugged application encountered a broken pipe fault.</p>"),
-			tr("SIGPIPE: Pipe broken"));
+			tr("SIGPIPE: Pipe broken"),
+		};
 		break;
 #ifdef SIGHUP
 	case SIGHUP:

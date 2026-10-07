@@ -48,6 +48,7 @@ public:
 public:
 	[[nodiscard]] virtual edb::address_t debugPointer() const { return 0; }
 	[[nodiscard]] virtual edb::address_t calculateMain() const { return 0; }
+	[[nodiscard]] virtual edb::address_t heapStart() const { return 0; }
 
 public:
 	// only legal to call when attached

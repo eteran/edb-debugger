@@ -218,7 +218,7 @@ void HardwareBreakpoints::showMenu() {
  */
 edb::EventStatus HardwareBreakpoints::handleEvent(const std::shared_ptr<IDebugEvent> &event) {
 
-	if (event->stopped() && event->isTrap()) {
+	if (event->isTrap()) {
 
 		if (IProcess *process = edb::v1::debugger_core->process()) {
 			if (std::shared_ptr<IThread> thread = process->currentThread()) {

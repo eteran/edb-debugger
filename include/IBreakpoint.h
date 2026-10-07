@@ -7,8 +7,8 @@
 #ifndef IBREAKPOINT_H_20060720_
 #define IBREAKPOINT_H_20060720_
 
-#include "Types.h"
 #include "Module.h"
+#include "Types.h"
 
 #include <QString>
 #include <exception>

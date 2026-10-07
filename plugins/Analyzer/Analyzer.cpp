@@ -488,6 +488,14 @@ bool split_function(Function &func) {
 	return false;
 }
 
+/**
+ * @brief Splits basic blocks within all functions in the given region data.
+ *
+ * This function iterates over all functions in the region data and repeatedly splits basic blocks
+ * that contain call instructions, ensuring that each call instruction is the last instruction in its basic block.
+ *
+ * @param data The region data containing the functions to process.
+ */
 void Analyzer::splitBlocks(RegionData *data) {
 	Q_ASSERT(data);
 
@@ -501,6 +509,14 @@ void Analyzer::splitBlocks(RegionData *data) {
 	}
 }
 
+/**
+ * @brief Computes which functions in the given region data are non-returning.
+ *
+ * This function iterates over all functions in the region data and checks the last instruction of each basic block.
+ * If all basic blocks in a function do not indicate a return (e.g., they end with halt, UD, or internal jumps), the function is marked as non-returning.
+ *
+ * @param data The region data containing the functions to analyze.
+ */
 void Analyzer::computeNonReturning(Analyzer::RegionData *data) {
 	Q_UNUSED(data);
 
@@ -558,7 +574,7 @@ void Analyzer::computeNonReturning(Analyzer::RegionData *data) {
 /**
  * @brief Performs recursive disassembly from all known entry points to build the complete function and basic block maps.
  *
- * @param data
+ * @param data The region data containing the known functions and basic blocks to collect.
  */
 void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 	Q_ASSERT(data);
@@ -710,7 +726,7 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 /**
  * @brief Heuristically discovers additional function entry points by scanning for call targets and ENDBR instructions.
  *
- * @param data
+ * @param data The region data containing the memory and known functions to analyze for potential fuzzy function entry points.
  */
 void Analyzer::collectFuzzyFunctions(RegionData *data) {
 	Q_ASSERT(data);
@@ -754,9 +770,47 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 					if (!data->knownFunctions.contains(addr)) {
 						fuzzy_functions[addr] = MinRefCount + 1;
 					}
-#endif
-#endif
+
+					// look for push rbp; mov ebp, esp as it is a common function prologue
+				} else if (inst->id == X86_INS_PUSH && inst[0]->reg == X86_REG_EBP) {
+
+					const edb::address_t next_addr = addr + inst.byteSize();
+					if (auto inst2 = edb::Instruction(p + inst.byteSize(), last, next_addr)) {
+
+						if (inst2->id == X86_INS_MOV) {
+
+							if (inst2.operandCount() == 2 && is_register(inst2[0]) && is_register(inst2[1])) {
+
+								if (inst2[0]->reg == X86_REG_EBP && inst2[1]->reg == X86_REG_ESP) {
+
+									if (!data->knownFunctions.contains(addr)) {
+										fuzzy_functions[addr] = MinRefCount + 1;
+									}
+								}
+							}
+						}
+					}
+				} else if (inst->id == X86_INS_PUSH && inst[0]->reg == X86_REG_RBP) {
+
+					const edb::address_t next_addr = addr + inst.byteSize();
+					if (auto inst2 = edb::Instruction(p + inst.byteSize(), last, next_addr)) {
+
+						if (inst2->id == X86_INS_MOV) {
+
+							if (inst2.operandCount() == 2 && is_register(inst2[0]) && is_register(inst2[1])) {
+
+								if (inst2[0]->reg == X86_REG_RBP && inst2[1]->reg == X86_REG_RSP) {
+
+									if (!data->knownFunctions.contains(addr)) {
+										fuzzy_functions[addr] = MinRefCount + 1;
+									}
+								}
+							}
+						}
+					}
 				}
+#endif
+#endif
 			}
 			++p;
 		}

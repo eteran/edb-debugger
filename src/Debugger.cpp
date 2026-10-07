@@ -434,12 +434,6 @@ Debugger::Debugger(QWidget *parent)
 	// make us the default event handler
 	edb::v1::add_debug_event_handler(this);
 
-	// enable the arch processor
-#if 0
-	ui.registerList->setModel(&edb::v1::arch_processor().get_register_view_model());
-	edb::v1::arch_processor().setup_register_view();
-#endif
-
 	// default the working directory to ours
 	workingDirectory_ = QDir().absolutePath();
 

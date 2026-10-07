@@ -31,6 +31,7 @@ public:
 	[[nodiscard]] edb::address_t codeAddress() const override;
 	[[nodiscard]] edb::address_t dataAddress() const override;
 	[[nodiscard]] edb::address_t entryPoint() const override;
+	[[nodiscard]] edb::address_t heapStart() const override;
 	[[nodiscard]] edb::pid_t pid() const override;
 	[[nodiscard]] edb::uid_t uid() const override;
 	[[nodiscard]] QDateTime startTime() const override;
