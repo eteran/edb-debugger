@@ -20,9 +20,6 @@ public:
 	PlatformEvent() = default;
 
 public:
-	PlatformEvent *clone() const override;
-
-public:
 	Message errorDescription() const override;
 	REASON reason() const override;
 	TRAP_REASON trapReason() const override;

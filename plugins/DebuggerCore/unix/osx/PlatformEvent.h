@@ -20,9 +20,6 @@ public:
 	PlatformEvent();
 
 public:
-	PlatformEvent *clone() const override;
-
-public:
 	Message error_description() const override;
 	REASON reason() const override;
 	TRAP_REASON trap_reason() const override;

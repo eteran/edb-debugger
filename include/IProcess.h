@@ -39,7 +39,6 @@ public:
 	[[nodiscard]] virtual edb::address_t codeAddress() const              = 0;
 	[[nodiscard]] virtual edb::address_t dataAddress() const              = 0;
 	[[nodiscard]] virtual edb::address_t entryPoint() const               = 0;
-	[[nodiscard]] virtual edb::address_t heapStart() const                = 0;
 	[[nodiscard]] virtual QList<std::shared_ptr<IRegion>> regions() const = 0;
 	[[nodiscard]] virtual edb::uid_t uid() const                          = 0;
 	[[nodiscard]] virtual QString user() const                            = 0;
@@ -49,6 +48,7 @@ public:
 public:
 	[[nodiscard]] virtual edb::address_t debugPointer() const { return 0; }
 	[[nodiscard]] virtual edb::address_t calculateMain() const { return 0; }
+	[[nodiscard]] virtual edb::address_t heapStart() const { return 0; }
 
 public:
 	// only legal to call when attached

@@ -583,7 +583,6 @@ edb::address_t PlatformProcess::dataAddress() const {
 		return user_stat.start_brk;
 	}
 	return 0;
-
 }
 
 /**

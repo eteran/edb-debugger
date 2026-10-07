@@ -39,6 +39,7 @@ IDebugEvent::Message PlatformEvent::errorDescription() const {
 				"<p>The debugged application tried to access an out of bounds array element.</p>"
 				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
 				.arg(edb::v1::format_pointer(fault_address)),
+			tr("EXCEPTION_ARRAY_BOUNDS_EXCEEDED"),
 		};
 	case EXCEPTION_DATATYPE_MISALIGNMENT:
 		return Message{
@@ -46,6 +47,7 @@ IDebugEvent::Message PlatformEvent::errorDescription() const {
 			tr(
 				"<p>The debugged application tried to read or write data that is misaligned.</p>"
 				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>"),
+			tr("EXCEPTION_DATATYPE_MISALIGNMENT"),
 		};
 	case EXCEPTION_FLT_DENORMAL_OPERAND:
 		return Message{
