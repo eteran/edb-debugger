@@ -22,6 +22,11 @@ constexpr uint32_t Signature = 0x1A736166;
 
 namespace Fas {
 
+/**
+ * @brief Load a *.fas file and process its symbols.
+ *
+ * @param fileName The path to the *.fas file to load.
+ */
 void Core::load(const std::string &fileName) {
 	fileName_ = fileName;
 
@@ -42,6 +47,11 @@ void Core::load(const std::string &fileName) {
 	}
 }
 
+/**
+ * @brief Open the *.fas file for reading.
+ *
+ * @throws Exception if the file cannot be opened.
+ */
 void Core::open() {
 	ifs_.open(fileName_, std::ios::binary);
 	if (!ifs_.is_open()) {
@@ -49,6 +59,11 @@ void Core::open() {
 	}
 }
 
+/**
+ * @brief Load the header of the *.fas file.
+ *
+ * @throws Exception if the header cannot be read or is invalid.
+ */
 void Core::loadHeader() {
 	ifs_.seekg(0);
 
@@ -65,17 +80,27 @@ void Core::loadHeader() {
 	}
 }
 
+/**
+ * @brief Load the symbols from the *.fas file into memory.
+
+ * @throws Exception if any symbol cannot be read.
+ */
 void Core::loadFasSymbols() {
 	ifs_.seekg(header_.offsetOfSymbolsTable);
 
-	auto size  = header_.lengthOfSymbolsTable;
-	auto count = size / sizeof(Fas::Symbol);
+	const auto size  = header_.lengthOfSymbolsTable;
+	const auto count = size / sizeof(Fas::Symbol);
 	for (uint i = 0; i < count; ++i) {
 		auto symbol = loadFasSymbol();
 		fasSymbols_.push_back(symbol);
 	}
 }
 
+/**
+ * @brief Load a single symbol from the *.fas file.
+
+ * @throws Exception if the symbol cannot be read.
+ */
 Fas::Symbol Core::loadFasSymbol() {
 	Fas::Symbol symbol;
 
@@ -86,6 +111,11 @@ Fas::Symbol Core::loadFasSymbol() {
 	return symbol;
 }
 
+/**
+ * @brief Delete all undefined symbols from the loaded symbols.
+ *
+ * @throws Exception if any error occurs during deletion.
+ */
 void Core::deleteUndefinedSymbols() {
 	auto it = std::begin(fasSymbols_);
 	while (it != std::end(fasSymbols_)) {
@@ -98,6 +128,11 @@ void Core::deleteUndefinedSymbols() {
 	}
 }
 
+/**
+ * @brief Delete all assembly-time variable symbols from the loaded symbols.
+ *
+ * @throws Exception if any error occurs during deletion.
+ */
 void Core::deleteAssemblyTimeVariable() {
 	auto it = std::begin(fasSymbols_);
 	while (it != std::end(fasSymbols_)) {
@@ -110,6 +145,11 @@ void Core::deleteAssemblyTimeVariable() {
 	}
 }
 
+/**
+ * @brief Delete all symbols that cannot be forward referenced from the loaded symbols.
+ *
+ * @throws Exception if any error occurs during deletion.
+ */
 void Core::deleteCannotBeForwardReferenced() {
 	auto it = std::begin(fasSymbols_);
 	while (it != std::end(fasSymbols_)) {
@@ -122,6 +162,11 @@ void Core::deleteCannotBeForwardReferenced() {
 	}
 }
 
+/**
+ * @brief Delete all special marker symbols from the loaded symbols.
+ *
+ * @throws Exception if any error occurs during deletion.
+ */
 void Core::deleteSpecialMarkers() {
 	auto it = std::begin(fasSymbols_);
 	while (it != std::end(fasSymbols_)) {
@@ -134,6 +179,11 @@ void Core::deleteSpecialMarkers() {
 	}
 }
 
+/**
+ * @brief Delete all negative symbols from the loaded symbols.
+ *
+ * @throws Exception if any error occurs during deletion.
+ */
 void Core::deleteNegativeSymbols() {
 	auto it = std::begin(fasSymbols_);
 	while (it != std::end(fasSymbols_)) {
@@ -145,6 +195,11 @@ void Core::deleteNegativeSymbols() {
 	}
 }
 
+/**
+ * @brief Delete all anonymous symbols from the loaded symbols.
+ *
+ * @throws Exception if any error occurs during deletion.
+ */
 void Core::deleteAnonymousSymbols() {
 	auto it = std::begin(fasSymbols_);
 	while (it != std::end(fasSymbols_)) {
@@ -157,6 +212,11 @@ void Core::deleteAnonymousSymbols() {
 	}
 }
 
+/**
+ * @brief Load all symbols from the loaded *.fas file into memory.
+ *
+ * @throws Exception if any symbol cannot be read.
+ */
 void Core::loadSymbols() {
 	for (auto fasSymbol : fasSymbols_) {
 		checkAbsoluteValue(fasSymbol);
@@ -164,12 +224,26 @@ void Core::loadSymbols() {
 	}
 }
 
+/**
+ * @brief Check if the symbol has an absolute value.
+ *
+ * @param fasSymbol The symbol to check.
+ *
+ * @throws Exception if the symbol does not have an absolute value.
+ */
 void Core::checkAbsoluteValue(const Fas::Symbol &fasSymbol) {
 	if (fasSymbol.typeOfValue != ValueTypes::ABSOLUTE_VALUE) {
 		throw Exception("Support only absolute value");
 	}
 }
 
+/**
+ * @brief Load a symbol from a Fas::Symbol into a PluginSymbol.
+ *
+ * @param fasSymbol The Fas::Symbol to load.
+ *
+ * @throws Exception if the symbol cannot be loaded.
+ */
 void Core::loadSymbolFromFasSymbol(const Fas::Symbol &fasSymbol) {
 	PluginSymbol symbol;
 
@@ -187,11 +261,20 @@ void Core::loadSymbolFromFasSymbol(const Fas::Symbol &fasSymbol) {
 	symbols_.push_back(symbol);
 }
 
+/**
+ * @brief Convert a C-style string from the Fas::Symbol into a std::string.
+ *
+ * @param fasSymbol The Fas::Symbol containing the C-style string.
+ *
+ * @return The converted std::string.
+ *
+ * @throws Exception if the string cannot be read.
+ */
 std::string Core::cstr2string(const Symbol &fasSymbol) {
 
 	constexpr int MaxLength = 64;
 
-	auto offset = header_.offsetOfSymbolsTable + fasSymbol.preprocessed;
+	const uint32_t offset = header_.offsetOfSymbolsTable + fasSymbol.preprocessed;
 	char cstr[MaxLength];
 	auto count = 0;
 
@@ -204,7 +287,7 @@ std::string Core::cstr2string(const Symbol &fasSymbol) {
 			break;
 		}
 
-		if (*c == 0) {
+		if (*c == '\0') {
 			break;
 		}
 
@@ -214,15 +297,27 @@ std::string Core::cstr2string(const Symbol &fasSymbol) {
 
 	cstr[count] = '\0';
 
-	std::string str = cstr;
+	std::string str(cstr, count);
 	return str;
 }
 
+/**
+ * @brief Convert a Pascal-style string from the Fas::Symbol into a std::string.
+ *
+ * @param fasSymbol The Fas::Symbol containing the Pascal-style string.
+ *
+ * @return The converted std::string.
+ *
+ * @throws Exception if the string cannot be read.
+ */
 std::string Core::pascal2string(const Fas::Symbol &fasSymbol) {
 
-	auto offset = header_.offsetOfPreprocessedSource + fasSymbol.preprocessed;
+	constexpr int MaxLength = 256;
+
+	const uint32_t offset = header_.offsetOfPreprocessedSource + fasSymbol.preprocessed;
 	uint8_t len;
-	char pascal[64];
+
+	char pascal[MaxLength];
 
 	ifs_.seekg(offset);
 
@@ -230,15 +325,25 @@ std::string Core::pascal2string(const Fas::Symbol &fasSymbol) {
 		throw Exception("Length of pascal string not loaded");
 	}
 
+	// NOTE(eteran): technically impossible with a MaxLength of 256, but we check anyway
+	// in case we ever see reason to change the MaxLength in the future.
+	if (len >= MaxLength) {
+		throw Exception("Pascal string length exceeds maximum allowed length");
+	}
+
 	if (!ifs_.read(pascal, len)) {
 		throw Exception("Pascal string not loaded");
 	}
-	pascal[len] = '\0';
 
-	std::string str = pascal;
+	std::string str(pascal, len);
 	return str;
 }
 
+/**
+ * @brief Get all loaded plugin symbols.
+ *
+ * @return A reference to the collection of loaded plugin symbols.
+ */
 const PluginSymbols &Core::getSymbols() {
 	return symbols_;
 }
