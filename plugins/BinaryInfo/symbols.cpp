@@ -8,9 +8,19 @@
 #include "demangle.h"
 #include "edb.h"
 
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
 #include <iostream>
+#include <limits>
 #include <memory>
+#include <new>
+#include <optional>
 #include <set>
+#include <stdexcept>
+#include <string_view>
+#include <tuple>
+#include <vector>
 
 #include <QDateTime>
 #include <QDebug>
@@ -85,25 +95,99 @@ struct elf64_model : elf_model<64> {
 		}
 
 		[[nodiscard]] QString to_string() const {
-			return QStringLiteral("%1 %2 %3 %4").arg(edb::value64(address).toHexString(), edb::value32(size).toHexString()).arg(type).arg(name);
+			return QStringLiteral("%1 %2 %3 %4").arg(edb::value64(address).toHexString(), edb::value64(size).toHexString()).arg(type).arg(name);
 		}
 	};
 };
 
-[[nodiscard]] bool is_elf32(const void *ptr) {
-	auto elf32_hdr = static_cast<const elf32_header *>(ptr);
-	if (std::memcmp(elf32_hdr->e_ident, ELFMAG, SELFMAG) == 0) {
-		return elf32_hdr->e_ident[EI_CLASS] == ELFCLASS32;
-	}
-	return false;
+[[nodiscard]] bool range_fits(uint64_t file_size, uint64_t offset, uint64_t length) {
+	return offset <= file_size && length <= file_size - offset;
 }
 
-[[nodiscard]] bool is_elf64(const void *ptr) {
-	auto elf64_hdr = static_cast<const elf64_header *>(ptr);
-	if (std::memcmp(elf64_hdr->e_ident, ELFMAG, SELFMAG) == 0) {
-		return elf64_hdr->e_ident[EI_CLASS] == ELFCLASS64;
+template <typename T>
+[[nodiscard]] bool read_object(const char *data, uint64_t file_size, uint64_t offset, T &object) {
+	if (!range_fits(file_size, offset, sizeof(T))) {
+		return false;
 	}
-	return false;
+	std::memcpy(&object, data + static_cast<size_t>(offset), sizeof(T));
+	return true;
+}
+
+template <typename T>
+[[nodiscard]] bool read_table(const char *data, uint64_t file_size, uint64_t offset, uint64_t count, uint64_t entry_size, std::vector<T> &table) {
+	if (entry_size != sizeof(T) || offset > file_size || count > (file_size - offset) / entry_size || count > table.max_size()) {
+		return false;
+	}
+
+	const uint64_t table_size = count * entry_size;
+	if (!range_fits(file_size, offset, table_size)) {
+		return false;
+	}
+
+	table.resize(static_cast<size_t>(count));
+	if (table_size != 0) {
+		std::memcpy(table.data(), data + static_cast<size_t>(offset), static_cast<size_t>(table_size));
+	}
+	return true;
+}
+
+template <typename Section>
+[[nodiscard]] bool section_data_fits(const Section &section, uint64_t file_size) {
+	return section.sh_type == SHT_NOBITS || range_fits(file_size, section.sh_offset, section.sh_size);
+}
+
+template <typename T, typename Section>
+[[nodiscard]] bool read_section_table(const char *data, uint64_t file_size, const Section &section, std::vector<T> &table) {
+	if (section.sh_type == SHT_NOBITS || !section_data_fits(section, file_size) || section.sh_entsize == 0 || section.sh_size % section.sh_entsize != 0) {
+		return false;
+	}
+	return read_table(data, file_size, section.sh_offset, section.sh_size / section.sh_entsize, section.sh_entsize, table);
+}
+
+template <typename Section>
+[[nodiscard]] std::optional<std::string_view> get_string(const char *data, uint64_t file_size, const Section &section, uint64_t offset) {
+	if (section.sh_type != SHT_STRTAB || !section_data_fits(section, file_size) || offset >= section.sh_size) {
+		return std::nullopt;
+	}
+
+	const char *begin     = data + static_cast<size_t>(section.sh_offset + offset);
+	const auto remaining  = static_cast<size_t>(section.sh_size - offset);
+	const auto terminator = static_cast<const char *>(std::memchr(begin, '\0', remaining));
+	if (terminator == nullptr) {
+		return std::nullopt;
+	}
+
+	return std::string_view(begin, static_cast<size_t>(terminator - begin));
+}
+
+[[nodiscard]] bool make_qstring(std::string_view text, QString &value) {
+	if (text.size() > static_cast<size_t>(std::numeric_limits<int>::max())) {
+		return false;
+	}
+	value = QString::fromLocal8Bit(text.data(), static_cast<int>(text.size()));
+	return true;
+}
+
+[[nodiscard]] bool valid_elf_ident(const void *ptr, uint64_t size, uint8_t elf_class) {
+	if (ptr == nullptr || size < EI_NIDENT) {
+		return false;
+	}
+
+	const auto ident              = static_cast<const uint8_t *>(ptr);
+	uint16_t endian_probe         = 1;
+	const uint8_t native_encoding = *reinterpret_cast<const uint8_t *>(&endian_probe) == 1 ? ELFDATA2LSB : ELFDATA2MSB;
+	return std::memcmp(ident, ELFMAG, SELFMAG) == 0 &&
+		   ident[EI_CLASS] == elf_class &&
+		   ident[EI_DATA] == native_encoding &&
+		   ident[EI_VERSION] == EV_CURRENT;
+}
+
+[[nodiscard]] bool is_elf32(const void *ptr, uint64_t size) {
+	return valid_elf_ident(ptr, size, ELFCLASS32) && size >= sizeof(elf32_header);
+}
+
+[[nodiscard]] bool is_elf64(const void *ptr, uint64_t size) {
+	return valid_elf_ident(ptr, size, ELFCLASS64) && size >= sizeof(elf64_header);
 }
 
 /*
@@ -160,8 +244,8 @@ the symbol is local; if uppercase, the symbol is global (external).
 "?" The symbol type is unknown, or object file format specific.
 */
 
-template <class M, class SizeType>
-void collect_symbols(const void *p, SizeType size, std::vector<typename M::symbol> &symbols) {
+template <class M>
+[[nodiscard]] bool collect_symbols(const void *p, uint64_t file_size, std::vector<typename M::symbol> &symbols) {
 
 	using elf_addr   = typename M::elf_addr;
 	using elf_header = typename M::elf_header;
@@ -171,15 +255,50 @@ void collect_symbols(const void *p, SizeType size, std::vector<typename M::symbo
 	using elf_rel    = typename M::elf_rel;
 	using symbol     = typename M::symbol;
 
-	const auto base = reinterpret_cast<uintptr_t>(p);
-
-	const auto header = static_cast<const elf_header *>(p);
-	if (header->e_shnum == 0 || header->e_shentsize == 0) {
-		return;
+	const auto data = static_cast<const char *>(p);
+	elf_header header{};
+	if (!read_object(data, file_size, 0, header) ||
+		header.e_ehsize != sizeof(elf_header) ||
+		header.e_version != EV_CURRENT ||
+		header.e_shentsize != sizeof(elf_shdr) ||
+		header.e_shoff == 0) {
+		return false;
 	}
-	const auto sections_begin          = reinterpret_cast<elf_shdr *>(base + header->e_shoff);
-	const elf_shdr *const sections_end = sections_begin + header->e_shnum;
-	auto section_strings               = reinterpret_cast<const char *>(base + sections_begin[header->e_shstrndx].sh_offset);
+
+	elf_shdr section_zero{};
+	if (!read_object(data, file_size, header.e_shoff, section_zero)) {
+		return false;
+	}
+
+	const uint64_t section_count       = header.e_shnum != 0 ? header.e_shnum : section_zero.sh_size;
+	const uint64_t section_names_index = header.e_shstrndx == SHN_XINDEX ? section_zero.sh_link : header.e_shstrndx;
+	if (section_count == 0 || (section_names_index != SHN_UNDEF && section_names_index >= section_count)) {
+		return false;
+	}
+
+	std::vector<elf_shdr> sections;
+	if (!read_table(data, file_size, header.e_shoff, section_count, header.e_shentsize, sections)) {
+		return false;
+	}
+
+	const bool has_section_names = section_names_index != SHN_UNDEF;
+	std::vector<std::string_view> section_names_cache(sections.size());
+	if (has_section_names) {
+		const elf_shdr &section_names = sections[static_cast<size_t>(section_names_index)];
+		if (section_names.sh_type != SHT_STRTAB || !section_data_fits(section_names, file_size)) {
+			return false;
+		}
+
+		for (size_t i = 0; i < sections.size(); ++i) {
+			const auto name = get_string(data, file_size, section_names, sections[i].sh_name);
+			if (!name) {
+				return false;
+			}
+			section_names_cache[i] = *name;
+		}
+	}
+
+	std::vector<symbol> collected_symbols;
 
 	elf_addr plt_address     = 0;
 	elf_addr plt_sec_address = 0;
@@ -187,210 +306,239 @@ void collect_symbols(const void *p, SizeType size, std::vector<typename M::symbo
 	std::set<elf_addr> plt_addresses;
 
 	// collect special section addresses
-	for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
-		if (section_strings + section->sh_name < reinterpret_cast<void *>(base) || section_strings + section->sh_name > reinterpret_cast<void *>(base + size)) {
-			continue;
-		}
-
-		if (strcmp(&section_strings[section->sh_name], ".plt") == 0) {
-			plt_address = section->sh_addr;
-		} else if (strcmp(&section_strings[section->sh_name], ".got") == 0) {
-			got_address = section->sh_addr;
-		} else if (strcmp(&section_strings[section->sh_name], ".plt.sec") == 0) {
-			plt_sec_address = section->sh_addr;
+	for (size_t i = 0; i < sections.size(); ++i) {
+		if (section_names_cache[i] == ".plt") {
+			plt_address = sections[i].sh_addr;
+		} else if (section_names_cache[i] == ".got") {
+			got_address = sections[i].sh_addr;
+		} else if (section_names_cache[i] == ".plt.sec") {
+			plt_sec_address = sections[i].sh_addr;
 		}
 	}
 
 	// print out relocated symbols for special sections
-	for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
-		if (section_strings + section->sh_name < reinterpret_cast<void *>(base) || section_strings + section->sh_name > reinterpret_cast<void *>(base + size)) {
-			continue;
-		}
+	for (size_t section_index = 0; section_index < sections.size(); ++section_index) {
+		const auto &section = sections[section_index];
 
 		elf_addr base_address = 0;
-		if (strcmp(&section_strings[section->sh_name], ".rela.plt") == 0) {
+		if (section_names_cache[section_index] == ".rela.plt") {
 			base_address = plt_sec_address ? plt_sec_address : plt_address;
-		} else if (strcmp(&section_strings[section->sh_name], ".rel.plt") == 0) {
+		} else if (section_names_cache[section_index] == ".rel.plt") {
 			base_address = plt_sec_address ? plt_sec_address : plt_address;
-		} else if (strcmp(&section_strings[section->sh_name], ".rela.got") == 0) {
+		} else if (section_names_cache[section_index] == ".rela.got") {
 			base_address = got_address;
-		} else if (strcmp(&section_strings[section->sh_name], ".rel.got") == 0) {
+		} else if (section_names_cache[section_index] == ".rel.got") {
 			base_address = got_address;
 		} else {
 			continue;
 		}
 
-		auto section_entries_count = section->sh_entsize ? section->sh_size / section->sh_entsize : 0;
-		switch (section->sh_type) {
+		switch (section.sh_type) {
 		case SHT_RELA: {
-			elf_addr n      = 0;
-			auto relocation = reinterpret_cast<elf_rela *>(base + section->sh_offset);
-
-			if (section->sh_link == 0) {
-				break;
+			if (!section_data_fits(section, file_size) || section.sh_link >= sections.size()) {
+				return false;
+			}
+			const auto &linked = sections[section.sh_link];
+			if (linked.sh_type != SHT_SYMTAB && linked.sh_type != SHT_DYNSYM) {
+				return false;
+			}
+			std::vector<elf_rela> relocations;
+			std::vector<elf_sym> symbol_table;
+			if (!read_section_table(data, file_size, section, relocations) ||
+				!read_section_table(data, file_size, linked, symbol_table) ||
+				linked.sh_link >= sections.size()) {
+				return false;
+			}
+			const auto &strings = sections[linked.sh_link];
+			if (strings.sh_type != SHT_STRTAB || !section_data_fits(strings, file_size)) {
+				return false;
 			}
 
+			elf_addr n = 0;
 			if (!plt_sec_address) {
 				++n;
 			}
 
-			for (size_t i = 0; i < section_entries_count; ++i) {
-
-				const size_t sym_index = M::elf_r_sym(relocation[i].r_info);
-				const elf_shdr *linked = &sections_begin[section->sh_link];
-				auto symbol_tab        = reinterpret_cast<elf_sym *>(base + linked->sh_offset);
-				auto string_tab        = reinterpret_cast<const char *>(base + sections_begin[linked->sh_link].sh_offset);
-
-				const auto symbol_address = static_cast<elf_addr>(base_address + (n * M::plt_entry_size));
-
-				const char *sym_name = &section_strings[section->sh_name];
-				if (strlen(sym_name) > (sizeof(".rela.") - 1) && memcmp(sym_name, ".rela.", (sizeof(".rela.") - 1)) == 0) {
-					sym_name += 6;
+			for (const auto &relocation : relocations) {
+				const size_t sym_index = static_cast<size_t>(M::elf_r_sym(relocation.r_info));
+				if (sym_index >= symbol_table.size()) {
+					return false;
 				}
 
-				plt_addresses.insert(symbol_address);
+				const auto &elf_symbol = symbol_table[sym_index];
+				const auto symbol_name = get_string(data, file_size, strings, elf_symbol.st_name);
+				if (!symbol_name ||
+					n > (std::numeric_limits<elf_addr>::max() - base_address) / M::plt_entry_size) {
+					return false;
+				}
 
+				const auto symbol_address        = static_cast<elf_addr>(base_address + (n * M::plt_entry_size));
+				std::string_view relocation_name = section_names_cache[section_index];
+				relocation_name.remove_prefix(sizeof(".rela.") - 1);
 				symbol sym;
 				sym.address = symbol_address;
-				sym.size    = (symbol_tab[sym_index].st_size ? symbol_tab[sym_index].st_size : 0x10);
-				sym.name    = QString::fromLocal8Bit(&string_tab[symbol_tab[sym_index].st_name]);
+				sym.size    = (elf_symbol.st_size ? elf_symbol.st_size : 0x10);
+				if (!make_qstring(*symbol_name, sym.name) || relocation_name.size() > static_cast<size_t>(std::numeric_limits<int>::max() - sym.name.size())) {
+					return false;
+				}
 				sym.name += QLatin1Char('@');
-				sym.name += QString::fromLocal8Bit(sym_name);
+				QString suffix;
+				if (!make_qstring(relocation_name, suffix)) {
+					return false;
+				}
+				sym.name += suffix;
 				sym.type = 'P';
-				symbols.push_back(sym);
+				collected_symbols.push_back(sym);
+				plt_addresses.insert(symbol_address);
 				++n;
 			}
 		} break;
 		case SHT_REL: {
-			elf_addr n      = 0;
-			auto relocation = reinterpret_cast<elf_rel *>(base + section->sh_offset);
-
-			if (section->sh_link == 0) {
-				break;
+			if (!section_data_fits(section, file_size) || section.sh_link >= sections.size()) {
+				return false;
+			}
+			const auto &linked = sections[section.sh_link];
+			if (linked.sh_type != SHT_SYMTAB && linked.sh_type != SHT_DYNSYM) {
+				return false;
+			}
+			std::vector<elf_rel> relocations;
+			std::vector<elf_sym> symbol_table;
+			if (!read_section_table(data, file_size, section, relocations) ||
+				!read_section_table(data, file_size, linked, symbol_table) ||
+				linked.sh_link >= sections.size()) {
+				return false;
+			}
+			const auto &strings = sections[linked.sh_link];
+			if (strings.sh_type != SHT_STRTAB || !section_data_fits(strings, file_size)) {
+				return false;
 			}
 
+			elf_addr n = 0;
 			if (!plt_sec_address) {
 				++n;
 			}
 
-			for (size_t i = 0; i < section_entries_count; ++i) {
-
-				const size_t sym_index = M::elf_r_sym(relocation[i].r_info);
-				const elf_shdr *linked = &sections_begin[section->sh_link];
-				auto symbol_tab        = reinterpret_cast<elf_sym *>(base + linked->sh_offset);
-				auto string_tab        = reinterpret_cast<const char *>(base + sections_begin[linked->sh_link].sh_offset);
-
-				const auto symbol_address = static_cast<elf_addr>(base_address + (n * M::plt_entry_size));
-
-				const char *sym_name = &section_strings[section->sh_name];
-				if (strlen(sym_name) > (sizeof(".rel.") - 1) && memcmp(sym_name, ".rel.", (sizeof(".rel.") - 1)) == 0) {
-					sym_name += 5;
+			for (const auto &relocation : relocations) {
+				const size_t sym_index = static_cast<size_t>(M::elf_r_sym(relocation.r_info));
+				if (sym_index >= symbol_table.size()) {
+					return false;
 				}
 
-				plt_addresses.insert(symbol_address);
+				const auto &elf_symbol = symbol_table[sym_index];
+				const auto symbol_name = get_string(data, file_size, strings, elf_symbol.st_name);
+				if (!symbol_name ||
+					n > (std::numeric_limits<elf_addr>::max() - base_address) / M::plt_entry_size) {
+					return false;
+				}
 
+				const auto symbol_address        = static_cast<elf_addr>(base_address + (n * M::plt_entry_size));
+				std::string_view relocation_name = section_names_cache[section_index];
+				relocation_name.remove_prefix(sizeof(".rel.") - 1);
 				symbol sym;
 				sym.address = symbol_address;
-				sym.size    = (symbol_tab[sym_index].st_size ? symbol_tab[sym_index].st_size : 0x10);
-				sym.name    = QString::fromLocal8Bit(&string_tab[symbol_tab[sym_index].st_name]);
+				sym.size    = (elf_symbol.st_size ? elf_symbol.st_size : 0x10);
+				if (!make_qstring(*symbol_name, sym.name)) {
+					return false;
+				}
 				sym.name += QLatin1Char('@');
-				sym.name += QString::fromLocal8Bit(sym_name);
+				QString suffix;
+				if (!make_qstring(relocation_name, suffix)) {
+					return false;
+				}
+				sym.name += suffix;
 				sym.type = 'P';
-				symbols.push_back(sym);
+				collected_symbols.push_back(sym);
+				plt_addresses.insert(symbol_address);
 				++n;
 			}
 		} break;
 		}
 	}
 
-	// collect regular symbols
-	for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
-
-		switch (section->sh_type) {
+	// collect regular and unnamed symbols
+	for (const auto &section : sections) {
+		switch (section.sh_type) {
 		case SHT_SYMTAB:
 		case SHT_DYNSYM: {
-			auto symbol_tab            = reinterpret_cast<elf_sym *>(base + section->sh_offset);
-			auto string_tab            = reinterpret_cast<const char *>(base + sections_begin[section->sh_link].sh_offset);
-			auto section_entries_count = section->sh_entsize ? section->sh_size / section->sh_entsize : 0;
-
-			for (size_t i = 0; i < section_entries_count; ++i) {
-
-				const elf_shdr *related_section = nullptr;
-
-				if (symbol_tab[i].st_shndx != SHN_UNDEF && symbol_tab[i].st_shndx < SHN_LORESERVE) {
-					related_section = &sections_begin[symbol_tab[i].st_shndx];
-				}
-
-				Q_UNUSED(related_section)
-
-				if (plt_addresses.find(symbol_tab[i].st_value) == plt_addresses.end()) {
-
-					if (symbol_tab[i].st_value && strlen(&string_tab[symbol_tab[i].st_name]) > 0) {
-
-						symbol sym;
-						sym.address = symbol_tab[i].st_value;
-						sym.size    = symbol_tab[i].st_size;
-						sym.name    = QString::fromLocal8Bit(&string_tab[symbol_tab[i].st_name]);
-						sym.type    = (M::elf_st_type(symbol_tab[i].st_info) == STT_FUNC ? 'T' : 'D');
-						symbols.push_back(sym);
-					}
-				}
+			if (!section_data_fits(section, file_size) || section.sh_link >= sections.size()) {
+				return false;
 			}
-		} break;
-		}
-	}
+			std::vector<elf_sym> symbol_table;
+			if (!read_section_table(data, file_size, section, symbol_table)) {
+				return false;
+			}
+			const auto &strings = sections[section.sh_link];
+			if (strings.sh_type != SHT_STRTAB || !section_data_fits(strings, file_size)) {
+				return false;
+			}
 
-	// collect unnamed symbols
-	for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
-
-		switch (section->sh_type) {
-		case SHT_SYMTAB:
-		case SHT_DYNSYM: {
-			auto symbol_tab            = reinterpret_cast<elf_sym *>(base + section->sh_offset);
-			auto string_tab            = reinterpret_cast<const char *>(base + sections_begin[section->sh_link].sh_offset);
-			auto section_entries_count = section->sh_entsize ? section->sh_size / section->sh_entsize : 0;
-
-			for (size_t i = 0; i < section_entries_count; ++i) {
-
-				const elf_shdr *related_section = nullptr;
-
-				if (symbol_tab[i].st_shndx != SHN_UNDEF && symbol_tab[i].st_shndx < SHN_LORESERVE) {
-					related_section = &sections_begin[symbol_tab[i].st_shndx];
-				}
-
-				Q_UNUSED(related_section)
-
-				if (plt_addresses.find(symbol_tab[i].st_value) == plt_addresses.end()) {
-
-					if (symbol_tab[i].st_value && strlen(&string_tab[symbol_tab[i].st_name]) == 0) {
+			for (const auto &elf_symbol : symbol_table) {
+				if (plt_addresses.find(elf_symbol.st_value) == plt_addresses.end() && elf_symbol.st_value != 0) {
+					const auto name = get_string(data, file_size, strings, elf_symbol.st_name);
+					if (!name) {
+						return false;
+					}
+					if (!name->empty()) {
 						symbol sym;
-						sym.address = symbol_tab[i].st_value;
-						sym.size    = symbol_tab[i].st_size;
+						sym.address = elf_symbol.st_value;
+						sym.size    = elf_symbol.st_size;
+						if (!make_qstring(*name, sym.name)) {
+							return false;
+						}
+						sym.type = (M::elf_st_type(elf_symbol.st_info) == STT_FUNC ? 'T' : 'D');
+						collected_symbols.push_back(sym);
+					} else {
+						symbol sym;
+						sym.address = elf_symbol.st_value;
+						sym.size    = elf_symbol.st_size;
 
-						for (const elf_shdr *section = sections_begin; section != sections_end; ++section) {
-							if (sym.address >= section->sh_addr && sym.address + sym.size <= section->sh_addr + section->sh_size) {
-								const std::int64_t offset = sym.address - section->sh_addr;
-								const QString hexPrefix   = std::abs(offset) > 9 ? QStringLiteral("0x") : QString();
-								const QString offsetStr   = offset ? QStringLiteral("+") + hexPrefix + QString::number(offset, 16) : QString();
-								const auto sectionName    = QString::fromLocal8Bit(&section_strings[section->sh_name]);
-								if (!sectionName.isEmpty()) {
-									sym.name = QString(sectionName + offsetStr);
-									break;
+						if (has_section_names) {
+							for (size_t i = 0; i < sections.size(); ++i) {
+								const auto &candidate = sections[i];
+								if (sym.address >= candidate.sh_addr) {
+									const auto offset = sym.address - candidate.sh_addr;
+									if (offset <= candidate.sh_size && sym.size <= candidate.sh_size - offset) {
+										const QString hexPrefix = offset > 9 ? QStringLiteral("0x") : QString();
+										const QString offsetStr = offset ? QStringLiteral("+") + hexPrefix + QString::number(offset, 16) : QString();
+										QString section_name;
+										if (!make_qstring(section_names_cache[i], section_name)) {
+											return false;
+										}
+										if (!section_name.isEmpty()) {
+											sym.name = QString(section_name + offsetStr);
+											break;
+										}
+									}
 								}
 							}
 						}
 
 						if (sym.name.isEmpty()) {
-							sym.name = QStringLiteral("$sym_%1").arg(edb::v1::format_pointer(symbol_tab[i].st_value));
+							sym.name = QStringLiteral("$sym_%1").arg(edb::v1::format_pointer(elf_symbol.st_value));
 						}
 
-						sym.type = (M::elf_st_type(symbol_tab[i].st_info) == STT_FUNC ? 'T' : 'D');
-						symbols.push_back(sym);
+						sym.type = (M::elf_st_type(elf_symbol.st_info) == STT_FUNC ? 'T' : 'D');
+						collected_symbols.push_back(sym);
 					}
 				}
 			}
 		} break;
 		}
+	}
+	symbols.insert(symbols.end(), collected_symbols.begin(), collected_symbols.end());
+	return true;
+}
+
+template <class M>
+[[nodiscard]] bool try_collect_symbols(const void *p, uint64_t file_size, std::vector<typename M::symbol> &symbols) {
+	try {
+		return collect_symbols<M>(p, file_size, symbols);
+	} catch (const std::bad_alloc &) {
+		qWarning() << "Not enough memory to parse ELF symbols";
+		return false;
+	} catch (const std::length_error &) {
+		qWarning() << "ELF symbol table is too large";
+		return false;
 	}
 }
 
@@ -421,26 +569,29 @@ void output_symbols(std::vector<Symbol> &symbols, std::ostream &os) {
  * @param os The output stream to write the symbols to.
  * @return True if the operation was successful, false otherwise.
  */
-bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, std::ostream &os) {
+bool generate_symbols_internal(QFile &file, std::optional<QFile> &debugFile, std::ostream &os) {
 	if (auto file_ptr = static_cast<void *>(file.map(0, file.size(), QFile::NoOptions))) {
-		if (is_elf64(file_ptr)) {
+		const auto file_size = static_cast<uint64_t>(file.size());
+		if (is_elf64(file_ptr, file_size)) {
 
 			using symbol = typename elf64_model::symbol;
 			std::vector<symbol> symbols;
 
-			collect_symbols<elf64_model>(file_ptr, file.size(), symbols);
+			if (!try_collect_symbols<elf64_model>(file_ptr, file_size, symbols)) {
+				return false;
+			}
 
 			// if there was a debug file
-			if (debugFile) {
-				// and we successfully opened it
-				if (debugFile->open(QIODevice::ReadOnly)) {
+			// and we successfully opened it
+			if (debugFile && debugFile->open(QIODevice::ReadOnly)) {
 
-					// map it and include it with the symbols
-					if (auto debug_ptr = static_cast<void *>(debugFile->map(0, debugFile->size(), QFile::NoOptions))) {
+				// map it and include it with the symbols
+				if (auto debug_ptr = static_cast<void *>(debugFile->map(0, debugFile->size(), QFile::NoOptions))) {
 
-						// this should never fail... but just being sure
-						if (is_elf64(debug_ptr)) {
-							collect_symbols<elf64_model>(debug_ptr, debugFile->size(), symbols);
+					// this should never fail... but just being sure
+					if (is_elf64(debug_ptr, static_cast<uint64_t>(debugFile->size()))) {
+						if (!try_collect_symbols<elf64_model>(debug_ptr, static_cast<uint64_t>(debugFile->size()), symbols)) {
+							qWarning() << "Invalid ELF debug file:" << debugFile->fileName();
 						}
 					}
 				}
@@ -450,24 +601,26 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 			return true;
 		}
 
-		if (is_elf32(file_ptr)) {
+		if (is_elf32(file_ptr, file_size)) {
 
 			using symbol = typename elf32_model::symbol;
 			std::vector<symbol> symbols;
 
-			collect_symbols<elf32_model>(file_ptr, file.size(), symbols);
+			if (!try_collect_symbols<elf32_model>(file_ptr, file_size, symbols)) {
+				return false;
+			}
 
 			// if there was a debug file
-			if (debugFile) {
-				// and we successfully opened it
-				if (debugFile->open(QIODevice::ReadOnly)) {
+			// and we successfully opened it
+			if (debugFile && debugFile->open(QIODevice::ReadOnly)) {
 
-					// map it and include it with the symbols
-					if (auto debug_ptr = static_cast<void *>(debugFile->map(0, debugFile->size(), QFile::NoOptions))) {
+				// map it and include it with the symbols
+				if (auto debug_ptr = static_cast<void *>(debugFile->map(0, debugFile->size(), QFile::NoOptions))) {
 
-						// this should never fail... but just being sure
-						if (is_elf32(debug_ptr)) {
-							collect_symbols<elf32_model>(debug_ptr, debugFile->size(), symbols);
+					// this should never fail... but just being sure
+					if (is_elf32(debug_ptr, static_cast<uint64_t>(debugFile->size()))) {
+						if (!try_collect_symbols<elf32_model>(debug_ptr, static_cast<uint64_t>(debugFile->size()), symbols)) {
+							qWarning() << "Invalid ELF debug file:" << debugFile->fileName();
 						}
 					}
 				}
@@ -502,11 +655,11 @@ bool generate_symbols(const QString &filename, std::ostream &os) {
 
 		const QString debugInfoPath = QSettings().value(QStringLiteral("BinaryInfo/debug_info_path"), QStringLiteral("/usr/lib/debug")).toString();
 
-		std::shared_ptr<QFile> debugFile;
+		std::optional<QFile> debugFile;
 		if (!debugInfoPath.isEmpty()) {
-			debugFile = std::make_shared<QFile>(QStringLiteral("%1/%2.debug").arg(debugInfoPath, filename));
+			debugFile.emplace(QStringLiteral("%1/%2.debug").arg(debugInfoPath, filename));
 			if (!debugFile->exists()) { // systems such as Ubuntu don't have .debug suffix, try without it
-				debugFile = std::make_shared<QFile>(QStringLiteral("%1/%2").arg(debugInfoPath, filename));
+				debugFile.emplace(QStringLiteral("%1/%2").arg(debugInfoPath, filename));
 			}
 		}
 
