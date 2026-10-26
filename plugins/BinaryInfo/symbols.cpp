@@ -9,6 +9,7 @@
 #include "edb.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <cstring>
 #include <iostream>
@@ -56,7 +57,7 @@ public:
 		return offset <= size_ &&
 			   length <= size_ - offset &&
 			   offset <= std::numeric_limits<size_t>::max() &&
-			   length <= std::numeric_limits<size_t>::max();
+			   length <= std::numeric_limits<size_t>::max() - static_cast<size_t>(offset);
 	}
 
 	[[nodiscard]] std::optional<std::string_view> view(uint64_t offset, uint64_t length) const {
@@ -164,11 +165,6 @@ template <typename T>
 
 	table.resize(static_cast<size_t>(count));
 	return reader.read(table.data(), offset, table_size);
-}
-
-template <typename Section>
-[[nodiscard]] bool section_data_fits(const MemoryReader &reader, const Section &section) {
-	return section.sh_type == SHT_NOBITS || reader.contains(section.sh_offset, section.sh_size);
 }
 
 template <typename T, typename Section>
@@ -393,7 +389,7 @@ template <class M>
 				return false;
 			}
 			const auto &strings = sections[linked.sh_link];
-			if (strings.sh_type != SHT_STRTAB || !section_data_fits(reader, strings)) {
+			if (strings.sh_type != SHT_STRTAB || !reader.contains(strings.sh_offset, strings.sh_size)) {
 				return false;
 			}
 
@@ -452,7 +448,7 @@ template <class M>
 				return false;
 			}
 			const auto &strings = sections[linked.sh_link];
-			if (strings.sh_type != SHT_STRTAB || !section_data_fits(reader, strings)) {
+			if (strings.sh_type != SHT_STRTAB || !reader.contains(strings.sh_offset, strings.sh_size)) {
 				return false;
 			}
 
@@ -511,7 +507,7 @@ template <class M>
 				return false;
 			}
 			const auto &strings = sections[section.sh_link];
-			if (strings.sh_type != SHT_STRTAB || !section_data_fits(reader, strings)) {
+			if (strings.sh_type != SHT_STRTAB || !reader.contains(strings.sh_offset, strings.sh_size)) {
 				return false;
 			}
 
