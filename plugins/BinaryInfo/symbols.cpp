@@ -153,11 +153,15 @@ struct elf64_model : elf_model<64> {
 
 template <typename T>
 [[nodiscard]] bool read_table(const MemoryReader &reader, uint64_t offset, uint64_t count, uint64_t entry_size, std::vector<T> &table) {
-	if (entry_size != sizeof(T) || offset > reader.size() || count > (reader.size() - offset) / entry_size || count > table.max_size()) {
+	if (entry_size != sizeof(T) || count > table.max_size()) {
 		return false;
 	}
 
 	const uint64_t table_size = count * entry_size;
+	if (!reader.contains(offset, table_size)) {
+		return false;
+	}
+
 	table.resize(static_cast<size_t>(count));
 	return reader.read(table.data(), offset, table_size);
 }
@@ -169,7 +173,7 @@ template <typename Section>
 
 template <typename T, typename Section>
 [[nodiscard]] bool read_section_table(const MemoryReader &reader, const Section &section, std::vector<T> &table) {
-	if (section.sh_type == SHT_NOBITS || !section_data_fits(reader, section) || section.sh_entsize == 0 || section.sh_size % section.sh_entsize != 0) {
+	if (section.sh_type == SHT_NOBITS || section.sh_entsize == 0 || section.sh_size % section.sh_entsize != 0) {
 		return false;
 	}
 	return read_table(reader, section.sh_offset, section.sh_size / section.sh_entsize, section.sh_entsize, table);
@@ -324,7 +328,7 @@ template <class M>
 	std::vector<std::string_view> section_names_cache(sections.size());
 	if (has_section_names) {
 		const elf_shdr &section_names = sections[static_cast<size_t>(section_names_index)];
-		if (section_names.sh_type != SHT_STRTAB || !section_data_fits(reader, section_names)) {
+		if (section_names.sh_type != SHT_STRTAB) {
 			return false;
 		}
 
@@ -374,7 +378,7 @@ template <class M>
 
 		switch (section.sh_type) {
 		case SHT_RELA: {
-			if (!section_data_fits(reader, section) || section.sh_link >= sections.size()) {
+			if (section.sh_link >= sections.size()) {
 				return false;
 			}
 			const auto &linked = sections[section.sh_link];
@@ -433,7 +437,7 @@ template <class M>
 			}
 		} break;
 		case SHT_REL: {
-			if (!section_data_fits(reader, section) || section.sh_link >= sections.size()) {
+			if (section.sh_link >= sections.size()) {
 				return false;
 			}
 			const auto &linked = sections[section.sh_link];
@@ -499,7 +503,7 @@ template <class M>
 		switch (section.sh_type) {
 		case SHT_SYMTAB:
 		case SHT_DYNSYM: {
-			if (!section_data_fits(reader, section) || section.sh_link >= sections.size()) {
+			if (section.sh_link >= sections.size()) {
 				return false;
 			}
 			std::vector<elf_sym> symbol_table;
