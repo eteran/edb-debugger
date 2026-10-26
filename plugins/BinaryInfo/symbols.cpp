@@ -9,6 +9,7 @@
 #include "edb.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <cstring>
 #include <iostream>
@@ -41,6 +42,57 @@
 
 namespace BinaryInfoPlugin {
 namespace {
+
+class MemoryReader {
+public:
+	MemoryReader(const void *data, uint64_t size) : data_(static_cast<const char *>(data)), size_(size) {
+		assert(data_ != nullptr || size_ == 0);
+	}
+
+public:
+	[[nodiscard]] uint64_t size() const { return size_; }
+
+public:
+	[[nodiscard]] bool contains(uint64_t offset, uint64_t length) const {
+		return offset <= size_ &&
+			   length <= size_ - offset &&
+			   offset <= std::numeric_limits<size_t>::max() &&
+			   length <= std::numeric_limits<size_t>::max() - static_cast<size_t>(offset);
+	}
+
+	[[nodiscard]] std::optional<std::string_view> view(uint64_t offset, uint64_t length) const {
+		if (!contains(offset, length)) {
+			return std::nullopt;
+		}
+
+		if (length == 0) {
+			return std::string_view{};
+		}
+
+		return std::string_view(data_ + static_cast<size_t>(offset), static_cast<size_t>(length));
+	}
+
+	[[nodiscard]] bool read(void *buffer, uint64_t offset, uint64_t length) const {
+		if (!contains(offset, length)) {
+			return false;
+		}
+
+		if (length == 0) {
+			return true;
+		}
+
+		if (buffer == nullptr) {
+			return false;
+		}
+
+		std::memcpy(buffer, data_ + static_cast<size_t>(offset), static_cast<size_t>(length));
+		return true;
+	}
+
+private:
+	const char *data_ = nullptr;
+	uint64_t size_    = 0;
+};
 
 struct elf32_model : elf_model<32> {
 
@@ -100,59 +152,43 @@ struct elf64_model : elf_model<64> {
 	};
 };
 
-[[nodiscard]] bool range_fits(uint64_t file_size, uint64_t offset, uint64_t length) {
-	return offset <= file_size && length <= file_size - offset;
-}
-
 template <typename T>
-[[nodiscard]] bool read_object(const char *data, uint64_t file_size, uint64_t offset, T &object) {
-	if (!range_fits(file_size, offset, sizeof(T))) {
-		return false;
-	}
-	std::memcpy(&object, data + static_cast<size_t>(offset), sizeof(T));
-	return true;
-}
-
-template <typename T>
-[[nodiscard]] bool read_table(const char *data, uint64_t file_size, uint64_t offset, uint64_t count, uint64_t entry_size, std::vector<T> &table) {
-	if (entry_size != sizeof(T) || offset > file_size || count > (file_size - offset) / entry_size || count > table.max_size()) {
+[[nodiscard]] bool read_table(const MemoryReader &reader, uint64_t offset, uint64_t count, uint64_t entry_size, std::vector<T> &table) {
+	if (entry_size != sizeof(T) || count > table.max_size()) {
 		return false;
 	}
 
 	const uint64_t table_size = count * entry_size;
-	if (!range_fits(file_size, offset, table_size)) {
+	if (!reader.contains(offset, table_size)) {
 		return false;
 	}
 
 	table.resize(static_cast<size_t>(count));
-	if (table_size != 0) {
-		std::memcpy(table.data(), data + static_cast<size_t>(offset), static_cast<size_t>(table_size));
-	}
-	return true;
-}
-
-template <typename Section>
-[[nodiscard]] bool section_data_fits(const Section &section, uint64_t file_size) {
-	return section.sh_type == SHT_NOBITS || range_fits(file_size, section.sh_offset, section.sh_size);
+	return reader.read(table.data(), offset, table_size);
 }
 
 template <typename T, typename Section>
-[[nodiscard]] bool read_section_table(const char *data, uint64_t file_size, const Section &section, std::vector<T> &table) {
-	if (section.sh_type == SHT_NOBITS || !section_data_fits(section, file_size) || section.sh_entsize == 0 || section.sh_size % section.sh_entsize != 0) {
+[[nodiscard]] bool read_section_table(const MemoryReader &reader, const Section &section, std::vector<T> &table) {
+	if (section.sh_type == SHT_NOBITS || section.sh_entsize == 0 || section.sh_size % section.sh_entsize != 0) {
 		return false;
 	}
-	return read_table(data, file_size, section.sh_offset, section.sh_size / section.sh_entsize, section.sh_entsize, table);
+	return read_table(reader, section.sh_offset, section.sh_size / section.sh_entsize, section.sh_entsize, table);
 }
 
 template <typename Section>
-[[nodiscard]] std::optional<std::string_view> get_string(const char *data, uint64_t file_size, const Section &section, uint64_t offset) {
-	if (section.sh_type != SHT_STRTAB || !section_data_fits(section, file_size) || offset >= section.sh_size) {
+[[nodiscard]] std::optional<std::string_view> get_string(const MemoryReader &reader, const Section &section, uint64_t offset) {
+	if (section.sh_type != SHT_STRTAB) {
 		return std::nullopt;
 	}
 
-	const char *begin     = data + static_cast<size_t>(section.sh_offset + offset);
-	const auto remaining  = static_cast<size_t>(section.sh_size - offset);
-	const auto terminator = static_cast<const char *>(std::memchr(begin, '\0', remaining));
+	const auto section_data = reader.view(section.sh_offset, section.sh_size);
+	if (!section_data || offset >= section_data->size()) {
+		return std::nullopt;
+	}
+
+	const char *begin        = section_data->data() + static_cast<size_t>(offset);
+	const auto remaining     = section_data->size() - static_cast<size_t>(offset);
+	const auto terminator    = static_cast<const char *>(std::memchr(begin, '\0', remaining));
 	if (terminator == nullptr) {
 		return std::nullopt;
 	}
@@ -168,12 +204,13 @@ template <typename Section>
 	return true;
 }
 
-[[nodiscard]] bool valid_elf_ident(const void *ptr, uint64_t size, uint8_t elf_class) {
-	if (ptr == nullptr || size < EI_NIDENT) {
+[[nodiscard]] bool valid_elf_ident(const MemoryReader &reader, uint8_t elf_class) {
+
+	uint8_t ident[EI_NIDENT] = {0};
+	if (!reader.read(ident, 0, sizeof(ident))) {
 		return false;
 	}
 
-	const auto ident              = static_cast<const uint8_t *>(ptr);
 	uint16_t endian_probe         = 1;
 	const uint8_t native_encoding = *reinterpret_cast<const uint8_t *>(&endian_probe) == 1 ? ELFDATA2LSB : ELFDATA2MSB;
 	return std::memcmp(ident, ELFMAG, SELFMAG) == 0 &&
@@ -182,12 +219,12 @@ template <typename Section>
 		   ident[EI_VERSION] == EV_CURRENT;
 }
 
-[[nodiscard]] bool is_elf32(const void *ptr, uint64_t size) {
-	return valid_elf_ident(ptr, size, ELFCLASS32) && size >= sizeof(elf32_header);
+[[nodiscard]] bool is_elf32(const MemoryReader &reader) {
+	return valid_elf_ident(reader, ELFCLASS32) && reader.size() >= sizeof(elf32_header);
 }
 
-[[nodiscard]] bool is_elf64(const void *ptr, uint64_t size) {
-	return valid_elf_ident(ptr, size, ELFCLASS64) && size >= sizeof(elf64_header);
+[[nodiscard]] bool is_elf64(const MemoryReader &reader) {
+	return valid_elf_ident(reader, ELFCLASS64) && reader.size() >= sizeof(elf64_header);
 }
 
 /*
@@ -245,7 +282,7 @@ the symbol is local; if uppercase, the symbol is global (external).
 */
 
 template <class M>
-[[nodiscard]] bool collect_symbols(const void *p, uint64_t file_size, std::vector<typename M::symbol> &symbols) {
+[[nodiscard]] bool collect_symbols(const MemoryReader &reader, std::vector<typename M::symbol> &symbols) {
 
 	using elf_addr   = typename M::elf_addr;
 	using elf_header = typename M::elf_header;
@@ -255,10 +292,12 @@ template <class M>
 	using elf_rel    = typename M::elf_rel;
 	using symbol     = typename M::symbol;
 
-	const auto data = static_cast<const char *>(p);
 	elf_header header{};
-	if (!read_object(data, file_size, 0, header) ||
-		header.e_ehsize != sizeof(elf_header) ||
+	if (!reader.read(&header, 0, sizeof(header))) {
+		return false;
+	}
+
+	if (header.e_ehsize != sizeof(elf_header) ||
 		header.e_version != EV_CURRENT ||
 		header.e_shentsize != sizeof(elf_shdr) ||
 		header.e_shoff == 0) {
@@ -266,7 +305,7 @@ template <class M>
 	}
 
 	elf_shdr section_zero{};
-	if (!read_object(data, file_size, header.e_shoff, section_zero)) {
+	if (!reader.read(&section_zero, header.e_shoff, sizeof(section_zero))) {
 		return false;
 	}
 
@@ -277,7 +316,7 @@ template <class M>
 	}
 
 	std::vector<elf_shdr> sections;
-	if (!read_table(data, file_size, header.e_shoff, section_count, header.e_shentsize, sections)) {
+	if (!read_table(reader, header.e_shoff, section_count, header.e_shentsize, sections)) {
 		return false;
 	}
 
@@ -285,12 +324,12 @@ template <class M>
 	std::vector<std::string_view> section_names_cache(sections.size());
 	if (has_section_names) {
 		const elf_shdr &section_names = sections[static_cast<size_t>(section_names_index)];
-		if (section_names.sh_type != SHT_STRTAB || !section_data_fits(section_names, file_size)) {
+		if (section_names.sh_type != SHT_STRTAB) {
 			return false;
 		}
 
 		for (size_t i = 0; i < sections.size(); ++i) {
-			const auto name = get_string(data, file_size, section_names, sections[i].sh_name);
+			const auto name = get_string(reader, section_names, sections[i].sh_name);
 			if (!name) {
 				return false;
 			}
@@ -335,7 +374,7 @@ template <class M>
 
 		switch (section.sh_type) {
 		case SHT_RELA: {
-			if (!section_data_fits(section, file_size) || section.sh_link >= sections.size()) {
+			if (section.sh_link >= sections.size()) {
 				return false;
 			}
 			const auto &linked = sections[section.sh_link];
@@ -344,13 +383,13 @@ template <class M>
 			}
 			std::vector<elf_rela> relocations;
 			std::vector<elf_sym> symbol_table;
-			if (!read_section_table(data, file_size, section, relocations) ||
-				!read_section_table(data, file_size, linked, symbol_table) ||
+			if (!read_section_table(reader, section, relocations) ||
+				!read_section_table(reader, linked, symbol_table) ||
 				linked.sh_link >= sections.size()) {
 				return false;
 			}
 			const auto &strings = sections[linked.sh_link];
-			if (strings.sh_type != SHT_STRTAB || !section_data_fits(strings, file_size)) {
+			if (strings.sh_type != SHT_STRTAB || !reader.contains(strings.sh_offset, strings.sh_size)) {
 				return false;
 			}
 
@@ -366,7 +405,7 @@ template <class M>
 				}
 
 				const auto &elf_symbol = symbol_table[sym_index];
-				const auto symbol_name = get_string(data, file_size, strings, elf_symbol.st_name);
+				const auto symbol_name = get_string(reader, strings, elf_symbol.st_name);
 				if (!symbol_name ||
 					n > (std::numeric_limits<elf_addr>::max() - base_address) / M::plt_entry_size) {
 					return false;
@@ -394,7 +433,7 @@ template <class M>
 			}
 		} break;
 		case SHT_REL: {
-			if (!section_data_fits(section, file_size) || section.sh_link >= sections.size()) {
+			if (section.sh_link >= sections.size()) {
 				return false;
 			}
 			const auto &linked = sections[section.sh_link];
@@ -403,13 +442,13 @@ template <class M>
 			}
 			std::vector<elf_rel> relocations;
 			std::vector<elf_sym> symbol_table;
-			if (!read_section_table(data, file_size, section, relocations) ||
-				!read_section_table(data, file_size, linked, symbol_table) ||
+			if (!read_section_table(reader, section, relocations) ||
+				!read_section_table(reader, linked, symbol_table) ||
 				linked.sh_link >= sections.size()) {
 				return false;
 			}
 			const auto &strings = sections[linked.sh_link];
-			if (strings.sh_type != SHT_STRTAB || !section_data_fits(strings, file_size)) {
+			if (strings.sh_type != SHT_STRTAB || !reader.contains(strings.sh_offset, strings.sh_size)) {
 				return false;
 			}
 
@@ -425,7 +464,7 @@ template <class M>
 				}
 
 				const auto &elf_symbol = symbol_table[sym_index];
-				const auto symbol_name = get_string(data, file_size, strings, elf_symbol.st_name);
+				const auto symbol_name = get_string(reader, strings, elf_symbol.st_name);
 				if (!symbol_name ||
 					n > (std::numeric_limits<elf_addr>::max() - base_address) / M::plt_entry_size) {
 					return false;
@@ -460,21 +499,21 @@ template <class M>
 		switch (section.sh_type) {
 		case SHT_SYMTAB:
 		case SHT_DYNSYM: {
-			if (!section_data_fits(section, file_size) || section.sh_link >= sections.size()) {
+			if (section.sh_link >= sections.size()) {
 				return false;
 			}
 			std::vector<elf_sym> symbol_table;
-			if (!read_section_table(data, file_size, section, symbol_table)) {
+			if (!read_section_table(reader, section, symbol_table)) {
 				return false;
 			}
 			const auto &strings = sections[section.sh_link];
-			if (strings.sh_type != SHT_STRTAB || !section_data_fits(strings, file_size)) {
+			if (strings.sh_type != SHT_STRTAB || !reader.contains(strings.sh_offset, strings.sh_size)) {
 				return false;
 			}
 
 			for (const auto &elf_symbol : symbol_table) {
 				if (plt_addresses.find(elf_symbol.st_value) == plt_addresses.end() && elf_symbol.st_value != 0) {
-					const auto name = get_string(data, file_size, strings, elf_symbol.st_name);
+					const auto name = get_string(reader, strings, elf_symbol.st_name);
 					if (!name) {
 						return false;
 					}
@@ -530,9 +569,9 @@ template <class M>
 }
 
 template <class M>
-[[nodiscard]] bool try_collect_symbols(const void *p, uint64_t file_size, std::vector<typename M::symbol> &symbols) {
+[[nodiscard]] bool try_collect_symbols(const MemoryReader &reader, std::vector<typename M::symbol> &symbols) {
 	try {
-		return collect_symbols<M>(p, file_size, symbols);
+		return collect_symbols<M>(reader, symbols);
 	} catch (const std::bad_alloc &) {
 		qWarning() << "Not enough memory to parse ELF symbols";
 		return false;
@@ -572,12 +611,15 @@ void output_symbols(std::vector<Symbol> &symbols, std::ostream &os) {
 bool generate_symbols_internal(QFile &file, std::optional<QFile> &debugFile, std::ostream &os) {
 	if (auto file_ptr = static_cast<void *>(file.map(0, file.size(), QFile::NoOptions))) {
 		const auto file_size = static_cast<uint64_t>(file.size());
-		if (is_elf64(file_ptr, file_size)) {
+
+		MemoryReader reader(file_ptr, file_size);
+
+		if (is_elf64(reader)) {
 
 			using symbol = typename elf64_model::symbol;
 			std::vector<symbol> symbols;
 
-			if (!try_collect_symbols<elf64_model>(file_ptr, file_size, symbols)) {
+			if (!try_collect_symbols<elf64_model>(reader, symbols)) {
 				return false;
 			}
 
@@ -588,9 +630,11 @@ bool generate_symbols_internal(QFile &file, std::optional<QFile> &debugFile, std
 				// map it and include it with the symbols
 				if (auto debug_ptr = static_cast<void *>(debugFile->map(0, debugFile->size(), QFile::NoOptions))) {
 
+					MemoryReader debug_reader(debug_ptr, static_cast<uint64_t>(debugFile->size()));
+
 					// this should never fail... but just being sure
-					if (is_elf64(debug_ptr, static_cast<uint64_t>(debugFile->size()))) {
-						if (!try_collect_symbols<elf64_model>(debug_ptr, static_cast<uint64_t>(debugFile->size()), symbols)) {
+					if (is_elf64(debug_reader)) {
+						if (!try_collect_symbols<elf64_model>(debug_reader, symbols)) {
 							qWarning() << "Invalid ELF debug file:" << debugFile->fileName();
 						}
 					}
@@ -601,12 +645,12 @@ bool generate_symbols_internal(QFile &file, std::optional<QFile> &debugFile, std
 			return true;
 		}
 
-		if (is_elf32(file_ptr, file_size)) {
+		if (is_elf32(reader)) {
 
 			using symbol = typename elf32_model::symbol;
 			std::vector<symbol> symbols;
 
-			if (!try_collect_symbols<elf32_model>(file_ptr, file_size, symbols)) {
+			if (!try_collect_symbols<elf32_model>(reader, symbols)) {
 				return false;
 			}
 
@@ -617,9 +661,11 @@ bool generate_symbols_internal(QFile &file, std::optional<QFile> &debugFile, std
 				// map it and include it with the symbols
 				if (auto debug_ptr = static_cast<void *>(debugFile->map(0, debugFile->size(), QFile::NoOptions))) {
 
+					MemoryReader debug_reader(debug_ptr, static_cast<uint64_t>(debugFile->size()));
+
 					// this should never fail... but just being sure
-					if (is_elf32(debug_ptr, static_cast<uint64_t>(debugFile->size()))) {
-						if (!try_collect_symbols<elf32_model>(debug_ptr, static_cast<uint64_t>(debugFile->size()), symbols)) {
+					if (is_elf32(debug_reader)) {
+						if (!try_collect_symbols<elf32_model>(debug_reader, symbols)) {
 							qWarning() << "Invalid ELF debug file:" << debugFile->fileName();
 						}
 					}
