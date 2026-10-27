@@ -99,9 +99,7 @@ struct elf32_model : elf_model<32> {
 	static constexpr size_t plt_entry_size = 0x10;
 
 	static constexpr uint32_t elf_r_sym(uint32_t x) { return ELF32_R_SYM(x); }
-	static constexpr uint32_t elf_r_type(uint32_t x) { return ELF32_R_TYPE(x); }
 	static constexpr uint8_t elf_st_type(uint8_t x) { return ELF32_ST_TYPE(x); }
-	static constexpr uint8_t elf_st_bind(uint8_t x) { return static_cast<uint8_t>(ELF32_ST_BIND(x)); }
 
 	struct symbol {
 		elf_addr address;
@@ -128,9 +126,7 @@ struct elf64_model : elf_model<64> {
 	static constexpr size_t plt_entry_size = 0x10;
 
 	static constexpr uint64_t elf_r_sym(uint64_t x) { return ELF64_R_SYM(x); }
-	static constexpr uint64_t elf_r_type(uint64_t x) { return ELF64_R_TYPE(x); }
 	static constexpr uint8_t elf_st_type(uint8_t x) { return ELF64_ST_TYPE(x); }
-	static constexpr uint8_t elf_st_bind(uint8_t x) { return static_cast<uint8_t>(ELF64_ST_BIND(x)); }
 
 	struct symbol {
 		elf_addr address;
