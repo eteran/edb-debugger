@@ -63,6 +63,7 @@ struct WidgetStateV2 {
 static_assert(sizeof(WidgetStateV1) != sizeof(WidgetStateV2), "WidgetStateV1 and WidgetStateV2 must not be the same size");
 
 constexpr int DefaultByteWidth = 8;
+constexpr int FunctionCommentLines = 3;
 
 /**
  * @brief Formats the given address as a string, optionally including a separator.
@@ -870,8 +871,13 @@ void QDisassemblyView::drawHeaderAndBackground(QPainter &painter, const DrawingC
 		}
 	}
 
-	if (ctx->selectedLines < ctx->linesToRender) {
-		paintLineBg(painter, palette().color(ctx->group, QPalette::Highlight), ctx->selectedLines);
+	// Highlight the selected instruction line only
+	if (ctx->selectedLines < ctx->linesToRender && ctx->selectedLines < showAddresses_.size()) {
+		int virtualLineNum = ctx->selectedLines + countPrecedingFunctionComments(ctx->selectedLines);
+		if (showFunctionComments_ && functionComments_.contains(showAddresses_[ctx->selectedLines])) {
+			virtualLineNum += FunctionCommentLines;
+		}
+		paintLineBg(painter, palette().color(ctx->group, QPalette::Highlight), virtualLineNum, 1);
 	}
 
 	painter.restore();
@@ -1028,8 +1034,8 @@ void QDisassemblyView::drawSidebarElements(QPainter &painter, const DrawingConte
 	const auto addr_x     = icon_x + iconWidth_;
 	const auto addr_width = ctx->l2 - addr_x;
 
-	auto paint_address_lambda = [&](int line) {
-		auto address = showAddresses_[line];
+	auto paint_address_lambda = [&](int instrIdx, qreal y) {
+		auto address = showAddresses_[instrIdx];
 
 		const bool has_breakpoint = (edb::v1::find_breakpoint(address) != nullptr);
 		const bool is_eip         = address == currentAddress_;
@@ -1043,25 +1049,35 @@ void QDisassemblyView::drawSidebarElements(QPainter &painter, const DrawingConte
 		}
 
 		if (icon) {
-			icon->render(&painter, QRectF(icon_x, line * ctx->lineHeight + 1.0, iconWidth_, iconHeight_));
+			icon->render(&painter, QRectF(icon_x, y + 1.0, iconWidth_, iconHeight_));
 		}
 
 		const QString address_buffer = formatAddress(address);
 		// draw the address
-		painter.drawText(QRectF(addr_x, line * ctx->lineHeight, addr_width, ctx->lineHeight), Qt::AlignVCenter, address_buffer);
+		painter.drawText(QRectF(addr_x, y, addr_width, ctx->lineHeight), Qt::AlignVCenter, address_buffer);
 	};
 
 	// paint all but the highlighted address
-	for (int line = 0; line < ctx->linesToRender; line++) {
-		if (ctx->selectedLines != line) {
-			paint_address_lambda(line);
+	for (int instrIdx = 0; instrIdx < ctx->linesToRender && instrIdx < showAddresses_.size(); ++instrIdx) {
+		if (ctx->selectedLines != instrIdx) {
+			int virtualLineNum = instrIdx + countPrecedingFunctionComments(instrIdx);
+			if (showFunctionComments_ && functionComments_.contains(showAddresses_[instrIdx])) {
+				virtualLineNum += FunctionCommentLines;
+			}
+			qreal y = virtualLineNum * ctx->lineHeight;
+			paint_address_lambda(instrIdx, y);
 		}
 	}
 
 	// paint the highlighted address
-	if (ctx->selectedLines < ctx->linesToRender) {
+	if (ctx->selectedLines < ctx->linesToRender && ctx->selectedLines < showAddresses_.size()) {
 		painter.setPen(palette().color(ctx->group, QPalette::HighlightedText));
-		paint_address_lambda(ctx->selectedLines);
+		int virtualLineNum = ctx->selectedLines + countPrecedingFunctionComments(ctx->selectedLines);
+		if (showFunctionComments_ && functionComments_.contains(showAddresses_[ctx->selectedLines])) {
+			virtualLineNum += FunctionCommentLines;
+		}
+		qreal y = virtualLineNum * ctx->lineHeight;
+		paint_address_lambda(ctx->selectedLines, y);
 	}
 
 	painter.restore();
@@ -1080,7 +1096,7 @@ void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingCont
 	const qreal bytes_width = ctx->l3 - ctx->l2 - fontWidth_ / 2.0;
 	const QFontMetricsF metrics(painter.font());
 
-	auto painter_lambda = [&](const edb::Instruction &inst, int line) {
+	auto painter_lambda = [&](const edb::Instruction &inst, qreal y) {
 		const QString byte_buffer = format_instruction_bytes(
 			inst,
 			bytes_width,
@@ -1089,7 +1105,7 @@ void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingCont
 		painter.drawText(
 			QRectF(
 				ctx->l2 + (fontWidth_ / 2.0),
-				line * ctx->lineHeight,
+				y,
 				bytes_width,
 				ctx->lineHeight),
 			Qt::AlignVCenter,
@@ -1098,17 +1114,25 @@ void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingCont
 
 	painter.setPen(palette().color(ctx->group, QPalette::Text));
 
-	for (int line = 0; line < ctx->linesToRender; line++) {
-
-		auto &&inst = instructions_[line];
-		if (ctx->selectedLines != line) {
-			painter_lambda(inst, line);
+	for (int instrIdx = 0; instrIdx < ctx->linesToRender && instrIdx < instructions_.size(); ++instrIdx) {
+		if (ctx->selectedLines != instrIdx) {
+			int virtualLineNum = instrIdx + countPrecedingFunctionComments(instrIdx);
+			if (showFunctionComments_ && functionComments_.contains(showAddresses_[instrIdx])) {
+				virtualLineNum += FunctionCommentLines;
+			}
+			qreal y = virtualLineNum * ctx->lineHeight;
+			painter_lambda(instructions_[instrIdx], y);
 		}
 	}
 
-	if (ctx->selectedLines < ctx->linesToRender) {
+	if (ctx->selectedLines < ctx->linesToRender && ctx->selectedLines < instructions_.size()) {
 		painter.setPen(palette().color(ctx->group, QPalette::HighlightedText));
-		painter_lambda(instructions_[ctx->selectedLines], ctx->selectedLines);
+		int virtualLineNum = ctx->selectedLines + countPrecedingFunctionComments(ctx->selectedLines);
+		if (showFunctionComments_ && functionComments_.contains(showAddresses_[ctx->selectedLines])) {
+			virtualLineNum += FunctionCommentLines;
+		}
+		qreal y = virtualLineNum * ctx->lineHeight;
+		painter_lambda(instructions_[ctx->selectedLines], y);
 	}
 
 	painter.restore();
@@ -1137,9 +1161,13 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 				int start_line;
 
 				// Find the start and draw the corner
-				for (start_line = next_line; start_line < ctx->linesToRender; start_line++) {
+				for (start_line = next_line; start_line < ctx->linesToRender && start_line < showAddresses_.size(); start_line++) {
 					if (showAddresses_[start_line] == entry_addr) {
-						const qreal y = start_line * ctx->lineHeight;
+						int virtualLineNum = start_line + countPrecedingFunctionComments(start_line);
+						if (showFunctionComments_ && functionComments_.contains(showAddresses_[start_line])) {
+							virtualLineNum += FunctionCommentLines;
+						}
+						const qreal y = virtualLineNum * ctx->lineHeight;
 						// half of a horizontal
 						painter.drawLine(QLineF(
 							x,
@@ -1165,10 +1193,14 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 				int end_line;
 
 				// find the end and draw the other corner
-				for (end_line = start_line; end_line < ctx->linesToRender; end_line++) {
+				for (end_line = start_line; end_line < ctx->linesToRender && end_line < showAddresses_.size(); end_line++) {
 					auto adjusted_end_addr = showAddresses_[end_line] + instructions_[end_line].byteSize() - 1;
 					if (adjusted_end_addr == end_addr) {
-						const qreal y = end_line * ctx->lineHeight;
+						int virtualLineNum = end_line + countPrecedingFunctionComments(end_line);
+						if (showFunctionComments_ && functionComments_.contains(showAddresses_[end_line])) {
+							virtualLineNum += FunctionCommentLines;
+						}
+						const qreal y = virtualLineNum * ctx->lineHeight;
 
 						// half of a vertical
 						painter.drawLine(QLineF(
@@ -1207,6 +1239,44 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 }
 
 /**
+ * @brief Counts how many function comments precede the instruction at the given index using binary search.
+ *
+ * This is used to calculate virtual line numbers for the display when function comments
+ * take up their own lines.
+ *
+ * @param instructionIndex The index in the showAddresses_ vector.
+ * @return The number of function comment addresses that are less than the address at instructionIndex.
+ */
+int QDisassemblyView::countPrecedingFunctionComments(int instructionIndex) const {
+	if (!showFunctionComments_ || instructionIndex < 0 || instructionIndex >= showAddresses_.size() || functionCommentAddresses_.isEmpty()) {
+		return 0;
+	}
+
+	// Only count preceding comments that are actually visible in the current viewport
+	// i.e., comments on instructions from showAddresses_[0] to showAddresses_[instructionIndex]
+	edb::address_t startAddress = showAddresses_[0];
+	edb::address_t targetAddress = showAddresses_[instructionIndex];
+
+	// Binary search for the first address >= startAddress (first visible instruction)
+	auto start_it = std::lower_bound(
+		functionCommentAddresses_.begin(),
+		functionCommentAddresses_.end(),
+		startAddress
+	);
+
+	// Binary search for the first address >= targetAddress
+	auto target_it = std::lower_bound(
+		functionCommentAddresses_.begin(),
+		functionCommentAddresses_.end(),
+		targetAddress
+	);
+
+	// Count comments in the visible range [startAddress, targetAddress)
+	int count = std::distance(start_it, target_it);
+	return count * FunctionCommentLines;
+}
+
+/**
  * @brief Draws comments for each instruction in the disassembly view, using the specified QPainter and drawing context.
  * If no comment is available for an instruction, it attempts to draw ASCII representations of immediate constants.
  *
@@ -1220,10 +1290,10 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 	const qreal x_pos         = ctx->l4 + fontWidth_ + (fontWidth_ / 2.0);
 	const qreal comment_width = width() - x_pos;
 
-	for (int line = 0; line < ctx->linesToRender; line++) {
-		auto address = showAddresses_[line];
+	for (int instrIdx = 0; instrIdx < ctx->linesToRender && instrIdx < showAddresses_.size(); ++instrIdx) {
+		auto address = showAddresses_[instrIdx];
 
-		if (ctx->selectedLines == line) {
+		if (ctx->selectedLines == instrIdx) {
 			painter.setPen(palette().color(ctx->group, QPalette::HighlightedText));
 		} else {
 			painter.setPen(palette().color(ctx->group, QPalette::Text));
@@ -1232,7 +1302,7 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 		const Comment &comment_entry = comments_.value(address, Comment());
 		QString annotation           = comment_entry.comment;
 
-		auto &&inst = instructions_[line];
+		auto &&inst = instructions_[instrIdx];
 		if (annotation.isEmpty() && inst && !is_jump(inst) && !is_call(inst)) {
 			// draw ascii representations of immediate constants
 			size_t op_count = inst.operandCount();
@@ -1259,7 +1329,89 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 			}
 		}
 
-		painter.drawText(QRectF(x_pos, line * ctx->lineHeight, comment_width, ctx->lineHeight), Qt::AlignLeft, annotation);
+		int virtualLineNum = instrIdx + countPrecedingFunctionComments(instrIdx);
+		qreal y = virtualLineNum * ctx->lineHeight;
+		painter.drawText(QRectF(x_pos, y, comment_width, ctx->lineHeight), Qt::AlignLeft, annotation);
+	}
+
+	painter.restore();
+}
+
+/**
+ * @brief Draws function comments on their own lines in the disassembly view.
+ *
+ * Function comments are rendered on dedicated lines:
+ *   0x12345678 ----
+ *   0x12345678 This is my comment
+ *   0x12345678 ----
+ *   0x12345678 push ebp
+ *
+ * The number of lines used is FunctionCommentLines.
+ *
+ * @param painter The QPainter object used for drawing.
+ * @param ctx The drawing context containing layout information.
+ */
+void QDisassemblyView::drawFunctionComments(QPainter &painter, const DrawingContext *ctx) {
+	if (!showFunctionComments_ || functionCommentAddresses_.isEmpty()) {
+		return;
+	}
+
+	painter.save();
+
+	const qreal addr_x_pos = ctx->l1 + fontWidth_;
+	const qreal comment_x_pos = ctx->l3 + fontWidth_ + (fontWidth_ / 2.0);
+
+	// For each visible instruction line, check if it has a function comment
+	for (int instrIdx = 0; instrIdx < ctx->linesToRender && instrIdx < showAddresses_.size(); ++instrIdx) {
+		edb::address_t address = showAddresses_[instrIdx];
+
+		if (!functionComments_.contains(address)) {
+			continue;
+		}
+
+		const QString funcComment = getFunctionComment(address);
+		if (funcComment.isEmpty()) {
+			continue;
+		}
+
+		// Calculate where the comment lines start
+		// Count all preceding comments (comments before this instruction in memory order)
+		// This gives us the virtual line number where this comment should start
+		int virtualLineNum = instrIdx + countPrecedingFunctionComments(instrIdx);
+		qreal y_start = virtualLineNum * ctx->lineHeight;
+
+		// Draw FunctionCommentLines on their own lines before the instruction
+		for (int commentLine = 0; commentLine < FunctionCommentLines; ++commentLine) {
+			qreal y = y_start + commentLine * ctx->lineHeight;
+
+			// Only draw if the line is actually within the viewport area
+			// Don't draw comment lines that would be in the empty space beyond the last instruction
+			if (y < 0 || y >= ctx->lineHeight * ctx->linesToRender) {
+				continue;
+			}
+
+			painter.setPen(functionCommentColor_);
+
+			// Draw address
+			painter.drawText(QRectF(addr_x_pos, y, ctx->l2 - addr_x_pos - fontWidth_, ctx->lineHeight),
+							 Qt::AlignRight, formatAddress(address));
+
+			// Draw separator or comment text
+			QString lineText;
+			if (commentLine == 0) {
+				// First line: separator
+				lineText = "; --------";
+			} else if (commentLine == 1) {
+				// Second line: actual comment
+				lineText = "; " + funcComment;
+			} else {
+				// Last line(s): separator
+				lineText = "; --------";
+			}
+
+			painter.drawText(QRectF(comment_x_pos, y, width() - comment_x_pos - fontWidth_, ctx->lineHeight),
+							 Qt::AlignLeft, lineText);
+		}
 	}
 
 	painter.restore();
@@ -1272,6 +1424,15 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
  * @param ctx The drawing context containing layout information.
  */
 void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *ctx) {
+
+	// Lambda to convert instruction index to virtual line position
+	auto getVirtualLine = [this](int instrIdx) -> int {
+		int virtualLineNum = instrIdx + countPrecedingFunctionComments(instrIdx);
+		if (showFunctionComments_ && functionComments_.contains(showAddresses_[instrIdx])) {
+			virtualLineNum += FunctionCommentLines;
+		}
+		return virtualLineNum;
+	};
 
 	std::vector<JumpArrow> jump_arrow_vec;
 
@@ -1353,7 +1514,11 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 
 		JumpArrow &jump_arrow      = jump_arrow_vec[jump_arrow_idx];
 		bool is_dst_upward         = jump_arrow.target < instructions_[jump_arrow.sourceLine].rva();
-		const qreal jump_arrow_dst = jump_arrow.destInViewport ? jump_arrow.destLine * ctx->lineHeight : (is_dst_upward ? 0.0 : static_cast<qreal>(viewport()->height()));
+
+		int virtualSrcLine = getVirtualLine(jump_arrow.sourceLine);
+		int virtualDstLine = jump_arrow.destInViewport ? getVirtualLine(jump_arrow.destLine) : INT_MAX;
+
+		const qreal jump_arrow_dst = jump_arrow.destInViewport ? virtualDstLine * ctx->lineHeight : (is_dst_upward ? 0.0 : static_cast<qreal>(viewport()->height()));
 
 		const qreal size_block = fontWidth_ * 2.0;
 		qreal start_at_block   = size_block;
@@ -1369,11 +1534,13 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		for (const auto &[line, badgeWidth] : ctx->lineBadgeWidth) {
 			Q_UNUSED(badgeWidth)
 
+			int virtualBadgeLine = getVirtualLine(line);
+
 			bool is_overlap_with_badge = isLineOverlap(
-				jump_arrow.sourceLine * ctx->lineHeight + 1.0,
+				virtualSrcLine * ctx->lineHeight + 1.0,
 				jump_arrow_dst - 1.0,
-				line * ctx->lineHeight,
-				(line + 1) * ctx->lineHeight,
+				virtualBadgeLine * ctx->lineHeight,
+				(virtualBadgeLine + 1) * ctx->lineHeight,
 				true);
 
 			if (is_overlap_with_badge) {
@@ -1397,12 +1564,16 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 				const JumpArrow &jump_arrow_prev = jump_arrow_vec[jump_arrow_prev_idx];
 
 				bool is_dst_upward_prev         = jump_arrow_prev.target < instructions_[jump_arrow_prev.sourceLine].rva();
-				const qreal jump_arrow_prev_dst = jump_arrow_prev.destInViewport ? jump_arrow_prev.destLine * ctx->lineHeight : (is_dst_upward_prev ? 0.0 : static_cast<qreal>(viewport()->height()));
+
+				int virtualSrcLinePrev = getVirtualLine(jump_arrow_prev.sourceLine);
+				int virtualDstLinePrev = jump_arrow_prev.destInViewport ? getVirtualLine(jump_arrow_prev.destLine) : INT_MAX;
+
+				const qreal jump_arrow_prev_dst = jump_arrow_prev.destInViewport ? virtualDstLinePrev * ctx->lineHeight : (is_dst_upward_prev ? 0.0 : static_cast<qreal>(viewport()->height()));
 
 				bool jumps_overlap = isLineOverlap(
-					jump_arrow.sourceLine * ctx->lineHeight,
+					virtualSrcLine * ctx->lineHeight,
 					jump_arrow_dst,
-					jump_arrow_prev.sourceLine * ctx->lineHeight,
+					virtualSrcLinePrev * ctx->lineHeight,
 					jump_arrow_prev_dst,
 					false);
 
@@ -1441,13 +1612,16 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 				const qreal start_x = end_x - jump_arrow.horizontalLength;
 
 				// vertical line
-				const qreal src_y = jump_arrow.sourceLine * ctx->lineHeight + (fontHeight_ / 2.0);
+				int virtualSrcLine = getVirtualLine(jump_arrow.sourceLine);
+				int virtualDstLine = jump_arrow.destInViewport ? getVirtualLine(jump_arrow.destLine) : INT_MAX;
+
+				const qreal src_y = virtualSrcLine * ctx->lineHeight + (fontHeight_ / 2.0);
 				qreal dst_y;
 
 				if (jump_arrow.destInMiddleOfInstruction) {
-					dst_y = jump_arrow.destLine * ctx->lineHeight;
+					dst_y = virtualDstLine * ctx->lineHeight;
 				} else {
-					dst_y = jump_arrow.destLine * ctx->lineHeight + (fontHeight_ / 2.0);
+					dst_y = virtualDstLine * ctx->lineHeight + (fontHeight_ / 2.0);
 				}
 
 				QColor arrow_color = palette().color(ctx->group, QPalette::Text);
@@ -1574,14 +1748,24 @@ void QDisassemblyView::drawDisassembly(QPainter &painter, const DrawingContext *
 	painter.save();
 
 	painter.setPen(palette().color(ctx->group, QPalette::Text));
-	for (int line = 0; line < ctx->linesToRender; line++) {
-		if (ctx->selectedLines == line) {
+	for (int instrIdx = 0; instrIdx < ctx->linesToRender && instrIdx < instructions_.size(); ++instrIdx) {
+		// Calculate virtual y position accounting for function comment lines
+		int virtualLineNum = instrIdx + countPrecedingFunctionComments(instrIdx);
+
+		// If this instruction has a function comment, it appears before it
+		if (showFunctionComments_ && functionComments_.contains(showAddresses_[instrIdx])) {
+			virtualLineNum += FunctionCommentLines;
+		}
+
+		qreal y = virtualLineNum * ctx->lineHeight;
+
+		if (ctx->selectedLines == instrIdx) {
 			QPen prevPen = painter.pen();
 			painter.setPen(palette().color(ctx->group, QPalette::HighlightedText));
-			drawInstruction(painter, instructions_[line], ctx, line * ctx->lineHeight, true);
+			drawInstruction(painter, instructions_[instrIdx], ctx, y, true);
 			painter.setPen(prevPen);
 		} else {
-			drawInstruction(painter, instructions_[line], ctx, line * ctx->lineHeight, false);
+			drawInstruction(painter, instructions_[instrIdx], ctx, y, false);
 		}
 	}
 
@@ -1677,6 +1861,7 @@ void QDisassemblyView::paintEvent(QPaintEvent * /*event*/) {
 
 	drawFunctionMarkers(painter, &context);
 	drawComments(painter, &context);
+	drawFunctionComments(painter, &context);
 
 	if (edb::v1::config().show_jump_arrow) {
 		drawJumpArrows(painter, &context);
@@ -1935,21 +2120,39 @@ Result<int, QString> QDisassemblyView::getInstructionSize(edb::address_t address
 edb::address_t QDisassemblyView::addressFromCoord(qreal x, qreal y) const {
 	Q_UNUSED(x)
 
-	const int line         = qFloor(y / lineHeight());
-	edb::address_t address = verticalScrollBar()->value();
+	int virtualLine = qFloor(y / lineHeight());
 
-	// add up all the instructions sizes up to the line we want
-	for (int i = 0; i < line; ++i) {
+	// Convert virtual line to instruction index by accounting for function comment lines
+	// We need to find which instruction this virtual line belongs to
+	int instrIdx = 0;
+	int currentVirtualLine = 0;
 
-		Result<int, QString> size = getInstructionSize(addressOffset_ + address);
-		if (size) {
-			address += (*size != 0) ? *size : 1;
-		} else {
-			address += 1;
+	while (instrIdx < showAddresses_.size()) {
+		// Check if this instruction has a comment
+		if (showFunctionComments_ && functionComments_.contains(showAddresses_[instrIdx])) {
+			// Comment takes FunctionCommentLines
+			if (currentVirtualLine + FunctionCommentLines > virtualLine) {
+				// Clicked on the comment itself, still maps to this instruction
+				break;
+			}
+			currentVirtualLine += FunctionCommentLines;
 		}
+
+		// Instruction itself is on one line
+		if (currentVirtualLine == virtualLine) {
+			break;
+		}
+
+		currentVirtualLine++;
+		instrIdx++;
 	}
 
-	return address;
+	if (instrIdx >= showAddresses_.size()) {
+		instrIdx = showAddresses_.size() - 1;
+	}
+
+	edb::address_t address = showAddresses_[instrIdx];
+	return address - addressOffset_;
 }
 
 /**
@@ -1967,6 +2170,14 @@ void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
 
 				if (region_->contains(address)) {
 					Q_EMIT breakPointToggled(address);
+					update();
+				}
+			} else if (pos.x() >= line2() && pos.x() < line3()) {
+				// Test feature: double-click on instruction to add dummy function comment
+				const edb::address_t address = addressFromPoint(pos);
+				if (region_->contains(address)) {
+					const QString dummyComment = QString("Function at %1").arg(formatAddress(address));
+					addFunctionComment(address, dummyComment);
 					update();
 				}
 			}
@@ -2228,6 +2439,65 @@ QString QDisassemblyView::getComment(edb::address_t address) const {
  */
 void QDisassemblyView::clearComments() {
 	comments_.clear();
+}
+
+/**
+ * @brief Adds a function comment associated with the given address.
+ *
+ * @param address The address representing the function start.
+ * @param comment The comment text for the function.
+ */
+void QDisassemblyView::addFunctionComment(edb::address_t address, QString comment) {
+	Comment temp_comment = {
+		comment,
+		address,
+		edb::v2::module_for_address(address),
+	};
+	functionComments_.insert(address, temp_comment);
+
+	// Maintain sorted list for efficient binary search
+	if (!functionCommentAddresses_.contains(address)) {
+		functionCommentAddresses_.append(address);
+		std::sort(functionCommentAddresses_.begin(), functionCommentAddresses_.end());
+	}
+}
+
+/**
+ * @brief Retrieves the function comment associated with the specified address.
+ *
+ * @param address The address for which to retrieve the function comment.
+ * @return The function comment string associated with the address, or an empty string if no comment exists.
+ */
+QString QDisassemblyView::getFunctionComment(edb::address_t address) const {
+	const Comment &comment_entry = functionComments_.value(address, Comment());
+	return comment_entry.comment;
+}
+
+/**
+ * @brief Clears all function comments.
+ */
+void QDisassemblyView::clearFunctionComments() {
+	functionComments_.clear();
+	functionCommentAddresses_.clear();
+}
+
+/**
+ * @brief Sets whether function comments should be displayed.
+ *
+ * @param show Whether to display function comments.
+ */
+void QDisassemblyView::setShowFunctionComments(bool show) {
+	showFunctionComments_ = show;
+	update();
+}
+
+/**
+ * @brief Returns whether function comments are currently being displayed.
+ *
+ * @return true if function comments are shown, false otherwise.
+ */
+bool QDisassemblyView::showFunctionComments() const {
+	return showFunctionComments_;
 }
 
 /**
