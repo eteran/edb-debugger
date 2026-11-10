@@ -82,6 +82,7 @@ public:
 
 	void setShowFunctionComments(bool show);
 	[[nodiscard]] bool showFunctionComments() const;
+	void syncFunctionCommentsFromAnalyzer();
 
 	void restoreState(const QByteArray &stateBuffer);
 	void setSelectedAddress(edb::address_t address);
@@ -128,6 +129,7 @@ private:
 	void setAddressOffset(edb::address_t address);
 	void updateScrollbars();
 	void updateSelectedAddress(QMouseEvent *event);
+	void checkAndSyncAnalyzerComments();
 
 	void drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, qreal y, bool selected);
 	void drawHeaderAndBackground(QPainter &painter, const DrawingContext *ctx, const std::unique_ptr<IBinary> &binary_info);
@@ -180,6 +182,7 @@ private:
 	bool showFunctionComments_ = true;
 	// Sorted list of addresses that have function comments for binary search
 	QVector<edb::address_t> functionCommentAddresses_;
+	qint64 lastFunctionCommentsSyncTime_ = 0; // Last time we synced comments from analyzer
 	NavigationHistory history_;
 	QSvgRenderer breakpointRenderer_;
 	QSvgRenderer currentRenderer_;

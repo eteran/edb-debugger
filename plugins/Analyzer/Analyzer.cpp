@@ -24,6 +24,7 @@
 #include "util/Math.h"
 
 #include <QCoreApplication>
+#include <QDateTime>
 #include <QDir>
 #include <QElapsedTimer>
 #include <QFileInfo>
@@ -894,6 +895,9 @@ void Analyzer::analyze(const std::shared_ptr<IRegion> &region) {
 	qDebug("[Analyzer] complete");
 	Q_EMIT updateProgress(100);
 
+	// Set the analysis timestamp for this region
+	region_data.analysisTimestamp = QDateTime::currentMSecsSinceEpoch();
+
 	if (analyzerWidget_) {
 		analyzerWidget_->update();
 	}
@@ -1104,6 +1108,25 @@ Result<edb::address_t, QString> Analyzer::findContainingFunction(edb::address_t 
 	}
 
 	return make_unexpected(tr("Containing Function Not Found"));
+}
+
+/**
+ * @brief Returns the timestamp of the last analysis for a given region.
+ *
+ * @param region The region to query.
+ * @return The timestamp (milliseconds since epoch) of the last analysis, or 0 if not analyzed.
+ */
+qint64 Analyzer::lastAnalysisTime(const std::shared_ptr<IRegion> &region) const {
+	if (!region) {
+		return 0;
+	}
+
+	const auto it = analysisInfo_.find(region->start());
+	if (it != analysisInfo_.end()) {
+		return it->analysisTimestamp;
+	}
+
+	return 0;
 }
 
 }

@@ -62,7 +62,7 @@ struct WidgetStateV2 {
 
 static_assert(sizeof(WidgetStateV1) != sizeof(WidgetStateV2), "WidgetStateV1 and WidgetStateV2 must not be the same size");
 
-constexpr int DefaultByteWidth = 8;
+constexpr int DefaultByteWidth     = 8;
 constexpr int FunctionCommentLines = 3;
 
 /**
@@ -573,6 +573,9 @@ void QDisassemblyView::setRegion(const std::shared_ptr<IRegion> &r) {
 		if (!qFuzzyIsNull(line2_) && line2_ < autoLine2()) {
 			line2_ = 0.0;
 		}
+
+		// Reset sync timestamp when region changes so we can detect new analysis
+		lastFunctionCommentsSyncTime_ = 0;
 	}
 	update();
 }
@@ -1254,22 +1257,20 @@ int QDisassemblyView::countPrecedingFunctionComments(int instructionIndex) const
 
 	// Only count preceding comments that are actually visible in the current viewport
 	// i.e., comments on instructions from showAddresses_[0] to showAddresses_[instructionIndex]
-	edb::address_t startAddress = showAddresses_[0];
+	edb::address_t startAddress  = showAddresses_[0];
 	edb::address_t targetAddress = showAddresses_[instructionIndex];
 
 	// Binary search for the first address >= startAddress (first visible instruction)
 	auto start_it = std::lower_bound(
 		functionCommentAddresses_.begin(),
 		functionCommentAddresses_.end(),
-		startAddress
-	);
+		startAddress);
 
 	// Binary search for the first address >= targetAddress
 	auto target_it = std::lower_bound(
 		functionCommentAddresses_.begin(),
 		functionCommentAddresses_.end(),
-		targetAddress
-	);
+		targetAddress);
 
 	// Count comments in the visible range [startAddress, targetAddress)
 	int count = std::distance(start_it, target_it);
@@ -1330,7 +1331,7 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 		}
 
 		int virtualLineNum = instrIdx + countPrecedingFunctionComments(instrIdx);
-		qreal y = virtualLineNum * ctx->lineHeight;
+		qreal y            = virtualLineNum * ctx->lineHeight;
 		painter.drawText(QRectF(x_pos, y, comment_width, ctx->lineHeight), Qt::AlignLeft, annotation);
 	}
 
@@ -1358,7 +1359,7 @@ void QDisassemblyView::drawFunctionComments(QPainter &painter, const DrawingCont
 
 	painter.save();
 
-	const qreal addr_x_pos = ctx->l1 + fontWidth_;
+	const qreal addr_x_pos    = ctx->l1 + fontWidth_;
 	const qreal comment_x_pos = ctx->l3 + fontWidth_ + (fontWidth_ / 2.0);
 
 	// For each visible instruction line, check if it has a function comment
@@ -1378,7 +1379,7 @@ void QDisassemblyView::drawFunctionComments(QPainter &painter, const DrawingCont
 		// Count all preceding comments (comments before this instruction in memory order)
 		// This gives us the virtual line number where this comment should start
 		int virtualLineNum = instrIdx + countPrecedingFunctionComments(instrIdx);
-		qreal y_start = virtualLineNum * ctx->lineHeight;
+		qreal y_start      = virtualLineNum * ctx->lineHeight;
 
 		// Draw FunctionCommentLines on their own lines before the instruction
 		for (int commentLine = 0; commentLine < FunctionCommentLines; ++commentLine) {
@@ -1512,8 +1513,8 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 	// find suitable arrow horizontal length
 	for (size_t jump_arrow_idx = 0; jump_arrow_idx < jump_arrow_vec.size(); jump_arrow_idx++) {
 
-		JumpArrow &jump_arrow      = jump_arrow_vec[jump_arrow_idx];
-		bool is_dst_upward         = jump_arrow.target < instructions_[jump_arrow.sourceLine].rva();
+		JumpArrow &jump_arrow = jump_arrow_vec[jump_arrow_idx];
+		bool is_dst_upward    = jump_arrow.target < instructions_[jump_arrow.sourceLine].rva();
 
 		int virtualSrcLine = getVirtualLine(jump_arrow.sourceLine);
 		int virtualDstLine = jump_arrow.destInViewport ? getVirtualLine(jump_arrow.destLine) : INT_MAX;
@@ -1563,7 +1564,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 
 				const JumpArrow &jump_arrow_prev = jump_arrow_vec[jump_arrow_prev_idx];
 
-				bool is_dst_upward_prev         = jump_arrow_prev.target < instructions_[jump_arrow_prev.sourceLine].rva();
+				bool is_dst_upward_prev = jump_arrow_prev.target < instructions_[jump_arrow_prev.sourceLine].rva();
 
 				int virtualSrcLinePrev = getVirtualLine(jump_arrow_prev.sourceLine);
 				int virtualDstLinePrev = jump_arrow_prev.destInViewport ? getVirtualLine(jump_arrow_prev.destLine) : INT_MAX;
@@ -1833,6 +1834,9 @@ void QDisassemblyView::paintEvent(QPaintEvent * /*event*/) {
 
 	lines_to_render         = updateDisassembly(lines_to_render);
 	const int selected_line = getSelectedLineNumber();
+
+	// Check if analyzer has new analysis and auto-sync comments if needed
+	checkAndSyncAnalyzerComments();
 
 	DrawingContext context = {
 		line1(),
@@ -2124,7 +2128,7 @@ edb::address_t QDisassemblyView::addressFromCoord(qreal x, qreal y) const {
 
 	// Convert virtual line to instruction index by accounting for function comment lines
 	// We need to find which instruction this virtual line belongs to
-	int instrIdx = 0;
+	int instrIdx           = 0;
 	int currentVirtualLine = 0;
 
 	while (instrIdx < showAddresses_.size()) {
@@ -2498,6 +2502,66 @@ void QDisassemblyView::setShowFunctionComments(bool show) {
  */
 bool QDisassemblyView::showFunctionComments() const {
 	return showFunctionComments_;
+}
+
+/**
+ * @brief Synchronizes function comments with detected functions from the analyzer.
+ *
+ * This method automatically adds comments at all detected function entry points
+ * based on the analyzer's function detection.
+ */
+void QDisassemblyView::syncFunctionCommentsFromAnalyzer() {
+	if (!region_) {
+		return;
+	}
+
+	IAnalyzer *const analyzer = edb::v1::analyzer();
+	if (!analyzer) {
+		return;
+	}
+
+	// Get all functions in the current region
+	const auto funcs = analyzer->functions(region_);
+
+	// Add a comment for each function start
+	for (auto it = funcs.begin(); it != funcs.end(); ++it) {
+		const auto &func                = it.value();
+		const edb::address_t entry_addr = func.entryAddress();
+
+		// Only add if we don't already have a comment for this address
+		if (!functionComments_.contains(entry_addr)) {
+			const QString funcComment = QString("Function @ %1").arg(formatAddress(entry_addr));
+			addFunctionComment(entry_addr, funcComment);
+		}
+	}
+
+	// Update sync timestamp to indicate we've processed the current analysis
+	lastFunctionCommentsSyncTime_ = analyzer->lastAnalysisTime(region_);
+	update();
+}
+
+/**
+ * @brief Checks if the analyzer has newer analysis than our last sync and auto-syncs if needed.
+ *
+ * This is called during paint events to automatically update function comments when the
+ * analyzer completes a new analysis on the current region.
+ */
+void QDisassemblyView::checkAndSyncAnalyzerComments() {
+	if (!region_ || !showFunctionComments_) {
+		return;
+	}
+
+	IAnalyzer *const analyzer = edb::v1::analyzer();
+	if (!analyzer) {
+		return;
+	}
+
+	// Check if analyzer has a newer analysis timestamp than our last sync
+	const qint64 analyzerTime = analyzer->lastAnalysisTime(region_);
+	if (analyzerTime > lastFunctionCommentsSyncTime_) {
+		// Analyzer has new analysis, sync the comments
+		syncFunctionCommentsFromAnalyzer();
+	}
 }
 
 /**

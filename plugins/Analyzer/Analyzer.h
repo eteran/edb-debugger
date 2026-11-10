@@ -53,6 +53,7 @@ public:
 	[[nodiscard]] FunctionMap functions(const std::shared_ptr<IRegion> &region) const override;
 	[[nodiscard]] QSet<edb::address_t> specifiedFunctions() const override { return specifiedFunctions_; }
 	[[nodiscard]] Result<edb::address_t, QString> findContainingFunction(edb::address_t address) const override;
+	[[nodiscard]] qint64 lastAnalysisTime(const std::shared_ptr<IRegion> &region) const override;
 	bool forFuncsInRange(edb::address_t start, edb::address_t end, std::function<bool(const Function *)> functor) const override;
 	void analyze(const std::shared_ptr<IRegion> &region) override;
 	void invalidateAnalysis() override;
@@ -98,6 +99,9 @@ private:
 
 		// a copy of the whole region
 		QVector<uint8_t> memory;
+
+		// Timestamp of when this region was last analyzed (milliseconds since epoch)
+		qint64 analysisTimestamp = 0;
 	};
 
 	QMenu *menu_                    = nullptr;
