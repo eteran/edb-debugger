@@ -1231,7 +1231,17 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 
 				// draw the straight line between them
 				if (start_line != end_line) {
-					painter.drawLine(QLineF(x, start_line * ctx->lineHeight, x, end_line * ctx->lineHeight));
+					int virtualStartLine = start_line + countPrecedingFunctionComments(start_line);
+					if (showFunctionComments_ && functionComments_.contains(showAddresses_[start_line])) {
+						virtualStartLine += FunctionCommentLines;
+					}
+				
+					int virtualEndLine = end_line + countPrecedingFunctionComments(end_line);
+					if (showFunctionComments_ && functionComments_.contains(showAddresses_[end_line])) {
+						virtualEndLine += FunctionCommentLines;
+					}
+				
+					painter.drawLine(QLineF(x, virtualStartLine * ctx->lineHeight, x, virtualEndLine * ctx->lineHeight));
 				}
 				return true;
 			});
@@ -2508,7 +2518,8 @@ bool QDisassemblyView::showFunctionComments() const {
  * @brief Synchronizes function comments with detected functions from the analyzer.
  *
  * This method automatically adds comments at all detected function entry points
- * based on the analyzer's function detection.
+ * based on the analyzer's function detection. If a symbol is available for the
+ * function, the symbol name is used; otherwise a generic "Function @ <address>" label is used.
  */
 void QDisassemblyView::syncFunctionCommentsFromAnalyzer() {
 	if (!region_) {
@@ -2530,7 +2541,14 @@ void QDisassemblyView::syncFunctionCommentsFromAnalyzer() {
 
 		// Only add if we don't already have a comment for this address
 		if (!functionComments_.contains(entry_addr)) {
-			const QString funcComment = QString("Function @ %1").arg(formatAddress(entry_addr));
+			// Try to get symbol name for this address
+			const QString symName = edb::v1::symbol_manager().findAddressName(entry_addr);
+			
+			// Use symbol name if available, otherwise use generic label
+			const QString funcComment = symName.isEmpty() 
+				? QString("Function @ %1").arg(formatAddress(entry_addr))
+				: symName;
+			
 			addFunctionComment(entry_addr, funcComment);
 		}
 	}
