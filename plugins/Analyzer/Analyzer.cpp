@@ -627,6 +627,20 @@ void Analyzer::collectFunctions(Analyzer::RegionData *data) {
 							break;
 						}
 
+						// Special handling: if we encounter ENDBR at a non-block-start position
+						// ENDBR is already handled during fuzzy collection and promoted to known functions,
+						// so we don't need to process it here as a block boundary detector.
+#if defined(EDB_X86) || defined(EDB_X86_64)
+#if CS_API_MAJOR >= 4
+						if (!block.empty() && ((*inst)->id == X86_INS_ENDBR64 || (*inst)->id == X86_INS_ENDBR32)) {
+							// If we encounter ENDBR mid-block, it should have been added to known functions
+							// during fuzzy collection, so we should have already stopped this block at
+							// a previous function boundary. This is a defensive check only.
+							break;
+						}
+#endif
+#endif
+
 						block.push_back(inst);
 
 						if (is_call(*inst)) {
@@ -740,8 +754,39 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 
 		uint8_t *const first = (data->memory).data();
 		uint8_t *const last  = &first[data->memory.size()];
+		edb::address_t region_start = data->region->start();
 
 		uint8_t *p = first;
+
+		// Lambda to check if there's a terminating instruction between two addresses
+		// Returns true if a terminating instruction (jmp, ret, call non-returning, etc.) is found
+		auto has_terminator_between = [&](edb::address_t from_addr, edb::address_t to_addr) -> bool {
+			if (from_addr >= to_addr) return false;
+			
+			uint8_t *scan_p = first + static_cast<ptrdiff_t>(from_addr - region_start);
+			for (edb::address_t scan_addr = from_addr; scan_addr < to_addr && scan_p < last; ++scan_addr) {
+				if (auto scan_inst = edb::Instruction(scan_p, last, scan_addr)) {
+					// Check for terminating instructions
+					if (is_unconditional_jump(scan_inst) || is_return(scan_inst)) {
+						return true;  // Found unconditional jump or return
+					}
+					// Check for non-returning calls
+					if (is_call(scan_inst)) {
+						const edb::Operand op = scan_inst[0];
+						if (is_immediate(op)) {
+							const edb::address_t ea = op->imm;
+							if (!will_return(ea)) {
+								return true;  // Found non-returning call
+							}
+						}
+					}
+					scan_p += scan_inst.byteSize();
+				} else {
+					break;
+				}
+			}
+			return false;
+		};
 
 		// fuzzy_functions, known_functions
 		for (edb::address_t addr = data->region->start(); addr != data->region->end(); ++addr) {
@@ -768,8 +813,10 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 				} else if (inst->id == X86_INS_ENDBR64 || inst->id == X86_INS_ENDBR32) {
 
 					// Intel's CET stuff actually helps us identify functions pretty easily
+					// ENDBR is a strong indicator, so promote it directly to known functions
+					// rather than fuzzy so the filter can exclude prologue patterns
 					if (!data->knownFunctions.contains(addr)) {
-						fuzzy_functions[addr] = MinRefCount + 1;
+						data->knownFunctions.insert(addr);
 					}
 
 					// look for push rbp; mov ebp, esp as it is a common function prologue
@@ -784,7 +831,24 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 
 								if (inst2[0]->reg == X86_REG_EBP && inst2[1]->reg == X86_REG_ESP) {
 
-									if (!data->knownFunctions.contains(addr)) {
+									// Check if this push/mov is part of a known function's prologue
+									// by looking for any known function within 32 bytes before this address.
+									// However, if there's a terminating instruction between the known function
+									// and this push/mov, then this IS a real function start (unreachable code
+									// after a non-returning call or jump).
+									bool is_prologue_of_known_function = false;
+									for (edb::address_t known_addr : data->knownFunctions) {
+										if (known_addr < addr && addr - known_addr <= 32) {
+											// Found a candidate known function nearby.
+											// Check if there's a terminating instruction between them.
+											if (!has_terminator_between(known_addr, addr)) {
+												is_prologue_of_known_function = true;
+											}
+											break;
+										}
+									}
+
+									if (!is_prologue_of_known_function && !data->knownFunctions.contains(addr)) {
 										fuzzy_functions[addr] = MinRefCount + 1;
 									}
 								}
@@ -802,7 +866,24 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 
 								if (inst2[0]->reg == X86_REG_RBP && inst2[1]->reg == X86_REG_RSP) {
 
-									if (!data->knownFunctions.contains(addr)) {
+									// Check if this push/mov is part of a known function's prologue
+									// by looking for any known function within 32 bytes before this address.
+									// However, if there's a terminating instruction between the known function
+									// and this push/mov, then this IS a real function start (unreachable code
+									// after a non-returning call or jump).
+									bool is_prologue_of_known_function = false;
+									for (edb::address_t known_addr : data->knownFunctions) {
+										if (known_addr < addr && addr - known_addr <= 32) {
+											// Found a candidate known function nearby.
+											// Check if there's a terminating instruction between them.
+											if (!has_terminator_between(known_addr, addr)) {
+												is_prologue_of_known_function = true;
+											}
+											break;
+										}
+									}
+
+									if (!is_prologue_of_known_function && !data->knownFunctions.contains(addr)) {
 										fuzzy_functions[addr] = MinRefCount + 1;
 									}
 								}
@@ -822,6 +903,104 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 				data->fuzzyFunctions.insert(it.key());
 			}
 		}
+	}
+}
+
+/**
+ * @brief Filters out fuzzy-detected functions that start within or immediately after other known functions.
+ *
+ * This prevents false positives where fuzzy analysis patterns (like push rbp; mov rbp esp)
+ * match inside function prologues, creating spurious function starts. For example, ENDBR
+ * detection might find a function at 0x1000, and push/mov pattern might find it again at 0x1001.
+ *
+ * Strategy: For each fuzzy function candidate, check if it appears to be inside another
+ * known function or is the prologue pattern immediately following a known function start.
+ *
+ * @param data The region analysis data containing known and fuzzy functions.
+ */
+void Analyzer::filterFuzzyFunctions(RegionData *data) {
+	Q_ASSERT(data);
+
+	QSet<edb::address_t> functionsToRemove;
+
+	if (data->memory.isEmpty()) {
+		return; // Can't filter without memory
+	}
+
+	uint8_t *const first = data->memory.data();
+	uint8_t *const last  = &first[data->memory.size()];
+
+	// Sort known function starts for efficient binary search later
+	QVector<edb::address_t> sortedKnownFunctions(data->knownFunctions.begin(), data->knownFunctions.end());
+	std::sort(sortedKnownFunctions.begin(), sortedKnownFunctions.end());
+
+	// For each fuzzy function, check if it falls within or immediately follows any known function
+	for (edb::address_t fuzzy_addr : data->fuzzyFunctions) {
+		bool isWithinKnownFunction = false;
+
+		// Find the known function that precedes this fuzzy address (if any)
+		auto it = std::lower_bound(sortedKnownFunctions.begin(), sortedKnownFunctions.end(), fuzzy_addr);
+		
+		if (it != sortedKnownFunctions.begin()) {
+			--it;
+			edb::address_t known_start = *it;
+			
+			// known_start is the largest known function < fuzzy_addr
+			// Scan forward from known_start to see if fuzzy_addr is within the function's prologue
+			
+			edb::address_t region_start = data->region->start();
+			if (known_start < fuzzy_addr && fuzzy_addr - known_start <= 256) {
+				// Only scan if they're reasonably close
+				uint8_t *p = first + static_cast<ptrdiff_t>(known_start - region_start);
+				edb::address_t current_addr = known_start;
+				const edb::address_t scan_limit = known_start + 256;
+				
+				// Scan through instructions to see if we reach fuzzy_addr before a function boundary
+				while (current_addr < scan_limit && p < last) {
+					if (auto inst = edb::Instruction(p, last, current_addr)) {
+						p += inst.byteSize();
+						
+						// Check if we've reached the fuzzy address - if so, it's part of this function
+						if (current_addr == fuzzy_addr) {
+							isWithinKnownFunction = true;
+							break;
+						}
+						
+						// Also check if we pass fuzzy address without hitting a boundary
+						if (current_addr > fuzzy_addr) {
+							isWithinKnownFunction = true;
+							break;
+						}
+						
+						current_addr += inst.byteSize();
+						
+						// Check if we've reached another function boundary
+						if (current_addr > known_start && 
+							(data->knownFunctions.contains(current_addr) || data->fuzzyFunctions.contains(current_addr))) {
+							// If we hit another function before reaching fuzzy_addr, it's not within this one
+							if (current_addr > fuzzy_addr) {
+								isWithinKnownFunction = true;
+							}
+							break;
+						}
+					} else {
+						break; // Couldn't decode instruction
+					}
+				}
+			}
+		}
+
+		// Mark for removal if it's inside or immediately following another function's prologue
+		if (isWithinKnownFunction) {
+			functionsToRemove.insert(fuzzy_addr);
+		}
+	}
+
+	// Remove the flagged fuzzy functions
+	for (edb::address_t addr : functionsToRemove) {
+		data->fuzzyFunctions.remove(addr);
+		qDebug("[Analyzer] Filtering out fuzzy function at %s (contained within another function)",
+		       qPrintable(addr.toHexString()));
 	}
 }
 
@@ -874,6 +1053,7 @@ void Analyzer::analyze(const std::shared_ptr<IRegion> &region) {
 		{"attempting to add functions with symbols to the list...", [this, &region_data]() { bonusSymbols(&region_data); }},
 		{"attempting to add marked functions to the list...", [this, &region_data]() { bonusMarkedFunctions(&region_data); }},
 		{"attempting to collect functions with fuzzy analysis...", [this, &region_data]() { collectFuzzyFunctions(&region_data); }},
+		{"filtering out fuzzy functions within known functions...", [this, &region_data]() { filterFuzzyFunctions(&region_data); }},
 		{"collecting basic blocks...", [this, &region_data]() { collectFunctions(&region_data); }},
 		{"splitting basic blocks...", [this, &region_data]() { splitBlocks(&region_data); }},
 		{"computing non-returning functions...", [this, &region_data]() { computeNonReturning(&region_data); }},
