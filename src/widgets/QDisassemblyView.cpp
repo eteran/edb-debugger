@@ -939,13 +939,17 @@ void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx
 				for (int line = 0; line < ctx->linesToRender; line++) {
 					if (!badge_labels[line].isEmpty()) {
 
-						auto badge_length = static_cast<int>(badge_labels[line].size());
+						auto badge_length  = static_cast<int>(badge_labels[line].size());
+						int virtualLineNum = line + countPrecedingFunctionComments(line);
+						if (showFunctionComments_ && functionComments_.contains(showAddresses_[line])) {
+							virtualLineNum += FunctionCommentLines;
+						}
 
 						const qreal width          = badge_length * fontWidth_ + fontWidth_ / 2.0;
 						const qreal height         = ctx->lineHeight;
 						const qreal triangle_point = line1() - 3.0;
 						const qreal x              = triangle_point - (height / 2.0) - width;
-						const qreal y              = line * ctx->lineHeight;
+						const qreal y              = virtualLineNum * ctx->lineHeight;
 
 						// if badge is not in viewpoint, then don't draw
 						if (x < 0) {
@@ -967,7 +971,7 @@ void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx
 						painter.drawText(
 							QRectF(
 								bounds.x() + fontWidth_ / 4.0,
-								line * ctx->lineHeight,
+								y,
 								fontWidth_ * badge_length,
 								ctx->lineHeight),
 							Qt::AlignVCenter,
@@ -1117,7 +1121,7 @@ void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingCont
 
 	painter.setPen(palette().color(ctx->group, QPalette::Text));
 
-	for (int instrIdx = 0; instrIdx < ctx->linesToRender && instrIdx < instructions_.size(); ++instrIdx) {
+	for (int instrIdx = 0; instrIdx < ctx->linesToRender && static_cast<std::size_t>(instrIdx) < instructions_.size(); ++instrIdx) {
 		if (ctx->selectedLines != instrIdx) {
 			int virtualLineNum = instrIdx + countPrecedingFunctionComments(instrIdx);
 			if (showFunctionComments_ && functionComments_.contains(showAddresses_[instrIdx])) {
@@ -1128,7 +1132,8 @@ void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingCont
 		}
 	}
 
-	if (ctx->selectedLines < ctx->linesToRender && ctx->selectedLines < instructions_.size()) {
+	if (ctx->selectedLines >= 0 && ctx->selectedLines < ctx->linesToRender &&
+		static_cast<std::size_t>(ctx->selectedLines) < instructions_.size()) {
 		painter.setPen(palette().color(ctx->group, QPalette::HighlightedText));
 		int virtualLineNum = ctx->selectedLines + countPrecedingFunctionComments(ctx->selectedLines);
 		if (showFunctionComments_ && functionComments_.contains(showAddresses_[ctx->selectedLines])) {
@@ -1235,12 +1240,12 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 					if (showFunctionComments_ && functionComments_.contains(showAddresses_[start_line])) {
 						virtualStartLine += FunctionCommentLines;
 					}
-				
+
 					int virtualEndLine = end_line + countPrecedingFunctionComments(end_line);
 					if (showFunctionComments_ && functionComments_.contains(showAddresses_[end_line])) {
 						virtualEndLine += FunctionCommentLines;
 					}
-				
+
 					painter.drawLine(QLineF(x, virtualStartLine * ctx->lineHeight, x, virtualEndLine * ctx->lineHeight));
 				}
 				return true;
@@ -1283,7 +1288,7 @@ int QDisassemblyView::countPrecedingFunctionComments(int instructionIndex) const
 		targetAddress);
 
 	// Count comments in the visible range [startAddress, targetAddress)
-	int count = std::distance(start_it, target_it);
+	int count = static_cast<int>(std::distance(start_it, target_it));
 	return count * FunctionCommentLines;
 }
 
@@ -1369,7 +1374,7 @@ void QDisassemblyView::drawFunctionComments(QPainter &painter, const DrawingCont
 
 	painter.save();
 
-	const qreal addr_x_pos    = ctx->l1 + fontWidth_;
+	const qreal addr_x_pos    = ctx->l1 + 1.0 + iconWidth_;
 	const qreal comment_x_pos = ctx->l3 + fontWidth_ + (fontWidth_ / 2.0);
 
 	// For each visible instruction line, check if it has a function comment
@@ -1405,7 +1410,7 @@ void QDisassemblyView::drawFunctionComments(QPainter &painter, const DrawingCont
 
 			// Draw address
 			painter.drawText(QRectF(addr_x_pos, y, ctx->l2 - addr_x_pos - fontWidth_, ctx->lineHeight),
-							 Qt::AlignRight, formatAddress(address));
+							 Qt::AlignLeft | Qt::AlignVCenter, formatAddress(address));
 
 			// Draw separator or comment text
 			QString lineText;
@@ -1759,7 +1764,7 @@ void QDisassemblyView::drawDisassembly(QPainter &painter, const DrawingContext *
 	painter.save();
 
 	painter.setPen(palette().color(ctx->group, QPalette::Text));
-	for (int instrIdx = 0; instrIdx < ctx->linesToRender && instrIdx < instructions_.size(); ++instrIdx) {
+	for (int instrIdx = 0; instrIdx < ctx->linesToRender && static_cast<std::size_t>(instrIdx) < instructions_.size(); ++instrIdx) {
 		// Calculate virtual y position accounting for function comment lines
 		int virtualLineNum = instrIdx + countPrecedingFunctionComments(instrIdx);
 
@@ -2543,12 +2548,12 @@ void QDisassemblyView::syncFunctionCommentsFromAnalyzer() {
 		if (!functionComments_.contains(entry_addr)) {
 			// Try to get symbol name for this address
 			const QString symName = edb::v1::symbol_manager().findAddressName(entry_addr);
-			
+
 			// Use symbol name if available, otherwise use generic label
-			const QString funcComment = symName.isEmpty() 
-				? QString("Function @ %1").arg(formatAddress(entry_addr))
-				: symName;
-			
+			const QString funcComment = symName.isEmpty()
+											? QString("Function @ %1").arg(formatAddress(entry_addr))
+											: symName;
+
 			addFunctionComment(entry_addr, funcComment);
 		}
 	}

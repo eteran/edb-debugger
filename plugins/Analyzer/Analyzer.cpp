@@ -752,8 +752,8 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 
 		QHash<edb::address_t, int> fuzzy_functions;
 
-		uint8_t *const first = (data->memory).data();
-		uint8_t *const last  = &first[data->memory.size()];
+		uint8_t *const first        = (data->memory).data();
+		uint8_t *const last         = &first[data->memory.size()];
 		edb::address_t region_start = data->region->start();
 
 		uint8_t *p = first;
@@ -762,13 +762,13 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 		// Returns true if a terminating instruction (jmp, ret, call non-returning, etc.) is found
 		auto has_terminator_between = [&](edb::address_t from_addr, edb::address_t to_addr) -> bool {
 			if (from_addr >= to_addr) return false;
-			
+
 			uint8_t *scan_p = first + static_cast<ptrdiff_t>(from_addr - region_start);
 			for (edb::address_t scan_addr = from_addr; scan_addr < to_addr && scan_p < last; ++scan_addr) {
 				if (auto scan_inst = edb::Instruction(scan_p, last, scan_addr)) {
 					// Check for terminating instructions
 					if (is_unconditional_jump(scan_inst) || is_return(scan_inst)) {
-						return true;  // Found unconditional jump or return
+						return true; // Found unconditional jump or return
 					}
 					// Check for non-returning calls
 					if (is_call(scan_inst)) {
@@ -776,7 +776,7 @@ void Analyzer::collectFuzzyFunctions(RegionData *data) {
 						if (is_immediate(op)) {
 							const edb::address_t ea = op->imm;
 							if (!will_return(ea)) {
-								return true;  // Found non-returning call
+								return true; // Found non-returning call
 							}
 						}
 					}
@@ -940,42 +940,42 @@ void Analyzer::filterFuzzyFunctions(RegionData *data) {
 
 		// Find the known function that precedes this fuzzy address (if any)
 		auto it = std::lower_bound(sortedKnownFunctions.begin(), sortedKnownFunctions.end(), fuzzy_addr);
-		
+
 		if (it != sortedKnownFunctions.begin()) {
 			--it;
 			edb::address_t known_start = *it;
-			
+
 			// known_start is the largest known function < fuzzy_addr
 			// Scan forward from known_start to see if fuzzy_addr is within the function's prologue
-			
+
 			edb::address_t region_start = data->region->start();
 			if (known_start < fuzzy_addr && fuzzy_addr - known_start <= 256) {
 				// Only scan if they're reasonably close
-				uint8_t *p = first + static_cast<ptrdiff_t>(known_start - region_start);
-				edb::address_t current_addr = known_start;
+				uint8_t *p                      = first + static_cast<ptrdiff_t>(known_start - region_start);
+				edb::address_t current_addr     = known_start;
 				const edb::address_t scan_limit = known_start + 256;
-				
+
 				// Scan through instructions to see if we reach fuzzy_addr before a function boundary
 				while (current_addr < scan_limit && p < last) {
 					if (auto inst = edb::Instruction(p, last, current_addr)) {
 						p += inst.byteSize();
-						
+
 						// Check if we've reached the fuzzy address - if so, it's part of this function
 						if (current_addr == fuzzy_addr) {
 							isWithinKnownFunction = true;
 							break;
 						}
-						
+
 						// Also check if we pass fuzzy address without hitting a boundary
 						if (current_addr > fuzzy_addr) {
 							isWithinKnownFunction = true;
 							break;
 						}
-						
+
 						current_addr += inst.byteSize();
-						
+
 						// Check if we've reached another function boundary
-						if (current_addr > known_start && 
+						if (current_addr > known_start &&
 							(data->knownFunctions.contains(current_addr) || data->fuzzyFunctions.contains(current_addr))) {
 							// If we hit another function before reaching fuzzy_addr, it's not within this one
 							if (current_addr > fuzzy_addr) {
@@ -1000,7 +1000,7 @@ void Analyzer::filterFuzzyFunctions(RegionData *data) {
 	for (edb::address_t addr : functionsToRemove) {
 		data->fuzzyFunctions.remove(addr);
 		qDebug("[Analyzer] Filtering out fuzzy function at %s (contained within another function)",
-		       qPrintable(addr.toHexString()));
+			   qPrintable(addr.toHexString()));
 	}
 }
 
