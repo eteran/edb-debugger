@@ -163,6 +163,7 @@ void DialogOptions::showEvent(QShowEvent *event) {
 
 	ui.chkZerosAreFilling->setChecked(config.zeros_are_filling);
 	ui.chkRegisterBadges->setChecked(config.show_register_badges);
+	ui.chkShowFunctionComments->setChecked(config.show_function_comment_blocks);
 	ui.chkUppercase->setChecked(config.uppercase_disassembly);
 	ui.chkSyntaxHighlighting->setChecked(config.syntax_highlighting_enabled);
 
@@ -292,10 +293,11 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.function_offsets_in_hex = ui.chkHexOffsets->isChecked();
 	config.show_jump_arrow         = ui.chkShowJumpArrow->isChecked();
 
-	config.zeros_are_filling           = ui.chkZerosAreFilling->isChecked();
-	config.show_register_badges        = ui.chkRegisterBadges->isChecked();
-	config.uppercase_disassembly       = ui.chkUppercase->isChecked();
-	config.syntax_highlighting_enabled = ui.chkSyntaxHighlighting->isChecked();
+	config.zeros_are_filling            = ui.chkZerosAreFilling->isChecked();
+	config.show_register_badges         = ui.chkRegisterBadges->isChecked();
+	config.show_function_comment_blocks = ui.chkShowFunctionComments->isChecked();
+	config.uppercase_disassembly        = ui.chkUppercase->isChecked();
+	config.syntax_highlighting_enabled  = ui.chkSyntaxHighlighting->isChecked();
 
 	config.symbol_path  = ui.txtSymbolDir->text();
 	config.plugin_path  = ui.txtPluginDir->text();
