@@ -877,7 +877,7 @@ void QDisassemblyView::drawHeaderAndBackground(QPainter &painter, const DrawingC
 	// Highlight the selected instruction line only
 	if (ctx->selectedLines < ctx->linesToRender && ctx->selectedLines < showAddresses_.size()) {
 		int virtualLineNum = ctx->selectedLines + countPrecedingFunctionComments(ctx->selectedLines);
-		if (showFunctionComments_ && functionComments_.contains(showAddresses_[ctx->selectedLines])) {
+		if (edb::v1::config().show_function_comment_blocks && functionComments_.contains(showAddresses_[ctx->selectedLines])) {
 			virtualLineNum += FunctionCommentLines;
 		}
 		paintLineBg(painter, palette().color(ctx->group, QPalette::Highlight), virtualLineNum, 1);
@@ -941,7 +941,7 @@ void QDisassemblyView::drawRegisterBadges(QPainter &painter, DrawingContext *ctx
 
 						auto badge_length  = static_cast<int>(badge_labels[line].size());
 						int virtualLineNum = line + countPrecedingFunctionComments(line);
-						if (showFunctionComments_ && functionComments_.contains(showAddresses_[line])) {
+						if (edb::v1::config().show_function_comment_blocks && functionComments_.contains(showAddresses_[line])) {
 							virtualLineNum += FunctionCommentLines;
 						}
 
@@ -1068,7 +1068,7 @@ void QDisassemblyView::drawSidebarElements(QPainter &painter, const DrawingConte
 	for (int instrIdx = 0; instrIdx < ctx->linesToRender && instrIdx < showAddresses_.size(); ++instrIdx) {
 		if (ctx->selectedLines != instrIdx) {
 			int virtualLineNum = instrIdx + countPrecedingFunctionComments(instrIdx);
-			if (showFunctionComments_ && functionComments_.contains(showAddresses_[instrIdx])) {
+			if (edb::v1::config().show_function_comment_blocks && functionComments_.contains(showAddresses_[instrIdx])) {
 				virtualLineNum += FunctionCommentLines;
 			}
 			qreal y = virtualLineNum * ctx->lineHeight;
@@ -1080,7 +1080,7 @@ void QDisassemblyView::drawSidebarElements(QPainter &painter, const DrawingConte
 	if (ctx->selectedLines < ctx->linesToRender && ctx->selectedLines < showAddresses_.size()) {
 		painter.setPen(palette().color(ctx->group, QPalette::HighlightedText));
 		int virtualLineNum = ctx->selectedLines + countPrecedingFunctionComments(ctx->selectedLines);
-		if (showFunctionComments_ && functionComments_.contains(showAddresses_[ctx->selectedLines])) {
+		if (edb::v1::config().show_function_comment_blocks && functionComments_.contains(showAddresses_[ctx->selectedLines])) {
 			virtualLineNum += FunctionCommentLines;
 		}
 		qreal y = virtualLineNum * ctx->lineHeight;
@@ -1124,7 +1124,7 @@ void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingCont
 	for (int instrIdx = 0; instrIdx < ctx->linesToRender && static_cast<std::size_t>(instrIdx) < instructions_.size(); ++instrIdx) {
 		if (ctx->selectedLines != instrIdx) {
 			int virtualLineNum = instrIdx + countPrecedingFunctionComments(instrIdx);
-			if (showFunctionComments_ && functionComments_.contains(showAddresses_[instrIdx])) {
+			if (edb::v1::config().show_function_comment_blocks && functionComments_.contains(showAddresses_[instrIdx])) {
 				virtualLineNum += FunctionCommentLines;
 			}
 			qreal y = virtualLineNum * ctx->lineHeight;
@@ -1136,7 +1136,7 @@ void QDisassemblyView::drawInstructionBytes(QPainter &painter, const DrawingCont
 		static_cast<std::size_t>(ctx->selectedLines) < instructions_.size()) {
 		painter.setPen(palette().color(ctx->group, QPalette::HighlightedText));
 		int virtualLineNum = ctx->selectedLines + countPrecedingFunctionComments(ctx->selectedLines);
-		if (showFunctionComments_ && functionComments_.contains(showAddresses_[ctx->selectedLines])) {
+		if (edb::v1::config().show_function_comment_blocks && functionComments_.contains(showAddresses_[ctx->selectedLines])) {
 			virtualLineNum += FunctionCommentLines;
 		}
 		qreal y = virtualLineNum * ctx->lineHeight;
@@ -1172,7 +1172,7 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 				for (start_line = next_line; start_line < ctx->linesToRender && start_line < showAddresses_.size(); start_line++) {
 					if (showAddresses_[start_line] == entry_addr) {
 						int virtualLineNum = start_line + countPrecedingFunctionComments(start_line);
-						if (showFunctionComments_ && functionComments_.contains(showAddresses_[start_line])) {
+						if (edb::v1::config().show_function_comment_blocks && functionComments_.contains(showAddresses_[start_line])) {
 							virtualLineNum += FunctionCommentLines;
 						}
 						const qreal y = virtualLineNum * ctx->lineHeight;
@@ -1205,7 +1205,7 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 					auto adjusted_end_addr = showAddresses_[end_line] + instructions_[end_line].byteSize() - 1;
 					if (adjusted_end_addr == end_addr) {
 						int virtualLineNum = end_line + countPrecedingFunctionComments(end_line);
-						if (showFunctionComments_ && functionComments_.contains(showAddresses_[end_line])) {
+						if (edb::v1::config().show_function_comment_blocks && functionComments_.contains(showAddresses_[end_line])) {
 							virtualLineNum += FunctionCommentLines;
 						}
 						const qreal y = virtualLineNum * ctx->lineHeight;
@@ -1237,12 +1237,12 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 				// draw the straight line between them
 				if (start_line != end_line) {
 					int virtualStartLine = start_line + countPrecedingFunctionComments(start_line);
-					if (showFunctionComments_ && functionComments_.contains(showAddresses_[start_line])) {
+					if (edb::v1::config().show_function_comment_blocks && functionComments_.contains(showAddresses_[start_line])) {
 						virtualStartLine += FunctionCommentLines;
 					}
 
 					int virtualEndLine = end_line + countPrecedingFunctionComments(end_line);
-					if (showFunctionComments_ && functionComments_.contains(showAddresses_[end_line])) {
+					if (edb::v1::config().show_function_comment_blocks && functionComments_.contains(showAddresses_[end_line])) {
 						virtualEndLine += FunctionCommentLines;
 					}
 
@@ -1266,7 +1266,7 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
  * @return The number of function comment addresses that are less than the address at instructionIndex.
  */
 int QDisassemblyView::countPrecedingFunctionComments(int instructionIndex) const {
-	if (!showFunctionComments_ || instructionIndex < 0 || instructionIndex >= showAddresses_.size() || functionCommentAddresses_.isEmpty()) {
+	if (!edb::v1::config().show_function_comment_blocks || instructionIndex < 0 || instructionIndex >= showAddresses_.size() || functionCommentAddresses_.isEmpty()) {
 		return 0;
 	}
 
@@ -1368,7 +1368,7 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
  * @param ctx The drawing context containing layout information.
  */
 void QDisassemblyView::drawFunctionComments(QPainter &painter, const DrawingContext *ctx) {
-	if (!showFunctionComments_ || functionCommentAddresses_.isEmpty()) {
+	if (!edb::v1::config().show_function_comment_blocks || functionCommentAddresses_.isEmpty()) {
 		return;
 	}
 
@@ -1444,7 +1444,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 	// Lambda to convert instruction index to virtual line position
 	auto getVirtualLine = [this](int instrIdx) -> int {
 		int virtualLineNum = instrIdx + countPrecedingFunctionComments(instrIdx);
-		if (showFunctionComments_ && functionComments_.contains(showAddresses_[instrIdx])) {
+		if (edb::v1::config().show_function_comment_blocks && functionComments_.contains(showAddresses_[instrIdx])) {
 			virtualLineNum += FunctionCommentLines;
 		}
 		return virtualLineNum;
@@ -1769,7 +1769,7 @@ void QDisassemblyView::drawDisassembly(QPainter &painter, const DrawingContext *
 		int virtualLineNum = instrIdx + countPrecedingFunctionComments(instrIdx);
 
 		// If this instruction has a function comment, it appears before it
-		if (showFunctionComments_ && functionComments_.contains(showAddresses_[instrIdx])) {
+		if (edb::v1::config().show_function_comment_blocks && functionComments_.contains(showAddresses_[instrIdx])) {
 			virtualLineNum += FunctionCommentLines;
 		}
 
@@ -2148,7 +2148,7 @@ edb::address_t QDisassemblyView::addressFromCoord(qreal x, qreal y) const {
 
 	while (instrIdx < showAddresses_.size()) {
 		// Check if this instruction has a comment
-		if (showFunctionComments_ && functionComments_.contains(showAddresses_[instrIdx])) {
+		if (edb::v1::config().show_function_comment_blocks && functionComments_.contains(showAddresses_[instrIdx])) {
 			// Comment takes FunctionCommentLines
 			if (currentVirtualLine + FunctionCommentLines > virtualLine) {
 				// Clicked on the comment itself, still maps to this instruction
@@ -2501,25 +2501,6 @@ void QDisassemblyView::clearFunctionComments() {
 }
 
 /**
- * @brief Sets whether function comments should be displayed.
- *
- * @param show Whether to display function comments.
- */
-void QDisassemblyView::setShowFunctionComments(bool show) {
-	showFunctionComments_ = show;
-	update();
-}
-
-/**
- * @brief Returns whether function comments are currently being displayed.
- *
- * @return true if function comments are shown, false otherwise.
- */
-bool QDisassemblyView::showFunctionComments() const {
-	return showFunctionComments_;
-}
-
-/**
  * @brief Synchronizes function comments with detected functions from the analyzer.
  *
  * This method automatically adds comments at all detected function entry points
@@ -2570,7 +2551,7 @@ void QDisassemblyView::syncFunctionCommentsFromAnalyzer() {
  * analyzer completes a new analysis on the current region.
  */
 void QDisassemblyView::checkAndSyncAnalyzerComments() {
-	if (!region_ || !showFunctionComments_) {
+	if (!region_ || !edb::v1::config().show_function_comment_blocks) {
 		return;
 	}
 

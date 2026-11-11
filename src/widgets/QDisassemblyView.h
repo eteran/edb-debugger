@@ -80,8 +80,6 @@ public:
 
 	[[nodiscard]] QVector<Comment> commentData() const;
 
-	void setShowFunctionComments(bool show);
-	[[nodiscard]] bool showFunctionComments() const;
 	void syncFunctionCommentsFromAnalyzer();
 
 	void restoreState(const QByteArray &stateBuffer);
@@ -179,7 +177,6 @@ private:
 	bool showAddressSeparator_;
 	QHash<edb::address_t, Comment> comments_;
 	QHash<edb::address_t, Comment> functionComments_;
-	bool showFunctionComments_ = true;
 	// Sorted list of addresses that have function comments for binary search
 	QVector<edb::address_t> functionCommentAddresses_;
 	qint64 lastFunctionCommentsSyncTime_ = 0; // Last time we synced comments from analyzer

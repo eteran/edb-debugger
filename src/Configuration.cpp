@@ -132,6 +132,7 @@ void Configuration::readSettings() {
 	show_local_module_name_in_jump_targets = settings.value(QStringLiteral("disassembly.show_local_module_name_in_jump_targets.enabled"), true).toBool();
 	show_symbolic_addresses                = settings.value(QStringLiteral("disassembly.show_symbolic_addresses.enabled"), true).toBool();
 	simplify_rip_relative_targets          = settings.value(QStringLiteral("disassembly.simplify_rip_relative_targets.enabled"), true).toBool();
+	show_function_comment_blocks           = settings.value(QStringLiteral("disassembly.show_function_comment_blocks.enabled"), true).toBool();
 	settings.endGroup();
 
 	settings.beginGroup(QStringLiteral("Directories"));
@@ -247,6 +248,7 @@ void Configuration::writeSettings() {
 	settings.setValue(QStringLiteral("disassembly.show_symbolic_addresses.enabled"), show_symbolic_addresses);
 	settings.setValue(QStringLiteral("disassembly.simplify_rip_relative_targets.enabled"), simplify_rip_relative_targets);
 	settings.setValue(QStringLiteral("disassembly.show_register_badges.enabled"), show_register_badges);
+	settings.setValue(QStringLiteral("disassembly.show_function_comment_blocks.enabled"), show_function_comment_blocks);
 	settings.endGroup();
 
 	settings.beginGroup(QStringLiteral("Directories"));

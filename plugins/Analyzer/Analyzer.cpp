@@ -999,8 +999,7 @@ void Analyzer::filterFuzzyFunctions(RegionData *data) {
 	// Remove the flagged fuzzy functions
 	for (edb::address_t addr : functionsToRemove) {
 		data->fuzzyFunctions.remove(addr);
-		qDebug("[Analyzer] Filtering out fuzzy function at %s (contained within another function)",
-			   qPrintable(addr.toHexString()));
+		qDebug("[Analyzer] filtering out fuzzy function at %s (contained within another function)", qPrintable(addr.toHexString()));
 	}
 }
 
