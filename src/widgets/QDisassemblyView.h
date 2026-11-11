@@ -69,13 +69,18 @@ public:
 	[[nodiscard]] int selectedSize() const;
 	[[nodiscard]] QByteArray saveState() const;
 	[[nodiscard]] QString getComment(edb::address_t address) const;
+	[[nodiscard]] QString getFunctionComment(edb::address_t address) const;
 	[[nodiscard]] std::shared_ptr<IRegion> region() const;
 
 	int removeComment(edb::address_t address);
 	void addComment(edb::address_t address, QString comment);
+	void addFunctionComment(edb::address_t address, QString comment);
 	void clearComments();
+	void clearFunctionComments();
 
 	[[nodiscard]] QVector<Comment> commentData() const;
+
+	void syncFunctionCommentsFromAnalyzer();
 
 	void restoreState(const QByteArray &stateBuffer);
 	void setSelectedAddress(edb::address_t address);
@@ -115,12 +120,14 @@ private:
 	[[nodiscard]] Result<int, QString> getInstructionSize(edb::address_t address, uint8_t *buf, int *size) const;
 	[[nodiscard]] Result<int, QString> getInstructionSize(edb::address_t address) const;
 	[[nodiscard]] std::optional<unsigned int> getLineOfAddress(edb::address_t addr) const;
+	[[nodiscard]] int countPrecedingFunctionComments(int instructionIndex) const;
 	int updateDisassembly(int lines_to_render);
 	void paintLineBg(QPainter &painter, QBrush brush, int line, int num_lines = 1);
 	void scrollbarActionTriggered(int action);
 	void setAddressOffset(edb::address_t address);
 	void updateScrollbars();
 	void updateSelectedAddress(QMouseEvent *event);
+	void checkAndSyncAnalyzerComments();
 
 	void drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, qreal y, bool selected);
 	void drawHeaderAndBackground(QPainter &painter, const DrawingContext *ctx, const std::unique_ptr<IBinary> &binary_info);
@@ -130,6 +137,7 @@ private:
 	void drawInstructionBytes(QPainter &painter, const DrawingContext *ctx);
 	void drawFunctionMarkers(QPainter &painter, const DrawingContext *ctx);
 	void drawComments(QPainter &painter, const DrawingContext *ctx);
+	void drawFunctionComments(QPainter &painter, const DrawingContext *ctx);
 	void drawJumpArrows(QPainter &painter, const DrawingContext *ctx);
 	void drawDisassembly(QPainter &painter, const DrawingContext *ctx);
 	void drawDividers(QPainter &painter, const DrawingContext *ctx);
@@ -159,6 +167,7 @@ private:
 	QColor badgeBackgroundColor_   = Qt::blue;
 	QColor badgeForegroundColor_   = Qt::white;
 	QColor takenJumpColor_         = Qt::red;
+	QColor functionCommentColor_   = Qt::lightGray;
 
 private:
 	std::shared_ptr<IRegion> region_;
@@ -167,6 +176,10 @@ private:
 	SyntaxHighlighter *highlighter_;
 	bool showAddressSeparator_;
 	QHash<edb::address_t, Comment> comments_;
+	QHash<edb::address_t, Comment> functionComments_;
+	// Sorted list of addresses that have function comments for binary search
+	QVector<edb::address_t> functionCommentAddresses_;
+	qint64 lastFunctionCommentsSyncTime_ = 0; // Last time we synced comments from analyzer
 	NavigationHistory history_;
 	QSvgRenderer breakpointRenderer_;
 	QSvgRenderer currentRenderer_;

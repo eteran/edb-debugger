@@ -21,7 +21,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -740,6 +740,13 @@
         <widget class="QCheckBox" name="chkSyntaxHighlighting">
          <property name="text">
           <string>Enable syntax highlighting</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkShowFunctionComments">
+         <property name="text">
+          <string>Show comment blocks before detected functions</string>
          </property>
         </widget>
        </item>

@@ -182,9 +182,9 @@ template <typename Section>
 		return std::nullopt;
 	}
 
-	const char *begin        = section_data->data() + static_cast<size_t>(offset);
-	const auto remaining     = section_data->size() - static_cast<size_t>(offset);
-	const auto terminator    = static_cast<const char *>(std::memchr(begin, '\0', remaining));
+	const char *begin     = section_data->data() + static_cast<size_t>(offset);
+	const auto remaining  = section_data->size() - static_cast<size_t>(offset);
+	const auto terminator = static_cast<const char *>(std::memchr(begin, '\0', remaining));
 	if (terminator == nullptr) {
 		return std::nullopt;
 	}
