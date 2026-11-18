@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.15)
-project (edb LANGUAGES CXX VERSION 1.5.0)
+project (edb LANGUAGES CXX VERSION 1.6.1)
 
 enable_testing()
 

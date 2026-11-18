@@ -572,39 +572,22 @@ QString Debugger::createTty() {
 										  "while :; do sleep 3600; done")
 										  .arg(temp_pipe);
 
-			// parse up the command from the options, white space delimited
-			QStringList proc_args     = edb::v1::parse_command_line(command);
-			const QString tty_command = proc_args.takeFirst().trimmed();
+			QStringList split_args = QProcess::splitCommand(edb::v1::config().tty_command);
+			QStringList proc_args;
+			proc_args.reserve(split_args.size() + 3);
 
-			// start constructing the arguments for the term
-			const QFileInfo command_info(tty_command);
-
-			if (command_info.fileName() == QLatin1String("gnome-terminal")) {
-				// NOTE(eteran): gnome-terminal at some point dropped support for -e
-				// in favor of using "everything after --"
-				// See issue: https://github.com/eteran/edb-debugger/issues/774
-				proc_args << QStringLiteral("--hide-menubar")
-						  << QStringLiteral("--title") << tr("edb output")
-						  << QStringLiteral("--");
-			} else if (command_info.fileName() == QLatin1String("xfce4-terminal")) {
-				proc_args << QStringLiteral("--hide-menubar")
-						  << QStringLiteral("--title") << tr("edb output")
-						  << QStringLiteral("--hold")
-						  << QStringLiteral("-x");
-			} else if (command_info.fileName() == QLatin1String("konsole")) {
-				proc_args << QStringLiteral("--hide-menubar")
-						  << QStringLiteral("--title") << tr("edb output")
-						  << QStringLiteral("--nofork")
-						  << QStringLiteral("--hold")
-						  << QStringLiteral("-e");
-			} else {
-				proc_args << QStringLiteral("-title") << tr("edb output")
-						  << QStringLiteral("-hold")
-						  << QStringLiteral("-e");
+			for (QString &arg : split_args) {
+				if (arg == QLatin1String("%C")) {
+					proc_args << QStringLiteral("sh") << QStringLiteral("-c") << shell_script;
+				} else if (arg == QLatin1String("%T")) {
+					proc_args << tr("edb output");
+				} else {
+					proc_args << arg;
+				}
 			}
 
-			proc_args << QStringLiteral("sh")
-					  << QStringLiteral("-c") << shell_script;
+			// parse up the command from the options, white space delimited
+			const QString tty_command = proc_args.takeFirst().trimmed();
 
 			qDebug() << "Running Terminal: " << tty_command;
 			qDebug() << "Terminal Args: " << proc_args;
@@ -668,8 +651,22 @@ QString Debugger::createTty() {
  * @param exit_status The exit status of the process.
  */
 void Debugger::ttyProcFinished(int exit_code, QProcess::ExitStatus exit_status) {
-	Q_UNUSED(exit_code)
-	Q_UNUSED(exit_status)
+
+	switch (exit_status) {
+	case QProcess::NormalExit:
+		if (exit_code != 0) {
+			qDebug() << "TTY process exited normally with non-zero exit code: " << exit_code;
+		} else {
+			qDebug() << "TTY process exited normally.";
+		}
+		break;
+	case QProcess::CrashExit:
+		qDebug() << "TTY process crashed.";
+		break;
+	default:
+		qDebug() << "TTY process exited with unknown status.";
+		break;
+	}
 
 	ttyFile_.clear();
 }
