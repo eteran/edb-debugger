@@ -652,20 +652,8 @@ QString Debugger::createTty() {
  */
 void Debugger::ttyProcFinished(int exit_code, QProcess::ExitStatus exit_status) {
 
-	switch (exit_status) {
-	case QProcess::NormalExit:
-		if (exit_code != 0) {
-			qDebug() << "TTY process exited normally with non-zero exit code: " << exit_code;
-		} else {
-			qDebug() << "TTY process exited normally.";
-		}
-		break;
-	case QProcess::CrashExit:
-		qDebug() << "TTY process crashed.";
-		break;
-	default:
-		qDebug() << "TTY process exited with unknown status.";
-		break;
+	if (exit_status == QProcess::NormalExit && exit_code != 0) {
+		qDebug() << "TTY process exited normally with non-zero exit code: " << exit_code;
 	}
 
 	ttyFile_.clear();
