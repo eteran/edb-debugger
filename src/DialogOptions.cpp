@@ -95,7 +95,7 @@ void DialogOptions::on_btnTTY_clicked() {
 		this,
 		tr("Choose Your Terminal Program"));
 
-	ui.txtTTY->setText(filename);
+	ui.txtTTY->setCurrentText(filename);
 }
 
 /**
@@ -153,7 +153,7 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	ui.rdoBPMain->setChecked(config.initial_breakpoint != Configuration::EntryPoint);
 
 	ui.chkTTY->setChecked(config.tty_enabled);
-	ui.txtTTY->setText(config.tty_command);
+	ui.txtTTY->setCurrentText(config.tty_command);
 
 	ui.chkDeleteStaleSymbols->setChecked(config.remove_stale_symbols);
 	ui.chkDisableASLR->setChecked(config.disableASLR);
@@ -282,7 +282,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.data_font               = ui.dataFont->currentFont().toString();
 	config.registers_font          = ui.registerFont->currentFont().toString();
 	config.disassembly_font        = ui.disassemblyFont->currentFont().toString();
-	config.tty_command             = ui.txtTTY->text();
+	config.tty_command             = ui.txtTTY->currentText();
 	config.tty_enabled             = ui.chkTTY->isChecked();
 	config.remove_stale_symbols    = ui.chkDeleteStaleSymbols->isChecked();
 	config.disableASLR             = ui.chkDisableASLR->isChecked();

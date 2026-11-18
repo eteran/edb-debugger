@@ -107,12 +107,24 @@ void Configuration::readSettings() {
 	settings.endGroup();
 
 	settings.beginGroup(QStringLiteral("Debugging"));
-	initial_breakpoint      = static_cast<InitialBreakpoint>(settings.value(QStringLiteral("debugger.initial_breakpoint"), MainSymbol).value<uint>());
-	warn_on_no_exec_bp      = settings.value(QStringLiteral("debugger.BP_NX_warn.enabled"), true).toBool();
-	find_main               = settings.value(QStringLiteral("debugger.find_main.enabled"), true).toBool();
-	min_string_length       = settings.value(QStringLiteral("debugger.string_min"), 4).value<uint>();
-	tty_enabled             = settings.value(QStringLiteral("debugger.terminal.enabled"), true).toBool();
-	tty_command             = settings.value(QStringLiteral("debugger.terminal.command"), QStringLiteral("xterm")).toString();
+	initial_breakpoint = static_cast<InitialBreakpoint>(settings.value(QStringLiteral("debugger.initial_breakpoint"), MainSymbol).value<uint>());
+	warn_on_no_exec_bp = settings.value(QStringLiteral("debugger.BP_NX_warn.enabled"), true).toBool();
+	find_main          = settings.value(QStringLiteral("debugger.find_main.enabled"), true).toBool();
+	min_string_length  = settings.value(QStringLiteral("debugger.string_min"), 4).value<uint>();
+	tty_enabled        = settings.value(QStringLiteral("debugger.terminal.enabled"), true).toBool();
+	tty_command        = settings.value(QStringLiteral("debugger.terminal.command"), QStringLiteral("xterm -title %T -hold -e %C")).toString();
+
+	// Upgrade old tty_command format if necessary
+	if (tty_command == QStringLiteral("xterm")) {
+		tty_command = QStringLiteral("xterm -title %T -hold -e %C");
+	} else if (tty_command == QStringLiteral("gnome-terminal")) {
+		tty_command = QStringLiteral("gnome-terminal --hide-menubar --title %T -- %C");
+	} else if (tty_command == QStringLiteral("xfce4-terminal")) {
+		tty_command = QStringLiteral("xfce4-terminal --hide-menubar --title %T --hold -x %C");
+	} else if (tty_command == QStringLiteral("konsole")) {
+		tty_command = QStringLiteral("konsole --hide-menubar --title %T --nofork --hold -e %C");
+	}
+
 	remove_stale_symbols    = settings.value(QStringLiteral("debugger.remove_stale_symbols.enabled"), true).toBool();
 	disableASLR             = settings.value(QStringLiteral("debugger.disableASLR.enabled"), false).toBool();
 	disableLazyBinding      = settings.value(QStringLiteral("debugger.disableLazyBinding.enabled"), false).toBool();

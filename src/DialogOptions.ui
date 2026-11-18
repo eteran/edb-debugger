@@ -21,7 +21,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -549,6 +549,16 @@
           <string>Command Line IO</string>
          </property>
          <layout class="QGridLayout">
+          <item row="2" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>&amp;Terminal Program:</string>
+            </property>
+            <property name="buddy">
+             <cstring>txtTTY</cstring>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="0" colspan="3">
            <widget class="QCheckBox" name="chkTTY">
             <property name="text">
@@ -559,27 +569,67 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>&amp;Terminal Program:</string>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="txtTTY">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <property name="buddy">
-             <cstring>txtTTY</cstring>
+            <property name="editable">
+             <bool>true</bool>
             </property>
+            <property name="currentText">
+             <string>xterm -title %T -hold -e %C</string>
+            </property>
+            <property name="text" stdset="0">
+             <string/>
+            </property>
+            <item>
+             <property name="text">
+              <string>xterm -title %T -hold -e %C</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>gnome-terminal --hide-menubar --title %T -- %C</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>xfce4-terminal --hide-menubar --title %T --hold -x %C</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>konsole --hide-menubar --title %T --nofork --hold -e %C</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>foot --title %T -e %C</string>
+             </property>
+            </item>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="txtTTY">
-            <property name="text">
-             <string>xterm</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
+          <item row="2" column="2">
            <widget class="QToolButton" name="btnTTY">
             <property name="text">
              <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QLabel" name="label_16">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>NOTE: use %T for the title, and %C for the command that edb will run in the window</string>
             </property>
            </widget>
           </item>
