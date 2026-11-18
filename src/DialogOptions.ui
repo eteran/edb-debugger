@@ -598,7 +598,7 @@
             </item>
             <item>
              <property name="text">
-              <string>xfce4-terminal --hide-menubar --title %T --hold -x</string>
+              <string>xfce4-terminal --hide-menubar --title %T --hold -x %C</string>
              </property>
             </item>
             <item>
