@@ -217,8 +217,6 @@ std::vector<RegisterViewModelBase::BitFieldDescriptionEx> DR7Description = {
 
 void addGPRs32(RegisterViewModelBase::Category *gprs32) {
 	gprs32->addRegister(std::make_unique<Regs<32>::GPR>(QStringLiteral("EAX")));
-	gprs32->addRegister(std::make_unique<Regs<32>::GPR>(QStringLiteral("EAX")));
-	gprs32->addRegister(std::make_unique<Regs<32>::GPR>(QStringLiteral("EAX")));
 	gprs32->addRegister(std::make_unique<Regs<32>::GPR>(QStringLiteral("ECX")));
 	gprs32->addRegister(std::make_unique<Regs<32>::GPR>(QStringLiteral("EDX")));
 	gprs32->addRegister(std::make_unique<Regs<32>::GPR>(QStringLiteral("EBX")));
